@@ -172,7 +172,37 @@
     border-radius: 8px;
     padding: 24px;
 }
+.thanks-popup-cont{
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    width: 20%;
+    gap: 50px;
+    position: relative;
+    align-items: center;
+    justify-content: center;
 
+}
+.thanks-popup-cont button{
+    width: 90%;
+    background: #610BEE;
+    color: white;
+    border-radius: 4px;
+    padding: 10px;
+}
+.thanks-title{
+    font-size: 24px;
+    font-weight: 500;
+}
+.thanks-popup-check{
+    position: absolute;
+    top: -50px;
+    background: white;
+    border-radius: 50%;
+    left: 100px;
+}
 .demo-head {
     display: flex;
     align-items: center;
@@ -283,5 +313,8 @@
         place-items: center;
 
        
+    }
+    .thanks-popup-cont{
+        width: 80%;
     }
 }

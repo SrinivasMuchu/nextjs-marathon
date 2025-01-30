@@ -133,6 +133,7 @@
     background: #610BEE;
     border: none;
     width: 93px;
+    height: 40px;
     box-sizing: border-box;
     cursor: pointer;
     color: #FFF;
@@ -141,8 +142,31 @@
     font-weight: 500;
     line-height: 24px;
     /* 150% */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     letter-spacing: -0.192px;
 }
+
+    .btn-ring {
+        content: "";
+        display: block;
+        width: 10px;
+        height: 10px;
+        margin: 4px;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        border-color: #fff transparent #fff transparent;
+        animation: ring 1.2s linear infinite;
+      }
+      @keyframes ring {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
 @media screen and (max-width:750px) {
     .footer-page {

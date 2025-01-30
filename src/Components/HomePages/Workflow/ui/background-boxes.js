@@ -1,9 +1,30 @@
 "use client";
-import React from "react";
-import { motion } from "framer-motion"; // Or "motion" if you're using the alternative
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+
 export const BoxesCore = ({ className, ...rest }) => {
+  const [isDisabled, setIsDisabled] = useState(false);
+
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDisabled(window.innerWidth < 750);
+    };
+
+
+    handleResize(); // Check initial width
+    window.addEventListener("resize", handleResize);
+
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+
+  if (isDisabled) return null; // Disable component when width > 750px
+
+
   const rows = new Array(150).fill(1);
   const cols = new Array(100).fill(1);
   const colors = [
@@ -18,28 +39,34 @@ export const BoxesCore = ({ className, ...rest }) => {
     "--violet-300",
   ];
 
+
   const getRandomColor = () => {
     return colors[Math.floor(Math.random() * colors.length)];
   };
+
+
   const getResponsiveSkew = () => {
     if (typeof window !== "undefined") {
       const width = window.innerWidth;
       if (width >= 1024) {
-        return { skewX: -50, skewY: 20 }; // Large screens
+        return { skewX: -20, skewY: 10 };
       } else if (width >= 768) {
-        return { skewX: -20, skewY: 8 }; // Medium screens
+        return { skewX: -20, skewY: 8 };
       } else {
-        return { skewX: -15, skewY: 5 }; // Small screens
+        return { skewX: -15, skewY: 5 };
       }
     }
-    return { skewX: -30, skewY: 10 }; // Default
+    return { skewX: -30, skewY: 10 };
   };
 
+
   const { skewX, skewY } = getResponsiveSkew();
+
+
   return (
     <div
       style={{
-        transform: `translate(-40%,-60%) skewX(${skewX}deg) skewY(${skewY}deg)  scale(0.675) rotate(0deg) translateZ(0)`
+        transform: `translate(-40%,-60%) skewX(${skewX}deg) skewY(${skewY}deg) scale(0.675) rotate(0deg) translateZ(0)`,
       }}
       className={cn(
         "absolute left-1/4 p-4 -top-1/4 flex -translate-x-1/2 -translate-y-1/2 w-full z-0",
@@ -73,11 +100,7 @@ export const BoxesCore = ({ className, ...rest }) => {
                   stroke="currentColor"
                   className="absolute h-6 w-10 -top-[14px] -left-[22px] text-slate-700 stroke-[1px] pointer-events-none"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 6v12m6-6H6"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
                 </svg>
               ) : null}
             </motion.div>
@@ -88,4 +111,10 @@ export const BoxesCore = ({ className, ...rest }) => {
   );
 };
 
+
 export const Boxes = React.memo(BoxesCore);
+
+
+
+
+

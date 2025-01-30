@@ -6,7 +6,7 @@ import { IMAGEURLS, BASE_URL } from "@/config";
 import axios from 'axios';
 import Link from 'next/link';
 
-function Footer() {
+function Footer({setOpenDemoForm}) {
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [message, setMessage] = useState('')
@@ -74,6 +74,7 @@ function Footer() {
             <Link href="#product">Product</Link>
             <Link href="#pricing">Pricing</Link>
             <Link href="#security">Security</Link>
+            <span style={{cursor:'pointer'}} onClick={()=>setOpenDemoForm(true)}>Contact us</span>
             <Link href="https://marathon-os.com/terms-and-conditions">Terms Of Service</Link>
             <Link href="https://marathon-os.com/privacy-policy">Privacy Policies</Link>
 

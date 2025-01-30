@@ -4,9 +4,11 @@ import styles from './SneakPeak.module.css';
 import ReactPlayer from "react-player";
 import { IMAGEURLS } from "@/config";
 
+
 function SneakPeak() {
     const videoRef = useRef(null);
     const [isVisible, setIsVisible] = useState(false);
+
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -21,12 +23,15 @@ function SneakPeak() {
             }
         );
 
+
         if (videoRef.current) {
             observer.observe(videoRef.current);
         }
 
+
         return () => observer.disconnect();
     }, []);
+
 
     return (
         <div id='product' className={styles['sneak-page']} ref={videoRef}>
@@ -62,4 +67,10 @@ function SneakPeak() {
     );
 }
 
+
 export default SneakPeak;
+
+
+
+
+
