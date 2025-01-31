@@ -1,58 +1,55 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import footerStyles from '../Footer/Footer.module.css'
 import styles from './WorkFlow.module.css'
 import Image from "next/image";
-import { BASE_URL, HEADERS, IMAGEURLS } from "@/config";
+import { BASE_URL,  IMAGEURLS } from "@/config";
 import axios from 'axios';
-import ThanksPopUp from './ThanksPopUp';
+
 
 function RequestDemo({ onclose ,setOpenSuccess}) {
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const [isValid, setIsValid] = useState(false);
+
   
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    if (!name) {
-      setError("Please enter your name.");
-      setIsValid(false);
-    } else if (!phoneNumber) {
-      setError("Please enter your phone number.");
-      setIsValid(false);
-    } else if (!/^\d{10}$/.test(phoneNumber)) {
-      setError("Please enter a valid 10-digit phone number.");
-      setIsValid(false);
-    } else if (!message) {
-      setError("Please enter your message.");
-      setIsValid(false);
-    } else {
-      setError(""); // No errors
-      setIsValid(true);
-    }
-  }, [name, phoneNumber, message]);
-
+ 
   const requestDemo = async () => {
     try {
+     
+      if (!name) {
+        setError("Please enter your name.");
+        
+      } else if (!phoneNumber) {
+        setError("Please enter your phone number.");
+        
+      } else if (!/^\d{10}$/.test(phoneNumber)) {
+        setError("Please enter a valid 10-digit phone number.");
+        
+      } else if (!message) {
+        setError("Please enter your message.");
+        
+      }else{
+        setLoading(true)
+        const response = await axios.post(
+          BASE_URL + "/v1/member/demo",
+          { phoneNumber, name, message },
+          { headers: { "x-auth-token": localStorage.getItem("token") } }
+        );
+  
+        if (!response.data.meta.success) {
+          console.log(response.data.meta.message);
+        } else {
+  
+          setOpenSuccess(true)
+          onclose()
+          // onclose();
+        }
+      } // Prevent submission if invalid
       
-      if (!isValid) return; // Prevent submission if invalid
-      setLoading(true)
-      const response = await axios.post(
-        BASE_URL + "/v1/member/demo",
-        { phoneNumber, name, message },
-        { headers: { "x-auth-token": localStorage.getItem("token") } }
-      );
-
-      if (!response.data.meta.success) {
-        console.log(response.data.meta.message);
-      } else {
-
-        setOpenSuccess(true)
-        onclose()
-        // onclose();
-      }
+      
     } catch (error) {
       console.log(error);
     }

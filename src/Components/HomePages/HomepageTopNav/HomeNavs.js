@@ -23,7 +23,7 @@ function HomeNavs({ onClose,setOpenDemoForm }) {
         <Link href="#why-us" onClick={handleCloseMenu}>Why us?</Link>
         <Link href="#capabilities" onClick={handleCloseMenu}>Capabilities</Link>
         <Link href="#product" onClick={handleCloseMenu}>Product</Link>
-        <Link href="#pricing" onClick={handleCloseMenu}>Subscription</Link>
+        <Link href="#pricing" onClick={handleCloseMenu}>Pricing</Link>
         <Link href="#security" onClick={handleCloseMenu}>Security</Link>
       
       </div>

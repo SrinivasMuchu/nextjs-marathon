@@ -30,11 +30,11 @@ export const IMAGEURLS = {
   // robotLogo: `${ASSET_PREFIX_URL}robot.webp`,
   // craneLogo: `${ASSET_PREFIX_URL}crane.webp`,
 
-  carLogo: `${ASSET_PREFIX_URL}workflow_car.png`,
-  latopLogo: `${ASSET_PREFIX_URL}wokflow_laptop.png`,
-  droneLogo: `${ASSET_PREFIX_URL}workflow_drone.png`,
-  robotLogo: `${ASSET_PREFIX_URL}workflow_robo.png`,
-  craneLogo: `${ASSET_PREFIX_URL}workflow_crane.png`,
+  carLogo: `${ASSET_PREFIX_URL}workflow_car.webp`,
+  latopLogo: `${ASSET_PREFIX_URL}wokflow_laptop.webp`,
+  droneLogo: `${ASSET_PREFIX_URL}workflow_drone.webp`,
+  robotLogo: `${ASSET_PREFIX_URL}workflow_robo.webp`,
+  craneLogo: `${ASSET_PREFIX_URL}workflow_crane.webp`,
   closeIcon: `${ASSET_PREFIX_URL}close-icon-part-num.png`,
 
   // close-icon-part-num.png

@@ -1,13 +1,40 @@
 "use client";
-import React from 'react'
+import React, { useEffect, useState, useRef } from "react";
 import styles from './WhyUs.module.css'
 import Image from "next/image";
 import { IMAGEURLS } from "@/config";
 import ReactParallaxTilt from 'react-parallax-tilt';
 
 function WhyUs() {
+    const [isVisible, setIsVisible] = useState(false);
+    const ref = useRef(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect(); // Stop observing after loading
+                }
+            },
+            { rootMargin: "0px", threshold: 0.1 }
+        );
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => {
+            if (ref.current) observer.unobserve(ref.current);
+        };
+    }, []);
     return (
-        <div id='why-us' className={styles["whyus-page"]} >
+        <div id='why-us' className={styles["whyus-page"]}   ref={ref}
+        style={{
+            backgroundImage: isVisible && 
+                `url('https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/why-marathon-bg.svg')`
+               
+        }}>
             <div className={styles["whyus-page-head"]} style={{ margin: '0px' }}>
                 <span className={styles["whyus-head"]}>Why Marathon-OS?</span>
                 <span className={styles["whyus-desc"]}>Build Product Faster with Accurate Data. Manage CAD, Parts, Documents,

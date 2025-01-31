@@ -30,7 +30,7 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
                         <Image
                             src={IMAGEURLS.carLogo}
                             alt="Encryption in transit"
-                            loading="lazy"
+                            unoptimized 
                             width={100}
                             height={100}
                             
@@ -46,7 +46,7 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
                             src={IMAGEURLS.latopLogo}
                             alt="Encryption in transit"
                             width={180}
-                            height={180} loading="lazy"
+                            height={180} unoptimized 
                         />
                         <span>Consumer</span>
                     </div>
@@ -60,7 +60,7 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
                             src={IMAGEURLS.droneLogo}
                             alt="Encryption in transit"
                             width={160}
-                            height={100} loading="lazy"
+                            height={100} unoptimized 
                         />
                         <span>Aerospace</span>
                     </div>
@@ -74,7 +74,7 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
                             src={IMAGEURLS.robotLogo}
                             alt="Encryption in transit"
                             width={160}
-                            height={140} loading="lazy"
+                            height={140} unoptimized 
                         />
                         <span>Medical</span>
                     </div>
@@ -88,7 +88,7 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
                             src={IMAGEURLS.craneLogo}
                             alt="Encryption in transit"
                             width={152}
-                            height={180} loading="lazy"
+                            height={180} unoptimized 
                             className={styles["workflow-crane-img"]}
                         />
                         <span>Machinery</span>

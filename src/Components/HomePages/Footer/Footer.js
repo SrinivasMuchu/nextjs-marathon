@@ -11,6 +11,7 @@ function Footer({ setOpenDemoForm, setOpenSuccess }) {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false);
   const requestDemo = async () => {
     try {
       if (!name) {
@@ -26,6 +27,8 @@ function Footer({ setOpenDemoForm, setOpenSuccess }) {
         setError("Please enter your message.");
 
       } else {
+        setLoading(true)
+        setError('')
         const response = await axios.post(
           BASE_URL + "/v1/member/demo",
           { phoneNumber, name, message },
@@ -37,8 +40,10 @@ function Footer({ setOpenDemoForm, setOpenSuccess }) {
           setName('')
           setPhoneNumber('')
           setMessage('')
+          // setError('')
           setOpenSuccess(true)
         }
+        setLoading(false)
       }
       // const data = selectedOption.value === "Admin" ? true : false;
 
@@ -96,7 +101,9 @@ function Footer({ setOpenDemoForm, setOpenSuccess }) {
           </div>
           <textarea placeholder='Message*' value={message} onChange={(e) => setMessage(e.target.value)} style={{ color: 'black' }} />
           <div >
-            <button onClick={requestDemo}>Submit</button>
+          <button onClick={requestDemo}  disabled={loading}>
+            {loading ? <span className={styles['btn-ring']}></span>:'Submit'} 
+              </button>
             <span style={{ opacity: error ? '1' : '0', color: 'red', fontSize: '14px' }}>{error ? `* ${error}` : 'no text'}</span>
           </div>
 
