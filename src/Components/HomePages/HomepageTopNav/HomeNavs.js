@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link'; 
 import styles from './HomeTopNav.module.css'; 
 
-function HomeNavs({ onClose, openDemoForm, setOpenDemoForm }) {
+function HomeNavs({ onClose,setOpenDemoForm }) {
 
 
   const handleCloseMenu = () => {
@@ -28,7 +28,7 @@ function HomeNavs({ onClose, openDemoForm, setOpenDemoForm }) {
       
       </div>
       <div className={styles['menu-buttons']}>
-        <button className={styles['try-demo']} onClick={() => setOpenDemoForm(!openDemoForm)}>Request demo</button>
+        <button className={styles['try-demo']} onClick={() => setOpenDemoForm(true)}>Request demo</button>
         {/* <button className={styles['home-login-menu']} onClick={HnadleNavigate}>
           Login
         </button> */}

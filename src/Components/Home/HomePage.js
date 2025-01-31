@@ -11,10 +11,11 @@ import Security from "../HomePages/Security/Security";
 import Footer from "../HomePages/Footer/Footer";
 import styles from "./Home.module.css";
 import RequestDemo from "../HomePages/Workflow/RequestDemo";
+import ThanksPopUp from "../HomePages/Workflow/ThanksPopUp";
 
 const HomePage = () => {
   const [openDemoForm, setOpenDemoForm] = useState(false);
-  
+  const [openSuccess, setOpenSuccess] = useState(false);
   const sectionRefs = useRef({});
   const [activeSection, setActiveSection] = useState(null);
   const debounceTimeout = useRef(null);
@@ -109,9 +110,9 @@ const HomePage = () => {
     { name: "subscription", component: <Subscription /> },
     {
       name: "security",
-      component: <Security openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} />,
+      component: <Security openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} setOpenSuccess={setOpenSuccess}/>,
     },
-    { name: "footer", component: <Footer setOpenDemoForm={setOpenDemoForm}/> },
+    { name: "footer", component: <Footer setOpenDemoForm={setOpenDemoForm} setOpenSuccess={setOpenSuccess}/> },
   ];
 
   return (
@@ -120,8 +121,8 @@ const HomePage = () => {
         {isLenisEnabled ? (
           <Lenis root>
             <div>
-              <HomeTopNav openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} />
-              <WorkFlow openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} />
+              <HomeTopNav openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} setOpenSuccess={setOpenSuccess}/>
+              <WorkFlow openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} setOpenSuccess={setOpenSuccess}/>
               {sections.map((section) => (
                 <div
                   key={section.name}
@@ -137,8 +138,8 @@ const HomePage = () => {
           </Lenis>
         ) : (
           <div>
-            <HomeTopNav openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} />
-            <WorkFlow openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} />
+            <HomeTopNav openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} setOpenSuccess={setOpenSuccess}/>
+            <WorkFlow openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} setOpenSuccess={setOpenSuccess}/>
             {sections.map((section) => (
               <div
                 key={section.name}
@@ -153,7 +154,8 @@ const HomePage = () => {
         )}
       </div>
 
-      {openDemoForm && <RequestDemo onclose={() => setOpenDemoForm(!openDemoForm)} />}
+      {openDemoForm && <RequestDemo onclose={() => setOpenDemoForm(!openDemoForm)} setOpenSuccess={setOpenSuccess}/>}
+      {openSuccess && <ThanksPopUp onclose={() => setOpenSuccess(!openSuccess)} />}
     </>
   );
 };

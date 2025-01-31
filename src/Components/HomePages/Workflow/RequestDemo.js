@@ -5,14 +5,15 @@ import styles from './WorkFlow.module.css'
 import Image from "next/image";
 import { BASE_URL, HEADERS, IMAGEURLS } from "@/config";
 import axios from 'axios';
+import ThanksPopUp from './ThanksPopUp';
 
-function RequestDemo({ onclose }) {
+function RequestDemo({ onclose ,setOpenSuccess}) {
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [isValid, setIsValid] = useState(false);
-  const [success, setSuccess] = useState(false);
+  
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (!name) {
@@ -35,9 +36,9 @@ function RequestDemo({ onclose }) {
 
   const requestDemo = async () => {
     try {
-      setLoading(true)
+      
       if (!isValid) return; // Prevent submission if invalid
-
+      setLoading(true)
       const response = await axios.post(
         BASE_URL + "/v1/member/demo",
         { phoneNumber, name, message },
@@ -47,7 +48,9 @@ function RequestDemo({ onclose }) {
       if (!response.data.meta.success) {
         console.log(response.data.meta.message);
       } else {
-        setSuccess(true)
+
+        setOpenSuccess(true)
+        onclose()
         // onclose();
       }
     } catch (error) {
@@ -56,7 +59,7 @@ function RequestDemo({ onclose }) {
   };
   return (
     <div className={styles['demo-popup']}>
-      {!success ? <>
+      
         <div className={styles['demo-popup-cont']}>
 
           <div className={styles['demo-head']}>
@@ -84,25 +87,7 @@ function RequestDemo({ onclose }) {
 
           </div>
         </div>
-      </> : <>
-        <div className={styles['thanks-popup-cont']}>
-          <Image
-          className={styles['thanks-popup-check']}
-            src={IMAGEURLS.points}
-            alt="Encryption in transit"
-            width={100}
-            height={100}
-          />
-          <div style={{marginTop:'50px',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',textAlign:'center'}}>
-            <span className={styles['thanks-title']}>Thank you!</span>
-            <span className={styles['thanks-desc']}>We have received your query successfully.</span>
-          </div>
-          <button onClick={() => onclose()}>OK</button>
-
-        </div>
-
-      </>}
-
+     
 
 
 

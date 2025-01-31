@@ -7,7 +7,7 @@
     padding:  40px;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(180deg, #FFF 15.53%, rgba(255, 255, 255, 0.10) 100.05%);
+    background: linear-gradient(180deg, #FFF 15.53%, rgba(0, 0, 0, 0.1) 100.05%);
     /* background: linear-gradient(180deg, #FFF 15.53%, rgba(255, 255, 255, 0.10) 100.05%); */
     /* box-sizing: border-box; */
     width: 100%;

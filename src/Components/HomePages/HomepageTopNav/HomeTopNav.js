@@ -60,7 +60,8 @@ function HomeTopNav({openDemoForm, setOpenDemoForm}) {
           height={500}/>
           </div>
         </div>
-        {openMenu && <HomeNavs onClose={handleCloseMenu} HnadleNavigate={HnadleNavigate} openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm}/>}
+        {openMenu && <HomeNavs onClose={handleCloseMenu} HnadleNavigate={HnadleNavigate} 
+        openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm}/>}
        
      
     </>

@@ -16,7 +16,7 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
 
         <div id='home' className={styles["workflow-page"]} style={{ position: 'relative' }}>
 
-            <Boxes />
+            <Boxes className={styles["boxes-bg"]}/>
 
 
             <div className={styles["workflow-head"]}>
