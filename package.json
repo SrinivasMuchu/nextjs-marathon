@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start -p 3002",
     "lint": "next lint"
-    
   },
   "dependencies": {
     "@studio-freight/react-lenis": "^0.0.47",

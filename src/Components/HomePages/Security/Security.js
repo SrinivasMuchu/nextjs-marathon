@@ -55,7 +55,7 @@ function Security({openDemoForm, setOpenDemoForm}) {
                   src={IMAGEURLS.points} // Ensure the correct path is set
                   alt="Encryption at rest"
                   width={40} // Adjust the width and height as necessary
-                  height={40}
+                  height={40} unoptimized
                 />
                 <span className={styles["security-desc-points"]}>Encryption at rest</span>
               </div>
@@ -63,7 +63,7 @@ function Security({openDemoForm, setOpenDemoForm}) {
                 <Image
                   src={IMAGEURLS.points}
                   alt="Encryption in transit"
-                  width={40}
+                  width={40} unoptimized
                   height={40}
                 />
                 <span className={styles["security-desc-points"]}>Encryption in transit</span>
@@ -73,7 +73,7 @@ function Security({openDemoForm, setOpenDemoForm}) {
                   src={IMAGEURLS.points}
                   alt="Single-sign on"
                   width={40}
-                  height={40}
+                  height={40} unoptimized
                 />
                 <span className={styles["security-desc-points"]}>Single-sign on</span>
               </div>
@@ -93,7 +93,7 @@ function Security({openDemoForm, setOpenDemoForm}) {
                   src={IMAGEURLS.points}
                   alt="Role-based access controls"
                   width={40}
-                  height={40}
+                  height={40} unoptimized
                 />
                 <span className={styles["security-desc-points"]}>Role-based access controls</span>
               </div>
@@ -102,7 +102,7 @@ function Security({openDemoForm, setOpenDemoForm}) {
                   src={IMAGEURLS.points}
                   alt="Logging, auditing and monitoring features"
                   width={40}
-                  height={40}
+                  height={40} unoptimized
                 />
                 <span className={styles["security-desc-points"]}>Logging, auditing and monitoring features</span>
               </div>
@@ -111,7 +111,7 @@ function Security({openDemoForm, setOpenDemoForm}) {
                   src={IMAGEURLS.points}
                   alt="Features to enhance privacy of personal data"
                   width={40}
-                  height={40}
+                  height={40} unoptimized
                 />
                 <span className={styles["security-desc-points"]}>Features to enhance privacy of personal data</span>
               </div>

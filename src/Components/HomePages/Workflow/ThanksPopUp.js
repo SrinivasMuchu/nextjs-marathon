@@ -13,7 +13,7 @@ function ThanksPopUp({ onclose }) {
                     src={IMAGEURLS.points}
                     alt="Encryption in transit"
                     width={100}
-                    height={100}
+                    height={100} unoptimized
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                     <span className={styles['thanks-title']}>Thank you!</span>

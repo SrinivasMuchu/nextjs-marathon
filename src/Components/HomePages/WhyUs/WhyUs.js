@@ -54,7 +54,7 @@ function WhyUs() {
                             src={IMAGEURLS.allInOne}
                             alt="Encryption in transit"
                             width={68}
-                            height={68}
+                            height={68} unoptimized
                         />
                     </div>
 
@@ -82,7 +82,7 @@ function WhyUs() {
                             src={IMAGEURLS.carManufac}
                             alt="Encryption in transit"
                             width={68}
-                            height={68}
+                            height={68} unoptimized
                         />
                     </div>
 
@@ -110,7 +110,7 @@ function WhyUs() {
                             src={IMAGEURLS.cloud}
                             alt="Encryption in transit"
                             width={68}
-                            height={68}
+                            height={68} unoptimized
                         />
                     </div>
 
@@ -138,7 +138,7 @@ function WhyUs() {
                             src={IMAGEURLS.customised}
                             alt="Encryption in transit"
                             width={68}
-                            height={68}
+                            height={68} unoptimized
                         />
                     </div>
 

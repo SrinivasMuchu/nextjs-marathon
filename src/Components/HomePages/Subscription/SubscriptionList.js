@@ -41,7 +41,7 @@ function SubscriptionList() {
                                 src={IMAGEURLS.check}
                                 alt="Encryption in transit"
                                 width={24}
-                                height={24}
+                                height={24} unoptimized
                             />
                             <span >{item.title}</span>
                         </div>

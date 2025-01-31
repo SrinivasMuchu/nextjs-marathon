@@ -40,11 +40,11 @@ function HomeTopNav({openDemoForm, setOpenDemoForm}) {
      
         <div className={styles['home-page-top']}>
           <Image src={IMAGEURLS.logo} alt="Marathon Logo" width={500} 
-          height={500} />
+          height={500} unoptimized/>
           <div className={styles['home-page-navs']}>
             {/* Use Link for navigation */}
             <Link href="#why-us">Why us?</Link>
-            <Link href="#capabilities">Capabilities</Link>
+            <Link href="#capabilities">Capabilitie</Link>
             <Link href="#product">Product</Link>
             <Link href="#pricing">Pricing</Link>
             <Link href="#security">Security</Link>
@@ -57,7 +57,7 @@ function HomeTopNav({openDemoForm, setOpenDemoForm}) {
           </div>
           <div className={styles['home-pg-menu']} onClick={(e)=>handleMenuOpen(e)}>
             <Image src={IMAGEURLS.menu} alt="Menu Icon" width={500} 
-          height={500}/>
+          height={500} unoptimized/>
           </div>
         </div>
         {openMenu && <HomeNavs onClose={handleCloseMenu} HnadleNavigate={HnadleNavigate} 
