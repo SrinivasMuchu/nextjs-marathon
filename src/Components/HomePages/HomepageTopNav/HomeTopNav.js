@@ -44,7 +44,7 @@ function HomeTopNav({openDemoForm, setOpenDemoForm}) {
           <div className={styles['home-page-navs']}>
             {/* Use Link for navigation */}
             <Link href="#why-us">Why us?</Link>
-            <Link href="#capabilities">Capabilitie</Link>
+            <Link href="#capabilities">Capabilities</Link>
             <Link href="#product">Product</Link>
             <Link href="#pricing">Pricing</Link>
             <Link href="#security">Security</Link>
