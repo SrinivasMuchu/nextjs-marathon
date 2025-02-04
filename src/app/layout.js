@@ -19,7 +19,7 @@ const jsonLdData = {
   "@type": "SoftwareApplication",
   "name": "Marathon OS",
   "url": "https://marathon-os.com",
-  "image": "https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg",
+  "image": "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
   "description": "Marathon OS is a cloud-based PLM, PDM, and BOM management platform designed for engineering teams and manufacturers. It streamlines CAD file management, inventory tracking, procurement, and real-time collaboration.",
   "applicationCategory": "BusinessApplication",
   "applicationSubCategory": "Product Lifecycle Management Software",
@@ -36,7 +36,7 @@ const jsonLdData = {
     "@type": "Organization",
     "name": "Marathon OS",
     "url": "https://marathon-os.com",
-    "logo": "https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg"
+    "logo": "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png"
   },
   "author": {
     "@type": "Organization",
