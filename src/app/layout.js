@@ -49,19 +49,20 @@ const jsonLdData = {
 };
 export const metadata = {
   title: "Marathon OS ᐈ Cloud PDM, PLM, Bill Of Materials & Inventory Management for Engineering & Manufacturing",
-  description: 
-  "Marathon OS™ ☝ A powerful cloud-based PDM, PLM, and BOM management platform for engineering teams and manufacturers. ✔️ Simplify CAD file management, inventory tracking, procurement, and real-time collaboration across global supply chains.",
+  description:
+    "Marathon OS™ ☝ A powerful cloud-based PDM, PLM, and BOM management platform for engineering teams and manufacturers. ✔️ Simplify CAD file management, inventory tracking, procurement, and real-time collaboration across global supply chains.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg" /> 
-        <link 
-          rel="preload" 
-          href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Inter:wght@400;700&display=swap" 
-          as="style" 
+        <link rel="icon" href="https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg" />
+
+        <link
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Inter:wght@400;700&display=swap"
+          as="style"
           onLoad="this.onload=null;this.rel='stylesheet'"
         />
         <noscript>
@@ -69,10 +70,13 @@ export default function RootLayout({ children }) {
         </noscript>
         <link rel="apple-touch-icon" href="https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg" />
         <link rel="shortcut icon" href="https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg" type="image/x-icon"></link>
-        <title>{metadata.title}</title> 
+        <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
         <meta property="og:locale" content="en_US" />
-        <meta property="og:image" content="https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg" />
+        <meta property="og:image" content="https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Marathon OS ᐈ Cloud PDM, PLM, Bill Of Materials & Inventory Management for Engineering & Manufacturing" />
         <meta property="og:description" content="Marathon OS™ ☝ A powerful cloud-based PDM, PLM, and BOM management platform for engineering teams and manufacturers. ✔️ Simplify CAD file management, inventory tracking, procurement, and real-time collaboration across global supply chains." />
@@ -104,7 +108,7 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
       </body>
-      
+
     </html>
   );
 }
