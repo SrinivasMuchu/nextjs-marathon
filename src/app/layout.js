@@ -49,9 +49,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link rel="icon" href="https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg" />
-
-       
-       
         <link rel="apple-touch-icon" href="https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg" />
         <link rel="shortcut icon" href="https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg" type="image/x-icon"></link>
         <title>{metadata.title}</title>
@@ -67,7 +64,7 @@ export default function RootLayout({ children }) {
         <meta property="og:url" content="https://www.marathon-os.com" />
         <meta property="og:site_name" content="Marathon OS" />
         <Script
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
         />
         <Script

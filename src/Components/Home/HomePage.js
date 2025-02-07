@@ -10,28 +10,17 @@ const SneakPeak = lazy(() => import("../HomePages/SneakPeak/SneakPeak"));
 const Subscription = lazy(() => import("../HomePages/Subscription/Subscription"));
 const Security = lazy(() => import("../HomePages/Security/Security"));
 const Footer = lazy(() => import("../HomePages/Footer/Footer"));
-import styles from "./Home.module.css";
+// import styles from "./Home.module.css";
 import RequestDemo from "../HomePages/Workflow/RequestDemo";
 import ThanksPopUp from "../HomePages/Workflow/ThanksPopUp";
-
 
 const HomePage = () => {
   const [openDemoForm, setOpenDemoForm] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
-
-
-
-  // Sections data
-
-
-
-
   return (
     <>
       {/* <div className={styles["desktop-view"]}> */}
-
       <div>
-
         <HomeTopNav
           openDemoForm={openDemoForm}
           setOpenDemoForm={setOpenDemoForm}
@@ -49,13 +38,9 @@ const HomePage = () => {
           <Subscription />
           <Security openDemoForm={openDemoForm} setOpenDemoForm={setOpenDemoForm} setOpenSuccess={setOpenSuccess} />
           <Footer setOpenDemoForm={setOpenDemoForm} setOpenSuccess={setOpenSuccess} />
-
         </Suspense>
       </div>
-
       {/* </div> */}
-
-
       {openDemoForm && <RequestDemo onclose={() => setOpenDemoForm(!openDemoForm)} setOpenSuccess={setOpenSuccess} />}
       {openSuccess && <ThanksPopUp onclose={() => setOpenSuccess(!openSuccess)} />}
     </>

@@ -39,9 +39,9 @@ function SubscriptionList() {
                         <div className={styles['subscription-page-list-details-left']}>
                             <Image
                                 src={IMAGEURLS.check}
-                                alt="Encryption in transit"
+                                alt={item.title}
                                 width={24}
-                                height={24} unoptimized
+                                height={24}
                             />
                             <span >{item.title}</span>
                         </div>

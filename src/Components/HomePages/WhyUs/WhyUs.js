@@ -52,9 +52,9 @@ function WhyUs() {
                     <div>
                         <Image
                             src={IMAGEURLS.allInOne}
-                            alt="Encryption in transit"
+                            alt="All-in-One platform"
                             width={68}
-                            height={68} unoptimized
+                            height={68}
                         />
                     </div>
 
@@ -82,7 +82,7 @@ function WhyUs() {
                             src={IMAGEURLS.carManufac}
                             alt="Encryption in transit"
                             width={68}
-                            height={68} unoptimized
+                            height={68}
                         />
                     </div>
 
@@ -110,7 +110,7 @@ function WhyUs() {
                             src={IMAGEURLS.cloud}
                             alt="Encryption in transit"
                             width={68}
-                            height={68} unoptimized
+                            height={68}
                         />
                     </div>
 
@@ -136,9 +136,9 @@ function WhyUs() {
                     <div>
                         <Image
                             src={IMAGEURLS.customised}
-                            alt="Encryption in transit"
+                            alt="Customizable & scalable"
                             width={68}
-                            height={68} unoptimized
+                            height={68}
                         />
                     </div>
 
