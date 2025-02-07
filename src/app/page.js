@@ -11,6 +11,7 @@ const inter = Inter({
 export default function Home() {
   return (
     <div className={`${styles['marathon']} ${inter.className}`}>
+      
       <HomePage />
     </div>
   );

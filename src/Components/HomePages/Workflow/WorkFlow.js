@@ -1,14 +1,19 @@
 "use client"
-import React, { useState } from 'react'
+import React from 'react'
 import styles from './WorkFlow.module.css'
 import Image from "next/image";
 import { IMAGEURLS } from "@/config";
-import RequestDemo from './RequestDemo';
-import { Boxes } from "./ui/background-boxes"; // Adjust path if necessary
-// import { cn } from "@/lib/utils";
+import { Boxes } from "./ui/background-boxes"; 
+
 
 function WorkFlow({ openDemoForm, setOpenDemoForm }) {
-    // const [openDemoForm, setOpenDemoForm] = useState(false)
+    const industries = [
+        { logo: IMAGEURLS.carLogo, alt: "Automotive", label: "Automotive", width: '100', height: '100' },
+        { logo: IMAGEURLS.latopLogo, alt: "Consumer Electronics", label: "Consumer", width: '180', height: '180' },
+        { logo: IMAGEURLS.droneLogo, alt: "Aerospace", label: "Aerospace", width: '160', height: '100' },
+        { logo: IMAGEURLS.robotLogo, alt: "Medical Equipments", label: "Medical", width: '160', height: '140' },
+        { logo: IMAGEURLS.craneLogo, alt: "Machinery", label: "Machinery", extraClass: "workflow-crane-img", width: '152', height: '180' }
+    ];
     return (
 
 
@@ -16,7 +21,7 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
 
         <div id='home' className={styles["workflow-page"]} style={{ position: 'relative' }}>
 
-            <Boxes className={styles["boxes-bg"]}/>
+            <Boxes className={styles["boxes-bg"]} />
 
 
             <div className={styles["workflow-head"]}>
@@ -24,78 +29,15 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
                 <span className={styles["workflow-head-desc"]}>Manage files, Designs, Parts, BOMs, inventory, and purchases effortlessly in one platform.</span>
             </div>
             <div className={styles["workflow-imgs"]}>
-                <div className={styles["workflow-img-outer"]}>
-                    <div className={styles["workflow-img"]}>
-
-                        <Image
-                            src={IMAGEURLS.carLogo}
-                            alt="Automotive"
-                            width={100}
-                            height={100}
-                            
-                        />
-                        <span>Automotive</span>
+                {industries.map(({ logo, alt, label, width,height }, index) => (
+                    <div key={index} className={styles["workflow-img-outer"]}>
+                        <div className={styles["workflow-img"]}>
+                            <Image src={logo} alt={alt} width={width} height={height} layout="responsive" priority />
+                            <span>{label}</span>
+                        </div>
                     </div>
-                </div>
-
-                <div className={styles["workflow-img-outer"]}>
-                    <div className={styles["workflow-img"]}>
-
-                        <Image
-                            src={IMAGEURLS.latopLogo}
-                            alt="Consumer Electronics"
-                            width={180}
-                            height={180} 
-                        />
-                        <span>Consumer</span>
-                    </div>
-                </div>
-
-
-                <div className={styles["workflow-img-outer"]}>
-                    <div className={styles["workflow-img"]}>
-
-                        <Image
-                            src={IMAGEURLS.droneLogo}
-                            alt="Aerospace"
-                            width={160}
-                            height={100} 
-                        />
-                        <span>Aerospace</span>
-                    </div>
-                </div>
-
-
-                <div className={styles["workflow-img-outer"]}>
-                    <div className={styles["workflow-img"]}>
-
-                        <Image
-                            src={IMAGEURLS.robotLogo}
-                            alt="Medical Equipments"
-                            width={160}
-                            height={140} 
-                        />
-                        <span>Medical</span>
-                    </div>
-                </div>
-
-
-                <div className={styles["workflow-img-outer"]}>
-                    <div className={styles["workflow-img"]}>
-
-                        <Image
-                            src={IMAGEURLS.craneLogo}
-                            alt="Machinery"
-                            width={152}
-                            height={180} 
-                            className={styles["workflow-crane-img"]}
-                        />
-                        <span>Machinery</span>
-                    </div>
-                </div>
-
-
-
+                ))}
+               
 
             </div>
             <button onClick={() => setOpenDemoForm(!openDemoForm)}>Request demo</button>

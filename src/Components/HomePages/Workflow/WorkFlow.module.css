@@ -18,6 +18,7 @@
 
 .workflow-head {
     display: flex;
+    text-align: center;
     flex-direction: column;
     color: white !important;
     z-index: 10 !important;
@@ -26,6 +27,7 @@
 .workflow-head-title {
     color: #FFF;
     font-size: 44px;
+    text-align: center;
     font-style: normal;
     font-weight: 700;
     line-height: 52px;
