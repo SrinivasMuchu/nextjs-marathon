@@ -1,19 +1,10 @@
-import localFont from "next/font/local";
+
 import "./globals.css";
 import Script from "next/script";
 
 const GA_TRACKING_ID = "G-6P47TN4FMC";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+
 const jsonLdData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -105,7 +96,7 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body >
         {children}
       </body>
 
