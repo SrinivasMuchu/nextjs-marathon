@@ -1,9 +1,10 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
 import { Lenis, useLenis } from "@studio-freight/react-lenis";
 import HomeTopNav from "../HomePages/HomepageTopNav/HomeTopNav";
 import WorkFlow from "../HomePages/Workflow/WorkFlow";
 import WhyUs from "../HomePages/WhyUs/WhyUs";
+
 import Capabilities from "../HomePages/Capabilities/Capabilities";
 import SneakPeak from "../HomePages/SneakPeak/SneakPeak";
 import Subscription from "../HomePages/Subscription/Subscription";
@@ -132,6 +133,10 @@ const HomePage = () => {
                   style={{ background: "white" }}
                 >
                   {section.component}
+                   {/* Wrap Lazy-Loaded Components Inside Suspense */}
+                  {/* <Suspense fallback={<div>Loading {section.name}...</div>}>
+                    {section.component}
+                  </Suspense> */}
                 </div>
               ))}
             </div>
@@ -147,7 +152,7 @@ const HomePage = () => {
                 className={styles.scrollSection}
                 style={{ background: "white" }}
               >
-                {section.component}
+                 {section.component}
               </div>
             ))}
           </div>

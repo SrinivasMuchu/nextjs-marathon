@@ -1,19 +1,18 @@
-import localFont from "next/font/local";
 import "./globals.css";
 import Script from "next/script";
 
 const GA_TRACKING_ID = "G-6P47TN4FMC";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+// const geistSans = localFont({
+//   src: "./fonts/GeistVF.woff",
+//   variable: "--font-geist-sans",
+//   weight: "100 900",
+// });
+// const geistMono = localFont({
+//   src: "./fonts/GeistMonoVF.woff",
+//   variable: "--font-geist-mono",
+//   weight: "100 900",
+// });
 const jsonLdData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -58,13 +57,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link rel="icon" href="https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/m-logo.svg" />
-
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Inter:wght@400;700&display=swap"
-          as="style"
-          onLoad="this.onload=null;this.rel='stylesheet'"
-        />
         <noscript>
           <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Inter:wght@400;700&display=swap" />
         </noscript>
@@ -83,7 +75,7 @@ export default function RootLayout({ children }) {
         <meta property="og:url" content="https://www.marathon-os.com" />
         <meta property="og:site_name" content="Marathon OS" />
         <Script
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
         />
         <Script
@@ -100,12 +92,14 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
-        <script
+         <Script
+          id="json-ld"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body>
         {children}
       </body>
 

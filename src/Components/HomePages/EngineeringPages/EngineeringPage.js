@@ -31,7 +31,7 @@ function EngineeringPage({type}) {
             {type === 'supply' && <div className={styles["engineering-page-head"]}>
                 <span className={styles["engineering-page-head-title"]}>Supply-chain Management</span>
                 <span className={styles["engineering-page-head-desc"]}>
-                Optimize your supply chain with Marathon's end-to-end management tools. From inventory to supplier collaboration, keep your operations running smoothly and efficiently.
+                Optimize your supply chain with Marathon&apos;s end-to-end management tools. From inventory to supplier collaboration, keep your operations running smoothly and efficiently.
                 </span>
             </div>}
             {type === 'manufacturing' && <div className={styles["engineering-page-head"]}>

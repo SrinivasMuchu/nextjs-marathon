@@ -29,8 +29,7 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
 
                         <Image
                             src={IMAGEURLS.carLogo}
-                            alt="Encryption in transit"
-                            unoptimized 
+                            alt="Automotive"
                             width={100}
                             height={100}
                             
@@ -44,9 +43,9 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
 
                         <Image
                             src={IMAGEURLS.latopLogo}
-                            alt="Encryption in transit"
+                            alt="Consumer Electronics"
                             width={180}
-                            height={180} unoptimized 
+                            height={180} 
                         />
                         <span>Consumer</span>
                     </div>
@@ -58,9 +57,9 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
 
                         <Image
                             src={IMAGEURLS.droneLogo}
-                            alt="Encryption in transit"
+                            alt="Aerospace"
                             width={160}
-                            height={100} unoptimized 
+                            height={100} 
                         />
                         <span>Aerospace</span>
                     </div>
@@ -72,9 +71,9 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
 
                         <Image
                             src={IMAGEURLS.robotLogo}
-                            alt="Encryption in transit"
+                            alt="Medical Equipments"
                             width={160}
-                            height={140} unoptimized 
+                            height={140} 
                         />
                         <span>Medical</span>
                     </div>
@@ -86,9 +85,9 @@ function WorkFlow({ openDemoForm, setOpenDemoForm }) {
 
                         <Image
                             src={IMAGEURLS.craneLogo}
-                            alt="Encryption in transit"
+                            alt="Machinery"
                             width={152}
-                            height={180} unoptimized 
+                            height={180} 
                             className={styles["workflow-crane-img"]}
                         />
                         <span>Machinery</span>
