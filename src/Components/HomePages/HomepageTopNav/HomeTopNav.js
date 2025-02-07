@@ -39,7 +39,7 @@ function HomeTopNav({openDemoForm, setOpenDemoForm}) {
     <>
      
         <div className={styles['home-page-top']}>
-          <Image src={IMAGEURLS.logo} alt="Marathon Logo" width={500} 
+          <img src={IMAGEURLS.logo} alt="Marathon Logo" width={500} 
           height={500} unoptimized/>
           <div className={styles['home-page-navs']}>
             {/* Use Link for navigation */}
@@ -56,7 +56,7 @@ function HomeTopNav({openDemoForm, setOpenDemoForm}) {
             {/* <button className={styles['home-login']} onClick={HnadleNavigate}>Login</button> */}
           </div>
           <div className={styles['home-pg-menu']} onClick={(e)=>handleMenuOpen(e)}>
-            <Image src={IMAGEURLS.menu} alt="Menu Icon" width={500} 
+            <img src={IMAGEURLS.menu} alt="Menu Icon" width={500} 
           height={500} unoptimized/>
           </div>
         </div>
