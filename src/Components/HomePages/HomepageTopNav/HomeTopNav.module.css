@@ -87,29 +87,11 @@
   background: white;
 }
 
-.home-landing-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
 
-.home-landing-container {
-  width: 100%;
-  padding: 48px 164px 0px 164px;
-  background: white;
-  display: flex;
-  box-sizing: border-box;
-  align-items: center;
-  justify-content: space-between;
-}
 
-.home-landing-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+
+
+
 
 .home-landing-teams {
   padding: 6px 12px;
@@ -125,15 +107,7 @@
   text-align: center;
 }
 
-.home-landing-title {
-  color: black;
-  font-size: 48px;
-  font-weight: 700;
-  font-style: normal;
 
-  /* word-break: break-all; */
-  font-family: Syne;
-}
 
 .home-hardware-title {
   color: #610bee;
@@ -145,18 +119,9 @@
   font-family: Syne;
 }
 
-.home-landing-bottom-img-mobile {
-  display: none;
-}
 
-.home-landing-description {
-  color: #001325;
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 28px;
 
-}
+
 
 .home-hardware-title {
   font-size: 20px;
@@ -165,24 +130,9 @@
   line-height: 28px;
 }
 
-.home-landing-btns {
-  display: flex;
-  align-items: center;
-  gap: 16px;
 
-  justify-content: flex-start;
-}
 
-.home-landing-btns button {
-  border: 1.5px solid #610bee;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 500;
-  font-style: normal;
-  padding: 12px 32px;
-  cursor: pointer;
 
-}
 
 .home-landing-wait-list {
   color: #610bee;
@@ -191,49 +141,18 @@
   font-size: 18px;
 }
 
-.home-landing-try-demo {
-  color: white;
-  background: #610bee;
-  width: 187px;
-}
 
-.home-landing-girl-img {
-  width: 47vw;
-  height: 350px;
-}
 
-.home-landing-bottom-img {
-  background-image: url("https://marathon-web-assets.s3.ap-south-1.amazonaws.com/background-img_1.png");
-  /* background: linear-gradient(180deg, #FFF 16.13%, rgba(255, 255, 255, 0.10) 186.1%); */
-  background-position: bottom;
-  width: 100%;
-  background-size: 100%;
-  background-repeat: no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
 
-.home-landing-bottom-img img {
 
-  width: 92%;
-  height: 532px;
-}
+
+
+
 
 
 
 /* MOBILE VIEW */
 @media screen and (max-width:1550px) {
-  .home-landing-title {
-    color: black;
-    font-size: 48px;
-    font-weight: 700;
-    font-style: normal;
-
-    /* word-break: break-all; */
-    font-family: Syne;
-  }
 
   .home-hardware-title {
     color: #610bee;
@@ -247,19 +166,9 @@
 
 }
 
-@media screen and (max-width:1300px) {
-  .home-landing-girl-img {
-    width: 500px;
-    height: 340px;
-  }
-}
 
-@media screen and (max-width:1200px) {
-  .home-landing-container {
-    padding: 24px;
 
-  }
-}
+
 
 @media screen and (max-width:1050px) {
   .home-page-top {
@@ -286,113 +195,22 @@
 
   }
 
-  .home-landing-container {
-    display: flex;
-    gap: 24px;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 24px;
-  }
 
-  .home-landing-description {
-    width: 100%;
-    font-size: 16px;
-  }
+ 
 
   .home-hardware-title {
     font-size: 24px;
   }
 
-  .home-landing-girl-img {
-    width: 60%;
-  }
 
-  .home-landing-content {
-    width: 100%;
-    word-break: keep-all;
-  }
+
 
 }
 
 
-@media screen and (max-width:600px) {
-
-
-  .home-landing-content {
-    gap: 4px;
-    align-items: center;
-    text-align: center;
-    justify-content: center;
-  }
-
-  .home-landing-description {
-    width: 100%;
-    font-size: 12px;
-  }
 
 
 
-  .home-landing-title {
-    font-size: 24px;
-    font-display: swap;
-
-  }
-
-  .home-landing-title {
-    font-size: 24px;
-    font-display: swap;
-  }
-
-
-  .home-landing-btns button {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .home-landing-bottom-img {
-    display: none;
-  }
-
-  .home-landing-bottom-img-mobile {
-    /* display: block; */
-    background-image: url("https://marathon-web-assets.s3.ap-south-1.amazonaws.com/background_mobile_dots.webp");
-    background-position: bottom;
-    width: 100%;
-    background-size: 100%;
-    background-repeat: no-repeat;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .home-landing-bottom-img-mobile img {
-    width: 300px;
-    height: 200px;
-  }
-
-  .home-landing-girl-img {
-    width: 100%;
-    height: 200px;
-  }
-
-}
-
-@media screen and (max-width:400px) {
-  .home-landing-btns button {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-
-
-
-  /* .home-pg-menu img{
-      width: 24px;
-      height: 24px;
-    } */
-
-}
 
 
 

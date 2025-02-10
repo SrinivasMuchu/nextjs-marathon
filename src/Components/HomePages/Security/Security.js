@@ -3,9 +3,10 @@ import React, { useEffect, useState, useRef } from "react";
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
 import styles from "./Security.module.css";
+import TopNavRequestBtn from "@/Components/CommonJsx.js/TopNavRequestBtn";
 
 
-function Security({openDemoForm, setOpenDemoForm}) {
+function Security() {
   const [isVisible, setIsVisible] = useState(false);
      const ref = useRef(null);
  
@@ -44,7 +45,8 @@ function Security({openDemoForm, setOpenDemoForm}) {
               is more important than anything else.
             </span>
             <div className={styles["security-btn"]}>
-              <button onClick={()=>setOpenDemoForm(!openDemoForm)}>Request a demo</button>
+              <TopNavRequestBtn className={'btn'} styles={styles}/>
+              {/* <button onClick={()=>setOpenDemoForm(!openDemoForm)}>Request a demo</button> */}
             </div>
           </div>
           <div className={styles["security-points"]}>

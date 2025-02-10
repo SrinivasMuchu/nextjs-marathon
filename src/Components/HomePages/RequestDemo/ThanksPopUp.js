@@ -1,10 +1,9 @@
-"use client"
 import React from 'react'
-import styles from './WorkFlow.module.css'
+
 import Image from "next/image";
 import { IMAGEURLS } from "@/config";
 
-function ThanksPopUp({ onclose }) {
+function ThanksPopUp({ onclose,styles }) {
     return (
         <div className={styles['demo-popup']}>
             <div className={styles['thanks-popup-cont']}>

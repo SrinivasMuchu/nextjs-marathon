@@ -8,10 +8,17 @@
   opacity: 1;
   transform: translateY(0);
 }
-.mobile-view{
+.mobile-workflow{
   display: none;
 }
-@media screen and (max-width:750px){
+
+@media screen and (max-width:1100px){
+  .desktop-workflow{
+    display: none;
+  }
+  .mobile-workflow{
+    display: block;
+  }
   /* .mobile-view{
     display: flex;
     flex-direction: column;
