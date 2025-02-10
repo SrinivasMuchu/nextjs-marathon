@@ -92,7 +92,7 @@
     /* Medium/16 */
   }
   
-  .security-btn button {
+  .security-btn-button {
     color: #fff;
     cursor: pointer;
     width: 145px;
@@ -115,7 +115,7 @@
   .security-points {
     display: flex;
     flex-direction: column;
-    z-index: 10 !important;
+    z-index: 1 !important;
     align-items: flex-start;
     justify-content: flex-start;
     text-align: left;

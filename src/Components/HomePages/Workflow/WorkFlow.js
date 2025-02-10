@@ -93,7 +93,7 @@ function WorkFlow() {
                         </div>
                     </div>
                 </div>
-                <TopNavRequestBtn styles={styles} className={'btn'}/>
+                <TopNavRequestBtn styles={styles} className={'workflow-page-button'}/>
                 {/* <button onClick={() => setOpenDemoForm(!openDemoForm)}>Request demo</button> */}
             </div>
           

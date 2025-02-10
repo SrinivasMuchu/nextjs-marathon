@@ -14,7 +14,7 @@ function HomeTopNav() {
 
       <div className={styles['home-page-top']}>
         <Image src={IMAGEURLS.logo} alt="Marathon Logo" width={500}
-          height={500} />
+          height={500} className={styles['home-page-top-logo']}/>
         <div className={styles['home-page-navs']}>
           {/* Use Link for navigation */}
           <Link href="#why-us">Why us?</Link>

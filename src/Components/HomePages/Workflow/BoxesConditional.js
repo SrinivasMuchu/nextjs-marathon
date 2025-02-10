@@ -3,8 +3,9 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
-
+// Dynamically import Boxes component with SSR disabled
 const Boxes = dynamic(() => import("./ui/background-boxes"), { ssr: false });
+
 function BoxesConditional() {
     const [isDesktop, setIsDesktop] = useState(false);
 
@@ -22,4 +23,4 @@ function BoxesConditional() {
     return isDesktop ? <Boxes /> : null;
 }
 
-export default BoxesConditional
+export default BoxesConditional;

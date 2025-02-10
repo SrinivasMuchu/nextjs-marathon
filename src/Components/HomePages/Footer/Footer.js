@@ -4,7 +4,7 @@ import styles from './Footer.module.css'
 import Image from "next/image";
 import { IMAGEURLS } from "@/config";
 import Link from 'next/link';
-import ContactUsText from './ContactUsText';
+import ContactUsText from '../../CommonJsx.js/ContactUsText';
 import FooterForm from './FooterForm';
 
 function Footer() {

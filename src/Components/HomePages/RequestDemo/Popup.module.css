@@ -1,0 +1,146 @@
+
+.demo-popup {
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    background-color: rgba(0, 19, 37, 0.5);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.demo-popup-cont {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    width: 35%;
+}
+.demo-form{
+    display: flex;
+    flex-direction: column; 
+    gap: 20px;
+    width: 100%;
+
+}
+.demo-form input{
+    padding: 12px 18px;
+    border-radius: 5px;
+    border: 1px solid #EDF2F7;
+    box-sizing: border-box;
+    background: #FFF;
+    width: 48%;
+    font-size: 18px;
+    font-weight: 400;
+}
+.demo-form textarea {
+    padding: 12px 18px;
+    border-radius: 5px;
+    border: 1px solid #EDF2F7;
+    background: #FFF;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 18px;
+    font-weight: 400;
+}
+.demo-form-btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    background: #610BEE;
+    border: none;
+    width: 93px;
+    height: 40px;
+    box-sizing: border-box;
+    cursor: pointer;
+    color: #FFF;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    /* 150% */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: -0.192px;
+}
+.demo-form div{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.thanks-popup-cont{
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    width: 350px;
+    gap: 50px;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    height: 40vh;
+
+}
+
+.thanks-popup-cont button{
+    width: 90%;
+    background: #610BEE;
+    color: white;
+    border-radius: 4px;
+    padding: 10px;
+}
+.thanks-title{
+    font-size: 24px;
+    font-weight: 500;
+}
+.thanks-popup-check{
+    position: absolute;
+    top: -50px;
+    background: white;
+    border-radius: 50%;
+    left: 35%;
+    width: 100px;
+    height: 100px;
+}
+.demo-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.demo-popup-close {
+    cursor: pointer;
+    padding: 8px;
+    width: 40px;
+    height: 40px;
+}
+
+.demo-popup-close:hover {
+    background: rgb(203, 203, 203);
+    border-radius: 50%;
+
+}
+@media screen and (max-width:750px) {
+    
+
+    .demo-popup-cont {
+        width: 80%;
+    }
+    
+    
+}
+@media screen and (max-width:450px){
+    
+    .thanks-popup-cont{
+        width: 90%;
+    }
+}

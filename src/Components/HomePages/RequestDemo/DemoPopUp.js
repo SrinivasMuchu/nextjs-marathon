@@ -1,13 +1,15 @@
 import React from 'react'
-import DemoForm from './DemoForm'
 import ThanksPopUp from './ThanksPopUp'
+import RequestDemo from './RequestDemo'
 
-function DemoPopUp({ openPopUp,styles,setOpenDemoForm }) {
+function DemoPopUp({ openPopUp,  setOpenDemoForm, onclose }) {
+    console.log(openPopUp)
     return (
 
-        <>{
-            openPopUp === 'demo' && <DemoForm styles={styles} onclose={setOpenDemoForm}/>
-        }{openPopUp === 'thanks' && <ThanksPopUp styles={styles} onclose={setOpenDemoForm}/>}</>
+        <>
+            {openPopUp === 'demo' && <RequestDemo  onclose={onclose} setOpenDemoForm={setOpenDemoForm} openPopUp={openPopUp}/>}
+            {openPopUp === 'thanks' && <ThanksPopUp  onclose={onclose} />}
+        </>
     )
 }
 

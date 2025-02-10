@@ -1,14 +1,15 @@
 "use client"
 import React,{useState} from 'react'
-import RequestDemo from '../HomePages/RequestDemo/RequestDemo';
+import DemoPopUp from '../HomePages/RequestDemo/DemoPopUp';
 
 function TopNavRequestBtn({styles,className}) {
      const [openDemoForm, setOpenDemoForm] = useState(false);
-      const [openSuccess, setOpenSuccess] = useState(false);
+    
   return (
     <>
-      <button className={styles[className]} onClick={() => setOpenDemoForm(!openDemoForm)}>Request demo</button>
-      { openDemoForm && <RequestDemo onclose={() => setOpenDemoForm(!openDemoForm)} setOpenSuccess={setOpenSuccess} /> }
+      <button className={styles[className]} onClick={() => setOpenDemoForm('demo')}>Request demo</button>
+      {openDemoForm==='demo' && <DemoPopUp onclose={()=>setOpenDemoForm(null)} openPopUp={openDemoForm} setOpenDemoForm={setOpenDemoForm}/>}
+     
     </>
   
 

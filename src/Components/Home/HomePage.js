@@ -8,7 +8,7 @@ import SneakPeak from "../HomePages/SneakPeak/SneakPeak";
 import Subscription from "../HomePages/Subscription/Subscription";
 import Security from "../HomePages/Security/Security";
 import Footer from "../HomePages/Footer/Footer";
-import styles from "./Home.module.css";
+
 
 
 const HomePage = () => {

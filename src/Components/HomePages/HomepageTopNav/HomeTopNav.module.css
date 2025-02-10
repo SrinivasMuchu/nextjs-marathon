@@ -27,7 +27,7 @@
 
 }
 
-.home-page-top img {
+.home-page-top-logo {
   width: 160px;
   height: 30px;
 }
@@ -229,11 +229,7 @@
   width: 100%;
   box-sizing: border-box;
   min-height: 100vh;
-
 }
-
-
-
 
 .menu-close-icon {
   width: 100%;
@@ -259,7 +255,6 @@
 .menu-navs a {
   width: 100%;
   color: white;
-
   border-bottom: 1px solid white;
   padding-bottom: 15px;
   padding-top: 15px;
@@ -283,18 +278,14 @@
 .menu-buttons button {
   border-radius: 4px;
   border: 1.5px solid #610BEE;
-  /* height: 40px; */
   padding: 10px 20px;
 }
 
 .try-demo-menu {
   color: #FFF;
-  /* Medium/14 */
-
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  /* 142.857% */
   letter-spacing: -0.14px;
   background: #610BEE;
   width: 104px;
@@ -307,6 +298,5 @@
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  /* 142.857% */
   letter-spacing: -0.14px;
 }
