@@ -12,7 +12,7 @@ function Capabilities() {
         </div>
         <div className={styles['capabilities-page-img']}>
             
-                <CapabilityCards/>
+                <CapabilityCards styles={styles}/>
                
            
         </div>

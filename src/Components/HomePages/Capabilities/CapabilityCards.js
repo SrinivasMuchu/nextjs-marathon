@@ -1,9 +1,7 @@
-"use client";
 import React from 'react';
-import styles from './Capabilities.module.css';
-import Image from "next/image"; // Import Image from Next.js
+import Image from "next/image";
 import { IMAGEURLS } from "@/config";
-import ReactParallaxTilt from 'react-parallax-tilt'; // Import react-parallax-tilt
+import CapabilityParallaxWrapper from './CapabilityParallaxWrapper';
 
 const CAPABILITIESLIST = [
     {
@@ -38,15 +36,11 @@ const CAPABILITIESLIST = [
     },
 ];
 
-function CapabilityCards() {
+function CapabilityCards({styles}) {
     return (
         <>
             {CAPABILITIESLIST.map((capability, index) => (
-                <ReactParallaxTilt key={index} tiltMaxAngleX={10}
-                    tiltMaxAngleY={10} 
-                    perspective={1000} 
-                    scale={1} 
-                    transitionSpeed={1500} className={styles['capabilities-page-card']}>
+                <CapabilityParallaxWrapper key={index} styles={styles}>
 
                     <div className={styles['capabilities-img-cont']}>
                         {/* <Image
@@ -65,7 +59,7 @@ function CapabilityCards() {
                             {capability.description}
                         </span>
                     </div>
-                </ReactParallaxTilt>
+                </CapabilityParallaxWrapper>
 
             ))}
         </>

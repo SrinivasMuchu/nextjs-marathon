@@ -9,33 +9,18 @@ import Subscription from "../HomePages/Subscription/Subscription";
 import Security from "../HomePages/Security/Security";
 import Footer from "../HomePages/Footer/Footer";
 
-
-
 const HomePage = () => {
-
-
-
-
-
   return (
-
-
     <div>
-
       <HomeTopNav />
-
       <WorkFlow />
-
       <WhyUs />
       <Capabilities />
       <SneakPeak />
       <Subscription />
       <Security />
       <Footer />
-
     </div >
-
-
   );
 };
 

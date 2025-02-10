@@ -31,7 +31,7 @@ function Security() {
             {/* Use Next.js Image component for optimized image loading */}
             <Image
               src={IMAGEURLS.points} // Ensure the correct path is set
-              alt="Encryption at rest"
+              alt="points"
               width={40} // Adjust the width and height as necessary
               height={40}
             />
@@ -40,7 +40,7 @@ function Security() {
           <div className={styles["security-internal-points"]}>
             <Image
               src={IMAGEURLS.points}
-              alt="Encryption in transit"
+              alt="points"
               width={40}
               height={40}
             />
@@ -49,7 +49,7 @@ function Security() {
           <div className={styles["security-internal-points"]}>
             <Image
               src={IMAGEURLS.points}
-              alt="Single-sign on"
+              alt="points"
               width={40}
               height={40}
             />
@@ -69,7 +69,7 @@ function Security() {
           <div className={styles["security-internal-points"]}>
             <Image
               src={IMAGEURLS.points}
-              alt="Role-based access controls"
+              alt="points"
               width={40}
               height={40}
             />
@@ -78,7 +78,7 @@ function Security() {
           <div className={styles["security-internal-points"]}>
             <Image
               src={IMAGEURLS.points}
-              alt="Logging, auditing and monitoring features"
+              alt="points"
               width={40}
               height={40}
             />
@@ -87,7 +87,7 @@ function Security() {
           <div className={styles["security-internal-points"]}>
             <Image
               src={IMAGEURLS.points}
-              alt="Features to enhance privacy of personal data"
+              alt="points"
               width={40}
               height={40}
             />

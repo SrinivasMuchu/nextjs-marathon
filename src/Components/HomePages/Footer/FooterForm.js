@@ -41,6 +41,8 @@ function FooterForm({ styles }) {
           setMessage('')
           // setError('')
           setOpenDemoForm(true)
+        }else{
+          setError(response.data.meta.message)
         }
         setLoading(false)
       }

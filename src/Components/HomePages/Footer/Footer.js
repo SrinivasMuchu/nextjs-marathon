@@ -16,7 +16,7 @@ function Footer() {
           <div className={styles['footer-logo']}>
             <Image
               src={IMAGEURLS.footerLogo}
-              alt="Encryption in transit"
+              alt="marathon os logo"
               width={160}
               height={30}
             />
@@ -26,13 +26,7 @@ function Footer() {
 
           </div>
           <div className={styles['footer-navs']}>
-            {/* <span>Home</span>
-            <span>Features</span>
-            <span>Product</span>
-            <span>Pricing</span>
-            <span>Contact us</span>
-            <span>Terms Of Service</span>
-            <span>Privacy Policies</span> */}
+           
             <Link href="#home">Home</Link>
             <Link href="#why-us" >
               Why us?
@@ -44,8 +38,8 @@ function Footer() {
             <Link href="#security">Security</Link>
             <ContactUsText/>
             {/* <span style={{ cursor: 'pointer' }} onClick={() => setOpenDemoForm(true)}>Contact us</span> */}
-            <Link href="https://marathon-os.com/terms-and-conditions">Terms Of Service</Link>
-            <Link href="https://marathon-os.com/privacy-policy">Privacy Policies</Link>
+            <Link href="/terms-and-conditions">Terms Of Service</Link>
+            <Link href="/privacy-policy">Privacy Policies</Link>
 
           </div>
         </div>

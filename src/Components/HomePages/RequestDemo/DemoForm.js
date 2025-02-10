@@ -38,7 +38,7 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
         );
 
         if (!response.data.meta.success) {
-          console.log(response.data.meta.message);
+          setError(response.data.meta.message);
         } else {
          
           setopenThanks('thanks');

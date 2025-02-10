@@ -15,8 +15,8 @@ function ThanksPopUp({ onclose }) {
                     height={40} style={{width:'100px',height:'100px'}}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                    <span className={styles['thanks-title']}>Thank you!</span>
-                    <span className={styles['thanks-desc']}>We have received your query successfully.</span>
+                    <span className={styles['thanks-title']} style={{fontSize:'24px',color:'black'}}>Thank you!</span>
+                    <span className={styles['thanks-desc']} style={{fontSize:'18px',color:'black'}}>We have received your query successfully.</span>
                 </div>
                 <button onClick={() => onclose()}>OK</button>
 

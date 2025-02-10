@@ -1,9 +1,9 @@
 import React from 'react'
-import styles from './WorkFlow.module.css'
+
 import Image from "next/image";
 import { IMAGEURLS } from "@/config";
 
-function WorkFlowImages() {
+function WorkFlowImages({styles}) {
   return (
     <div className={styles["workflow-imgs"]}>
     <div className={styles["workflow-img-outer"]}>
