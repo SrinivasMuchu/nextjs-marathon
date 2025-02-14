@@ -88,7 +88,7 @@
     flex-direction: column;
     text-align: left;
     gap: 16px;
-    width: 450px; 
+    width: 450px;
 
 }
 
@@ -107,15 +107,16 @@
     border-radius: 5px;
     border: 1px solid #EDF2F7;
     box-sizing: border-box;
-    background: #FFF;
+
     width: 48%;
 }
 
-.footer-form div {
+.footer-inputs {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
 }
 
 .footer-form textarea {
@@ -148,25 +149,27 @@
     letter-spacing: -0.192px;
 }
 
-    .btn-ring {
-        content: "";
-        display: block;
-        width: 10px;
-        height: 10px;
-        margin: 4px;
-        border-radius: 50%;
-        border: 3px solid #fff;
-        border-color: #fff transparent #fff transparent;
-        animation: ring 1.2s linear infinite;
-      }
-      @keyframes ring {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
+.btn-ring {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 10px;
+    margin: 4px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    border-color: #fff transparent #fff transparent;
+    animation: ring 1.2s linear infinite;
+}
+
+@keyframes ring {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
 @media screen and (max-width:750px) {
     .footer-page {
@@ -178,7 +181,11 @@
 
     }
 
-    .footer-form div {
+    .footer-phone {
+        width: 100%;
+    }
+
+    .footer-inputs {
         flex-direction: column;
         gap: 16px;
     }
@@ -193,7 +200,8 @@
         height: 1px;
         width: 100%;
     }
-    .footer-form{
+
+    .footer-form {
         margin-top: 15px;
     }
 }
