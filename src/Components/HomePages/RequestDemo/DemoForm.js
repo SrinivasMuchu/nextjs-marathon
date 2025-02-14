@@ -3,6 +3,8 @@ import React, { useState } from 'react'
 import axios from 'axios';
 import { BASE_URL } from "@/config";
 import DemoPopUp from './DemoPopUp';
+import  { isValidPhoneNumber } from "react-phone-number-input";
+import ReactPhoneNumber from '@/Components/CommonJsx.js/ReactPhoneNumber';
 
 function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp }) {
   const [openDemoForm, setopenThanks] = useState(openPopUp);
@@ -10,7 +12,7 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
   const [phoneNumber, setPhoneNumber] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
- 
+
 
   const [loading, setLoading] = useState(false);
 
@@ -23,10 +25,9 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
       } else if (!phoneNumber) {
         setError("Please enter your phone number.");
 
-      } else if (!/^\d{10}$/.test(phoneNumber)) {
-        setError("Please enter a valid 10-digit phone number.");
-
-      } else if (!message) {
+      } else if (!isValidPhoneNumber(phoneNumber)) {
+        setError("Please enter a valid phone number for your selected country.");
+      }  else if (!message) {
         setError("Please enter your message.");
 
       } else {
@@ -40,12 +41,12 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
         if (!response.data.meta.success) {
           setError(response.data.meta.message);
         } else {
-         
+
           setopenThanks('thanks');
-         
+
         }
         setLoading(false)
-      } 
+      }
 
 
     } catch (error) {
@@ -56,9 +57,10 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
     <>
       <div style={{ width: '100%' }} className={styles['demo-form']}>
         {/* <span>Ask a question</span> */}
-        <div>
+        <div className={styles['demo-inputs']}>
           <input placeholder='Name*' onChange={(e) => setName(e.target.value)} />
-          <input placeholder='Phone number*' onChange={(e) => setPhoneNumber(e.target.value)} />
+          
+           <ReactPhoneNumber phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} styles={styles} classname='demo-phonenumber'/>
         </div>
         <textarea placeholder='Message*' onChange={(e) => setMessage(e.target.value)} />
         <span style={{ opacity: error ? '1' : '0', color: 'red', fontSize: '14px' }}>{error ? `* ${error}` : 'no text'}</span>

@@ -33,9 +33,12 @@
     border: 1px solid #EDF2F7;
     box-sizing: border-box;
     background: #FFF;
-    width: 48%;
+    width: 100%;
     font-size: 18px;
     font-weight: 400;
+}
+.demo-phonenumber{
+    width: 100%;
 }
 .demo-form textarea {
     padding: 12px 18px;
@@ -67,10 +70,13 @@
     justify-content: center;
     letter-spacing: -0.192px;
 }
-.demo-form div{
+.demo-inputs{
     display: flex;
     align-items: center;
+    flex-direction: column;
     justify-content: space-between;
+    width: 100%;
+    gap: 20px;
 }
 .thanks-popup-cont{
     display: flex;
