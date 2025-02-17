@@ -40,14 +40,14 @@ function SneakPeak() {
                     <span className={styles['sneak-page-head']}>
                         Product sneak peak
                     </span>
-                    <ul className={styles['sneak-page-list']}>
+                    {/* <ul className={styles['sneak-page-list']}> */}
                         <li>Create your design workspace</li>
                         <li>View all your drive uploaded files here</li>
                         <li>View all designs here</li>
                         <li>Create parts using custom part nomenclature</li>
                         <li>Create EC’s for approval and EBOM</li>
                         <li>View Part details with EBOM in Tree and Excel view</li>
-                    </ul>
+                    {/* </ul> */}
                 </div>
                 <div className={styles['sneak-page-video']}>
                     {isVisible && (

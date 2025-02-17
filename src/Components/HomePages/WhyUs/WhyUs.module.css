@@ -1,6 +1,6 @@
 .whyus-page {
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding-top: 80px;
+    padding-bottom: 80px;
     width: 100%;
     /* margin-top: 90px; */
     display: flex;
@@ -43,7 +43,7 @@
     width: 80%;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 50px 24px;
     box-sizing: border-box;
 }
 

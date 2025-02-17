@@ -4,13 +4,10 @@
     gap: 48px;
     /* margin-top: 90px; */
     /* background: white; */
-    padding:  40px;
+    padding:  80px 40px;
     align-items: center;
     justify-content: center;
-   
     background: linear-gradient(0deg, #EBDFFD 0.69%, rgba(255, 255, 255, 0.1) 100%);
-
-    
     width: 100%;
 }
 
