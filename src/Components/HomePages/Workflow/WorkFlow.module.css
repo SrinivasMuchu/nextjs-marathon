@@ -113,7 +113,7 @@
     font-weight: 500;
     line-height: 28px;
     letter-spacing: -0.3px;
-    padding-bottom: 15px
+    padding-bottom: 30px
 }
 .workflow-laptop-img{
     width: 160px;
@@ -121,8 +121,8 @@
 }
 .workflow-img:hover {
     cursor: pointer;
-    width: 100%;
-    height: 100%;
+    width: 210px;
+    height: 210px;
 }
 
 .workflow-img:hover span {
@@ -273,5 +273,8 @@
     }
     .thanks-popup-cont{
         width: 90%;
+    }
+    .workflow-img span{
+        padding-bottom: 15px;
     }
 }

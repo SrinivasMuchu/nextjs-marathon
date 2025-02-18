@@ -12,7 +12,7 @@ function Subscription() {
                 <span className={styles['subscription-page-head']}>Marathon-OS Subscription</span>
                 <span className={styles['subscription-page-subhead']}>Simple Pricing, Full Access</span>
                 <span className={styles['subscription-page-desc']}>At Marathon-OS, we believe in keeping things straightforward. Get all the
-                    tools and features you need to manage your hardware product lifecycle
+                    tools and features you need to manage your <br/> hardware product lifecycle
                     efficiently, with just one comprehensive plan.</span>
             </div>
             <SubscriptionSwitch styles={styles}/>

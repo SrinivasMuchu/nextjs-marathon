@@ -11,7 +11,7 @@ function WhyUs() {
 
             <div id="" className={styles["whyus-page-head"]} style={{ margin: '0px' }}>
                 <span className={styles["whyus-head"]}>Why Marathon-OS?</span>
-                <span className={styles["whyus-desc"]}>Build Product Faster with Accurate Data. Manage CAD, Parts, Documents,
+                <span className={styles["whyus-desc"]}>Build Product Faster with Accurate Data. Manage CAD, Parts,<br/> Documents,
                     Bill of Materials, Vendors, Inventories & Purchases</span>
             </div>
 
