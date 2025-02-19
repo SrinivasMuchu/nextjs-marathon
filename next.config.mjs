@@ -6,6 +6,10 @@ const nextConfig = {
           protocol: 'https',
           hostname: 'd2o2bcehk92sin.cloudfront.net',
         },
+        {
+          protocol: 'https',
+          hostname: 'marathon-web-assets.s3.ap-south-1.amazonaws.com',
+        },
         // {
         //   protocol: 'https',
         //   hostname: 'anotherdomain.com',
