@@ -277,7 +277,7 @@
 
 .menu-buttons button {
   border-radius: 4px;
-  border: 1.5px solid #610BEE;
+  border: 1.5px solid #610bee;
   padding: 10px 20px;
 }
 
@@ -287,14 +287,14 @@
   font-style: normal;
   font-weight: 500;
   letter-spacing: -0.14px;
-  background: #610BEE;
+  background: #610bee;
   width: 104px;
 }
 
 .home-login {
   background: white;
   width: 77px;
-  color: #610BEE;
+  color: #610bee;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;

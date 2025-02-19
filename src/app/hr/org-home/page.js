@@ -2,6 +2,7 @@ import Hierarchy from '@/Components/HierarchyComponent/Hierarchy'
 import React from 'react'
 
 function OrgHierarchy() {
+  
   return (
     <Hierarchy/>
   )
