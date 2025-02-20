@@ -1,0 +1,212 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import styles from './EditHierarchy.module.css';
+
+import axios from "axios";
+import { BASE_URL,ASSET_PREFIX_URL } from "@/config";
+import CommonCancelButton from "../Common/CommonCancelButton";
+import CommonSaveButton from "../Common/CommonSaveButton";
+import CloseButton from "../Common/CloseButton";
+
+
+function AddDepartment({ activeNode, setAction,setUpdatedData }) {
+  const [department, setDepartment] = useState('');
+  // uniqueInitial
+  const [uniqueInitial, setUniqueInitial] = useState('');
+  const [description, setDescription] = useState('');
+  const [deptId, setDeptId] = useState('');
+  const [close, setClose] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [departments, setDepartments] = useState([]);
+  const [typingTimer, setTypingTimer] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const handleClose = () => {
+    setClose(true);
+    setAction(false);
+  };
+
+  useEffect(() => {
+   
+      fetchDepartments();
+   
+  }, []);
+
+  const fetchDepartments = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.get(`${BASE_URL}/v1/org/get-exist-department`, {
+        headers: {
+            'x-auth-token': localStorage.getItem("token")
+          },
+        params: { department_name: department },
+      });
+      if (response.data.meta.success) {
+        setDepartments(response.data.data.filtered_departments);
+      } else {
+        setDepartments([]);
+      }
+      setLoading(false)
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    }
+  };
+
+  const handleDepartmentChange = (e) => {
+    setDeptId('');
+    const inputValue = e.target.value;
+    const regex = /^[a-zA-Z0-9\s]*$/;
+    if (regex.test(inputValue)) {
+      setDepartment(inputValue);
+      setErrorMessage('');
+      clearTimeout(typingTimer); 
+      setTypingTimer(setTimeout(() => {
+        fetchDepartments();
+      
+      }, 500));
+    } else {
+      setErrorMessage('Special characters are not allowed.');
+    }
+  };
+  
+
+  const handleClickRender = (e, dept) => {
+  
+    e.stopPropagation();
+    setDeptId(dept._id);
+    setDepartment(dept.department_name);
+    setDescription(dept.description);
+    setUniqueInitial(dept.unique_initial)
+    setDepartments([]);
+  };
+
+  const HandleDepartment = async () => {
+    try {
+      if (!department) {
+        setErrorMessage('Please enter the department name.');
+        return;
+      }
+
+      let responseData;
+
+      if (deptId) {
+        responseData = await axios.post(
+          `${BASE_URL}/v1/org/create-dept`,
+          {
+            department_name: department,
+            description: description,
+            unique_initial:uniqueInitial,
+            departId: deptId,
+          },
+          {
+            headers: {
+                'x-auth-token': localStorage.getItem("token")
+              },
+          }
+        );
+      } else {
+        responseData = await axios.post(
+          `${BASE_URL}/v1/org/create-dept`,
+          {
+            department_name: department,
+            description: description,
+           
+          },
+          {
+            headers: {
+                'x-auth-token': localStorage.getItem("token")
+              },
+          }
+        );
+      }
+
+      if (responseData.data.meta.success === true) {
+        const entityId = responseData.data.data.id;
+
+        if (activeNode && activeNode.entity_id) {
+          const response = await axios.post(
+            `${BASE_URL}/v1/org/update-hierarchy`,
+            {
+              entity_id: entityId,
+              parent_entity_id: activeNode.entity_id,
+              is_sibling: true,
+              job_title: activeNode.jobTitle,
+              entity_type: 'department', 
+              action: 'add',
+            },
+            {
+              headers: {
+                'x-auth-token': localStorage.getItem("token")
+              },
+            }
+          );
+        }
+        setUpdatedData(department)
+        setAction(false)
+        // window.location.reload();
+      } else if (responseData.data.meta.success === false) {
+        setErrorMessage(responseData.data.meta.message);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className={styles["editRole"]} style={{ display: close ? 'none' : 'block' }}>
+      <div className={styles["head-cont"]} >
+        
+        <CloseButton handleClose={handleClose} heading='Add department' styles={styles}/>
+        <div className={styles["edit-name"]} >
+          <span>Department name</span>
+          <div className={styles["edit-name-loading"]} >
+          <input
+            placeholder="Enter title"
+            value={department}
+            onChange={(e) => handleDepartmentChange(e)}
+          />
+          {loading&&<img className={styles["load-img"]} src={`https://marathon-web-assets.s3.ap-south-1.amazonaws.com/load-gif.gif`}/>}
+          
+          </div>
+         
+          <div className={styles["filtered-departments"]}>
+            {departments.map((dept) => (
+              <div key={dept._id} className={styles["filtered-departments-list"]}  onClick={(e) => handleClickRender(e, dept)}>
+                <span>{dept.department_name}</span>
+              </div>
+            ))}
+          </div>
+          {errorMessage && (
+            <div className={styles["department-error"]}>
+              <img src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />
+              &nbsp;&nbsp;&nbsp;
+              {errorMessage}
+            </div>
+          )}
+        </div>
+
+        <div className={styles["edit-title"]}>
+          <span>Description (Optional)</span>
+          <textarea
+            placeholder="Your message..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          ></textarea>
+        </div>
+      </div>
+
+      <div className={styles["edit-btns"]}>
+        {(!department || errorMessage !== ''||loading) ? (
+            <CommonSaveButton handleClick={HandleDepartment} className='submit-edit-errorbutton' styles={styles}/>
+       
+        ) : (
+            <CommonSaveButton handleClick={HandleDepartment} className='submit-edit-button' styles={styles}/>
+        
+        )}
+        <CommonCancelButton handleClose={handleClose} styles={styles}/>
+        
+      </div>
+    </div>
+  );
+}
+
+export default AddDepartment;

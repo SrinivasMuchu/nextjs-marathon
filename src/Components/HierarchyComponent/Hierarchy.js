@@ -15,9 +15,12 @@ import { BASE_URL,ASSET_PREFIX_URL } from "@/config";
 // import EditRole from "../EditComponents/EditRole";
 // import AddCollaborate from "../AddCollaborators/AddCollaborate";
 // import DeleteConfirmation from "../EditComponents/DeleteConfirmation";
-// import NameProfile from "../CommonJsx/NameProfile";
-
 import RenderNodes from "./RenderNodes";
+import AddMember from "./modifyHeirarchyPopUps/AddMembers";
+import AddDepartment from "./modifyHeirarchyPopUps/AddDepartment";
+import ViewRole from "./modifyHeirarchyPopUps/ViewRole";
+import DeletePopUp from "./modifyHeirarchyPopUps/DeletePopUp";
+import EditRole from "./modifyHeirarchyPopUps/EditRole";
 
 
 
@@ -39,13 +42,13 @@ const RenderRectSvgNode = ({
   addmenuopen, editMenuOpen,
   isAdmin, isCollaborator,
   hasChildren, setHasChildren, setIsChangingManager, setAction,
-    setDeletePopUp
+    setDeletePopUp, setParentId
 }) => {
 
   const handleRemoveRole = async (e) => {
     setClickedData(nodeDatum);
     try {
-      if (activeNode.children.length > 0) {
+      if (activeNode.count > 0) {
         e.stopPropagation();
         setHasChildren(true);
 
@@ -64,7 +67,9 @@ const RenderRectSvgNode = ({
 
 
   const handleRectClick = () => {
-    toggleNode()
+    // toggleNode()
+    setParentId(nodeDatum.entity_id)
+
   };
 
   const handleMouseEnter = () => {
@@ -160,36 +165,58 @@ function Hierarchy({ department }) {
   const [collabOpen, setCollabOpen] = useState(false);
   const [collabAdmin, setCollabAdmin] = useState('');
   const [updatedData,setUpdatedData] = useState(false)
-
+  const [parentId, setParentId] = useState(null);
   const [deletePopUp, setDeletePopUp] = useState(false);
   useEffect(() => {
     setLoading(true);
     fetchOrg();
 
 
-  }, [updatedData]);
+  }, [parentId,updatedData]);
 
 
 
 
  
-  const fetchOrg = async () => {
+  const updateHierarchy = (nodes, parentId, children) => {
+    return nodes.map(node => {
+        if (node.entity_id === parentId) {
+            return { ...node, children }; // Add fetched children to the parent node
+        } else if (node.children) {
+            return { ...node, children: updateHierarchy(node.children, parentId, children) }; // Recursively update
+        }
+        return node;
+    });
+};
+
+const fetchOrg = async () => {
     try {
-      const HEADERS = { "x-auth-token": localStorage.getItem('token')}
-      const response = await axios.get(BASE_URL + '/v1/org/get-hierarchy', { headers: HEADERS });
-      if (response.data.meta.code == 200) {
-        setHierarchy(response.data.data.hierarchy);
-        setIsSetAdmin(response.data.data.is_admin);
-        setIsCollaborator(response.data.data.isCollaborator);
-       
-        setLoading(false);
-        
-      }
+        const HEADERS = { "x-auth-token": localStorage.getItem('token') };
+        const response = await axios.get(BASE_URL + '/v1/org/get-hierarchy', {
+            params: { parent_entity_id: parentId },
+            headers: HEADERS,
+        });
+
+        if (response.data.meta.code == 200) {
+            setHierarchy(prevHierarchy => {
+                if (parentId) {
+                    return updateHierarchy(prevHierarchy, parentId, response.data.data.hierarchy);
+                } else {
+                    return response.data.data.hierarchy; // Initial load
+                }
+            });
+
+            setIsSetAdmin(response.data.data.is_admin);
+            setIsCollaborator(response.data.data.isCollaborator);
+        }
     } catch (error) {
-      console.error("Error fetching data:", error);
-      setLoading(false);
+        console.error("Error fetching data:", error);
+    } finally {
+        setLoading(false);
     }
-  }
+};
+
+
 
   const [dimensions, translate, containerRef] = useCenteredTree();
 
@@ -310,7 +337,7 @@ function Hierarchy({ department }) {
                   setCurrentSrc, isChangingManager, setIsChangingManager,
                   department, edit, setEdit,
                   clickedData, setClickedData, action, setAction,
-                  
+                  parentId, setParentId,
                    deletePopUp, setDeletePopUp
                 })
               }
@@ -326,11 +353,16 @@ function Hierarchy({ department }) {
             ) : (
               '' // Show an empty fragment if not an admin (i.e., nothing will be rendered)
             )} 
-            {/* {activeNode && <ViewRole activeNode={clickedData}/>} */}
-            {/* {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
-            {action === 'add_dept' && <EditDoc activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
-            {action === 'edit_role' && <EditRole activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData}/>}
             {(action === 'add_mem' || action === 'add_assist') && <AddMember activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData}/>}
+            {action === 'add_dept' && <AddDepartment activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
+            {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
+            {action === 'edit_role' && <EditRole activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData}/>}
+            {deletePopUp && <DeletePopUp activeNode={clickedData} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData}/>}
+            
+            {/* 
+           
+            {action === 'edit_role' && <EditRole activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData}/>}
+            
             {action === 'change_manager' && <EditManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
             {action === 'transfer_to' && <RemoveChangeManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
             {collabOpen && <AddCollaborate />}

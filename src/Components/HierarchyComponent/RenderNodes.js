@@ -2,6 +2,7 @@ import React from 'react'
 import styles from './Hierarchy.module.css'
 import { textLettersLimit } from "@/common.helper";
 import { ASSET_PREFIX_URL } from '@/config';
+import NameProfile from '../CommonJsx.js/NameProfile';
 
 function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
     handleMouseLeave, strokeColor, isHovered, handleRemoveRole,
@@ -165,7 +166,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                         <text
                           style={{ color: "#FF3B2F" }}
 
-                          onClick={handleRemoveRole}
+                          onClick={(e) => handleRemoveRole(e)}
                         >
                           <img src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
                           Remove Role
@@ -283,7 +284,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                         <text
                           style={{ color: "#FF3B2F" }}
 
-                          onClick={handleRemoveRole}
+                          onClick={(e) => handleRemoveRole(e)}
                         >
                           <img src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
                           Remove Role
@@ -411,7 +412,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                           <text
                             style={{ color: "#FF3B2F" }}
 
-                            onClick={handleRemoveRole}
+                            onClick={(e) => handleRemoveRole(e)}
                           >
                             <img src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
                             Remove Role
@@ -490,7 +491,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
             <div className={styles["image-container-d3"]} onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave} onClick={handleRectClick}>
 
-              {/* <NameProfile userName={nodeDatum.fullName} width='50px' memberPhoto={nodeDatum.photo} fontSize='24px' fontweight='500' /> */}
+              <NameProfile userName={nodeDatum.fullName} width='50px' memberPhoto={nodeDatum.photo} fontSize='24px' fontweight='500' />
 
 
 
