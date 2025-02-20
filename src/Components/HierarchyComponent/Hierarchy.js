@@ -361,12 +361,12 @@ const fetchOrg = async () => {
             
             {/* 
            
-            {action === 'edit_role' && <EditRole activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData}/>}
+            
             
             {action === 'change_manager' && <EditManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
             {action === 'transfer_to' && <RemoveChangeManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
             {collabOpen && <AddCollaborate />}
-            {deletePopUp && <DeleteConfirmation activeNode={clickedData} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData}/>} */}
+            */}
 
           </>
         )}
