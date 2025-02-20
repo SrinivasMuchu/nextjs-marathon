@@ -21,6 +21,8 @@ import AddDepartment from "./modifyHeirarchyPopUps/AddDepartment";
 import ViewRole from "./modifyHeirarchyPopUps/ViewRole";
 import DeletePopUp from "./modifyHeirarchyPopUps/DeletePopUp";
 import EditRole from "./modifyHeirarchyPopUps/EditRole";
+import EditManager from "./modifyHeirarchyPopUps/EditManager";
+import ChangeManager from "./modifyHeirarchyPopUps/ChangeManager";
 
 
 
@@ -357,13 +359,15 @@ const fetchOrg = async () => {
             {action === 'add_dept' && <AddDepartment activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
             {action === 'edit_role' && <EditRole activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData}/>}
+            {action === 'change_manager' && <EditManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
             {deletePopUp && <DeletePopUp activeNode={clickedData} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData}/>}
+            {action === 'transfer_to' && <ChangeManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
             
             {/* 
            
             
             
-            {action === 'change_manager' && <EditManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
+            
             {action === 'transfer_to' && <RemoveChangeManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
             {collabOpen && <AddCollaborate />}
             */}

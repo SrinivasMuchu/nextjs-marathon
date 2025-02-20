@@ -24,7 +24,7 @@ function ViewRole({ activeNode, setAction }) {
     <>
 
       <div className={styles["editRole"]} style={{ display: close ? "none" : "block" }}>
-        <div className={styles["docTop"]}>
+        <div className={styles["docTop"]}> 
           
           <CloseButton handleClose={handleClose} heading='View role' styles={styles}/>
           <div className={styles["viewrole-photo-cont"]}>

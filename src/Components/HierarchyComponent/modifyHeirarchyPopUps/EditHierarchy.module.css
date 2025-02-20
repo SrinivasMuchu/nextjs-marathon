@@ -11,10 +11,10 @@
   justify-content: space-between;
   padding-left: 1.7vw;
   padding-right: 1.7vw;
-  margin-bottom: 4.8vh;
+  /* margin-bottom: 4.8vh; */
   border-left: 1px solid #edf2f7;
   /* padding-top: 9.7vh; */
-  height: 93vh;
+  height: 100vh;
  
 
 }
@@ -387,7 +387,13 @@
 .viewrole-phone-detail {
     padding-left: 32px;
 }
-
+.viewrole-input{
+    padding: 5px;
+    border-radius: 5px;
+   border: 1px solid #edf2f7;
+ 
+    outline: none;
+}
 .viewrole-bottom {
     padding-top: 24px;
     padding-bottom: 24px;
@@ -415,7 +421,29 @@
     background: #9770d4;
 }
 
+.general-upload {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 2px solid #EDF2F7;
+    margin-top: 5px;
+}
 
+.general-upload {
+    position: relative;
+}
+
+.general-upload-btn {
+    cursor: pointer;
+    position: absolute;
+    top: 80%;
+    right: 5%;
+    background-color: white;
+    border-radius: 50%;
+    border: 2px solid #EDF2F7;
+    padding: 6px;
+
+}
 /* delete popup */
 .default-popup {
     width: 100%;

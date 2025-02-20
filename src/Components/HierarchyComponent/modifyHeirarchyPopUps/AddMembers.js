@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import styles from './EditHierarchy.module.css';
-import CloseIcon from "@mui/icons-material/Close";
 import Select from "react-select";
 import axios from "axios";
 import { BASE_URL, ASSET_PREFIX_URL } from "@/config";
@@ -10,16 +9,17 @@ import NameProfile from "@/Components/CommonJsx.js/NameProfile";
 import CommonSaveButton from "../Common/CommonSaveButton";
 import CommonCancelButton from "../Common/CommonCancelButton";
 import CloseButton from "../Common/CloseButton";
+import AddMemberDetails from "./AddMemberDetails";
 
 function AddMember({ activeNode, setAction, action, setUpdatedData }) {
-  console.log(activeNode)
+ 
   const [close, setClose] = useState(false);
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
   const [jobTitle, setJobTitle] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-
+  const [addMember, setAddMember] = useState(false);
 
   const handleOnchange = (selected) => {
     setJobTitle(selected.designation);
@@ -111,8 +111,9 @@ function AddMember({ activeNode, setAction, action, setUpdatedData }) {
       <div className={styles["head-cont"]}>
        
         <CloseButton handleClose={handleClose} heading={`Add ${action === 'add_mem' ? "member" : "assistant"}`} styles={styles}/>
-
-        <div className={styles["emp"]}>
+        
+        {!addMember ? <>
+          <div className={styles["emp"]}>
           <span>Employee</span>
           <Select
             id="mySelect1"
@@ -139,6 +140,10 @@ function AddMember({ activeNode, setAction, action, setUpdatedData }) {
             <div className={styles["department-error"]} ><img src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
           )}
         </div>
+        <div className={styles["emp"]}>
+          <button className={styles["submit-edit-button"]} style={{padding:'8px',borderRadius:'4px'}}
+          onClick={()=>setAddMember(!addMember)}>Add member</button>
+        </div>
         <div className={styles["editJob"]}>
           <span>Job title</span>
           <input
@@ -152,15 +157,21 @@ function AddMember({ activeNode, setAction, action, setUpdatedData }) {
             <div className={styles["department-error"]} ><img src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.jobTitle}</div>
           )}
         </div>
-
-      </div>
-
-      <div className={styles["btn-bottom"]} >
+        <div className={styles["btn-bottom"]} >
         {(!jobTitle || !selectedOption) ? <CommonSaveButton handleClick={handleAddMember} className='submit-edit-errorbutton' styles={styles} /> :
           <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />}
 
         <CommonCancelButton handleClose={handleClose} styles={styles} />
       </div>
+        </>:<AddMemberDetails activeNode={activeNode} handleClose={handleClose} setAction={setAction} action={action} setUpdatedData={setUpdatedData}/> }
+       
+        
+
+       
+
+      </div>
+
+    
     </div>
   );
 }
