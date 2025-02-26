@@ -3,7 +3,8 @@ import React, { useState } from 'react'
 import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
 import DraftsOutlinedIcon from '@mui/icons-material/DraftsOutlined';
 import styles from './EditHierarchy.module.css';
-import { ASSET_PREFIX_URL } from '@/config';
+import axios from "axios";
+import { ASSET_PREFIX_URL,BASE_URL } from '@/config';
 import CommonSaveButton from '../Common/CommonSaveButton';
 import CommonCancelButton from '../Common/CommonCancelButton';
 
@@ -23,42 +24,58 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
         setPhotoFile(URL.createObjectURL(file))
 
     };
-    const handleProfile = async (e) => {
-        e.preventDefault();
-        if (!fullName) {
-            setError("Full name cannot be empty");
-        } else if (!jobTitle) {
-            setError("Job title cannot be empty");
-        } else if (!email) {
-            setError("Email cannot be empty");
-        } else {
-            setError("");
-
-
-
-
-            try {
-                if (fullName !== "") {
-                    const token = localStorage.getItem("token");
-                    
-                        if (photoBlob) {
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                                const blobData = reader.result;
-                                updateDetails(arrayBufferToBase64(blobData), token);
-                            };
-                            reader.readAsArrayBuffer(photoBlob);
-                        } else {
-                            updateDetails("", token);
-                        }
-                    
-                }
-                
-            } catch (error) {
-                console.error(error);
-            }
+    const handleAddMember = async () => {
+        // Reset form submission status and validation errors
+        // setFormSubmitted(true);
+        // setValidationErrors({});
+    
+        // Validate inputs
+        // if (!jobTitle.trim()) {
+        //   setValidationErrors(prevErrors => ({ ...prevErrors, jobTitle: "Job Title is required." }));
+        //   return;
+        // }
+        // if (!fullName) {
+        //   setValidationErrors(prevErrors => ({ ...prevErrors, fullName: "Please select an employee." }));
+        //   return;
+        // }
+        // if (!email) {
+        //   setValidationErrors(prevErrors => ({ ...prevErrors, email: "Please select an employee." }));
+        //   return;
+        // }
+    
+        try {
+          const headers = {
+            'x-auth-token': localStorage.getItem("token")
+          };
+         const response = await axios.post(BASE_URL + "/v1/org/add-hierarchy-next", {
+          uuid:localStorage.getItem('uuid'),designation:jobTitle, fullName, phoneNumber, email,
+            
+          },
+            {
+              headers
+            });
+            console.log(response.data.data.member)
+          
+        
+          await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
+            entity_id: response.data.data.member,
+            parent_entity_id: activeNode.entity_id,
+            is_sibling: true,
+            job_title: jobTitle,
+            entity_type: action === 'add_mem' ? "member" : "assistant",
+            action: 'add',
+          },
+            {
+              headers
+            });
+          setUpdatedData(response)
+          setAction(false)
+        } catch (error) {
+          console.error(error.message);
+    
         }
-    };
+      };
+    
     const arrayBufferToBase64 = (arrayBuffer) => {
         let binary = "";
         const bytes = new Uint8Array(arrayBuffer);
@@ -165,10 +182,10 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
             </div>
             <div className={styles["edit-btns"]}>
                 {(!fullName || !email || !jobTitle) ? (
-                    <CommonSaveButton handleClick={handleProfile} className='submit-edit-errorbutton' styles={styles} />
+                    <CommonSaveButton handleClick={handleAddMember} className='submit-edit-errorbutton' styles={styles} />
 
                 ) : (
-                    <CommonSaveButton handleClick={handleProfile} className='submit-edit-button' styles={styles} />
+                    <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />
 
                 )}
                 <CommonCancelButton handleClose={handleClose} styles={styles} />

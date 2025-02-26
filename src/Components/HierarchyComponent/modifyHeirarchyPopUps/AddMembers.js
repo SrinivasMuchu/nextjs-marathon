@@ -38,8 +38,8 @@ function AddMember({ activeNode, setAction, action, setUpdatedData }) {
       const headers = {
         'x-auth-token': localStorage.getItem("token")
       };
-      const response = await axios.get(BASE_URL + "/v1/org/getmember-details",
-        { headers: headers });
+      const response = await axios.get(BASE_URL + "/v1/org/getmember-details-next",{params:{uuid:localStorage.getItem('uuid')}},
+        );
       const data = response.data.data.arr;
       console.log(data.map((i) => i.designation));
       data.sort((a, b) => a.fullName.localeCompare(b.fullName));

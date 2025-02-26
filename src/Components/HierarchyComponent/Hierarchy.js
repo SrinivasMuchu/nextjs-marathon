@@ -1,10 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
 import styles from "./Hierarchy.module.css";
 import Tree from "react-d3-tree";
 import { useCenteredTree } from "./helper";
-import { BASE_URL,ASSET_PREFIX_URL } from "@/config";
+import { BASE_URL, ASSET_PREFIX_URL } from "@/config";
+import { saveAs } from "file-saver";
+
 // import { BASE_URL, PHOTO_LINK, ASSET_PREFIX_URL } from "../../../constants/config";
 // import AddMember from "../EditComponents/AddMember";
 // import Loading from "../Loading/Loading";
@@ -44,7 +47,7 @@ const RenderRectSvgNode = ({
   addmenuopen, editMenuOpen,
   isAdmin, isCollaborator,
   hasChildren, setHasChildren, setIsChangingManager, setAction,
-    setDeletePopUp, setParentId
+  setDeletePopUp, setParentId
 }) => {
 
   const handleRemoveRole = async (e) => {
@@ -58,7 +61,7 @@ const RenderRectSvgNode = ({
         setDeletePopUp(true)
         setIsChangingManager(false);
 
-        
+
       }
     } catch (error) {
       console.log(error);
@@ -84,7 +87,7 @@ const RenderRectSvgNode = ({
         setActiveNode(nodeDatum);
 
       }
-      
+
       // Handle tour logic based on node type
 
     }
@@ -102,7 +105,7 @@ const RenderRectSvgNode = ({
   // Set activeNode state to null initially or based on your logic
   // const [activeNode, setActiveNode] = useState(null);
 
- 
+
   const strokeColor = activeNode === nodeDatum ? (isHovered ? "#FF7A7A" : "#C4C9CC") : "#C4C9CC";
   const strokeDepColor = activeNode === nodeDatum ? (isHovered ? "#FF7A7A" : "#00B6B6") : "#00B6B6";
   const fillColor = activeNode === nodeDatum ? (isHovered ? "white" : "#E6EFFD") : "#E6EFFD";
@@ -122,10 +125,10 @@ const RenderRectSvgNode = ({
 
 
   function handleMenuActions(action) {
-    if (isAdmin) {
+    // if (isAdmin) {
       setClickedData(nodeDatum);
       setAction(action);
-    }
+    // }
 
   }
 
@@ -134,11 +137,11 @@ const RenderRectSvgNode = ({
   return (
     <>
       <RenderNodes nodeDatum={nodeDatum} activeNode={activeNode} handleRectClick={handleRectClick} handleMouseEnter={handleMouseEnter}
-      handleMouseLeave={handleMouseLeave} strokeColor={strokeColor} isHovered={isHovered} handleRemoveRole={handleRemoveRole}
-      handleMenuActions={handleMenuActions} editMenuOpen={editMenuOpen} addmenuopen={addmenuopen} handleEdit={handleEdit}
-      fillColor={fillColor} strokeDepColor={strokeDepColor} hasChildren={hasChildren} handleAdd={handleAdd}
+        handleMouseLeave={handleMouseLeave} strokeColor={strokeColor} isHovered={isHovered} handleRemoveRole={handleRemoveRole}
+        handleMenuActions={handleMenuActions} editMenuOpen={editMenuOpen} addmenuopen={addmenuopen} handleEdit={handleEdit}
+        fillColor={fillColor} strokeDepColor={strokeDepColor} hasChildren={hasChildren} handleAdd={handleAdd}
       />
-      
+
     </>
   );
 };
@@ -166,7 +169,7 @@ function Hierarchy({ department }) {
   const [isDepartment, setDepartment] = useState(false);
   const [collabOpen, setCollabOpen] = useState(false);
   const [collabAdmin, setCollabAdmin] = useState('');
-  const [updatedData,setUpdatedData] = useState(false)
+  const [updatedData, setUpdatedData] = useState(false)
   const [parentId, setParentId] = useState(null);
   const [deletePopUp, setDeletePopUp] = useState(false);
   useEffect(() => {
@@ -174,49 +177,106 @@ function Hierarchy({ department }) {
     fetchOrg();
 
 
-  }, [parentId,updatedData]);
+  }, [parentId, updatedData]);
+  const createOrg = async (uuid) => {
+    try {
+     const response= await axios.post(BASE_URL + "/v1/org/create-org-next", {
+        uuid,
+
+      },
+
+      );
+      localStorage.setItem('uuid', uuid)
+      localStorage.setItem('org_id', response.data.data.org_id)
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const uuid = localStorage.getItem('uuid')
+  if (!uuid) {
+    const uuid = uuidv4()
+    createOrg(uuid)
+
+  }
+  console.log(uuid)
 
 
-
-
- 
   const updateHierarchy = (nodes, parentId, children) => {
     return nodes.map(node => {
-        if (node.entity_id === parentId) {
-            return { ...node, children }; // Add fetched children to the parent node
-        } else if (node.children) {
-            return { ...node, children: updateHierarchy(node.children, parentId, children) }; // Recursively update
-        }
-        return node;
+      if (node.entity_id === parentId) {
+        return { ...node, children }; // Add fetched children to the parent node
+      } else if (node.children) {
+        return { ...node, children: updateHierarchy(node.children, parentId, children) }; // Recursively update
+      }
+      return node;
     });
-};
-
-const fetchOrg = async () => {
+  };
+  const handleDownloadExcel = async () => {
     try {
-        const HEADERS = { "x-auth-token": localStorage.getItem('token') };
-        const response = await axios.get(BASE_URL + '/v1/org/get-hierarchy', {
-            params: { parent_entity_id: parentId },
-            headers: HEADERS,
+      const response = await axios.get(
+        `${BASE_URL}/v1/org/export-to-excell`,
+        { responseType: "blob" }
+      );
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      saveAs(blob, `org-hierarchy.xlsx`);
+    } catch (error) {
+      console.error("Error downloading Excel file:", error);
+    }
+  };
+  const handleImportExcel = async (event) => {
+    console.log(event)
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("uuid", localStorage.getItem('uuid'));
+
+    try {
+        const response = await axios.post(`${BASE_URL}/v1/org/import-excell`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
         });
 
-        if (response.data.meta.code == 200) {
-            setHierarchy(prevHierarchy => {
-                if (parentId) {
-                    return updateHierarchy(prevHierarchy, parentId, response.data.data.hierarchy);
-                } else {
-                    return response.data.data.hierarchy; // Initial load
-                }
-            });
-
-            setIsSetAdmin(response.data.data.is_admin);
-            setIsCollaborator(response.data.data.isCollaborator);
-        }
+        alert(response.data.message);
     } catch (error) {
-        console.error("Error fetching data:", error);
-    } finally {
-        setLoading(false);
+        console.error("Error importing Excel file:", error);
+        alert("Failed to import: " + error.response.data.message);
     }
 };
+
+  const fetchOrg = async () => {
+    try {
+
+      // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
+      const response = await axios.get(BASE_URL + '/v1/org/get-hierarchy-next', {
+        params: { parent_entity_id: parentId },
+       
+      });
+
+      if (response.data.meta.code == 200) {
+        setHierarchy(prevHierarchy => {
+          if (parentId) {
+            return updateHierarchy(prevHierarchy, parentId, response.data.data.hierarchy);
+          } else {
+            return response.data.data.hierarchy; // Initial load
+          }
+        });
+
+        setIsSetAdmin(response.data.data.is_admin);
+        setIsCollaborator(response.data.data.isCollaborator);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 
@@ -235,7 +295,7 @@ const fetchOrg = async () => {
   }
   const fetchData = async () => {
     try {
-      const HEADERS = { "x-auth-token": localStorage.getItem('token')}
+      const HEADERS = { "x-auth-token": localStorage.getItem('token') }
       await axios.get(BASE_URL + "/v1/org/add-collab", {
         headers: HEADERS,
       });
@@ -247,7 +307,7 @@ const fetchOrg = async () => {
 
   const fetchAddedData = async () => {
     try {
-      const HEADERS = { "x-auth-token": localStorage.getItem('token')}
+      const HEADERS = { "x-auth-token": localStorage.getItem('token') }
       await axios.get(BASE_URL + "/v1/org/get-collab", {
         headers: HEADERS,
       });
@@ -263,12 +323,12 @@ const fetchOrg = async () => {
     fetchData();
     await fetchAddedData()
   }
-  useEffect(() => {
-    fetchMmebers()
-  }, []);
+  // useEffect(() => {
+  //   fetchMmebers()
+  // }, []);
   const fetchMmebers = async () => {
     try {
-      const HEADERS = { "x-auth-token": localStorage.getItem('token')}
+      const HEADERS = { "x-auth-token": localStorage.getItem('token') }
       const response = await axios.get(BASE_URL + "/v1/org/getmember-details", { headers: HEADERS });
       const data = response.data.data;
       setCollabAdmin(data.is_admin)
@@ -292,16 +352,16 @@ const fetchOrg = async () => {
     setDeletePopUp(false)
   }
 
-  
+
 
   return (
     <>
       {/* <OrgTopNav /> */}
-      <div style={{width:'100%',height:'99vh'}} ref={containerRef} className={styles["org-hierarchy"]}  onClick={handleToggleOfMenu}>
+      <div style={{ width: '100%', height: '99vh' }} ref={containerRef} className={styles["org-hierarchy"]} onClick={handleToggleOfMenu}>
         {loading ? (
           // <img src={loadingImg} />
-        //   <Loading />
-        <span>loading....</span>
+          //   <Loading />
+          <span>loading....</span>
         ) : (
           <>
             <Tree
@@ -340,7 +400,7 @@ const fetchOrg = async () => {
                   department, edit, setEdit,
                   clickedData, setClickedData, action, setAction,
                   parentId, setParentId,
-                   deletePopUp, setDeletePopUp
+                  deletePopUp, setDeletePopUp
                 })
               }
               orientation="vertical"
@@ -348,21 +408,22 @@ const fetchOrg = async () => {
               separation={{ siblings: 3.25, nonSiblings: 3.5, parentChild: 200 }}
               onClick={handleClick}
             />
-            {collabAdmin ? (
-              <button className={styles["btn-collab"]}   onClick={handleCollabOpen} data-tour="step-10">
-                Add Collaborator
-              </button>
-            ) : (
-              '' // Show an empty fragment if not an admin (i.e., nothing will be rendered)
-            )} 
-            {(action === 'add_mem' || action === 'add_assist') && <AddMember activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData}/>}
+
+            <button className={styles["btn-collab"]} onClick={handleDownloadExcel} >
+              Export
+            </button>
+            {/* <button className={styles["btn-collab"]} onClick={handleImportExcel} >
+              Import
+            </button> */}
+            <input className={styles["btn-collab"]} type="file" onChange={(e)=>handleImportExcel(e)} accept=".xlsx" />
+            {(action === 'add_mem' || action === 'add_assist') && <AddMember activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
             {action === 'add_dept' && <AddDepartment activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
-            {action === 'edit_role' && <EditRole activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData}/>}
-            {action === 'change_manager' && <EditManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
-            {deletePopUp && <DeletePopUp activeNode={clickedData} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData}/>}
-            {action === 'transfer_to' && <ChangeManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData}/>}
-            
+            {action === 'edit_role' && <EditRole activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
+            {action === 'change_manager' && <EditManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
+            {deletePopUp && <DeletePopUp activeNode={clickedData} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData} />}
+            {action === 'transfer_to' && <ChangeManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
+
             {/* 
            
             

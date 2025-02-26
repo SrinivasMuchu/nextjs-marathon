@@ -35,7 +35,22 @@
   height: 100%;
   object-fit: cover;
 }
-
+.btn-collab {
+  position: absolute;
+  z-index: 1;
+  top: 100px;
+  right: 50px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  background: #610bee;
+  border-radius: 4px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 8px 12px;
+}
 .rotated-img {
   transform: rotate(45deg);
 }

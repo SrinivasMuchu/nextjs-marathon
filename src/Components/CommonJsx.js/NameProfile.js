@@ -34,7 +34,7 @@ function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,
                     // borderRadius:borderRadius,
                     fontSize:fontSize,fontWeight:fontweight
                 }}>
-                    <span>{renderInitials()}</span>
+                    <span style={{margin:'0px'}}>{renderInitials()}</span>
                 </div>
             )}
         </>
