@@ -283,7 +283,7 @@ function Hierarchy({ department }) {
 
           });
         } else {
-          setHierarchy({})
+          setHierarchy(hierarchy)
         }
 
         // setIsSetAdmin(false);
@@ -430,15 +430,16 @@ function Hierarchy({ department }) {
             <button className={styles["btn-collab"]}  onClick={handleDownloadExcel} >
               Export
             </button>
-            <button className={styles["btn-collab"]}  style={{right:'120px'}} onClick={() => document.getElementById("fileupld").click()} >
+            <button className={styles["btn-collab"]}  style={{right:'150px'}} onClick={() => document.getElementById("fileupld").click()} >
               Import
             </button>
             {/* <button className={styles["btn-collab"]} onClick={handleImportExcel} >
               Import
             </button> */}
             <input className={styles["btn-collab"]} style={{display:'none'}} id="fileupld" type="file" onChange={(e)=>handleImportExcel(e)} accept=".xlsx" />
-            {(action === 'add_mem' || action === 'add_assist') && <AddMember activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
-            {action === 'add_dept' && <AddDepartment activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
+            {(action === 'add_mem' || action === 'add_assist') && <AddMember setParentId={setParentId}
+             activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
+            {action === 'add_dept' && <AddDepartment setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
             {action === 'edit_role' && <EditRole activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'change_manager' && <EditManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}

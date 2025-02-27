@@ -8,7 +8,7 @@ import { ASSET_PREFIX_URL,BASE_URL } from '@/config';
 import CommonSaveButton from '../Common/CommonSaveButton';
 import CommonCancelButton from '../Common/CommonCancelButton';
 
-function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdatedData }) {
+function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdatedData,setParentId }) {
     const [photoFile, setPhotoFile] = useState('')
     const [fullName, setFullName] = useState('')
     const [jobTitle, setJobTitle] = useState('')
@@ -48,7 +48,7 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
             'x-auth-token': localStorage.getItem("token")
           };
          const response = await axios.post(BASE_URL + "/v1/org/add-hierarchy-next", {
-          uuid:localStorage.getItem('uuid'),designation:jobTitle, fullName, phoneNumber, email,
+          uuid:localStorage.getItem('uuid'),designation:jobTitle, fullName, phoneNumber, email,org_id:localStorage.getItem('org_id'),
             
           },
             {
@@ -68,7 +68,7 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
             {
               headers
             });
-          setUpdatedData(response)
+            setParentId(activeNode.parent_entity_id)
           setAction(false)
         } catch (error) {
           console.error(error.message);

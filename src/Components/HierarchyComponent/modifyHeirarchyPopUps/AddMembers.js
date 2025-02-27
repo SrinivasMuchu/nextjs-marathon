@@ -11,7 +11,7 @@ import CommonCancelButton from "../Common/CommonCancelButton";
 import CloseButton from "../Common/CloseButton";
 import AddMemberDetails from "./AddMemberDetails";
 
-function AddMember({ activeNode, setAction, action, setUpdatedData }) {
+function AddMember({ activeNode, setAction, action, setUpdatedData,setParentId }) {
  
   const [close, setClose] = useState(false);
   const [options, setOptions] = useState([]);
@@ -38,7 +38,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData }) {
       const headers = {
         'x-auth-token': localStorage.getItem("token")
       };
-      const response = await axios.get(BASE_URL + "/v1/org/getmember-details-next",{params:{uuid:localStorage.getItem('uuid')}},
+      const response = await axios.get(BASE_URL + "/v1/org/getmember-details-next",{params:{uuid:localStorage.getItem('uuid'),org_id:localStorage.getItem('org_id')}},
         );
       const data = response.data.data.arr;
       console.log(data.map((i) => i.designation));
@@ -86,6 +86,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData }) {
         {
           headers
         });
+        setParentId(activeNode.parent_entity_id)
       setUpdatedData(selectedEntityId)
       setAction(false)
     } catch (error) {
@@ -163,7 +164,8 @@ function AddMember({ activeNode, setAction, action, setUpdatedData }) {
 
         <CommonCancelButton handleClose={handleClose} styles={styles} />
       </div>
-        </>:<AddMemberDetails activeNode={activeNode} handleClose={handleClose} setAction={setAction} action={action} setUpdatedData={setUpdatedData}/> }
+        </>:<AddMemberDetails setParentId={setParentId}
+         activeNode={activeNode} handleClose={handleClose} setAction={setAction} action={action} setUpdatedData={setUpdatedData}/> }
        
         
 

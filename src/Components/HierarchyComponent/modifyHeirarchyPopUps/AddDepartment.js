@@ -9,7 +9,7 @@ import CommonSaveButton from "../Common/CommonSaveButton";
 import CloseButton from "../Common/CloseButton";
 
 
-function AddDepartment({ activeNode, setAction,setUpdatedData }) {
+function AddDepartment({ activeNode, setAction,setParentId }) {
   const [department, setDepartment] = useState('');
   // uniqueInitial
   const [uniqueInitial, setUniqueInitial] = useState('');
@@ -142,7 +142,7 @@ function AddDepartment({ activeNode, setAction,setUpdatedData }) {
             }
           );
         }
-        setUpdatedData(department)
+        setParentId(activeNode.parent_entity_id)
         setAction(false)
         // window.location.reload();
       } else if (responseData.data.meta.success === false) {
