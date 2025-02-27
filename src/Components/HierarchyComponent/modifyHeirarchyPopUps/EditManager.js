@@ -68,10 +68,10 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData }) {
     try {
       const selectedEntityId = selectedOption ? selectedOption.entity_id : "";
       // Get the selected email from the option
-      await axios.post(BASE_URL + "/v1/org/update-hierarchy", {
+      await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
         action: 'change_manager',
         old_manager_id: activeNode.entity_id,
-        new_manager_id: selectedEntityId,
+        new_manager_id: selectedEntityId,org_id:localStorage.getItem('org_id')
       }, {
         headers: {
             'x-auth-token': localStorage.getItem("token")

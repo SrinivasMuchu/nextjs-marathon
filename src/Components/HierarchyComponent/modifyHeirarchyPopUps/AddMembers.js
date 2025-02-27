@@ -75,13 +75,13 @@ function AddMember({ activeNode, setAction, action, setUpdatedData }) {
       };
       const selectedEntityId = selectedOption ? selectedOption._id : "";
       console.log(selectedEntityId)
-      await axios.post(BASE_URL + "/v1/org/update-hierarchy", {
+      await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
         entity_id: selectedEntityId,
         parent_entity_id: activeNode.entity_id,
         is_sibling: true,
         job_title: jobTitle,
         entity_type: action === 'add_mem' ? "member" : "assistant",
-        action: 'add',
+        action: 'add',org_id:localStorage.getItem('org_id'),uuid:localStorage.getItem('uuid')
       },
         {
           headers

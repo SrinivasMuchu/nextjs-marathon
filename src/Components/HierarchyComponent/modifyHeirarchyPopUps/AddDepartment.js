@@ -34,11 +34,11 @@ function AddDepartment({ activeNode, setAction,setUpdatedData }) {
   const fetchDepartments = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`${BASE_URL}/v1/org/get-exist-department`, {
+      const response = await axios.get(`${BASE_URL}/v1/org/get-exist-next-department`, {
         headers: {
             'x-auth-token': localStorage.getItem("token")
           },
-        params: { department_name: department },
+        params: { department_name: department,org_id:localStorage.getItem('org_id') },
       });
       if (response.data.meta.success) {
         setDepartments(response.data.data.filtered_departments);
@@ -90,12 +90,12 @@ function AddDepartment({ activeNode, setAction,setUpdatedData }) {
 
       if (deptId) {
         responseData = await axios.post(
-          `${BASE_URL}/v1/org/create-dept`,
+          `${BASE_URL}/v1/org/create-next-dept`,
           {
             department_name: department,
             description: description,
             unique_initial:uniqueInitial,
-            departId: deptId,
+            departId: deptId,org_id:localStorage.getItem('org_id')
           },
           {
             headers: {
@@ -105,10 +105,10 @@ function AddDepartment({ activeNode, setAction,setUpdatedData }) {
         );
       } else {
         responseData = await axios.post(
-          `${BASE_URL}/v1/org/create-dept`,
+          `${BASE_URL}/v1/org/create-next-dept`,
           {
             department_name: department,
-            description: description,
+            description: description,org_id:localStorage.getItem('org_id')
            
           },
           {
@@ -124,7 +124,7 @@ function AddDepartment({ activeNode, setAction,setUpdatedData }) {
 
         if (activeNode && activeNode.entity_id) {
           const response = await axios.post(
-            `${BASE_URL}/v1/org/update-hierarchy`,
+            `${BASE_URL}/v1/org/update-hierarchy-next`,
             {
               entity_id: entityId,
               parent_entity_id: activeNode.entity_id,
@@ -132,6 +132,8 @@ function AddDepartment({ activeNode, setAction,setUpdatedData }) {
               job_title: activeNode.jobTitle,
               entity_type: 'department', 
               action: 'add',
+              uuid:localStorage.getItem('uuid'),
+              org_id:localStorage.getItem('org_id')
             },
             {
               headers: {

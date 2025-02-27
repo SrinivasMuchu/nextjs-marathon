@@ -78,7 +78,7 @@ const RenderRectSvgNode = ({
   };
 
   const handleMouseEnter = () => {
-    if (isAdmin === 1 || isCollaborator === 1) {
+    // if (isAdmin === 1 || isCollaborator === 1) {
       setIsHovered(true);
       setShowPlus(true);
       setDepartment(true);
@@ -90,7 +90,7 @@ const RenderRectSvgNode = ({
 
       // Handle tour logic based on node type
 
-    }
+    // }
   };
 
   const handleMouseLeave = () => {
@@ -126,8 +126,8 @@ const RenderRectSvgNode = ({
 
   function handleMenuActions(action) {
     // if (isAdmin) {
-      setClickedData(nodeDatum);
-      setAction(action);
+    setClickedData(nodeDatum);
+    setAction(action);
     // }
 
   }
@@ -152,7 +152,7 @@ const RenderRectSvgNode = ({
 function Hierarchy({ department }) {
   const [loading, setLoading] = useState(true);
   const [hierarchy, setHierarchy] = useState({});
-  const [isAdmin, setIsSetAdmin] = useState('');
+  const [isAdmin, setIsSetAdmin] = useState(true);
   const [isCollaborator, setIsCollaborator] = useState('');
   const [activeNode, setActiveNode] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -178,9 +178,20 @@ function Hierarchy({ department }) {
 
 
   }, [parentId, updatedData]);
+  useEffect(() => {
+    const uuid = localStorage.getItem('uuid')
+    if (!uuid) {
+      const uuid = uuidv4()
+      createOrg(uuid)
+
+    }
+
+
+
+  }, []);
   const createOrg = async (uuid) => {
     try {
-     const response= await axios.post(BASE_URL + "/v1/org/create-org-next", {
+      const response = await axios.post(BASE_URL + "/v1/org/create-org-next", {
         uuid,
 
       },
@@ -194,13 +205,8 @@ function Hierarchy({ department }) {
       setLoading(false);
     }
   };
-  const uuid = localStorage.getItem('uuid')
-  if (!uuid) {
-    const uuid = uuidv4()
-    createOrg(uuid)
 
-  }
-  console.log(uuid)
+
 
 
   const updateHierarchy = (nodes, parentId, children) => {
@@ -217,8 +223,10 @@ function Hierarchy({ department }) {
     try {
       const response = await axios.get(
         `${BASE_URL}/v1/org/export-to-excell`,
-        { responseType: "blob" }
+        {params:{organization_id:localStorage.getItem('org_id')}, responseType: "blob" }
       );
+        
+      
 
       const blob = new Blob([response.data], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -237,39 +245,49 @@ function Hierarchy({ department }) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("uuid", localStorage.getItem('uuid'));
+    formData.append("org_id", localStorage.getItem('org_id'));
 
     try {
-        const response = await axios.post(`${BASE_URL}/v1/org/import-excell`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
+      const response = await axios.post(`${BASE_URL}/v1/org/import-excell`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-        alert(response.data.message);
+      fetchOrg()
     } catch (error) {
-        console.error("Error importing Excel file:", error);
-        alert("Failed to import: " + error.response.data.message);
+      console.error("Error importing Excel file:", error);
+      alert("Failed to import: " + error.response.data.message);
     }
-};
+  };
 
   const fetchOrg = async () => {
     try {
 
       // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
       const response = await axios.get(BASE_URL + '/v1/org/get-hierarchy-next', {
-        params: { parent_entity_id: parentId },
-       
+        params: { parent_entity_id: parentId,org_id:localStorage.getItem('org_id') },
+
       });
 
       if (response.data.meta.code == 200) {
-        setHierarchy(prevHierarchy => {
-          if (parentId) {
-            return updateHierarchy(prevHierarchy, parentId, response.data.data.hierarchy);
-          } else {
-            return response.data.data.hierarchy; // Initial load
-          }
-        });
 
-        setIsSetAdmin(response.data.data.is_admin);
-        setIsCollaborator(response.data.data.isCollaborator);
+        if (response.data.data.hierarchy.length) {
+          console.log(response.data.data.hierarchy.length)
+          setHierarchy(prevHierarchy => {
+
+            if (parentId) {
+              return updateHierarchy(prevHierarchy, parentId, response.data.data.hierarchy);
+            } else {
+              return response.data.data.hierarchy; // Initial load
+            }
+
+
+          });
+        } else {
+          setHierarchy({})
+        }
+
+        // setIsSetAdmin(false);
+        // setIsCollaborator(response.data.data.isCollaborator);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -409,13 +427,16 @@ function Hierarchy({ department }) {
               onClick={handleClick}
             />
 
-            <button className={styles["btn-collab"]} onClick={handleDownloadExcel} >
+            <button className={styles["btn-collab"]}  onClick={handleDownloadExcel} >
               Export
+            </button>
+            <button className={styles["btn-collab"]}  style={{right:'120px'}} onClick={() => document.getElementById("fileupld").click()} >
+              Import
             </button>
             {/* <button className={styles["btn-collab"]} onClick={handleImportExcel} >
               Import
             </button> */}
-            <input className={styles["btn-collab"]} type="file" onChange={(e)=>handleImportExcel(e)} accept=".xlsx" />
+            <input className={styles["btn-collab"]} style={{display:'none'}} id="fileupld" type="file" onChange={(e)=>handleImportExcel(e)} accept=".xlsx" />
             {(action === 'add_mem' || action === 'add_assist') && <AddMember activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
             {action === 'add_dept' && <AddDepartment activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}

@@ -61,7 +61,7 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
             entity_id: response.data.data.member,
             parent_entity_id: activeNode.entity_id,
             is_sibling: true,
-            job_title: jobTitle,
+            job_title: jobTitle,uuid:localStorage.getItem('uuid'),
             entity_type: action === 'add_mem' ? "member" : "assistant",
             action: 'add',
           },
@@ -152,10 +152,20 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
                         <span style={{marginRight:'15px'}}>Job title:</span>
                         <input className={styles["viewrole-input"]} placeholder='Enter job title' type='text' value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} />
                     </div>
+                    <br/>
+                    <div>
+                        <span style={{marginRight:'15px'}}>Email:</span>
+                        <input className={styles["viewrole-input"]} placeholder='Enter email' type='email' value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </div>
+                    <br/>
+                    <div>
+                        <span style={{marginRight:'15px'}}>Phone number:</span>
+                        <input className={styles["viewrole-input"]} placeholder='Enter phone number' type='text' value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+                    </div>
 
                 </div>
 
-                <div className={styles["viewrole-contact"]} >
+                {/* <div className={styles["viewrole-contact"]} >
                     <span><b>Contact</b></span>
                     <div className={styles["viewrole-email"]} >
                         <div className={styles["viewrole-email-label"]}>
@@ -177,7 +187,7 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
                             <input className={styles["viewrole-input"]} placeholder='Enter phone number' type='text' value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
                         </div>
                     </div>
-                </div>
+                </div> */}
 
             </div>
             <div className={styles["edit-btns"]}>
