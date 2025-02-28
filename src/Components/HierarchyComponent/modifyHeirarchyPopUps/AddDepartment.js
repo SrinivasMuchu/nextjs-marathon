@@ -38,7 +38,7 @@ function AddDepartment({ activeNode, setAction,setParentId }) {
         headers: {
             'x-auth-token': localStorage.getItem("token")
           },
-        params: { department_name: department,org_id:localStorage.getItem('org_id') },
+        params: { department_name: department,uuid:localStorage.getItem('uuid'),org_id:localStorage.getItem('org_id') },
       });
       if (response.data.meta.success) {
         setDepartments(response.data.data.filtered_departments);
@@ -132,7 +132,7 @@ function AddDepartment({ activeNode, setAction,setParentId }) {
               job_title: activeNode.jobTitle,
               entity_type: 'department', 
               action: 'add',
-              uuid:localStorage.getItem('uuid'),
+              // uuid:localStorage.getItem('uuid'),
               org_id:localStorage.getItem('org_id')
             },
             {

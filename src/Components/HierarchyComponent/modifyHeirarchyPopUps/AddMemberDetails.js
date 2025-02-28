@@ -8,6 +8,7 @@ import { ASSET_PREFIX_URL,BASE_URL } from '@/config';
 import CommonSaveButton from '../Common/CommonSaveButton';
 import CommonCancelButton from '../Common/CommonCancelButton';
 
+
 function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdatedData,setParentId }) {
     const [photoFile, setPhotoFile] = useState('')
     const [fullName, setFullName] = useState('')
@@ -56,20 +57,30 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
             });
             console.log(response.data.data.member)
           
-        
-          await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
-            entity_id: response.data.data.member,
-            parent_entity_id: activeNode.entity_id,
-            is_sibling: true,
-            job_title: jobTitle,uuid:localStorage.getItem('uuid'),
-            entity_type: action === 'add_mem' ? "member" : "assistant",
-            action: 'add',
-          },
-            {
-              headers
-            });
-            setParentId(activeNode.parent_entity_id)
-          setAction(false)
+        if(response.data.meta.success){
+          const hierarchyResponse=  await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
+                entity_id: response.data.data.member,
+                parent_entity_id: activeNode.entity_id,
+                is_sibling: true,
+                job_title: jobTitle,uuid:localStorage.getItem('uuid'),
+                entity_type: action === 'add_mem' ? "member" : "assistant",
+                action: 'add',
+              },
+                {
+                  headers
+                });
+                if(hierarchyResponse.data.meta.success){
+                    setUpdatedData(fullName);
+                    setAction(false)
+                    // handleClose();
+                }else{
+                    console.log(hierarchyResponse.data.meta.message)
+                }
+                
+        }else{
+            console.log(response.data.meta.message)
+        }
+         
         } catch (error) {
           console.error(error.message);
     

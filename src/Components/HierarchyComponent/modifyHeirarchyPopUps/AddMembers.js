@@ -27,9 +27,9 @@ function AddMember({ activeNode, setAction, action, setUpdatedData,setParentId }
     // setSelectedEntityId(selected.designation)
   }
 
-  useEffect(() => {
-    fetchData();
-  }, [selectedOption]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [selectedOption]);
 
 
 
@@ -121,6 +121,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData,setParentId }
             options={options}
             menuPlacement="auto"
             styles={customStyles}
+            onFocus={fetchData}
             getOptionLabel={(option) => (
               <div className="select-photo">
 
