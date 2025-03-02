@@ -11,7 +11,7 @@ import CloseButton from "../Common/CloseButton";
 import CommonCancelButton from "../Common/CommonCancelButton";
 import CommonSaveButton from "../Common/CommonSaveButton";
 
-function EditManager({ activeNode, hierarchy, setAction, setUpdatedData }) {
+function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParentId }) {
   console.log(activeNode.parent_entity_id)
   const collectAllIds = (node) => {
     let ids = [node.entity_id];
@@ -39,8 +39,8 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData }) {
   const fetchData = async () => {
     try {
       
-      const response = await axios.get(BASE_URL + "/v1/org/get-change-manager", {
-        params: { entity_ids: allIdsWithParent }, // Send all IDs with parent ID
+      const response = await axios.get(BASE_URL + "/v1/org/get-change-manager-next", {
+        params: { entity_ids: allIdsWithParent,org_id:localStorage.getItem('org_id') }, // Send all IDs with parent ID
         headers: {
             'x-auth-token': localStorage.getItem("token")
           }
@@ -77,7 +77,8 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData }) {
             'x-auth-token': localStorage.getItem("token")
           }
       });
-      setUpdatedData(selectedEntityId)
+      setParentId(activeNode.entity_id);
+      setUpdatedData(response)
       setAction(false)
     } catch (error) {
       console.error(error.message);

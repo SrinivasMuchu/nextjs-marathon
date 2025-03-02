@@ -6,16 +6,16 @@ import { BASE_URL } from "@/config";
 import styles from './EditHierarchy.module.css';
 
 
-function DeletePopUp({ activeNode,setHasChildren,onclose,setUpdatedData }) {
+function DeletePopUp({ activeNode,setHasChildren,onclose,setUpdatedData,setParentId }) {
     
     const handleDelete = async() => {
         // if(acti)
-         await axios.delete(BASE_URL + "/v1/org/remove-role", {
+         await axios.delete(BASE_URL + "/v1/org/remove-role-next", {
           headers: {
             'x-auth-token': localStorage.getItem("token")
           },
           data: {
-            entity_id: activeNode.entity_id,
+            entity_id: activeNode.entity_id,org_id:localStorage.getItem('org_id'),
             // parent_id: activeNode.parent_entity_id,
             remove_type: (activeNode.entity_type === 'department') ? 
               activeNode.department_name : activeNode.fullName
@@ -23,13 +23,8 @@ function DeletePopUp({ activeNode,setHasChildren,onclose,setUpdatedData }) {
         });
 
         // // Handle the response and other logic
-           console.log((activeNode.entity_type === 'department')
-              ? activeNode.department_name : activeNode.fullName)
-        setHasChildren(false);
-
-        setUpdatedData((activeNode.entity_type === 'department')
-        ? activeNode.department_name : activeNode.fullName)
-        onclose()
+        setParentId(activeNode.entity_id);
+        setUpdatedData(activeNode.entity_id);
         // console.log(activeNode.entity_type)
     }
 

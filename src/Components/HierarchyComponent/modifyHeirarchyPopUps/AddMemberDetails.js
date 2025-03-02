@@ -70,7 +70,8 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
                   headers
                 });
                 if(hierarchyResponse.data.meta.success){
-                    setUpdatedData(fullName);
+                    setUpdatedData(hierarchyResponse);
+                    setParentId(activeNode.entity_id);
                     setAction(false)
                     // handleClose();
                 }else{

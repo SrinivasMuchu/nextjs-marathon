@@ -26,6 +26,8 @@ import DeletePopUp from "./modifyHeirarchyPopUps/DeletePopUp";
 import EditRole from "./modifyHeirarchyPopUps/EditRole";
 import EditManager from "./modifyHeirarchyPopUps/EditManager";
 import ChangeManager from "./modifyHeirarchyPopUps/ChangeManager";
+import RequestDemo from "../HomePages/RequestDemo/RequestDemo";
+import DemoPopUp from "../HomePages/RequestDemo/DemoPopUp";
 
 
 
@@ -171,6 +173,7 @@ function Hierarchy({ department }) {
   const [collabAdmin, setCollabAdmin] = useState('');
   const [updatedData, setUpdatedData] = useState(false)
   const [parentId, setParentId] = useState(null);
+  const [openForm, setOpenForm] = useState(false);
   const [deletePopUp, setDeletePopUp] = useState(false);
   useEffect(() => {
     setLoading(true);
@@ -437,15 +440,19 @@ function Hierarchy({ department }) {
               Import
             </button> */}
             <input className={styles["btn-collab"]} style={{display:'none'}} id="fileupld" type="file" onChange={(e)=>handleImportExcel(e)} accept=".xlsx" />
-            {(action === 'add_mem' || action === 'add_assist') && <AddMember setParentId={setParentId}
+            {(action === 'add_mem' || action === 'add_assist') && <AddMember
+            setOpenForm={setOpenForm}
+             setParentId={setParentId}
              activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
-            {action === 'add_dept' && <AddDepartment setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
+            {action === 'add_dept' && <AddDepartment setOpenForm={setOpenForm}
+             setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
-            {action === 'edit_role' && <EditRole activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
-            {action === 'change_manager' && <EditManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
-            {deletePopUp && <DeletePopUp activeNode={clickedData} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData} />}
-            {action === 'transfer_to' && <ChangeManager activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
+            {action === 'edit_role' && <EditRole setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
+            {action === 'change_manager' && <EditManager setParentId={setParentId} activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
+            {deletePopUp && <DeletePopUp activeNode={clickedData} setParentId={setParentId} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData} />}
+            {action === 'transfer_to' && <ChangeManager activeNode={clickedData} setParentId={setParentId} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
 
+              {openForm==='demo' && <DemoPopUp onclose={()=>setOpenForm(!openForm)} openPopUp={openForm}/>}
             {/* 
            
             

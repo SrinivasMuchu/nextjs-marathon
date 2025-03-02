@@ -10,7 +10,7 @@ import CommonCancelButton from "../Common/CommonCancelButton";
 import CommonSaveButton from "../Common/CommonSaveButton";
 import customStyles from "./CustomStyle.helper";
 
-function ChangeManager({activeNode, hierarchy, setAction,setUpdatedData}) {
+function ChangeManager({activeNode, hierarchy, setAction,setUpdatedData,setParentId }) {
   // const allIds = [activeNode.entity_id].concat(activeNode.children.map(item => item.entity_id));
   
   // console.log(allIds);
@@ -48,8 +48,8 @@ console.log(allIds);
       const headers = {
         'x-auth-token': localStorage.getItem("token")
       };
-      const response = await axios.get(BASE_URL + "/v1/org/get-change-manager",
-      {params:{entity_ids:allIds }, headers: headers });
+      const response = await axios.get(BASE_URL + "/v1/org/get-change-manager-next",
+      {params:{entity_ids:allIds,org_id:localStorage.getItem('org_id') }, headers: headers });
       //  console.log(response.data.data);
       setOptions(response.data.data);
     } catch (error) {
@@ -77,16 +77,17 @@ console.log(allIds);
     try {
         const selectedEntityId = selectedOption ? selectedOption.entity_id._id : "";
         // Get the selected email from the option
-        await axios.delete(BASE_URL + "/v1/org/remove-role", {
+        await axios.delete(BASE_URL + "/v1/org/remove-role-next", {
           data:{
               entity_id: activeNode.entity_id,
               new_manager_id: selectedEntityId,
-              parent_id:activeNode.parent_entity_id
+              parent_id:activeNode.parent_entity_id,org_id:localStorage.getItem('org_id'),
           },
              headers: {
                 'x-auth-token': localStorage.getItem("token")
               }});
-             setUpdatedData(selectedEntityId)
+              setParentId(activeNode.entity_id);
+              setUpdatedData(activeNode.entity_id);
              setAction(false)
       }
       // Handle the response data or update the UI accordingly
