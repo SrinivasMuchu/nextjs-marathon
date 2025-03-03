@@ -143,8 +143,7 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
           );
         }
         
-        setParentId(activeNode.parent_entity_id)
-        setUpdatedData(response)
+        window.location.reload()
         setAction(false)
         // window.location.reload();
       } else if (responseData.data.meta.success === false) {

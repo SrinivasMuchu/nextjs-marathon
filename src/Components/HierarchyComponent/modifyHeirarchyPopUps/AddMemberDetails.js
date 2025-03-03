@@ -64,16 +64,13 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
                 is_sibling: true,
                 job_title: jobTitle,uuid:localStorage.getItem('uuid'),
                 entity_type: action === 'add_mem' ? "member" : "assistant",
-                action: 'add',
+                action: 'add',org_id: localStorage.getItem('org_id')
               },
                 {
                   headers
                 });
                 if(hierarchyResponse.data.meta.success){
-                    setUpdatedData(hierarchyResponse);
-                    setParentId(activeNode.entity_id);
-                    setAction(false)
-                    // handleClose();
+                    window.location.reload()
                 }else{
                     console.log(hierarchyResponse.data.meta.message)
                 }

@@ -41,8 +41,9 @@ function EditRole({ activeNode, setAction,setUpdatedData ,setParentId}) {
                     'x-auth-token': localStorage.getItem("token")
                   }
                 });
-                setParentId(activeNode.entity_id);
-                setUpdatedData(activeNode.entity_id)
+                // setParentId(activeNode.entity_id);
+                // setUpdatedData(activeNode.entity_id)
+                window.location.reload()
                 setAction(false)
 
         } catch (error) {

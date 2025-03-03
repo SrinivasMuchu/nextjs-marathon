@@ -86,8 +86,9 @@ console.log(allIds);
              headers: {
                 'x-auth-token': localStorage.getItem("token")
               }});
-              setParentId(activeNode.entity_id);
-              setUpdatedData(activeNode.entity_id);
+              // setParentId(activeNode.entity_id);
+              // setUpdatedData(activeNode.entity_id);
+              window.location.reload()
              setAction(false)
       }
       // Handle the response data or update the UI accordingly

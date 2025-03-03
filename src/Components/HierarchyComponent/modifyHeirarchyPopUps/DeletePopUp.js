@@ -23,8 +23,9 @@ function DeletePopUp({ activeNode,setHasChildren,onclose,setUpdatedData,setParen
         });
 
         // // Handle the response and other logic
-        setParentId(activeNode.entity_id);
-        setUpdatedData(activeNode.entity_id);
+        // setParentId(activeNode.entity_id);
+        // setUpdatedData(activeNode.entity_id);
+        window.location.reload()
         // console.log(activeNode.entity_type)
     }
 

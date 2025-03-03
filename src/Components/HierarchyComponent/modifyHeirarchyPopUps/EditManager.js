@@ -77,8 +77,9 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
             'x-auth-token': localStorage.getItem("token")
           }
       });
-      setParentId(activeNode.entity_id);
-      setUpdatedData(response)
+      // setParentId(activeNode.entity_id);
+      // setUpdatedData(response)
+      window.location.reload()
       setAction(false)
     } catch (error) {
       console.error(error.message);

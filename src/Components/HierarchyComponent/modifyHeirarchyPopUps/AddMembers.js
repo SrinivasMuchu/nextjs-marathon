@@ -87,9 +87,10 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
           headers
         });
       if (response.data.meta.success) {
-        setParentId(activeNode.entity_id);
-        setUpdatedData(selectedEntityId)
-        setAction(false)
+        // setParentId(activeNode.entity_id);
+        // setUpdatedData(selectedEntityId)
+        // setAction(false)
+        window.location.reload()
       } else {
         setOpenForm(true)
       }
