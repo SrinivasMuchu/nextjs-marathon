@@ -5,7 +5,7 @@ import DemoForm from './DemoForm';
 import CloseDemoBtn from './CloseDemoBtn';
 
 
-function RequestDemo({ onclose,setOpenDemoForm,openPopUp }) {
+function RequestDemo({ onclose,setOpenDemoForm,openPopUp,error }) {
 
   return (
     <>
@@ -14,11 +14,12 @@ function RequestDemo({ onclose,setOpenDemoForm,openPopUp }) {
         <div className={styles['demo-popup-cont']}>
 
           <div className={styles['demo-head']}>
-            <span style={{color:'black'}}>Request demo</span>
+            <span style={{color:'black'}}>{error?'Contact us':'Request demo'}</span>
             <CloseDemoBtn onclose={onclose} styles={styles}/>
             {/* <span>x</span> */}
            
           </div>
+          {error && <span>{error}</span>}
           <DemoForm styles={styles} footerStyles={footerStyles} onclose={onclose} setOpenDemoForm={setOpenDemoForm} openPopUp={openPopUp}/>
         </div>
 

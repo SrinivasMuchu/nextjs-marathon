@@ -3,13 +3,13 @@ import React, { useState, useEffect } from "react";
 import styles from './EditHierarchy.module.css';
 
 import axios from "axios";
-import { BASE_URL,ASSET_PREFIX_URL } from "@/config";
+import { BASE_URL, ASSET_PREFIX_URL } from "@/config";
 import CommonCancelButton from "../Common/CommonCancelButton";
 import CommonSaveButton from "../Common/CommonSaveButton";
 import CloseButton from "../Common/CloseButton";
 
 
-function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
+function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setOpenForm,setLimitError }) {
   const [department, setDepartment] = useState('');
   // uniqueInitial
   const [uniqueInitial, setUniqueInitial] = useState('');
@@ -26,9 +26,9 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
   };
 
   useEffect(() => {
-   
-      fetchDepartments();
-   
+
+    fetchDepartments();
+
   }, []);
 
   const fetchDepartments = async () => {
@@ -36,9 +36,9 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
       setLoading(true)
       const response = await axios.get(`${BASE_URL}/v1/org/get-exist-next-department`, {
         headers: {
-            'x-auth-token': localStorage.getItem("token")
-          },
-        params: { department_name: department,uuid:localStorage.getItem('uuid'),org_id:localStorage.getItem('org_id') },
+          'x-auth-token': localStorage.getItem("token")
+        },
+        params: { department_name: department, uuid: localStorage.getItem('uuid'), org_id: localStorage.getItem('org_id') },
       });
       if (response.data.meta.success) {
         setDepartments(response.data.data.filtered_departments);
@@ -58,19 +58,19 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
     if (regex.test(inputValue)) {
       setDepartment(inputValue);
       setErrorMessage('');
-      clearTimeout(typingTimer); 
+      clearTimeout(typingTimer);
       setTypingTimer(setTimeout(() => {
         fetchDepartments();
-      
+
       }, 500));
     } else {
       setErrorMessage('Special characters are not allowed.');
     }
   };
-  
+
 
   const handleClickRender = (e, dept) => {
-  
+
     e.stopPropagation();
     setDeptId(dept._id);
     setDepartment(dept.department_name);
@@ -94,13 +94,13 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
           {
             department_name: department,
             description: description,
-            unique_initial:uniqueInitial,
-            departId: deptId,org_id:localStorage.getItem('org_id')
+            unique_initial: uniqueInitial,
+            departId: deptId, org_id: localStorage.getItem('org_id')
           },
           {
             headers: {
-                'x-auth-token': localStorage.getItem("token")
-              },
+              'x-auth-token': localStorage.getItem("token")
+            },
           }
         );
       } else {
@@ -108,13 +108,13 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
           `${BASE_URL}/v1/org/create-next-dept`,
           {
             department_name: department,
-            description: description,org_id:localStorage.getItem('org_id')
-           
+            description: description, org_id: localStorage.getItem('org_id')
+
           },
           {
             headers: {
-                'x-auth-token': localStorage.getItem("token")
-              },
+              'x-auth-token': localStorage.getItem("token")
+            },
           }
         );
       }
@@ -130,10 +130,10 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
               parent_entity_id: activeNode.entity_id,
               is_sibling: true,
               job_title: activeNode.jobTitle,
-              entity_type: 'department', 
+              entity_type: 'department',
               action: 'add',
               // uuid:localStorage.getItem('uuid'),
-              org_id:localStorage.getItem('org_id')
+              org_id: localStorage.getItem('org_id')
             },
             {
               headers: {
@@ -141,10 +141,18 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
               },
             }
           );
+          if (response.data.meta.success) {
+            window.location.reload()
+            setAction(false)
+          } else if (
+            response.meta.success===false && response.data.department_count )
+           {
+            setOpenForm('demo')
+            setLimitError('Free tier limit exceeded: Maximum 10 departments allowed.');
+          }
         }
-        
-        window.location.reload()
-        setAction(false)
+
+
         // window.location.reload();
       } else if (responseData.data.meta.success === false) {
         setErrorMessage(responseData.data.meta.message);
@@ -157,23 +165,23 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
   return (
     <div className={styles["editRole"]} style={{ display: close ? 'none' : 'block' }}>
       <div className={styles["head-cont"]} >
-        
-        <CloseButton handleClose={handleClose} heading='Add department' styles={styles}/>
+
+        <CloseButton handleClose={handleClose} heading='Add department' styles={styles} />
         <div className={styles["edit-name"]} >
           <span>Department name</span>
           <div className={styles["edit-name-loading"]} >
-          <input
-            placeholder="Enter title"
-            value={department}
-            onChange={(e) => handleDepartmentChange(e)}
-          />
-          {loading&&<img className={styles["load-img"]} src={`https://marathon-web-assets.s3.ap-south-1.amazonaws.com/load-gif.gif`}/>}
-          
+            <input
+              placeholder="Enter title"
+              value={department}
+              onChange={(e) => handleDepartmentChange(e)}
+            />
+            {loading && <img className={styles["load-img"]} src={`https://marathon-web-assets.s3.ap-south-1.amazonaws.com/load-gif.gif`} />}
+
           </div>
-         
+
           <div className={styles["filtered-departments"]}>
             {departments.map((dept) => (
-              <div key={dept._id} className={styles["filtered-departments-list"]}  onClick={(e) => handleClickRender(e, dept)}>
+              <div key={dept._id} className={styles["filtered-departments-list"]} onClick={(e) => handleClickRender(e, dept)}>
                 <span>{dept.department_name}</span>
               </div>
             ))}
@@ -198,15 +206,15 @@ function AddDepartment({ activeNode, setAction,setParentId,setUpdatedData }) {
       </div>
 
       <div className={styles["edit-btns"]}>
-        {(!department || errorMessage !== ''||loading) ? (
-            <CommonSaveButton handleClick={HandleDepartment} className='submit-edit-errorbutton' styles={styles}/>
-       
+        {(!department || errorMessage !== '' || loading) ? (
+          <CommonSaveButton handleClick={HandleDepartment} className='submit-edit-errorbutton' styles={styles} />
+
         ) : (
-            <CommonSaveButton handleClick={HandleDepartment} className='submit-edit-button' styles={styles}/>
-        
+          <CommonSaveButton handleClick={HandleDepartment} className='submit-edit-button' styles={styles} />
+
         )}
-        <CommonCancelButton handleClose={handleClose} styles={styles}/>
-        
+        <CommonCancelButton handleClose={handleClose} styles={styles} />
+
       </div>
     </div>
   );

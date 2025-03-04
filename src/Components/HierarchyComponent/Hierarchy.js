@@ -175,6 +175,7 @@ function Hierarchy({ department }) {
   const [parentId, setParentId] = useState(null);
   const [openForm, setOpenForm] = useState(false);
   const [deletePopUp, setDeletePopUp] = useState(false);
+  const [limitError, setLimitError] = useState(false);
   useEffect(() => {
     setLoading(true);
     fetchOrg();
@@ -442,9 +443,9 @@ function Hierarchy({ department }) {
             <input className={styles["btn-collab"]} style={{display:'none'}} id="fileupld" type="file" onChange={(e)=>handleImportExcel(e)} accept=".xlsx" />
             {(action === 'add_mem' || action === 'add_assist') && <AddMember
             setOpenForm={setOpenForm}
-             setParentId={setParentId}
+             setParentId={setParentId} setLimitError={setLimitError}
              activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
-            {action === 'add_dept' && <AddDepartment setOpenForm={setOpenForm}
+            {action === 'add_dept' && <AddDepartment setOpenForm={setOpenForm} setLimitError={setLimitError}
              setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
             {action === 'edit_role' && <EditRole setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
@@ -452,7 +453,7 @@ function Hierarchy({ department }) {
             {deletePopUp && <DeletePopUp activeNode={clickedData} setParentId={setParentId} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData} />}
             {action === 'transfer_to' && <ChangeManager activeNode={clickedData} setParentId={setParentId} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
 
-              {openForm==='demo' && <DemoPopUp onclose={()=>setOpenForm(!openForm)} openPopUp={openForm}/>}
+              {openForm==='demo' && <DemoPopUp onclose={()=>setOpenForm(!openForm)} openPopUp={openForm} error={limitError}/>}
             {/* 
            
             

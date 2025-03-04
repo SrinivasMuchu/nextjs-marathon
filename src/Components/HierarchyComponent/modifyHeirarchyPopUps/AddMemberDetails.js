@@ -9,7 +9,7 @@ import CommonSaveButton from '../Common/CommonSaveButton';
 import CommonCancelButton from '../Common/CommonCancelButton';
 
 
-function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdatedData,setParentId }) {
+function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdatedData,setParentId,setLimitError,setOpenForm }) {
     const [photoFile, setPhotoFile] = useState('')
     const [fullName, setFullName] = useState('')
     const [jobTitle, setJobTitle] = useState('')
@@ -69,11 +69,20 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
                 {
                   headers
                 });
-                if(hierarchyResponse.data.meta.success){
+                if (hierarchyResponse.data.meta.success) {
                     window.location.reload()
-                }else{
-                    console.log(hierarchyResponse.data.meta.message)
-                }
+                    setAction(false)
+                  } else if (
+                    hierarchyResponse.meta.success === false && hierarchyResponse.data.member_count >= 30 
+                  ) {
+                    setOpenForm('demo')
+                    setLimitError('Free tier limit exceeded: Maximum 30 members allowed.');
+                  }
+                // if(hierarchyResponse.data.meta.success){
+                //     window.location.reload()
+                // }else{
+                //     console.log(hierarchyResponse.data.meta.message)
+                // }
                 
         }else{
             console.log(response.data.meta.message)

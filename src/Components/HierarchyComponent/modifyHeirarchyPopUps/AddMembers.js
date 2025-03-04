@@ -11,7 +11,7 @@ import CommonCancelButton from "../Common/CommonCancelButton";
 import CloseButton from "../Common/CloseButton";
 import AddMemberDetails from "./AddMemberDetails";
 
-function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId, setOpenForm }) {
+function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId, setOpenForm,setLimitError }) {
 
   const [close, setClose] = useState(false);
   const [options, setOptions] = useState([]);
@@ -86,14 +86,24 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
         {
           headers
         });
-      if (response.data.meta.success) {
-        // setParentId(activeNode.entity_id);
-        // setUpdatedData(selectedEntityId)
-        // setAction(false)
-        window.location.reload()
-      } else {
-        setOpenForm(true)
-      }
+        if (response.data.meta.success) {
+          window.location.reload()
+          setAction(false)
+        } else if (
+          response.meta.success === false && response.data.member_count >= 30 
+        ) {
+          setOpenForm('demo')
+          setLimitError('Free tier limit exceeded: Maximum 30 members allowed.');
+        }
+      // if (response.data.meta.success) {
+      //   // setParentId(activeNode.entity_id);
+      //   // setUpdatedData(selectedEntityId)
+      //   // setAction(false)
+      //   window.location.reload()
+      // } else {
+      //   setErrorMessage
+      //   setOpenForm(true)
+      // }
     } catch (error) {
       console.error(error.message);
 
@@ -170,7 +180,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
 
             <CommonCancelButton handleClose={handleClose} styles={styles} />
           </div>
-        </> : <AddMemberDetails setParentId={setParentId}
+        </> : <AddMemberDetails setParentId={setParentId} setLimitError={setLimitError} setOpenForm={setOpenForm}
           activeNode={activeNode} handleClose={handleClose} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
 
 
