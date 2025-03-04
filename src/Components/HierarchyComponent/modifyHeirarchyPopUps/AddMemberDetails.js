@@ -4,12 +4,12 @@ import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
 import DraftsOutlinedIcon from '@mui/icons-material/DraftsOutlined';
 import styles from './EditHierarchy.module.css';
 import axios from "axios";
-import { ASSET_PREFIX_URL,BASE_URL } from '@/config';
+import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import CommonSaveButton from '../Common/CommonSaveButton';
 import CommonCancelButton from '../Common/CommonCancelButton';
 
 
-function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdatedData,setParentId }) {
+function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdatedData, setParentId }) {
     const [photoFile, setPhotoFile] = useState('')
     const [fullName, setFullName] = useState('')
     const [jobTitle, setJobTitle] = useState('')
@@ -29,7 +29,7 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
         // Reset form submission status and validation errors
         // setFormSubmitted(true);
         // setValidationErrors({});
-    
+
         // Validate inputs
         // if (!jobTitle.trim()) {
         //   setValidationErrors(prevErrors => ({ ...prevErrors, jobTitle: "Job Title is required." }));
@@ -43,48 +43,49 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
         //   setValidationErrors(prevErrors => ({ ...prevErrors, email: "Please select an employee." }));
         //   return;
         // }
-    
+
         try {
-          const headers = {
-            'x-auth-token': localStorage.getItem("token")
-          };
-         const response = await axios.post(BASE_URL + "/v1/org/add-hierarchy-next", {
-          uuid:localStorage.getItem('uuid'),designation:jobTitle, fullName, phoneNumber, email,org_id:localStorage.getItem('org_id'),
-            
-          },
-            {
-              headers
-            });
-            console.log(response.data.data.member)
-          
-        if(response.data.meta.success){
-          const hierarchyResponse=  await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
-                entity_id: response.data.data.member,
-                parent_entity_id: activeNode.entity_id,
-                is_sibling: true,
-                job_title: jobTitle,uuid:localStorage.getItem('uuid'),
-                entity_type: action === 'add_mem' ? "member" : "assistant",
-                action: 'add',org_id: localStorage.getItem('org_id')
-              },
+            const headers = {
+                'x-auth-token': localStorage.getItem("token")
+            };
+            const response = await axios.post(BASE_URL + "/v1/org/add-hierarchy-next", {
+                uuid: localStorage.getItem('uuid'), designation: jobTitle, fullName, phoneNumber, email, org_id: localStorage.getItem('org_id'),
+
+            },
                 {
-                  headers
+                    headers
                 });
-                if(hierarchyResponse.data.meta.success){
-                    window.location.reload()
-                }else{
+            console.log(response.data.data.member)
+
+            if (response.data.meta.success) {
+                const hierarchyResponse = await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
+                    entity_id: response.data.data.member,
+                    parent_entity_id: activeNode.entity_id,
+                    is_sibling: true,
+                    job_title: jobTitle, uuid: localStorage.getItem('uuid'),
+                    entity_type: action === 'add_mem' ? "member" : "assistant",
+                    action: 'add', org_id: localStorage.getItem('org_id')
+                },
+                    {
+                        headers
+                    });
+                if (hierarchyResponse.data.meta.success) {
+                    setParentId(activeNode.entity_id);
+                    setUpdatedData(selectedEntityId)
+                } else {
                     console.log(hierarchyResponse.data.meta.message)
                 }
-                
-        }else{
-            console.log(response.data.meta.message)
-        }
-         
+
+            } else {
+                console.log(response.data.meta.message)
+            }
+
         } catch (error) {
-          console.error(error.message);
-    
+            console.error(error.message);
+
         }
-      };
-    
+    };
+
     const arrayBufferToBase64 = (arrayBuffer) => {
         let binary = "";
         const bytes = new Uint8Array(arrayBuffer);
@@ -99,16 +100,18 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
     const updateDetails = async (photoData) => {
         const response = await axios.post(
             BASE_URL + "/v1/member/profile-details",
-            { photo: photoData, fullName, phoneNumber, email,
+            {
+                photo: photoData, fullName, phoneNumber, email,
                 parent_entity_id: activeNode.entity_id,
                 is_sibling: true,
                 job_title: jobTitle,
                 entity_type: action === 'add_mem' ? "member" : "assistant",
-                action: 'add', },
+                action: 'add',
+            },
             {
                 headers: {
                     'x-auth-token': localStorage.getItem("token")
-                  },
+                },
             }
         );
         let { message, success } = response.data.meta;
@@ -126,7 +129,7 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
             <div className={styles["viewrole-photo-cont"]}>
                 <div className={styles["general-upload"]} >
                     {photoFile ? <img src={photoFile} alt="Uploaded" className="upd-img" style={{ width: '200px', height: '200px', borderRadius: '50%' }} /> :
-                        <img src={ASSET_PREFIX_URL + 'profile-empty.png'} alt="Uploaded" className="upd-img" style={{ width: '200px', height: '200px', borderRadius: '50%' }} />}
+                        <img src={ASSET_PREFIX_URL + 'profilelogodefault.png'} alt="Uploaded" className="upd-img" style={{ width: '200px', height: '200px', borderRadius: '50%' }} />}
                     {/* <NameProfile userName={name} memberPhoto={photoFile} width="200px" fontSize='38px' fontweight='500' /> */}
                     <button className={styles["general-upload-btn"]} onClick={() => document.getElementById("fileupld").click()} >
 
@@ -152,26 +155,40 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
             </div>
             <div className={styles["viewrole-details"]}>
                 <div className={styles["viewrole-name"]}>
-                    <div>
-                        <span style={{marginRight:'5px'}}>Full name:</span>
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                        <span >Name:</span>
                         <input className={styles["viewrole-input"]} placeholder='Enter fullname' type='text' value={fullName} onChange={(e) => setFullName(e.target.value)} />
                     </div>
-                    <br/>
-                    <div>
-                        <span style={{marginRight:'15px'}}>Job title:</span>
+                    <br />
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                        <span >Job title:</span>
                         <input className={styles["viewrole-input"]} placeholder='Enter job title' type='text' value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} />
                     </div>
-                    <br/>
-                    <div>
-                        <span style={{marginRight:'15px'}}>Email:</span>
+                    <br />
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                        <span >Email:</span>
                         <input className={styles["viewrole-input"]} placeholder='Enter email' type='email' value={email} onChange={(e) => setEmail(e.target.value)} />
                     </div>
-                    <br/>
-                    <div>
-                        <span style={{marginRight:'15px'}}>Phone number:</span>
+                    <br />
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+
+                        <span >Phone:</span>
+
+
                         <input className={styles["viewrole-input"]} placeholder='Enter phone number' type='text' value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
                     </div>
+                    <br />
+                    <div className={styles["edit-btns"]}>
+                        {(!fullName || !email || !jobTitle) ? (
+                            <CommonSaveButton handleClick={handleAddMember} className='submit-edit-errorbutton' styles={styles} />
 
+                        ) : (
+                            <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />
+
+                        )}
+                        <CommonCancelButton handleClose={handleClose} styles={styles} />
+
+                    </div>
                 </div>
 
                 {/* <div className={styles["viewrole-contact"]} >
@@ -199,17 +216,7 @@ function AddMemberDetails({ handleClose,activeNode, setAction, action, setUpdate
                 </div> */}
 
             </div>
-            <div className={styles["edit-btns"]}>
-                {(!fullName || !email || !jobTitle) ? (
-                    <CommonSaveButton handleClick={handleAddMember} className='submit-edit-errorbutton' styles={styles} />
 
-                ) : (
-                    <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />
-
-                )}
-                <CommonCancelButton handleClose={handleClose} styles={styles} />
-
-            </div>
         </>
 
     )

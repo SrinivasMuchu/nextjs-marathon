@@ -111,7 +111,7 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
             styles={customStyles}
             options={options}
             getOptionLabel={(option) => (
-              <div className="select-photo">
+              <div className={styles["select-photo"]}>
                 <NameProfile userName={option.entity_id.fullName} width='25px' memberPhoto={option.entity_id.photo} />
 
 

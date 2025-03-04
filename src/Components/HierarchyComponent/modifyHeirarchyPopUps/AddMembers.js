@@ -128,7 +128,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
               styles={customStyles}
               onFocus={fetchData}
               getOptionLabel={(option) => (
-                <div className="select-photo">
+                <div className={styles["select-photo"]}>
 
                   <NameProfile userName={option.fullName} padding='5px ' width='25px' memberPhoto={option.photo} />
 

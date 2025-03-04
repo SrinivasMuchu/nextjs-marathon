@@ -356,7 +356,9 @@
     line-height: 24px;
 
 }
-
+.viewrole-name span{
+    width: 500px;
+}
 
 .viewrole-address,
 .viewrole-group,
