@@ -1,14 +1,15 @@
 "use client"
-import React from 'react'
-import Link from 'next/link'; 
+import React, { useState } from 'react'
+import Link from 'next/link';
 
-function MobileMenu({onClose,styles}) {
-    const handleCloseMenu = () => {
-        onClose(); // Close the menu using the onClose prop
-      };
+function MobileMenu({ onClose, styles }) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const handleCloseMenu = () => {
+    onClose(); // Close the menu using the onClose prop
+  };
   return (
     <>
-     <div className={styles['menu-close-icon']}>
+      <div className={styles['menu-close-icon']}>
         <span onClick={handleCloseMenu}>close x</span>
       </div>
       <div className={styles['menu-navs']}>
@@ -20,8 +21,26 @@ function MobileMenu({onClose,styles}) {
         <Link href="#product" onClick={handleCloseMenu}>Product</Link>
         <Link href="#pricing" onClick={handleCloseMenu}>Pricing</Link>
         <Link href="#security" onClick={handleCloseMenu}>Security</Link>
-      
+        <div className={styles['menu-dropdown']}>
+          <span style={{ cursor: 'pointer' }} onClick={() => setDropdownOpen(!dropdownOpen)}>Tools ▼</span>
+          {dropdownOpen && (
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
+              <Link href="/org">Organization</Link>
+              {/* <Link href="/about">Organization</Link>
+              <Link href="/about">Organization</Link> */}
+              {/* <Link href="/about">Organization</Link>
+              <Link href="/about">Organization</Link>
+              <Link href="/about">Organization</Link> */}
+              {/* <Link href="/contact">Contact</Link>
+              <Link href="/careers">Careers</Link> */}
+            </div>
+          )}
+
+        </div>
+
+
       </div>
+
     </>
   )
 }
