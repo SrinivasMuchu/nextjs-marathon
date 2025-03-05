@@ -144,7 +144,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
           );
           if (response.data.meta.success) {
             setParentId(activeNode.entity_id);
-                    setUpdatedData(selectedEntityId)
+                setUpdatedData(activeNode.entity_id)
             setAction(false)
           } else if (
             response.meta.success===false && response.data.department_count )
@@ -159,7 +159,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
 
         // window.location.reload();
       } else if (responseData.data.meta.success === false) {
-        setErrorMessage(responseData.data.meta.message);
+        toast.error(response.data.meta.message);
       }
     } catch (error) {
       toast.error(error.message);
@@ -192,7 +192,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
           </div>
           {errorMessage && (
             <div className={styles["department-error"]}>
-              <Image src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />
+              <Image src={`${ASSET_PREFIX_URL}warning.svg`} alt="" width={20} height={20}/>
               &nbsp;&nbsp;&nbsp;
               {errorMessage}
             </div>

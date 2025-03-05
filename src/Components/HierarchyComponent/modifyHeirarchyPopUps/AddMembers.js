@@ -59,10 +59,10 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
   const handleAddMember = async () => {
     // Reset form submission status and validation errors
     setFormSubmitted(true);
-    // setValidationErrors({});
+    setValidationErrors({});
 
     // Validate inputs
-    if (!jobTitle) {
+    if (!jobTitle.trim()) {
       setValidationErrors(prevErrors => ({ ...prevErrors, jobTitle: "Job Title is required." }));
       return;
     }
@@ -113,24 +113,6 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
       toast.error(error);
 
     }
-  };
-  const handleErrorAddMember = async () => {
-    // Reset form submission status and validation errors
-   
-    // setValidationErrors({});
-
-    // Validate inputs
-    console.log('clicked')
-    if (!jobTitle) {
-      setValidationErrors(prevErrors => ({ ...prevErrors, jobTitle: "Job Title is required." }));
-      return;
-    }
-    if (!selectedOption) {
-      setValidationErrors(prevErrors => ({ ...prevErrors, selectedOption: "Please select an employee." }));
-      return;
-    }
-    console.log('clicked1')
-    
   };
 
   const filterOptions = (candidate, input) => {
@@ -187,7 +169,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
               }}
             />
 
-            { validationErrors.selectedOption && (
+            {formSubmitted && validationErrors.selectedOption && (
               <div className={styles["department-error"]} ><Image 
                width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
             )}
@@ -205,12 +187,12 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
               value={jobTitle}
             />
             {/* Display validation error for jobTitle */}
-            { validationErrors.jobTitle && (
-              <div className={styles["department-error"]} ><Image src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.jobTitle}</div>
+            {formSubmitted && validationErrors.jobTitle && (
+              <div className={styles["department-error"]} ><Image width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.jobTitle}</div>
             )}
           </div>
           <div className={styles["btn-bottom"]} >
-            {(!jobTitle || !selectedOption) ? <CommonSaveButton handleClick={handleErrorAddMember} className='submit-edit-errorbutton' styles={styles} /> :
+            {(!jobTitle || !selectedOption) ? <CommonSaveButton handleClick={handleAddMember} className='submit-edit-errorbutton' styles={styles} /> :
               <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />}
 
             <CommonCancelButton handleClose={handleClose} styles={styles} />
