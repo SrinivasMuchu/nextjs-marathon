@@ -10,6 +10,8 @@ import customStyles from "./CustomStyle.helper";
 import CloseButton from "../Common/CloseButton";
 import CommonCancelButton from "../Common/CommonCancelButton";
 import CommonSaveButton from "../Common/CommonSaveButton";
+import Image from 'next/image'
+import { toast } from "react-toastify";
 
 function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParentId }) {
   console.log(activeNode.parent_entity_id)
@@ -68,7 +70,7 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
     try {
       const selectedEntityId = selectedOption ? selectedOption.entity_id : "";
       // Get the selected email from the option
-      await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
+    const response=  await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
         action: 'change_manager',
         old_manager_id: activeNode.entity_id,
         new_manager_id: selectedEntityId,org_id:localStorage.getItem('org_id')
@@ -77,12 +79,16 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
             'x-auth-token': localStorage.getItem("token")
           }
       });
+      if(response.data.meta.success){
       // setParentId(activeNode.entity_id);
       // setUpdatedData(response)
       window.location.reload()
       setAction(false)
+      }else{
+        toast.error(response.data.meta.message);
+      }
     } catch (error) {
-      console.error(error.message);
+      toast.error(error.message);
       // Handle the error or display an error message
     }
   };
@@ -128,7 +134,7 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
             value={selectedOption}
           />
           {formSubmitted && validationErrors.selectedOption && (
-            <div className={styles["department-error"]}><img src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
+            <div className={styles["department-error"]}><Image width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
           )}
         </div>
       </div>

@@ -1,8 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from './EditHierarchy.module.css';
 import Select from "react-select";
 import axios from "axios";
+import Image from 'next/image'
 import { BASE_URL, ASSET_PREFIX_URL } from "@/config";
 import customStyles from "./CustomStyle.helper";
 import NameProfile from "@/Components/CommonJsx.js/NameProfile";
@@ -10,8 +11,9 @@ import CommonSaveButton from "../Common/CommonSaveButton";
 import CommonCancelButton from "../Common/CommonCancelButton";
 import CloseButton from "../Common/CloseButton";
 import AddMemberDetails from "./AddMemberDetails";
+import { toast } from "react-toastify";
 
-function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId, setOpenForm }) {
+function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId, setOpenForm, setLimitError }) {
 
   const [close, setClose] = useState(false);
   const [options, setOptions] = useState([]);
@@ -57,10 +59,10 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
   const handleAddMember = async () => {
     // Reset form submission status and validation errors
     setFormSubmitted(true);
-    setValidationErrors({});
+    // setValidationErrors({});
 
     // Validate inputs
-    if (!jobTitle.trim()) {
+    if (!jobTitle) {
       setValidationErrors(prevErrors => ({ ...prevErrors, jobTitle: "Job Title is required." }));
       return;
     }
@@ -87,17 +89,48 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
           headers
         });
       if (response.data.meta.success) {
-        // setParentId(activeNode.entity_id);
-        // setUpdatedData(selectedEntityId)
-        // setAction(false)
-        window.location.reload()
-      } else {
-        setOpenForm(true)
+        setParentId(activeNode.entity_id);
+        setUpdatedData(selectedEntityId)
+        setAction(false)
+      } else if (
+        response.meta.success === false && response.data.member_count >= 30
+      ) {
+        setOpenForm('demo')
+        setLimitError('Free tier limit exceeded: Maximum 30 members allowed.');
+      }else{
+        toast.error(response.data.meta.message);
       }
+      // if (response.data.meta.success) {
+      //   // setParentId(activeNode.entity_id);
+      //   // setUpdatedData(selectedEntityId)
+      //   // setAction(false)
+      //   window.location.reload()
+      // } else {
+      //   setErrorMessage
+      //   setOpenForm(true)
+      // }
     } catch (error) {
-      console.error(error.message);
+      toast.error(error);
 
     }
+  };
+  const handleErrorAddMember = async () => {
+    // Reset form submission status and validation errors
+   
+    // setValidationErrors({});
+
+    // Validate inputs
+    console.log('clicked')
+    if (!jobTitle) {
+      setValidationErrors(prevErrors => ({ ...prevErrors, jobTitle: "Job Title is required." }));
+      return;
+    }
+    if (!selectedOption) {
+      setValidationErrors(prevErrors => ({ ...prevErrors, selectedOption: "Please select an employee." }));
+      return;
+    }
+    console.log('clicked1')
+    
   };
 
   const filterOptions = (candidate, input) => {
@@ -120,31 +153,43 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
 
         {!addMember ? <>
           <div className={styles["emp"]}>
-            <span>Employee</span>
+            <span>Member</span>
             <Select
               id="mySelect1"
-              options={options}
+              options={[
+                { fullName: "➕ Add Member", isAddButton: true }, // Custom add member option
+                ...options, // Spread existing options below
+              ]}
               menuPlacement="auto"
               styles={customStyles}
               onFocus={fetchData}
-              getOptionLabel={(option) => (
-                <div className={styles["select-photo"]}>
-
-                  <NameProfile userName={option.fullName} padding='5px ' width='25px' memberPhoto={option.photo} />
-
-
-
-                  {option.fullName}&nbsp;
-                  ({option.email.length > 12 ? `${option.email.slice(0, 18)}...` : option.email})
-                  {/* ({option.email}) */}
-
-                </div>
-              )}
-              onChange={(selected) => handleOnchange(selected)}
-              filterOption={filterOptions} // Update the selected option
+              getOptionLabel={(option) =>
+                option.isAddButton ? (
+                  <div className={styles["add-member-option"]}>➕ Add Member</div>
+                ) : (
+                  <div className={styles["select-photo"]}>
+                    <NameProfile userName={option.fullName} padding="5px" width="25px" memberPhoto={option.photo} />
+                    {option.fullName}&nbsp;
+                    ({option.email.length > 12 ? `${option.email.slice(0, 18)}...` : option.email})
+                  </div>
+                )
+              }
+              onChange={(selected) => {
+                if (selected.isAddButton) {
+                  setAddMember(true); // Show add member form
+                } else {
+                  handleOnchange(selected);
+                }
+              }}
+              filterOption={(candidate, input) => {
+                if (candidate.data.isAddButton) return true; // Always show "Add Member"
+                return candidate.data.fullName.toLowerCase().includes(input.toLowerCase());
+              }}
             />
-            {formSubmitted && validationErrors.selectedOption && (
-              <div className={styles["department-error"]} ><img src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
+
+            { validationErrors.selectedOption && (
+              <div className={styles["department-error"]} ><Image 
+               width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
             )}
           </div>
           <div className={styles["emp"]}>
@@ -160,17 +205,17 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
               value={jobTitle}
             />
             {/* Display validation error for jobTitle */}
-            {formSubmitted && validationErrors.jobTitle && (
-              <div className={styles["department-error"]} ><img src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.jobTitle}</div>
+            { validationErrors.jobTitle && (
+              <div className={styles["department-error"]} ><Image src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.jobTitle}</div>
             )}
           </div>
           <div className={styles["btn-bottom"]} >
-            {(!jobTitle || !selectedOption) ? <CommonSaveButton handleClick={handleAddMember} className='submit-edit-errorbutton' styles={styles} /> :
+            {(!jobTitle || !selectedOption) ? <CommonSaveButton handleClick={handleErrorAddMember} className='submit-edit-errorbutton' styles={styles} /> :
               <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />}
 
             <CommonCancelButton handleClose={handleClose} styles={styles} />
           </div>
-        </> : <AddMemberDetails setParentId={setParentId}
+        </> : <AddMemberDetails setParentId={setParentId} setLimitError={setLimitError} setOpenForm={setOpenForm}
           activeNode={activeNode} handleClose={handleClose} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
 
 

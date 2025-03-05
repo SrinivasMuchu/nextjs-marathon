@@ -42,7 +42,7 @@ function OrgFaq() {
             <div className={styles["faqpage-left-container"]}>
                 <span className={styles["faq-title"]}>FAQ</span>
                 <span className={styles["faqpage-visit"]}>
-                    Find answers to common questions about Marathon OS Chart Builder. Whether you're getting started or looking for advanced features, we've got you covered.
+                    Find answers to common questions about Marathon OS Chart Builder. Whether you&apos;re getting started or looking for advanced features, we&apos;ve got you covered.
 
                 </span>
                 

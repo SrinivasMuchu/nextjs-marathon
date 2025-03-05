@@ -33,7 +33,7 @@ function OurFeatures() {
                 </span>
                 <span className={ChartStyles['chart-builder-text-description']}>
                     Effortlessly create, manage, and share org charts with a simple, secure, and scalable tool.
-                    Visualize employees and departments with ease—no training required—whether you're structuring a
+                    Visualize employees and departments with ease—no training required—whether you&apos;re structuring a
                     startup or managing a growing enterprise.
 
                 </span>

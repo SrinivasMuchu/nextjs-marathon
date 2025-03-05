@@ -3,6 +3,7 @@ import styles from './Hierarchy.module.css'
 import { textLettersLimit } from "@/common.helper";
 import { ASSET_PREFIX_URL } from '@/config';
 import NameProfile from '../CommonJsx.js/NameProfile';
+import Image from 'next/image'
 
 function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
     handleMouseLeave, strokeColor, isHovered, handleRemoveRole,
@@ -113,19 +114,19 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                         >
                           <text onClick={() => handleMenuActions('add_mem')}>
-                            <img
+                            <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}add-member.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} />Add Member</text>
                           <text onClick={() => handleMenuActions('add_assist')}>
-                            <img
+                            <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}add-assistant.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} />
                             Add Assistant
                           </text>
                           <text onClick={() => handleMenuActions('add_dept')}>
-                            <img
+                            <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}add-department.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} />
@@ -153,12 +154,12 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                       >
                         <text onClick={() => handleMenuActions('view_role')}>
-                          <img
+                          <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}view-role.svg`}
                             alt=""
                             style={{ width: "20px", height: "20px" }} /> View Role</text>
                         <text onClick={() => handleMenuActions('edit_role')}>
-                          <img
+                          <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}edit-role.svg`}
                             alt=""
                             style={{ width: "20px", height: "20px" }} />Edit Role</text>
@@ -168,7 +169,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                           onClick={(e) => handleRemoveRole(e)}
                         >
-                          <img src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
+                          <Image width={20} height={20} src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
                           Remove Role
                         </text>
 
@@ -218,17 +219,17 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                         >
                           <text onClick={() => handleMenuActions('view_role')}>
-                            <img
+                            <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}view-role.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} /> View Role</text>
                           <text onClick={() => handleMenuActions('edit_role')}>
-                            <img
+                            <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}edit-role.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} />Edit Role</text>
                           <text onClick={() => handleMenuActions('change_manager')}>
-                            <img
+                            <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}change-manager.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} />
@@ -238,7 +239,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                             <text
                               style={{ color: "#FF3B2F" }}
                               onClick={() => handleMenuActions('transfer_to')}>
-                              <img src={`${ASSET_PREFIX_URL}changing-icon.png`} alt="" style={{ width: "20px", height: "20px" }} />
+                              <Image width={20} height={20} src={`${ASSET_PREFIX_URL}changing-icon.png`} alt="" style={{ width: "20px", height: "20px" }} />
                               Transfer to ?
                             </text>
                           ) : (
@@ -247,7 +248,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                               onClick={(e) => handleRemoveRole(e)}
                             >
-                              <img src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
+                              <Image width={20} height={20} src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
                               Remove Role
                             </text>
                           )}
@@ -271,12 +272,12 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                       >
                         <text onClick={() => handleMenuActions('view_role')}>
-                          <img
+                          <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}view-role.svg`}
                             alt=""
                             style={{ width: "20px", height: "20px" }} /> View Role</text>
                         <text onClick={() => handleMenuActions('edit_role')}>
-                          <img
+                          <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}edit-role.svg`}
                             alt=""
                             style={{ width: "20px", height: "20px" }} />Edit Role</text>
@@ -286,7 +287,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                           onClick={(e) => handleRemoveRole(e)}
                         >
-                          <img src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
+                          <Image width={20} height={20} src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
                           Remove Role
                         </text>
 
@@ -346,17 +347,17 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                           >
                             <text onClick={() => handleMenuActions('view_role')}>
-                              <img
+                              <Image width={20} height={20}
                                 src={`${ASSET_PREFIX_URL}view-role.svg`}
                                 alt=""
                                 style={{ width: "20px", height: "20px" }} /> View Role</text>
                             <text onClick={() => handleMenuActions('edit_role')}>
-                              <img
+                              <Image width={20} height={20}
                                 src={`${ASSET_PREFIX_URL}edit-role.svg`}
                                 alt=""
                                 style={{ width: "20px", height: "20px" }} />Edit Role</text>
                             {/* <text onClick={() => handleMenuActions('change_manager')}>
-                              <img
+                              <Image
                                 src={`${ASSET_PREFIX_URL}change-manager.svg`}
                                 alt=""
                                 style={{ width: "20px", height: "20px" }} />
@@ -366,7 +367,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                               <text
                                 style={{ color: "#FF3B2F" }}
                                 onClick={() => handleMenuActions('transfer_to')}>
-                                <img src={`${ASSET_PREFIX_URL}changing-icon.png`} alt="" style={{ width: "20px", height: "20px" }} />
+                                <Image width={20} height={20} src={`${ASSET_PREFIX_URL}changing-icon.png`} alt="" style={{ width: "20px", height: "20px" }} />
                                 Transfer to ?
                               </text>
                             ) : (
@@ -375,7 +376,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                                 onClick={(e) => handleRemoveRole(e)}
                               >
-                                <img src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
+                                <Image width={20} height={20} src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
                                 Remove Role
                               </text>
                             )}
@@ -399,12 +400,12 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                         >
                           <text onClick={() => handleMenuActions('view_role')}>
-                            <img
+                            <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}view-role.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} /> View Role</text>
                           <text onClick={() => handleMenuActions('edit_role')}>
-                            <img
+                            <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}edit-role.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} />Edit Role</text>
@@ -414,7 +415,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                             onClick={(e) => handleRemoveRole(e)}
                           >
-                            <img src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
+                            <Image width={20} height={20} src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
                             Remove Role
                           </text>
 
@@ -652,13 +653,13 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                       >
                         <text onClick={() => handleMenuActions('add_mem')}>
-                          <img
+                          <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}add-member.svg`}
                             alt=""
                             style={{ width: "20px", height: "20px" }} />Add Member</text>
 
                         {/* <text onClick={() => handleMenuActions('change_manager')}>
-                          <img
+                          <Image
                             src={`${ASSET_PREFIX_URL}change-manager.svg`}
                             alt=""
                             style={{ width: "20px", height: "20px" }} />
@@ -724,7 +725,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                           <text
                             style={{ color: "#FF3B2F" }}
                             onClick={() => handleMenuActions('transfer_to')}>
-                            <img src={`${ASSET_PREFIX_URL}changing-icon.png`} alt="" style={{ width: "20px", height: "20px" }} />
+                            <Image width={20} height={20} src={`${ASSET_PREFIX_URL}changing-icon.png`} alt="" style={{ width: "20px", height: "20px" }} />
                             Transfer to ?
                           </text>
                         ) : (
@@ -733,7 +734,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
 
                             onClick={(e) => handleRemoveRole(e)}
                           >
-                            <img src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
+                            <Image width={20} height={20} src={`${ASSET_PREFIX_URL}menu-delete-icon.svg`} alt="" style={{ width: "20px", height: "20px" }} />
                             Remove Department
                           </text>
                         )}
@@ -838,7 +839,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                         Add DepartmentonClick={() => handleMenuActions('add_mem')}
                       </text> */}
                     <text >
-                      <img
+                      <Image width={20} height={20}
                         src={`${ASSET_PREFIX_URL}add-member.svg`}
                         alt=""
                         style={{ width: "20px", height: "20px" }} />Add Member</text>
@@ -920,7 +921,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
           >
             <div  className={styles["image-container-d3"]} onMouseEnter={handleMouseEnter} onClick={handleRectClick}
               onMouseLeave={handleMouseLeave}>
-              {/* {nodeDatum.photo ? <img
+              {/* {nodeDatum.photo ? <Image
                 className="rounded-image-d3"
                 src={PHOTO_LINK + nodeDatum.photo}
                 alt=""

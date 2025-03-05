@@ -1,5 +1,6 @@
 import React from 'react';
 import {PHOTO_LINK} from '@/config';
+import Image from 'next/image'
 
 function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,borderRadius }) {
     const renderInitials = () => {
@@ -15,7 +16,8 @@ function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,
     return (
         <>
             {memberPhoto ? (
-                <img style={{width:width,height:width,borderRadius:borderRadius?borderRadius: '50%',}}
+                <Image width={parseInt(width)} 
+                height={parseInt(width)}  style={{width:width,height:width,borderRadius:borderRadius?borderRadius: '50%',}}
                     src={PHOTO_LINK + memberPhoto}
                     alt=""
                 />

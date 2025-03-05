@@ -28,6 +28,7 @@ import EditManager from "./modifyHeirarchyPopUps/EditManager";
 import ChangeManager from "./modifyHeirarchyPopUps/ChangeManager";
 import RequestDemo from "../HomePages/RequestDemo/RequestDemo";
 import DemoPopUp from "../HomePages/RequestDemo/DemoPopUp";
+import OrgTopNav from "./Common/OrgTopNav";
 
 
 
@@ -175,6 +176,7 @@ function Hierarchy({ department }) {
   const [parentId, setParentId] = useState(null);
   const [openForm, setOpenForm] = useState(false);
   const [deletePopUp, setDeletePopUp] = useState(false);
+  const [limitError, setLimitError] = useState(false);
   useEffect(() => {
     setLoading(true);
     fetchOrg();
@@ -378,6 +380,7 @@ function Hierarchy({ department }) {
   return (
     <>
       {/* <OrgTopNav /> */}
+      <OrgTopNav orgStyles={styles} handleDownloadExcel={handleDownloadExcel}/>
       <div style={{ width: '100%', height: '99vh' }} ref={containerRef} className={styles["org-hierarchy"]} onClick={handleToggleOfMenu}>
         {loading ? (
           // <img src={loadingImg} />
@@ -430,21 +433,16 @@ function Hierarchy({ department }) {
               onClick={handleClick}
             />
 
-            <button className={styles["btn-collab"]}  onClick={handleDownloadExcel} >
-              Export
-            </button>
-            <button className={styles["btn-collab"]}  style={{right:'150px'}} onClick={() => document.getElementById("fileupld").click()} >
-              Import
-            </button>
+           <span className={styles["note-msg"]}>Note:Marathon OS Chart Builder is designed exclusively for desktop use. Please access it on a PC or laptop for the best experience. 🚀</span>
             {/* <button className={styles["btn-collab"]} onClick={handleImportExcel} >
               Import
             </button> */}
             <input className={styles["btn-collab"]} style={{display:'none'}} id="fileupld" type="file" onChange={(e)=>handleImportExcel(e)} accept=".xlsx" />
             {(action === 'add_mem' || action === 'add_assist') && <AddMember
             setOpenForm={setOpenForm}
-             setParentId={setParentId}
+             setParentId={setParentId} setLimitError={setLimitError}
              activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
-            {action === 'add_dept' && <AddDepartment setOpenForm={setOpenForm}
+            {action === 'add_dept' && <AddDepartment setOpenForm={setOpenForm} setLimitError={setLimitError}
              setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
             {action === 'edit_role' && <EditRole setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
@@ -452,7 +450,7 @@ function Hierarchy({ department }) {
             {deletePopUp && <DeletePopUp activeNode={clickedData} setParentId={setParentId} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData} />}
             {action === 'transfer_to' && <ChangeManager activeNode={clickedData} setParentId={setParentId} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
 
-              {openForm==='demo' && <DemoPopUp onclose={()=>setOpenForm(!openForm)} openPopUp={openForm}/>}
+              {openForm==='demo' && <DemoPopUp onclose={()=>setOpenForm(!openForm)} openPopUp={openForm} error={limitError}/>}
             {/* 
            
             

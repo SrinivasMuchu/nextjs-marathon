@@ -16,7 +16,7 @@ function OrgLandPage() {
 
                 </span>
                 <button className={styles['org-land-page-btn']}>
-                    <Link href="/hr/org-home">Create now</Link>
+                    <Link href="/tools/org-hierarchy/chart-maker">Create now</Link>
                 </button>
             </div>
             <div>

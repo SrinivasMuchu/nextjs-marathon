@@ -7,55 +7,86 @@ import axios from "axios";
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import CommonSaveButton from '../Common/CommonSaveButton';
 import CommonCancelButton from '../Common/CommonCancelButton';
+import Image from 'next/image'
+import { toast } from 'react-toastify';
 
 
-function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdatedData, setParentId }) {
+function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdatedData, setParentId, setLimitError, setOpenForm }) {
     const [photoFile, setPhotoFile] = useState('')
     const [fullName, setFullName] = useState('')
     const [jobTitle, setJobTitle] = useState('')
     const [email, setEmail] = useState('')
     const [phoneNumber, setPhoneNumber] = useState('')
-    const [error, setError] = useState('')
+    const [error, setError] = useState({})
 
     const [photoBlob, setPhotoBlob] = useState('')
 
+    const arrayBufferToBase64 = (arrayBuffer) => {
+        let binary = "";
+        const bytes = new Uint8Array(arrayBuffer);
+        const len = bytes.byteLength;
+    
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+    
+        return window.btoa(binary);
+    };
+    
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
-        setPhotoBlob(file)
-        setPhotoFile(URL.createObjectURL(file))
-
+        if (!file) return;
+    
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = arrayBufferToBase64(reader.result);
+            setPhotoFile(`data:${file.type};base64,${base64String}`); // Base64 format
+            setPhotoBlob(file); // Keep original file for API upload
+        };
+        reader.readAsArrayBuffer(file); // Read as ArrayBuffer
     };
+    
+    
     const handleAddMember = async () => {
         // Reset form submission status and validation errors
         // setFormSubmitted(true);
-        // setValidationErrors({});
+        // setError({});
 
         // Validate inputs
-        // if (!jobTitle.trim()) {
-        //   setValidationErrors(prevErrors => ({ ...prevErrors, jobTitle: "Job Title is required." }));
-        //   return;
-        // }
-        // if (!fullName) {
-        //   setValidationErrors(prevErrors => ({ ...prevErrors, fullName: "Please select an employee." }));
-        //   return;
-        // }
-        // if (!email) {
-        //   setValidationErrors(prevErrors => ({ ...prevErrors, email: "Please select an employee." }));
-        //   return;
-        // }
+        if (!jobTitle.trim()) {
+            setError(prevErrors => ({ ...prevErrors, jobTitle: "Job Title is required." }));
+            return;
+        }
+        if (!fullName) {
+            setError(prevErrors => ({ ...prevErrors, fullName: "Please enter full name." }));
+            return;
+        }
+        if (!email) {
+            setError(prevErrors => ({ ...prevErrors, email: "Please enter email ." }));
+            return;
+        }
+        if (!email.includes('@')) {
+            setError(prevErrors => ({ ...prevErrors, incorrectEmail: "Please enter valid email." }));
+            return;
+        }
 
         try {
             const headers = {
                 'x-auth-token': localStorage.getItem("token")
             };
+            
             const response = await axios.post(BASE_URL + "/v1/org/add-hierarchy-next", {
-                uuid: localStorage.getItem('uuid'), designation: jobTitle, fullName, phoneNumber, email, org_id: localStorage.getItem('org_id'),
+                uuid: localStorage.getItem('uuid'), designation: jobTitle, fullName, phoneNumber, email,
+                photo:photoFile, org_id: localStorage.getItem('org_id'),
 
             },
                 {
                     headers
                 });
-            console.log(response.data.data.member)
+           
+
+
+
 
             if (response.data.meta.success) {
                 const hierarchyResponse = await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
@@ -71,72 +102,47 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                     });
                 if (hierarchyResponse.data.meta.success) {
                     setParentId(activeNode.entity_id);
-                    setUpdatedData(selectedEntityId)
-                } else {
-                    console.log(hierarchyResponse.data.meta.message)
+                    // setUpdatedData(selectedEntityId)
+                    setAction(false)
+                } else if (
+                    hierarchyResponse.meta.success === false && hierarchyResponse.data.member_count >= 30
+                ) {
+                    setOpenForm('demo')
+                    setLimitError('Free tier limit exceeded: Maximum 30 members allowed.');
+                }else{
+                    toast.error(response.data.meta.message);
                 }
+                // if(hierarchyResponse.data.meta.success){
+                //     window.location.reload()
+                // }else{
+                //     console.log(hierarchyResponse.data.meta.message)
+                // }
 
             } else {
-                console.log(response.data.meta.message)
+                toast.error(response.data.meta.message);
             }
 
         } catch (error) {
-            console.error(error.message);
+            console.log(error)
+            toast.error(error.message);
 
         }
     };
 
-    const arrayBufferToBase64 = (arrayBuffer) => {
-        let binary = "";
-        const bytes = new Uint8Array(arrayBuffer);
-        const len = bytes.byteLength;
-
-        for (let i = 0; i < len; i++) {
-            binary += String.fromCharCode(bytes[i]);
-        }
-
-        return window.btoa(binary);
-    };
-    const updateDetails = async (photoData) => {
-        const response = await axios.post(
-            BASE_URL + "/v1/member/profile-details",
-            {
-                photo: photoData, fullName, phoneNumber, email,
-                parent_entity_id: activeNode.entity_id,
-                is_sibling: true,
-                job_title: jobTitle,
-                entity_type: action === 'add_mem' ? "member" : "assistant",
-                action: 'add',
-            },
-            {
-                headers: {
-                    'x-auth-token': localStorage.getItem("token")
-                },
-            }
-        );
-        let { message, success } = response.data.meta;
-        if (success) {
-            setUpdatedData(fullName);
-            setAction(false)
-            handleClose();
-
-        } else {
-            alert(message);
-        }
-    };
+   
+    
     return (
         <>
             <div className={styles["viewrole-photo-cont"]}>
                 <div className={styles["general-upload"]} >
-                    {photoFile ? <img src={photoFile} alt="Uploaded" className="upd-img" style={{ width: '200px', height: '200px', borderRadius: '50%' }} /> :
-                        <img src={ASSET_PREFIX_URL + 'profilelogodefault.png'} alt="Uploaded" className="upd-img" style={{ width: '200px', height: '200px', borderRadius: '50%' }} />}
+                    {photoFile ? <Image width={200} height={200} src={photoFile} alt="Uploaded" className="upd-img" style={{ width: '200px', height: '200px', borderRadius: '50%' }} /> :
+                        <Image width={200} height={200} src={ASSET_PREFIX_URL + 'profilelogodefault.png'} alt="Uploaded" className="upd-img" style={{ width: '200px', height: '200px', borderRadius: '50%' }} />}
                     {/* <NameProfile userName={name} memberPhoto={photoFile} width="200px" fontSize='38px' fontweight='500' /> */}
-                    <button className={styles["general-upload-btn"]} onClick={() => document.getElementById("fileupld").click()} >
+                    <button className={styles["general-upload-btn"]} onClick={() => document.getElementById("fileupld-photo").click()} >
 
-                        <img
+                        <Image width={16} height={16}
                             src={`${ASSET_PREFIX_URL}upload-plus.svg`}
-                            width="16px"
-                            height="16px"
+
                             alt=""
                         />
                     </button>
@@ -144,14 +150,14 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                 </div>
                 <input
                     type="file"
-                    id="fileupld"
-                    accept="image/jpeg, image/png, image/gif"
+                    id="fileupld-photo"
+                    accept="image/jpeg, image/png"
                     style={{ display: "none" }}
                     onChange={handleFileUpload}
                     className="btn-upload"
                 />
                 {/* <NameProfile userName={activeNode.fullName} width='200px' memberPhoto={activeNode.photo} fontSize='100px' fontweight='500' /> */}
-                {/* <img className='viewrole-photo' src={activeNode.photo ? PHOTO_LINK + activeNode.photo : DEFAULT_PHOTO} alt='' /> */}
+                {/* <Image className='viewrole-photo' src={activeNode.photo ? PHOTO_LINK + activeNode.photo : DEFAULT_PHOTO} alt='' /> */}
             </div>
             <div className={styles["viewrole-details"]}>
                 <div className={styles["viewrole-name"]}>
@@ -189,8 +195,25 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                         <CommonCancelButton handleClose={handleClose} styles={styles} />
 
                     </div>
+                    { (!fullName&&error.fullName) && (
+                    <div className={styles["department-error"]} ><Image
+                        width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.fullName}</div>
+                )}
+                 { (!jobTitle&&error.jobTitle) && (
+                    <div className={styles["department-error"]} ><Image
+                        width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.jobTitle}</div>
+                )}
+                 { (!email&&error.email) && (
+                    <div className={styles["department-error"]} ><Image
+                        width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.email}</div>
+                )}
+                { (email&&!email.includes("@")&&error.incorrectEmail) && (
+                    <div className={styles["department-error"]} ><Image
+                        width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.incorrectEmail}</div>
+                )}
+                
                 </div>
-
+                
                 {/* <div className={styles["viewrole-contact"]} >
                     <span><b>Contact</b></span>
                     <div className={styles["viewrole-email"]} >
@@ -222,4 +245,4 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
     )
 }
 
-export default AddMemberDetails
+export default AddMemberDetails;

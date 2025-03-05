@@ -9,6 +9,8 @@ import CloseButton from "../Common/CloseButton";
 import CommonCancelButton from "../Common/CommonCancelButton";
 import CommonSaveButton from "../Common/CommonSaveButton";
 import customStyles from "./CustomStyle.helper";
+import Image from 'next/image'
+import { toast } from "react-toastify";
 
 function ChangeManager({activeNode, hierarchy, setAction,setUpdatedData,setParentId }) {
   // const allIds = [activeNode.entity_id].concat(activeNode.children.map(item => item.entity_id));
@@ -86,14 +88,14 @@ console.log(allIds);
              headers: {
                 'x-auth-token': localStorage.getItem("token")
               }});
-              // setParentId(activeNode.entity_id);
-              // setUpdatedData(activeNode.entity_id);
-              window.location.reload()
+              setParentId(selectedEntityId);
+              setUpdatedData(activeNode.entity_id);
+              // window.location.reload()
              setAction(false)
       }
       // Handle the response data or update the UI accordingly
      catch (error) {
-      console.error(error.message);
+      toast.error(error.message);
      
       // Handle the error or display an error message
     }
@@ -141,7 +143,8 @@ console.log(allIds);
           value={selectedOption} // Set the selected option
         />
         {formSubmitted && validationErrors.selectedOption && (
-            <div className={styles["department-error"]}><img src={`${ASSET_PREFIX_URL}warning.svg`} alt=""/>&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
+            <div className={styles["department-error"]}><Image width={20} height={20}
+            src={`${ASSET_PREFIX_URL}warning.svg`} alt=""/>&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
           )}
       </div>
     </div>

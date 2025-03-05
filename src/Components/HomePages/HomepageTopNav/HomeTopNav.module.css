@@ -36,8 +36,12 @@
   /* bottom: 100px; */
   display: flex;
   flex-direction: column;
-  background: white;
+  background: #edf2f7;
   z-index: 200;
+  width: 150px;
+  border-radius: 4px;
+  overflow: hidden;
+ 
 
 }
 .dropdown-menu a{
@@ -204,6 +208,7 @@
 
   .home-pg-menu {
     display: flex;
+    gap: 24px;
     cursor: pointer;
 
   }

@@ -27,7 +27,7 @@ function HomeTopNav() {
           <span style={{cursor:'pointer'}} onClick={()=>setDropdownOpen(!dropdownOpen)}>Tools ▼</span>
           {dropdownOpen && (
             <div className={styles["dropdown-menu"]}>
-              <Link href="/org">Organization</Link>
+              <Link href="/tools/org-hierarchy">Org hierarchy</Link>
               {/* <Link href="/about">Organization</Link>
               <Link href="/about">Organization</Link>
               <Link href="/about">Organization</Link> */}
