@@ -158,11 +158,11 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                             src={`${ASSET_PREFIX_URL}view-role.svg`}
                             alt=""
                             style={{ width: "20px", height: "20px" }} /> View Role</text>
-                        <text onClick={() => handleMenuActions('edit_role')}>
+                        {/* <text onClick={() => handleMenuActions('edit_role')}>
                           <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}edit-role.svg`}
                             alt=""
-                            style={{ width: "20px", height: "20px" }} />Edit Role</text>
+                            style={{ width: "20px", height: "20px" }} />Edit Role</text> */}
 
                         <text
                           style={{ color: "#FF3B2F" }}
@@ -223,11 +223,11 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                               src={`${ASSET_PREFIX_URL}view-role.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} /> View Role</text>
-                          <text onClick={() => handleMenuActions('edit_role')}>
+                          {/* <text onClick={() => handleMenuActions('edit_role')}>
                             <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}edit-role.svg`}
                               alt=""
-                              style={{ width: "20px", height: "20px" }} />Edit Role</text>
+                              style={{ width: "20px", height: "20px" }} />Edit Role</text> */}
                           <text onClick={() => handleMenuActions('change_manager')}>
                             <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}change-manager.svg`}
@@ -276,11 +276,11 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                             src={`${ASSET_PREFIX_URL}view-role.svg`}
                             alt=""
                             style={{ width: "20px", height: "20px" }} /> View Role</text>
-                        <text onClick={() => handleMenuActions('edit_role')}>
+                        {/* <text onClick={() => handleMenuActions('edit_role')}>
                           <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}edit-role.svg`}
                             alt=""
-                            style={{ width: "20px", height: "20px" }} />Edit Role</text>
+                            style={{ width: "20px", height: "20px" }} />Edit Role</text> */}
 
                         <text
                           style={{ color: "#FF3B2F" }}
@@ -351,11 +351,11 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                                 src={`${ASSET_PREFIX_URL}view-role.svg`}
                                 alt=""
                                 style={{ width: "20px", height: "20px" }} /> View Role</text>
-                            <text onClick={() => handleMenuActions('edit_role')}>
+                            {/* <text onClick={() => handleMenuActions('edit_role')}>
                               <Image width={20} height={20}
                                 src={`${ASSET_PREFIX_URL}edit-role.svg`}
                                 alt=""
-                                style={{ width: "20px", height: "20px" }} />Edit Role</text>
+                                style={{ width: "20px", height: "20px" }} />Edit Role</text> */}
                             {/* <text onClick={() => handleMenuActions('change_manager')}>
                               <Image
                                 src={`${ASSET_PREFIX_URL}change-manager.svg`}
@@ -404,11 +404,11 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                               src={`${ASSET_PREFIX_URL}view-role.svg`}
                               alt=""
                               style={{ width: "20px", height: "20px" }} /> View Role</text>
-                          <text onClick={() => handleMenuActions('edit_role')}>
+                          {/* <text onClick={() => handleMenuActions('edit_role')}>
                             <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}edit-role.svg`}
                               alt=""
-                              style={{ width: "20px", height: "20px" }} />Edit Role</text>
+                              style={{ width: "20px", height: "20px" }} />Edit Role</text> */}
 
                           <text
                             style={{ color: "#FF3B2F" }}

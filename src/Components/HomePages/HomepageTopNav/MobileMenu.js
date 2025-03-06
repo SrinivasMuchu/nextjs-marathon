@@ -25,7 +25,7 @@ function MobileMenu({ onClose, styles }) {
           <span style={{ cursor: 'pointer' }} onClick={() => setDropdownOpen(!dropdownOpen)}>Tools ▼</span>
           {dropdownOpen && (
             <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
-              <Link href="/org">Organization</Link>
+              <Link href="/tools/org-hierarchy">Organization</Link>
               {/* <Link href="/about">Organization</Link>
               <Link href="/about">Organization</Link> */}
               {/* <Link href="/about">Organization</Link>

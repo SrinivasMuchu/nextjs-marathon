@@ -4,7 +4,7 @@ import styles from './EditHierarchy.module.css';
 import CloseIcon from "@mui/icons-material/Close";
 import Select from "react-select";
 import axios from "axios";
-import { BASE_URL,ASSET_PREFIX_URL } from "@/config";
+import { BASE_URL, ASSET_PREFIX_URL } from "@/config";
 import NameProfile from '@/Components/CommonJsx.js/NameProfile';
 import customStyles from "./CustomStyle.helper";
 import CloseButton from "../Common/CloseButton";
@@ -13,7 +13,7 @@ import CommonSaveButton from "../Common/CommonSaveButton";
 import Image from 'next/image'
 import { toast } from "react-toastify";
 
-function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParentId }) {
+function EditManager({ activeNode, hierarchy, setAction, setUpdatedData, setParentId }) {
   console.log(activeNode.parent_entity_id)
   const collectAllIds = (node) => {
     let ids = [node.entity_id];
@@ -40,12 +40,12 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
 
   const fetchData = async () => {
     try {
-      
+
       const response = await axios.get(BASE_URL + "/v1/org/get-change-manager-next", {
-        params: { entity_ids: allIdsWithParent,org_id:localStorage.getItem('org_id') }, // Send all IDs with parent ID
+        params: { entity_ids: allIdsWithParent, org_id: localStorage.getItem('org_id') }, // Send all IDs with parent ID
         headers: {
-            'x-auth-token': localStorage.getItem("token")
-          }
+          'x-auth-token': localStorage.getItem("token")
+        }
       });
       setOptions(response.data.data);
     } catch (error) {
@@ -70,22 +70,23 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
     try {
       const selectedEntityId = selectedOption ? selectedOption.entity_id : "";
       // Get the selected email from the option
-    const response=  await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
+      const response = await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
         action: 'change_manager',
         old_manager_id: activeNode.entity_id,
-        new_manager_id: selectedEntityId,org_id:localStorage.getItem('org_id')
+        new_manager_id: selectedEntityId, org_id: localStorage.getItem('org_id')
       }, {
         headers: {
-            'x-auth-token': localStorage.getItem("token")
-          }
+          'x-auth-token': localStorage.getItem("token")
+        }
       });
-      if(response.data.meta.success){
-      // setParentId(activeNode.entity_id);
-      // setUpdatedData(response)
-      window.location.reload()
-      setAction(false)
-      }else{
-        toast.error(response.data.meta.message);
+      if (response.data.meta.success) {
+        toast.success('Manager changed successfully. Refreshing the page')
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+        setAction(false)
+      } else {
+        toast.error(response.data.meta.message)
       }
     } catch (error) {
       toast.error(error.message);
@@ -102,13 +103,13 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
     return fullName.includes(inputValue);
   };
 
-  
+
 
   return (
     <div className={styles["editRole"]} style={{ display: close ? "none" : "block" }}>
       <div className={styles["head-cont"]}>
-    
-        <CloseButton handleClose={handleClose} heading='Change manager' styles={styles}/>
+
+        <CloseButton handleClose={handleClose} heading='Change manager' styles={styles} />
         <div className={styles["emp"]}>
           <span>Managers</span>
           <Select
@@ -128,6 +129,7 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
               </div>
             )}
             onChange={(selectedOption) => {
+              console.log(selectedOption)
               setSelectedOption(selectedOption);
             }}
             filterOption={filterOptions}
@@ -138,14 +140,14 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData,setParen
           )}
         </div>
       </div>
-      <div  className={styles["btn-bottom"]} >
+      <div className={styles["btn-bottom"]} >
         {(!selectedOption) ? (
-                    <CommonSaveButton handleClick={handleAddMember} className='submit-edit-errorbutton' styles={styles} />
+          <CommonSaveButton handleClick={handleAddMember} className='submit-edit-errorbutton' styles={styles} />
 
-                ) : (
-                    <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />
+        ) : (
+          <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />
 
-                )}
+        )}
         <CommonCancelButton handleClose={handleClose} styles={styles} />
       </div>
     </div>

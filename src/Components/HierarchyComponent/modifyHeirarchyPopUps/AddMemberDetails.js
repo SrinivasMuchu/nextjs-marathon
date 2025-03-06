@@ -27,24 +27,22 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
         const len = bytes.byteLength;
     
         for (let i = 0; i < len; i++) {
-            binary += String.fromCharCode(bytes[i]);
+          binary += String.fromCharCode(bytes[i]);
         }
     
         return window.btoa(binary);
-    };
+      };
     
-    const handleFileUpload = async (event) => {
+      const handleFileUpload = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
     
         const reader = new FileReader();
-        reader.onloadend = () => {
-            const base64String = arrayBufferToBase64(reader.result);
-            setPhotoFile(`data:${file.type};base64,${base64String}`); // Base64 format
-            setPhotoBlob(file); // Keep original file for API upload
-        };
-        reader.readAsArrayBuffer(file); // Read as ArrayBuffer
+        reader.onloadend = () => setPhotoFile(reader.result); // Directly set base64 string
+        reader.readAsDataURL(file);
+        
     };
+    
     
     
     const handleAddMember = async () => {

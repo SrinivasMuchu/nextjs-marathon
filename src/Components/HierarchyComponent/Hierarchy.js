@@ -29,6 +29,7 @@ import ChangeManager from "./modifyHeirarchyPopUps/ChangeManager";
 import RequestDemo from "../HomePages/RequestDemo/RequestDemo";
 import DemoPopUp from "../HomePages/RequestDemo/DemoPopUp";
 import OrgTopNav from "./Common/OrgTopNav";
+import Loading from "../CommonJsx.js/Loaders/Loading";
 
 
 
@@ -385,7 +386,7 @@ function Hierarchy({ department }) {
         {loading ? (
           // <img src={loadingImg} />
           //   <Loading />
-          <span>loading....</span>
+          <Loading/>
         ) : (
           <>
             <Tree

@@ -79,7 +79,7 @@ console.log(allIds);
     try {
         const selectedEntityId = selectedOption ? selectedOption.entity_id._id : "";
         // Get the selected email from the option
-        await axios.delete(BASE_URL + "/v1/org/remove-role-next", {
+       const response= await axios.delete(BASE_URL + "/v1/org/remove-role-next", {
           data:{
               entity_id: activeNode.entity_id,
               new_manager_id: selectedEntityId,
@@ -88,10 +88,16 @@ console.log(allIds);
              headers: {
                 'x-auth-token': localStorage.getItem("token")
               }});
-              setParentId(selectedEntityId);
-              setUpdatedData(activeNode.entity_id);
-              // window.location.reload()
-             setAction(false)
+              if(response.data.meta.success){
+                toast.success('Manager changed successfully. Refreshing the page')
+                setTimeout(() => {
+                  window.location.reload();
+                }, 2000);
+               setAction(false)
+              }else{
+                toast.error(response.data.meta.message)
+              }
+              
       }
       // Handle the response data or update the UI accordingly
      catch (error) {
