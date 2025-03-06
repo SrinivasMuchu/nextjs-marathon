@@ -1,60 +1,68 @@
-
-"use client"
-import React,{useState} from "react";
+"use client";
+import React, { useState } from "react";
+import { usePathname, useRouter } from "next/navigation"; // Use usePathname instead of useRouter
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
-import Link from 'next/link';
-import styles from './HomeTopNav.module.css';
+import Link from "next/link";
+import styles from "./HomeTopNav.module.css";
 import TopNavRequestBtn from "../../CommonJsx.js/TopNavRequestBtn";
 import MenuButton from "@/Components/CommonJsx.js/MenuButton";
 
 function HomeTopNav() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  return (
-    <>
+  const pathname = usePathname(); // Get current route
+  const router = useRouter(); // For navigation
 
-      <div className={styles['home-page-top']}>
-        <Image src={IMAGEURLS.logo} alt="Marathon Logo" width={500}
-          height={500} className={styles['home-page-top-logo']}/>
-        <div className={styles['home-page-navs']}>
-          
-          <Link href="#why-us">Why us?</Link>
-          <Link href="#capabilities">Capabilities</Link>
-          <Link href="#product">Product</Link>
-          <Link href="#pricing">Pricing</Link>
-          <Link href="#security">Security</Link>
-          <div style={{position:'relative'}} >
-          <span style={{cursor:'pointer'}} onClick={()=>setDropdownOpen(!dropdownOpen)}>Tools ▼</span>
+  // Function to handle anchor link clicks
+  const handleAnchorClick = (event, sectionId) => {
+    event.preventDefault(); // Prevent default anchor behavior
+
+    if (pathname !== "/") {
+      // Redirect to home page first
+      router.push(`/#${sectionId}`);
+    } else {
+      // Scroll smoothly to the section if already on home page
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  return (
+    <div className={styles["home-page-top"]}>
+      <Link href="/">
+        <Image
+          src={IMAGEURLS.logo}
+          alt="Marathon Logo"
+          width={500}
+          height={500}
+          className={styles["home-page-top-logo"]}
+        />
+      </Link>
+
+      <div className={styles["home-page-navs"]}>
+        <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</a>
+        <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</a>
+        <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</a>
+        <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>
+        <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a>
+
+        <div style={{ position: "relative" }}>
+          <span style={{ cursor: "pointer" }} onClick={() => setDropdownOpen(!dropdownOpen)}>Tools ▼</span>
           {dropdownOpen && (
             <div className={styles["dropdown-menu"]}>
               <Link href="/tools/org-hierarchy">Org hierarchy</Link>
-              {/* <Link href="/about">Organization</Link>
-              <Link href="/about">Organization</Link>
-              <Link href="/about">Organization</Link> */}
-              {/* <Link href="/contact">Contact</Link>
-              <Link href="/careers">Careers</Link> */}
             </div>
           )}
-
-          </div>
-         
         </div>
-        <div className={styles['home-pg-btns']}>
-          {/* buttons */}
-          <TopNavRequestBtn styles={styles} className={'try-demo'} />
-          {/* <button className={styles['try-demo']} onClick={() => setOpenDemoForm(!openDemoForm)}>Request demo</button> */}
-          {/* <button className={styles['home-login']} onClick={HnadleNavigate}>Login</button> */}
-        </div>
-        <div className={styles['home-pg-menu']} >
-          <MenuButton styles={{ styles }} />
-        </div>
-
-
       </div>
 
+      <div className={styles["home-pg-btns"]}>
+        <TopNavRequestBtn styles={styles} className={"try-demo"} />
+      </div>
 
-
-    </>
+      <div className={styles["home-pg-menu"]}>
+        <MenuButton styles={{ styles }} />
+      </div>
+    </div>
   );
 }
 

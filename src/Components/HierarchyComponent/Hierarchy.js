@@ -30,6 +30,7 @@ import RequestDemo from "../HomePages/RequestDemo/RequestDemo";
 import DemoPopUp from "../HomePages/RequestDemo/DemoPopUp";
 import OrgTopNav from "./Common/OrgTopNav";
 import Loading from "../CommonJsx.js/Loaders/Loading";
+import { toast } from "react-toastify";
 
 
 
@@ -83,16 +84,16 @@ const RenderRectSvgNode = ({
 
   const handleMouseEnter = () => {
     // if (isAdmin === 1 || isCollaborator === 1) {
-      setIsHovered(true);
-      setShowPlus(true);
-      setDepartment(true);
-      // Update the active node only if it's different
-      if (nodeDatum !== activeNode) {
-        setActiveNode(nodeDatum);
+    setIsHovered(true);
+    setShowPlus(true);
+    setDepartment(true);
+    // Update the active node only if it's different
+    if (nodeDatum !== activeNode) {
+      setActiveNode(nodeDatum);
 
-      }
+    }
 
-      // Handle tour logic based on node type
+    // Handle tour logic based on node type
 
     // }
   };
@@ -180,7 +181,7 @@ function Hierarchy({ department }) {
   const [limitError, setLimitError] = useState(false);
   useEffect(() => {
     setLoading(true);
-    fetchOrg();
+    fetchOrg(parentId);
 
 
   }, [parentId, updatedData]);
@@ -229,10 +230,10 @@ function Hierarchy({ department }) {
     try {
       const response = await axios.get(
         `${BASE_URL}/v1/org/export-to-excell`,
-        {params:{organization_id:localStorage.getItem('org_id')}, responseType: "blob" }
+        { params: { organization_id: localStorage.getItem('org_id') }, responseType: "blob" }
       );
-        
-      
+
+
 
       const blob = new Blob([response.data], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -254,23 +255,29 @@ function Hierarchy({ department }) {
     formData.append("org_id", localStorage.getItem('org_id'));
 
     try {
+      setLoading(true)
       const response = await axios.post(`${BASE_URL}/v1/org/import-excell`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      fetchOrg()
+      if (response.data.meta.success) {
+        fetchOrg(parentId)
+      }else{
+        toast.error(response.data.meta.message)
+      }
+setLoading(false)
     } catch (error) {
       console.error("Error importing Excel file:", error);
-      alert("Failed to import: " + error.response.data.message);
+      toast.error( error.response.data.message);
+      setLoading(false)
     }
   };
 
-  const fetchOrg = async () => {
+  const fetchOrg = async (parentId) => {
     try {
 
       // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
       const response = await axios.get(BASE_URL + '/v1/org/get-hierarchy-next', {
-        params: { parent_entity_id: parentId,org_id:localStorage.getItem('org_id') },
+        params: { parent_entity_id: parentId, org_id: localStorage.getItem('org_id') },
 
       });
 
@@ -381,12 +388,12 @@ function Hierarchy({ department }) {
   return (
     <>
       {/* <OrgTopNav /> */}
-      <OrgTopNav orgStyles={styles} handleDownloadExcel={handleDownloadExcel}/>
+      <OrgTopNav orgStyles={styles} handleDownloadExcel={handleDownloadExcel} />
       <div style={{ width: '100%', height: '99vh' }} ref={containerRef} className={styles["org-hierarchy"]} onClick={handleToggleOfMenu}>
         {loading ? (
           // <img src={loadingImg} />
           //   <Loading />
-          <Loading/>
+          <Loading />
         ) : (
           <>
             <Tree
@@ -434,24 +441,24 @@ function Hierarchy({ department }) {
               onClick={handleClick}
             />
 
-           <span className={styles["note-msg"]}>Note:Marathon OS Chart Builder is designed exclusively for desktop use. Please access it on a PC or laptop for the best experience. 🚀</span>
+            <span className={styles["note-msg"]}>Note:Marathon OS Chart Builder is designed exclusively for desktop use. Please access it on a PC or laptop for the best experience. 🚀</span>
             {/* <button className={styles["btn-collab"]} onClick={handleImportExcel} >
               Import
             </button> */}
-            <input className={styles["btn-collab"]} style={{display:'none'}} id="fileupld" type="file" onChange={(e)=>handleImportExcel(e)} accept=".xlsx" />
+            <input className={styles["btn-collab"]} style={{ display: 'none' }} id="fileupld" type="file" onChange={(e) => handleImportExcel(e)} accept=".xlsx" />
             {(action === 'add_mem' || action === 'add_assist') && <AddMember
-            setOpenForm={setOpenForm}
-             setParentId={setParentId} setLimitError={setLimitError}
-             activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
+              setOpenForm={setOpenForm}
+              setParentId={setParentId} setLimitError={setLimitError}
+              activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
             {action === 'add_dept' && <AddDepartment setOpenForm={setOpenForm} setLimitError={setLimitError}
-             setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
+              setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
             {action === 'edit_role' && <EditRole setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'change_manager' && <EditManager setParentId={setParentId} activeNode={clickedData} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {deletePopUp && <DeletePopUp activeNode={clickedData} setParentId={setParentId} setHasChildren={setHasChildren} onclose={handleCloseDelete} setUpdatedData={setUpdatedData} />}
             {action === 'transfer_to' && <ChangeManager activeNode={clickedData} setParentId={setParentId} hierarchy={hierarchy} setAction={setAction} setUpdatedData={setUpdatedData} />}
 
-              {openForm==='demo' && <DemoPopUp onclose={()=>setOpenForm(!openForm)} openPopUp={openForm} error={limitError}/>}
+            {openForm === 'demo' && <DemoPopUp onclose={() => setOpenForm(!openForm)} openPopUp={openForm} error={limitError} />}
             {/* 
            
             

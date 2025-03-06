@@ -100,7 +100,7 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                     });
                 if (hierarchyResponse.data.meta.success) {
                     setParentId(activeNode.entity_id);
-                    // setUpdatedData(selectedEntityId)
+                    setUpdatedData(activeNode.entity_id)
                     setAction(false)
                 } else if (
                     hierarchyResponse.meta.success === false && hierarchyResponse.data.member_count >= 30

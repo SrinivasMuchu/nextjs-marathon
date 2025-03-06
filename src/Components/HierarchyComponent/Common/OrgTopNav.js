@@ -3,14 +3,16 @@ import { IMAGEURLS } from "@/config";
 import Image from "next/image";
 import MenuButton from '@/Components/CommonJsx.js/MenuButton';
 import styles from '../../HomePages/HomepageTopNav/HomeTopNav.module.css';
+import Link from 'next/link';
 
 function OrgTopNav({ orgStyles, handleDownloadExcel }) {
     return (
         <>
 
             <div className={styles['home-page-top']}>
-                <Image src={IMAGEURLS.logo} alt="Marathon Logo" width={500}
-                    height={500} className={styles['home-page-top-logo']} />
+            <Link href='/'> <Image src={IMAGEURLS.logo} alt="Marathon Logo" width={500}
+          height={500} className={styles['home-page-top-logo']}/>
+        </Link>
 
                 <div className={styles['home-pg-btns']}>
                     {/* buttons */}

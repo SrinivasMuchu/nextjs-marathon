@@ -90,7 +90,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
         });
       if (response.data.meta.success) {
         setParentId(activeNode.entity_id);
-        setUpdatedData(selectedEntityId)
+        setUpdatedData(activeNode.entity_id)
         setAction(false)
       } else if (
         response.meta.success === false && response.data.member_count >= 30

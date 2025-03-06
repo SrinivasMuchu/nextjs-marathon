@@ -6,7 +6,7 @@
   right: 0%;
   top: 0%;
   background-color: white;
-  width: 26vw;
+  width: 30%;
   z-index: 1;
   justify-content: space-between;
   padding-left: 1.7vw;
@@ -168,8 +168,8 @@
 
 .btn-bottom button,
 .edit-btns button {
-  height: 6vh;
-  max-width: 5.3vw;
+  /* height: 6vh;
+  max-width: 5.3vw; */
   padding: 1.5vh 1.46vw 1.5vh 1.46vw;
   text-align: center;
   border-radius: 4px;
@@ -532,4 +532,10 @@
 
 .default-closing:hover {
   background: rgb(217, 217, 217);
+}
+@media screen and (max-width:850px){
+  .editRole,
+.editdoc {
+  width:80%
+}
 }
