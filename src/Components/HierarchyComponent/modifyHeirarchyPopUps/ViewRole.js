@@ -19,6 +19,8 @@ import { PHOTO_LINK } from './../../../config';
 function ViewRole({ activeNode, setAction }) {
   const [close, setClose] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploaded, setUploaded] = useState('');
+
 
   const [editedValues, setEditedValues] = useState({
     fullName: activeNode.fullName,
@@ -42,11 +44,11 @@ function ViewRole({ activeNode, setAction }) {
 
 
   const handleSave = async () => {
-    if(!editedValues.fullName){
+    if (!editedValues.fullName) {
       toast.error('Full name cannot be empty')
       return
     }
-    if(!editedValues.jobTitle){
+    if (!editedValues.jobTitle) {
       toast.error('jobTitle cannot be empty')
       return
     }
@@ -68,7 +70,7 @@ function ViewRole({ activeNode, setAction }) {
         setTimeout(() => {
           window.location.reload();
         }, 2000);
-        
+
       } else {
         toast.error(response.data.meta.message)
       }
@@ -83,7 +85,8 @@ function ViewRole({ activeNode, setAction }) {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onloadend = () => setEditedValues((prev) => ({ ...prev, ['photo']: reader.result })); // Directly set base64 string
+    setUploaded(true)
+    reader.onloadend = () => setUploaded(reader.result); // Directly set base64 string
     reader.readAsDataURL(file);
 
   };
@@ -93,9 +96,9 @@ function ViewRole({ activeNode, setAction }) {
         <CloseButton handleClose={handleClose} heading='View Role' styles={styles} />
         <div className={styles["viewrole-photo-cont"]}>
           <div className={styles["general-upload"]} >
-            {editedValues.photo ? <Image width={200} height={200} src={PHOTO_LINK+editedValues.photo} alt="Uploaded"
+            {uploaded ? <Image width={200} height={200} src={uploaded} alt="Uploaded"
               className="upd-img" style={{ width: '200px', height: '200px', borderRadius: '50%' }} /> :
-              <NameProfile userName={activeNode.fullName} width='200px' memberPhoto={activeNode.photo} fontSize='100px' fontweight='500' />}
+              <NameProfile userName={activeNode.photo} width='200px' memberPhoto={activeNode.photo} fontSize='100px' fontweight='500' />}
             {isEditing && (
               <button
                 className={styles["general-upload-btn"]}

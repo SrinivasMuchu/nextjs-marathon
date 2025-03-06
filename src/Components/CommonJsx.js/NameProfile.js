@@ -18,7 +18,7 @@ function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,
             {memberPhoto ? (
                 <Image width={parseInt(width)} 
                 height={parseInt(width)}  style={{width:width,height:width,borderRadius:borderRadius?borderRadius: '50%',}}
-                    src={PHOTO_LINK + memberPhoto}
+                    src={!memberPhoto.includes(PHOTO_LINK)?PHOTO_LINK + memberPhoto:memberPhoto}
                     alt=""
                 />
             ) : (

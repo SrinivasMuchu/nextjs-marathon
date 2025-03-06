@@ -174,10 +174,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
                width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
             )}
           </div>
-          <div className={styles["emp"]}>
-            <button className={styles["submit-edit-button"]} style={{ padding: '8px', borderRadius: '4px' }}
-              onClick={() => setAddMember(!addMember)}>Add member</button>
-          </div>
+        
           <div className={styles["editJob"]}>
             <span>Job title</span>
             <input

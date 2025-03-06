@@ -4,7 +4,7 @@
   background-size: auto;
   background-position: center;
   width: auto;
-  height: auto;
+  max-height: 90vh;
   margin-left: 3px;
 }
 
