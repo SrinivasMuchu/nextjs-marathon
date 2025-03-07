@@ -4,7 +4,7 @@ import axios from 'axios';
 import { BASE_URL } from "@/config";
 import ThanksPopUp from '../RequestDemo/ThanksPopUp';
 import { isValidPhoneNumber } from "react-phone-number-input";
-import ReactPhoneNumber from '@/Components/CommonJsx.js/ReactPhoneNumber';
+import ReactPhoneNumber from '@/Components/CommonJsx/ReactPhoneNumber';
 
 
 function FooterForm({ styles }) {

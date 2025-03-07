@@ -4,7 +4,7 @@ import styles from './EditHierarchy.module.css';
 import Select from "react-select";
 import axios from "axios";
 import { BASE_URL, ASSET_PREFIX_URL } from "@/config";
-import NameProfile from "@/Components/CommonJsx.js/NameProfile";
+import NameProfile from "@/Components/CommonJsx/NameProfile";
 import CloseButton from "../Common/CloseButton";
 import CommonCancelButton from "../Common/CommonCancelButton";
 import CommonSaveButton from "../Common/CommonSaveButton";

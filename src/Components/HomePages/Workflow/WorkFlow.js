@@ -3,7 +3,7 @@ import React from 'react'
 import styles from './WorkFlow.module.css'
 import Image from "next/image";
 import { IMAGEURLS } from "@/config";
-import TopNavRequestBtn from '@/Components/CommonJsx.js/TopNavRequestBtn';
+import TopNavRequestBtn from '@/Components/CommonJsx/TopNavRequestBtn';
 import BoxesConditional from './BoxesConditional';
 import WorkFlowImages from './WorkFlowImages';
 

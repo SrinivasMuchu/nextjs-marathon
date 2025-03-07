@@ -25,26 +25,26 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
         let binary = "";
         const bytes = new Uint8Array(arrayBuffer);
         const len = bytes.byteLength;
-    
+
         for (let i = 0; i < len; i++) {
-          binary += String.fromCharCode(bytes[i]);
+            binary += String.fromCharCode(bytes[i]);
         }
-    
+
         return window.btoa(binary);
-      };
-    
-      const handleFileUpload = async (event) => {
+    };
+
+    const handleFileUpload = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
-    
+
         const reader = new FileReader();
         reader.onloadend = () => setPhotoFile(reader.result); // Directly set base64 string
         reader.readAsDataURL(file);
-        
+
     };
-    
-    
-    
+
+
+
     const handleAddMember = async () => {
         // Reset form submission status and validation errors
         // setFormSubmitted(true);
@@ -72,16 +72,16 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
             const headers = {
                 'x-auth-token': localStorage.getItem("token")
             };
-            
+
             const response = await axios.post(BASE_URL + "/v1/org/add-hierarchy-next", {
                 uuid: localStorage.getItem('uuid'), designation: jobTitle, fullName, phoneNumber, email,
-                photo:photoFile, org_id: localStorage.getItem('org_id'),
+                photo: photoFile, org_id: localStorage.getItem('org_id'),
 
             },
                 {
                     headers
                 });
-           
+
 
 
 
@@ -103,11 +103,11 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                     setUpdatedData(activeNode.entity_id)
                     setAction(false)
                 } else if (
-                    hierarchyResponse.data.meta.success === false && hierarchyResponse.data.meta.limit===false
+                    hierarchyResponse.data.meta.success === false && hierarchyResponse.data.meta.limit === false
                 ) {
                     setOpenForm('demo')
                     setLimitError(response.data.meta.message);
-                }else{
+                } else {
                     toast.error(response.data.meta.message);
                 }
                 // if(hierarchyResponse.data.meta.success){
@@ -127,8 +127,8 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
         }
     };
 
-   
-    
+
+
     return (
         <>
             <div className={styles["viewrole-photo-cont"]}>
@@ -163,16 +163,32 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                         <span >Name:</span>
                         <input className={styles["viewrole-input"]} placeholder='Enter fullname' type='text' value={fullName} onChange={(e) => setFullName(e.target.value)} />
                     </div>
+                    {(!fullName && error.fullName) && (
+                        <div className={styles["department-error"]} ><Image
+                            width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.fullName}</div>
+                    )}
                     <br />
                     <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
                         <span >Job title:</span>
                         <input className={styles["viewrole-input"]} placeholder='Enter job title' type='text' value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} />
                     </div>
+                    {(!jobTitle && error.jobTitle) && (
+                        <div className={styles["department-error"]} ><Image
+                            width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.jobTitle}</div>
+                    )}
                     <br />
                     <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
                         <span >Email:</span>
                         <input className={styles["viewrole-input"]} placeholder='Enter email' type='email' value={email} onChange={(e) => setEmail(e.target.value)} />
                     </div>
+                    {(!email && error.email) && (
+                        <div className={styles["department-error"]} ><Image
+                            width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.email}</div>
+                    )}
+                    {(email && !email.includes("@") && error.incorrectEmail) && (
+                        <div className={styles["department-error"]} ><Image
+                            width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.incorrectEmail}</div>
+                    )}
                     <br />
                     <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
 
@@ -193,25 +209,13 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                         <CommonCancelButton handleClose={handleClose} styles={styles} />
 
                     </div>
-                    { (!fullName&&error.fullName) && (
-                    <div className={styles["department-error"]} ><Image
-                        width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.fullName}</div>
-                )}
-                 { (!jobTitle&&error.jobTitle) && (
-                    <div className={styles["department-error"]} ><Image
-                        width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.jobTitle}</div>
-                )}
-                 { (!email&&error.email) && (
-                    <div className={styles["department-error"]} ><Image
-                        width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.email}</div>
-                )}
-                { (email&&!email.includes("@")&&error.incorrectEmail) && (
-                    <div className={styles["department-error"]} ><Image
-                        width={20} height={20} src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{error.incorrectEmail}</div>
-                )}
-                
+
+                  
+                    
+                    
+
                 </div>
-                
+
                 {/* <div className={styles["viewrole-contact"]} >
                     <span><b>Contact</b></span>
                     <div className={styles["viewrole-email"]} >

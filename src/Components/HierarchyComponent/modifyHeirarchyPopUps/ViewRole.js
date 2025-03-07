@@ -1,12 +1,11 @@
 "use client";
 import React, { useState } from 'react';
-import CloseIcon from "@mui/icons-material/Close";
 import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
 import DraftsOutlinedIcon from '@mui/icons-material/DraftsOutlined';
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
+import WorkOutlineRoundedIcon from '@mui/icons-material/WorkOutlineRounded';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import styles from './EditHierarchy.module.css';
-import NameProfile from '@/Components/CommonJsx.js/NameProfile';
+import NameProfile from '@/Components/CommonJsx/NameProfile';
 import CloseButton from '../Common/CloseButton';
 import CommonCancelButton from '../Common/CommonCancelButton';
 import CommonSaveButton from '../Common/CommonSaveButton';
@@ -58,7 +57,7 @@ function ViewRole({ activeNode, setAction }) {
         entity_id: activeNode.entity_id,
         jobTitle: editedValues.jobTitle, fullName: editedValues.fullName,
         phoneNumber: editedValues.phoneNumber, org_id: localStorage.getItem('org_id'),
-        photo: editedValues.photo
+        photo: uploaded
       },
         {
           headers: {
@@ -131,33 +130,42 @@ function ViewRole({ activeNode, setAction }) {
           className="btn-upload"
         />
         <div className={styles["viewrole-details"]}>
-          <div className={styles["viewrole-name"]}>
-            {/* <span><b>{activeNode.fullName}</b></span> */}
-            <span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editedValues.fullName} className={styles["viewrole-input"]}
-                  onChange={(e) => handleChange(e, "fullName")}
-                />
-              ) : (
-                editedValues.fullName
-              )}
-            </span>
-            <span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editedValues.jobTitle}
-                  onChange={(e) => handleChange(e, "jobTitle")} className={styles["viewrole-input"]}
-                />
-              ) : (
-                editedValues.jobTitle
-              )}
-            </span>
-          </div>
+         
           <div className={styles["viewrole-contact"]}>
-            <span><b>Contact</b></span>
+            <div className={styles["viewrole-phone"]}>
+              <div className={styles["viewrole-phone-label"]}>
+                <AccountCircleOutlinedIcon />
+                <span>Full name</span>
+              </div>
+              <div className={styles["viewrole-phone-detail"]}>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedValues.fullName} className={styles["viewrole-input"]}
+                    onChange={(e) => handleChange(e, "phoneNumber")}
+                  />
+                ) : (
+                  editedValues.fullName
+                )}
+              </div>
+            </div>
+            <div className={styles["viewrole-phone"]}>
+              <div className={styles["viewrole-phone-label"]}>
+                <WorkOutlineRoundedIcon />
+                <span>Job title</span>
+              </div>
+              <div className={styles["viewrole-phone-detail"]}>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedValues.jobTitle} className={styles["viewrole-input"]}
+                    onChange={(e) => handleChange(e, "phoneNumber")}
+                  />
+                ) : (
+                  editedValues.jobTitle
+                )}
+              </div>
+            </div>
             <div className={styles["viewrole-email"]}>
               <div className={styles["viewrole-email-label"]}>
                 <DraftsOutlinedIcon />

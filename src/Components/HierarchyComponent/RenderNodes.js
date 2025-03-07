@@ -2,7 +2,7 @@ import React from 'react'
 import styles from './Hierarchy.module.css'
 import { textLettersLimit } from "@/common.helper";
 import { ASSET_PREFIX_URL } from '@/config';
-import NameProfile from '../CommonJsx.js/NameProfile';
+import NameProfile from '../CommonJsx/NameProfile';
 import Image from 'next/image'
 
 function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,

@@ -1,7 +1,7 @@
 import React from 'react'
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
-import MenuButton from '@/Components/CommonJsx.js/MenuButton';
+import MenuButton from '@/Components/CommonJsx/MenuButton';
 import styles from '../../HomePages/HomepageTopNav/HomeTopNav.module.css';
 import Link from 'next/link';
 

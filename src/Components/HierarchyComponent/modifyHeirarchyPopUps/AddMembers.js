@@ -6,7 +6,7 @@ import axios from "axios";
 import Image from 'next/image'
 import { BASE_URL, ASSET_PREFIX_URL } from "@/config";
 import customStyles from "./CustomStyle.helper";
-import NameProfile from "@/Components/CommonJsx.js/NameProfile";
+import NameProfile from "@/Components/CommonJsx/NameProfile";
 import CommonSaveButton from "../Common/CommonSaveButton";
 import CommonCancelButton from "../Common/CommonCancelButton";
 import CloseButton from "../Common/CloseButton";

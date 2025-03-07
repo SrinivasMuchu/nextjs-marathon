@@ -5,8 +5,8 @@ import { IMAGEURLS } from "@/config";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./HomeTopNav.module.css";
-import TopNavRequestBtn from "../../CommonJsx.js/TopNavRequestBtn";
-import MenuButton from "@/Components/CommonJsx.js/MenuButton";
+import TopNavRequestBtn from "../../CommonJsx/TopNavRequestBtn";
+import MenuButton from "@/Components/CommonJsx/MenuButton";
 
 function HomeTopNav() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
