@@ -103,7 +103,7 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                     setUpdatedData(activeNode.entity_id)
                     setAction(false)
                 } else if (
-                    hierarchyResponse.meta.success === false && hierarchyResponse.data.meta.limit===false
+                    hierarchyResponse.data.meta.success === false && hierarchyResponse.data.meta.limit===false
                 ) {
                     setOpenForm('demo')
                     setLimitError(response.data.meta.message);

@@ -147,7 +147,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
                 setUpdatedData(activeNode.entity_id)
             setAction(false)
           } else if (
-            response.meta.success===false && response.data.meta.limit===false )
+            response.data.meta.success===false && response.data.meta.limit===false )
            {
             setOpenForm('demo')
             setLimitError(response.data.meta.message);
