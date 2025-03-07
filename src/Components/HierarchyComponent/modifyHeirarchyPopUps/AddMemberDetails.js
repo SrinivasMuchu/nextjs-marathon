@@ -103,10 +103,10 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                     setUpdatedData(activeNode.entity_id)
                     setAction(false)
                 } else if (
-                    hierarchyResponse.meta.success === false && hierarchyResponse.data.member_count >= 30
+                    hierarchyResponse.meta.success === false && hierarchyResponse.data.meta.limit===false
                 ) {
                     setOpenForm('demo')
-                    setLimitError('Free tier limit exceeded: Maximum 30 members allowed.');
+                    setLimitError(response.data.meta.message);
                 }else{
                     toast.error(response.data.meta.message);
                 }

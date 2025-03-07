@@ -93,10 +93,10 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
         setUpdatedData(activeNode.entity_id)
         setAction(false)
       } else if (
-        response.meta.success === false && response.data.member_count >= 30
+        response.meta.success === false && response.data.meta.limit===false
       ) {
         setOpenForm('demo')
-        setLimitError('Free tier limit exceeded: Maximum 30 members allowed.');
+        setLimitError(response.data.meta.message);
       }else{
         toast.error(response.data.meta.message);
       }

@@ -147,10 +147,10 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
                 setUpdatedData(activeNode.entity_id)
             setAction(false)
           } else if (
-            response.meta.success===false && response.data.department_count )
+            response.meta.success===false && response.data.meta.limit===false )
            {
             setOpenForm('demo')
-            setLimitError('Free tier limit exceeded: Maximum 10 departments allowed.');
+            setLimitError(response.data.meta.message);
           }else{
             toast.error(response.data.meta.message);
           }

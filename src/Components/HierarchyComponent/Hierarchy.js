@@ -7,17 +7,6 @@ import Tree from "react-d3-tree";
 import { useCenteredTree } from "./helper";
 import { BASE_URL, ASSET_PREFIX_URL } from "@/config";
 import { saveAs } from "file-saver";
-
-// import { BASE_URL, PHOTO_LINK, ASSET_PREFIX_URL } from "../../../constants/config";
-// import AddMember from "../EditComponents/AddMember";
-// import Loading from "../Loading/Loading";
-// import ViewRole from "../ViewRole/ViewRole";
-// import EditDoc from "../EditComponents/EditDoc";
-// import RemoveChangeManager from "../EditComponents/RemoveChangemanager";
-// import EditManager from "../EditComponents/EditManager";
-// import EditRole from "../EditComponents/EditRole";
-// import AddCollaborate from "../AddCollaborators/AddCollaborate";
-// import DeleteConfirmation from "../EditComponents/DeleteConfirmation";
 import RenderNodes from "./RenderNodes";
 import AddMember from "./modifyHeirarchyPopUps/AddMembers";
 import AddDepartment from "./modifyHeirarchyPopUps/AddDepartment";
@@ -26,7 +15,6 @@ import DeletePopUp from "./modifyHeirarchyPopUps/DeletePopUp";
 import EditRole from "./modifyHeirarchyPopUps/EditRole";
 import EditManager from "./modifyHeirarchyPopUps/EditManager";
 import ChangeManager from "./modifyHeirarchyPopUps/ChangeManager";
-import RequestDemo from "../HomePages/RequestDemo/RequestDemo";
 import DemoPopUp from "../HomePages/RequestDemo/DemoPopUp";
 import OrgTopNav from "./Common/OrgTopNav";
 import Loading from "../CommonJsx.js/Loaders/Loading";
@@ -50,7 +38,6 @@ const RenderRectSvgNode = ({
   add, edit, setEdit,
   setAdd,
   addmenuopen, editMenuOpen,
-  isAdmin, isCollaborator,
   hasChildren, setHasChildren, setIsChangingManager, setAction,
   setDeletePopUp, setParentId
 }) => {
@@ -157,8 +144,8 @@ const RenderRectSvgNode = ({
 function Hierarchy({ department }) {
   const [loading, setLoading] = useState(true);
   const [hierarchy, setHierarchy] = useState({});
-  const [isAdmin, setIsSetAdmin] = useState(true);
-  const [isCollaborator, setIsCollaborator] = useState('');
+  
+ 
   const [activeNode, setActiveNode] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
   const [currentSrc, setCurrentSrc] = useState(`${ASSET_PREFIX_URL}Add action-d3.svg`);
@@ -172,8 +159,6 @@ function Hierarchy({ department }) {
   const [clickedData, setClickedData] = useState(null);
   const [action, setAction] = useState(false)
   const [isDepartment, setDepartment] = useState(false);
-  const [collabOpen, setCollabOpen] = useState(false);
-  const [collabAdmin, setCollabAdmin] = useState('');
   const [updatedData, setUpdatedData] = useState(false)
   const [parentId, setParentId] = useState(null);
   const [openForm, setOpenForm] = useState(false);
@@ -349,30 +334,7 @@ setLoading(false)
     }
   };
 
-  async function handleCollabOpen() {
-    setCollabOpen(!collabOpen);
-    fetchData();
-    await fetchAddedData()
-  }
-  // useEffect(() => {
-  //   fetchMmebers()
-  // }, []);
-  const fetchMmebers = async () => {
-    try {
-      const HEADERS = { "x-auth-token": localStorage.getItem('token') }
-      const response = await axios.get(BASE_URL + "/v1/org/getmember-details", { headers: HEADERS });
-      const data = response.data.data;
-      setCollabAdmin(data.is_admin)
 
-    } catch (error) {
-      console.error("Error fetching options data:", error);
-    }
-  };
-  const calculateInitialZoom = (hierarchy) => {
-    // You can adjust this factor as needed
-    const zoomFactor = 0.1;
-    return Math.max(1, hierarchy.length * zoomFactor);
-  };
   const handleClick = () => {
     setEdit(null)
     setActiveNode(null)
@@ -425,7 +387,7 @@ setLoading(false)
                   setMenuopen,
                   add,
                   setAdd,
-                  isAdmin, isCollaborator,
+                 
                   hasChildren, setHasChildren,
                   currentSrc,
                   setCurrentSrc, isChangingManager, setIsChangingManager,
