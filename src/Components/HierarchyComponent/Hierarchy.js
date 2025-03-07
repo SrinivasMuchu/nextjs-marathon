@@ -17,7 +17,7 @@ import EditManager from "./modifyHeirarchyPopUps/EditManager";
 import ChangeManager from "./modifyHeirarchyPopUps/ChangeManager";
 import DemoPopUp from "../HomePages/RequestDemo/DemoPopUp";
 import OrgTopNav from "./Common/OrgTopNav";
-import Loading from "../CommonJsx.js/Loaders/Loading";
+import Loading from "../CommonJsx/Loaders/Loading";
 import { toast } from "react-toastify";
 
 
