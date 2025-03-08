@@ -25,9 +25,9 @@ function Blogs() {
                     <span>XYZ- SSB-001 where ;
                     </span>
 
-                    <li>"XYZ" could indicate manufacturer,</li>
-                    <li>"SSB" represents a stainless steel brake.</li>
-                    <li>"001" could represent category, type, function.</li>
+                    <li>&quot;XYZ&quot; could indicate manufacturer,</li>
+                    <li>&quot;SSB&quot; represents a stainless steel brake.</li>
+                    <li>&quot;001&quot; could represent category, type, function.</li>
                     <span>The nomenclature in simple words is a way to encode specific information about each part so as to make it easier to track, manage, identify, ensure consistency, avoid redundancy, etc.
                     </span>
                 </div>
@@ -64,7 +64,7 @@ function Blogs() {
                         without excessive complexity. (e.g. XYZ- SSB-001 where XYZ - Name of the Manufacturer, SSB-Stainless
                         Steel Brake, 001- Serial Number)
                     </li>
-                    <p>While choosing among the above approaches, it's important to consider key
+                    <p>While choosing among the above approaches, it&apos;s important to consider key
                         points such as volume, legacy systems, complexity and human vs machine use.
                         The best part number format depends on the size of the company and the usage of the components.
                     </p>
@@ -74,7 +74,7 @@ function Blogs() {
                     <p>The poor numbering practices deteriorate efficiency, traceability and scalability. Here are the most common challenges, the company faces when the number format fails:
                     </p>
                     <li>Confusion and misidentification: If the system is unstructured, finding the right part can be
-                        time-consuming causing the project's delay or failures.</li>
+                        time-consuming causing the project&apos;s delay or failures.</li>
                     <li>
                         Scalability Problems: If the numbering system is not designed with future growth in mind then the company might face difficulties in automation and it will be hard to expand the system.
 
