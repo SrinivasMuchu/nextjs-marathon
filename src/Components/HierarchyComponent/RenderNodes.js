@@ -157,7 +157,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                           <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}view-role.svg`}
                             alt=""
-                            style={{ width: "20px", height: "20px" }} /> View Role</text>
+                            style={{ width: "20px", height: "20px" }} /> View/Edit Role</text>
                         {/* <text onClick={() => handleMenuActions('edit_role')}>
                           <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}edit-role.svg`}
@@ -222,7 +222,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                             <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}view-role.svg`}
                               alt=""
-                              style={{ width: "20px", height: "20px" }} /> View Role</text>
+                              style={{ width: "20px", height: "20px" }} /> View/Edit Role</text>
                           {/* <text onClick={() => handleMenuActions('edit_role')}>
                             <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}edit-role.svg`}
@@ -275,7 +275,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                           <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}view-role.svg`}
                             alt=""
-                            style={{ width: "20px", height: "20px" }} /> View Role</text>
+                            style={{ width: "20px", height: "20px" }} /> View/Edit Role</text>
                         {/* <text onClick={() => handleMenuActions('edit_role')}>
                           <Image width={20} height={20}
                             src={`${ASSET_PREFIX_URL}edit-role.svg`}
@@ -350,7 +350,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                               <Image width={20} height={20}
                                 src={`${ASSET_PREFIX_URL}view-role.svg`}
                                 alt=""
-                                style={{ width: "20px", height: "20px" }} /> View Role</text>
+                                style={{ width: "20px", height: "20px" }} /> View/Edit Role</text>
                             {/* <text onClick={() => handleMenuActions('edit_role')}>
                               <Image width={20} height={20}
                                 src={`${ASSET_PREFIX_URL}edit-role.svg`}
@@ -403,7 +403,7 @@ function RenderNodes({nodeDatum, activeNode, handleRectClick, handleMouseEnter,
                             <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}view-role.svg`}
                               alt=""
-                              style={{ width: "20px", height: "20px" }} /> View Role</text>
+                              style={{ width: "20px", height: "20px" }} /> View/Edit Role</text>
                           {/* <text onClick={() => handleMenuActions('edit_role')}>
                             <Image width={20} height={20}
                               src={`${ASSET_PREFIX_URL}edit-role.svg`}

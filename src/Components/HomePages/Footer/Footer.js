@@ -47,9 +47,11 @@ function Footer() {
             <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>
             <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a>
             <ContactUsText />
+            {/* <Link href="/blog/part-number-nomenclature-guide">Blog</Link> */}
             <Link href="/terms-and-conditions">Terms Of Service</Link>
             <Link href="/privacy-policy">Privacy Policies</Link>
           </div>
+          
         </div>
         <FooterForm styles={styles} />
       </div>

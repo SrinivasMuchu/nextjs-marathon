@@ -159,7 +159,7 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
             </div>
             <div className={styles["viewrole-details"]}>
                 <div className={styles["viewrole-name"]}>
-                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%',gap:'24px'  }}>
                         <span >Name:</span>
                         <input className={styles["viewrole-input"]} placeholder='Enter fullname' type='text' value={fullName} onChange={(e) => setFullName(e.target.value)} />
                     </div>

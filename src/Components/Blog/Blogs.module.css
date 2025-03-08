@@ -1,0 +1,69 @@
+.blog-page-cont{
+    width: 100%;
+    display:flex; 
+    align-items: center;
+    justify-content: center;
+}
+.blog-page{
+    display:flex; 
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    width: 80%;
+}
+.blog-page-container{
+    width:100%
+}
+.blog-page h1{
+    font-size: 2.75rem;
+    line-height: 1.2;
+    font-weight: 600;
+    text-align: left;
+}
+.blog-page h2{
+    font-size: 1.5rem;
+    line-height: 1.4;
+    font-weight: 600;
+    margin: 16px 0px;
+    text-align: left;
+}
+.blog-page p,.blog-page span{
+    font-size: 1rem;
+    margin-bottom: 18px;
+}
+.blog-page li{
+    padding-left: 1.5714286em;
+    font-size: 1rem;
+    margin: 5px 0px;
+}
+.blog-page-parts-logo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+.blog-page-parts-logo img{
+    width: 80%;
+    height: 250px;
+}
+.blog-page a{
+    color: blue;
+    text-decoration: underline;
+}
+
+.blog-page-bold-font{
+    font-weight: 600;
+}
+@media screen and (max-width:550px){
+    .blog-page{
+        width: 95%;
+        box-sizing: border-box;
+        
+    }
+    .blog-page-bmw-logo{
+        
+        flex-direction: column;
+    }
+}

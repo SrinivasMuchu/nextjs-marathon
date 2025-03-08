@@ -320,10 +320,7 @@
   background-color: #ccc;
 }
 
-.editRole span,
-.editdoc span {
-  margin-left: 10px;
-}
+
 
 .department-error {
   color: red;

@@ -30,6 +30,9 @@ export const IMAGEURLS = {
   autoDelete: `${MARATHON_ASSET_PREFIX_URL}auto-delete.svg`,
   importExport: `${MARATHON_ASSET_PREFIX_URL}import-export.svg`,
   // craneLogo: `${MARATHON_ASSET_PREFIX_URL}crane.webp`,
+  bmwLogo: `${MARATHON_ASSET_PREFIX_URL}bmw.webp`,
+  bmwParts: `${MARATHON_ASSET_PREFIX_URL}bmwparts.jpg`,
+  bmwNumber: `${MARATHON_ASSET_PREFIX_URL}bmw-part-number.jpg`,
 
   carLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_car.webp`,
   latopLogo: `${MARATHON_ASSET_PREFIX_URL}wokflow_laptop.webp`,

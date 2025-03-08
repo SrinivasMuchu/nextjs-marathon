@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { usePathname, useRouter } from "next/navigation"; // Use usePathname instead of useRouter
+import { usePathname, useRouter } from "next/navigation";
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,21 +9,22 @@ import TopNavRequestBtn from "../../CommonJsx/TopNavRequestBtn";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
 
 function HomeTopNav() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const pathname = usePathname(); // Get current route
-  const router = useRouter(); // For navigation
+  const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
+  const pathname = usePathname();
+  const router = useRouter();
 
-  // Function to handle anchor link clicks
   const handleAnchorClick = (event, sectionId) => {
-    event.preventDefault(); // Prevent default anchor behavior
-
+    event.preventDefault();
     if (pathname !== "/") {
-      // Redirect to home page first
       router.push(`/#${sectionId}`);
     } else {
-      // Scroll smoothly to the section if already on home page
       document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
     }
+  };
+
+  // Function to toggle dropdown
+  const toggleDropdown = (dropdownName) => {
+    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
 
   return (
@@ -45,11 +46,26 @@ function HomeTopNav() {
         <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>
         <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a>
 
+        {/* Dropdown for Tools */}
         <div style={{ position: "relative" }}>
-          <span style={{ cursor: "pointer" }} onClick={() => setDropdownOpen(!dropdownOpen)}>Tools ▼</span>
-          {dropdownOpen && (
+          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("tools")}>
+            Tools ▼
+          </span>
+          {openDropdown === "tools" && (
             <div className={styles["dropdown-menu"]}>
               <Link href="/tools/org-hierarchy">Org hierarchy</Link>
+            </div>
+          )}
+        </div>
+
+        {/* Dropdown for Blogs */}
+        <div style={{ position: "relative" }}>
+          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("blogs")}>
+            Blogs ▼
+          </span>
+          {openDropdown === "blogs" && (
+            <div className={styles["dropdown-menu"]} style={{width:'200px'}}>
+              <Link href="/blog/part-number-nomenclature-guide">Part Number Nomenclature Guide</Link>
             </div>
           )}
         </div>

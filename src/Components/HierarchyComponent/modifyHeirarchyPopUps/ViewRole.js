@@ -97,7 +97,7 @@ function ViewRole({ activeNode, setAction }) {
           <div className={styles["general-upload"]} >
             {uploaded ? <Image width={200} height={200} src={uploaded} alt="Uploaded"
               className="upd-img" style={{ width: '200px', height: '200px', borderRadius: '50%' }} /> :
-              <NameProfile userName={activeNode.photo} width='200px' memberPhoto={activeNode.photo} fontSize='100px' fontweight='500' />}
+              <NameProfile userName={activeNode.fullName} width='200px' memberPhoto={activeNode.photo} fontSize='100px' fontweight='500' />}
             {isEditing && (
               <button
                 className={styles["general-upload-btn"]}
