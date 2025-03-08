@@ -3,7 +3,7 @@
     align-items: center;
     flex-direction: column;
     justify-content: space-between;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.30) 0%, rgba(0, 0, 0, 0.30) 100%), #610BEE;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.30) 0%, rgba(0, 0, 0, 0.30) 100%), #610bee;
     width: 100%;
     margin-top: 30px;
     padding: 63px 80px 40px 80px;
@@ -36,7 +36,7 @@
 .footer-divider {
     width: 1px;
     height: 40vh;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #610BEE;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #610bee;
 }
 
 .footer-logo {
@@ -131,7 +131,7 @@
 .footer-form button {
     padding: 10px 20px;
     border-radius: 4px;
-    background: #610BEE;
+    background: #610bee;
     border: none;
     width: 93px;
     height: 40px;

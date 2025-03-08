@@ -1,0 +1,538 @@
+.editRole,
+.editdoc {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 0%;
+  top: 0%;
+  background-color: white;
+  width: 30%;
+  z-index: 1;
+  justify-content: space-between;
+  padding-left: 1.7vw;
+  padding-right: 1.7vw;
+  /* margin-bottom: 4.8vh; */
+  border-left: 1px solid #edf2f7;
+  padding-top: 9.7vh;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+}
+
+.cancel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3vh 0vw 3vh 0vw;
+  cursor: pointer;
+  font-size: 20px;
+
+  font-weight: 500;
+  line-height: 28px;
+  letter-spacing: -0.3px;
+}
+
+.active-name {
+  /* style={{color:'#610BEE',fontWeight:'600'}} */
+  color: #610BEE;
+  font-weight: 600;
+}
+
+.editJob {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  margin-bottom: 3.6vh;
+  gap: 8px;
+  font-size: 16px;
+
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: -0.192px;
+}
+
+.editJob input {
+  width: 100%;
+  border: 1px solid #edf2f7;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  outline: none;
+  height: 7.3vh;
+}
+
+.emp {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  margin-bottom: 5vh;
+}
+
+.emp-sibling {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  margin-bottom: 35vh;
+}
+
+.editPrf span {
+  font-size: 14px;
+
+  line-height: 20px;
+}
+
+.emp span {
+  font-size: 16px;
+
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: -0.192px;
+}
+
+.enclose {
+  display: flex;
+  justify-content: space-between;
+  border-radius: 4px;
+  box-sizing: border-box;
+  border: 1px solid #edf2f7;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  padding: 1.2vh 1.1vw 1.2vh 1.1vw;
+  /* text-align: left; */
+}
+
+.enclose span {
+  width: 15.8vw;
+}
+
+.editPrf {
+  width: 2.3vw;
+  height: 4.8vh;
+  background: #edf2f7;
+  border-radius: 50%;
+}
+
+.sibiling-check {
+  margin-bottom: 40vh;
+}
+
+.select-photo {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-bottom,
+.edit-btns {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 3.6vh;
+}
+
+/* background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.6) 100%
+    ),
+    #610bee; */
+.submit-edit-errorbutton {
+  background: linear-gradient(0deg,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.6) 100%),
+    #610bee;
+  color: white;
+  border: none;
+}
+
+.submit-edit-button {
+  background: #610bee;
+  color: white;
+  border: none;
+}
+
+.cancel-edit-button {
+  border: 1px solid #610bee;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-bottom button,
+.edit-btns button {
+  /* height: 6vh;
+  max-width: 5.3vw; */
+  padding: 1.5vh 1.46vw 1.5vh 1.46vw;
+  text-align: center;
+  border-radius: 4px;
+
+  /* background: white; */
+  font-size: 14px;
+
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: -0.14px;
+}
+
+.btn-bottom button:hover,
+.edit-btns button:hover {
+  /* background: #610bee; */
+  cursor: pointer;
+
+}
+
+.edit-dep {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3vh 0vw 3vh 0vw;
+
+  font-size: 20px;
+
+  font-weight: 500;
+  line-height: 28px;
+  letter-spacing: -0.3px;
+}
+
+.edit-name,
+.edit-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 3.6vh;
+  position: relative;
+}
+
+.filtered-departments {
+  position: absolute;
+  top: 70px;
+  border: 1px solid #610bee;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  z-index: 1;
+}
+
+.filtered-departments-list {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.filtered-departments-list:hover {
+  background: rgba(94, 94, 95, 0.5);
+}
+
+.edit-name input {
+  box-sizing: border-box;
+  border-radius: 5px;
+  width: 100%;
+  padding: 1.8vh 1.3vw 1.8vh 1.3vw;
+  outline: none;
+  border: 1px solid #edf2f7;
+}
+
+.edit-name-loading {
+  border: 1px solid #edf2f7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+}
+
+.load-img {
+  width: 25px;
+
+}
+
+.edit-name-loading input {
+  width: 90%;
+  border: none;
+}
+
+.edit-title textarea {
+  height: 22vh;
+  width: 95%;
+  border-radius: 5px;
+  padding: 1.8vh 0px 0px 1.1vw;
+  border: 1px solid #edf2f7;
+
+}
+
+/* .head-cont{
+  margin-bottom: 12.5vh;
+}
+.docTop{
+  margin-bottom: 90vh;
+} */
+/* ADD CLAPMS */
+.switch-container {
+  display: flex;
+  align-items: center;
+}
+
+.switch {
+  position: relative;
+  width: 60px;
+  height: 30px;
+  border-radius: 15px;
+  cursor: pointer;
+  background-color: #ccc;
+  transition: background-color 0.3s;
+}
+
+.slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s;
+}
+
+.slider-on {
+  left: calc(100% - 28px);
+}
+
+.slider-off {
+  left: 2px;
+}
+
+.switch.on {
+  background-color: #4caf50;
+}
+
+.switch.off {
+  background-color: #ccc;
+}
+
+
+
+.department-error {
+  color: red;
+  font-size: 12px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.add-mem-photo {
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+}
+
+.viewrole-photo-cont {
+  padding: 4vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.viewrole-photo {
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+}
+
+.viewrole-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4.8vh;
+}
+
+.viewrole-name {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  color: #001325;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  gap: 10px;
+
+}
+
+.viewrole-name span {
+  width: 500px;
+}
+
+.viewrole-address,
+.viewrole-group,
+.viewrole-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.viewrole-loc,
+.viewrole-time,
+.viewrole-group-detail {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.viewrole-email-label,
+.viewrole-phone-label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.viewrole-email-detail,
+.viewrole-phone-detail {
+  padding-left: 32px;
+}
+
+.viewrole-input {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #edf2f7;
+
+  outline: none;
+}
+
+.viewrole-bottom {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.viewrole-bottom button {
+  width: 8.2vw;
+  height: 6vh;
+  padding: 10px 20px;
+  border-radius: 4px;
+
+  background: #610BEE;
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: -0.14px;
+  cursor: pointer;
+
+}
+
+.viewrole-bottom button:hover {
+  background: #9770d4;
+}
+
+.general-upload {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 2px solid #EDF2F7;
+  margin-top: 5px;
+}
+
+.general-upload {
+  position: relative;
+}
+
+.general-upload-btn {
+  cursor: pointer;
+  position: absolute;
+  top: 80%;
+  right: 5%;
+  background-color: white;
+  border-radius: 50%;
+  border: 2px solid #EDF2F7;
+  padding: 6px;
+
+}
+
+/* delete popup */
+.default-popup {
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background-color: rgba(0, 19, 37, 0.5);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.default-popup-container {
+  background: white;
+  border-radius: 15px;
+  padding: 25px 15px;
+  display: flex;
+  flex-direction: column;
+  /* gap: 20px; */
+  width: 400px;
+}
+
+.default-message {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px 0px;
+  font-size: 16px;
+}
+
+.default-btns {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-end;
+  gap: 20px;
+  padding-top: 10px;
+}
+
+.default-btns button {
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #610bee;
+  color: black;
+  background: white;
+  /* background: #610bee; */
+}
+
+.default-btns button:hover {
+  background: #610bee;
+  color: white;
+}
+
+.default-closing {
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* border: 1px solid red; */
+}
+
+.default-closing:hover {
+  background: rgb(217, 217, 217);
+}
+@media screen and (max-width:850px){
+  .editRole,
+.editdoc {
+  width:80%
+}
+}

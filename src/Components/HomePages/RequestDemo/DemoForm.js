@@ -4,7 +4,7 @@ import axios from 'axios';
 import { BASE_URL } from "@/config";
 import DemoPopUp from './DemoPopUp';
 import  { isValidPhoneNumber } from "react-phone-number-input";
-import ReactPhoneNumber from '@/Components/CommonJsx.js/ReactPhoneNumber';
+import ReactPhoneNumber from '@/Components/CommonJsx/ReactPhoneNumber';
 
 function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp }) {
   const [openDemoForm, setopenThanks] = useState(openPopUp);

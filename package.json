@@ -3,26 +3,36 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3003",
+    "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3002",
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/material": "^5.13.1",
     "@studio-freight/react-lenis": "^0.0.47",
     "aceternity-ui": "^0.2.2",
     "axios": "^1.7.9",
+    "buffer": "^6.0.3",
     "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "framer-motion": "^11.15.0",
     "next": "14.2.14",
     "react": "^18",
+    "react-d3-tree": "^3.6.5",
     "react-dom": "^18",
     "react-parallax-tilt": "^1.7.267",
     "react-phone-number-input": "^3.4.11",
     "react-player": "^2.16.0",
     "react-scroll-parallax": "^3.4.5",
+    "react-select": "^5.10.0",
+    "react-toastify": "^11.0.5",
     "sharp": "^0.33.5",
-    "tailwind-merge": "^2.5.5"
+    "tailwind-merge": "^2.5.5",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "eslint": "^8",

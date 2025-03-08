@@ -3,7 +3,7 @@ import React from "react";
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
 import styles from "./Security.module.css";
-import TopNavRequestBtn from "@/Components/CommonJsx.js/TopNavRequestBtn";
+import TopNavRequestBtn from "@/Components/CommonJsx/TopNavRequestBtn";
 import SecurityWrapper from "./SecurityWrapper";
 
 

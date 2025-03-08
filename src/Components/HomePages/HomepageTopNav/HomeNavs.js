@@ -2,7 +2,7 @@
 import React from 'react';
 
 import styles from './HomeTopNav.module.css'; 
-import TopNavRequestBtn from '@/Components/CommonJsx.js/TopNavRequestBtn';
+import TopNavRequestBtn from '@/Components/CommonJsx/TopNavRequestBtn';
 import MobileMenu from './MobileMenu';
 
 function HomeNavs({ onClose }) {

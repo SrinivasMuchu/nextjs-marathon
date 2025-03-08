@@ -1,0 +1,69 @@
+.org-land-page {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 40px 0px 80px 100px;
+}
+
+.org-land-page-text {
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+    width: 50%;
+    gap: 12px;
+}
+
+.org-land-page-heading {
+    color: #000;
+    font-size: 44px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+
+}
+
+.org-land-page-description {
+    color: #001325;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    opacity: 0.5;
+}
+
+.org-land-page-btn {
+    width: 171px;
+    height: 48px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    background: #610BEE;
+    color: #FFF;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: -0.288px;
+}
+.org-land-page-img{
+    height: 500px;
+}
+
+
+
+@media screen and (max-width:850px){
+    .org-land-page{
+        flex-direction: column;
+        padding: 40px 20px;
+    }
+    .org-land-page-img{
+        width: 100%;
+    }
+    .org-land-page-text{
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+}
