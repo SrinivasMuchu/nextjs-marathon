@@ -14,7 +14,7 @@ function Blogs() {
                 <h1>Part Number Nomenclature: Importance, Best Practices, and Real-World Examples</h1>
                 <div className={styles["blog-page-container"]}>
                     <h2>Introduction of Part Number Nomenclature</h2>
-                    <p>Part Number format/nNomenclature is the systematic method used to assign unique identifiers also
+                    <p>Part Number format Nomenclature is the systematic method used to assign unique identifiers also
                         called as part numbers or codes to parts,
                         components, items, products within an inventory, manufacturing, or engineering system.</p>
                     <p>Nomenclature mainly contains a series of characters ( numbers, alphabets or a combination) often
