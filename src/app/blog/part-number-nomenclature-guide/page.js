@@ -10,7 +10,10 @@ export const metadata = {
         height: 630,
         type: "image/png",
       },
-    ],} 
+    ],} ,metadataBase: new URL("https://marathon-os.com"),
+    alternates: {
+      canonical: "/blog/part-number-nomenclature-guide", 
+    },
 };
 import Blogs from '@/Components/Blog/Blogs'
 import React from 'react'
