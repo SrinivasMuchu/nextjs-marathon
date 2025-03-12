@@ -2,6 +2,7 @@ import "./globals.css";
 import Script from "next/script";
 import { Inter } from "next/font/google";
 import ToastProvider from "@/Components/CommonJsx/ReactToastify";
+import CanonicalTag from "@/Components/CommonJsx/CanonicalTag";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const GA_TRACKING_ID = "G-6P47TN4FMC";
@@ -39,10 +40,12 @@ const jsonLdData = {
   ]
 };
 export default function RootLayout({ children }) {
+
   return (
     <html lang="en">
       <head>
       <link rel="icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
+      
         <link rel="apple-touch-icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
         <link rel="shortcut icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" type="image/x-icon"></link>
         <meta property="og:locale" content="en_US" />
@@ -90,6 +93,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={inter.variable}>
         <ToastProvider />
+        <CanonicalTag />
         {children}
       </body>
     </html>
