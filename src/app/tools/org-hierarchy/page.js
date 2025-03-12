@@ -9,7 +9,10 @@ export const metadata = {
         height: 630,
         type: "image/png",
       },
-    ],} 
+    ],} , metadataBase: new URL("https://marathon-os.com"),
+    alternates: {
+      canonical: "/tools/org-hierarchy", 
+    },
 };
 
 import OrgHome from '@/Components/OrganizationHome/OrgHome'

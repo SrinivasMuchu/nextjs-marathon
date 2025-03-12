@@ -10,7 +10,11 @@ export const metadata = {
         height: 630,
         type: "image/png",
       },
-    ],} 
+    ],} ,
+    metadataBase: new URL("https://marathon-os.com"),
+    alternates: {
+      canonical: "/tools/org-hierarchy/chart-maker", 
+    },
   };
 
 import Hierarchy from "@/Components/HierarchyComponent/Hierarchy";

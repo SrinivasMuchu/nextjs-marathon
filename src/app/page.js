@@ -18,7 +18,11 @@ export const metadata = {
     ],
     locale: "en_US",
     type: "website",
-  },
+
+  },metadataBase: new URL("https://marathon-os.com"),
+    alternates: {
+      canonical: "/", 
+    },
 };
 
 const jsonLdData = {
