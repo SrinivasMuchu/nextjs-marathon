@@ -19,6 +19,7 @@ import DemoPopUp from "../HomePages/RequestDemo/DemoPopUp";
 import OrgTopNav from "./Common/OrgTopNav";
 import Loading from "../CommonJsx/Loaders/Loading";
 import { toast } from "react-toastify";
+import CubeLoader from "../CommonJsx/Loaders/CubeLoader";
 
 
 
@@ -352,10 +353,10 @@ setLoading(false)
       {/* <OrgTopNav /> */}
       <OrgTopNav orgStyles={styles} handleDownloadExcel={handleDownloadExcel} />
       <div style={{ width: '100%', height: '99vh' }} ref={containerRef} className={styles["org-hierarchy"]} onClick={handleToggleOfMenu}>
-        {loading ? (
+        {!loading ? (
           // <img src={loadingImg} />
           //   <Loading />
-          <Loading />
+          <CubeLoader />
         ) : (
           <>
             <Tree

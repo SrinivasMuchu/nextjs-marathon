@@ -5,6 +5,7 @@ export const PHOTO_LINK = "https://marathon-org-assets.s3.ap-south-1.amazonaws.c
 export const MARATHON_ASSET_PREFIX_URL = "https://d2o2bcehk92sin.cloudfront.net/";
 export const ASSET_PREFIX_URL = "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/";
 // export const HEADERS = { "x-auth-token": localStorage.getItem('token')}
+export const BUCKET = 'marathon-org-assets';
 
 export const IMAGEURLS = {
   logo: `${MARATHON_ASSET_PREFIX_URL}marathon-demo-logo.svg`,
