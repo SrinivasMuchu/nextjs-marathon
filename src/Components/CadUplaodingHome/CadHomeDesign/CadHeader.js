@@ -10,21 +10,21 @@ function CadHeader() {
     <div className={styles['cad-landing-page']}>
       <div className={styles['cad-landing-left-cont']}>
         <div className={styles['cad-landing-left-content']}> <span className={styles['cad-landing-heading']}>
-        Free Online CAD Viewer –Secure, Fast & Cloud-Based
+          Free Online CAD Viewer –Secure, Fast & Cloud-Based
         </span>
           <span className={styles['cad-landing-description']}>A lightweight, online CAD viewer to quickly preview 3D models—anytime, anywhere.
 
           </span></div>
-          <FormateSelector/>
+        {/* <FormateSelector/> */}
 
         <CadHomeDropZone isStyled={false} />
       </div>
-      <div className={styles["cad-landing-wrapper"]}>
+      {/* <div className={styles["cad-landing-wrapper"]}>
         <div className={styles["cad-landing-bg-circle"]}></div>
         <div className={styles["cad-landing-right-cont"]}>
           <Image src={IMAGEURLS.carLogo} alt="upload" width={400} height={360} />
         </div>
-      </div>
+      </div> */}
 
     </div>
   )

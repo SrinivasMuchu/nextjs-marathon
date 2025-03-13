@@ -127,12 +127,13 @@ function CadHomeDropZone({ isStyled, type }) {
         { file_url: link, org_id: localStorage.getItem('org_id'), key, s3_bucket: 'design-glb' })
       // /design-view
       if (response.data.meta.success) {
-        window.location.href = "/tools/cad-viewer/design-view";
+        // window.location.href = `/tools/${link.split('.').pop()}/design-view`;
+        window.location.href = "/tools/cad-renderer";
       } else {
         toast.error(response.data.meta.message)
         setUploading(false)
       }
-
+     
     } catch (error) {
       console.log(error)
       setUploading(false)

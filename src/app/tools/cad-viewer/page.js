@@ -11,7 +11,7 @@ export const metadata = {
       },
     ],} , metadataBase: new URL("https://marathon-os.com"),
     alternates: {
-      canonical: "/tools/cad-viewer", 
+      canonical: "/tools/cad-viewer",
     },
 };
 import CadHomeDesign from '@/Components/CadUplaodingHome/CadHomeDesign/CadHomeDesign'
