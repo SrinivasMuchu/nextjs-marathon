@@ -22,7 +22,7 @@ function HomeTopNav() {
     }
   };
 
-  // Function to toggle dropdown
+  
   const toggleDropdown = (dropdownName) => {
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
@@ -54,6 +54,8 @@ function HomeTopNav() {
           {openDropdown === "tools" && (
             <div className={styles["dropdown-menu"]}>
               <Link href="/tools/org-hierarchy">Org hierarchy</Link>
+              <Link href="/tools/cad-viewer">CAD Viewer</Link>
+              {/* <Link href="/tools/upload-cad-file">upload cad file</Link> */}
             </div>
           )}
         </div>

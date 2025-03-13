@@ -12,6 +12,8 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.13.1",
+    "@react-three/drei": "^10.0.4",
+    "@react-three/fiber": "^9.1.0",
     "@studio-freight/react-lenis": "^0.0.47",
     "aceternity-ui": "^0.2.2",
     "axios": "^1.7.9",
@@ -20,6 +22,8 @@
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^11.15.0",
+    "lottie-react": "^2.4.1",
+    "lucide-react": "^0.479.0",
     "next": "14.2.14",
     "react": "^18",
     "react-d3-tree": "^3.6.5",
@@ -32,6 +36,7 @@
     "react-toastify": "^11.0.5",
     "sharp": "^0.33.5",
     "tailwind-merge": "^2.5.5",
+    "three": "^0.174.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
