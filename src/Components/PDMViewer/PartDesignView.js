@@ -2,7 +2,11 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from 'lucide-react';
-
+import axios from 'axios'
+import { BASE_URL } from '@/config';
+import CubeLoader from '../CommonJsx/Loaders/CubeLoader';
+import { toast } from 'react-toastify';
+import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 // Constants
 const ANGLE_STEP = 20;
 const BUFFER_SIZE = 80;
@@ -20,117 +24,134 @@ export default function PartDesignView() {
     const planeRef = useRef(null);
     const animationFrameRef = useRef(null);
     const loadedTexturesRef = useRef(new Set()); // Track loaded textures
-
+    const [uploadingMessage, setUploadingMessage] = useState('');
     // State
     const [materials, setMaterials] = useState({});
     const [lastValidMaterial, setLastValidMaterial] = useState(null);
     const [xRotation, setXRotation] = useState(0);
     const [yRotation, setYRotation] = useState(0);
     const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [currentZoom, setCurrentZoom] = useState(5);
+    const [folderId, setFolderId] = useState('');
+
+    useEffect(() => {
+        if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED') return;
+        const interval = setInterval(() => {
+            getStatus();
+        }, 3000);
+
+        return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, [uploadingMessage]);
+
+    const getStatus = async () => {
+        try {
+            setIsLoading(true)
+            // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
+            const response = await axios.get(BASE_URL + '/v1/cad/get-status', {
+                params: { org_id: localStorage.getItem('org_id') },
+
+            });
+            if (response.data.meta.success) {
+                if (response.data.data.status === 'COMPLETED') {
+                    setIsLoading(false)
+                    setUploadingMessage(response.data.data.status)
+                    setFolderId(response.data.data.folderId)
+                } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
+                    setUploadingMessage(response.data.data.status)
+                    console.log(response.data.data.status)
+                } else if (response.data.data.status === 'FAILED') {
+                    setUploadingMessage(response.data.data.status)
+                    toast.error(response.data.data.status)
+                    setIsLoading(false)
+                }
+
+            } else {
+                setUploadingMessage('FAILED')
+                toast.error(response.data.meta.message)
+                setIsLoading(false)
+            }
+
+
+        } catch (error) {
+            setUploadingMessage('FAILED')
+            console.error("Error fetching data:", error);
+            setIsLoading(false)
+        }
+    };
 
     // Function to generate texture URL
     const getTextureUrl = useCallback((x, y) => {
-        const xFormatted = ((x % 360 + 360) % 360).toString().padStart(3, '0');
-        const yFormatted = ((y % 360 + 360) % 360).toString().padStart(3, '0');
-        // RC_Car_1_8_2024_HIGH_RES/sprite_x000_y130.webp
-        return `https://d1d8a3050v4fu6.cloudfront.net/RC_Car_1_8_2024_HIGH_RES/sprite_x${xFormatted}_y${yFormatted}.webp`;
-    }, []);
+        if (!folderId) return "";  // Prevent invalid URL when folderId is empty
+        const xFormatted = ((x % 360 + 360) % 360);
+        const yFormatted = ((y % 360 + 360) % 360);
+        return `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
+    }, [folderId]);
+
 
     // Initial texture setup
     const setupTextures = useCallback(async () => {
-        if (!rendererRef.current) return {};
 
-        const loadingManager = new THREE.LoadingManager(
-            () => console.log('Initial loading complete'),
-            (url, loaded, total) => {
-                console.log(`Loading file: ${url}. Loaded ${loaded} of ${total}`);
-            },
-            (url) => {
-                console.error('Error loading', url);
-                setError(`Failed to load texture: ${url}`);
-            }
-        );
+        if (!rendererRef.current || !folderId) return {}; // Ensure folderId exists
 
-        const textureLoader = new THREE.TextureLoader(loadingManager);
+        const textureLoader = new THREE.TextureLoader();
         const newMaterials = {};
-        const loadingPromises = [];
 
-        // Load initial buffer zone (-80° to +80°)
         for (let x = -BUFFER_SIZE; x <= BUFFER_SIZE; x += ANGLE_STEP) {
             for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
-                const normalizedX = ((x % 360 + 360) % 360);
-                const normalizedY = ((y % 360 + 360) % 360);
-                const key = `${normalizedX}_${normalizedY}`;
+                const key = `${x}_${y}`;
+                const textureUrl = getTextureUrl(x, y);
+                if (!textureUrl) continue; // Skip if folderId is missing
 
-                loadingPromises.push(
-                    new Promise((resolve) => {
-                        textureLoader.load(
-                            getTextureUrl(normalizedX, normalizedY),
-                            (texture) => {
-                                texture.minFilter = THREE.LinearFilter;
-                                texture.magFilter = THREE.LinearFilter;
-                                texture.anisotropy = rendererRef.current.capabilities.getMaxAnisotropy();
+                try {
+                    const texture = await new Promise((resolve, reject) => {
+                        textureLoader.load(textureUrl, resolve, undefined, reject);
+                    });
 
-                                newMaterials[key] = new THREE.MeshBasicMaterial({
-                                    map: texture,
-                                    transparent: true,
-                                    side: THREE.DoubleSide
-                                });
-
-                                loadedTexturesRef.current.add(key);
-                                resolve();
-                            },
-                            undefined,
-                            () => {
-                                console.error(`Failed to load texture: ${key}`);
-                                resolve();
-                            }
-                        );
-                    })
-                );
+                    texture.minFilter = THREE.LinearFilter;
+                    texture.magFilter = THREE.LinearFilter;
+                    newMaterials[key] = new THREE.MeshBasicMaterial({
+                        map: texture,
+                        transparent: true,
+                        side: THREE.DoubleSide
+                    });
+                } catch (error) {
+                    console.error(`Failed to load texture: ${textureUrl}`, error);
+                }
             }
         }
 
-        try {
-            await Promise.all(loadingPromises);
-            return newMaterials;
-        } catch (error) {
-            console.error('Error loading textures:', error);
-            setError('Failed to load initial textures');
-            return {};
-        }
-    }, [getTextureUrl]);
+        setMaterials(newMaterials);
+    }, [folderId, getTextureUrl]);
 
     // Progressive texture loading
     const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
         if (!rendererRef.current) return;
-    
+
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = { ...materials };
-    
+
         for (let x = xStart; x <= xEnd; x += ANGLE_STEP) {
             for (let y = yStart; y <= yEnd; y += ANGLE_STEP) {
                 const normalizedX = ((x % 360 + 360) % 360);
                 const normalizedY = ((y % 360 + 360) % 360);
                 const key = `${normalizedX}_${normalizedY}`;
-    
+
                 if (loadedTexturesRef.current.has(key)) continue;
-    
+
                 textureLoader.load(
                     getTextureUrl(normalizedX, normalizedY),
                     (texture) => {
                         texture.minFilter = THREE.LinearFilter;
                         texture.magFilter = THREE.LinearFilter;
                         texture.anisotropy = rendererRef.current.capabilities.getMaxAnisotropy();
-    
+
                         newMaterials[key] = new THREE.MeshBasicMaterial({
                             map: texture,
                             transparent: true,
                             side: THREE.DoubleSide
                         });
-    
+
                         loadedTexturesRef.current.add(key);
                         setMaterials(prev => ({ ...prev, [key]: newMaterials[key] }));
                     },
@@ -153,7 +174,7 @@ export default function PartDesignView() {
 
     // Rotation handler
     const rotateView = useCallback((direction) => {
-        switch(direction) {
+        switch (direction) {
             case 'up':
                 setXRotation(prev => (prev - ANGLE_STEP + MAX_ROTATION) % MAX_ROTATION);
                 break;
@@ -246,7 +267,7 @@ export default function PartDesignView() {
                 };
                 animate();
 
-                setIsLoading(false);
+                // setIsLoading(false);
 
                 cleanup = () => {
                     cancelAnimationFrame(animationFrameRef.current);
@@ -261,7 +282,7 @@ export default function PartDesignView() {
             } catch (error) {
                 console.error('Scene initialization error:', error);
                 setError('Failed to initialize scene');
-                setIsLoading(false);
+                // setIsLoading(false);
             }
         };
 
@@ -272,6 +293,10 @@ export default function PartDesignView() {
             if (cleanup) cleanup();
         };
     }, [setupTextures]);
+    useEffect(() => {
+        if (!folderId) return;  // Prevent loading textures with an empty folderId
+        setupTextures();
+    }, [folderId]);
 
     // Material update effect
     useEffect(() => {
@@ -302,8 +327,8 @@ export default function PartDesignView() {
     useEffect(() => {
         const handleKeyDown = (event) => {
             event.preventDefault();
-            
-            switch(event.key) {
+
+            switch (event.key) {
                 case 'ArrowLeft':
                     rotateView('left');
                     break;
@@ -318,7 +343,7 @@ export default function PartDesignView() {
                     break;
             }
         };
-    
+
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [rotateView]);
@@ -342,7 +367,9 @@ export default function PartDesignView() {
     }, []);
 
     return (
-        <div style={{
+        <>
+         <HomeTopNav/>
+        {isLoading ? <CubeLoader uploadingMessage={uploadingMessage}/> : <div style={{
             position: 'relative',
             width: '100%',
             height: '100vh'
@@ -545,28 +572,7 @@ export default function PartDesignView() {
             </div>
 
             {/* Loading and Error states remain the same */}
-            {isLoading && (
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    zIndex: 3
-                }}>
-                    <span style={{
-                        fontSize: '1.25rem',
-                        fontWeight: 500
-                    }}>
-                        Loading textures...
-                    </span>
-                </div>
-            )}
-
+           
             {error && (
                 <div style={{
                     position: 'absolute',
@@ -583,6 +589,9 @@ export default function PartDesignView() {
                     {error}
                 </div>
             )}
-        </div>
+        </div>}
+        
+        </>
+        
     );
 }

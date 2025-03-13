@@ -30,6 +30,7 @@ export const IMAGEURLS = {
   safetyIcon: `${MARATHON_ASSET_PREFIX_URL}safety-icon.svg`,
   autoDelete: `${MARATHON_ASSET_PREFIX_URL}auto-delete.svg`,
   importExport: `${MARATHON_ASSET_PREFIX_URL}import-export.svg`,
+  uploadLimit: `${MARATHON_ASSET_PREFIX_URL}upload-size.svg`,
   // craneLogo: `${MARATHON_ASSET_PREFIX_URL}crane.webp`,
   bmwLogo: `${MARATHON_ASSET_PREFIX_URL}bmw.webp`,
   bmwParts: `${MARATHON_ASSET_PREFIX_URL}bmwparts.jpg`,
@@ -41,6 +42,7 @@ export const IMAGEURLS = {
   robotLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_robo.webp`,
   craneLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_crane.webp`,
   closeIcon: `${MARATHON_ASSET_PREFIX_URL}close-icon-part-num.png`,
+  uploadIcon: `${MARATHON_ASSET_PREFIX_URL}upload-icon.svg`,
 
   // close-icon-part-num.png
   // open-answer.webp
