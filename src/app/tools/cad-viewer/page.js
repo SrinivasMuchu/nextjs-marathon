@@ -14,7 +14,7 @@ export const metadata = {
       canonical: "/tools/cad-viewer",
     },
 };
-import CadHomeDesign from '@/Components/CadUplaodingHome/CadHomeDesign/CadHomeDesign'
+import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDesign'
 import React from 'react'
 
 function PartDesignViewer() {

@@ -1,4 +1,4 @@
-import CadUpload from '@/Components/CadUplaodingHome/CadUpload/CadUpload';
+import CadUpload from '@/Components/CadUploadingHome/CadUpload/CadUpload';
 
 export async function generateMetadata({ params }) {
   // Access the dynamic route parameter
