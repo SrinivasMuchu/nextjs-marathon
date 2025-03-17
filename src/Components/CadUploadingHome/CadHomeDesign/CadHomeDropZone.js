@@ -6,7 +6,7 @@ import styles from "./CadHome.module.css";
 import { toast } from "react-toastify";
 import { BASE_URL, BUCKET } from "@/config";
 import axios from "axios";
-import {  usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useContext } from 'react';
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useRouter } from "next/navigation";
@@ -26,27 +26,27 @@ function CadHomeDropZone({ isStyled, type }) {
       formateAcceptor(cadFile);
     }
   }, [type, cadFile]);
-  const formateAcceptor = (cadFile)=>{
-    if(cadFile === 'step'){
-      setAllowedFormats ([".step", ".stp"])
+  const formateAcceptor = (cadFile) => {
+    if (cadFile === 'step') {
+      setAllowedFormats([".step", ".stp"])
     }
-    if(cadFile === 'iges'){
-      setAllowedFormats ([".igs", ".iges"])
+    if (cadFile === 'iges') {
+      setAllowedFormats([".igs", ".iges"])
     }
-    if(cadFile === 'stl'){
-      setAllowedFormats ([".stl"])
+    if (cadFile === 'stl') {
+      setAllowedFormats([".stl"])
     }
-    if(cadFile === 'ply'){
-      setAllowedFormats ([".ply"])
+    if (cadFile === 'ply') {
+      setAllowedFormats([".ply"])
     }
-    if(cadFile === 'off'){
-      setAllowedFormats ([".off"])
+    if (cadFile === 'off') {
+      setAllowedFormats([".off"])
     }
-    if(cadFile === 'brep'){
-      setAllowedFormats ([".brp", ".brep"])
+    if (cadFile === 'brep') {
+      setAllowedFormats([".brp", ".brep"])
     }
   }
- 
+
 
   const handleClick = () => {
     fileInputRef.current?.click();
@@ -70,26 +70,23 @@ function CadHomeDropZone({ isStyled, type }) {
     const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
 
     if (!allowedFormats.includes(fileExtension)) {
-        toast.error("❌ Invalid file format! Please upload a supported 3D file.");
-        return;
+      toast.error("❌ Invalid file format! Please upload a supported 3D file.");
+      return;
     }
 
     if (fileSizeMB > maxFileSizeMB) {
-        toast.error(`⚠️ File size too large! Maximum allowed size is ${maxFileSizeMB}MB.`);
-        return;
+      toast.error(`⚠️ File size too large! Maximum allowed size is ${maxFileSizeMB}MB.`);
+      return;
     }
 
-    try {
-      console.log(file)
-      setFile(file) 
-      // handleFile(file)
-        // await saveFileToIndexedDB(file);
-        router.push("/tools/cad-renderer");
-    } catch (error) {
-        toast.error("❌ Failed to save file in IndexedDB.");
-        console.error("Error saving file:", error);
-    }
-};
+
+    console.log(file)
+    setFile(file)
+    // handleFile(file)
+    // await saveFileToIndexedDB(file);
+    router.push("/tools/cad-renderer");
+
+  };
 
   const handleDragOver = (event) => {
     event.preventDefault();
@@ -97,13 +94,13 @@ function CadHomeDropZone({ isStyled, type }) {
 
 
 
-  
- 
- 
-  
+
+
+
+
   return (
     <>
-   
+
       {uploading ? <div className={styles["cad-dropzone"]}>
         <span>Please wait uploading your file...</span>
       </div> : <div
@@ -126,7 +123,7 @@ function CadHomeDropZone({ isStyled, type }) {
             Drag & drop your 3D <span className={styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>files</span> here
           </p>
           <span className={styles['cad-dropzone-desc']} style={isStyled ? { width: "80%", textAlign: "center" } : {}}>
-            {type ?  `Supported formats:${allowedFormats.join(", ")}` : "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep)"}
+            {type ? `Supported formats:${allowedFormats.join(", ")}` : "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep)"}
 
           </span>
 
