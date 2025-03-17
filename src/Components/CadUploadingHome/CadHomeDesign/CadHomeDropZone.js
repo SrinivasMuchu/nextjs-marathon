@@ -122,10 +122,10 @@ function CadHomeDropZone({ isStyled, type }) {
           <p className={styles['cad-dropzone-head']}>
             Drag & drop your 3D <span className={styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>files</span> here
           </p>
-          <span className={styles['cad-dropzone-desc']} style={isStyled ? { width: "80%", textAlign: "center" } : {}}>
+          <p className={styles['cad-dropzone-desc']} style={isStyled ? { width: "80%", textAlign: "center" } : {}}>
             {type ? `Supported formats:${allowedFormats.join(", ")}` : "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep)"}
 
-          </span>
+          </p>
 
         </div>
         <Image

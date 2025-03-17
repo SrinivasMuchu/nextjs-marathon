@@ -37,9 +37,9 @@ function SneakPeak() {
         <div id='product' className={styles['sneak-page']} ref={videoRef}>
             <div className={styles['sneak-page-cont']}>
                 <div className={styles['sneak-page-text']}>
-                    <span className={styles['sneak-page-head']}>
+                    <h2 className={styles['sneak-page-head']}>
                         Product sneak peak
-                    </span>
+                    </h2>
                     {/* <ul className={styles['sneak-page-list']}> */}
                         <li>Create your design workspace</li>
                         <li>View all your drive uploaded files here</li>

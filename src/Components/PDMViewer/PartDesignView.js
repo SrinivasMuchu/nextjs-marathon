@@ -9,8 +9,8 @@ import { toast } from 'react-toastify';
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
 // Constants
-const ANGLE_STEP = 20;
-const BUFFER_SIZE = 80;
+const ANGLE_STEP = 30;
+const BUFFER_SIZE = 90;
 const MAX_ROTATION = 360;
 const ZOOM_STEP = 0.5;
 const MIN_ZOOM = 2;
@@ -26,7 +26,7 @@ export default function PartDesignView() {
     const animationFrameRef = useRef(null);
     const loadedTexturesRef = useRef(new Set()); // Track loaded textures
     const [uploadingMessage, setUploadingMessage] = useState('');
-    const { file } = useContext(contextState);
+    const { file,setFile } = useContext(contextState);
     const [materials, setMaterials] = useState({});
     const [lastValidMaterial, setLastValidMaterial] = useState(null);
     const [xRotation, setXRotation] = useState(0);
@@ -34,11 +34,11 @@ export default function PartDesignView() {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [currentZoom, setCurrentZoom] = useState(5);
-    const [folderId, setFolderId] = useState('PENDING');
-    
-   
+    const [folderId, setFolderId] = useState('');
+
+
     useEffect(() => {
-        if(!file) return;
+        if (!file) return;
         const fetchFileFromIndexedDB = async () => {
             try {
 
@@ -74,8 +74,10 @@ export default function PartDesignView() {
                 if (preSignedURL.data.data.is_mutipart) {
                     await multiUpload(preSignedURL.data.data, file, headers, fileSizeMB);
                 } else {
-                    await Promise.all([simpleUpload(preSignedURL.data.data, file, fileSizeMB), CreateCad(preSignedURL.data.data.url)]);
+                    await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
+                    // await CreateCad(preSignedURL.data.data.url)
                 }
+                setFile('')
             } else {
                 toast.error("⚠️ Error generating signed URL.");
                 setIsLoading(false)
@@ -85,38 +87,17 @@ export default function PartDesignView() {
             setIsLoading(false)
         }
     };
-    const UpdateToDocker = async (link, key) => {
-        try {
-            setIsLoading(true)
-            const response = await axios.post(
-                `${BASE_URL}/v1/cad/file-process`,
-                { file_url: link, org_id: localStorage.getItem('org_id'), key, s3_bucket: 'design-glb' })
-            // /design-view
-            if (response.data.meta.success) {
-                setUploadingMessage('PENDING')
-                // window.location.href = `/tools/${link.split('.').pop()}/design-view`;
-                // window.location.href = "/tools/cad-renderer";
-            } else {
-                toast.error(response.data.meta.message)
-                setIsLoading(false)
-            }
 
-        } catch (error) {
-            console.log(error)
-            setIsLoading(false)
-        }
-    }
-    
     const CreateCad = async (link) => {
         try {
             setIsLoading(true)
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/create-cad`,
-                { cad_view_link: link, organization_id: localStorage.getItem('org_id') })
+                { cad_view_link: link, organization_id: localStorage.getItem('org_id'), s3_bucket: 'design-glb' })
             // /design-view
             if (response.data.meta.success) {
-
-                await UpdateToDocker(link, response.data.data)
+                setUploadingMessage('PENDING')
+                // await UpdateToDocker(link, response.data.data)
             } else {
                 toast.error(response.data.meta.message)
                 setIsLoading(false)
@@ -130,18 +111,18 @@ export default function PartDesignView() {
     async function multiUpload(data, file, headers, fileSizeMB) {
         console.log(data, file, headers, fileSizeMB);
         const parts = [];
-    
+
         for (let i = 0; i < data.total_parts; i++) {
             const start = i * data.part_size;
             const end = Math.min(start + data.part_size, file.size);
             const part = file.slice(start, end); // FIXED: Use `slice` for binary data
-    
+
             console.log(`Uploading part ${i + 1}/${data.total_parts}`);
             console.log('Part size:', part.size); // Ensure correct part size
-    
+
             parts.push(uploadPart(i, part, data, file));
         }
-    
+
         try {
             const uploadedParts = await Promise.all(parts);
             console.log(uploadedParts);
@@ -152,19 +133,19 @@ export default function PartDesignView() {
             throw error;
         }
     }
-    
+
     const uploadPart = async (partNumber, part, data, file) => {
         try {
             const { url } = data.url[partNumber]; // Get correct presigned URL
             console.log(`Uploading part ${partNumber + 1} to ${url}`);
-    
+
             const result = await axios.put(url, part, {
                 headers: {
                     "Content-Type": file.type,
                     "Content-Length": part.size, // Ensure Content-Length is set
                 },
             });
-    
+
             console.log('Response Headers:', result.headers);
             const etag = result.headers["etag"] || result.headers["ETag"]; // Fix header extraction
             console.log(`Part ${partNumber + 1} uploaded successfully`, etag);
@@ -174,7 +155,7 @@ export default function PartDesignView() {
             throw error;
         }
     };
-    
+
     const completeMultipartUpload = async (data, parts, headers, fileSizeMB) => {
         console.log(data, parts, headers, fileSizeMB);
         try {
@@ -184,21 +165,21 @@ export default function PartDesignView() {
                 upload_id: data.upload_id,
                 parts: parts,
             };
-    
+
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 { bucket_name: BUCKET, file, category: "complete_mutipart", org_id: localStorage.getItem("org_id"), filesize: fileSizeMB },
                 { headers: headers }
             );
-    
+
             if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
                 console.log("Multipart upload completed successfully.");
-    
+
                 // Ensure `CreateCad` is called correctly
                 // if (preSignedURL.data.data.Location) {
-                    await CreateCad(preSignedURL.data.data.Location);
+                await CreateCad(preSignedURL.data.data.Location);
                 // }
-    
+
                 return true;
             }
         } catch (error) {
@@ -206,20 +187,20 @@ export default function PartDesignView() {
             setIsLoading(false);
         }
     };
-    
+
     async function simpleUpload(data, file) {
         console.log("Uploading file:", data, file);
-        
+
         const result = await axios.put(data.url, file, {
             headers: {
                 "Content-Type": file.type,
                 "Content-Length": file.size,
             },
         });
-    
+        await CreateCad(data.url)
         console.log("Upload complete:", result);
     }
-    
+
 
 
     useEffect(() => {
@@ -272,6 +253,7 @@ export default function PartDesignView() {
         if (!folderId) return "";  // Prevent invalid URL when folderId is empty
         const xFormatted = ((x % 360 + 360) % 360);
         const yFormatted = ((y % 360 + 360) % 360);
+        console.log(folderId)
         return `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
     }, [folderId]);
 

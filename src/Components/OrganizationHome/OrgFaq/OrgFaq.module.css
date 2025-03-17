@@ -85,7 +85,7 @@
     justify-content: flex-start;
   }
   .faq-answer{
-    color: #8d8c8c;
+    opacity: 0.5;
   }
   @media screen and (max-width:1000px) {
     .faqpage {

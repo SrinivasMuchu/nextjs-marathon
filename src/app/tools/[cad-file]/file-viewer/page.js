@@ -7,7 +7,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `Marathon OS CAD Viewer – Instantly View 3D CAD Files Online | Marathon OS`,
     description: `View ${cadFile.toUpperCase()} (.${cadFile}) files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds. Our proprietary rendering engine ensures smooth performance with zero lag and no glitches, even for large assemblies.`,
-    robots: "noindex, nofollow",
+    
     openGraph: {
       images: [
         {

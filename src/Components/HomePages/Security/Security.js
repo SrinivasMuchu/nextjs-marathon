@@ -15,11 +15,11 @@ function Security() {
 
       <div className={styles["security-container-div"]}></div>
       <div className={styles["security-content"]}>
-        <span className={styles["security-head"]}>Designed for Security</span>
-        <span className={styles["security-desc"]}>
+        <h1 className={styles["security-head"]}>Designed for Security</h1>
+        <p className={styles["security-desc"]}>
           Capturing everything you see, say, and hear means trust and privacy
           is more important than anything else.
-        </span>
+        </p>
         <div className={styles["security-btn"]}>
           <TopNavRequestBtn className={'security-btn-button'} styles={styles} />
           {/* <button onClick={()=>setOpenDemoForm(!openDemoForm)}>Request a demo</button> */}
@@ -35,7 +35,7 @@ function Security() {
               width={40} // Adjust the width and height as necessary
               height={40}
             />
-            <span className={styles["security-desc-points"]}>Encryption at rest</span>
+            <p className={styles["security-desc-points"]}>Encryption at rest</p>
           </div>
           <div className={styles["security-internal-points"]}>
             <Image
@@ -44,7 +44,7 @@ function Security() {
               width={40}
               height={40}
             />
-            <span className={styles["security-desc-points"]}>Encryption in transit</span>
+            <p className={styles["security-desc-points"]}>Encryption in transit</p>
           </div>
           <div className={styles["security-internal-points"]}>
             <Image
@@ -53,7 +53,7 @@ function Security() {
               width={40}
               height={40}
             />
-            <span className={styles["security-desc-points"]}>Single-sign on</span>
+            <p className={styles["security-desc-points"]}>Single-sign on</p>
           </div>
           {/* <div className={styles["security-internal-points"]}>
                 <Image
@@ -73,7 +73,7 @@ function Security() {
               width={40}
               height={40}
             />
-            <span className={styles["security-desc-points"]}>Role-based access controls</span>
+            <p className={styles["security-desc-points"]}>Role-based access controls</p>
           </div>
           <div className={styles["security-internal-points"]}>
             <Image
@@ -82,7 +82,7 @@ function Security() {
               width={40}
               height={40}
             />
-            <span className={styles["security-desc-points"]}>Logging, auditing and monitoring features</span>
+            <p className={styles["security-desc-points"]}>Logging, auditing and monitoring features</p>
           </div>
           <div className={styles["security-internal-points"]}>
             <Image
@@ -91,7 +91,7 @@ function Security() {
               width={40}
               height={40}
             />
-            <span className={styles["security-desc-points"]}>Features to enhance privacy of personal data</span>
+            <p className={styles["security-desc-points"]}>Features to enhance privacy of personal data</p>
           </div>
         </div>
       </div>

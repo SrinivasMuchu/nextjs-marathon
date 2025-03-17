@@ -7,19 +7,19 @@ function OurFeatures({features,essentialDeatails}) {
     return (
         <div className={styles['our-feature-page']}>
             <div className={ChartStyles['chart-builder-text']}>
-                <span className={ChartStyles['chart-builder-text-heading']}>
+                <h1 className={ChartStyles['chart-builder-text-heading']}>
                     {essentialDeatails.title}
-                </span>
-                <span className={ChartStyles['chart-builder-text-description']}>
+                </h1>
+                <p className={ChartStyles['chart-builder-text-description']}>
                     {essentialDeatails.description}
-                </span>
+                </p>
             </div>
             <div className={styles['our-feature-page-boxes']}>
                 {features.map((feature, index) => (
                     <div key={index} className={styles['our-feature-page-container']}>
                         
-                            <span className={styles['our-feature-page-container-head']}>{feature.title}</span>
-                            <span className={styles['our-feature-page-container-description']}>{feature.description}</span>
+                            <h6 className={styles['our-feature-page-container-head']}>{feature.title}</h6>
+                            <p className={styles['our-feature-page-container-description']}>{feature.description}</p>
                         
                     </div>
                 ))}

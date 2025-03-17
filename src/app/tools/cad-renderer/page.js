@@ -1,8 +1,9 @@
 
 export const metadata = {
-  title: "Marathon OS CAD Viewer – Instantly View 3D CAD Files Online | Marathon OS",
+  title: "View & Explore CAD Files Online | FreeCAD-Powered 3D Viewer | Marathon OS",
   description:
-    "Marathon OS CAD Viewer is a high-performance, cloud-based tool that lets you view STEP, IGES, STL, BREP, and more instantly—no downloads, no lag, no limits. Experience seamless, glitch-free CAD visualization with our proprietary rendering engine, ensuring smooth performance even for large and complex models. Try it now!",
+    "Render and explore CAD files online with our FreeCAD-powered 3D viewer. No downloads neede: view parts, assemblies, and designs seamlessly in your browser. Perfect for automotive, battery manufacturing, and hardware industries.",
+    robots: "noindex, nofollow",
     openGraph: {images: [
       {
         url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",

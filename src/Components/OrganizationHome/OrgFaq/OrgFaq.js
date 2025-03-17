@@ -17,12 +17,12 @@ function OrgFaq({faqQuestions,description}) {
     return (
         <div className={styles.faqpage}>
             <div className={styles["faqpage-left-container"]}>
-                <span className={styles["faq-title"]}>FAQ</span>
-                <span className={styles["faqpage-visit"]}>
+                <h1 className={styles["faq-title"]}>FAQ</h1>
+                <p className={styles["faqpage-visit"]}>
                     {description}
                     
 
-                </span>
+                </p>
                 
             </div>
             <div className={styles["faqpage-right-container"]}>
@@ -37,11 +37,11 @@ function OrgFaq({faqQuestions,description}) {
                             className={styles["faqpage-icon"]} />
 
                         <div className={styles["faq-ques-ans"]}>
-                            <span className={styles["faq-answer"]}>{item.question}</span>
+                            <h6 className={styles["faq-question"]}>{item.question}</h6>
                             {openIndex === index && (
-                                <span className={styles["faq-answer"]} style={{ color: "#8d8c8c" }}>
+                                <p className={styles["faq-answer"]} >
                                     {item.answer}
-                                </span>
+                                </p>
                             )}
                         </div>
                     </div>

@@ -52,12 +52,12 @@ function CapabilityCards({styles}) {
                         /> */}
                     </div>
                     <div className={styles['capabilities-page-card-text']}>
-                        <span className={styles['capabilities-page-card-head']}>
+                        <h6 className={styles['capabilities-page-card-head']}>
                             {capability.title}
-                        </span>
-                        <span className={styles['capabilities-page-card-desc']}>
+                        </h6>
+                        <p className={styles['capabilities-page-card-desc']}>
                             {capability.description}
-                        </span>
+                        </p>
                     </div>
                 </CapabilityParallaxWrapper>
 

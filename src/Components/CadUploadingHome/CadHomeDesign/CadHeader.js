@@ -9,12 +9,12 @@ function CadHeader() {
   return (
     <div className={styles['cad-landing-page']}>
       <div className={styles['cad-landing-left-cont']}>
-        <div className={styles['cad-landing-left-content']}> <span className={styles['cad-landing-heading']}>
+        <div className={styles['cad-landing-left-content']}> <h1 className={styles['cad-landing-heading']}>
           Free Online CAD Viewer –Secure, Fast & Cloud-Based
-        </span>
-          <span className={styles['cad-landing-description']}>A lightweight, online CAD viewer to quickly preview 3D models—anytime, anywhere.
+        </h1>
+          <p className={styles['cad-landing-description']}>A lightweight, online CAD viewer to quickly preview 3D models—anytime, anywhere.
 
-          </span></div>
+          </p></div>
         {/* <FormateSelector/> */}
 
         <CadHomeDropZone isStyled={false} />
