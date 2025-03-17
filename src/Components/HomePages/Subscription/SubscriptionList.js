@@ -43,9 +43,9 @@ function SubscriptionList() {
                                 width={24}
                                 height={24}
                             />
-                            <span >{item.title}</span>
+                            <h6 >{item.title}</h6>
                         </div>
-                        <span className={styles['subscription-page-list-details-right']}>{item.description}</span>
+                        <p className={styles['subscription-page-list-details-right']}>{item.description}</p>
                     </div>
                     
                     {/* Add a line divider */}

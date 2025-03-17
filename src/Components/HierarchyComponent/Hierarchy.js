@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { v4 as uuidv4 } from 'uuid';
 import styles from "./Hierarchy.module.css";
 import Tree from "react-d3-tree";
 import { useCenteredTree } from "./helper";
@@ -19,6 +18,7 @@ import DemoPopUp from "../HomePages/RequestDemo/DemoPopUp";
 import OrgTopNav from "./Common/OrgTopNav";
 import Loading from "../CommonJsx/Loaders/Loading";
 import { toast } from "react-toastify";
+
 
 
 
@@ -170,33 +170,7 @@ function Hierarchy({ department }) {
 
 
   }, [parentId, updatedData]);
-  useEffect(() => {
-    const uuid = localStorage.getItem('uuid')
-    if (!uuid) {
-      const uuid = uuidv4()
-      createOrg(uuid)
-
-    }
-
-
-
-  }, []);
-  const createOrg = async (uuid) => {
-    try {
-      const response = await axios.post(BASE_URL + "/v1/org/create-org-next", {
-        uuid,
-
-      },
-
-      );
-      localStorage.setItem('uuid', uuid)
-      localStorage.setItem('org_id', response.data.data.org_id)
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  
 
 
 
@@ -352,10 +326,10 @@ setLoading(false)
       {/* <OrgTopNav /> */}
       <OrgTopNav orgStyles={styles} handleDownloadExcel={handleDownloadExcel} />
       <div style={{ width: '100%', height: '99vh' }} ref={containerRef} className={styles["org-hierarchy"]} onClick={handleToggleOfMenu}>
-        {loading ? (
+        {!loading ? (
           // <img src={loadingImg} />
-          //   <Loading />
-          <Loading />
+            <Loading />
+          
         ) : (
           <>
             <Tree

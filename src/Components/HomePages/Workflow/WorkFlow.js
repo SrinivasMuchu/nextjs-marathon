@@ -15,8 +15,8 @@ function WorkFlow() {
             <div id='home' className={styles["workflow-page"]} style={{ position: 'relative' }}>
                <BoxesConditional/>
                 <div className={styles["workflow-head"]}>
-                    <span className={styles["workflow-head-title"]}>Simplify Your Workflow with Cloud PLM & PDM</span>
-                    <span className={styles["workflow-head-desc"]}>Manage files, Designs, Parts, BOMs, inventory, and purchases effortlessly in one platform.</span>
+                    <h1 className={styles["workflow-head-title"]}>Simplify Your Workflow with Cloud PLM & PDM</h1>
+                    <p className={styles["workflow-head-desc"]}>Manage files, Designs, Parts, BOMs, inventory, and purchases effortlessly in one platform.</p>
                 </div>
                 <WorkFlowImages styles={styles}/>
                 <TopNavRequestBtn styles={styles} className={'workflow-page-button'}/>

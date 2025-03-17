@@ -49,8 +49,10 @@ function MobileMenu({ onClose, styles }) {
           {openDropdown === "tools" && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <Link href="/tools/org-hierarchy" onClick={handleCloseMenu}>
-                Org hierarchy
+                Org Hierarchy
               </Link>
+              <Link href="/tools/cad-viewer" onClick={handleCloseMenu}>CAD Viewer</Link>
+              {/* <Link href="/tools/upload-cad-file" onClick={handleCloseMenu}>upload cad file</Link> */}
             </div>
           )}
         </div>

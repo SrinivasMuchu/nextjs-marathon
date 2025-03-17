@@ -1,5 +1,5 @@
 .faqpage {
-    padding: 80px 220px;
+    padding: 80px 100px;
     display: flex;
     /* flex-wrap: wrap; */
     align-items: center;
@@ -22,7 +22,7 @@
   
   .faq-title {
     color: #001325;
-    font-family: Syne;
+  
     font-size: 48px;
     font-style: normal;
     font-weight: 700;
@@ -33,7 +33,7 @@
   
   .faqpage-visit {
     color: rgb(58, 58, 58);
-    font-family: Inter;
+   opacity: 0.5;
     font-size: 20px;
     font-style: normal;
     font-weight: 400;
@@ -44,7 +44,6 @@
   
   .faqpage-help-center {
     color: #001325;
-    font-family: Inter;
     font-size: 20px;
     font-style: normal;
     font-weight: 400;
@@ -71,7 +70,7 @@
     color: #001325;
     /* padding: 20px 0px; */
     /* Medium/20 */
-    font-family: Inter;
+   
     font-size: 20px;
     font-style: normal;
     font-weight: 500;
@@ -86,7 +85,7 @@
     justify-content: flex-start;
   }
   .faq-answer{
-    color: #8d8c8c;
+    opacity: 0.5;
   }
   @media screen and (max-width:1000px) {
     .faqpage {

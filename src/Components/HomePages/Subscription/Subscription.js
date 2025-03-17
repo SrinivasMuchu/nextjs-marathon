@@ -9,11 +9,11 @@ function Subscription() {
     return (
         <div id='pricing' className={styles['subscription-page']}>
             <div className={styles['subscription-page-text']}>
-                <span className={styles['subscription-page-head']}>Marathon-OS Subscription</span>
-                <span className={styles['subscription-page-subhead']}>Simple Pricing, Full Access</span>
-                <span className={styles['subscription-page-desc']}>At Marathon-OS, we believe in keeping things straightforward. Get all the
+                <h2 className={styles['subscription-page-head']}>Marathon-OS Subscription</h2>
+                <h6 className={styles['subscription-page-subhead']}>Simple Pricing, Full Access</h6>
+                <p className={styles['subscription-page-desc']}>At Marathon-OS, we believe in keeping things straightforward. Get all the
                     tools and features you need to manage your <br/> hardware product lifecycle
-                    efficiently, with just one comprehensive plan.</span>
+                    efficiently, with just one comprehensive plan.</p>
             </div>
             <SubscriptionSwitch styles={styles}/>
             <div className={styles['subscription-page-list']}>

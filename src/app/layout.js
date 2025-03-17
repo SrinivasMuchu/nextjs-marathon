@@ -2,6 +2,8 @@ import "./globals.css";
 import Script from "next/script";
 import { Inter } from "next/font/google";
 import ToastProvider from "@/Components/CommonJsx/ReactToastify";
+import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
+import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -93,8 +95,11 @@ export default function RootLayout({ children }) {
       </head>
       <body className={inter.variable}>
         <ToastProvider />
-       
+        <CreateLocalStorage/>
+        <ContextWrapper>
         {children}
+        </ContextWrapper>
+       
       </body>
     </html>
   );

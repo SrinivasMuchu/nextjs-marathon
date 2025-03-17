@@ -5,6 +5,7 @@ export const PHOTO_LINK = "https://marathon-org-assets.s3.ap-south-1.amazonaws.c
 export const MARATHON_ASSET_PREFIX_URL = "https://d2o2bcehk92sin.cloudfront.net/";
 export const ASSET_PREFIX_URL = "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/";
 // export const HEADERS = { "x-auth-token": localStorage.getItem('token')}
+export const BUCKET = 'marathon-org-assets';
 
 export const IMAGEURLS = {
   logo: `${MARATHON_ASSET_PREFIX_URL}marathon-demo-logo.svg`,
@@ -29,6 +30,7 @@ export const IMAGEURLS = {
   safetyIcon: `${MARATHON_ASSET_PREFIX_URL}safety-icon.svg`,
   autoDelete: `${MARATHON_ASSET_PREFIX_URL}auto-delete.svg`,
   importExport: `${MARATHON_ASSET_PREFIX_URL}import-export.svg`,
+  uploadLimit: `${MARATHON_ASSET_PREFIX_URL}upload-size.svg`,
   // craneLogo: `${MARATHON_ASSET_PREFIX_URL}crane.webp`,
   bmwLogo: `${MARATHON_ASSET_PREFIX_URL}bmw.webp`,
   bmwParts: `${MARATHON_ASSET_PREFIX_URL}bmwparts.jpg`,
@@ -40,6 +42,7 @@ export const IMAGEURLS = {
   robotLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_robo.webp`,
   craneLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_crane.webp`,
   closeIcon: `${MARATHON_ASSET_PREFIX_URL}close-icon-part-num.png`,
+  uploadIcon: `${MARATHON_ASSET_PREFIX_URL}upload-icon.svg`,
 
   // close-icon-part-num.png
   // open-answer.webp

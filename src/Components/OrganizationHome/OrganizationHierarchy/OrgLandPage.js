@@ -8,13 +8,13 @@ function OrgLandPage() {
     return (
         <div className={styles['org-land-page']}>
             <div className={styles['org-land-page-text']}>
-                <span className={styles['org-land-page-heading']}>
+                <h1 className={styles['org-land-page-heading']}>
                     Org Chart Maker – Fast & Easy Team Management
-                </span>
-                <span className={styles['org-land-page-description']}>
+                </h1>
+                <p className={styles['org-land-page-description']}>
                     Turn employee data into clear, structured org charts. Quickly organize your team and improve visibility into your company’s hierarchy.
 
-                </span>
+                </p>
                 <button className={styles['org-land-page-btn']}>
                     <Link href="/tools/org-hierarchy/chart-maker">Create now</Link>
                 </button>

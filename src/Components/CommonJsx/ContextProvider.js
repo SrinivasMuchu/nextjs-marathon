@@ -1,0 +1,19 @@
+// context/FileContext.js
+'use client'; // Mark this as a Client Component
+
+import { createContext, useState } from 'react';
+
+
+export const contextState = createContext();
+
+
+function ContextProvider({children}) {
+    const [file, setFile] = useState(null);
+  return (
+    <contextState.Provider value={{ file, setFile }}>
+    {children}
+  </contextState.Provider>
+  )
+}
+
+export default ContextProvider

@@ -13,7 +13,7 @@ const nextConfig = {
         },
         {
           protocol: 'https',
-          hostname: 'marathon-org-assets.s3.ap-south-1.amazonaws.com',
+          hostname: 'd1d8a3050v4fu6.cloudfront.net',
         },
         // {
         //   protocol: 'https',

@@ -46,8 +46,8 @@ function WhyUsCards({ styles }) {
             <Image src={card.image} alt={card.alt} width={68} height={68} />
           </div>
           <div className={styles["whyus-cont-text"]}>
-            <span className={styles["whyus-cont-head"]}>{card.title}</span>
-            <span className={styles["whyus-cont-desc"]}>{card.description}</span>
+            <h6 className={styles["whyus-cont-head"]}>{card.title}</h6>
+            <p className={styles["whyus-cont-desc"]}>{card.description}</p>
           </div>
         </ParallaxWrapper>
       ))}

@@ -7,8 +7,8 @@ function Capabilities() {
   return (
     <div id='capabilities' className={styles['capabilities-page']}>
         <div className={styles['capabilities-page-head']}>
-            <span className={styles['capabilities-page-head-title']}>Capabilities</span>
-            <span className={styles['capabilities-page-head-desc']}>Seamless management of engineering, manufacturing, supply chain, and change processes—all in one platform.</span>
+            <h1 className={styles['capabilities-page-head-title']}>Capabilities</h1>
+            <p className={styles['capabilities-page-head-desc']}>Seamless management of engineering, manufacturing, supply chain, and change processes—all in one platform.</p>
         </div>
         <div className={styles['capabilities-page-img']}>
             
