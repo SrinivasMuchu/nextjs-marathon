@@ -5,6 +5,7 @@ import ToastProvider from "@/Components/CommonJsx/ReactToastify";
 import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const GA_TRACKING_ID = "G-6P47TN4FMC";
 const jsonLdData = {
@@ -41,10 +42,12 @@ const jsonLdData = {
   ]
 };
 export default function RootLayout({ children }) {
+
   return (
     <html lang="en">
       <head>
       <link rel="icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
+      
         <link rel="apple-touch-icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
         <link rel="shortcut icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" type="image/x-icon"></link>
         <meta property="og:locale" content="en_US" />
