@@ -8,9 +8,9 @@ function ChartBuilder({whyChoose,featuresArray}) {
     return (
         <div className={styles['chart-builder-page']}>
             <div className={styles['chart-builder-text']}>
-                <h1 className={styles['chart-builder-text-heading']}>
+                <h2 className={styles['chart-builder-text-heading']}>
                   {whyChoose.title}  
-                </h1>
+                </h2>
                 <p className={styles['chart-builder-text-description']}>
                     {whyChoose.description}
                 </p>

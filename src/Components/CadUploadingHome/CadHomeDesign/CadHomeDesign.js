@@ -6,6 +6,7 @@ import ChartBuilder from '@/Components/OrganizationHome/ChartBuilder/ChartBuilde
 import OurFeatures from '@/Components/OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
+import CadUpload from '../CadUpload/CadUpload'
 
 
 
@@ -87,11 +88,12 @@ const featuresArray = [
 
 ]
 
-function CadHomeDesign() {
+function CadHomeDesign({type}) {
     return (
         <>
             <HomeTopNav />
-            <CadHeader />
+            {type?<CadUpload type={type}/>: <CadHeader />}
+           
             <OrgFeatures type='cad'/>
             <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails}/>

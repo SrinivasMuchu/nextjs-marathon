@@ -3,6 +3,7 @@ import Lottie from 'lottie-react';
 import cube from './Cube.json';
 
 const statusMessages = {
+  UPLOADINGFILE:'⏳ Uploading file...',
   PENDING: '⏳ Task is in queue...',
   PROCESSING: '🛠️ Processing the file...',
   UPLOADING: '📤 Finalizing the process...',

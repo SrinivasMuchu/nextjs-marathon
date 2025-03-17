@@ -17,7 +17,7 @@ function OrgFaq({faqQuestions,description}) {
     return (
         <div className={styles.faqpage}>
             <div className={styles["faqpage-left-container"]}>
-                <h1 className={styles["faq-title"]}>FAQ</h1>
+                <h2 className={styles["faq-title"]}>FAQ</h2>
                 <p className={styles["faqpage-visit"]}>
                     {description}
                     

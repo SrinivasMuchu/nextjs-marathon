@@ -1,3 +1,4 @@
+import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDesign';
 import CadUpload from '@/Components/CadUploadingHome/CadUpload/CadUpload';
 
 export async function generateMetadata({ params }) {
@@ -26,5 +27,5 @@ export async function generateMetadata({ params }) {
 }
 
 export default function CadFileFormat() {
-  return <CadUpload type={true} />;
+  return  <CadHomeDesign type={true}/>;
 }

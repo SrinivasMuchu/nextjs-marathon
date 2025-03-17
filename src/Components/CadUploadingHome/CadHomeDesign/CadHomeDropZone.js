@@ -4,8 +4,7 @@ import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import styles from "./CadHome.module.css";
 import { toast } from "react-toastify";
-import { BASE_URL, BUCKET } from "@/config";
-import axios from "axios";
+
 import { usePathname } from "next/navigation";
 import { useContext } from 'react';
 import { contextState } from "@/Components/CommonJsx/ContextProvider";

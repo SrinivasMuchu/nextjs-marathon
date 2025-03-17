@@ -15,7 +15,7 @@ function Security() {
 
       <div className={styles["security-container-div"]}></div>
       <div className={styles["security-content"]}>
-        <h1 className={styles["security-head"]}>Designed for Security</h1>
+        <h2 className={styles["security-head"]}>Designed for Security</h2>
         <p className={styles["security-desc"]}>
           Capturing everything you see, say, and hear means trust and privacy
           is more important than anything else.

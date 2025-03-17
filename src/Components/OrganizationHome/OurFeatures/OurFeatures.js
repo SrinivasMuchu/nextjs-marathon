@@ -7,9 +7,9 @@ function OurFeatures({features,essentialDeatails}) {
     return (
         <div className={styles['our-feature-page']}>
             <div className={ChartStyles['chart-builder-text']}>
-                <h1 className={ChartStyles['chart-builder-text-heading']}>
+                <h2 className={ChartStyles['chart-builder-text-heading']}>
                     {essentialDeatails.title}
-                </h1>
+                </h2>
                 <p className={ChartStyles['chart-builder-text-description']}>
                     {essentialDeatails.description}
                 </p>

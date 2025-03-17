@@ -58,6 +58,7 @@ export default function PartDesignView() {
 
         try {
             setIsLoading(true)
+            setUploadingMessage('UPLOADINGFILE')
             const headers = {
                 "x-auth-token": localStorage.getItem("token"),
             };
@@ -91,6 +92,7 @@ export default function PartDesignView() {
     const CreateCad = async (link) => {
         try {
             setIsLoading(true)
+            setUploadingMessage('UPLOADINGFILE')
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/create-cad`,
                 { cad_view_link: link, organization_id: localStorage.getItem('org_id'), s3_bucket: 'design-glb' })
@@ -160,6 +162,7 @@ export default function PartDesignView() {
         console.log(data, parts, headers, fileSizeMB);
         try {
             setIsLoading(true);
+            setUploadingMessage('UPLOADINGFILE')
             const file = {
                 key: data.key,
                 upload_id: data.upload_id,
@@ -190,7 +193,7 @@ export default function PartDesignView() {
 
     async function simpleUpload(data, file) {
         console.log("Uploading file:", data, file);
-
+        setUploadingMessage('UPLOADINGFILE')
         const result = await axios.put(data.url, file, {
             headers: {
                 "Content-Type": file.type,
@@ -204,7 +207,7 @@ export default function PartDesignView() {
 
 
     useEffect(() => {
-        if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' || uploadingMessage === '') return;
+        if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' || uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
         const interval = setInterval(() => {
             getStatus();
         }, 3000);
