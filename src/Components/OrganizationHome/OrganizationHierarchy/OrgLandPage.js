@@ -20,7 +20,7 @@ function OrgLandPage() {
                 </button>
             </div>
             <div>
-                <Image className={styles['org-land-page-img']} src={IMAGEURLS.orgChart} alt="Org Chart" width={666} height={429} />
+                <Image className={styles['org-land-page-img']} src={IMAGEURLS.orgChart} alt="Org Chart" width={666} height={429} loading="eager"/>
             </div>
         </div>
     )

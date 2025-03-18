@@ -87,7 +87,7 @@ const whyChoose = {
 }
 const essentialDeatails = {
     title: 'Essential Features of Marathon OS Chart Builder',
-    description: 'Effortlessly create, manage, and share org charts with a simple, secure, and scalable tool.Visualize employees and departments with ease—no training required—whether you&apos;re structuring a startup or managing a growing enterprise.'
+    description: "Effortlessly create, manage, and share org charts with a simple, secure, and scalable tool.Visualize employees and departments with ease no training required whether you're structuring a startup or managing a growing enterprise."
 }
 function OrgHome() {
     return (

@@ -63,12 +63,14 @@ import HomePage from "@/Components/Home/HomePage";
 import Script from "next/script";
 import styles from "./page.module.css";
 
+
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
 });
 
 export default function Home() {
+  
   return (
     <>
       <Script

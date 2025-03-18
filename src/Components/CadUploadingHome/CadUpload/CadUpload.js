@@ -8,7 +8,7 @@ function CadUpload({type}) {
   return (
     <>
    
-     <div className={cadStyles['cad-uploading']}>
+     <div className={cadStyles['cad-landing-page']} style={{position:'relative'}}>
         <div className={cadStyles['cad-landing-left-cont']}>
            <CadUploadHeadings/>
            
