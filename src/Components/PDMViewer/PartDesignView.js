@@ -26,7 +26,7 @@ export default function PartDesignView() {
     const animationFrameRef = useRef(null);
     const loadedTexturesRef = useRef(new Set()); // Track loaded textures
     const [uploadingMessage, setUploadingMessage] = useState('');
-    const { file,setFile } = useContext(contextState);
+    const { file, setFile } = useContext(contextState);
     const [materials, setMaterials] = useState({});
     const [lastValidMaterial, setLastValidMaterial] = useState(null);
     const [xRotation, setXRotation] = useState(0);
@@ -207,27 +207,23 @@ export default function PartDesignView() {
 
 
     useEffect(() => {
-       
+
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' || uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
 
         const interval = setInterval(() => {
             getStatus();
         }, 3000);
-        
+
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, [uploadingMessage]);
     useEffect(() => {
-       
-        if (!folderId) {
+
+        if (!file) {
+            console.log('hi')
             getStatus();
         }
 
-        
-           
-       
-        
-      
-    }, [folderId]);
+    }, [file]);
 
     const getStatus = async () => {
         try {
@@ -241,6 +237,7 @@ export default function PartDesignView() {
                 if (response.data.data.status === 'COMPLETED') {
                     setIsLoading(false)
                     setUploadingMessage(response.data.data.status)
+
                     setFolderId(response.data.data.folderId)
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
@@ -307,13 +304,13 @@ export default function PartDesignView() {
             }
         }
 
-        setMaterials(newMaterials);
+       setMaterials(newMaterials);
     }, [folderId, getTextureUrl]);
 
     // Progressive texture loading
     const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
-        if(!folderId) return
-        if (!rendererRef.current) return;
+        // if() return
+        if (!rendererRef.current || !folderId) return;
 
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = { ...materials };
@@ -340,14 +337,14 @@ export default function PartDesignView() {
                         });
 
                         loadedTexturesRef.current.add(key);
-                        setMaterials(prev => ({ ...prev, [key]: newMaterials[key] }));
+                       setMaterials(prev => ({ ...prev, [key]: newMaterials[key] }));
                     },
                     undefined,
                     (error) => console.error(`Failed to load texture: ${key}`, error)
                 );
             }
         }
-    }, [materials, getTextureUrl]);
+    }, [materials, getTextureUrl,folderId]);
 
     // Maintain texture buffer
     const maintainTextureBuffer = useCallback(() => {
@@ -397,9 +394,9 @@ export default function PartDesignView() {
     useEffect(() => {
         let mounted = true;
         let cleanup = null;
-
+       
         const initializeScene = async () => {
-            if (!mountRef.current) return;
+            if (!mountRef.current||!folderId) return;
 
             try {
                 // Initialize renderer
@@ -444,7 +441,7 @@ export default function PartDesignView() {
 
                 // Load initial materials
                 const newMaterials = await setupTextures();
-                if (!mounted) return;
+                if (!mounted ||!folderId) return;
                 setMaterials(newMaterials);
 
                 // Animation loop
@@ -479,7 +476,7 @@ export default function PartDesignView() {
             mounted = false;
             if (cleanup) cleanup();
         };
-    }, [setupTextures]);
+    }, [setupTextures, folderId]);
     useEffect(() => {
         if (!folderId) return;  // Prevent loading textures with an empty folderId
         setupTextures();
@@ -557,19 +554,20 @@ export default function PartDesignView() {
     useEffect(() => {
         console.log(`XRotation: ${xRotation}, YRotation: ${yRotation}`);
     }, [xRotation, yRotation]);
-    
+
     useEffect(() => {
         console.log('Materials updated:', materials);
     }, [materials]);
     return (
         <>
             <HomeTopNav />
-            {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} /> : <div style={{
+            {(isLoading) ? <CubeLoader uploadingMessage={uploadingMessage} /> : <div style={{
                 position: 'relative',
                 width: '100%',
                 height: '100vh'
             }}>
                 {/* Three.js Canvas Container */}
+
                 <div ref={mountRef} style={{
                     position: 'absolute',
                     top: 0,
