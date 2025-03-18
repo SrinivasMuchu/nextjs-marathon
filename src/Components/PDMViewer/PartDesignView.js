@@ -344,7 +344,7 @@ export default function PartDesignView() {
                 );
             }
         }
-    }, [materials, getTextureUrl]);
+    }, [materials, getTextureUrl,folderId]);
 
     // Maintain texture buffer
     const maintainTextureBuffer = useCallback(() => {
@@ -561,7 +561,7 @@ export default function PartDesignView() {
     return (
         <>
             <HomeTopNav />
-            {(isLoading) ? <CubeLoader uploadingMessage={uploadingMessage} /> : <div style={{
+            {(!folderId) ? <CubeLoader uploadingMessage={uploadingMessage} /> : <div style={{
                 position: 'relative',
                 width: '100%',
                 height: '100vh'
