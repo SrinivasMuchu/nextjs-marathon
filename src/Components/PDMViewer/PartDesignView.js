@@ -10,7 +10,7 @@ import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
 // Constants
 const ANGLE_STEP = 30;
-const BUFFER_SIZE = 90;
+const BUFFER_SIZE = 0;
 const MAX_ROTATION = 360;
 const ZOOM_STEP = 0.5;
 const MIN_ZOOM = 2;
@@ -26,7 +26,7 @@ export default function PartDesignView() {
     const animationFrameRef = useRef(null);
     const loadedTexturesRef = useRef(new Set()); // Track loaded textures
     const [uploadingMessage, setUploadingMessage] = useState('');
-    const { file,setFile } = useContext(contextState);
+    const { file, setFile } = useContext(contextState);
     const [materials, setMaterials] = useState({});
     const [lastValidMaterial, setLastValidMaterial] = useState(null);
     const [xRotation, setXRotation] = useState(0);
@@ -98,7 +98,8 @@ export default function PartDesignView() {
                 { cad_view_link: link, organization_id: localStorage.getItem('org_id'), s3_bucket: 'design-glb' })
             // /design-view
             if (response.data.meta.success) {
-                setUploadingMessage('PENDING')
+                // setUploadingMessage('PENDING')
+                await getStatus()
                 // await UpdateToDocker(link, response.data.data)
             } else {
                 toast.error(response.data.meta.message)
@@ -214,6 +215,12 @@ export default function PartDesignView() {
 
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, [uploadingMessage]);
+    useEffect(() => {
+        if (!file) {
+            getStatus();
+        }
+
+    }, [file]);
 
     const getStatus = async () => {
         try {
@@ -294,11 +301,12 @@ export default function PartDesignView() {
         }
 
         setMaterials(newMaterials);
+        // setIsLoading(false)
     }, [folderId, getTextureUrl]);
 
     // Progressive texture loading
     const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
-        if (!rendererRef.current) return;
+        if (!rendererRef.current || !folderId) return;
 
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = { ...materials };
@@ -332,7 +340,7 @@ export default function PartDesignView() {
                 );
             }
         }
-    }, [materials, getTextureUrl]);
+    }, [materials, getTextureUrl,folderId]);
 
     // Maintain texture buffer
     const maintainTextureBuffer = useCallback(() => {
@@ -466,9 +474,16 @@ export default function PartDesignView() {
         };
     }, [setupTextures]);
     useEffect(() => {
-        if (!folderId) return;  // Prevent loading textures with an empty folderId
-        setupTextures();
+        if (!folderId) return;
+
+        const timeout = setTimeout(() => {
+            console.log(`Delayed setupTextures with folderId: ${folderId}`);
+            setupTextures();
+        }, 100); // Adjust delay if needed
+
+        return () => clearTimeout(timeout);
     }, [folderId]);
+
 
     // Material update effect
     useEffect(() => {
@@ -476,7 +491,7 @@ export default function PartDesignView() {
 
         const materialKey = `${xRotation}_${yRotation}`;
         const newMaterial = materials[materialKey];
-
+        setIsLoading(true)
         if (newMaterial?.map) {
             if (planeRef.current.material !== newMaterial) {
                 if (planeRef.current.material &&
@@ -488,6 +503,7 @@ export default function PartDesignView() {
                 setLastValidMaterial(newMaterial);
             }
         }
+        setIsLoading(false)
     }, [xRotation, yRotation, materials, lastValidMaterial]);
 
     // Buffer maintenance effect
