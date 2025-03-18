@@ -218,16 +218,12 @@ export default function PartDesignView() {
     }, [uploadingMessage]);
     useEffect(() => {
        
-        if (!folderId) {
+        if (!file) {
+            console.log('hi')
             getStatus();
         }
-
-        
-           
-       
-        
       
-    }, [folderId]);
+    }, [file]);
 
     const getStatus = async () => {
         try {
@@ -241,6 +237,7 @@ export default function PartDesignView() {
                 if (response.data.data.status === 'COMPLETED') {
                     setIsLoading(false)
                     setUploadingMessage(response.data.data.status)
+                  
                     setFolderId(response.data.data.folderId)
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
@@ -312,8 +309,8 @@ export default function PartDesignView() {
 
     // Progressive texture loading
     const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
-        if(!folderId) return
-        if (!rendererRef.current) return;
+        // if() return
+        if (!rendererRef.current ||!folderId) return;
 
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = { ...materials };
@@ -564,12 +561,13 @@ export default function PartDesignView() {
     return (
         <>
             <HomeTopNav />
-            {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} /> : <div style={{
+            {(isLoading||!mountRef) ? <CubeLoader uploadingMessage={uploadingMessage} /> : <div style={{
                 position: 'relative',
                 width: '100%',
                 height: '100vh'
             }}>
                 {/* Three.js Canvas Container */}
+                
                 <div ref={mountRef} style={{
                     position: 'absolute',
                     top: 0,
