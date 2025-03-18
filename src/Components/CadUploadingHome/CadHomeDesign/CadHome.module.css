@@ -43,7 +43,7 @@
     letter-spacing: -0.3px;
     opacity: 0.5;
     text-align: center;
-    width: 80%;
+    /* width: 80%; */
 }
 
 .cad-dropzone {
@@ -126,11 +126,14 @@
 
 .cad-uploading {
     display: flex;
+    /* flex-wrap: wrap; */
     align-items: center;
     justify-content: center;
+    width: 100%;
+    padding: 100px 80px;
     height: 90vh;
     position: relative;
-    width:100%;
+    
 }
 
 .cad-uploading-circle-bg {

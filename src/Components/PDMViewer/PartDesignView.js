@@ -10,7 +10,7 @@ import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
 // Constants
 const ANGLE_STEP = 30;
-const BUFFER_SIZE = 90;
+const BUFFER_SIZE = 0;
 const MAX_ROTATION = 360;
 const ZOOM_STEP = 0.5;
 const MIN_ZOOM = 2;
@@ -197,7 +197,7 @@ export default function PartDesignView() {
         const result = await axios.put(data.url, file, {
             headers: {
                 "Content-Type": file.type,
-                "Content-Length": file.size,
+                // "Content-Length": file.size,
             },
         });
         await CreateCad(data.url)
@@ -207,13 +207,27 @@ export default function PartDesignView() {
 
 
     useEffect(() => {
+       
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' || uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
+
         const interval = setInterval(() => {
             getStatus();
         }, 3000);
-
+        
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, [uploadingMessage]);
+    useEffect(() => {
+       
+        if (!folderId) {
+            getStatus();
+        }
+
+        
+           
+       
+        
+      
+    }, [folderId]);
 
     const getStatus = async () => {
         try {
@@ -298,6 +312,7 @@ export default function PartDesignView() {
 
     // Progressive texture loading
     const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
+        if(!folderId) return
         if (!rendererRef.current) return;
 
         const textureLoader = new THREE.TextureLoader();
@@ -538,6 +553,14 @@ export default function PartDesignView() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+
+    useEffect(() => {
+        console.log(`XRotation: ${xRotation}, YRotation: ${yRotation}`);
+    }, [xRotation, yRotation]);
+    
+    useEffect(() => {
+        console.log('Materials updated:', materials);
+    }, [materials]);
     return (
         <>
             <HomeTopNav />

@@ -4,11 +4,12 @@ export const metadata = {
   description:
     "Learn everything about Part Number Nomenclature, including its importance, best practices, common formats, and real-world examples. Discover how a structured part numbering system enhances inventory management, traceability, and supply chain efficiency.",
     openGraph: {images: [
+      
       {
-        url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+        url: "https://d2o2bcehk92sin.cloudfront.net/part_blog_img.webp",
         width: 1200,
         height: 630,
-        type: "image/png",
+        type: "image/webp",
       },
     ],} ,metadataBase: new URL("https://marathon-os.com"),
     alternates: {

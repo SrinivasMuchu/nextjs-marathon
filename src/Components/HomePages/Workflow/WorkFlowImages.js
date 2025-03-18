@@ -15,6 +15,7 @@ function WorkFlowImages({styles}) {
                 width={100}
                 height={100}
                 layout="responsive"
+                loading="eager"
             />
             <span>Automotive</span>
         </div>
@@ -29,6 +30,7 @@ function WorkFlowImages({styles}) {
                 width={180}
                 height={180}
                 layout="responsive"
+                loading="eager"
             />
             <span>Consumer</span>
         </div>
@@ -44,6 +46,7 @@ function WorkFlowImages({styles}) {
                 width={160}
                 height={100}
                 layout="responsive"
+                loading="eager"
             />
             <span>Aerospace</span>
         </div>
@@ -59,6 +62,7 @@ function WorkFlowImages({styles}) {
                 width={160}
                 height={140}
                 layout="responsive"
+                loading="eager"
             />
             <span>Medical</span>
         </div>
@@ -75,6 +79,7 @@ function WorkFlowImages({styles}) {
                 height={180}
                 className={styles["workflow-crane-img"]}
                 layout="responsive"
+                loading="eager"
             />
             <span>Machinery</span>
         </div>

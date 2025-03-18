@@ -5,8 +5,8 @@ import styles from './HomeTopNav.module.css';
 import TopNavRequestBtn from '@/Components/CommonJsx/TopNavRequestBtn';
 import MobileMenu from './MobileMenu';
 
-function HomeNavs({ onClose }) {
 
+function HomeNavs({ onClose }) {
 
   return (
     <div className={styles['menu-page']}>

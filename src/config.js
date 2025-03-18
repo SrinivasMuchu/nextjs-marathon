@@ -1,4 +1,4 @@
-export const BASE_URL = "http://localhost:4000"
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 // export const DEFAULT_PHOTO = "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profilelogodefault.png"
 export const PHOTO_LINK = "https://marathon-org-assets.s3.ap-south-1.amazonaws.com/"
 // export const DEFAULT_COMPANY_LINK = "https://member-images.s3.ap-south-1.amazonaws.com/upload_1695283928.png"
@@ -35,7 +35,7 @@ export const IMAGEURLS = {
   bmwLogo: `${MARATHON_ASSET_PREFIX_URL}bmw.webp`,
   bmwParts: `${MARATHON_ASSET_PREFIX_URL}bmwparts.jpg`,
   bmwNumber: `${MARATHON_ASSET_PREFIX_URL}bmw-part-number.webp`,
-
+  partsBlog: `${MARATHON_ASSET_PREFIX_URL}part_blog_img.webp`,
   carLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_car.webp`,
   latopLogo: `${MARATHON_ASSET_PREFIX_URL}wokflow_laptop.webp`,
   droneLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_drone.webp`,

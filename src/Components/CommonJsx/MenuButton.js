@@ -17,7 +17,7 @@ function MenuButton({ styles }) {
         <>
             
                 <Image src={IMAGEURLS.menu} alt="Menu Icon" width={500}
-                    height={500} onClick={(e) => handleMenuOpen(e)}/>
+                    height={500} onClick={(e) => handleMenuOpen(e)} loading="eager"/>
             
             {openMenu && <HomeNavs onClose={handleCloseMenu}/>}
         </>

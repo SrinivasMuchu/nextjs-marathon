@@ -55,6 +55,6 @@
 @media screen and (max-width:500px){
     .our-feature-page-container{
         max-width: 80%;
-        padding: 30px;
+        padding: 30px 24px;
     }
 }
