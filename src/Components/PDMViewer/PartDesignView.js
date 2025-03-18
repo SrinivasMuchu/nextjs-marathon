@@ -304,7 +304,7 @@ export default function PartDesignView() {
             }
         }
 
-        setMaterials(newMaterials);
+       setMaterials(newMaterials);
     }, [folderId, getTextureUrl]);
 
     // Progressive texture loading
@@ -337,7 +337,7 @@ export default function PartDesignView() {
                         });
 
                         loadedTexturesRef.current.add(key);
-                        setMaterials(prev => ({ ...prev, [key]: newMaterials[key] }));
+                       setMaterials(prev => ({ ...prev, [key]: newMaterials[key] }));
                     },
                     undefined,
                     (error) => console.error(`Failed to load texture: ${key}`, error)
@@ -441,7 +441,7 @@ export default function PartDesignView() {
 
                 // Load initial materials
                 const newMaterials = await setupTextures();
-                if (!mounted) return;
+                if (!mounted ||!folderId) return;
                 setMaterials(newMaterials);
 
                 // Animation loop
@@ -561,7 +561,7 @@ export default function PartDesignView() {
     return (
         <>
             <HomeTopNav />
-            {(!folderId) ? <CubeLoader uploadingMessage={uploadingMessage} /> : <div style={{
+            {(isLoading) ? <CubeLoader uploadingMessage={uploadingMessage} /> : <div style={{
                 position: 'relative',
                 width: '100%',
                 height: '100vh'
