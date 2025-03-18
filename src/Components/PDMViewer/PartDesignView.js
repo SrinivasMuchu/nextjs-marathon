@@ -211,7 +211,7 @@ export default function PartDesignView() {
         const interval = setInterval(() => {
             getStatus();
         }, 3000);
-
+        
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, [uploadingMessage]);
 
@@ -538,6 +538,7 @@ export default function PartDesignView() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+ 
     return (
         <>
             <HomeTopNav />
