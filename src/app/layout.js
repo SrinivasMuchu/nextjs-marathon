@@ -46,8 +46,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-      <link rel="icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
-      
+        <link rel="icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
+
         <link rel="apple-touch-icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
         <link rel="shortcut icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" type="image/x-icon"></link>
         <meta property="og:locale" content="en_US" />
@@ -72,34 +72,51 @@ export default function RootLayout({ children }) {
           type="image/x-icon"
         />
         <Script
+          strategy="beforeInteractive"
+          id="disable-ga-on-localhost"
+          dangerouslySetInnerHTML={{
+            __html: `
+      if (window.location.hostname === "localhost") {
+        window['ga-disable-${GA_TRACKING_ID}'] = true;
+      }
+    `,
+          }}
+        />
+
+        <Script
           strategy="lazyOnload"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
         />
+
         <Script
-          id="disable-ga"
-          strategy="beforeInteractive"
+          id="google-analytics"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              if (window.location.hostname === "localhost") {
-                window['ga-disable-${GA_TRACKING_ID}'] = true;
-              }
-            `,
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${GA_TRACKING_ID}', {
+        page_path: window.location.pathname,
+      });
+    `,
           }}
         />
+
         <Script
-        id="json-ld"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
-      />
+          id="json-ld"
+          type="application/ld+json"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
+        />
       </head>
       <body className={inter.variable}>
         <ToastProvider />
-        <CreateLocalStorage/>
+        <CreateLocalStorage />
         <ContextWrapper>
-        {children}
+          {children}
         </ContextWrapper>
-       
+
       </body>
     </html>
   );
