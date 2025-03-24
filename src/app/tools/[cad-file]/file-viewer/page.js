@@ -6,9 +6,9 @@ export async function generateMetadata({ params }) {
   const cadFile = params['cad-file']; // Use the correct parameter name
 
   return {
-    title: `${cadFile.toUpperCase()} File Viewer – Instantly Open & Explore .${cadFile.toUpperCase()} Files
+    title: `${cadFile.toUpperCase()} File Viewer – Instantly Open & Explore ${cadFile.toUpperCase()} Files
 `,
-    description: `View ${cadFile.toUpperCase()} (.${cadFile}) files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds. Our proprietary rendering engine ensures smooth performance with zero lag and no glitches, even for large assemblies.`,
+    description: `View ${cadFile.toUpperCase()} (${cadFile}) files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds. Our proprietary rendering engine ensures smooth performance with zero lag and no glitches, even for large assemblies.`,
     
     openGraph: {
       images: [

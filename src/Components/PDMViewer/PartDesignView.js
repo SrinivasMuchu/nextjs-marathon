@@ -33,7 +33,7 @@ export default function PartDesignView() {
     const [yRotation, setYRotation] = useState(0);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [currentZoom, setCurrentZoom] = useState(5);
+    const [currentZoom, setCurrentZoom] = useState(3.6);
     const [folderId, setFolderId] = useState('');
 
 
@@ -418,7 +418,7 @@ export default function PartDesignView() {
                     0.1,
                     1000
                 );
-                camera.position.set(5, 5, 5);
+                camera.position.set(2, 2, 2);
                 camera.lookAt(0, 0, 0);
                 cameraRef.current = camera;
 
