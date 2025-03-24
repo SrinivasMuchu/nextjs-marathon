@@ -6,7 +6,7 @@ export const metadata = {
     openGraph: {images: [
       
       {
-        url: "https://d2o2bcehk92sin.cloudfront.net/part_blog_img.webp",
+        url: "https://d2o2bcehk92sin.cloudfront.net/part_blog_img_compressed.webp",
         width: 1200,
         height: 630,
         type: "image/webp",

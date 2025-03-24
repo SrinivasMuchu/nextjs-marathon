@@ -35,7 +35,7 @@ export const IMAGEURLS = {
   bmwLogo: `${MARATHON_ASSET_PREFIX_URL}bmw.webp`,
   bmwParts: `${MARATHON_ASSET_PREFIX_URL}bmwparts.jpg`,
   bmwNumber: `${MARATHON_ASSET_PREFIX_URL}bmw-part-number.webp`,
-  partsBlog: `${MARATHON_ASSET_PREFIX_URL}part_blog_img.webp`,
+  partsBlog: `${MARATHON_ASSET_PREFIX_URL}part_blog_img_compressed.webp`,
   carLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_car.webp`,
   latopLogo: `${MARATHON_ASSET_PREFIX_URL}wokflow_laptop.webp`,
   droneLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_drone.webp`,
