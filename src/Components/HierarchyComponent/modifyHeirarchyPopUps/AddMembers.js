@@ -40,7 +40,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
       const headers = {
         'x-auth-token': localStorage.getItem("token")
       };
-      const response = await axios.get(BASE_URL + "/v1/org/getmember-details-next", { params: { uuid: localStorage.getItem('uuid'), org_id: localStorage.getItem('org_id') } },
+      const response = await axios.get(BASE_URL + "/v1/org/getmember-details-next", { params: { uuid: localStorage.getItem('uuid') } },
       );
       const data = response.data.data.arr;
       console.log(data.map((i) => i.designation));
@@ -83,7 +83,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
         is_sibling: true,
         job_title: jobTitle,
         entity_type: action === 'add_mem' ? "member" : "assistant",
-        action: 'add', org_id: localStorage.getItem('org_id'), uuid: localStorage.getItem('uuid')
+        action: 'add',  uuid: localStorage.getItem('uuid')
       },
         {
           headers

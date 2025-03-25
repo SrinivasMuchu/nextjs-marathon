@@ -35,7 +35,7 @@ function EditRole({ activeNode, setAction,setUpdatedData ,setParentId}) {
         try {
           const response=  await axios.put(BASE_URL + "/v1/org/edit-role-next", {
                   entity_id: activeNode.entity_id,
-                  jobTitle,org_id:localStorage.getItem('org_id')
+                  jobTitle,uuid:localStorage.getItem('uuid')
                 },
                 {
                   headers: {

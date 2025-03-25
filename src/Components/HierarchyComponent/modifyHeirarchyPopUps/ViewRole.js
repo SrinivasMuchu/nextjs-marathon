@@ -56,7 +56,7 @@ function ViewRole({ activeNode, setAction }) {
       const response = await axios.put(BASE_URL + "/v1/org/edit-role-next", {
         entity_id: activeNode.entity_id,
         jobTitle: editedValues.jobTitle, fullName: editedValues.fullName,
-        phoneNumber: editedValues.phoneNumber, org_id: localStorage.getItem('org_id'),
+        phoneNumber: editedValues.phoneNumber, uuid: localStorage.getItem('uuid'),
         photo: uploaded
       },
         {

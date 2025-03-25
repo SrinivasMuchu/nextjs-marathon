@@ -39,7 +39,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
         headers: {
           'x-auth-token': localStorage.getItem("token")
         },
-        params: { department_name: department, uuid: localStorage.getItem('uuid'), org_id: localStorage.getItem('org_id') },
+        params: { department_name: department, uuid: localStorage.getItem('uuid') },
       });
       if (response.data.meta.success) {
         setDepartments(response.data.data.filtered_departments);
@@ -96,7 +96,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
             department_name: department,
             description: description,
             unique_initial: uniqueInitial,
-            departId: deptId, org_id: localStorage.getItem('org_id')
+            departId: deptId, uuid: localStorage.getItem('uuid')
           },
           {
             headers: {
@@ -109,7 +109,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
           `${BASE_URL}/v1/org/create-next-dept`,
           {
             department_name: department,
-            description: description, org_id: localStorage.getItem('org_id')
+            description: description, uuid: localStorage.getItem('uuid')
 
           },
           {
@@ -134,7 +134,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
               entity_type: 'department',
               action: 'add',
               // uuid:localStorage.getItem('uuid'),
-              org_id: localStorage.getItem('org_id')
+              uuid: localStorage.getItem('uuid')
             },
             {
               headers: {

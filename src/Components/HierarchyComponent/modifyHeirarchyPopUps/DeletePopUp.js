@@ -16,7 +16,7 @@ function DeletePopUp({ activeNode, setHasChildren, onclose, setUpdatedData, setP
                 'x-auth-token': localStorage.getItem("token")
             },
             data: {
-                entity_id: activeNode.entity_id, org_id: localStorage.getItem('org_id'),
+                entity_id: activeNode.entity_id, uuid: localStorage.getItem('uuid'),
                 // parent_id: activeNode.parent_entity_id,
                 remove_type: (activeNode.entity_type === 'department') ?
                     activeNode.department_name : activeNode.fullName

@@ -165,7 +165,7 @@ function Hierarchy({ department }) {
   const [deletePopUp, setDeletePopUp] = useState(false);
   const [limitError, setLimitError] = useState(false);
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     fetchOrg(parentId);
 
 
@@ -189,7 +189,7 @@ function Hierarchy({ department }) {
     try {
       const response = await axios.get(
         `${BASE_URL}/v1/org/export-to-excell`,
-        { params: { organization_id: localStorage.getItem('org_id') }, responseType: "blob" }
+        { params: { uuid: localStorage.getItem('uuid') }, responseType: "blob" }
       );
 
 
@@ -211,7 +211,7 @@ function Hierarchy({ department }) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("uuid", localStorage.getItem('uuid'));
-    formData.append("org_id", localStorage.getItem('org_id'));
+    
 
     try {
       setLoading(true)
@@ -233,10 +233,10 @@ setLoading(false)
 
   const fetchOrg = async (parentId) => {
     try {
-
+      setLoading(true)
       // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
       const response = await axios.get(BASE_URL + '/v1/org/get-hierarchy-next', {
-        params: { parent_entity_id: parentId, org_id: localStorage.getItem('org_id') },
+        params: { parent_entity_id: parentId, uuid: localStorage.getItem('uuid') },
 
       });
 
@@ -261,6 +261,7 @@ setLoading(false)
         // setIsSetAdmin(false);
         // setIsCollaborator(response.data.data.isCollaborator);
       }
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -326,7 +327,7 @@ setLoading(false)
       {/* <OrgTopNav /> */}
       <OrgTopNav orgStyles={styles} handleDownloadExcel={handleDownloadExcel} />
       <div style={{ width: '100%', height: '99vh' }} ref={containerRef} className={styles["org-hierarchy"]} onClick={handleToggleOfMenu}>
-        {!loading ? (
+        {loading ? (
           // <img src={loadingImg} />
             <Loading />
           

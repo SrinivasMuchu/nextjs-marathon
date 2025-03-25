@@ -51,7 +51,7 @@ console.log(allIds);
         'x-auth-token': localStorage.getItem("token")
       };
       const response = await axios.get(BASE_URL + "/v1/org/get-change-manager-next",
-      {params:{entity_ids:allIds,org_id:localStorage.getItem('org_id') }, headers: headers });
+      {params:{entity_ids:allIds,uuid:localStorage.getItem('uuid') }, headers: headers });
       //  console.log(response.data.data);
       setOptions(response.data.data);
     } catch (error) {
@@ -83,7 +83,7 @@ console.log(allIds);
           data:{
               entity_id: activeNode.entity_id,
               new_manager_id: selectedEntityId,
-              parent_id:activeNode.parent_entity_id,org_id:localStorage.getItem('org_id'),
+              parent_id:activeNode.parent_entity_id,uuid:localStorage.getItem('uuid'),
           },
              headers: {
                 'x-auth-token': localStorage.getItem("token")
