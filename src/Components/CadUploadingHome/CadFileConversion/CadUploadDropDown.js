@@ -4,18 +4,20 @@ import Select from 'react-select';
 import cadStyles from '../CadHomeDesign/CadHome.module.css'
 
 
-function CadDropDown({ file, selectedFileFormate, setSelectedFileFormate, CadFileConversion }) {
-    const [uploadingMessage, setUploadingMessage] = useState('');
- 
+function CadDropDown({ file, selectedFileFormate, setSelectedFileFormate, CadFileConversion, uploadingMessage, handleFileConvert }) {
+
 
     const formatOptions = [
-        { value: '.stl', label: '.stl' },
-        { value: '.step', label: '.step' },
-        { value: '.obj', label: '.obj' },
+        { value: 'stl', label: '.stl' },
+        { value: 'step', label: '.step' },
+        { value: 'obj', label: '.obj' },
     ];
 
-   
-   
+
+    useEffect(() => {
+        if(!file) return
+        handleFileConvert(file)
+    }, [file])
 
 
     return (
@@ -42,23 +44,25 @@ function CadDropDown({ file, selectedFileFormate, setSelectedFileFormate, CadFil
                                 className={cadStyles['cad-conversion-select']}
                             />
                         </td>
-                        <td>Uploaded</td>
+                        <td>{uploadingMessage}</td>
                         <td>
                             {/* Convert Button - only enabled when file format is selected */}
+                            {uploadingMessage !== 'COMPLETED'  && (
                             <button
                                 className={cadStyles['cad-conversion-button']}
                                 onClick={CadFileConversion}
                                 disabled={selectedFileFormate === ''}
-                                style={selectedFileFormate === '' ? { background: 'black' } : {}}
+                                style={selectedFileFormate === '' ? { opacity: '0.5' } : {}}
                             >
                                 Convert
                             </button>
+                            )}
 
                             {/* Download Button - only shown when upload is completed AND file format is selected */}
                             {uploadingMessage === 'COMPLETED' && selectedFileFormate !== '' && (
                                 <button
                                     className={cadStyles['cad-conversion-button']}
-                                    // onClick={CadFileConversion}
+                                // onClick={CadFileConversion}
                                 >
                                     Download
                                 </button>

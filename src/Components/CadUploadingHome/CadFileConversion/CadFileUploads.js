@@ -10,24 +10,26 @@ import axios from 'axios'
 import { BASE_URL, BUCKET } from '@/config';
 import { usePathname } from "next/navigation";
 import { useContext } from 'react';
-import  CadUploadDropDown from './CadUploadDropDown'
+import CadUploadDropDown from './CadUploadDropDown'
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useRouter } from "next/navigation";
 
 function CadFileUploads() {
     const fileInputRef = useRef(null);
-    const [s3Url, setS3Url]= useState('')
+    const [s3Url, setS3Url] = useState('')
     const [folderId, setFolderId] = useState('');
     const [uploading, setUploading] = useState(false)
     const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep"])
     const pathname = usePathname();
+    const [uploadingMessage, setUploadingMessage] = useState('');
+
     const [fileConvert, setFileConvert] = useState('')
     const [selectedFileFormate, setSelectedFileFormate] = useState('');
     const { setFile } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
     const router = useRouter();
     const cadFile = pathname.split("/")[2];
-   
+
     // useEffect(() => {
     //     if ( cadFile) {
     //         formateAcceptor(cadFile);
@@ -71,27 +73,27 @@ function CadFileUploads() {
     };
 
     useEffect(() => {
-        if(!folderId) return;
+        if (!folderId) return;
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' ||
             uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
         const interval = setInterval(() => {
-            getStatus();
+            getStatus(folderId);
         }, 1000);
 
         return () => clearInterval(interval); // Cleanup interval on component unmount
-    }, [uploadingMessage]);
+    }, [uploadingMessage, folderId]);
 
-    const getStatus = async () => {
+    const getStatus = async (folderId) => {
         try {
             const response = await axios.get(BASE_URL + '/v1/cad/get-status', {
                 params: { id: folderId, cad_type: 'CAD_CONVERTER' },
-               
+
             });
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
 
                     setUploadingMessage(response.data.data.status)
-                   
+
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                     console.log(response.data.data.status)
@@ -135,13 +137,14 @@ function CadFileUploads() {
 
 
         console.log(file)
-        // setFile(file)
-        handleFileConvert(file)
-       
-        
+        setFileConvert(file)
+        setUploading(true)
+        // handleFileConvert(file)
+
+
         // handleFile(file)
         // await saveFileToIndexedDB(file);
-     
+
 
     };
 
@@ -153,12 +156,14 @@ function CadFileUploads() {
         const fileSizeMB = file.size / (1024 * 1024); // Size in MB
 
         try {
-          
+
             setUploadingMessage('UPLOADINGFILE')
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                { bucket_name: BUCKET, file: file.name, category: "designs_upload",
-                     filesize: fileSizeMB, uuid: localStorage.getItem("uuid") }
+                {
+                    bucket_name: BUCKET, file: file.name, category: "designs_upload",
+                    filesize: fileSizeMB, uuid: localStorage.getItem("uuid")
+                }
             );
 
             if (
@@ -172,14 +177,14 @@ function CadFileUploads() {
                     await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
                     // await CadFileConversion(preSignedURL.data.data.url)
                 }
-               
+
             } else {
                 toast.error("⚠️ Error generating signed URL.");
-               
+
             }
         } catch (e) {
             console.error(e);
-           
+
         }
     };
 
@@ -188,22 +193,25 @@ function CadFileUploads() {
             setUploadingMessage('UPLOADINGFILE')
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
-                { s3_link: s3Url, uuid: localStorage.getItem('uuid'), 
-                    output_formate: selectedFileFormate,
-                    s3_bucket: 'design-glb' })
+                {
+                    s3_link: s3Url, uuid: localStorage.getItem('uuid'),
+                    output_format: selectedFileFormate,
+                    s3_bucket: 'design-glb'
+                })
             // /design-view
             if (response.data.meta.success) {
-                setFolderId(response.data.data.folderId)
-                setUploadingMessage('PENDING')
-               
+                console.log(response.data.data)
+                setFolderId(response.data.data)
+
+                await getStatus(response.data.data)
             } else {
                 toast.error(response.data.meta.message)
-            
+
             }
             // await clearIndexedDB()
         } catch (error) {
             console.log(error)
-           
+
         }
     }
     async function multiUpload(data, file, headers, fileSizeMB) {
@@ -257,7 +265,7 @@ function CadFileUploads() {
     const completeMultipartUpload = async (data, parts, headers, fileSizeMB) => {
         console.log(data, parts, headers, fileSizeMB);
         try {
-            
+
             setUploadingMessage('UPLOADINGFILE')
             const file = {
                 key: data.key,
@@ -282,7 +290,7 @@ function CadFileUploads() {
             }
         } catch (error) {
             console.error("Error completing multipart upload:", error);
-            
+
         }
     };
 
@@ -295,51 +303,52 @@ function CadFileUploads() {
                 "Content-Length": file.size,
             },
         });
-       setUploading(true)
-       setS3Url(data.url)
+        setUploading(true)
+        setS3Url(data.url)
         console.log("Upload complete:", result);
     }
 
     return (
         <>
 
-            {uploading ? 
-                <CadUploadDropDown  file={fileConvert} selectedFileFormate ={selectedFileFormate} 
-                 setSelectedFileFormate ={setSelectedFileFormate} CadFileConversion={CadFileConversion}/>
-            : <div
-                className={styles["cad-dropzone"]}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onClick={handleClick}
+            {uploading ?
+                <CadUploadDropDown file={fileConvert} selectedFileFormate={selectedFileFormate}
+                    setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion}
+                    uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={handleFileConvert} />
+                : <div
+                    className={styles["cad-dropzone"]}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onClick={handleClick}
 
 
-            >
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: "none" }}
-                    accept={allowedFormats.join(", ")} // Restrict input to allowed file types
-                    onChange={handleFileChange}
-                />
-                <div className={styles["cad-dropzone-content"]}>
-                    <p className={styles['cad-dropzone-head']}>
-                        Drag & drop your 3D <span className={styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>files</span> here
-                    </p>
-                    <p className={styles['cad-dropzone-desc']} >
-                        Supported formats: STEP (.step, .stp), IGES (.igs, .iges),
-                         STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep)
+                >
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: "none" }}
+                        accept={allowedFormats.join(", ")} // Restrict input to allowed file types
+                        onChange={handleFileChange}
+                    />
+                    <div className={styles["cad-dropzone-content"]}>
+                        <p className={styles['cad-dropzone-head']}>
+                            Drag & drop your 3D <span className={styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>files</span> here
+                        </p>
+                        <p className={styles['cad-dropzone-desc']} >
+                            Supported formats: STEP (.step, .stp), IGES (.igs, .iges),
+                            STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep)
 
-                    </p>
+                        </p>
 
-                </div>
-                <Image
-                    src={IMAGEURLS.uploadIcon}
-                    alt="upload"
-                    width={68}
-                    height={68}
-                    style={{ cursor: "pointer" }}
-                />
-            </div>}
+                    </div>
+                    <Image
+                        src={IMAGEURLS.uploadIcon}
+                        alt="upload"
+                        width={68}
+                        height={68}
+                        style={{ cursor: "pointer" }}
+                    />
+                </div>}
 
         </>
 
