@@ -4,7 +4,7 @@ import Select from 'react-select';
 import cadStyles from '../CadHomeDesign/CadHome.module.css'
 
 
-function CadDropDown({ file, selectedFileFormate, setSelectedFileFormate, CadFileConversion, uploadingMessage, handleFileConvert }) {
+function CadDropDown({ file, selectedFileFormate, setSelectedFileFormate, CadFileConversion, uploadingMessage, handleFileConvert, disableSelect, to }) {
 
 
     const formatOptions = [
@@ -15,7 +15,7 @@ function CadDropDown({ file, selectedFileFormate, setSelectedFileFormate, CadFil
 
 
     useEffect(() => {
-        if(!file) return
+        if (!file) return
         handleFileConvert(file)
     }, [file])
 
@@ -38,36 +38,37 @@ function CadDropDown({ file, selectedFileFormate, setSelectedFileFormate, CadFil
                         <td>{file.name}</td>
                         <td>{file.name.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
                         <td>
-                            <Select
+                            {to ? `.${to}` : <Select
                                 onChange={(selectedOption) => setSelectedFileFormate(selectedOption.value)}
                                 options={formatOptions}
+
                                 className={cadStyles['cad-conversion-select']}
-                            />
+                                isDisabled={disableSelect}
+                            />}
+
                         </td>
                         <td>{uploadingMessage}</td>
                         <td>
-                            {/* Convert Button - only enabled when file format is selected */}
-                            {uploadingMessage !== 'COMPLETED'  && (
-                            <button
-                                className={cadStyles['cad-conversion-button']}
-                                onClick={CadFileConversion}
-                                disabled={selectedFileFormate === ''}
-                                style={selectedFileFormate === '' ? { opacity: '0.5' } : {}}
-                            >
-                                Convert
-                            </button>
-                            )}
-
-                            {/* Download Button - only shown when upload is completed AND file format is selected */}
-                            {uploadingMessage === 'COMPLETED' && selectedFileFormate !== '' && (
+                            {/* Convert Button - Only enabled when a file format is selected */}
+                            {(!disableSelect && (to || selectedFileFormate)) && (
                                 <button
                                     className={cadStyles['cad-conversion-button']}
-                                // onClick={CadFileConversion}
+                                    onClick={CadFileConversion}
+                                    disabled={disableSelect}
+                                    style={(disableSelect) ? { opacity: '0.5' } : {}}
                                 >
+                                    Convert
+                                </button>
+                            )}
+
+                            {/* Download Button - Only shown when upload is completed AND file format is selected */}
+                            {uploadingMessage === 'COMPLETED' && (to || selectedFileFormate) && (
+                                <button className={cadStyles['cad-conversion-button']}>
                                     Download
                                 </button>
                             )}
                         </td>
+
                     </tr>
 
                 </tbody>

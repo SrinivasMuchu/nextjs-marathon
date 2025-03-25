@@ -12,9 +12,9 @@ import { usePathname } from "next/navigation";
 import { useContext } from 'react';
 import CadUploadDropDown from './CadUploadDropDown'
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
-import { useRouter } from "next/navigation";
+import { useParams } from 'next/navigation';
 
-function CadFileUploads() {
+function CadFileUploads({ convert }) {
     const fileInputRef = useRef(null);
     const [s3Url, setS3Url] = useState('')
     const [folderId, setFolderId] = useState('');
@@ -22,13 +22,37 @@ function CadFileUploads() {
     const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep"])
     const pathname = usePathname();
     const [uploadingMessage, setUploadingMessage] = useState('');
-
+    const [disableSelect, setDisableSelect] = useState(false)
     const [fileConvert, setFileConvert] = useState('')
     const [selectedFileFormate, setSelectedFileFormate] = useState('');
     const { setFile } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
-    const router = useRouter();
-    const cadFile = pathname.split("/")[2];
+   
+  
+    // Debugging: Log the full pathname
+    console.log("Full Pathname:", pathname);
+  
+    // Split path and get all segments
+    const pathSegments = pathname.split('/').filter(Boolean);
+
+    const formatsSegment = pathSegments.at(-1) ?? '';
+    console.log("Raw formatsSegment:", formatsSegment);
+
+    let from = "dwg", to = "stl";
+    if (formatsSegment) {
+      const extracted = formatsSegment.split(/-to-|_to_|_/i);
+
+      console.log("Extracted Parts:", extracted);
+      
+      if (extracted.length === 2) {
+        [from, to] = extracted;
+      }
+    }
+    from = from.replace(/\.\w+$/, '');
+    to = to.replace(/\.\w+$/, '');
+
+
+    
 
     // useEffect(() => {
     //     if ( cadFile) {
@@ -137,9 +161,11 @@ function CadFileUploads() {
 
 
         console.log(file)
+        setDisableSelect(true)
         setFileConvert(file)
-        setUploading(true)
         // handleFileConvert(file)
+        setUploading(true)
+
 
 
         // handleFile(file)
@@ -195,12 +221,13 @@ function CadFileUploads() {
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
                     s3_link: s3Url, uuid: localStorage.getItem('uuid'),
-                    output_format: selectedFileFormate,
+                    output_format: to?to:selectedFileFormate,
                     s3_bucket: 'design-glb'
                 })
             // /design-view
             if (response.data.meta.success) {
                 console.log(response.data.data)
+                setDisableSelect(true)
                 setFolderId(response.data.data)
 
                 await getStatus(response.data.data)
@@ -283,7 +310,7 @@ function CadFileUploads() {
                 console.log("Multipart upload completed successfully.");
 
                 // Ensure `CadFileConversion` is called correctly
-                // if (preSignedURL.data.data.Location) {
+                setDisableSelect(false)
                 setUploading(true)
                 setS3Url(preSignedURL.data.data.Location)
                 return true;
@@ -305,6 +332,7 @@ function CadFileUploads() {
         });
         setUploading(true)
         setS3Url(data.url)
+        setDisableSelect(false)
         console.log("Upload complete:", result);
     }
 
@@ -312,8 +340,8 @@ function CadFileUploads() {
         <>
 
             {uploading ?
-                <CadUploadDropDown file={fileConvert} selectedFileFormate={selectedFileFormate}
-                    setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion}
+                <CadUploadDropDown file={fileConvert} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
+                    setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={to}
                     uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={handleFileConvert} />
                 : <div
                     className={styles["cad-dropzone"]}
@@ -327,18 +355,23 @@ function CadFileUploads() {
                         type="file"
                         ref={fileInputRef}
                         style={{ display: "none" }}
-                        accept={allowedFormats.join(", ")} // Restrict input to allowed file types
+                        accept={convert ? `.${from}` : allowedFormats.join(", ")}
                         onChange={handleFileChange}
                     />
                     <div className={styles["cad-dropzone-content"]}>
                         <p className={styles['cad-dropzone-head']}>
-                            Drag & drop your 3D <span className={styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>files</span> here
+                            Drag & drop your 3D <span className={styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>files</span> here to convert
+
                         </p>
-                        <p className={styles['cad-dropzone-desc']} >
+                        {convert ?<p className={styles['cad-dropzone-desc']} >
+                            Supported format: {from.toUpperCase()}(.{from})
+
+                        </p>:<p className={styles['cad-dropzone-desc']} >
                             Supported formats: STEP (.step, .stp), IGES (.igs, .iges),
                             STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep)
 
-                        </p>
+                        </p>}
+                        
 
                     </div>
                     <Image

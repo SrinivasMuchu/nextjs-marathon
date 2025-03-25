@@ -1,7 +1,7 @@
 export const metadata = {
-    title: "Marathon OS CAD Viewer – Instantly View 3D CAD Files Online | Marathon OS",
+    title: " Free Online 3D File Converter | Convert STEP, IGES, STL, OBJ & More | Marathon OS",
     description:
-        "Marathon OS CAD Viewer is a high-performance, cloud-based tool that lets you view STEP, IGES, STL, BREP, and more instantly—no downloads, no lag, no limits. Experience seamless, glitch-free CAD visualization with our proprietary rendering engine, ensuring smooth performance even for large and complex models. Try it now!",
+        "Fast and secure cloud-based 3D file converter. Convert between STEP, IGES, STL, OBJ, PLY, OFF, BREP formats instantly—no software required.",
     openGraph: {
         images: [
             {
@@ -13,7 +13,7 @@ export const metadata = {
         ],
     }, metadataBase: new URL("https://marathon-os.com"),
     alternates: {
-        canonical: "/tools/cad-viewer",
+        canonical: "/tools/3d-file-converter",
     },
 };
 import CadFileConversionHome from '@/Components/CadUploadingHome/CadFileConversion/CadFileConversionHome';
