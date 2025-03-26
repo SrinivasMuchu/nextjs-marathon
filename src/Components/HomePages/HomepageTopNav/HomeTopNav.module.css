@@ -109,12 +109,54 @@
   color: #610bee;
   background: white;
 }
+.hover-dropdown-menu{
+  width: 100%;
+  position: fixed;
+  top: 70px;
+  left: 0px;
+  align-items: stretch;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: white;
+  box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
+  padding:24px;
+}
+.hover-dropdown-menu-list{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 0px 24px;
+  /* border-right: 1px solid rgb(230, 230, 230); */
+}
+.hover-dropdown-menu-vertical{
+  width:1px;
+  align-self: stretch;
+  background: rgb(230, 230, 230);
+}
+.hover-dropdown-menu-list span{
+  color: black;
+  font-size: 16px;
+  font-weight: 600;
+  font-style: normal;
+  text-decoration: none;
+}
+.hover-dropdown-menu-sub-list{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+ 
+}
 
-
-
-
-
-
+.hover-dropdown-menu-sub-list a{
+  color: black;
+  font-size: 14px;
+  font-weight: 500;
+  font-style: normal;
+  text-decoration: none;
+}
 
 .home-landing-teams {
   padding: 6px 12px;
