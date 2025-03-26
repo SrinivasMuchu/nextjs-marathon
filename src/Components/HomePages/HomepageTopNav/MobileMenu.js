@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import KeyboardArrowUpSharpIcon from '@mui/icons-material/KeyboardArrowUpSharp';
+import KeyboardArrowDownSharpIcon from '@mui/icons-material/KeyboardArrowDownSharp';
 
 function MobileMenu({ onClose, styles }) {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -53,14 +55,14 @@ function MobileMenu({ onClose, styles }) {
         <div className={styles["menu-dropdown"]}>
           {/* Tools Main Dropdown */}
           <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("tools")}>
-            Tools ▼
+            Tools <KeyboardArrowDownSharpIcon />
           </span>
 
           {openDropdown === "tools" && (
             <div className={styles["menu-dropdown"]} style={{ display: "flex", flexDirection: "column",gap:'16px'}}>
               {/* HR Option */}
               <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("hr")}>
-                HR {openSubMenu === "hr" ? "▲" : "▼"}
+                HR {openSubMenu === "hr" ? <KeyboardArrowUpSharpIcon/> : <KeyboardArrowDownSharpIcon />}
               </span>
 
               {/* HR Submenu */}
@@ -72,7 +74,7 @@ function MobileMenu({ onClose, styles }) {
 
               {/* Engineering Option */}
               <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("engineering")}>
-                Engineering {openSubMenu === "engineering" ? "▲" : "▼"}
+                Engineering {openSubMenu === "engineering" ? <KeyboardArrowUpSharpIcon/> : <KeyboardArrowDownSharpIcon />}
               </span>
 
               {/* Engineering Submenu */}
@@ -89,7 +91,7 @@ function MobileMenu({ onClose, styles }) {
         <div className={styles["menu-dropdown"]}>
       {/* Blogs Main Dropdown */}
       <span style={{ cursor: "pointer" }} onClick={() => setOpenDropdown("blogs")}>
-        Blogs ▼
+        Blogs <KeyboardArrowDownSharpIcon />
       </span>
 
       {openDropdown === "blogs" && (
