@@ -241,7 +241,7 @@ export default function PartDesignView() {
             }
             // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
             const response = await axios.get(BASE_URL + '/v1/cad/get-status', {
-                params: { folderId: localStorage.getItem('last_viewed_cad_key') },
+                params: { folder_id: localStorage.getItem('last_viewed_cad_key') },
 
             });
             if (response.data.meta.success) {
