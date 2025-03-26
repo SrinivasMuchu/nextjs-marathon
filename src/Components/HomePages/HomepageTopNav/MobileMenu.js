@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 function MobileMenu({ onClose, styles }) {
-  const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [openSubMenu, setOpenSubMenu] = useState(null); // Store dropdown name
   const pathname = usePathname();
   const router = useRouter();
 
@@ -23,9 +24,16 @@ function MobileMenu({ onClose, styles }) {
     handleCloseMenu();
   };
 
-  // Function to toggle dropdown
+  // "tools", "hr", "engineering"
+  // Track submenus
+
   const toggleDropdown = (dropdownName) => {
-    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+    if (dropdownName === "tools") {
+      setOpenDropdown(openDropdown === "tools" ? null : "tools");
+      setOpenSubMenu(null); // Reset submenus when closing "tools"
+    } else {
+      setOpenSubMenu(openSubMenu === dropdownName ? null : dropdownName);
+    }
   };
 
   return (
@@ -43,33 +51,55 @@ function MobileMenu({ onClose, styles }) {
 
         {/* Dropdown for Tools */}
         <div className={styles["menu-dropdown"]}>
+          {/* Tools Main Dropdown */}
           <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("tools")}>
             Tools ▼
           </span>
+
           {openDropdown === "tools" && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <Link href="/tools/org-hierarchy" onClick={handleCloseMenu}>
-                Org Hierarchy
-              </Link>
-              <Link href="/tools/cad-viewer" onClick={handleCloseMenu}>CAD Viewer</Link>
-              {/* <Link href="/tools/upload-cad-file" onClick={handleCloseMenu}>upload cad file</Link> */}
+            <div className={styles["menu-dropdown"]} style={{ display: "flex", flexDirection: "column",gap:'16px'}}>
+              {/* HR Option */}
+              <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("hr")}>
+                HR {openSubMenu === "hr" ? "▲" : "▼"}
+              </span>
+
+              {/* HR Submenu */}
+              {openSubMenu === "hr" && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "10px" }}>
+                  <Link href="/tools/org-hierarchy">Org Hierarchy</Link>
+                </div>
+              )}
+
+              {/* Engineering Option */}
+              <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("engineering")}>
+                Engineering {openSubMenu === "engineering" ? "▲" : "▼"}
+              </span>
+
+              {/* Engineering Submenu */}
+              {openSubMenu === "engineering" && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "10px" }}>
+                  <Link href="/tools/cad-viewer">CAD Viewer</Link>
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* Dropdown for Blogs */}
         <div className={styles["menu-dropdown"]}>
-          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("blogs")}>
-            Blogs ▼
-          </span>
-          {openDropdown === "blogs" && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <Link href="/blog/part-number-nomenclature-guide" onClick={handleCloseMenu}>
-                Part Number Nomenclature Guide
-              </Link>
-            </div>
-          )}
+      {/* Blogs Main Dropdown */}
+      <span style={{ cursor: "pointer" }} onClick={() => setOpenDropdown("blogs")}>
+        Blogs ▼
+      </span>
+
+      {openDropdown === "blogs" && (
+        <div  style={{ display: "flex", flexDirection: "column" }}>
+          <Link href="/blog/part-number-nomenclature-guide">
+            Part Number Nomenclature Guide
+          </Link>
         </div>
+      )}
+    </div>
       </div>
     </>
   );

@@ -25,7 +25,7 @@ function HomeTopNav() {
   };
 
   return (
-    <div className={styles["home-page-top"]} style={{ position: "relative" }}>
+    <div className={styles["home-page-top"]} >
       <Link href="/">
         <Image
           src={IMAGEURLS.logo}
@@ -102,7 +102,7 @@ function HomeTopNav() {
         </div>
       </div>
 
-      <div className={styles["home-pg-btns"]}>
+      <div className={styles["home-pg-btns"]} onMouseEnter={() => setShowHoverMenu(false)}>
         <TopNavRequestBtn styles={styles} className={"try-demo"} />
       </div>
 
