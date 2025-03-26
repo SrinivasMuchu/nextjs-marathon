@@ -16,7 +16,8 @@ import { useParams } from 'next/navigation';
 
 function CadFileUploads({ convert }) {
     const fileInputRef = useRef(null);
-    const [s3Url, setS3Url] = useState('')
+    const [s3Url, setS3Url] = useState('');
+    const [baseName, setBaseName] = useState('');
     const [folderId, setFolderId] = useState('');
     const [uploading, setUploading] = useState(false)
     const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep"])
@@ -38,7 +39,7 @@ function CadFileUploads({ convert }) {
     const formatsSegment = pathSegments.at(-1) ?? '';
     console.log("Raw formatsSegment:", formatsSegment);
 
-    let from = "dwg", to = "stl";
+    let from = "", to = "";
     if (formatsSegment) {
       const extracted = formatsSegment.split(/-to-|_to_|_/i);
 
@@ -117,7 +118,7 @@ function CadFileUploads({ convert }) {
                 if (response.data.data.status === 'COMPLETED') {
 
                     setUploadingMessage(response.data.data.status)
-
+                    setBaseName(response.data.data.base_name)
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                     console.log(response.data.data.status)
@@ -342,6 +343,7 @@ function CadFileUploads({ convert }) {
             {uploading ?
                 <CadUploadDropDown file={fileConvert} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
                     setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={to}
+                    folderId={folderId} baseName={baseName}
                     uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={handleFileConvert} />
                 : <div
                     className={styles["cad-dropzone"]}
