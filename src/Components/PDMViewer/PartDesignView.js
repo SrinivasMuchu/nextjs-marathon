@@ -8,6 +8,7 @@ import CubeLoader from '../CommonJsx/Loaders/CubeLoader';
 import { toast } from 'react-toastify';
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
+import { useRouter } from "next/navigation";
 // Constants
 const ANGLE_STEP = 30;
 const BUFFER_SIZE = 0;
@@ -34,8 +35,10 @@ export default function PartDesignView() {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [currentZoom, setCurrentZoom] = useState(3.6);
+    const [totalImages, setTotalImages] = useState(0);
+    const [completedImages, setCompletedImages] = useState(0);
     const [folderId, setFolderId] = useState('');
-
+ const router = useRouter();
 
     useEffect(() => {
         if (!file) return;
@@ -52,7 +55,7 @@ export default function PartDesignView() {
     }, []);
     const handleFile = async (file) => {
 
-
+      
 
         const fileSizeMB = file.size / (1024 * 1024); // Size in MB
 
@@ -64,8 +67,20 @@ export default function PartDesignView() {
             };
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                { bucket_name: BUCKET, file: file.name, category: "designs_upload", filesize: fileSizeMB, org_id: localStorage.getItem("org_id") }
+                { 
+                    bucket_name: BUCKET, 
+                    file: file.name, 
+                    category: "designs_upload", 
+                    filesize: fileSizeMB 
+                },
+                {
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"), // Moved uuid to headers
+                        
+                    }
+                }
             );
+            
 
             if (
                 preSignedURL.data.meta.code === 200 &&
@@ -82,6 +97,7 @@ export default function PartDesignView() {
             } else {
                 toast.error("⚠️ Error generating signed URL.");
                 setIsLoading(false)
+                router.push("/tools/cad-viewer")
             }
         } catch (e) {
             console.error(e);
@@ -91,18 +107,30 @@ export default function PartDesignView() {
 
     const CreateCad = async (link) => {
         try {
+            localStorage.removeItem('last_viewed_cad_key')
             setIsLoading(true)
+            const HEADERS = { "user-uuid": localStorage.getItem('uuid') }
             setUploadingMessage('UPLOADINGFILE')
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/create-cad`,
-                { cad_view_link: link, organization_id: localStorage.getItem('org_id'), s3_bucket: 'design-glb' })
-            // /design-view
+                { 
+                    cad_view_link: link, 
+                    
+                    s3_bucket: 'design-glb' 
+                }, 
+                { headers: HEADERS } // Headers should be the third argument
+            );
+            
+            // user-uuid
             if (response.data.meta.success) {
                 // setUploadingMessage('PENDING')
+                localStorage.setItem('last_viewed_cad_key', response.data.data)
                 await getStatus()
                 // await UpdateToDocker(link, response.data.data)
             } else {
+                setUploadingMessage('')
                 toast.error(response.data.meta.message)
+                router.push("/tools/cad-viewer")
                 setIsLoading(false)
             }
             // await clearIndexedDB()
@@ -160,7 +188,7 @@ export default function PartDesignView() {
     };
 
     const completeMultipartUpload = async (data, parts, headers, fileSizeMB) => {
-        console.log(data, parts, headers, fileSizeMB);
+       
         try {
             setIsLoading(true);
             setUploadingMessage('UPLOADINGFILE')
@@ -172,8 +200,8 @@ export default function PartDesignView() {
 
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                { bucket_name: BUCKET, file, category: "complete_mutipart", org_id: localStorage.getItem("org_id"), filesize: fileSizeMB },
-                { headers: headers }
+                { bucket_name: BUCKET, file, category: "complete_mutipart", uuid: localStorage.getItem('uuid'), filesize: fileSizeMB },
+                { headers:{'user-uuid': localStorage.getItem('uuid')} }
             );
 
             if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
@@ -189,6 +217,7 @@ export default function PartDesignView() {
         } catch (error) {
             console.error("Error completing multipart upload:", error);
             setIsLoading(false);
+            router.push("/tools/cad-viewer")
         }
     };
 
@@ -214,7 +243,7 @@ export default function PartDesignView() {
         }, 3000);
         
         return () => clearInterval(interval); // Cleanup interval on component unmount
-    }, [uploadingMessage]);
+    }, [uploadingMessage, totalImages, completedImages]);
     useEffect(() => {
         if (!file) {
             getStatus();
@@ -225,35 +254,47 @@ export default function PartDesignView() {
     const getStatus = async () => {
         try {
             setIsLoading(true)
+            if(!localStorage.getItem('last_viewed_cad_key')){
+                router.push("/tools/cad-viewer")
+                return
+            }
             // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
             const response = await axios.get(BASE_URL + '/v1/cad/get-status', {
-                params: { org_id: localStorage.getItem('org_id') },
+                params: { folder_id: localStorage.getItem('last_viewed_cad_key') },
 
             });
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
                     setIsLoading(false)
                     setUploadingMessage(response.data.data.status)
-                    setFolderId(response.data.data.folderId)
+                    // setTotalImages(response.data.data.total_images)
+                    // setCompletedImages(response.data.data.completed_images)
+                    setFolderId(localStorage.getItem('last_viewed_cad_key'))
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
+                    setTotalImages(response.data.data.total_images)
+                    setCompletedImages(response.data.data.image_count)
                     console.log(response.data.data.status)
                 } else if (response.data.data.status === 'FAILED') {
                     setUploadingMessage(response.data.data.status)
-                    toast.error(response.data.data.status)
+                    toast.error(response.data.meta.message)
+                    router.push("/tools/cad-viewer")
                     setIsLoading(false)
                 }
 
             } else {
                 setUploadingMessage('FAILED')
                 toast.error(response.data.meta.message)
+                localStorage.removeItem('last_viewed_cad_key')
+                router.push("/tools/cad-viewer")
                 setIsLoading(false)
             }
 
 
         } catch (error) {
             setUploadingMessage('FAILED')
-            console.error("Error fetching data:", error);
+            router.push("/tools/cad-viewer")
+            localStorage.removeItem('last_viewed_cad_key')
             setIsLoading(false)
         }
     };
@@ -340,7 +381,7 @@ export default function PartDesignView() {
                 );
             }
         }
-    }, [materials, getTextureUrl,folderId]);
+    }, [materials, getTextureUrl, folderId]);
 
     // Maintain texture buffer
     const maintainTextureBuffer = useCallback(() => {
@@ -475,19 +516,19 @@ export default function PartDesignView() {
     }, [setupTextures]);
     useEffect(() => {
         if (!folderId) return;
-
+        setIsLoading(true)
         const timeout = setTimeout(() => {
             console.log(`Delayed setupTextures with folderId: ${folderId}`);
             setupTextures();
-        }, 100); // Adjust delay if needed
-
+        }, 300); // Adjust delay if needed
+        setIsLoading(false)
         return () => clearTimeout(timeout);
     }, [folderId]);
 
 
     // Material update effect
     useEffect(() => {
-        if (!planeRef.current || !materials || Object.keys(materials).length === 0) return;
+        if (!planeRef.current || !materials || Object.keys(materials).length === 0 || !folderId) return;
 
         const materialKey = `${xRotation}_${yRotation}`;
         const newMaterial = materials[materialKey];
@@ -504,7 +545,7 @@ export default function PartDesignView() {
             }
         }
         setIsLoading(false)
-    }, [xRotation, yRotation, materials, lastValidMaterial]);
+    }, [xRotation, yRotation, materials, lastValidMaterial, folderId]);
 
     // Buffer maintenance effect
     useEffect(() => {
@@ -558,11 +599,41 @@ export default function PartDesignView() {
     return (
         <>
             <HomeTopNav />
-            {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} /> : <div style={{
+            {/* <button onClick={()=> router.push("/tools/cad-viewer")} style={{
+                width: '3rem',
+                height: '3rem',
+                borderRadius: '9999px',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                border: '1px solid #e5e7eb',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                transition: 'background-color 0.2s',
+                cursor: 'pointer'
+            }}><ArrowLeft style={{ width: '1.5rem', height: '1.5rem' }} /></button> */}
+            {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} /> : 
+            <div style={{
                 position: 'relative',
                 width: '100%',
                 height: '100vh'
             }}>
+                 <button onClick={()=> router.push("/tools/cad-viewer")} style={{
+                
+                padding:'10px',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                border: '1px solid #e5e7eb',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                transition: 'background-color 0.2s',
+                cursor: 'pointer',
+                position:'absolute',
+                top:'2rem', left:'1rem',zIndex:2
+            }}><ArrowLeft style={{ width: '24px', height: '24px' }} /> back</button>
+
                 {/* Three.js Canvas Container */}
                 <div ref={mountRef} style={{
                     position: 'absolute',
@@ -779,7 +850,22 @@ export default function PartDesignView() {
                     </div>
                 )}
             </div>}
-
+           {/* { Object.keys(materials).length === 0 && (
+            <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'white',
+                zIndex: 10
+            }}>
+                <cubeLoader/>
+            </div>
+        )} */}
         </>
 
     );

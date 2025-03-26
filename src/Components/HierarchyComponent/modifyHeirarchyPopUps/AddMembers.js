@@ -37,11 +37,13 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
 
   const fetchData = async () => {
     try {
-      const headers = {
-        'x-auth-token': localStorage.getItem("token")
-      };
-      const response = await axios.get(BASE_URL + "/v1/org/getmember-details-next", { params: { uuid: localStorage.getItem('uuid'), org_id: localStorage.getItem('org_id') } },
-      );
+      
+      const response = await axios.get(`${BASE_URL}/v1/org/getmember-details-next`, {
+        headers: {
+            "user-uuid": localStorage.getItem("uuid")
+        }
+    });
+    
       const data = response.data.data.arr;
       console.log(data.map((i) => i.designation));
       data.sort((a, b) => a.fullName.localeCompare(b.fullName));
@@ -73,8 +75,10 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
 
     try {
       const headers = {
-        'x-auth-token': localStorage.getItem("token")
-      };
+        
+            "user-uuid": localStorage.getItem("uuid")
+        
+    };
       const selectedEntityId = selectedOption ? selectedOption._id : "";
       console.log(selectedEntityId)
       const response = await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
@@ -83,7 +87,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
         is_sibling: true,
         job_title: jobTitle,
         entity_type: action === 'add_mem' ? "member" : "assistant",
-        action: 'add', org_id: localStorage.getItem('org_id'), uuid: localStorage.getItem('uuid')
+        action: 'add',  uuid: localStorage.getItem('uuid')
       },
         {
           headers

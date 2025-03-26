@@ -36,6 +36,7 @@ function HomeTopNav() {
           width={500}
           height={500}
           className={styles["home-page-top-logo"]}
+          loading="eager"
         />
       </Link>
 

@@ -36,10 +36,8 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
     try {
       setLoading(true)
       const response = await axios.get(`${BASE_URL}/v1/org/get-exist-next-department`, {
-        headers: {
-          'x-auth-token': localStorage.getItem("token")
-        },
-        params: { department_name: department, uuid: localStorage.getItem('uuid'), org_id: localStorage.getItem('org_id') },
+        headers: { 'user-uuid': localStorage.getItem('uuid') },
+        params: { department_name: department },
       });
       if (response.data.meta.success) {
         setDepartments(response.data.data.filtered_departments);
@@ -96,11 +94,11 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
             department_name: department,
             description: description,
             unique_initial: uniqueInitial,
-            departId: deptId, org_id: localStorage.getItem('org_id')
+            departId: deptId,
           },
           {
             headers: {
-              'x-auth-token': localStorage.getItem("token")
+               'user-uuid': localStorage.getItem('uuid') 
             },
           }
         );
@@ -109,13 +107,10 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
           `${BASE_URL}/v1/org/create-next-dept`,
           {
             department_name: department,
-            description: description, org_id: localStorage.getItem('org_id')
-
+            description: description
           },
           {
-            headers: {
-              'x-auth-token': localStorage.getItem("token")
-            },
+            headers: { 'user-uuid': localStorage.getItem('uuid') },
           }
         );
       }
@@ -134,12 +129,10 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
               entity_type: 'department',
               action: 'add',
               // uuid:localStorage.getItem('uuid'),
-              org_id: localStorage.getItem('org_id')
+              
             },
             {
-              headers: {
-                'x-auth-token': localStorage.getItem("token")
-              },
+              headers: { 'user-uuid': localStorage.getItem('uuid') },
             }
           );
           if (response.data.meta.success) {

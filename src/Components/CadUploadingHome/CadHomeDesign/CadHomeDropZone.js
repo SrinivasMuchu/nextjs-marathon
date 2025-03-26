@@ -53,12 +53,31 @@ function CadHomeDropZone({ isStyled, type }) {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
+  //   if (file) {
+  //     const fileExtension = file.name.slice((file.name.lastIndexOf('.') + 1)).toLowerCase();
+
+  //       gtag('event', 'file_upload', {
+  //           'file_name': file.name,
+  //           'file_size': file.size,
+  //           'file_type': fileExtension // Use the extracted file extension
+  //       });
+  //     console.log('File uploaded:', file.name);
+  // }
     validateAndProcessFile(file);
   };
-
+ 
   const handleDrop = (event) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
+    // if (file) {
+    //   const fileExtension = file.name.slice((file.name.lastIndexOf('.') + 1)).toLowerCase();
+
+    //     gtag('event', 'file_upload', {
+    //         'file_name': file.name,
+    //         'file_size': file.size,
+    //         'file_type': fileExtension // Use the extracted file extension
+    //     });
+    // }
     validateAndProcessFile(file);
   };
 

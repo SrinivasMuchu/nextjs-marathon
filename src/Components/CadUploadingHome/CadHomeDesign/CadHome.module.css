@@ -133,7 +133,7 @@
     padding: 100px 80px;
     height: 90vh;
     position: relative;
-    
+
 }
 
 .cad-uploading-circle-bg {
@@ -142,10 +142,12 @@
     height: 285px;
     background: rgba(97, 11, 238, 0.20);
     filter: blur(85px);
-    right: -150px;  /* Adjust this as needed */
+    right: -150px;
+    /* Adjust this as needed */
     top: 150px;
     z-index: -1;
 }
+
 
 @media screen and (max-width:1250px) {
     .cad-landing-page {

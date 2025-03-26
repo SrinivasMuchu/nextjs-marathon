@@ -69,13 +69,11 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
         }
 
         try {
-            const headers = {
-                'x-auth-token': localStorage.getItem("token")
-            };
+            const headers = { 'user-uuid': localStorage.getItem('uuid') };
 
             const response = await axios.post(BASE_URL + "/v1/org/add-hierarchy-next", {
-                uuid: localStorage.getItem('uuid'), designation: jobTitle, fullName, phoneNumber, email,
-                photo: photoFile, org_id: localStorage.getItem('org_id'),
+                 designation: jobTitle, fullName, phoneNumber, email,
+                photo: photoFile, 
 
             },
                 {
@@ -93,7 +91,7 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                     is_sibling: true,
                     job_title: jobTitle, uuid: localStorage.getItem('uuid'),
                     entity_type: action === 'add_mem' ? "member" : "assistant",
-                    action: 'add', org_id: localStorage.getItem('org_id')
+                    action: 'add', uuid: localStorage.getItem('uuid')
                 },
                     {
                         headers

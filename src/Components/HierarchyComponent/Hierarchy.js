@@ -144,8 +144,8 @@ const RenderRectSvgNode = ({
 function Hierarchy({ department }) {
   const [loading, setLoading] = useState(true);
   const [hierarchy, setHierarchy] = useState({});
-  
- 
+
+
   const [activeNode, setActiveNode] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
   const [currentSrc, setCurrentSrc] = useState(`${ASSET_PREFIX_URL}Add action-d3.svg`);
@@ -165,12 +165,12 @@ function Hierarchy({ department }) {
   const [deletePopUp, setDeletePopUp] = useState(false);
   const [limitError, setLimitError] = useState(false);
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     fetchOrg(parentId);
 
 
   }, [parentId, updatedData]);
-  
+
 
 
 
@@ -189,8 +189,12 @@ function Hierarchy({ department }) {
     try {
       const response = await axios.get(
         `${BASE_URL}/v1/org/export-to-excell`,
-        { params: { organization_id: localStorage.getItem('org_id') }, responseType: "blob" }
+        {
+          headers: { 'user-uuid': localStorage.getItem('uuid') }, // Move UUID to headers
+          responseType: "blob" // Keep blob response for file download
+        }
       );
+
 
 
 
@@ -211,34 +215,43 @@ function Hierarchy({ department }) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("uuid", localStorage.getItem('uuid'));
-    formData.append("org_id", localStorage.getItem('org_id'));
+
 
     try {
       setLoading(true)
-      const response = await axios.post(`${BASE_URL}/v1/org/import-excell`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        `${BASE_URL}/v1/org/import-excell`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "user-uuid": localStorage.getItem('uuid') // Include UUID in headers
+          }
+        }
+      );
+
       if (response.data.meta.success) {
         fetchOrg(parentId)
-      }else{
+      } else {
         toast.error(response.data.meta.message)
       }
-setLoading(false)
+      setLoading(false)
     } catch (error) {
       console.error("Error importing Excel file:", error);
-      toast.error( error.response.data.message);
+      toast.error(error.response.data.message);
       setLoading(false)
     }
   };
 
   const fetchOrg = async (parentId) => {
     try {
-
+      setLoading(true)
       // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
       const response = await axios.get(BASE_URL + '/v1/org/get-hierarchy-next', {
-        params: { parent_entity_id: parentId, org_id: localStorage.getItem('org_id') },
-
+        params: { parent_entity_id: parentId }, // Keep only the required query params
+        headers: { 'user-uuid': localStorage.getItem('uuid') } // Move UUID to headers
       });
+
 
       if (response.data.meta.code == 200) {
 
@@ -261,6 +274,7 @@ setLoading(false)
         // setIsSetAdmin(false);
         // setIsCollaborator(response.data.data.isCollaborator);
       }
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -283,30 +297,9 @@ setLoading(false)
     }
 
   }
-  const fetchData = async () => {
-    try {
-      const HEADERS = { "x-auth-token": localStorage.getItem('token') }
-      await axios.get(BASE_URL + "/v1/org/add-collab", {
-        headers: HEADERS,
-      });
 
-    } catch (error) {
-      console.error("Error fetching options data:", error);
-    }
-  };
 
-  const fetchAddedData = async () => {
-    try {
-      const HEADERS = { "x-auth-token": localStorage.getItem('token') }
-      await axios.get(BASE_URL + "/v1/org/get-collab", {
-        headers: HEADERS,
-      });
 
-      // fetchAddedData()
-    } catch (error) {
-      console.error("Error fetching options data:", error);
-    }
-  };
 
 
   const handleClick = () => {
@@ -326,10 +319,10 @@ setLoading(false)
       {/* <OrgTopNav /> */}
       <OrgTopNav orgStyles={styles} handleDownloadExcel={handleDownloadExcel} />
       <div style={{ width: '100%', height: '99vh' }} ref={containerRef} className={styles["org-hierarchy"]} onClick={handleToggleOfMenu}>
-        {!loading ? (
+        {loading ? (
           // <img src={loadingImg} />
-            <Loading />
-          
+          <Loading />
+
         ) : (
           <>
             <Tree
@@ -361,7 +354,7 @@ setLoading(false)
                   setMenuopen,
                   add,
                   setAdd,
-                 
+
                   hasChildren, setHasChildren,
                   currentSrc,
                   setCurrentSrc, isChangingManager, setIsChangingManager,
