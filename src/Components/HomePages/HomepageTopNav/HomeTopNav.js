@@ -69,7 +69,7 @@ function HomeTopNav() {
                 <span>Engineering</span>
                 <div className={styles["hover-dropdown-menu-sub-list"]}>
                   <Link href="/tools/cad-viewer">CAD Viewer</Link>
-                  <Link href="/tools/cad-viewer">CAD Viewer</Link>
+                 
                 </div>
               </div>
               <div className={styles["hover-dropdown-menu-vertical"]}></div>
