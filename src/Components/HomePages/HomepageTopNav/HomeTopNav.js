@@ -55,6 +55,7 @@ function HomeTopNav() {
             <div className={styles["dropdown-menu"]}>
               <Link href="/tools/org-hierarchy">Org Hierarchy</Link>
               <Link href="/tools/cad-viewer">CAD Viewer</Link>
+              <Link href="/tools/3d-file-converter">CAD File Convert</Link>
               {/* <Link href="/tools/upload-cad-file">upload cad file</Link> */}
             </div>
           )}

@@ -147,6 +147,63 @@
     z-index: -1;
 }
 
+
+
+/* cad-conversion-table */
+.cad-conversion-table {
+    width: 100%;
+    border: 1px solid #610BEE;
+    border-radius: 8px;
+    /* overflow: hidden */
+}
+
+
+.cad-conversion-table table {
+    width: 100%;
+   
+}
+
+
+.cad-conversion-table th {
+    border-radius: 8px;
+    border-bottom: 1px solid #610BEE;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.96) 100%), #610BEE;
+    height: 48px;
+    padding: 0px 20px;
+    text-align: left;
+    color: #000;
+   
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: -0.192px;
+}
+
+
+.cad-conversion-table td {
+    /* height: 64px; */
+    box-sizing: border-box;
+    padding: 10px 20px;
+    text-align: left;
+    color: #000;
+   
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: -0.192px;
+}
+
+
+.cad-conversion-button {
+    background: #610BEE;
+    border-radius: 4px;
+    padding: 10px 20px;
+    color: white;
+}
+
+
 @media screen and (max-width:1250px) {
     .cad-landing-page {
         justify-content: center;

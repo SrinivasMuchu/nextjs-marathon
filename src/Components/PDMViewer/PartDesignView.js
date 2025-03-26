@@ -227,8 +227,7 @@ export default function PartDesignView() {
             setIsLoading(true)
             // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
             const response = await axios.get(BASE_URL + '/v1/cad/get-status', {
-                params: { org_id: localStorage.getItem('org_id') },
-
+                params: {id: folderId, cad_type:'CAD_VIEWER'},
             });
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
