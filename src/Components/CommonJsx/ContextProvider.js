@@ -9,8 +9,9 @@ export const contextState = createContext();
 
 function ContextProvider({children}) {
     const [file, setFile] = useState(null);
+    const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep"])
   return (
-    <contextState.Provider value={{ file, setFile }}>
+    <contextState.Provider value={{ file, setFile,allowedFormats, setAllowedFormats }}>
     {children}
   </contextState.Provider>
   )
