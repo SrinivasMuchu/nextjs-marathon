@@ -13,7 +13,7 @@ function DeletePopUp({ activeNode, setHasChildren, onclose, setUpdatedData, setP
         // if(acti)
         const response = await axios.delete(BASE_URL + "/v1/org/remove-role-next", {
             headers: {
-                'x-auth-token': localStorage.getItem("token")
+                "user-uuid": localStorage.getItem("uuid")
             },
             data: {
                 entity_id: activeNode.entity_id, uuid: localStorage.getItem('uuid'),
@@ -31,7 +31,7 @@ function DeletePopUp({ activeNode, setHasChildren, onclose, setUpdatedData, setP
             setTimeout(() => {
                 window.location.reload();
             }, 2000);
-            setAction(false)
+          
         } else {
             toast.error(response.data.meta.message)
         }

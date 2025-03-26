@@ -44,7 +44,7 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData, setPare
       const response = await axios.get(BASE_URL + "/v1/org/get-change-manager-next", {
         params: { entity_ids: allIdsWithParent, uuid: localStorage.getItem('uuid') }, // Send all IDs with parent ID
         headers: {
-          'x-auth-token': localStorage.getItem("token")
+          "user-uuid": localStorage.getItem("uuid")
         }
       });
       setOptions(response.data.data);
@@ -76,7 +76,7 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData, setPare
         new_manager_id: selectedEntityId, uuid: localStorage.getItem('uuid')
       }, {
         headers: {
-          'x-auth-token': localStorage.getItem("token")
+          "user-uuid": localStorage.getItem("uuid")
         }
       });
       if (response.data.meta.success) {

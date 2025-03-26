@@ -69,13 +69,11 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
         }
 
         try {
-            const headers = {
-                'x-auth-token': localStorage.getItem("token")
-            };
+            const headers = { 'user-uuid': localStorage.getItem('uuid') };
 
             const response = await axios.post(BASE_URL + "/v1/org/add-hierarchy-next", {
-                uuid: localStorage.getItem('uuid'), designation: jobTitle, fullName, phoneNumber, email,
-                photo: photoFile, uuid: localStorage.getItem('uuid'),
+                 designation: jobTitle, fullName, phoneNumber, email,
+                photo: photoFile, 
 
             },
                 {

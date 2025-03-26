@@ -56,12 +56,13 @@ function ViewRole({ activeNode, setAction }) {
       const response = await axios.put(BASE_URL + "/v1/org/edit-role-next", {
         entity_id: activeNode.entity_id,
         jobTitle: editedValues.jobTitle, fullName: editedValues.fullName,
-        phoneNumber: editedValues.phoneNumber, uuid: localStorage.getItem('uuid'),
-        photo: uploaded
+        phoneNumber: editedValues.phoneNumber, 
+        photo: uploaded,
+        
       },
         {
           headers: {
-            'x-auth-token': localStorage.getItem("token")
+            "user-uuid": localStorage.getItem("uuid")
           }
         });
       if (response.data.meta.success) {
@@ -142,7 +143,7 @@ function ViewRole({ activeNode, setAction }) {
                   <input
                     type="text"
                     value={editedValues.fullName} className={styles["viewrole-input"]}
-                    onChange={(e) => handleChange(e, "phoneNumber")}
+                    onChange={(e) => handleChange(e, "fullName")}
                   />
                 ) : (
                   editedValues.fullName
@@ -159,7 +160,7 @@ function ViewRole({ activeNode, setAction }) {
                   <input
                     type="text"
                     value={editedValues.jobTitle} className={styles["viewrole-input"]}
-                    onChange={(e) => handleChange(e, "phoneNumber")}
+                    onChange={(e) => handleChange(e, "jobTitle")}
                   />
                 ) : (
                   editedValues.jobTitle

@@ -67,8 +67,20 @@ export default function PartDesignView() {
             };
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                { bucket_name: BUCKET, file: file.name, category: "designs_upload", filesize: fileSizeMB, uuid: localStorage.getItem('uuid') }
+                { 
+                    bucket_name: BUCKET, 
+                    file: file.name, 
+                    category: "designs_upload", 
+                    filesize: fileSizeMB 
+                },
+                {
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"), // Moved uuid to headers
+                        
+                    }
+                }
             );
+            
 
             if (
                 preSignedURL.data.meta.code === 200 &&
@@ -97,12 +109,19 @@ export default function PartDesignView() {
         try {
             localStorage.removeItem('last_viewed_cad_key')
             setIsLoading(true)
-
+            const HEADERS = { "user-uuid": localStorage.getItem('uuid') }
             setUploadingMessage('UPLOADINGFILE')
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/create-cad`,
-                { cad_view_link: link, uuid: localStorage.getItem('uuid'), s3_bucket: 'design-glb' })
-            // /design-view
+                { 
+                    cad_view_link: link, 
+                    
+                    s3_bucket: 'design-glb' 
+                }, 
+                { headers: HEADERS } // Headers should be the third argument
+            );
+            
+            // user-uuid
             if (response.data.meta.success) {
                 // setUploadingMessage('PENDING')
                 localStorage.setItem('last_viewed_cad_key', response.data.data)
@@ -169,7 +188,7 @@ export default function PartDesignView() {
     };
 
     const completeMultipartUpload = async (data, parts, headers, fileSizeMB) => {
-        console.log(data, parts, headers, fileSizeMB);
+       
         try {
             setIsLoading(true);
             setUploadingMessage('UPLOADINGFILE')
@@ -182,7 +201,7 @@ export default function PartDesignView() {
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 { bucket_name: BUCKET, file, category: "complete_mutipart", uuid: localStorage.getItem('uuid'), filesize: fileSizeMB },
-                { headers: headers }
+                { headers:{'user-uuid': localStorage.getItem('uuid')} }
             );
 
             if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {

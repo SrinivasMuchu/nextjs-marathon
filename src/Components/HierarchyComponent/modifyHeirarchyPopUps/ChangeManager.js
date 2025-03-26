@@ -12,24 +12,24 @@ import customStyles from "./CustomStyle.helper";
 import Image from 'next/image'
 import { toast } from "react-toastify";
 
-function ChangeManager({activeNode, hierarchy, setAction,setUpdatedData,setParentId }) {
+function ChangeManager({ activeNode, hierarchy, setAction, setUpdatedData, setParentId }) {
   // const allIds = [activeNode.entity_id].concat(activeNode.children.map(item => item.entity_id));
-  
+
   // console.log(allIds);
   const collectAllIds = (node) => {
     let ids = [node.entity_id];
     if (node.children && node.children.length > 0) {
-        node.children.forEach(child => {
-            ids = ids.concat(collectAllIds(child));
-        });
+      node.children.forEach(child => {
+        ids = ids.concat(collectAllIds(child));
+      });
     }
     return ids;
-};
+  };
 
-// Collect all entity IDs from hierarchy
-const allIds = collectAllIds(activeNode);
+  // Collect all entity IDs from hierarchy
+  const allIds = collectAllIds(activeNode);
 
-console.log(allIds);
+  console.log(allIds);
   const [close, setClose] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState([]);
@@ -48,10 +48,12 @@ console.log(allIds);
   const fetchData = async () => {
     try {
       const headers = {
-        'x-auth-token': localStorage.getItem("token")
+
+        "user-uuid": localStorage.getItem("uuid")
+
       };
       const response = await axios.get(BASE_URL + "/v1/org/get-change-manager-next",
-      {params:{entity_ids:allIds,uuid:localStorage.getItem('uuid') }, headers: headers });
+        { params: { entity_ids: allIds }, headers: headers });
       //  console.log(response.data.data);
       setOptions(response.data.data);
     } catch (error) {
@@ -65,7 +67,7 @@ console.log(allIds);
     setAction(false)
   };
 
-  const handleAddMember = async ()  => {
+  const handleAddMember = async () => {
     setFormSubmitted(true);
     setValidationErrors({});
 
@@ -77,32 +79,33 @@ console.log(allIds);
 
 
     try {
-        const selectedEntityId = selectedOption ? selectedOption.entity_id._id : "";
-        // Get the selected email from the option
-       const response= await axios.delete(BASE_URL + "/v1/org/remove-role-next", {
-          data:{
-              entity_id: activeNode.entity_id,
-              new_manager_id: selectedEntityId,
-              parent_id:activeNode.parent_entity_id,uuid:localStorage.getItem('uuid'),
-          },
-             headers: {
-                'x-auth-token': localStorage.getItem("token")
-              }});
-              if(response.data.meta.success){
-                toast.success('Manager changed successfully. Refreshing the page')
-                setTimeout(() => {
-                  window.location.reload();
-                }, 2000);
-               setAction(false)
-              }else{
-                toast.error(response.data.meta.message)
-              }
-              
+      const selectedEntityId = selectedOption ? selectedOption.entity_id._id : "";
+      // Get the selected email from the option
+      const response = await axios.delete(BASE_URL + "/v1/org/remove-role-next", {
+        data: {
+          entity_id: activeNode.entity_id,
+          new_manager_id: selectedEntityId,
+          parent_id: activeNode.parent_entity_id, 
+        },
+        headers: {
+          "user-uuid": localStorage.getItem("uuid")
+        }
+      });
+      if (response.data.meta.success) {
+        toast.success('Manager changed successfully. Refreshing the page')
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+        setAction(false)
+      } else {
+        toast.error(response.data.meta.message)
       }
-      // Handle the response data or update the UI accordingly
-     catch (error) {
+
+    }
+    // Handle the response data or update the UI accordingly
+    catch (error) {
       toast.error(error.message);
-     
+
       // Handle the error or display an error message
     }
   };
@@ -117,52 +120,52 @@ console.log(allIds);
     return fullName.includes(inputValue);
   };
 
- 
+
 
 
   return (
     <div className={styles["editRole"]} style={{ display: close ? "none" : "block" }}>
-    <div className={styles["head-cont"]}>
-    
-      <CloseButton handleClose={handleClose} heading='Change Manager before removing' styles={styles}/>
-      <div className={styles["emp"]}>
-        <span>Employee</span>
-        <Select
-          id="mySelect"
-          menuPlacement="auto"
-          styles={customStyles}
-          options={options}
-          getOptionLabel={(option) => (
-            <div className={styles["select-photo"]}>
-            <NameProfile userName={option.entity_id.fullName} width='25px' memberPhoto={option.entity_id.photo} />
+      <div className={styles["head-cont"]}>
 
-            
+        <CloseButton handleClose={handleClose} heading='Change Manager before removing' styles={styles} />
+        <div className={styles["emp"]}>
+          <span>Employee</span>
+          <Select
+            id="mySelect"
+            menuPlacement="auto"
+            styles={customStyles}
+            options={options}
+            getOptionLabel={(option) => (
+              <div className={styles["select-photo"]}>
+                <NameProfile userName={option.entity_id.fullName} width='25px' memberPhoto={option.entity_id.photo} />
 
-             {option.entity_id.fullName}&nbsp;
-             ({option.entity_id.email.length > 12 ? `${option.entity_id.email.slice(0, 15)}...` : option.entity_id.email})
-        </div>
-          )}
-          onChange={(selectedOption) => {
-            setSelectedOption(selectedOption); // Update the selected option
-          }}
-          filterOption={filterOptions} // Update the selected option
-          value={selectedOption} // Set the selected option
-        />
-        {formSubmitted && validationErrors.selectedOption && (
+
+
+                {option.entity_id.fullName}&nbsp;
+                ({option.entity_id.email.length > 12 ? `${option.entity_id.email.slice(0, 15)}...` : option.entity_id.email})
+              </div>
+            )}
+            onChange={(selectedOption) => {
+              setSelectedOption(selectedOption); // Update the selected option
+            }}
+            filterOption={filterOptions} // Update the selected option
+            value={selectedOption} // Set the selected option
+          />
+          {formSubmitted && validationErrors.selectedOption && (
             <div className={styles["department-error"]}><Image width={20} height={20}
-            src={`${ASSET_PREFIX_URL}warning.svg`} alt=""/>&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
+              src={`${ASSET_PREFIX_URL}warning.svg`} alt="" />&nbsp;&nbsp;&nbsp;{validationErrors.selectedOption}</div>
           )}
+        </div>
+      </div>
+
+      <div className={styles["btn-bottom"]}>
+        {/* <button onClick={handleAddMember}>Save</button>
+      <button onClick={handleClose}>Cancel</button> */}
+        <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />
+
+        <CommonCancelButton handleClose={handleClose} styles={styles} />
       </div>
     </div>
-
-    <div className={styles["btn-bottom"]}>
-      {/* <button onClick={handleAddMember}>Save</button>
-      <button onClick={handleClose}>Cancel</button> */}
-      <CommonSaveButton handleClick={handleAddMember} className='submit-edit-button' styles={styles} />
-    
-      <CommonCancelButton handleClose={handleClose} styles={styles} />
-    </div>
-  </div>
   );
 }
 
