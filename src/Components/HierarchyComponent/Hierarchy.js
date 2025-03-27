@@ -376,10 +376,10 @@ function Hierarchy({ department }) {
             </button> */}
             <input className={styles["btn-collab"]} style={{ display: 'none' }} id="fileupld" type="file" onChange={(e) => handleImportExcel(e)} accept=".xlsx" />
             {(action === 'add_mem' || action === 'add_assist') && <AddMember
-              setOpenForm={setOpenForm}
+              setOpenForm={setOpenForm} fetchOrg={fetchOrg}
               setParentId={setParentId} setLimitError={setLimitError}
               activeNode={clickedData} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
-            {action === 'add_dept' && <AddDepartment setOpenForm={setOpenForm} setLimitError={setLimitError}
+            {action === 'add_dept' && <AddDepartment setOpenForm={setOpenForm} setLimitError={setLimitError} fetchOrg={fetchOrg}
               setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}
             {action === 'view_role' && <ViewRole activeNode={clickedData} setAction={setAction} />}
             {action === 'edit_role' && <EditRole setParentId={setParentId} activeNode={clickedData} setAction={setAction} setUpdatedData={setUpdatedData} />}

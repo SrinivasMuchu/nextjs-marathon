@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from '../CadHomeDesign/CadHome.module.css'
-import CadFileUploads from './CadFileUploads'
+import CadFileConversionContent from './CadFileConversionContent'
 import CadDynamicHeading from './CadDynamicHeading'
 
 function CadFileConversionHeader({ convert }) {
@@ -16,7 +16,7 @@ function CadFileConversionHeader({ convert }) {
 
 
 
-                <CadFileUploads convert={convert}/>
+                <CadFileConversionContent convert={convert}/>
             </div>
 
         </div>

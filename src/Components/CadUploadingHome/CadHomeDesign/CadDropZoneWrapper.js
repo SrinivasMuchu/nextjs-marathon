@@ -1,5 +1,5 @@
 "use client";
-import { IMAGEURLS } from "@/config";
+import { IMAGEURLS ,allowedFilesList} from "@/config";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import styles from "./CadHome.module.css";
@@ -24,6 +24,8 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
     useEffect(() => {
         if (type && cadFile) {
             formateAcceptor(cadFile);
+        }else{
+            setAllowedFormats(allowedFilesList)
         }
     }, [type, cadFile]);
     const formateAcceptor = (cadFile) => {

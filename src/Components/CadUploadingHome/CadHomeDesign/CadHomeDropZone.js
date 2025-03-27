@@ -20,7 +20,7 @@ function CadHomeDropZone({ isStyled,allowedFormats,type }) {
             here
           </p>
           <p className={styles["cad-dropzone-desc"]} style={isStyled ? { width: "80%", textAlign: "center" } : {}}>
-            { `Supported formats: ${allowedFormats.join(", ")}`}
+          {type ? `Supported formats:${allowedFormats.join(", ")}` : "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep)"}
           </p>
 
          

@@ -22,7 +22,6 @@ function CadDropDown({ file, selectedFileFormate,folderId,
         { value: 'off', label: '.off' },
     ];
 
-console.log(to)
     useEffect(() => {
         if (!file) return
         handleFileConvert(file)

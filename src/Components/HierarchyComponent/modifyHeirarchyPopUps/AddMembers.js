@@ -13,7 +13,7 @@ import CloseButton from "../Common/CloseButton";
 import AddMemberDetails from "./AddMemberDetails";
 import { toast } from "react-toastify";
 
-function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId, setOpenForm, setLimitError }) {
+function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId, setOpenForm, setLimitError,fetchOrg }) {
 
   const [close, setClose] = useState(false);
   const [options, setOptions] = useState([]);
@@ -94,6 +94,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
         });
       if (response.data.meta.success) {
         setParentId(activeNode.entity_id);
+        fetchOrg(activeNode.entity_id);
         setUpdatedData(activeNode.entity_id)
         setAction(false)
       } else if (
@@ -199,7 +200,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
             <CommonCancelButton handleClose={handleClose} styles={styles} />
           </div>
         </> : <AddMemberDetails setParentId={setParentId} setLimitError={setLimitError} setOpenForm={setOpenForm}
-          activeNode={activeNode} handleClose={handleClose} setAction={setAction} action={action} setUpdatedData={setUpdatedData} />}
+          activeNode={activeNode} handleClose={handleClose} setAction={setAction} action={action} setUpdatedData={setUpdatedData} fetchOrg={fetchOrg}/>}
 
 
 
