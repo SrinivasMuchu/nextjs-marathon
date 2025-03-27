@@ -5,17 +5,14 @@ import cadStyles from '../CadHomeDesign/CadHome.module.css'
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
 
 
-function CadDropDown({ file, selectedFileFormate,folderId, 
+function CadDropDown({ file, selectedFileFormate, folderId,
     baseName, setSelectedFileFormate, CadFileConversion, uploadingMessage, handleFileConvert, disableSelect, to }) {
 
 
     const formatOptions = [
         { value: 'step', label: '.step' },
-        { value: 'stp', label: '.stp' },
         { value: 'brep', label: '.brep' },
-        { value: 'brp', label: '.brp' },
         { value: 'iges', label: '.iges' },
-        { value: 'igs', label: '.igs' },
         { value: 'obj', label: '.obj' },
         { value: 'ply', label: '.ply' },
         { value: 'stl', label: '.stl' },
@@ -27,7 +24,7 @@ function CadDropDown({ file, selectedFileFormate,folderId,
         handleFileConvert(file)
     }, [file])
 
-
+ 
     return (
         <div className={cadStyles['cad-conversion-table']}>
             <table>
@@ -48,13 +45,31 @@ function CadDropDown({ file, selectedFileFormate,folderId,
                         <td>
                             {to ? `.${to}` : <Select
                                 onChange={(selectedOption) =>
-                                     setSelectedFileFormate(selectedOption.value)}
-                                options={formatOptions.filter(option =>
-                                        option.value !== file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase() // Remove dot before filtering
-                                    )}
+                                    setSelectedFileFormate(selectedOption.value)}
+                                options={formatOptions.filter(option => {
+                                    const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
+
+                                    // Exclude "step" if file is "step" or "stp"
+                                    if (fileExt === "step" || fileExt === "stp") {
+                                        return option.value !== "step";
+                                    }
+
+                                    // Exclude "iges" if file is "iges" or "igs"
+                                    if (fileExt === "iges" || fileExt === "igs") {
+                                        return option.value !== "iges";
+                                    }
+
+                                    // Exclude "brep" if file is "brep" or "brp"
+                                    if (fileExt === "brep" || fileExt === "brp") {
+                                        return option.value !== "brep";
+                                    }
+
+                                    return option.value !== fileExt; // General exclusion for other formats
+                                })}
                                 className={cadStyles['cad-conversion-select']}
                                 isDisabled={disableSelect}
-                            />}
+                            />
+                            }
 
                         </td>
                         <td>{uploadingMessage}</td>
@@ -73,10 +88,10 @@ function CadDropDown({ file, selectedFileFormate,folderId,
 
                             {/* Download Button - Only shown when upload is completed AND file format is selected */}
                             {uploadingMessage === 'COMPLETED' && (to || selectedFileFormate) && (
-                                <button className={cadStyles['cad-conversion-button']} 
-                                onClick={()=>
-                                    window.open(`${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${to ? to : selectedFileFormate}`, '_blank')
-                                }
+                                <button className={cadStyles['cad-conversion-button']}
+                                    onClick={() =>
+                                        window.open(`${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${to ? to : selectedFileFormate}`, '_blank')
+                                    }
                                 >
                                     Download
                                 </button>
