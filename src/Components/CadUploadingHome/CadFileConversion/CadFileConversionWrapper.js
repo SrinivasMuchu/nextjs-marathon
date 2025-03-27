@@ -118,7 +118,7 @@ function CadFileConversionWrapper({children,convert}) {
             uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
         const interval = setInterval(() => {
             getStatus(folderId);
-        }, 1000);
+        }, 3000);
 
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, [uploadingMessage, folderId]);
