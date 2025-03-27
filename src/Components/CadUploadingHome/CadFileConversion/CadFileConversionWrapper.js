@@ -115,7 +115,7 @@ function CadFileConversionWrapper({children,convert}) {
     useEffect(() => {
         if (!folderId) return;
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' ||
-            uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
+            uploadingMessage === '' || uploadingMessage === 'UPLOADING') return;
         const interval = setInterval(() => {
             getStatus(folderId);
         }, 3000);
@@ -206,7 +206,7 @@ function CadFileConversionWrapper({children,convert}) {
 
         try {
 
-            setUploadingMessage('UPLOADINGFILE')
+            setUploadingMessage('UPLOADING')
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
@@ -247,7 +247,7 @@ function CadFileConversionWrapper({children,convert}) {
 
     const CadFileConversion = async () => {
         try {
-            setUploadingMessage('UPLOADINGFILE')
+            setUploadingMessage('UPLOADING')
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
@@ -330,7 +330,7 @@ function CadFileConversionWrapper({children,convert}) {
         console.log(data, parts, headers, fileSizeMB);
         try {
 
-            setUploadingMessage('UPLOADINGFILE')
+            setUploadingMessage('UPLOADING')
             const file = {
                 key: data.key,
                 upload_id: data.upload_id,
@@ -363,7 +363,7 @@ function CadFileConversionWrapper({children,convert}) {
 
     async function simpleUpload(data, file) {
         console.log("Uploading file:", data, file);
-        setUploadingMessage('UPLOADINGFILE')
+        setUploadingMessage('UPLOADING')
         const result = await axios.put(data.url, file, {
             headers: {
                 "Content-Type": file.type,
