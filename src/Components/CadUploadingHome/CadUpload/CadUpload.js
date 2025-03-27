@@ -1,6 +1,6 @@
 import React from 'react'
 import cadStyles from '../CadHomeDesign/CadHome.module.css'
-import CadHomeDropZone from '../CadHomeDesign/CadHomeDropZone'
+import CadDropZoneContent from '../CadHomeDesign/CadDropZoneContent'
 import HomeTopNav from '@/Components/HomePages/HomepageTopNav/HomeTopNav'
 import CadUploadHeadings from './CadUploadHeadings'
 
@@ -11,8 +11,8 @@ function CadUpload({type}) {
      <div className={cadStyles['cad-landing-page']} style={{position:'relative'}}>
         <div className={cadStyles['cad-landing-left-cont']}>
            <CadUploadHeadings/>
-           
-            <CadHomeDropZone isStyled={true} type={type}/>
+           <CadDropZoneContent isStyled={true} type={type}/>
+            
         </div>
         <div className={cadStyles['cad-uploading-circle-bg']}></div>
     </div>

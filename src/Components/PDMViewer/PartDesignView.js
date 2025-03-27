@@ -260,9 +260,15 @@ export default function PartDesignView() {
             }
             // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
             const response = await axios.get(BASE_URL + '/v1/cad/get-status', {
-                params: { folder_id: localStorage.getItem('last_viewed_cad_key') },
-
+                params: {
+                    id: localStorage.getItem('last_viewed_cad_key'),
+                    cad_type: 'CAD_VIEWER'
+                },
+                headers: {
+                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+                }
             });
+            
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
                     setIsLoading(false)

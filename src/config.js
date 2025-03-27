@@ -5,8 +5,9 @@ export const PHOTO_LINK = "https://marathon-org-assets.s3.ap-south-1.amazonaws.c
 export const MARATHON_ASSET_PREFIX_URL = "https://d2o2bcehk92sin.cloudfront.net/";
 export const ASSET_PREFIX_URL = "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/";
 // export const HEADERS = { "x-auth-token": localStorage.getItem('token')}
+export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep"]
 export const BUCKET = 'marathon-org-assets';
-
+export const DESIGN_GLB_PREFIX_URL = 'https://d1d8a3050v4fu6.cloudfront.net/';
 export const IMAGEURLS = {
   logo: `${MARATHON_ASSET_PREFIX_URL}marathon-demo-logo.svg`,
   hardwareLogo: `${MARATHON_ASSET_PREFIX_URL}hardware_logo.webp`,

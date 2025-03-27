@@ -10,7 +10,7 @@ import CloseButton from "../Common/CloseButton";
 import { toast } from "react-toastify";
 
 
-function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setOpenForm,setLimitError }) {
+function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setOpenForm,setLimitError,fetchOrg }) {
   const [department, setDepartment] = useState('');
   // uniqueInitial
   const [uniqueInitial, setUniqueInitial] = useState('');
@@ -136,8 +136,10 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
             }
           );
           if (response.data.meta.success) {
-            setParentId(activeNode.entity_id);
-                setUpdatedData(activeNode.entity_id)
+            
+           await fetchOrg(activeNode.entity_id);
+          
+                
             setAction(false)
           } else if (
             response.data.meta.success===false && response.data.meta.limit===false )

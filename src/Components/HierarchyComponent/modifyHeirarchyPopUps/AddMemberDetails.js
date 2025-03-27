@@ -11,7 +11,7 @@ import Image from 'next/image'
 import { toast } from 'react-toastify';
 
 
-function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdatedData, setParentId, setLimitError, setOpenForm }) {
+function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdatedData, setParentId, setLimitError, setOpenForm,fetchOrg }) {
     const [photoFile, setPhotoFile] = useState('')
     const [fullName, setFullName] = useState('')
     const [jobTitle, setJobTitle] = useState('')
@@ -97,8 +97,9 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                         headers
                     });
                 if (hierarchyResponse.data.meta.success) {
-                    setParentId(activeNode.entity_id);
-                    setUpdatedData(activeNode.entity_id)
+                    
+                   await fetchOrg(activeNode.entity_id);
+                   
                     setAction(false)
                 } else if (
                     hierarchyResponse.data.meta.success === false && hierarchyResponse.data.meta.limit === false

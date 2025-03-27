@@ -89,10 +89,11 @@ const featuresArray = [
 ]
 
 function CadHomeDesign({type}) {
+   
     return (
         <>
             <HomeTopNav />
-            {type?<CadUpload type={type}/>: <CadHeader />}
+            {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
            
             <OrgFeatures type='cad'/>
             <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />

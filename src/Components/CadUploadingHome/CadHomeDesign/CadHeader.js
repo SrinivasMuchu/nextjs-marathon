@@ -1,11 +1,11 @@
 import Image from 'next/image'
 import React from 'react'
 import styles from './CadHome.module.css'
-import CadHomeDropZone from './CadHomeDropZone'
+import CadDropZoneContent from './CadDropZoneContent'
 import { IMAGEURLS } from '@/config'
 import FormateSelector from './FormateSelector'
 
-function CadHeader() {
+function CadHeader({type}) {
   return (
     <div className={styles['cad-landing-page']}>
       <div className={styles['cad-landing-left-cont']}>
@@ -17,7 +17,7 @@ function CadHeader() {
           </p></div>
         {/* <FormateSelector/> */}
 
-        <CadHomeDropZone isStyled={false} />
+        <CadDropZoneContent isStyled={false} type={type}/>
       </div>
       {/* <div className={styles["cad-landing-wrapper"]}>
         <div className={styles["cad-landing-bg-circle"]}></div>
