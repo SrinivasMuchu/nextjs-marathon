@@ -136,10 +136,10 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
             }
           );
           if (response.data.meta.success) {
-            setParentId(activeNode.entity_id);
-            fetchOrg(activeNode.entity_id);
+            
+           await fetchOrg(activeNode.entity_id);
           
-                setUpdatedData(activeNode.entity_id)
+                
             setAction(false)
           } else if (
             response.data.meta.success===false && response.data.meta.limit===false )

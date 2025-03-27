@@ -93,9 +93,9 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
           headers
         });
       if (response.data.meta.success) {
-        setParentId(activeNode.entity_id);
-        fetchOrg(activeNode.entity_id);
-        setUpdatedData(activeNode.entity_id)
+        
+        await fetchOrg(activeNode.entity_id);
+        
         setAction(false)
       } else if (
         response.data.meta.success === false && response.data.meta.limit===false
