@@ -97,6 +97,7 @@ function AddMemberDetails({ handleClose, activeNode, setAction, action, setUpdat
                         headers
                     });
                 if (hierarchyResponse.data.meta.success) {
+                    setParentId(activeNode.entity_id);
                     fetchOrg(activeNode.entity_id);
                     setUpdatedData(activeNode.entity_id)
                     setAction(false)
