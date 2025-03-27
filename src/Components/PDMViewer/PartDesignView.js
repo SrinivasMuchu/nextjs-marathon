@@ -638,7 +638,7 @@ export default function PartDesignView() {
                 cursor: 'pointer',
                 position:'absolute',
                 top:'2rem', left:'1rem',zIndex:2
-            }}><ArrowLeft style={{ width: '24px', height: '24px' }} /> back</button>
+            }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
 
                 {/* Three.js Canvas Container */}
                 <div ref={mountRef} style={{
