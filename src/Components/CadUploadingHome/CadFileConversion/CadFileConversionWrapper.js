@@ -184,7 +184,7 @@ function CadFileConversionWrapper({children,convert}) {
 
 
         console.log(file)
-        setDisableSelect(true)
+        setDisableSelect(false)
         setFileConvert(file)
         // handleFileConvert(file)
         setUploading(true)
@@ -205,7 +205,7 @@ function CadFileConversionWrapper({children,convert}) {
         const fileSizeMB = file.size / (1024 * 1024); // Size in MB
 
         try {
-
+            setDisableSelect(false)
             setUploadingMessage('UPLOADING')
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
@@ -245,14 +245,14 @@ function CadFileConversionWrapper({children,convert}) {
         }
     };
 
-    const CadFileConversion = async () => {
+    const CadFileConversion = async (url) => {
         try {
             setUploadingMessage('UPLOADING')
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
-                    s3_link: s3Url,
-                    output_format: toFormate ? toFormate[0] : selectedFileFormate,
+                    s3_link: url,
+                    output_format:  selectedFileFormate,
                     s3_bucket: "design-glb"
                 }, {headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
@@ -264,7 +264,7 @@ function CadFileConversionWrapper({children,convert}) {
             // /design-view
             if (response.data.meta.success) {
                 console.log(response.data.data)
-                setDisableSelect(true)
+              
                 setFolderId(response.data.data)
 
                 await getStatus(response.data.data)
@@ -350,8 +350,9 @@ function CadFileConversionWrapper({children,convert}) {
                 console.log("Multipart upload completed successfully.");
 
                 // Ensure `CadFileConversion` is called correctly
-                setDisableSelect(false)
+             
                 setUploading(true)
+                await CadFileConversion(preSignedURL.data.data.Location)
                 setS3Url(preSignedURL.data.data.Location)
                 return true;
             }
@@ -371,15 +372,16 @@ function CadFileConversionWrapper({children,convert}) {
             },
         });
         setUploading(true)
+        await CadFileConversion(data.url)
         setS3Url(data.url)
-        setDisableSelect(false)
+      
         console.log("Upload complete:", result);
     }
 
   return (
     <>
     {uploading ?
-        <CadUploadDropDown file={fileConvert} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
+        <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
             setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
             folderId={folderId} baseName={baseName}
             uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={handleFileConvert} />
