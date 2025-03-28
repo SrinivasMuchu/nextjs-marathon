@@ -1,111 +1,143 @@
 "use client";
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react';
 import Select from 'react-select';
-import cadStyles from '../CadHomeDesign/CadHome.module.css'
+import cadStyles from '../CadHomeDesign/CadHome.module.css';
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
 
+function CadDropDown({
+  file,
+  selectedFileFormate,
+  folderId,
+  baseName,
+  setSelectedFileFormate,
+  uploadingMessage,
+  handleFileConvert,
+  disableSelect,
+  to,
+  setDisableSelect
+}) {
+  const formatOptions = [
+    { value: 'step', label: '.step' },
+    { value: 'brep', label: '.brep' },
+    { value: 'iges', label: '.iges' },
+    { value: 'obj', label: '.obj' },
+    { value: 'ply', label: '.ply' },
+    { value: 'stl', label: '.stl' },
+    { value: 'off', label: '.off' },
+  ];
 
-function CadDropDown({ file, selectedFileFormate, folderId,
-    baseName, setSelectedFileFormate, CadFileConversion, uploadingMessage, handleFileConvert, disableSelect, to }) {
+  // Set initial format when 'to' prop changes
+  useEffect(() => {
+    if (to && !selectedFileFormate) {
+      const targetFormat = Array.isArray(to) ? to[0] : to;
+      setSelectedFileFormate(targetFormat);
+    }
+  }, [to, selectedFileFormate, setSelectedFileFormate]);
 
+  // Get filtered options based on file extension
+  const getFilteredOptions = () => {
+    if (!file) return formatOptions;
+    
+    const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
 
-    const formatOptions = [
-        { value: 'step', label: '.step' },
-        { value: 'brep', label: '.brep' },
-        { value: 'iges', label: '.iges' },
-        { value: 'obj', label: '.obj' },
-        { value: 'ply', label: '.ply' },
-        { value: 'stl', label: '.stl' },
-        { value: 'off', label: '.off' },
-    ];
+    return formatOptions.filter(option => {
+      if (fileExt === "step" || fileExt === "stp") {
+        return option.value !== "step";
+      }
+      if (fileExt === "iges" || fileExt === "igs") {
+        return option.value !== "iges";
+      }
+      if (fileExt === "brep" || fileExt === "brp") {
+        return option.value !== "brep";
+      }
+      return option.value !== fileExt;
+    });
+  };
 
-    useEffect(() => {
-        if (!file) return
-        handleFileConvert(file)
-    }, [file])
+  // Get the currently selected option
+  const getSelectedOption = () => {
+    if (selectedFileFormate) {
+      return formatOptions.find(option => option.value === selectedFileFormate);
+    }
+    return null;
+  };
 
- 
-    return (
-        <div className={cadStyles['cad-conversion-table']}>
-            <table>
-                <thead>
-                    <tr>
-                        <th>File Name</th>
-                        <th>File Format</th>
-                        <th>Convert To</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {/* {files.map((file, index) => ( */}
-                    <tr >
-                        <td>{file.name}</td>
-                        <td>{file.name.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
-                        <td>
-                            {to ? `.${to}` : <Select
-                                onChange={(selectedOption) =>
-                                    setSelectedFileFormate(selectedOption.value)}
-                                options={formatOptions.filter(option => {
-                                    const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
+  const handleSelectFileFormat = (selectedOption) => {
+    if (selectedOption) {
+      setSelectedFileFormate(selectedOption.value);
+      setDisableSelect(false);
+    }
+  };
 
-                                    // Exclude "step" if file is "step" or "stp"
-                                    if (fileExt === "step" || fileExt === "stp") {
-                                        return option.value !== "step";
-                                    }
+  const handleConvert = () => {
+    if (!selectedFileFormate) {
+      console.error("No format selected for conversion");
+      return;
+    }
+    setDisableSelect(true);
+    handleFileConvert(file, selectedFileFormate);
+  };
 
-                                    // Exclude "iges" if file is "iges" or "igs"
-                                    if (fileExt === "iges" || fileExt === "igs") {
-                                        return option.value !== "iges";
-                                    }
+  const isConvertButtonVisible = !!selectedFileFormate;
+  const isSelectDisabled = uploadingMessage || disableSelect;
 
-                                    // Exclude "brep" if file is "brep" or "brp"
-                                    if (fileExt === "brep" || fileExt === "brp") {
-                                        return option.value !== "brep";
-                                    }
+  return (
+    <div className={cadStyles['cad-conversion-table']}>
+      <table>
+        <thead>
+          <tr>
+            <th>File Name</th>
+            <th>File Format</th>
+            <th>Convert To</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{file?.name}</td>
+            <td>{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
+            <td>
+              <Select
+                value={getSelectedOption()}
+                onChange={handleSelectFileFormat}
+                options={getFilteredOptions()}
+                className={cadStyles['cad-conversion-select']}
+                isDisabled={isSelectDisabled}
+                isSearchable={false}
+              />
+            </td>
+            <td>{uploadingMessage}</td>
+            <td>
+              {isConvertButtonVisible && !uploadingMessage && (
+                <button
+                  className={cadStyles['cad-conversion-button']}
+                  onClick={handleConvert}
+                  disabled={isSelectDisabled}
+                >
+                  Convert
+                </button>
+              )}
 
-                                    return option.value !== fileExt; // General exclusion for other formats
-                                })}
-                                className={cadStyles['cad-conversion-select']}
-                                isDisabled={disableSelect}
-                            />
-                            }
-
-                        </td>
-                        <td>{uploadingMessage}</td>
-                        <td>
-                            {/* Convert Button - Only enabled when a file format is selected */}
-                            {(!disableSelect && (to || selectedFileFormate)) && (
-                                <button
-                                    className={cadStyles['cad-conversion-button']}
-                                    onClick={CadFileConversion}
-                                    disabled={disableSelect}
-                                    style={(disableSelect) ? { opacity: '0.5' } : {}}
-                                >
-                                    Convert
-                                </button>
-                            )}
-
-                            {/* Download Button - Only shown when upload is completed AND file format is selected */}
-                            {uploadingMessage === 'COMPLETED' && (to || selectedFileFormate) && (
-                                <button className={cadStyles['cad-conversion-button']}
-                                    onClick={() =>
-                                        window.open(`${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${to ? to : selectedFileFormate}`, '_blank')
-                                    }
-                                >
-                                    Download
-                                </button>
-                            )}
-                        </td>
-
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-    )
+              {uploadingMessage === 'COMPLETED' && (
+                <button
+                  className={cadStyles['cad-conversion-button']}
+                  onClick={() =>
+                    window.open(
+                      `${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${selectedFileFormate}`,
+                      '_blank'
+                    )
+                  }
+                >
+                  Download
+                </button>
+              )}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
-
-export default CadDropDown
-
+export default CadDropDown;
