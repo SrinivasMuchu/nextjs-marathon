@@ -247,7 +247,7 @@ function CadFileConversionWrapper({children,convert}) {
 
     const CadFileConversion = async (url) => {
         try {
-            setUploadingMessage('UPLOADING')
+         
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
