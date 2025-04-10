@@ -2,7 +2,7 @@
 import IndustryParts from '@/Components/IndustryParts/IndustryParts'
 import React from 'react'
 import { BASE_URL } from '@/config';
-import { getUUIDCookie } from '@/Components/CommonFunctions/CookiesUUID';
+import { cookies } from 'next/headers';
 
 export async function generateMetadata({ params }) {
   const industry = params['industry'];
@@ -38,10 +38,11 @@ async function IndustryPart({ params }) {
     const industry = params.industry;
     const part = params.part;
    
-  
+    const cookieStore = cookies();
+    const userUUID = cookieStore.get('uuid')?.value;
     try {
       const headers = {
-        'user-uuid': getUUIDCookie() || '',
+        'user-uuid': userUUID() || '',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       };
