@@ -11,7 +11,7 @@ import OurFeatures from '../OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '../OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '../HomePages/Footer/Footer'
 
-function Industry({industry,industryData}) {
+function Industry({ industry, industryData }) {
     // console.log(industryData)
     const features = [
         {
@@ -30,7 +30,7 @@ function Industry({industry,industryData}) {
             title: 'Secure & Privacy-Focused',
             description: "Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours to protect your data."
         },
-    
+
     ]
     const faqQuestions = [
         {
@@ -66,7 +66,7 @@ function Industry({industry,industryData}) {
         title: 'Essential Features of Marathon OS 3D CAD File Converter',
         description: 'Effortlessly convert 3D CAD files with a fast, secure, and scalable cloud tool. Experience seamless format conversion—no software installation required.'
     }
-    
+
     const featuresArray = [
         {
             title: 'Lightning-Fast Conversion',
@@ -88,21 +88,24 @@ function Industry({industry,industryData}) {
             title: 'Cloud-Based & Private',
             description: 'All files are securely processed in the cloud and automatically deleted after 24 hours to ensure your data stays safe.'
         },
-    
+
     ]
     return (
         <div>
-            <HomeTopNav />
-            <IndustryDetails industryData={industryData} />
-            <OrgFeatures type='cad' />
-            <RoleOfCAD industryData={industryData}/>
-            <UseOfCAD industryData={industryData}/>
-            <SolutionCad industryData={industryData}/>
-            <SampleParts industry={industry}/>
-            <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
-            <OurFeatures features={features} essentialDeatails={essentialDeatails} />
-            <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />
-            <Footer />
+            {industryData && <>
+                <HomeTopNav />
+                <IndustryDetails industryData={industryData} />
+                <OrgFeatures type='cad' />
+                <RoleOfCAD industryData={industryData} />
+                <UseOfCAD industryData={industryData} />
+                <SolutionCad industryData={industryData} />
+                <SampleParts industry={industry} />
+                <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
+                <OurFeatures features={features} essentialDeatails={essentialDeatails} />
+                <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />
+                <Footer />
+            </>}
+
         </div>
     )
 }
