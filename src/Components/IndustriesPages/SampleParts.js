@@ -48,7 +48,7 @@ async function SampleParts({ industry, part_name }) {
                     {data.length > 0 ? (
                         data.map((item, index) => (
                             <Link
-                                href={`/Industries/${industry}/${item.route}`}
+                                href={`/industry/${industry}/${item.route}`}
                                 key={item.id || index}
                                 passHref
                             >

@@ -5,10 +5,10 @@ import { cookies } from 'next/headers';
 
 export async function generateMetadata({ params }) {
   const industry = params['industry'];
- 
-  
-const cookieStore = cookies();
-    const userUUID = cookieStore.get('uuid')?.value;
+
+
+  const cookieStore = cookies();
+  const userUUID = cookieStore.get('uuid')?.value;
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
       method: 'GET',
@@ -25,9 +25,9 @@ const cookieStore = cookies();
     }
 
     const data = await response.json();
-    
+
     return {
-      title: data.data.meta_title ,
+      title: data.data.meta_title,
       description: data.data.meta_description,
       openGraph: {
         images: [{
@@ -79,9 +79,9 @@ export default async function IndustryPage({ params }) {
     });
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
+
     const data = await response.json();
-    console.log(industry,'indusry')
+    console.log(industry, 'indusry')
     return <Industry industry={params.industry} industryData={data.data} />;
   } catch (error) {
     console.error("Failed to fetch industry data:", error);

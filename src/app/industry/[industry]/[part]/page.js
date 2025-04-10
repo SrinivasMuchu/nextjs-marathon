@@ -42,7 +42,7 @@ async function IndustryPart({ params }) {
     const userUUID = cookieStore.get('uuid')?.value;
     try {
       const headers = {
-        'user-uuid': userUUID() || '',
+        'user-uuid': userUUID || '',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       };
