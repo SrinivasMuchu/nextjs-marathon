@@ -1,4 +1,5 @@
-import { cookies } from 'next/headers';
+
+import { getUUIDCookie } from "@/Components/CommonFunctions/CookiesUUID";
 import Industry from "@/Components/IndustriesPages/Industry";
 import { BASE_URL } from '@/config';
 
@@ -6,15 +7,12 @@ export async function generateMetadata({ params }) {
   const industry = params['industry'];
  
   
-  // Get cookies from the request
-  const cookieStore = cookies();
-  const userUUID = cookieStore.get('uuid')?.value;
 
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
       method: 'GET',
       headers: {
-        'user-uuid': userUUID || '', // Send empty string if cookie not found
+        'user-uuid': getUUIDCookie() || '', // Send empty string if cookie not found
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
@@ -40,7 +38,7 @@ export async function generateMetadata({ params }) {
       },
       metadataBase: new URL("https://marathon-os.com"),
       alternates: {
-        canonical: `/Industries/${industry}`,
+        canonical: `/industry/${industry}`,
       },
     };
   } catch (error) {
@@ -58,7 +56,7 @@ export async function generateMetadata({ params }) {
       },
       metadataBase: new URL("https://marathon-os.com"),
       alternates: {
-        canonical: `/Industries/${industry}`,
+        canonical: `/industry/${industry}`,
       },
     };
   }
@@ -66,14 +64,13 @@ export async function generateMetadata({ params }) {
 
 export default async function IndustryPage({ params }) {
   const industry = params.industry;
-  const cookieStore = cookies();
-  const userUUID = cookieStore.get('uuid')?.value;
+
 
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
       method: 'GET',
       headers: {
-        'user-uuid': userUUID || '',
+        'user-uuid': getUUIDCookie() || '',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },

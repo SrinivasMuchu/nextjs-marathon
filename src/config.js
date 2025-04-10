@@ -46,6 +46,8 @@ export const IMAGEURLS = {
   closeIcon: `${MARATHON_ASSET_PREFIX_URL}close-icon-part-num.png`,
   uploadIcon: `${MARATHON_ASSET_PREFIX_URL}upload-icon.svg`,
   solutionCad: `${MARATHON_ASSET_PREFIX_URL}solution-cad.webp`,
+  rightArrow: `${MARATHON_ASSET_PREFIX_URL}designs-right-arrow.svg`,
+  leftArrow: `${MARATHON_ASSET_PREFIX_URL}designs-left-arrow.svg`,
 
   // close-icon-part-num.png
   // open-answer.webp

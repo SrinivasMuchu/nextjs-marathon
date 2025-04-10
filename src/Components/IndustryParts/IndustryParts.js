@@ -11,9 +11,9 @@ import RoleOfCAD from '../IndustriesPages/RoleOfCAD';
 import IndustryDetails from '../IndustriesPages/IndustryDetails';
 import IndustryDesigns from './IndustryDesigns';
 
-function IndustryParts({industry,
+function IndustryParts({ industry,
     part_name,
-    industryData}) {
+    industryData }) {
     const features = [
         {
             title: 'Seamless CAD File Conversion',
@@ -93,18 +93,21 @@ function IndustryParts({industry,
     ]
     return (
         <div>
-            <HomeTopNav />
-            <IndustryDetails industryData={industryData} part_name={part_name}/>
-            <RoleOfCAD industryData={industryData} part_name={part_name}/>
-            <IndustryDesigns industryData={industryData}/>
-         
-            <UseOfCAD industryData={industryData}/>
-            <SolutionCad industryData={industryData}/>
-            <SampleParts industry={industry} part_name={part_name}/>
-            <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
-            <OurFeatures features={features} essentialDeatails={essentialDeatails} />
-            <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />
-            <Footer />
+            {industryData && <>
+                <HomeTopNav />
+                <IndustryDetails industryData={industryData} part_name={part_name} />
+                <RoleOfCAD industryData={industryData} part_name={part_name} />
+                <IndustryDesigns industryData={industryData} />
+
+                <UseOfCAD industryData={industryData} />
+                <SolutionCad industryData={industryData} />
+                <SampleParts industry={industry} part_name={part_name} />
+                <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
+                <OurFeatures features={features} essentialDeatails={essentialDeatails} />
+                <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />
+                <Footer />
+            </>}
+
         </div>
     )
 }

@@ -1,7 +1,8 @@
-import { cookies } from 'next/headers';
+
 import IndustryParts from '@/Components/IndustryParts/IndustryParts'
 import React from 'react'
 import { BASE_URL } from '@/config';
+import { getUUIDCookie } from '@/Components/CommonFunctions/CookiesUUID';
 
 export async function generateMetadata({ params }) {
   const industry = params['industry'];
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }) {
     },
     metadataBase: new URL("https://marathon-os.com"),
     alternates: {
-      canonical: `/Industries/${industry}/${part}`,
+      canonical: `/industry/${industry}/${part}`,
     },
   };
 }
@@ -36,12 +37,11 @@ export async function generateMetadata({ params }) {
 async function IndustryPart({ params }) {
     const industry = params.industry;
     const part = params.part;
-    const cookieStore = cookies();
-    const userUUID = cookieStore.get('uuid')?.value;
+   
   
     try {
       const headers = {
-        'user-uuid': userUUID || '',
+        'user-uuid': getUUIDCookie() || '',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       };

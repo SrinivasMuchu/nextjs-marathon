@@ -3,7 +3,8 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 100px 80px;
+    padding:
+    clamp(24px, 5vw, 96px) clamp(32px, 6vw, 120px);
 }
 
 .role-of-cad-desgin {
