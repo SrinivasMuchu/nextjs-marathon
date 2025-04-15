@@ -1,74 +1,14 @@
-import Industry from "@/Components/IndustriesPages/Industry";
+import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign'
 import { BASE_URL } from '@/config';
 import { cookies } from 'next/headers';
 
 export async function generateMetadata({ params }) {
-  const industry = params['industry'];
+  const design = params['design'];
 
   const cookieStore = cookies();
   const userUUID = cookieStore.get('uuid')?.value;
-  
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
-      method: 'GET',
-      headers: {
-        'user-uuid': userUUID || '', // Send empty string if cookie not found
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      next: { revalidate: 3600 } // Optional revalidation
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    return {
-      title: data.data.meta_title,
-      description: data.data.meta_description,
-      openGraph: {
-        images: [{
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
-          width: 1200,
-          height: 630,
-          type: "image/png",
-        }],
-      },
-      metadataBase: new URL("https://marathon-os.com"),
-      alternates: {
-        canonical: `/industry/${industry}`,
-      },
-    };
-  } catch (error) {
-    console.error("Failed to fetch metadata:", error);
-    return {
-      title: `${industry.toUpperCase()} File Viewer...`,
-      description: `View ${industry.toUpperCase()} (${industry}) files instantly...`,
-      openGraph: {
-        images: [{
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
-          width: 1200,
-          height: 630,
-          type: "image/png",
-        }],
-      },
-      metadataBase: new URL("https://marathon-os.com"),
-      alternates: {
-        canonical: `/industry/${industry}`,
-      },
-    };
-  }
-}
-
-export default async function IndustryPage({ params }) {
-  const industry = params.industry;
-  const cookieStore = cookies();
-  const userUUID = cookieStore.get('uuid')?.value;
-
-  try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
+    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?grab_cad_title=${design}`, {
       method: 'GET',
       headers: {
         'user-uuid': userUUID || '',
@@ -78,13 +18,78 @@ export default async function IndustryPage({ params }) {
       next: { revalidate: 3600 }
     });
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     const data = await response.json();
-    console.log(industry, 'industry');
-    return <Industry industry={params.industry} industryData={data.data} />;
+
+    return {
+      title: data.data.meta_title || `${design.toUpperCase()} File Viewer`,
+      description: data.data.meta_description || `View ${design.toUpperCase()} CAD files online`,
+      openGraph: {
+        images: [{
+          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+          width: 1200,
+          height: 630,
+          type: "image/png",
+        }],
+      },
+      metadataBase: new URL("https://marathon-os.com"),
+      alternates: {
+        canonical: `/industry/design/${design}`,
+      },
+    };
   } catch (error) {
-    console.error("Failed to fetch industry data:", error);
-    return <Industry industry={params.industry} industryData={null} />;
+    console.error("Failed to fetch metadata:", error);
+    return {
+      title: `${design.toUpperCase()} File Viewer`,
+      description: `View ${design.toUpperCase()} CAD files online`,
+      openGraph: {
+        images: [{
+          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+          width: 1200,
+          height: 630,
+          type: "image/png",
+        }],
+      },
+      metadataBase: new URL("https://marathon-os.com"),
+      alternates: {
+        canonical: `/industry/design/${design}`,
+      },
+    };
+  }
+}
+
+export default async function PartDesigns({ params }) {
+  const design = params.design;
+  const cookieStore = cookies();
+  const userUUID = cookieStore.get('uuid')?.value;
+
+  try {
+    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?grab_cad_title=${design}`, {
+      method: 'GET',
+      headers: {
+        'user-uuid': userUUID || '',
+      },
+      next: { revalidate: 3600 }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data)
+    // Ensure the data structure matches what your components expect
+    const normalizedData = {
+      ...data.data,
+      report: data.data.report || { cad_report: null }
+    };
+
+    return <IndustryDesign design={design} designData={data.data} />;
+  } catch (error) {
+    console.error("Failed to fetch design data:", error);
+    return <IndustryDesign design={design} designData={null} />;
   }
 }

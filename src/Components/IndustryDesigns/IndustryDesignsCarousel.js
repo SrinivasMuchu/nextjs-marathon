@@ -36,7 +36,7 @@ const slides = [
     },
 ];
 
-function IndustryDesignsCarousel() {
+function IndustryDesignsCarousel({ designData }) {
     const swiperRef = useRef(null);
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -55,32 +55,32 @@ function IndustryDesignsCarousel() {
     return (
         <div className={styles.carouselWrapper}>
             {/* Custom Prev Arrow */}
-            
+
             {/* Main Swiper */}
 
             <div className={styles["industry-design-carousel"]}>
-            <button
-                className={`${styles.navPrevButton} ${styles.prev}`}
-                onClick={handlePrev}
-                style={{ left: "0", zIndex: "10" }}
-            >
-                <div
-                    className={styles["industry-design-suggestion-arrows"]}
-                    style={{
-                        backgroundColor: "white",
-                        width: "64px",
-                        height: "64px",
-                        borderRadius: "50%",
-                    }}
+                <button
+                    className={`${styles.navPrevButton} ${styles.prev}`}
+                    onClick={handlePrev}
+                    style={{ left: "0", zIndex: "10" }}
                 >
-                    <Image
-                        src={IMAGEURLS.leftArrow}
-                        alt="left-arrow"
-                        width={64}
-                        height={64}
-                    />
-                </div>
-            </button>
+                    <div
+                        className={styles["industry-design-suggestion-arrows"]}
+                        style={{
+                            backgroundColor: "white",
+                            width: "64px",
+                            height: "64px",
+                            borderRadius: "50%",
+                        }}
+                    >
+                        <Image
+                            src={IMAGEURLS.leftArrow}
+                            alt="left-arrow"
+                            width={64}
+                            height={64}
+                        />
+                    </div>
+                </button>
 
                 <Swiper
                     onSwiper={(swiper) => {
@@ -106,43 +106,50 @@ function IndustryDesignsCarousel() {
                     modules={[EffectCoverflow, Navigation, Pagination]}
                     className={styles.industrySwiper}
                 >
-                    {slides.map((slide, index) => (
-                        <SwiperSlide key={index}>
-                            <div className={styles.slideCard}>{slide.title}</div>
+                    {designData.map((design, index) => (
+                        <SwiperSlide key={design._id}>
+                            <div className={styles.slideCard}>
+                                <Image
+                                    src={`https://d1d8a3050v4fu6.cloudfront.net/${design._id}/sprite_0_150.webp`}
+                                    alt={design.name}
+                                    width={600}
+                                    height={300}
+                                />
+                            </div>
                         </SwiperSlide>
                     ))}
                 </Swiper>
                 <button
-                className={`${styles.navButton} ${styles.next}`}
-                style={{ right: "0" }}
-                onClick={handleNext}
-            >
-                <div
-                    className={styles["industry-design-suggestion-arrows"]}
-                    style={{
-                        backgroundColor: "white",
-                        width: "64px",
-                        height: "64px",
-                        borderRadius: "50%",
-                    }}
+                    className={`${styles.navButton} ${styles.next}`}
+                    style={{ right: "0" }}
+                    onClick={handleNext}
                 >
-                    <Image
-                        src={IMAGEURLS.rightArrow}
-                        alt="right-arrow"
-                        width={64}
-                        height={64}
-                    />
-                </div>
-            </button>
+                    <div
+                        className={styles["industry-design-suggestion-arrows"]}
+                        style={{
+                            backgroundColor: "white",
+                            width: "64px",
+                            height: "64px",
+                            borderRadius: "50%",
+                        }}
+                    >
+                        <Image
+                            src={IMAGEURLS.rightArrow}
+                            alt="right-arrow"
+                            width={64}
+                            height={64}
+                        />
+                    </div>
+                </button>
             </div>
             {/* Custom Next Arrow */}
-           
+
 
             {/* Thumbnails */}
             <div className={styles.thumbnailGrid}>
-                {slides.map((slide, index) => (
+                {designData.map((design, index) => (
                     <div
-                        key={index}
+                        key={design._id}
                         className={`${styles.thumbnail} ${activeIndex === index ? styles.activeThumbnail : ""
                             }`}
                         onClick={() => {
@@ -153,8 +160,8 @@ function IndustryDesignsCarousel() {
                         }}
                     >
                         <Image
-                            src={slide.thumbnail}
-                            alt={slide.title}
+                            src={`https://d1d8a3050v4fu6.cloudfront.net/${design._id}/sprite_0_150.webp`}
+                            alt={design.name}
                             width={64}
                             height={64}
                         />

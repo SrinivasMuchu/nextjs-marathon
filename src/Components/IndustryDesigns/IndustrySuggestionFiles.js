@@ -6,7 +6,7 @@ function IndustrySuggestionFiles({visibleItems}) {
     <div className={styles['industry-design-suggestion-designs']}>
     {visibleItems.map((item, index) => (
         <div key={index} className={styles['industry-design-suggestion-designs-cont']}>
-            <div>{/* You can add an icon/image here */}</div>
+            <div className={styles['industry-design-suggestion-designs-cont-img']}>{/* You can add an icon/image here */}</div>
             <h6>{item.title}</h6>
             <p>{item.description}</p>
         </div>
