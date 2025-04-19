@@ -37,7 +37,7 @@ function CadDropDown({
   // Get filtered options based on file extension
   const getFilteredOptions = () => {
     if (!file) return formatOptions;
-    
+
     const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
 
     return formatOptions.filter(option => {
@@ -81,6 +81,36 @@ function CadDropDown({
   const isConvertButtonVisible = !!selectedFileFormate;
   const isSelectDisabled = uploadingMessage || disableSelect;
 
+
+
+  const handleDownload = async () => {
+    try {
+      const url = `${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${selectedFileFormate}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      a.href = downloadUrl;
+      a.download = `${file?.name?.slice(0, file.name.lastIndexOf(".")) || 'design'}_converted.${selectedFileFormate}`;
+
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Optional: Add user feedback here (e.g., toast notification)
+    }
+  };
+
   return (
     <div className={cadStyles['cad-conversion-table']}>
       <table>
@@ -122,12 +152,7 @@ function CadDropDown({
               {uploadingMessage === 'COMPLETED' && (
                 <button
                   className={cadStyles['cad-conversion-button']}
-                  onClick={() =>
-                    window.open(
-                      `${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${selectedFileFormate}`,
-                      '_blank'
-                    )
-                  }
+                  onClick={handleDownload}
                 >
                   Download
                 </button>
