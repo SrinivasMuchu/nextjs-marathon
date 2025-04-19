@@ -2,7 +2,7 @@ import React from 'react'
 import IndustryDesignCards from './IndustryDesignCards'
 import styles from '../HomePages/Capabilities/Capabilities.module.css'
 
-function IndustryDesigns({industryData}) {
+function IndustryDesigns({industryData,part_name,industry}) {
   // console.log(Object.values(industryData[0] || {}))
   return (
     <div id='capabilities' className={styles['capabilities-page']}>
@@ -12,7 +12,7 @@ function IndustryDesigns({industryData}) {
     </div>
     <div className={styles['capabilities-page-img']}>
         
-            <IndustryDesignCards styles={styles}/>
+            <IndustryDesignCards styles={styles} part_name={part_name} industry={industry}/>
            
        
     </div>

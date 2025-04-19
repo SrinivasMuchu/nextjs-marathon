@@ -4,6 +4,8 @@ import { cookies } from 'next/headers';
 
 export async function generateMetadata({ params }) {
   const design = params['design'];
+  const industry = params['industry'];
+  const part = params['part'];
 
   const cookieStore = cookies();
   const userUUID = cookieStore.get('uuid')?.value;
@@ -37,7 +39,7 @@ export async function generateMetadata({ params }) {
       },
       metadataBase: new URL("https://marathon-os.com"),
       alternates: {
-        canonical: `/industry/design/${design}`,
+        canonical: `/industry/${industry}/${part}/${design}`,
       },
     };
   } catch (error) {
@@ -55,7 +57,7 @@ export async function generateMetadata({ params }) {
       },
       metadataBase: new URL("https://marathon-os.com"),
       alternates: {
-        canonical: `/industry/design/${design}`,
+        canonical: `/industry/${industry}/${part}/${design}`,
       },
     };
   }
@@ -87,7 +89,7 @@ export default async function PartDesigns({ params }) {
       report: data.data.report || { cad_report: null }
     };
 
-    return <IndustryDesign design={design} designData={data.data} />;
+    return <IndustryDesign design={params} designData={data.data} />;
   } catch (error) {
     console.error("Failed to fetch design data:", error);
     return <IndustryDesign design={design} designData={null} />;

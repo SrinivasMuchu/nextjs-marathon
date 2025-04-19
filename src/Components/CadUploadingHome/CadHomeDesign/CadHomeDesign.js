@@ -7,6 +7,7 @@ import OurFeatures from '@/Components/OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadUpload from '../CadUpload/CadUpload'
+import CadIndustry from './CadIndustry'
 
 
 
@@ -96,6 +97,7 @@ function CadHomeDesign({type}) {
             {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
            
             <OrgFeatures type='cad'/>
+            <CadIndustry/>
             <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails}/>
             <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS CAD Viewer. Whether you're getting started or looking for advanced features, we've got you covered."/>

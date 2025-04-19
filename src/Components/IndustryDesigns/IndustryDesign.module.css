@@ -1,6 +1,6 @@
 .industry-design-header {
     padding:
-        clamp(24px, 5vw, 96px) clamp(32px, 6vw, 120px);
+        clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);
     display: flex;
     align-items: center;
     gap: 96px;
@@ -72,7 +72,7 @@
 
 .industry-design-files {
     padding:
-        32px clamp(32px, 6vw, 120px);
+        32px clamp(24px, 6vw, 120px);
     display: flex;
     flex-direction: column;
     gap: 65px;
@@ -119,7 +119,7 @@
     font-weight: 500;
     line-height: 28px;
     letter-spacing: -0.3px;
-   
+    opacity: 0.8;
 }
 
 .industry-design-files-btn {
@@ -194,7 +194,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-   
+
     width: 100%;
 
 }
@@ -225,12 +225,14 @@
     height: 480px;
     box-sizing: border-box;
 }
-.industry-design-suggestion-designs-cont-img{
+
+.industry-design-suggestion-designs-cont-img {
     width: 100%;
     height: 220px;
     background: grey;
     border-radius: 4px;
 }
+
 .industry-design-suggestion-designs-cont h6 {
     color: #000;
     font-size: 24px;
@@ -260,7 +262,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: clamp(32px, 3vw, 72px) clamp(32px, 6vw, 120px) 32px;
+    padding: clamp(32px, 3vw, 72px) clamp(24px, 6vw, 120px) 32px;
 }
 
 .industry-design-about-cad h2 {
@@ -289,7 +291,7 @@
     justify-content: space-between;
     gap: 32px;
     width: 100%;
-    padding: 32px clamp(32px, 6vw, 120px) clamp(32px, 3vw, 72px);
+    padding:  clamp(32px, 6vw, 120px) 0px;
 }
 
 .industry-design-about-cad-sub-head {
@@ -436,6 +438,14 @@
 .activeThumbnail {
     border: 8px solid black;
 }
+@media screen and (max-width:1600px){
+    .industry-design-files-list td{
+        font-size: 18px;
+    }
+    .industry-design-files-list th{
+        font-size: 22px;
+    }
+}
 
 @media screen and (max-width:850px) {
     .industry-design-header {
@@ -453,7 +463,9 @@
     .industry-design-about-cad-details {
         justify-content: center;
     }
+
     .thumbnailGrid {
         flex-wrap: wrap;
     }
+    
 }

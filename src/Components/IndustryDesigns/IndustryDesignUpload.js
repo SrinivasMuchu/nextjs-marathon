@@ -1,10 +1,11 @@
 import React from 'react'
 import IndustryUploadWrapper from '../IndustriesPages/IndustryUploadWrapper'
 import styles from '../CadUploadingHome/CadHomeDesign/CadHome.module.css'
+import IndustryDesignUplaodWrapper from './IndustryDesignUplaodWrapper'
 
 function IndustryDesignUpload() {
     return (
-        <IndustryUploadWrapper>
+        <IndustryDesignUplaodWrapper>
             <div className={styles["cad-dropzone-content"]}>
                 <p className={styles['cad-dropzone-head']}>
                     Drag & drop your 3D <span className={styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>files</span>
@@ -17,7 +18,7 @@ function IndustryDesignUpload() {
 
 
             </div>
-        </IndustryUploadWrapper >
+        </IndustryDesignUplaodWrapper >
     )
 }
 

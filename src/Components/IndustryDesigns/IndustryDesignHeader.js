@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './IndustryDesign.module.css'
 
-function IndustryDesignHeader({designData}) {
+function IndustryDesignHeader({design,designData}) {
   console.log(designData)
   return (
     <div className={styles['industry-design-header']}>
@@ -13,7 +13,7 @@ function IndustryDesignHeader({designData}) {
         </div>
         <div className={styles['industry-design-header-viewer']}>
             <span >Experience in 3-D</span>
-            <a target='_blank' href={`/industry/design-view/${designData._id}`}><button >Open in 3D viewer</button></a>
+            <a target='_blank' href={`/industry/${design.industry}/${design.part}/${design.design}/${designData._id}`}><button >Open in 3D viewer</button></a>
             
         </div>
     </div>

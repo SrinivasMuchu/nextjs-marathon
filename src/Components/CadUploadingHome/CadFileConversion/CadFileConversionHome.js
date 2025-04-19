@@ -7,7 +7,8 @@ import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadFileConversionHeader from './CadFileConversionHeader'
 
-
+import CadConverterTypes from './CadConverterTypes'
+import CadConverterFormateText from './CadConverterFormateText'
 
 const features = [
     {
@@ -87,15 +88,18 @@ const featuresArray = [
 
 ]
 
-function CadFileConversionHome({ convert }) {
+function CadFileConversionHome({ convert,conversionParams }) {
     console.log(convert)
     return (
         <>
             <HomeTopNav />
             <CadFileConversionHeader convert={convert}/>
+
             <OrgFeatures type='cad' />
+           {conversionParams && <CadConverterFormateText conversionParams={conversionParams}/>} 
             <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails} />
+            <CadConverterTypes/>
             <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />
             <Footer />
         </>

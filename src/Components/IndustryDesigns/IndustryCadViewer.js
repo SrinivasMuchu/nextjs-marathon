@@ -2,10 +2,10 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from 'lucide-react';
-import axios from 'axios'
+
 
 import CubeLoader from '../CommonJsx/Loaders/CubeLoader';
-import { toast } from 'react-toastify';
+
 
 import { useRouter } from "next/navigation";
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
@@ -17,6 +17,7 @@ const ZOOM_STEP = 0.5;
 const MIN_ZOOM = 2;
 const MAX_ZOOM = 10;
 function IndustryCadViewer({designId}) {
+    console.log(designId.design_id)
     const mountRef = useRef(null);
     const rendererRef = useRef(null);
     const sceneRef = useRef(null);
@@ -38,18 +39,18 @@ function IndustryCadViewer({designId}) {
 
     // Function to generate texture URL
     const getTextureUrl = useCallback((x, y) => {
-        if (!designId) return "";  // Prevent invalid URL when designId is empty
+        if (!designId.design_id) return "";  // Prevent invalid URL when designId.design_id is empty
         const xFormatted = ((x % 360 + 360) % 360);
         const yFormatted = ((y % 360 + 360) % 360);
-        console.log(designId)
-        return `https://d1d8a3050v4fu6.cloudfront.net/${designId}/sprite_${xFormatted}_${yFormatted}.webp`;
-    }, [designId]);
+        console.log(designId.design_id)
+        return `https://d1d8a3050v4fu6.cloudfront.net/${designId.design_id}/sprite_${xFormatted}_${yFormatted}.webp`;
+    }, [designId.design_id]);
 
 
     // Initial texture setup
     const setupTextures = useCallback(async () => {
 
-        if (!rendererRef.current || !designId) return {}; // Ensure designId exists
+        if (!rendererRef.current || !designId.design_id) return {}; // Ensure designId.design_id exists
 
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = {};
@@ -58,7 +59,7 @@ function IndustryCadViewer({designId}) {
             for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
                 const key = `${x}_${y}`;
                 const textureUrl = getTextureUrl(x, y);
-                if (!textureUrl) continue; // Skip if designId is missing
+                if (!textureUrl) continue; // Skip if designId.design_id is missing
 
                 try {
                     const texture = await new Promise((resolve, reject) => {
@@ -80,11 +81,11 @@ function IndustryCadViewer({designId}) {
 
         setMaterials(newMaterials);
         // setIsLoading(false)
-    }, [designId, getTextureUrl]);
+    }, [designId.design_id, getTextureUrl]);
 
     // Progressive texture loading
     const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
-        if (!rendererRef.current || !designId) return;
+        if (!rendererRef.current || !designId.design_id) return;
 
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = { ...materials };
@@ -118,7 +119,7 @@ function IndustryCadViewer({designId}) {
                 );
             }
         }
-    }, [materials, getTextureUrl, designId]);
+    }, [materials, getTextureUrl, designId.design_id]);
 
     // Maintain texture buffer
     const maintainTextureBuffer = useCallback(() => {
@@ -252,20 +253,20 @@ function IndustryCadViewer({designId}) {
         };
     }, [setupTextures]);
     useEffect(() => {
-        if (!designId) return;
+        if (!designId.design_id) return;
         setIsLoading(true)
         const timeout = setTimeout(() => {
-            console.log(`Delayed setupTextures with designId: ${designId}`);
+            console.log(`Delayed setupTextures with designId.design_id: ${designId.design_id}`);
             setupTextures();
         }, 300); // Adjust delay if needed
         setIsLoading(false)
         return () => clearTimeout(timeout);
-    }, [designId]);
+    }, [designId.design_id]);
 
 
     // Material update effect
     useEffect(() => {
-        if (!planeRef.current || !materials || Object.keys(materials).length === 0 || !designId) return;
+        if (!planeRef.current || !materials || Object.keys(materials).length === 0 || !designId.design_id) return;
 
         const materialKey = `${xRotation}_${yRotation}`;
         const newMaterial = materials[materialKey];
@@ -282,7 +283,7 @@ function IndustryCadViewer({designId}) {
             }
         }
         setIsLoading(false)
-    }, [xRotation, yRotation, materials, lastValidMaterial, designId]);
+    }, [xRotation, yRotation, materials, lastValidMaterial, designId.design_id]);
 
     // Buffer maintenance effect
     useEffect(() => {
@@ -353,7 +354,7 @@ function IndustryCadViewer({designId}) {
                 width: '100%',
                 height: '100vh'
             }}>
-                 <button onClick={()=> router.push("/tools/cad-viewer")} style={{
+                 <button onClick={()=> router.push(`/industry/${designId.industry}/${designId.part}/${designId.design}`)} style={{
                 
                 padding:'10px',
                 borderRadius: '4px',
