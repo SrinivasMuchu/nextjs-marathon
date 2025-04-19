@@ -4,9 +4,9 @@ import React from 'react'
 
 function IndustryCadViewerPage({ params }) {
   
-  const design_id = params.design_id;
+  const design = params;
   return (
-    <IndustryCadViewer designId={design_id} />
+    <IndustryCadViewer designId={design} />
   )
 }
 

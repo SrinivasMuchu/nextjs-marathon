@@ -14,7 +14,7 @@ function AboutCad({ cadReport }) {
 
   const sections = [
     {
-      title: 'File Information',
+      title: '📁 File Information',
       rows: [
         ['File Name', textLettersLimit(cadReport.file_info.file_name,15)  ],
         ['File Type', cadReport.file_info.file_type],
@@ -23,7 +23,7 @@ function AboutCad({ cadReport }) {
       ]
     },
     {
-      title: 'Geometry',
+      title: '🔍 Geometry',
       rows: [
         ['Faces', cadReport.geometry.faces],
         ['Edges', cadReport.geometry.edges],
@@ -32,7 +32,7 @@ function AboutCad({ cadReport }) {
       ]
     },
     {
-      title: 'Surfaces',
+      title: '🧱 Surfaces',
       rows: [
         ['Planar', cadReport.surfaces.planar],
         ['Cylindrical', cadReport.surfaces.cylindrical],
@@ -43,7 +43,7 @@ function AboutCad({ cadReport }) {
       ]
     },
     {
-      title: 'Surface Orientations',
+      title: '🧱 Surface Orientations',
       rows: [
         ['X Axis', cadReport.surfaces.orientations.x_axis],
         ['Y Axis', cadReport.surfaces.orientations.y_axis],
@@ -52,7 +52,7 @@ function AboutCad({ cadReport }) {
       ]
     },
     {
-      title: 'Bounding Box',
+      title: '📏 Bounding Box',
       rows: [
         ['Width', `${cadReport.bounding_box.width.toFixed(2)} mm`],
         ['Height', `${cadReport.bounding_box.height.toFixed(2)} mm`],
@@ -60,7 +60,7 @@ function AboutCad({ cadReport }) {
       ]
     },
     {
-      title: 'Volumes',
+      title: '🧮 Volumes',
       rows: [
         ['Max Volume', `${cadReport.volumes.max.toFixed(2)} mm³`],
         ['Min Volume', `${cadReport.volumes.min.toFixed(2)} mm³`],

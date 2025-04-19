@@ -41,11 +41,12 @@ async function SampleParts({ industry, part_name }) {
         }
 
         return (
-            <div className={styles['sample-parts']}>
+            <>
+            {data.length ? <div className={styles['sample-parts']}>
                 <h2>Sample Parts (CAD Viewable in Marathon-OS)</h2>
 
                 <div className={styles['sample-parts-container']}>
-                    {data.length > 0 ? (
+                    {
                         data.map((item, index) => (
                             <Link
                                 href={`/industry/${industry}/${item.route}`}
@@ -58,14 +59,13 @@ async function SampleParts({ industry, part_name }) {
                                     {item.part_name || `Part ${index + 1}`}
                                 </button>
                             </Link>
-                        ))
-                    ) : (
-                        <div className={styles['no-results']}>
-                            {part_name ? `No other parts found (excluding "${part_name}")` : 'No parts available'}
-                        </div>
-                    )}
+                        ))}
+                    
                 </div>
-            </div>
+            </div>:<></>}
+            
+            </>
+           
         );
     } catch (error) {
         console.error("Failed to fetch sample parts:", error);

@@ -87,7 +87,7 @@ export default async function PartDesigns({ params }) {
       report: data.data.report || { cad_report: null }
     };
 
-    return <IndustryDesign design={design} designData={data.data} />;
+    return <IndustryDesign design={params} designData={data.data} />;
   } catch (error) {
     console.error("Failed to fetch design data:", error);
     return <IndustryDesign design={design} designData={null} />;

@@ -8,6 +8,7 @@ import SneakPeak from "../HomePages/SneakPeak/SneakPeak";
 import Subscription from "../HomePages/Subscription/Subscription";
 import Security from "../HomePages/Security/Security";
 import Footer from "../HomePages/Footer/Footer";
+import Tools from "../HomePages/Tools/Tools";
 
 const HomePage = () => {
   
@@ -20,6 +21,7 @@ const HomePage = () => {
       <Capabilities />
       <SneakPeak />
       <Subscription />
+      <Tools/>
       <Security />
       <Footer />
     </div >

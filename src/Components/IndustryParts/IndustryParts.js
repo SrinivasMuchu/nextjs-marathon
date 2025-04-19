@@ -97,7 +97,7 @@ function IndustryParts({ industry,
                 <HomeTopNav />
                 <IndustryDetails industryData={industryData} part_name={part_name} />
                 <RoleOfCAD industryData={industryData} part_name={part_name} />
-                <IndustryDesigns industryData={industryData} />
+                <IndustryDesigns industryData={industryData} part_name={part_name} industry={industry}/>
 
                 <UseOfCAD industryData={industryData} />
                 <SolutionCad industryData={industryData} />

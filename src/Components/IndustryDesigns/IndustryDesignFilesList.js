@@ -3,39 +3,67 @@ import styles from './IndustryDesign.module.css'
 import { textLettersLimit } from '@/common.helper'
 
 function IndustryDesignFilesList({ designData }) {
-    // Assuming each design in designData has a step_files array
-    // If not, you might need to adjust this logic
-  
+    // Static view names with their corresponding view directions
+    const viewDirections = [
+        { name: "Front View", x: 0, y: 0 },
+        { name: "Top View", x: 0, y: 90 },
+        { name: "Bottom View", x: 0, y: 270 },
+        { name: "Left Side View", x: 90, y: 0 },
+        { name: "Right Side View", x: 270, y: 0 },
+        { name: "Isometric View", x: 45, y: 35 }
+    ];
 
+    // Get the file ID from designData (assuming designData has at least one file)
+   
     return (
         <div className={styles['industry-design-files']}>
             <div className={styles['industry-design-files-head']}>
                 Guidline text in multiple lines
             </div>
             <div className={styles['industry-design-files-bottom']}>
-                <span className={styles['industry-design-files-count']}>Files {designData.length}</span>
+                <span className={styles['industry-design-files-count']}>Files {viewDirections.length+1}</span>
                 <table className={styles['industry-design-files-list']}>
                     <thead>
                         <tr>
-                            <th style={{ width: '60%' }}>File name</th>
-                            <th>Extension</th>
-                            <th>Action</th>
+                            <th style={{ width: '40%' }}>View Name</th>
+                          
+                            <th style={{ width: '20%' }}>Extension</th>
+                            <th style={{ width: '20%' }}>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {designData.map((file, index) => (
-                            
-                            <tr key={`${file._id}-${index}`}>
-                                <td>{textLettersLimit(file.grabcad_title,50)  }</td>
-                                <td>{file.extension || 'STEP'}</td>
+                    <tr>
+                                <td>Design file</td>
+                             
+                                <td>step</td>
                                 <td>
                                     <a 
-                                        href={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/${file._id}.step`} 
-                                        download
-                                       
-                                    >
-                                        <button className={styles['industry-design-files-btn']}>Download</button>
+                                        href={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/${designData._id}.step`} 
                                         
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <button className={styles['industry-design-files-btn']}>
+                                            Download
+                                        </button>
+                                    </a>
+                                </td>
+                            </tr>
+                        {viewDirections.map((view, index) => (
+                            <tr key={index}>
+                                <td>{view.name}</td>
+                             
+                                <td>webp</td>
+                                <td>
+                                    <a 
+                                        href={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/sprite_${view.x}_${view.y}.webp`} 
+                                        
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <button className={styles['industry-design-files-btn']}>
+                                            Download
+                                        </button>
                                     </a>
                                 </td>
                             </tr>

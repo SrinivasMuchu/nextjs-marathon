@@ -5,22 +5,26 @@ import IndustryDesignsSuggestion from './IndustryDesignsSuggestion'
 import AboutCad from './AboutCad'
 import IndustryDesignsCarousel from './IndustryDesignsCarousel'
 import IndustryDesignDropZone from './IndustryDesignDropZone'
+import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav'
+import Footer from '../HomePages/Footer/Footer'
 
 function IndustryDesign({ design, designData }) {
   console.log('Design data:', design, designData)
   
   return (
     <div>
+      <HomeTopNav />
       <IndustryDesignHeader design={design} designData={designData.response} />
       <IndustryDesignsCarousel designData={designData.designs} />
-      <IndustryDesignFilesList designData={designData.designs} />
-      <IndustryDesignsSuggestion type='design' />
-      <IndustryDesignsSuggestion />
+      <IndustryDesignFilesList designData={designData.response} />
+      <IndustryDesignsSuggestion type='design' designData={designData.designs}/>
+      <IndustryDesignsSuggestion designData={designData.filteredResults}/>
       <div style={{width:'100%',height:'15px',background:'#F4F4F4'}}></div>
       {designData?.report?.cad_report && (
         <AboutCad cadReport={designData.report.cad_report} />
       )}
       <IndustryDesignDropZone />
+      <Footer />
     </div>
   )
 }

@@ -1,67 +1,74 @@
-import React from 'react'
-import IndustryDesignParallelaxWrapper from './IndustryDesignParallelaxWrapper'
+"use client";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import IndustryDesignParallelaxWrapper from './IndustryDesignParallelaxWrapper';
+import { BASE_URL } from '@/config';
+import { textLettersLimit } from '@/common.helper';
+import Image from 'next/image';
 
-function IndustryDesignCards({styles}) {
-    const CAPABILITIESLIST = [
-        {
-            // image: IMAGEURLS.cadCapability,
-            title: 'CAD Data Management',
-            description: 'Efficiently handle files and designs with version control.'
-        },
-        {
-            // image: IMAGEURLS.cadCapability,
-            title: 'BOM and Part Management',
-            description: 'BOM and Part Management.'
-        },
-        {
-            // image: IMAGEURLS.cadCapability,
-            title: 'Production Scheduling',
-            description: 'Plan and monitor production in real time.'
-        },
-        {
-            // image: IMAGEURLS.cadCapability,
-            title: 'Inventory Management',
-            description: 'Track and manage stock levels with ease.'
-        },
-        {
-            // image: IMAGEURLS.cadCapability,
-            title: 'Purchase Management',
-            description: 'Streamline procurement and supplier orders.'
-        },
-        {
-            // image: IMAGEURLS.cadCapability,
-            title: 'Change Management',
-            description: 'Implement ECOs with ease and traceability.'
-        },
-    ];
-    
-  return (
-    <>
-    {CAPABILITIESLIST.map((capability, index) => (
-        <IndustryDesignParallelaxWrapper key={index} styles={styles}>
+function IndustryDesignCards({ styles,part_name,industry }) {
+    const [capabilities, setCapabilities] = useState([]);
+  
 
-            <div className={styles['capabilities-img-cont']}>
-                {/* <Image
-                    src={capability.image}
-                    alt={capability.title}
-                    className={styles['capabilities-img']}
-                    width={350}
-                    height={150}
-                /> */}
-            </div>
-            <div className={styles['capabilities-page-card-text']}>
-                <h6 className={styles['capabilities-page-card-head']}>
-                    {capability.title}
-                </h6>
-                <p className={styles['capabilities-page-card-desc']}>
-                    {capability.description}
-                </p>
-            </div>
-        </IndustryDesignParallelaxWrapper>
+    useEffect(() => {
+        const fetchCapabilities = async () => {
+            try {
+                const response = await axios.get(`${BASE_URL}/v1/cad/get-part-designs`, {
+                    params: { 
+                        part_name, 
+                       
+                    },
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+                        
+                    }
+                });
+                console.log(response)
+                setCapabilities(response.data.data.response);
+               
+            } catch (err) {
+               
+             
+                console.error('Error fetching capabilities:', err);
+            }
+        };
 
-    ))}
-</>
-  )
+        fetchCapabilities();
+    }, []);
+
+   
+
+    return (
+        <>
+            {capabilities.map((capability, index) => (
+                <IndustryDesignParallelaxWrapper key={index} styles={styles}>
+                    <a href={`/industry/${industry}/${part_name}/${capability.grabcad_title}`}>
+                    <div className={styles['capabilities-img-cont']}>
+                        {/* Uncomment when you have images */}
+                        <Image
+                            src={ `https://d1d8a3050v4fu6.cloudfront.net/${capability._id}/sprite_0_150.webp`}
+                            alt={capability.grabcad_title}
+                            className={styles['capabilities-img']}
+                            width={100}
+                            height={150}
+                        />
+                    </div>
+                    <div className={styles['capabilities-page-card-text']}>
+                        <h6 className={styles['capabilities-page-card-head']}>
+                            {textLettersLimit(capability.grabcad_title,15)}
+                           
+                        </h6>
+                        <p className={styles['capabilities-page-card-desc']}>
+                        {textLettersLimit(capability.grabcad_description,45)}
+                           
+                        </p>
+                    </div>
+                    </a>
+                    
+                </IndustryDesignParallelaxWrapper>
+            ))}
+        </>
+    );
 }
 
-export default IndustryDesignCards
+export default IndustryDesignCards;
