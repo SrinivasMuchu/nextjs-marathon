@@ -6,9 +6,9 @@ function IndustryDesignHeader({design,designData}) {
   return (
     <div className={styles['industry-design-header']}>
         <div className={styles['industry-design-header-content']}>
-            <h1 >{designData?.grabcad_title}</h1>
+            <h1 >{designData?.title}</h1>
             <p >
-            {designData?.grabcad_description}
+            {designData?.description}
             </p>
         </div>
         <div className={styles['industry-design-header-viewer']}>

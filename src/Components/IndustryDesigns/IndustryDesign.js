@@ -9,22 +9,25 @@ import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav'
 import Footer from '../HomePages/Footer/Footer'
 
 function IndustryDesign({ design, designData }) {
-  console.log('Design data:', design, designData)
+ 
   
   return (
     <div>
-      <HomeTopNav />
+      {designData && <>
+        <HomeTopNav />
       <IndustryDesignHeader design={design} designData={designData.response} />
-      <IndustryDesignsCarousel designData={designData.designs} />
-      <IndustryDesignFilesList designData={designData.response} />
-      <IndustryDesignsSuggestion type='design' designData={designData.designs}/>
-      <IndustryDesignsSuggestion designData={designData.filteredResults}/>
+      {designData.designs && <IndustryDesignsCarousel designData={designData.designs} />}
+      {designData.response && <IndustryDesignFilesList designData={designData.response} />} 
+     {designData.designs &&  <IndustryDesignsSuggestion type='design' designData={designData.designs}/>}
+     {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults}/>}
       <div style={{width:'100%',height:'15px',background:'#F4F4F4'}}></div>
       {designData?.report?.cad_report && (
         <AboutCad cadReport={designData.report.cad_report} />
       )}
       <IndustryDesignDropZone />
       <Footer />
+      </>}
+      
     </div>
   )
 }

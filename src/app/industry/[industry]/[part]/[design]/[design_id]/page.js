@@ -5,12 +5,17 @@ export async function generateMetadata({ params }) {
   const { industry, part,design,design_id } = params;
 
   return {
-    title: `${industry} - ${part} CAD Viewer`,
-    description: `Explore detailed CAD designs for ${part} in the ${industry} industry.`,
+    title: ` File Viewer – Instantly Open & Explore ${industry} - ${part} `,
+    description: `View ${cadFile.toUpperCase()} (${industry}-${part}) files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds. Our proprietary rendering engine ensures smooth performance with zero lag and no glitches, even for large assemblies.`,
     openGraph: {
-      title: `${industry} - ${part} CAD Viewer`,
-      description: `View and analyze CAD models for ${part} in the ${industry} industry.`,
-      type: 'website',
+      images: [
+        {
+          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+          width: 1200,
+          height: 630,
+          type: "image/png",
+        },
+      ],
     },
     metadataBase: new URL("https://marathon-os.com"),
     alternates: {

@@ -75,6 +75,7 @@
     opacity: 0.5;
     text-align: justify;
     text-align: center;
+    width:80%;
 }
 .cad-industries-items{
     display: flex;
@@ -104,13 +105,19 @@
     flex-direction: column;
     text-align: left;
     width: 350px;
-    height: 200px;
+    height: 350px;
     border: 1px solid #edf2f7;
     border-radius: 8px;
     padding: 8px;
     background:white;
-   
+   flex:1 1 auto
 
+}
+.cad-industries-item-cont-head{
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+    border-bottom:1px solid grey;
 }
 .cad-industries-item-cont h6{
     color: #000;
@@ -127,6 +134,7 @@
     line-height: 28px;
     opacity: 0.5;
     text-align: justify;
+    
 }
 .cad-format-types-desc p {
     font-size: 18px;

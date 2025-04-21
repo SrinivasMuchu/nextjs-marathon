@@ -9,8 +9,8 @@ function IndustrySuggestionFiles({visibleItems}) {
     {visibleItems.map((item, index) => (
         <div key={index} className={styles['industry-design-suggestion-designs-cont']}>
             <Image className={styles['industry-design-suggestion-designs-cont-img']} src={ `https://d1d8a3050v4fu6.cloudfront.net/${item._id}/sprite_0_150.webp`} width={350} height={220}/>{/* You can add an icon/image here */}
-            <h6>{ textLettersLimit(item.grabcad_title,15)}</h6>
-            <p>{textLettersLimit(item.grabcad_description,150)}</p>
+            <h6>{ item.title}</h6>
+            <p>{textLettersLimit(item.description,150)}</p>
         </div>
     ))}
 </div>

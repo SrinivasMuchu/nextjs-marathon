@@ -12,63 +12,74 @@ function AboutCad({ cadReport }) {
     )
   }
 
+  const safeGet = (obj, path, defaultVal = '') => {
+    return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : defaultVal), obj)
+  }
+
   const sections = [
     {
       title: '📁 File Information',
       rows: [
-        ['File Name', textLettersLimit(cadReport.file_info.file_name,15)  ],
-        ['File Type', cadReport.file_info.file_type],
-        ['Units', cadReport.file_info.units],
-        
+        ['File Name', textLettersLimit(safeGet(cadReport, ['file_info', 'file_name']), 15)],
+        ['File Type', safeGet(cadReport, ['file_info', 'file_type'])],
+        ['Units', safeGet(cadReport, ['file_info', 'units'])]
       ]
     },
     {
       title: '🔍 Geometry',
       rows: [
-        ['Faces', cadReport.geometry.faces],
-        ['Edges', cadReport.geometry.edges],
-        ['Vertices', cadReport.geometry.vertices],
-        ['Solids', cadReport.geometry.solids]
+        ['Faces', safeGet(cadReport, ['geometry', 'faces'])],
+        ['Edges', safeGet(cadReport, ['geometry', 'edges'])],
+        ['Vertices', safeGet(cadReport, ['geometry', 'vertices'])],
+        ['Solids', safeGet(cadReport, ['geometry', 'solids'])]
       ]
     },
     {
       title: '🧱 Surfaces',
       rows: [
-        ['Planar', cadReport.surfaces.planar],
-        ['Cylindrical', cadReport.surfaces.cylindrical],
-        ['Conical', cadReport.surfaces.conical],
-        ['Spherical', cadReport.surfaces.spherical],
-        ['Toroidal', cadReport.surfaces.toroidal],
-        ['Other', cadReport.surfaces.other]
+        ['Planar', safeGet(cadReport, ['surfaces', 'planar'])],
+        ['Cylindrical', safeGet(cadReport, ['surfaces', 'cylindrical'])],
+        ['Conical', safeGet(cadReport, ['surfaces', 'conical'])],
+        ['Spherical', safeGet(cadReport, ['surfaces', 'spherical'])],
+        ['Toroidal', safeGet(cadReport, ['surfaces', 'toroidal'])],
+        ['Other', safeGet(cadReport, ['surfaces', 'other'])]
       ]
     },
     {
       title: '🧱 Surface Orientations',
       rows: [
-        ['X Axis', cadReport.surfaces.orientations.x_axis],
-        ['Y Axis', cadReport.surfaces.orientations.y_axis],
-        ['Z Axis', cadReport.surfaces.orientations.z_axis],
-        ['Other', cadReport.surfaces.orientations.other]
+        ['X Axis', safeGet(cadReport, ['surfaces', 'orientations', 'x_axis'])],
+        ['Y Axis', safeGet(cadReport, ['surfaces', 'orientations', 'y_axis'])],
+        ['Z Axis', safeGet(cadReport, ['surfaces', 'orientations', 'z_axis'])],
+        ['Other', safeGet(cadReport, ['surfaces', 'orientations', 'other'])]
       ]
     },
     {
       title: '📏 Bounding Box',
       rows: [
-        ['Width', `${cadReport.bounding_box.width.toFixed(2)} mm`],
-        ['Height', `${cadReport.bounding_box.height.toFixed(2)} mm`],
-        ['Depth', `${cadReport.bounding_box.depth.toFixed(2)} mm`]
+        ['Width', cadReport.bounding_box?.width != null ? `${cadReport.bounding_box.width.toFixed(2)} mm` : ''],
+        ['Height', cadReport.bounding_box?.height != null ? `${cadReport.bounding_box.height.toFixed(2)} mm` : ''],
+        ['Depth', cadReport.bounding_box?.depth != null ? `${cadReport.bounding_box.depth.toFixed(2)} mm` : '']
       ]
     },
     {
       title: '🧮 Volumes',
       rows: [
-        ['Max Volume', `${cadReport.volumes.max.toFixed(2)} mm³`],
-        ['Min Volume', `${cadReport.volumes.min.toFixed(2)} mm³`],
-        ['Average Volume', `${cadReport.volumes.average.toFixed(2)} mm³`],
-        ['Total Volume', `${cadReport.volumes.total.toFixed(2)} mm³`]
+        ['Max Volume', cadReport.volumes?.max != null ? `${cadReport.volumes.max.toFixed(2)} mm³` : ''],
+        ['Min Volume', cadReport.volumes?.min != null ? `${cadReport.volumes.min.toFixed(2)} mm³` : ''],
+        ['Average Volume', cadReport.volumes?.average != null ? `${cadReport.volumes.average.toFixed(2)} mm³` : ''],
+        ['Total Volume', cadReport.volumes?.total != null ? `${cadReport.volumes.total.toFixed(2)} mm³` : '']
       ]
     }
   ]
+
+  // Filter sections where at least one value exists
+  const filteredSections = sections
+    .map(section => ({
+      ...section,
+      rows: section.rows.filter(([, value]) => value !== '' && value !== null && value !== undefined)
+    }))
+    .filter(section => section.rows.length > 0)
 
   return (
     <div className={styles['industry-design-about-cad']}>
@@ -81,7 +92,7 @@ function AboutCad({ cadReport }) {
         </p>
       </div>
       <div className={styles['industry-design-about-cad-details']}>
-        {sections.map((section, i) => (
+        {filteredSections.map((section, i) => (
           <div key={i} className={styles['industry-design-about-cad-sub-content']}>
             <h3 className={styles['industry-design-about-cad-sub-head']}>{section.title}</h3>
             {section.rows.map(([key, value], j) => (

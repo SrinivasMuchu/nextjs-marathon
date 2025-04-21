@@ -288,7 +288,7 @@
 .industry-design-about-cad-details {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: center;
     gap: 32px;
     width: 100%;
     padding:  clamp(32px, 6vw, 120px) 0px;

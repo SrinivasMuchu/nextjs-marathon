@@ -1,7 +1,8 @@
 import React from 'react'
 import styles from './Industry.module.css'
+import RoleOfCadImage from './RoleOfCadImage'
 
-function RoleOfCAD({industryData,part_name}) {
+function RoleOfCAD({industryData,part_name,industry}) {
  
   return (
     <div className={styles['role-of-cad']}>
@@ -21,9 +22,8 @@ function RoleOfCAD({industryData,part_name}) {
           </>}
           
         </div>
-        <div className={styles['role-of-cad-desgin']}>
-
-        </div>
+        <RoleOfCadImage industry={industryData.route} part_name={part_name} styles={styles}/>
+       
     </div>
   )
 }

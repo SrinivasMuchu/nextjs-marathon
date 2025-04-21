@@ -48,6 +48,9 @@ export const IMAGEURLS = {
   solutionCad: `${MARATHON_ASSET_PREFIX_URL}solution-cad.webp`,
   rightArrow: `${MARATHON_ASSET_PREFIX_URL}designs-right-arrow.svg`,
   leftArrow: `${MARATHON_ASSET_PREFIX_URL}designs-left-arrow.svg`,
+  orgImg: `${MARATHON_ASSET_PREFIX_URL}org_img.webp`,
+  cadViewer: `${MARATHON_ASSET_PREFIX_URL}cad_viewer.webp`,
+  cadConveter: `${MARATHON_ASSET_PREFIX_URL}cad_converter.webp`,
 
   // close-icon-part-num.png
   // open-answer.webp

@@ -42,12 +42,12 @@ function IndustryDesignCards({ styles,part_name,industry }) {
         <>
             {capabilities.map((capability, index) => (
                 <IndustryDesignParallelaxWrapper key={index} styles={styles}>
-                    <a href={`/industry/${industry}/${part_name}/${capability.grabcad_title}`}>
+                    <a href={`/industry/${industry}/${part_name}/${capability.route}`}>
                     <div className={styles['capabilities-img-cont']}>
                         {/* Uncomment when you have images */}
                         <Image
                             src={ `https://d1d8a3050v4fu6.cloudfront.net/${capability._id}/sprite_0_150.webp`}
-                            alt={capability.grabcad_title}
+                            alt={capability.title}
                             className={styles['capabilities-img']}
                             width={100}
                             height={150}
@@ -55,11 +55,11 @@ function IndustryDesignCards({ styles,part_name,industry }) {
                     </div>
                     <div className={styles['capabilities-page-card-text']}>
                         <h6 className={styles['capabilities-page-card-head']}>
-                            {textLettersLimit(capability.grabcad_title,15)}
+                            {textLettersLimit(capability.title,15)}
                            
                         </h6>
                         <p className={styles['capabilities-page-card-desc']}>
-                        {textLettersLimit(capability.grabcad_description,45)}
+                        {textLettersLimit(capability.description,45)}
                            
                         </p>
                     </div>

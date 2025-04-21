@@ -11,6 +11,8 @@
     width: 400px;
     height: 400px;
     background: #F6F6F6;
+    border:1px solid #edf2f7;
+    border-radius: 12px;
 }
 
 .role-of-cad-content {
@@ -180,7 +182,7 @@
     align-items: center;
     justify-content: center;
     gap: 48px;
-    padding: 140px;
+    padding: clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);;
     width: 100%;
     background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #FF7A7A;
 }
