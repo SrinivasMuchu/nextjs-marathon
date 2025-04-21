@@ -4,17 +4,13 @@ import { MARATHON_ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import styles from './CadHome.module.css';
 import { textLettersLimit } from '@/common.helper';
 import CadIndustryHeads from './CadIndustryHeads';
-import { cookies } from 'next/headers';
+
 
 async function getIndustryData() {
     try {
-        const cookieStore = cookies();
-        const userUuid = cookieStore.get('uuid')?.value || ''; // adjust 'uuid' if cookie name is different
-
+      
         const response = await axios.get(`${BASE_URL}/v1/cad/get-industry-data`, {
-            headers: {
-                'user-uuid': userUuid,
-            },
+            
         });
 
         return response.data?.data || [];
