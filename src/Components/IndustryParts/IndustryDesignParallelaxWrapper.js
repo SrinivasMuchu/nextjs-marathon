@@ -10,6 +10,7 @@ function IndustryDesignParallelaxWrapper({children,styles}) {
             perspective={1000}
             scale={1}
             transitionSpeed={1500} style={{height:'300px'}} className={styles['capabilities-page-card']}
+            style={{ height:'350px' }}
         >
             {children}
         </ReactParallaxTilt>
