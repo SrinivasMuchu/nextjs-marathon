@@ -1,25 +1,18 @@
 import React from 'react'
 import styles from './Industry.module.css'
-import { cookies } from 'next/headers'
 import { BASE_URL } from '@/config';
 import Link from 'next/link';
 
 async function SampleParts({ industry, part_name }) {
-    const cookieStore = cookies();
-    const userUUID = cookieStore.get('uuid')?.value;
-
+   
     try {
-        const headers = {
-            'user-uuid': userUUID || '',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        };
+        
 
         const response = await fetch(
             `${BASE_URL}/v1/cad/get-industry-part-data?industry=${industry}`,
             {
                 method: 'GET',
-                headers,
+             
                 next: { revalidate: 3600 }
             }
         );

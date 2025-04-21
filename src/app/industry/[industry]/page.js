@@ -1,21 +1,16 @@
 import Industry from "@/Components/IndustriesPages/Industry";
 import { BASE_URL } from '@/config';
-import { cookies } from 'next/headers';
+
 
 export async function generateMetadata({ params }) {
   const industry = params['industry'];
 
-  const cookieStore = cookies();
-  const userUUID = cookieStore.get('uuid')?.value;
+  
   
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
       method: 'GET',
-      headers: {
-        'user-uuid': userUUID || '', // Send empty string if cookie not found
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      
       next: { revalidate: 3600 } // Optional revalidation
     });
 
@@ -64,17 +59,12 @@ export async function generateMetadata({ params }) {
 
 export default async function IndustryPage({ params }) {
   const industry = params.industry;
-  const cookieStore = cookies();
-  const userUUID = cookieStore.get('uuid')?.value;
+
 
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
       method: 'GET',
-      headers: {
-        'user-uuid': userUUID || '',
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+     
       next: { revalidate: 3600 }
     });
 

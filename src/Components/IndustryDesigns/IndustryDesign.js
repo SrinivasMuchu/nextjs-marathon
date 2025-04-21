@@ -16,7 +16,7 @@ function IndustryDesign({ design, designData }) {
       {designData && <>
         <HomeTopNav />
       <IndustryDesignHeader design={design} designData={designData.response} />
-      {designData.designs && <IndustryDesignsCarousel designData={designData.designs} />}
+      {designData.designs && <IndustryDesignsCarousel designData={designData.response}  />}
       {designData.response && <IndustryDesignFilesList designData={designData.response} />} 
      {designData.designs &&  <IndustryDesignsSuggestion type='design' designData={designData.designs}/>}
      {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults}/>}

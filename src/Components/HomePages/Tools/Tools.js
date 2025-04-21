@@ -35,7 +35,7 @@ function Tools() {
                 {toolsData.map((tool, index) => (
                     <a href={`${tool.route}`} key={index}>
                         <div  className={styles['tools-page-items-cont']}>
-                            <Image src={tool.image} alt={tool.heading} width={250} height={150} />
+                            <Image src={tool.image} alt={tool.heading} width={250} height={150} loading="lazy"/>
                             <div className={styles['tools-page-items-content']}>
                                 <h6>{tool.heading}</h6>
                                 <p>{tool.description}</p>

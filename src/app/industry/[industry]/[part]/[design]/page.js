@@ -1,22 +1,17 @@
 import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign'
 import { BASE_URL } from '@/config';
-import { cookies } from 'next/headers';
+
 
 export async function generateMetadata({ params }) {
   const design = params['design'];
   const industry = params['industry'];
   const part = params['part'];
 
-  const cookieStore = cookies();
-  const userUUID = cookieStore.get('uuid')?.value;
+ 
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?grab_cad_title=${design}`, {
       method: 'GET',
-      headers: {
-        'user-uuid': userUUID || '',
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+     
       next: { revalidate: 3600 }
     });
 
@@ -65,15 +60,12 @@ export async function generateMetadata({ params }) {
 
 export default async function PartDesigns({ params }) {
   const design = params.design;
-  const cookieStore = cookies();
-  const userUUID = cookieStore.get('uuid')?.value;
+ 
 
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?grab_cad_title=${design}`, {
       method: 'GET',
-      headers: {
-        'user-uuid': userUUID || '',
-      },
+     
       next: { revalidate: 3600 }
     });
 

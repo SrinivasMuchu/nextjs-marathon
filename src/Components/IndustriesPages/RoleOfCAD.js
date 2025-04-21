@@ -8,7 +8,7 @@ function RoleOfCAD({industryData,part_name,industry}) {
     <div className={styles['role-of-cad']}>
         <div className={styles['role-of-cad-content']}>
           {part_name ? <>
-            <h2>Role of CAD file in {industryData.part_name} Essentials</h2>
+            <h2>{industryData.part_name} Essentials</h2>
             <p>{industryData.description}</p>
             <span>Used for</span>
             <p>{industryData.use_cases}</p>

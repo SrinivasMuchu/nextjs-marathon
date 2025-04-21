@@ -10,7 +10,7 @@ function IndustryDesignFilesList({ designData }) {
         { name: "Bottom View", x: 0, y: 270 },
         { name: "Left Side View", x: 90, y: 0 },
         { name: "Right Side View", x: 270, y: 0 },
-        { name: "Isometric View", x: 45, y: 35 }
+        { name: "Isometric View", x: 60, y: 30 }
     ];
 
     // Get the file ID from designData (assuming designData has at least one file)
@@ -32,43 +32,40 @@ function IndustryDesignFilesList({ designData }) {
                         </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                                <td>Design file</td>
-                             
-                                <td>step</td>
-                                <td>
-                                    <a 
-                                        href={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/${designData._id}.step`} 
-                                        
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <button className={styles['industry-design-files-btn']}>
-                                            Download
-                                        </button>
-                                    </a>
-                                </td>
-                            </tr>
-                        {viewDirections.map((view, index) => (
-                            <tr key={index}>
-                                <td>{view.name}</td>
-                             
-                                <td>webp</td>
-                                <td>
-                                    <a 
-                                        href={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/sprite_${view.x}_${view.y}.webp`} 
-                                        
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <button className={styles['industry-design-files-btn']}>
-                                            Download
-                                        </button>
-                                    </a>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
+    <tr>
+        <td data-label="View Name">Design file</td>
+        <td data-label="Extension">step</td>
+        <td data-label="Action">
+            <a 
+                href={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/${designData._id}.step`} 
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                <button className={styles['industry-design-files-btn']}>
+                    Download
+                </button>
+            </a>
+        </td>
+    </tr>
+    {viewDirections.map((view, index) => (
+        <tr key={index}>
+            <td data-label="View Name">{view.name}</td>
+            <td data-label="Extension">webp</td>
+            <td data-label="Action">
+                <a 
+                    href={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/sprite_${view.x}_${view.y}.webp`} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <button className={styles['industry-design-files-btn']}>
+                        Download
+                    </button>
+                </a>
+            </td>
+        </tr>
+    ))}
+</tbody>
+
                 </table>
             </div>
         </div>

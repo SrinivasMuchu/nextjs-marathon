@@ -68,11 +68,8 @@
     height: 48px;
     /* padding: 10px 20px; */
 }
-
-
 .industry-design-files {
-    padding:
-        32px clamp(24px, 6vw, 120px);
+    padding: 32px clamp(24px, 6vw, 120px);
     display: flex;
     flex-direction: column;
     gap: 65px;
@@ -94,16 +91,16 @@
 
 .industry-design-files-list {
     text-align: left;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .industry-design-files-list th {
     padding: 12px 20px;
     border-bottom: 1px solid #F3F3F3;
     background: #F4F4F4;
-    box-sizing: border-box;
     color: #001325;
     font-size: 24px;
-    font-style: normal;
     font-weight: 600;
     line-height: 28px;
     letter-spacing: -0.288px;
@@ -112,10 +109,8 @@
 .industry-design-files-list td {
     padding: 20px;
     border-bottom: 1px solid #F3F3F3;
-    box-sizing: border-box;
     color: #001325;
     font-size: 20px;
-    font-style: normal;
     font-weight: 500;
     line-height: 28px;
     letter-spacing: -0.3px;
@@ -127,22 +122,79 @@
     border: 1px solid #610BEE;
     color: #610BEE;
     font-size: 20px;
-    font-style: normal;
     font-weight: 500;
     line-height: 28px;
     letter-spacing: -0.3px;
     width: 134px;
     height: 44px;
-    opacity: 1;
+    background-color: transparent;
+    cursor: pointer;
 }
 
 .industry-design-files-count {
     color: #001325;
     font-size: 24px;
-    font-style: normal;
     font-weight: 600;
     line-height: 28px;
     letter-spacing: -0.288px;
+}
+
+/* -------------------- */
+/* ✅ Mobile Responsive */
+/* -------------------- */
+
+@media (max-width: 768px) {
+    .industry-design-files-list,
+    .industry-design-files-list thead,
+    .industry-design-files-list tbody,
+    .industry-design-files-list th,
+    .industry-design-files-list td,
+    .industry-design-files-list tr {
+        display: block;
+        width: 100%;
+    }
+
+    .industry-design-files-list thead {
+        display: none;
+    }
+
+    .industry-design-files-list tr {
+        background: #FFF;
+        border: 1px solid #E0E0E0;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .industry-design-files-list td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: none;
+        font-size: 18px;
+    }
+
+    .industry-design-files-list td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        flex: 1;
+        /* color: #333; */
+    }
+
+    .industry-design-files-list td > *:not(button) {
+        flex: 1;
+        text-align: right;
+    }
+
+    .industry-design-files-btn {
+        width: auto;
+        height: auto;
+        padding: 8px 16px;
+        font-size: 16px;
+        line-height: 24px;
+    }
 }
 
 
@@ -467,5 +519,13 @@
     .thumbnailGrid {
         flex-wrap: wrap;
     }
+    .industry-design-header-content h1,.industry-design-header-content p{
+        text-align: center;
+    }
     
+}
+@media screen and (max-width: 600px) {
+    .industry-design-suggestion-designs-cont,.industry-design-suggestion-bottom {
+        height: auto;
+    }
 }

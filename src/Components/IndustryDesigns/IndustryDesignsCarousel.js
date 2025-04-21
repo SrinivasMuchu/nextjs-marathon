@@ -16,24 +16,34 @@ import Image from "next/image";
 const slides = [
     {
         title: "Design 1",
-        thumbnail: IMAGEURLS.carLogo, // use actual URLs from your IMAGEURLS
+        x: 0,
+        y:0 // use actual URLs from your IMAGEURLS
     },
     {
         title: "Design 2",
-        thumbnail: IMAGEURLS.carLogo,
+        x:0,
+        y:90
     },
     {
         title: "Design 3",
-        thumbnail: IMAGEURLS.craneLogo,
+        x:0,
+        y:270,
     },
     {
         title: "Design 4",
-        thumbnail: IMAGEURLS.droneLogo,
+        x:90,
+        y:0
     },
     {
         title: "Design 5",
-        thumbnail: IMAGEURLS.droneLogo,
+        x:270,
+        y:0,
     },
+    {
+        title: "Design 6",
+        x:60,
+        y:30
+    }
 ];
 
 function IndustryDesignsCarousel({ designData }) {
@@ -106,12 +116,12 @@ function IndustryDesignsCarousel({ designData }) {
                     modules={[EffectCoverflow, Navigation, Pagination]}
                     className={styles.industrySwiper}
                 >
-                    {designData.map((design, index) => (
+                    {slides.map((design, index) => (
                         <SwiperSlide key={design._id}>
                             <div className={styles.slideCard}>
                                 <Image
-                                    src={`https://d1d8a3050v4fu6.cloudfront.net/${design._id}/sprite_0_150.webp`}
-                                    alt={design.name}
+                                    src={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/sprite_${design.x}_${design.y}.webp`}
+                                    alt={design.title}
                                     width={600}
                                     height={300}
                                 />
@@ -147,9 +157,9 @@ function IndustryDesignsCarousel({ designData }) {
 
             {/* Thumbnails */}
             <div className={styles.thumbnailGrid}>
-                {designData.map((design, index) => (
+                {slides.map((design, index) => (
                     <div
-                        key={design._id}
+                        key={index}
                         className={`${styles.thumbnail} ${activeIndex === index ? styles.activeThumbnail : ""
                             }`}
                         onClick={() => {
@@ -160,8 +170,8 @@ function IndustryDesignsCarousel({ designData }) {
                         }}
                     >
                         <Image
-                            src={`https://d1d8a3050v4fu6.cloudfront.net/${design._id}/sprite_0_150.webp`}
-                            alt={design.name}
+                            src={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/sprite_${design.x}_${design.y}.webp`}
+                            alt={design.title}
                             width={64}
                             height={64}
                         />

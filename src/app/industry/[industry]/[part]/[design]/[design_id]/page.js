@@ -6,7 +6,7 @@ export async function generateMetadata({ params }) {
 
   return {
     title: ` File Viewer – Instantly Open & Explore ${industry} - ${part} `,
-    description: `View ${cadFile.toUpperCase()} (${industry}-${part}) files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds. Our proprietary rendering engine ensures smooth performance with zero lag and no glitches, even for large assemblies.`,
+    description: `View (${industry}-${part}) files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds. Our proprietary rendering engine ensures smooth performance with zero lag and no glitches, even for large assemblies.`,
     openGraph: {
       images: [
         {

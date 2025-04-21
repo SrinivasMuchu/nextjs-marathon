@@ -5,6 +5,7 @@
     width: 100%;
     padding:
     clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF;
 }
 
 .role-of-cad-desgin {
@@ -257,5 +258,8 @@
 
     .role-of-cad-desgin {
         width: 100%;
+    }
+    .sample-parts-container{
+        justify-content: center;
     }
 }
