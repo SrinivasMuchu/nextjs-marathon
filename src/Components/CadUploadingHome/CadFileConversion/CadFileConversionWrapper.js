@@ -203,7 +203,9 @@ function CadFileConversionWrapper({children,convert}) {
 
     const handleFileConvert = async (file) => {
         const fileSizeMB = file.size / (1024 * 1024); // Size in MB
-
+        const headers = {
+            "user-uuid": localStorage.getItem("token"),
+        };
         try {
             setDisableSelect(false)
             setUploadingMessage('UPLOADING')
@@ -216,9 +218,7 @@ function CadFileConversionWrapper({children,convert}) {
                     filesize: fileSizeMB
                 },
                 {
-                    headers: {
-                        "user-uuid": localStorage.getItem("uuid") // Moved UUID to headers for security
-                    }
+                    headers
                 }
             );
             
