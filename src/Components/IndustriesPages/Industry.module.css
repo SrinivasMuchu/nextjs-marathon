@@ -1,11 +1,11 @@
 .role-of-cad {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     width: 100%;
     padding:
     clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);
-    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF;
+    background:  linear-gradient(0deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.96) 100%), #610BEE;
 }
 
 .role-of-cad-desgin {

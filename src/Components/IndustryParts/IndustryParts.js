@@ -10,10 +10,13 @@ import UseOfCAD from '../IndustriesPages/UseOfCAD';
 import RoleOfCAD from '../IndustriesPages/RoleOfCAD';
 import IndustryDetails from '../IndustriesPages/IndustryDetails';
 import IndustryDesigns from './IndustryDesigns';
+import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
+import OrgFeatures from '../OrganizationHome/OrgFeatures/OrgFeatures';
 
 function IndustryParts({ industry,
     part_name,
     industryData }) {
+        console.log(industryData)
         const features = [
             {
                 title: 'Seamless CAD File viewing',
@@ -95,7 +98,14 @@ function IndustryParts({ industry,
         <div>
             {industryData && <>
                 <HomeTopNav />
+                 <ActiveLastBreadcrumb links={[
+                                    { label: 'CAD viewer', href: '/tools/cad-viewer' },   
+                                    { label: `${industryData.industry}`, href: `/industry/${industry}` },
+                                    { label: `${industryData.part_name}`, href: `/industry/${industry}/${part_name}` }
+                                  
+                                  ]}/>
                 <IndustryDetails industryData={industryData} part_name={part_name} />
+                <OrgFeatures type='cad' />
                 <RoleOfCAD industryData={industryData} part_name={part_name} />
                {industryData && <IndustryDesigns industryData={industryData} part_name={part_name} industry={industry}/>} 
 

@@ -7,14 +7,24 @@ import IndustryDesignsCarousel from './IndustryDesignsCarousel'
 import IndustryDesignDropZone from './IndustryDesignDropZone'
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav'
 import Footer from '../HomePages/Footer/Footer'
+import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 
 function IndustryDesign({ design, designData }) {
- 
+ console.log(designData)
   
   return (
     <div>
       {designData && <>
         <HomeTopNav />
+        <ActiveLastBreadcrumb 
+          links={[
+            { label: 'CAD viewer', href: '/tools/cad-viewer' },       
+            { label: `${design.industry}`, href: `/industry/${design.industry}` },
+            { label: `${designData.response.part_name}`, href: `/industry/${design.industry}/${design.part}` },
+            { label: `${designData.response.title}`, href: `/industry/${design.industry}/${design.part}/${design.design_id}` },
+          
+          ]}
+        />
       <IndustryDesignHeader design={design} designData={designData.response} />
       {designData.designs && <IndustryDesignsCarousel designData={designData.response}  />}
       {designData.response && <IndustryDesignFilesList designData={designData.response} />} 

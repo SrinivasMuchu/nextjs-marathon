@@ -6,7 +6,7 @@ import styles from './Tools.module.css'
 const toolsData = [
     {
         image: IMAGEURLS.orgImg,
-        heading: 'Orgnaization hierarchy',
+        heading: 'Organization hierarchy',
         description: 'Org Chart Maker – Fast & Easy Team Management',
         route: '/tools/org-hierarchy'
     },

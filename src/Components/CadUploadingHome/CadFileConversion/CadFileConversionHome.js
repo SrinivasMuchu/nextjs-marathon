@@ -9,6 +9,7 @@ import CadFileConversionHeader from './CadFileConversionHeader'
 
 import CadConverterTypes from './CadConverterTypes'
 import CadConverterFormateText from './CadConverterFormateText'
+import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 
 const features = [
     {
@@ -88,18 +89,26 @@ const featuresArray = [
 
 ]
 
-function CadFileConversionHome({ convert,conversionParams }) {
+function CadFileConversionHome({ convert, conversionParams }) {
     console.log(convert)
     return (
         <>
             <HomeTopNav />
-            <CadFileConversionHeader convert={convert}/>
+            {!convert && <ActiveLastBreadcrumb links={[
+
+                { label: '3D CAD File Converter', href: '/tools/3d-file-converter' },
+            ]} />}
+            {convert && <ActiveLastBreadcrumb links={[
+                { label: '3D CAD File Converter', href: '/tools/3d-file-converter' },
+                { label: `${conversionParams}`, href: `/tools/convert/${conversionParams}` },
+            ]} />}
+            <CadFileConversionHeader convert={convert} />
 
             <OrgFeatures type='cad' />
-           {conversionParams && <CadConverterFormateText conversionParams={conversionParams}/>} 
+            {conversionParams && <CadConverterFormateText conversionParams={conversionParams} />}
             <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails} />
-            <CadConverterTypes/>
+            <CadConverterTypes />
             <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />
             <Footer />
         </>

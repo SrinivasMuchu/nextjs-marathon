@@ -8,6 +8,7 @@ import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadUpload from '../CadUpload/CadUpload'
 import CadIndustry from './CadIndustry'
+import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 
 
 
@@ -94,6 +95,12 @@ function CadHomeDesign({type}) {
     return (
         <>
             <HomeTopNav />
+             <ActiveLastBreadcrumb
+                      links={[
+                        { label: 'CAD viewer', href: '/tools/cad-viewer' },       
+
+                      ]}
+                    />
             {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
            
             <OrgFeatures type='cad'/>

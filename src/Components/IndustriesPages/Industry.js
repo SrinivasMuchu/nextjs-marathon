@@ -10,6 +10,7 @@ import ChartBuilder from '../OrganizationHome/ChartBuilder/ChartBuilder'
 import OurFeatures from '../OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '../OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '../HomePages/Footer/Footer'
+import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 
 function Industry({ industry, industryData }) {
     // console.log(industryData)
@@ -90,10 +91,17 @@ function Industry({ industry, industryData }) {
         },
     
     ]
+
+   
     return (
         <div>
             {industryData && <>
                 <HomeTopNav />
+                <ActiveLastBreadcrumb links={[
+                    { label: 'CAD viewer', href: '/tools/cad-viewer' },   
+                    { label: `${industryData.industry}`, href: `/industry/${industry}` },
+                  
+                  ]}/>
                 <IndustryDetails industryData={industryData} />
                 <OrgFeatures type='cad' />
                 <RoleOfCAD industryData={industryData} industry={industry}/>
