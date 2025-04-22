@@ -373,7 +373,44 @@
     color: white;
 }
 
-
+@media screen and (max-width: 768px) {
+    .cad-conversion-table table,
+    .cad-conversion-table thead,
+    .cad-conversion-table tbody,
+    .cad-conversion-table th,
+    .cad-conversion-table td,
+    .cad-conversion-table tr {
+      display: block;
+      width: 100%;
+    }
+  
+    .cad-conversion-table thead {
+      display: none;
+    }
+  
+    .cad-conversion-table tr {
+     
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+    }
+  
+    .cad-conversion-table td {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-bottom: 1px solid #eee;
+      position: relative;
+    }
+  
+    .cad-conversion-table td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      width: 45%;
+      display: inline-block;
+      color: #333;
+    }
+  }
 @media screen and (max-width:1250px) {
     .cad-landing-page {
         justify-content: center;

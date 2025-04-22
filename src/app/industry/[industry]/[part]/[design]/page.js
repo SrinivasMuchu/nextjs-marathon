@@ -1,18 +1,14 @@
-import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign'
+import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign';
 import { BASE_URL } from '@/config';
-
 
 export async function generateMetadata({ params }) {
   const design = params['design'];
   const industry = params['industry'];
   const part = params['part'];
 
- 
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?grab_cad_title=${design}`, {
       method: 'GET',
-     
-      next: { revalidate: 3600 }
     });
 
     if (!response.ok) {
@@ -20,17 +16,22 @@ export async function generateMetadata({ params }) {
     }
 
     const data = await response.json();
+    const designData = data.data.response; // Adjusted based on your actual response structure
+
+    console.log(designData, 'meta response');
 
     return {
-      title: data.data.meta_title || `${design.toUpperCase()} File Viewer`,
-      description: data.data.meta_description || `View ${design.toUpperCase()} CAD files online`,
+      title: designData.meta_title ,
+      description: designData.meta_description ,
       openGraph: {
-        images: [{
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
-          width: 1200,
-          height: 630,
-          type: "image/png",
-        }],
+        images: [
+          {
+            url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+            width: 1200,
+            height: 630,
+            type: "image/png",
+          },
+        ],
       },
       metadataBase: new URL("https://marathon-os.com"),
       alternates: {
@@ -39,34 +40,19 @@ export async function generateMetadata({ params }) {
     };
   } catch (error) {
     console.error("Failed to fetch metadata:", error);
-    return {
-      title: `${design.toUpperCase()} File Viewer`,
-      description: `View ${design.toUpperCase()} CAD files online`,
-      openGraph: {
-        images: [{
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
-          width: 1200,
-          height: 630,
-          type: "image/png",
-        }],
-      },
-      metadataBase: new URL("https://marathon-os.com"),
-      alternates: {
-        canonical: `/industry/${industry}/${part}/${design}`,
-      },
-    };
+
+    // Fallback metadata
+   
   }
 }
 
 export default async function PartDesigns({ params }) {
   const design = params.design;
- 
 
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?grab_cad_title=${design}`, {
       method: 'GET',
-     
-      next: { revalidate: 3600 }
+      next: { revalidate: 3600 },
     });
 
     if (!response.ok) {
@@ -74,16 +60,15 @@ export default async function PartDesigns({ params }) {
     }
 
     const data = await response.json();
-    console.log(data)
-    // Ensure the data structure matches what your components expect
+
     const normalizedData = {
       ...data.data,
-      report: data.data.report || { cad_report: null }
+      report: data.data.report || { cad_report: null },
     };
 
-    return <IndustryDesign design={params} designData={data.data} />;
+    return <IndustryDesign design={params} designData={normalizedData} />;
   } catch (error) {
     console.error("Failed to fetch design data:", error);
-    return <IndustryDesign design={design} designData={null} />;
+    return <IndustryDesign design={params} designData={null} />;
   }
 }

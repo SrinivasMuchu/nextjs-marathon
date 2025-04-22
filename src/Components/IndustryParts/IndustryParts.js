@@ -16,7 +16,7 @@ import OrgFeatures from '../OrganizationHome/OrgFeatures/OrgFeatures';
 function IndustryParts({ industry,
     part_name,
     industryData }) {
-        console.log(industryData)
+       
         const features = [
             {
                 title: 'Seamless CAD File viewing',

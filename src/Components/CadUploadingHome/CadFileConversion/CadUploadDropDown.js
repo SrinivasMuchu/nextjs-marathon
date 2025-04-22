@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import Select from 'react-select';
 import cadStyles from '../CadHomeDesign/CadHome.module.css';
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
+import { textLettersLimit } from './../../../common.helper';
 
 function CadDropDown({
   file,
@@ -125,42 +126,43 @@ function CadDropDown({
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>{file?.name}</td>
-            <td>{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
-            <td>
-              <Select
-                value={getSelectedOption()}
-                onChange={handleSelectFileFormat}
-                options={getFilteredOptions()}
-                className={cadStyles['cad-conversion-select']}
-                isDisabled={isSelectDisabled}
-                isSearchable={false}
-              />
-            </td>
-            <td>{uploadingMessage}</td>
-            <td>
-              {isConvertButtonVisible && !uploadingMessage && (
-                <button
-                  className={cadStyles['cad-conversion-button']}
-                  onClick={handleConvert}
-                  disabled={isSelectDisabled}
-                >
-                  Convert
-                </button>
-              )}
+  <tr>
+    <td data-label="File Name">{textLettersLimit(file?.name,35)}.{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
+    <td data-label="File Format">{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
+    <td data-label="Convert To">
+      <Select
+        value={getSelectedOption()}
+        onChange={handleSelectFileFormat}
+        options={getFilteredOptions()}
+        className={cadStyles['cad-conversion-select']}
+        isDisabled={isSelectDisabled}
+        isSearchable={false}
+      />
+    </td>
+    <td data-label="Status">{uploadingMessage}</td>
+    <td data-label="Action">
+      {isConvertButtonVisible && !uploadingMessage && (
+        <button
+          className={cadStyles['cad-conversion-button']}
+          onClick={handleConvert}
+          disabled={isSelectDisabled}
+        >
+          Convert
+        </button>
+      )}
 
-              {uploadingMessage === 'COMPLETED' && (
-                <button
-                  className={cadStyles['cad-conversion-button']}
-                  onClick={handleDownload}
-                >
-                  Download
-                </button>
-              )}
-            </td>
-          </tr>
-        </tbody>
+      {uploadingMessage === 'COMPLETED' && (
+        <button
+          className={cadStyles['cad-conversion-button']}
+          onClick={handleDownload}
+        >
+          Download
+        </button>
+      )}
+    </td>
+  </tr>
+</tbody>
+
       </table>
     </div>
   );

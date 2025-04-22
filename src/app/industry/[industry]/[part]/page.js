@@ -63,13 +63,13 @@ async function IndustryPart({ params }) {
         industryResponse.json(),
         additionalDataResponse.json()
       ]);
-      console.log(additionalData.data)
+    
       // Combine the data
       const combinedData = {
         ...industryData.data,
         ...additionalData.data
       };
-     console.log(industry)
+   
       return <IndustryParts 
         industry={industry} 
         part_name={part} 

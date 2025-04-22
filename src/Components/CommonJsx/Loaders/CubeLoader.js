@@ -15,7 +15,7 @@ const statusMessages = {
 
 function CubeLoader({ uploadingMessage, totalImages , completedImages  }) {
   
-console.log(totalImages , completedImages)
+
   const showProgress = uploadingMessage === 'PROCESSED';
 
   return (

@@ -19,319 +19,322 @@ const MAX_ZOOM = 10;
 function IndustryCadViewer({designId}) {
     console.log(designId.design_id)
     const mountRef = useRef(null);
-    const rendererRef = useRef(null);
-    const sceneRef = useRef(null);
-    const cameraRef = useRef(null);
-    const planeRef = useRef(null);
-    const animationFrameRef = useRef(null);
-    const loadedTexturesRef = useRef(new Set()); // Track loaded textures
-    const [materials, setMaterials] = useState({});
-    const [lastValidMaterial, setLastValidMaterial] = useState(null);
-    const [xRotation, setXRotation] = useState(0);
-    const [yRotation, setYRotation] = useState(0);
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [currentZoom, setCurrentZoom] = useState(3.6);
-    
- const router = useRouter();
-
+       const rendererRef = useRef(null);
+       const sceneRef = useRef(null);
+       const cameraRef = useRef(null);
+       const planeRef = useRef(null);
+       const animationFrameRef = useRef(null);
+       const loadedTexturesRef = useRef(new Set()); // Track loaded textures
+       const [materials, setMaterials] = useState({});
+       const [lastValidMaterial, setLastValidMaterial] = useState(null);
+       const [xRotation, setXRotation] = useState(0);
+       const [yRotation, setYRotation] = useState(0);
+       const [error, setError] = useState(null);
+       const [isLoading, setIsLoading] = useState(false);
+       const [currentZoom, setCurrentZoom] = useState(3.6);
+   
+       const [folderId, setFolderId] = useState(designId.design_id);
+    const router = useRouter();
    
 
-    // Function to generate texture URL
-    const getTextureUrl = useCallback((x, y) => {
-        if (!designId.design_id) return "";  // Prevent invalid URL when designId.design_id is empty
-        const xFormatted = ((x % 360 + 360) % 360);
-        const yFormatted = ((y % 360 + 360) % 360);
-        console.log(designId.design_id)
-        return `https://d1d8a3050v4fu6.cloudfront.net/${designId.design_id}/sprite_${xFormatted}_${yFormatted}.webp`;
-    }, [designId.design_id]);
-
-
-    // Initial texture setup
-    const setupTextures = useCallback(async () => {
-
-        if (!rendererRef.current || !designId.design_id) return {}; // Ensure designId.design_id exists
-
-        const textureLoader = new THREE.TextureLoader();
-        const newMaterials = {};
-
-        for (let x = -BUFFER_SIZE; x <= BUFFER_SIZE; x += ANGLE_STEP) {
-            for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
-                const key = `${x}_${y}`;
-                const textureUrl = getTextureUrl(x, y);
-                if (!textureUrl) continue; // Skip if designId.design_id is missing
-
-                try {
-                    const texture = await new Promise((resolve, reject) => {
-                        textureLoader.load(textureUrl, resolve, undefined, reject);
-                    });
-
-                    texture.minFilter = THREE.LinearFilter;
-                    texture.magFilter = THREE.LinearFilter;
-                    newMaterials[key] = new THREE.MeshBasicMaterial({
-                        map: texture,
-                        transparent: true,
-                        side: THREE.DoubleSide
-                    });
-                } catch (error) {
-                    console.error(`Failed to load texture: ${textureUrl}`, error);
-                }
-            }
-        }
-
-        setMaterials(newMaterials);
-        // setIsLoading(false)
-    }, [designId.design_id, getTextureUrl]);
-
-    // Progressive texture loading
-    const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
-        if (!rendererRef.current || !designId.design_id) return;
-
-        const textureLoader = new THREE.TextureLoader();
-        const newMaterials = { ...materials };
-
-        for (let x = xStart; x <= xEnd; x += ANGLE_STEP) {
-            for (let y = yStart; y <= yEnd; y += ANGLE_STEP) {
-                const normalizedX = ((x % 360 + 360) % 360);
-                const normalizedY = ((y % 360 + 360) % 360);
-                const key = `${normalizedX}_${normalizedY}`;
-
-                if (loadedTexturesRef.current.has(key)) continue;
-
-                textureLoader.load(
-                    getTextureUrl(normalizedX, normalizedY),
-                    (texture) => {
-                        texture.minFilter = THREE.LinearFilter;
-                        texture.magFilter = THREE.LinearFilter;
-                        texture.anisotropy = rendererRef.current.capabilities.getMaxAnisotropy();
-
-                        newMaterials[key] = new THREE.MeshBasicMaterial({
-                            map: texture,
-                            transparent: true,
-                            side: THREE.DoubleSide
-                        });
-
-                        loadedTexturesRef.current.add(key);
-                        setMaterials(prev => ({ ...prev, [key]: newMaterials[key] }));
-                    },
-                    undefined,
-                    (error) => console.error(`Failed to load texture: ${key}`, error)
-                );
-            }
-        }
-    }, [materials, getTextureUrl, designId.design_id]);
-
-    // Maintain texture buffer
-    const maintainTextureBuffer = useCallback(() => {
-        const xStart = xRotation - BUFFER_SIZE;
-        const xEnd = xRotation + BUFFER_SIZE;
-        const yStart = yRotation - BUFFER_SIZE;
-        const yEnd = yRotation + BUFFER_SIZE;
-
-        loadTexturesForRange(xStart, xEnd, yStart, yEnd);
-    }, [xRotation, yRotation, loadTexturesForRange]);
-
-    // Rotation handler
-    const rotateView = useCallback((direction) => {
-        switch (direction) {
-            case 'up':
-                setXRotation(prev => (prev - ANGLE_STEP + MAX_ROTATION) % MAX_ROTATION);
-                break;
-            case 'down':
-                setXRotation(prev => (prev + ANGLE_STEP) % MAX_ROTATION);
-                break;
-            case 'left':
-                setYRotation(prev => (prev - ANGLE_STEP + MAX_ROTATION) % MAX_ROTATION);
-                break;
-            case 'right':
-                setYRotation(prev => (prev + ANGLE_STEP) % MAX_ROTATION);
-                break;
-        }
-    }, []);
-
-    // Zoom handler
-    const handleZoom = useCallback((direction) => {
-        if (!cameraRef.current) return;
-
-        const newZoom = direction === 'in'
-            ? Math.max(currentZoom - ZOOM_STEP, MIN_ZOOM)
-            : Math.min(currentZoom + ZOOM_STEP, MAX_ZOOM);
-
-        setCurrentZoom(newZoom);
-
-        const direction3D = new THREE.Vector3();
-        cameraRef.current.getWorldDirection(direction3D);
-        direction3D.multiplyScalar(-newZoom);
-        cameraRef.current.position.copy(direction3D);
-    }, [currentZoom]);
-
-    // Scene initialization
-    useEffect(() => {
-        let mounted = true;
-        let cleanup = null;
-
-        const initializeScene = async () => {
-            if (!mountRef.current) return;
-
-            try {
-                // Initialize renderer
-                const renderer = new THREE.WebGLRenderer({
-                    antialias: true,
-                    powerPreference: "high-performance",
-                    alpha: true
-                });
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                mountRef.current.appendChild(renderer.domElement);
-                rendererRef.current = renderer;
-
-                // Initialize scene
-                const scene = new THREE.Scene();
-                scene.background = new THREE.Color(0xffffff);
-                sceneRef.current = scene;
-
-                // Setup camera
-                const camera = new THREE.PerspectiveCamera(
-                    40,
-                    window.innerWidth / window.innerHeight,
-                    0.1,
-                    1000
-                );
-                camera.position.set(2, 2, 2);
-                camera.lookAt(0, 0, 0);
-                cameraRef.current = camera;
-
-                // Create plane
-                const geometry = new THREE.PlaneGeometry(2, 2);
-                const tempMaterial = new THREE.MeshBasicMaterial({
-                    color: 0xff0000,
-                    transparent: true,
-                    opacity: 0.5,
-                    side: THREE.DoubleSide
-                });
-
-                const plane = new THREE.Mesh(geometry, tempMaterial);
-                planeRef.current = plane;
-                scene.add(plane);
-
-                // Load initial materials
-                const newMaterials = await setupTextures();
-                if (!mounted) return;
-                setMaterials(newMaterials);
-
-                // Animation loop
-                const animate = () => {
-                    animationFrameRef.current = requestAnimationFrame(animate);
-                    renderer.render(scene, camera);
-                };
-                animate();
-
-                // setIsLoading(false);
-
-                cleanup = () => {
-                    cancelAnimationFrame(animationFrameRef.current);
-                    renderer.dispose();
-                    geometry.dispose();
-                    tempMaterial.dispose();
-                    if (mountRef.current?.contains(renderer.domElement)) {
-                        mountRef.current.removeChild(renderer.domElement);
-                    }
-                };
-
-            } catch (error) {
-                console.error('Scene initialization error:', error);
-                setError('Failed to initialize scene');
-                // setIsLoading(false);
-            }
-        };
-
-        initializeScene();
-
-        return () => {
-            mounted = false;
-            if (cleanup) cleanup();
-        };
-    }, [setupTextures]);
-    useEffect(() => {
-        if (!designId.design_id) return;
-        setIsLoading(true)
-        const timeout = setTimeout(() => {
-            console.log(`Delayed setupTextures with designId.design_id: ${designId.design_id}`);
-            setupTextures();
-        }, 300); // Adjust delay if needed
-        setIsLoading(false)
-        return () => clearTimeout(timeout);
-    }, [designId.design_id]);
-
-
-    // Material update effect
-    useEffect(() => {
-        if (!planeRef.current || !materials || Object.keys(materials).length === 0 || !designId.design_id) return;
-
-        const materialKey = `${xRotation}_${yRotation}`;
-        const newMaterial = materials[materialKey];
-        setIsLoading(true)
-        if (newMaterial?.map) {
-            if (planeRef.current.material !== newMaterial) {
-                if (planeRef.current.material &&
-                    planeRef.current.material !== lastValidMaterial &&
-                    planeRef.current.material !== newMaterial) {
-                    planeRef.current.material.dispose();
-                }
-                planeRef.current.material = newMaterial;
-                setLastValidMaterial(newMaterial);
-            }
-        }
-        setIsLoading(false)
-    }, [xRotation, yRotation, materials, lastValidMaterial, designId.design_id]);
-
-    // Buffer maintenance effect
-    useEffect(() => {
-        maintainTextureBuffer();
-    }, [xRotation, yRotation, maintainTextureBuffer]);
-
-    // Keyboard controls
-    useEffect(() => {
-        const handleKeyDown = (event) => {
-            event.preventDefault();
-
-            switch (event.key) {
-                case 'ArrowLeft':
-                    rotateView('left');
-                    break;
-                case 'ArrowRight':
-                    rotateView('right');
-                    break;
-                case 'ArrowUp':
-                    rotateView('up');
-                    break;
-                case 'ArrowDown':
-                    rotateView('down');
-                    break;
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [rotateView]);
-
-    // Window resize handler
-    useEffect(() => {
-        const handleResize = () => {
-            if (!cameraRef.current || !rendererRef.current) return;
-
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-
-            cameraRef.current.aspect = width / height;
-            cameraRef.current.updateProjectionMatrix();
-
-            rendererRef.current.setSize(width, height);
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+   
+       // Function to generate texture URL
+       const getTextureUrl = useCallback((x, y) => {
+           if (!folderId) return "";  // Prevent invalid URL when folderId is empty
+           const xFormatted = ((x % 360 + 360) % 360);
+           const yFormatted = ((y % 360 + 360) % 360);
+           console.log(folderId)
+           return `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted?xFormatted:30}_${yFormatted?yFormatted:0}.webp`;
+       }, [folderId]);
+   
+   
+       // Initial texture setup
+       const setupTextures = useCallback(async () => {
+   
+           if (!rendererRef.current || !folderId) return {}; // Ensure folderId exists
+   
+           const textureLoader = new THREE.TextureLoader();
+           const newMaterials = {};
+   
+           for (let x = -BUFFER_SIZE; x <= BUFFER_SIZE; x += ANGLE_STEP) {
+               for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
+                   const key = `${x}_${y}`;
+                   const textureUrl = getTextureUrl(x, y);
+                   if (!textureUrl) continue; // Skip if folderId is missing
+   
+                   try {
+                       const texture = await new Promise((resolve, reject) => {
+                           textureLoader.load(textureUrl, resolve, undefined, reject);
+                       });
+   
+                       texture.minFilter = THREE.LinearFilter;
+                       texture.magFilter = THREE.LinearFilter;
+                       newMaterials[key] = new THREE.MeshBasicMaterial({
+                           map: texture,
+                           transparent: true,
+                           side: THREE.DoubleSide
+                       });
+                   } catch (error) {
+                       console.error(`Failed to load texture: ${textureUrl}`, error);
+                   }
+               }
+           }
+   
+           setMaterials(newMaterials);
+           // setIsLoading(false)
+       }, [folderId, getTextureUrl]);
+   
+       // Progressive texture loading
+       const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
+           if (!rendererRef.current || !folderId) return;
+   
+           const textureLoader = new THREE.TextureLoader();
+           const newMaterials = { ...materials };
+   
+           for (let x = xStart; x <= xEnd; x += ANGLE_STEP) {
+               for (let y = yStart; y <= yEnd; y += ANGLE_STEP) {
+                   const normalizedX = ((x % 360 + 360) % 360);
+                   const normalizedY = ((y % 360 + 360) % 360);
+                   const key = `${normalizedX}_${normalizedY}`;
+   
+                   if (loadedTexturesRef.current.has(key)) continue;
+   
+                   textureLoader.load(
+                       getTextureUrl(normalizedX, normalizedY),
+                       (texture) => {
+                           texture.minFilter = THREE.LinearFilter;
+                           texture.magFilter = THREE.LinearFilter;
+                           texture.anisotropy = rendererRef.current.capabilities.getMaxAnisotropy();
+   
+                           newMaterials[key] = new THREE.MeshBasicMaterial({
+                               map: texture,
+                               transparent: true,
+                               side: THREE.DoubleSide
+                           });
+   
+                           loadedTexturesRef.current.add(key);
+                           setMaterials(prev => ({ ...prev, [key]: newMaterials[key] }));
+                       },
+                       undefined,
+                       (error) => console.error(`Failed to load texture: ${key}`, error)
+                   );
+               }
+           }
+       }, [materials, getTextureUrl, folderId]);
+   
+       // Maintain texture buffer
+       const maintainTextureBuffer = useCallback(() => {
+           const xStart = xRotation - BUFFER_SIZE;
+           const xEnd = xRotation + BUFFER_SIZE;
+           const yStart = yRotation - BUFFER_SIZE;
+           const yEnd = yRotation + BUFFER_SIZE;
+   
+           loadTexturesForRange(xStart, xEnd, yStart, yEnd);
+       }, [xRotation, yRotation, loadTexturesForRange]);
+   
+       // Rotation handler
+       const rotateView = useCallback((direction) => {
+           switch (direction) {
+               case 'up':
+                   setXRotation(prev => (prev - ANGLE_STEP + MAX_ROTATION) % MAX_ROTATION);
+                   break;
+               case 'down':
+                   setXRotation(prev => (prev + ANGLE_STEP) % MAX_ROTATION);
+                   break;
+               case 'left':
+                   setYRotation(prev => (prev - ANGLE_STEP + MAX_ROTATION) % MAX_ROTATION);
+                   break;
+               case 'right':
+                   setYRotation(prev => (prev + ANGLE_STEP) % MAX_ROTATION);
+                   break;
+           }
+       }, []);
+   
+       // Zoom handler
+       const handleZoom = useCallback((direction) => {
+           if (!cameraRef.current) return;
+   
+           const newZoom = direction === 'in'
+               ? Math.max(currentZoom - ZOOM_STEP, MIN_ZOOM)
+               : Math.min(currentZoom + ZOOM_STEP, MAX_ZOOM);
+   
+           setCurrentZoom(newZoom);
+   
+           const direction3D = new THREE.Vector3();
+           cameraRef.current.getWorldDirection(direction3D);
+           direction3D.multiplyScalar(-newZoom);
+           cameraRef.current.position.copy(direction3D);
+       }, [currentZoom]);
+   
+       // Scene initialization
+       useEffect(() => {
+           let mounted = true;
+           let cleanup = null;
+   
+           const initializeScene = async () => {
+               if (!mountRef.current) return;
+   
+               try {
+                   // Initialize renderer
+                   const renderer = new THREE.WebGLRenderer({
+                       antialias: true,
+                       powerPreference: "high-performance",
+                       alpha: true
+                   });
+                   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                   renderer.setSize(window.innerWidth, window.innerHeight);
+                   mountRef.current.appendChild(renderer.domElement);
+                   rendererRef.current = renderer;
+   
+                   // Initialize scene
+                   const scene = new THREE.Scene();
+                   scene.background = new THREE.Color(0xffffff);
+                   sceneRef.current = scene;
+   
+                   // Setup camera
+                   const camera = new THREE.PerspectiveCamera(
+                       40,
+                       window.innerWidth / window.innerHeight,
+                       0.1,
+                       1000
+                   );
+                   camera.position.set(2, 2, 2);
+                   camera.lookAt(0, 0, 0);
+                   cameraRef.current = camera;
+   
+                   // Create plane
+                   const geometry = new THREE.PlaneGeometry(2, 2);
+                   const tempMaterial = new THREE.MeshBasicMaterial({
+                       color: 0xff0000,
+                       transparent: true,
+                       opacity: 0.5,
+                       side: THREE.DoubleSide
+                   });
+   
+                   const plane = new THREE.Mesh(geometry, tempMaterial);
+                   planeRef.current = plane;
+                   scene.add(plane);
+   
+                   // Load initial materials
+                   const newMaterials = await setupTextures();
+                   if (!mounted) return;
+                   setMaterials(newMaterials);
+   
+                   // Animation loop
+                   const animate = () => {
+                       animationFrameRef.current = requestAnimationFrame(animate);
+                       renderer.render(scene, camera);
+                   };
+                   animate();
+   
+                   // setIsLoading(false);
+   
+                   cleanup = () => {
+                       cancelAnimationFrame(animationFrameRef.current);
+                       renderer.dispose();
+                       geometry.dispose();
+                       tempMaterial.dispose();
+                       if (mountRef.current?.contains(renderer.domElement)) {
+                           mountRef.current.removeChild(renderer.domElement);
+                       }
+                   };
+   
+               } catch (error) {
+                   console.error('Scene initialization error:', error);
+                   setError('Failed to initialize scene');
+                   // setIsLoading(false);
+               }
+           };
+   
+           initializeScene();
+   
+           return () => {
+               mounted = false;
+               if (cleanup) cleanup();
+           };
+       }, [setupTextures]);
+       useEffect(() => {
+           if (!folderId) return;
+           setIsLoading(true)
+           const timeout = setTimeout(() => {
+               console.log(`Delayed setupTextures with folderId: ${folderId}`);
+               setupTextures();
+           }, 300); // Adjust delay if needed
+           setIsLoading(false)
+           return () => clearTimeout(timeout);
+       }, [folderId]);
+   
+   
+       // Material update effect
+       useEffect(() => {
+           if (!planeRef.current || !materials || Object.keys(materials).length === 0 || !folderId) return;
+   
+           const materialKey = `${xRotation}_${yRotation}`;
+           const newMaterial = materials[materialKey];
+           setIsLoading(true)
+           if (newMaterial?.map) {
+               if (planeRef.current.material !== newMaterial) {
+                   if (planeRef.current.material &&
+                       planeRef.current.material !== lastValidMaterial &&
+                       planeRef.current.material !== newMaterial) {
+                       planeRef.current.material.dispose();
+                   }
+                   planeRef.current.material = newMaterial;
+                   setLastValidMaterial(newMaterial);
+               }
+           }
+           setIsLoading(false)
+       }, [xRotation, yRotation, materials, lastValidMaterial, folderId]);
+   
+       // Buffer maintenance effect
+       useEffect(() => {
+           maintainTextureBuffer();
+       }, [xRotation, yRotation, maintainTextureBuffer]);
+   
+       // Keyboard controls
+       useEffect(() => {
+           const handleKeyDown = (event) => {
+               event.preventDefault();
+   
+               switch (event.key) {
+                   case 'ArrowLeft':
+                       rotateView('left');
+                       break;
+                   case 'ArrowRight':
+                       rotateView('right');
+                       break;
+                   case 'ArrowUp':
+                       rotateView('up');
+                       break;
+                   case 'ArrowDown':
+                       rotateView('down');
+                       break;
+               }
+           };
+   
+           window.addEventListener('keydown', handleKeyDown);
+           return () => window.removeEventListener('keydown', handleKeyDown);
+       }, [rotateView]);
+   
+       // Window resize handler
+       useEffect(() => {
+           const handleResize = () => {
+               if (!cameraRef.current || !rendererRef.current) return;
+   
+               const width = window.innerWidth;
+               const height = window.innerHeight;
+   
+               cameraRef.current.aspect = width / height;
+               cameraRef.current.updateProjectionMatrix();
+   
+               rendererRef.current.setSize(width, height);
+           };
+   
+           window.addEventListener('resize', handleResize);
+           return () => window.removeEventListener('resize', handleResize);
+       }, []);
+   
+    
     return (
         <>
             <HomeTopNav />

@@ -6,8 +6,8 @@ import { IMAGEURLS } from '@/config';
 import IndustrySuggestionFiles from './IndustrySuggestionFiles';
 import IndustrySuggestionsHead from './IndustrySuggestionsHead';
 
-function IndustryDesignsSuggestion({ type, designData = [] }) {
-  console.log(!type && designData)
+function IndustryDesignsSuggestion({ type, designData = [],design }) {
+  
   const [startIndex, setStartIndex] = useState(0);
   const [itemsToShow, setItemsToShow] = useState(3);
 
@@ -42,6 +42,7 @@ function IndustryDesignsSuggestion({ type, designData = [] }) {
   };
 
   const visibleItems = designData.slice(startIndex, startIndex + itemsToShow);
+  console.log(type && visibleItems, 'designData45');
   const style = type
     ? {
         background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF',
@@ -65,7 +66,7 @@ function IndustryDesignsSuggestion({ type, designData = [] }) {
           <Image src={IMAGEURLS.leftArrow} alt="left-arrow" width={40} height={40} />
         </div>
 
-        <IndustrySuggestionFiles visibleItems={visibleItems} />
+        <IndustrySuggestionFiles visibleItems={visibleItems} type={type} design={design}/>
 
         <div
           className={styles['industry-design-suggestion-arrows']}

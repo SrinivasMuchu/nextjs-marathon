@@ -1,7 +1,7 @@
 .role-of-cad {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     width: 100%;
     padding:
     clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);

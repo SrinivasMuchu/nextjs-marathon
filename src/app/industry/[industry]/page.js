@@ -71,7 +71,7 @@ export default async function IndustryPage({ params }) {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
-    console.log(industry, 'industry');
+ 
     return <Industry industry={params.industry} industryData={data.data} />;
   } catch (error) {
     console.error("Failed to fetch industry data:", error);
