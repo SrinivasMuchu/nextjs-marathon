@@ -70,7 +70,7 @@
     box-sizing: border-box;
 }
 .industry-part-page-card{
-    max-width: 450px !important;
+    max-width: 350px !important;
     border-radius: 12px;
     border: 1px solid rgba(217, 183, 253, 0.30);
     background: #FFF;
@@ -81,6 +81,7 @@
     padding: 24px;
     box-sizing: border-box;
     min-height: 450px;
+    flex-shrink: 0; 
 }
 .industry-horizontal-img-cont{
     display:flex;

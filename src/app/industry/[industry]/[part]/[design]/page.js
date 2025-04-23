@@ -21,7 +21,7 @@ export async function generateMetadata({ params }) {
     console.log(designData, 'meta response');
 
     return {
-      title: designData.meta_title ,
+      title: `${designData.meta_title} | Marathon OS` ,
       description: designData.meta_description ,
       openGraph: {
         images: [

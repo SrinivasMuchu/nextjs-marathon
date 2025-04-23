@@ -21,7 +21,7 @@ export async function generateMetadata({ params }) {
     const data = await response.json();
 
     return {
-      title: data.data.meta_title,
+      title: `${data.data.meta_title} | Marathon OS`,
       description: data.data.meta_description,
       openGraph: {
         images: [{
