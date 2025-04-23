@@ -63,7 +63,7 @@ export default function PartDesignView() {
             setIsLoading(true)
             setUploadingMessage('UPLOADINGFILE')
             const headers = {
-                "user-uuid": localStorage.getItem("token"),
+                "user-uuid": localStorage.getItem("uuid"),
             };
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
@@ -74,10 +74,7 @@ export default function PartDesignView() {
                     filesize: fileSizeMB 
                 },
                 {
-                    headers: {
-                        "user-uuid": localStorage.getItem("uuid"), // Moved uuid to headers
-                        
-                    }
+                    headers
                 }
             );
             
