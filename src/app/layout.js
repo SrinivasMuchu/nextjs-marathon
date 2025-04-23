@@ -4,8 +4,7 @@ import { Inter } from "next/font/google";
 import ToastProvider from "@/Components/CommonJsx/ReactToastify";
 import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
-import getBreadcrumbJsonLd from "@/Components/CommonJsx/ServerBreadCrumbs";
-import ServerBreadCrumbs from "@/Components/CommonJsx/ServerBreadCrumbs";
+
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -116,7 +115,7 @@ export default function RootLayout({ children }) {
       <body className={inter.variable}>
         <ToastProvider />
         <CreateLocalStorage />
-        <ServerBreadCrumbs/>
+      
         <ContextWrapper>
           {children}
         </ContextWrapper>

@@ -1,3 +1,4 @@
+
 import React from 'react'
 
 function ServerBreadCrumbs({ links = [] }) {
@@ -5,12 +6,6 @@ function ServerBreadCrumbs({ links = [] }) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://marathon-os.com/"
-      },
       ...links.map((item, index) => ({
         "@type": "ListItem",
         "position": index + 2,
