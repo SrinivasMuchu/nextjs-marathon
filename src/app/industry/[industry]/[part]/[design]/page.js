@@ -7,7 +7,7 @@ export async function generateMetadata({ params }) {
   const part = params['part'];
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?grab_cad_title=${design}`, {
+    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?design_route=${design}`, {
       method: 'GET',
     });
 
@@ -50,9 +50,9 @@ export default async function PartDesigns({ params }) {
   const design = params.design;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?grab_cad_title=${design}`, {
+    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?design_route=${design}`, {
       method: 'GET',
-      next: { revalidate: 3600 },
+      cache: 'no-store',
     });
 
     if (!response.ok) {

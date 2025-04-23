@@ -4,11 +4,19 @@ import styles from './Blogs.module.css'
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav'
 import { IMAGEURLS } from '@/config'
 import Footer from '../HomePages/Footer/Footer'
+import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 
 function Blogs() {
     return (
         <>
             <HomeTopNav />
+             <ActiveLastBreadcrumb
+                                  links={[
+                                    { label: 'Part Number Nomenclature guide', href: '/blog/part-number-nomenclature-guide' },       
+                                   
+                                  
+                                  ]}
+                                />
             <div className={styles["blog-page-cont"]}>
                 <div className={styles["blog-page"]}>
                     <h1>Part Number Nomenclature: Importance, Best Practices, and Real-World Examples</h1>

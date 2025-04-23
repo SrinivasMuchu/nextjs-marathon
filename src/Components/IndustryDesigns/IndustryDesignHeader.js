@@ -13,7 +13,7 @@ function IndustryDesignHeader({design,designData}) {
         </div>
         <div className={styles['industry-design-header-viewer']}>
             <span >Experience in 3-D</span>
-            <a target='_blank' href={`/industry/${design.industry}/${design.part}/${design.design}/${designData._id}`}><button >Open in 3D viewer</button></a>
+            <a href={`/industry/${design.industry}/${design.part}/${design.design}/${designData._id}`}><button >Open in 3D viewer</button></a>
             
         </div>
     </div>

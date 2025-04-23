@@ -11,7 +11,7 @@ function CadConverterTypes() {
     { label: 'STEP to OFF', path: '/step-to-off' },
 
     { label: 'IGES to BREP', path: '/iges-to-brep' },
-    { label: 'IGES to STEP', path: '/iges-to-iges' },
+    { label: 'IGES to STEP', path: '/iges-to-step' },
     { label: 'IGES to OBJ', path: '/iges-to-obj' },
     { label: 'IGES to PLY', path: '/iges-to-ply' },
     { label: 'IGES to STL', path: '/iges-to-stl' },

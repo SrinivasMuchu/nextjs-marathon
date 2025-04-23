@@ -21,8 +21,8 @@ async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
   }
 
   return (
-    <>
-      {capabilities.map((capability, index) => (
+    <div className={styles['industry-horizontal-img-cont']}  >
+      {capabilities.slice(0, 4).map((capability, index) => (
         <IndustryDesignParallelaxWrapper key={index} styles={styles} >
           <a href={`/industry/${industry}/${part_name}/${capability.route}`}>
             <div className={styles['capabilities-img-cont']} >
@@ -47,7 +47,7 @@ async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
           </a>
         </IndustryDesignParallelaxWrapper>
       ))}
-    </>
+    </div>
   );
 }
 

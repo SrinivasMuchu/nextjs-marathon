@@ -33,7 +33,7 @@ export default async function IndustryDesigns({ industryData, part_name, industr
         </p>
       </div>
 
-      <div className={styles['capabilities-page-img']}>
+      <div className={styles['industry-parts-page-img']}>
         <IndustryDesignCards
           styles={styles}
           part_name={part_name}

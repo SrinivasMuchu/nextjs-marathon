@@ -1,10 +1,17 @@
 import React from 'react'
 
-function IndustrySuggestionsHead() {
+function IndustrySuggestionsHead({type,design}) {
   return (
     <>
-           <h2>Related Designs</h2>
-           <p>Explore similar designs based on your interests and preferences.</p>
+    {!type ? <><h2>Explore Other Industries
+
+           </h2>
+           <p>Browse CAD models and engineering designs from a variety of industries beyond your current focus. Discover new possibilities and applications.</p></> : 
+           <><h2>More from the {design.industry.replace(/-/g, ' ')} </h2>
+           <p>Explore related CAD models and engineering designs from the 
+            {/* {{Industry}}  */}
+            to support your product development and innovation.</p></>}
+           
     </>
   )
 }

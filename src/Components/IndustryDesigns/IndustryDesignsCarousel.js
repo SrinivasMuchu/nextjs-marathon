@@ -11,42 +11,44 @@ import "swiper/css/pagination";
 import styles from "./IndustryDesign.module.css";
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
+import IndustryDesignCarouselWrapper from "./IndustryDesignCarouselWrapper";
 
 // Sample slides with titles and thumbnails
-const slides = [
-    {
-        title: "Design 1",
-        x: 0,
-        y:0 // use actual URLs from your IMAGEURLS
-    },
-    {
-        title: "Design 2",
-        x:0,
-        y:90
-    },
-    {
-        title: "Design 3",
-        x:0,
-        y:270,
-    },
-    {
-        title: "Design 4",
-        x:90,
-        y:0
-    },
-    {
-        title: "Design 5",
-        x:270,
-        y:0,
-    },
-    {
-        title: "Design 6",
-        x:60,
-        y:30
-    }
-];
+
 
 function IndustryDesignsCarousel({ designData }) {
+    const slides = [
+        {
+            title: `${designData.page_title}_0_0_degree_snapshot`,
+            x: 0,
+            y:0 // use actual URLs from your IMAGEURLS
+        },
+        {
+            title: `${designData.page_title}_0_90_degree_snapshot`,
+            x:0,
+            y:90
+        },
+        {
+            title: `${designData.page_title}_0_270_degree_snapshot`,
+            x:0,
+            y:270,
+        },
+        {
+            title: `${designData.page_title}_90_0_degree_snapshot`,
+            x:90,
+            y:0
+        },
+        {
+            title: `${designData.page_title}_270_0_degree_snapshot`,
+            x:270,
+            y:0,
+        },
+        {
+            title: `${designData.page_title}_60_30_degree_snapshot`,
+            x:60,
+            y:30
+        }
+    ];
     const swiperRef = useRef(null);
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -63,7 +65,7 @@ function IndustryDesignsCarousel({ designData }) {
     };
 
     return (
-        <div className={styles.carouselWrapper}>
+        <IndustryDesignCarouselWrapper>
             {/* Custom Prev Arrow */}
 
             {/* Main Swiper */}
@@ -178,7 +180,7 @@ function IndustryDesignsCarousel({ designData }) {
                     </div>
                 ))}
             </div>
-        </div>
+        </IndustryDesignCarouselWrapper>
     );
 }
 

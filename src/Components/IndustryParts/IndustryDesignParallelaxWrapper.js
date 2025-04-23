@@ -9,8 +9,8 @@ function IndustryDesignParallelaxWrapper({children,styles}) {
             tiltMaxAngleY={10}
             perspective={1000}
             scale={1}
-            transitionSpeed={1500} style={{height:'300px'}} className={styles['capabilities-page-card']}
-            style={{ height:'350px' }}
+            transitionSpeed={1500}  className={styles['industry-part-page-card']}
+           
         >
             {children}
         </ReactParallaxTilt>

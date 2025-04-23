@@ -6,6 +6,7 @@
     gap: 40px;
     padding: 80px;
     box-sizing: border-box;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.96) 100%), #610BEE;
 }
 
 .chart-builder-text {

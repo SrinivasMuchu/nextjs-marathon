@@ -10,7 +10,7 @@ import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 
 function IndustryDesign({ design, designData }) {
-
+console.log(designData,'industry files')
   
   return (
     <div>
@@ -26,13 +26,13 @@ function IndustryDesign({ design, designData }) {
           ]}
         />
       <IndustryDesignHeader design={design} designData={designData.response} />
-      {designData.designs && <IndustryDesignsCarousel designData={designData.response}  />}
-      {designData.response && <IndustryDesignFilesList designData={designData.response} />} 
-     {designData.designs &&  <IndustryDesignsSuggestion type='design' designData={designData.designs} design={design}/>}
+      {designData.response && <IndustryDesignsCarousel designData={designData.response}  />}
+      {designData.response && <IndustryDesignFilesList designData={designData.response} design={design}/>} 
+     {designData.designs.length &&  <IndustryDesignsSuggestion type='design' designData={designData.designs} design={design}/>}
      {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design}/>}
       <div style={{width:'100%',height:'15px',background:'#F4F4F4'}}></div>
-      {designData?.report?.cad_report && (
-        <AboutCad cadReport={designData.report.cad_report} />
+      {designData?.report && (
+        <AboutCad cadReport={designData.report} />
       )}
       <IndustryDesignDropZone />
       <Footer />

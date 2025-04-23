@@ -284,7 +284,15 @@
     background: grey;
     border-radius: 4px;
 }
-
+.industry-design-industry-tag{
+    padding: 5px 10px;
+    border: 1px solid #610BEE;
+    border-radius: 50px;
+    color: #610BEE;
+    width: fit-content;
+    font-size: 12px;
+    background: #e2d2fc;
+}
 .industry-design-suggestion-designs-cont h6 {
     color: #000;
     font-size: 24px;

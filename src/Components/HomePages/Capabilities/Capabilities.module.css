@@ -47,7 +47,14 @@
     /* height: 500px; */
     /* background: #edf2f7; */
 }
-
+.industry-parts-page-img{
+    display: flex;
+   
+    align-items: center;
+    justify-content: center;
+   
+    width: 100%;
+}
 
 .capabilities-page-card {
     width: 360px;
@@ -61,6 +68,30 @@
     justify-content: center;
     padding: 24px;
     box-sizing: border-box;
+}
+.industry-part-page-card{
+    max-width: 450px !important;
+    border-radius: 12px;
+    border: 1px solid rgba(217, 183, 253, 0.30);
+    background: #FFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+    min-height: 450px;
+}
+.industry-horizontal-img-cont{
+    display:flex;
+    gap:24px;
+    overflow-x: scroll ;
+    /* align-items: center;
+    justify-content: center; */
+    width:100%;
+}
+.industry-horizontal-img-cont::-webkit-scrollbar {
+    display: none;
 }
 .capabilities-page-card:hover{
     padding: 24px 5px;
@@ -122,5 +153,9 @@
     }
     .capabilities-page-card-text{
         text-align: center;
+    }
+    .industry-part-page-card{
+        min-width: 80% !important;
+        
     }
 }

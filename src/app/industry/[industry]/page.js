@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
       method: 'GET',
       
-      next: { revalidate: 3600 } // Optional revalidation
+      cache: 'no-store', // Optional revalidation
     });
 
     if (!response.ok) {
@@ -65,7 +65,7 @@ export default async function IndustryPage({ params }) {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
       method: 'GET',
      
-      next: { revalidate: 3600 }
+      cache: 'no-store',
     });
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

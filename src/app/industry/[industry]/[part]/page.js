@@ -46,12 +46,12 @@ async function IndustryPart({ params }) {
         fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
           method: 'GET',
          
-          next: { revalidate: 3600 }
+         cache: 'no-store',
         }),
         fetch(`${BASE_URL}/v1/cad/get-industry-part-data?route=${part}`, {
           method: 'GET',
         
-          next: { revalidate: 3600 }
+         cache: 'no-store',
         })
       ]);
 
