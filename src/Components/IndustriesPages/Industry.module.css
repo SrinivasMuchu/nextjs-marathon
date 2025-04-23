@@ -1,0 +1,265 @@
+.role-of-cad {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding:
+    clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);
+    background:  linear-gradient(0deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.96) 100%), #610BEE;
+}
+
+.role-of-cad-desgin {
+    width: 400px;
+    height: 400px;
+    background: #F6F6F6;
+    border:1px solid #edf2f7;
+    border-radius: 12px;
+}
+
+.role-of-cad-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 50%;
+}
+
+.role-of-cad-content h2 {
+    color: #000;
+    font-size: 44px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+
+}
+
+.role-of-cad-content p {
+    color: #001325;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 28px;
+    opacity: 0.5;
+    text-align: justify;
+}
+
+.role-of-cad-content span {
+    color: #001325;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: -0.288px;
+    opacity: 0.8;
+}
+
+
+.use-of-cad {
+    display: flex;
+    flex-direction: column;
+    gap: 74px;
+    width: 100%;
+    padding: 100px 80px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF;
+}
+
+.use-of-cad-bottom {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: stretch;
+    gap: 20px;
+}
+
+.use-of-cad-bottom h6 {
+    color: #001325;
+    text-align: center;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: -0.288px;
+}
+
+.use-of-cad-bottom p {
+    color: #001325;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 28px;
+    opacity: 0.5;
+}
+
+.use-of-cad-top-line {
+
+    
+    width: 2px;
+    height: 300px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.40) 0%, rgba(255, 255, 255, 0.40) 100%), #5B89FF;
+}
+
+.use-of-cad-top-head {
+    display: flex;
+    flex-direction: column;
+    /* width: 50%; */
+    gap: 32px;
+}
+
+.use-of-cad-top-head h2 {
+    color: #000;
+    text-align: center;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 36px;
+    letter-spacing: -0.48px;
+}
+
+.use-of-cad-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+
+}
+
+.use-of-cad-top-points {
+    display: flex;
+    color: #000;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    width: 100%;
+    padding: 24px 0px;
+    gap: 16px;
+    /* background:  linear-gradient(0deg, rgba(255, 255, 255, 0.60) 0%, rgba(255, 255, 255, 0.60) 100%), #5B89FF;
+    border-bottom: 1px solid linear-gradient(0deg, rgba(255, 255, 255, 0.60) 0%, rgba(255, 255, 255, 0.60) 100%), #5B89FF; */
+    width: 300px;
+}
+.use-of-cad-bot-line{
+    height: 2px;
+    width: 300px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.40) 0%, rgba(255, 255, 255, 0.40) 100%), #5B89FF;
+}
+.solution-cad {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 100px 80px;
+}
+
+.solution-cad-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 50%;
+}
+
+.solution-cad-content h2 {
+    color: #000;
+    font-size: 44px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+    /* 118.182% */
+}
+
+.solution-cad-content li {
+    color: #001325;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 28px;
+    opacity: 0.5;
+    text-indent: -25px;
+    margin-left: 35px;
+    /* 140% */
+}
+
+.sample-parts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    padding: clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);;
+    width: 100%;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #FF7A7A;
+}
+
+.sample-parts h2 {
+    color: #000;
+    text-align: center;
+    font-size: 44px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+    /* 118.182% */
+}
+
+.sample-parts-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    /* Centers the wrapped items */
+    gap: 16px;
+    width: 93%;
+    /* Set a max width if needed */
+}
+
+
+.sample-parts-box {
+    border-radius: 100px;
+    border: 1px solid #F3F3F3;
+    background: #FFF;
+    box-shadow: 0px 2px 0px 0px rgba(168, 82, 82, 0.12);
+    padding: 12px 24px;
+    cursor: pointer;
+}
+
+
+
+@media screen and (max-width:1000px) {
+
+    .role-of-cad,
+    .solution-cad {
+        flex-direction: column;
+        gap: 48px;
+    }
+
+    .role-of-cad-content,
+    .solution-cad-content {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width:1200px) {
+    .use-of-cad-top {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .use-of-cad-top-line {
+        width: 100%;
+        height: 1px;
+    }
+
+}
+
+@media screen and (max-width:500px) {
+
+    .role-of-cad,
+    .solution-cad,
+    .use-of-cad,
+    .sample-parts {
+        padding: 24px;
+    }
+
+    .role-of-cad-desgin {
+        width: 100%;
+    }
+    .sample-parts-container{
+        justify-content: center;
+    }
+}

@@ -7,6 +7,175 @@
     padding: 100px 80px;
 }
 
+.industry-design {
+    display: flex;
+    /* flex-wrap: wrap; */
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: clamp(24px, 5vw, 100px) clamp(24px, 6vw, 80px);
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #610BEE;
+}
+
+.cad-convert-types {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: clamp(24px, 5vw, 100px) clamp(24px, 6vw, 80px);
+    width: 100%;
+    box-sizing: border-box;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.96) 100%), #610BEE;
+}
+
+.cad-format-types {
+    display: flex;
+    /* align-items: center; */
+    justify-content: center;
+    gap: 24px;
+    padding: clamp(24px, 5vw, 100px) clamp(24px, 6vw, 80px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cad-industries {
+    display: flex;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF;
+    justify-content: center;
+    gap: 24px;
+    padding: clamp(24px, 5vw, 100px) clamp(24px, 6vw, 80px);
+    width: 100%;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: center;
+}
+.cad-industries-content{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+.cad-industries-content h2 {
+    color: #000;
+    font-size: 44px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+    text-align: center;
+}
+
+.cad-industries-content p {
+    color: #001325;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 28px;
+    opacity: 0.5;
+    text-align: justify;
+    text-align: center;
+    width:80%;
+}
+.cad-industries-items{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 16px;
+    align-items: stretch;
+
+}
+.cad-format-types-desc {
+    width: 50%;
+    text-align: left;
+
+}
+
+.cad-format-types-desc h3 {
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+}
+.cad-industries-item-cont{
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 350px;
+    height: 350px;
+    border: 1px solid #edf2f7;
+    border-radius: 8px;
+    padding: 8px;
+    background:white;
+   flex:1 1 auto
+
+}
+.cad-industries-item-cont-head{
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+    border-bottom:1px solid grey;
+}
+.cad-industries-item-cont h6{
+    color: #000;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 700;
+    /* line-height: 52px; */
+}
+.cad-industries-item-cont p{
+    color: #001325;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 28px;
+    opacity: 0.5;
+    text-align: justify;
+    
+}
+.cad-format-types-desc p {
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    opacity: 0.5;
+    align-self: stretch;
+}
+
+.cad-convert-types {
+    color: #000;
+    font-size: 44px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+    text-align: center;
+}
+
+.cad-convert-types-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+}
+
+.cad-convert-types-list button {
+    background: white;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    width: 250px;
+    height: 50px;
+}
+
 .cad-landing-left-cont {
     display: flex;
     flex-direction: column;
@@ -161,7 +330,7 @@
 
 .cad-conversion-table table {
     width: 100%;
-   
+
 }
 
 
@@ -173,7 +342,7 @@
     padding: 0px 20px;
     text-align: left;
     color: #000;
-   
+
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
@@ -188,7 +357,7 @@
     padding: 10px 20px;
     text-align: left;
     color: #000;
-   
+
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
@@ -204,7 +373,44 @@
     color: white;
 }
 
-
+@media screen and (max-width: 768px) {
+    .cad-conversion-table table,
+    .cad-conversion-table thead,
+    .cad-conversion-table tbody,
+    .cad-conversion-table th,
+    .cad-conversion-table td,
+    .cad-conversion-table tr {
+      display: block;
+      width: 100%;
+    }
+  
+    .cad-conversion-table thead {
+      display: none;
+    }
+  
+    .cad-conversion-table tr {
+     
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+    }
+  
+    .cad-conversion-table td {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-bottom: 1px solid #eee;
+      position: relative;
+    }
+  
+    .cad-conversion-table td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      width: 45%;
+      display: inline-block;
+      color: #333;
+    }
+  }
 @media screen and (max-width:1250px) {
     .cad-landing-page {
         justify-content: center;
@@ -239,10 +445,22 @@
     .cad-dropzone-desc {
         width: 100%;
     }
+
+    .cad-format-types {
+        flex-direction: column;
+    }
+
+    .cad-format-types-desc {
+        width: 100%
+    }
 }
 
 @media screen and (max-width:425px) {
     .cad-landing-right-cont {
         width: 100%;
+    }
+
+    .cad-convert-types-list {
+        justify-content: center
     }
 }

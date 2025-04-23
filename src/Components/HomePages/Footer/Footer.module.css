@@ -5,7 +5,7 @@
     justify-content: space-between;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.30) 0%, rgba(0, 0, 0, 0.30) 100%), #610bee;
     width: 100%;
-    margin-top: 30px;
+  
     padding: 63px 80px 40px 80px;
     gap: 60px;
     color: white;
@@ -201,7 +201,5 @@
         width: 100%;
     }
 
-    .footer-form {
-        margin-top: 15px;
-    }
+    
 }

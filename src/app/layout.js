@@ -6,6 +6,7 @@ import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 
 
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const GA_TRACKING_ID = "G-6P47TN4FMC";
 const jsonLdData = {
@@ -109,10 +110,12 @@ export default function RootLayout({ children }) {
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
         />
+          
       </head>
       <body className={inter.variable}>
         <ToastProvider />
         <CreateLocalStorage />
+      
         <ContextWrapper>
           {children}
         </ContextWrapper>

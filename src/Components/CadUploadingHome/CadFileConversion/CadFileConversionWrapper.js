@@ -229,7 +229,7 @@ function CadFileConversionWrapper({children,convert}) {
                 preSignedURL.data.data.url
             ) {
                 if (preSignedURL.data.data.is_mutipart) {
-                    await multiUpload(preSignedURL.data.data, file, headers, fileSizeMB);
+                    await multiUpload(preSignedURL.data.data, file, {"user-uuid": localStorage.getItem("uuid")}, fileSizeMB);
                 } else {
                     await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
                     // await CadFileConversion(preSignedURL.data.data.url)
@@ -247,7 +247,7 @@ function CadFileConversionWrapper({children,convert}) {
 
     const CadFileConversion = async (url) => {
         try {
-            setUploadingMessage('UPLOADING')
+         
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {

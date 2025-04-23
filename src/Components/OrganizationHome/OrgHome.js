@@ -6,6 +6,7 @@ import OrgFeatures from './OrgFeatures/OrgFeatures'
 import ChartBuilder from './ChartBuilder/ChartBuilder'
 import OurFeatures from './OurFeatures/OurFeatures'
 import OrgFaq from './OrgFaq/OrgFaq'
+import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 
 
 
@@ -93,6 +94,13 @@ function OrgHome() {
     return (
         <div>
             <HomeTopNav />
+            <ActiveLastBreadcrumb
+                      links={[
+                        { label: 'Organization hierarchy', href: '/tools/org-hierarchy' },       
+                       
+                      
+                      ]}
+                    />
             <OrgLandPage />
             <OrgFeatures type='org'/>
             <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />

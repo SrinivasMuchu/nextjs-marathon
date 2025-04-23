@@ -1,0 +1,539 @@
+.industry-design-header {
+    padding:
+        clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);
+    display: flex;
+    align-items: center;
+    gap: 96px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.industry-design-header-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+}
+
+.industry-design-header-content h1 {
+    color: #000;
+    font-size: 44px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+}
+
+.industry-design-header-content p {
+    color: #001325;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    opacity: 0.5;
+    text-align: justify;
+}
+
+.industry-design-header-viewer {
+    width: 283px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #610BEE;
+}
+
+.industry-design-header-viewer span {
+    color: #001325;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+}
+
+.industry-design-header-viewer button {
+    border-radius: 4px;
+    background: #610BEE;
+    color: #FFF;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    width: 243px;
+    height: 48px;
+    /* padding: 10px 20px; */
+}
+.industry-design-files {
+    padding: 32px clamp(24px, 6vw, 120px);
+    display: flex;
+    flex-direction: column;
+    gap: 65px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.industry-design-files-head {
+    padding: 16px 24px;
+    border-radius: 8px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #610BEE;
+}
+
+.industry-design-files-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.industry-design-files-list {
+    text-align: left;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.industry-design-files-list th {
+    padding: 12px 20px;
+    border-bottom: 1px solid #F3F3F3;
+    background: #F4F4F4;
+    color: #001325;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: -0.288px;
+}
+
+.industry-design-files-list td {
+    padding: 20px;
+    border-bottom: 1px solid #F3F3F3;
+    color: #001325;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    opacity: 0.8;
+}
+
+.industry-design-files-btn {
+    border-radius: 8px;
+    border: 1px solid #610BEE;
+    color: #610BEE;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    width: 134px;
+    height: 44px;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.industry-design-files-count {
+    color: #001325;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: -0.288px;
+}
+
+/* -------------------- */
+/* ✅ Mobile Responsive */
+/* -------------------- */
+
+@media (max-width: 768px) {
+    .industry-design-files-list,
+    .industry-design-files-list thead,
+    .industry-design-files-list tbody,
+    .industry-design-files-list th,
+    .industry-design-files-list td,
+    .industry-design-files-list tr {
+        display: block;
+        width: 100%;
+    }
+
+    .industry-design-files-list thead {
+        display: none;
+    }
+
+    .industry-design-files-list tr {
+        background: #FFF;
+        border: 1px solid #E0E0E0;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .industry-design-files-list td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: none;
+        font-size: 18px;
+    }
+
+    .industry-design-files-list td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        flex: 1;
+        /* color: #333; */
+    }
+
+    .industry-design-files-list td > *:not(button) {
+        flex: 1;
+        text-align: right;
+    }
+
+    .industry-design-files-btn {
+        width: auto;
+        height: auto;
+        padding: 8px 16px;
+        font-size: 16px;
+        line-height: 24px;
+    }
+}
+
+
+.industry-design-suggestion {
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: clamp(24px, 3vw, 65px);
+}
+
+.industry-design-suggestion-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.industry-design-suggestion-header h2 {
+    color: #001325;
+    text-align: center;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: -1px;
+}
+
+.industry-design-suggestion-header p {
+    color: #001325;
+    text-align: center;
+    font-family: Inter;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    opacity: 0.5;
+}
+
+
+.industry-design-suggestion-bottom {
+    width: 100%;
+    height: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+}
+
+.industry-design-suggestion-arrows {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.industry-design-suggestion-arrows {
+    padding: 12px;
+    border-radius: 50%;
+}
+
+.industry-design-suggestion-designs-cont {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    /* justify-content: center; */
+    gap: 24px;
+    width: 365px;
+    border-radius: 12px;
+    background: #FFF;
+    padding: 12px;
+    height: 480px;
+    box-sizing: border-box;
+}
+
+.industry-design-suggestion-designs-cont-img {
+    width: 100%;
+    height: 220px;
+    background: grey;
+    border-radius: 4px;
+}
+.industry-design-industry-tag{
+    padding: 5px 10px;
+    border: 1px solid #610BEE;
+    border-radius: 50px;
+    color: #610BEE;
+    width: fit-content;
+    font-size: 12px;
+    background: #e2d2fc;
+}
+.industry-design-suggestion-designs-cont h6 {
+    color: #000;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: -0.288px;
+}
+
+.industry-design-suggestion-designs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+}
+
+.industry-design-about-cad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.industry-design-about-cad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(32px, 3vw, 72px) clamp(24px, 6vw, 120px) 32px;
+}
+
+.industry-design-about-cad h2 {
+    color: #000;
+    text-align: center;
+    font-size: 44px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+}
+
+.industry-design-about-cad p {
+    color: #001325;
+    text-align: center;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    opacity: 0.5;
+}
+
+.industry-design-about-cad-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 32px;
+    width: 100%;
+    padding:  clamp(32px, 6vw, 120px) 0px;
+}
+
+.industry-design-about-cad-sub-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid #F3F3F3;
+    color: #001325;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+}
+
+.industry-design-about-cad-sub-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 30%;
+    box-sizing: border-box;
+    border-radius: 8px;
+    background: #FFF;
+    box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.12);
+
+}
+
+.industry-design-about-cad-sub-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border-bottom: 1px solid #F3F3F3;
+    padding: 16px 20px;
+    color: #001325;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    opacity: 0.5;
+    letter-spacing: -0.192px;
+}
+
+.carouselWrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 auto;
+    padding: 40px 0px 72px;
+
+
+}
+
+.navButton {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 116px;
+    height: 500px;
+    z-index: 1;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.24) 100%);
+    top: 0px;
+}
+
+.navPrevButton {
+    position: absolute;
+    top: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 116px;
+    height: 500px;
+    z-index: 1;
+    background: linear-gradient(270deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.24) 100%);
+}
+
+.industrySwiper {
+    width: 100%;
+    height: 400px;
+
+}
+
+.industry-design-carousel {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #16A0A0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slideCard {
+    background: white;
+    border-radius: 20px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+
+    transition: transform 0.3s ease;
+}
+
+
+.carouselWrapper :global(.swiper-slide) {
+    opacity: 0.4;
+    transform: scale(0.9);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.carouselWrapper :global(.swiper-slide-active) {
+    opacity: 1 !important;
+    transform: scale(1);
+    z-index: 2;
+}
+
+.thumbnailGrid {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.thumbnail {
+    width: 120px;
+    height: 120px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border 0.2s ease;
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.activeThumbnail {
+    border: 8px solid black;
+}
+@media screen and (max-width:1600px){
+    .industry-design-files-list td{
+        font-size: 18px;
+    }
+    .industry-design-files-list th{
+        font-size: 22px;
+    }
+}
+
+@media screen and (max-width:850px) {
+    .industry-design-header {
+        flex-direction: column;
+    }
+
+    .industry-design-suggestion-designs-cont {
+        width: 100%;
+    }
+
+    .industry-design-about-cad-sub-content {
+        width: 100%;
+    }
+
+    .industry-design-about-cad-details {
+        justify-content: center;
+    }
+
+    .thumbnailGrid {
+        flex-wrap: wrap;
+    }
+    .industry-design-header-content h1,.industry-design-header-content p{
+        text-align: center;
+    }
+    
+}
+@media screen and (max-width: 600px) {
+    .industry-design-suggestion-designs-cont,.industry-design-suggestion-bottom {
+        height: auto;
+    }
+}

@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import Select from 'react-select';
 import cadStyles from '../CadHomeDesign/CadHome.module.css';
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
+import { textLettersLimit } from './../../../common.helper';
 
 function CadDropDown({
   file,
@@ -37,7 +38,7 @@ function CadDropDown({
   // Get filtered options based on file extension
   const getFilteredOptions = () => {
     if (!file) return formatOptions;
-    
+
     const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
 
     return formatOptions.filter(option => {
@@ -81,12 +82,43 @@ function CadDropDown({
   const isConvertButtonVisible = !!selectedFileFormate;
   const isSelectDisabled = uploadingMessage || disableSelect;
 
+
+
+  const handleDownload = async () => {
+    try {
+      const url = `${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${selectedFileFormate}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      a.href = downloadUrl;
+      a.download = `${file?.name?.slice(0, file.name.lastIndexOf(".")) || 'design'}_converted.${selectedFileFormate}`;
+
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Optional: Add user feedback here (e.g., toast notification)
+    }
+  };
+
   return (
     <div className={cadStyles['cad-conversion-table']}>
       <table>
         <thead>
           <tr>
             <th>File Name</th>
+            
             <th>File Format</th>
             <th>Convert To</th>
             <th>Status</th>
@@ -94,47 +126,43 @@ function CadDropDown({
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>{file?.name}</td>
-            <td>{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
-            <td>
-              <Select
-                value={getSelectedOption()}
-                onChange={handleSelectFileFormat}
-                options={getFilteredOptions()}
-                className={cadStyles['cad-conversion-select']}
-                isDisabled={isSelectDisabled}
-                isSearchable={false}
-              />
-            </td>
-            <td>{uploadingMessage}</td>
-            <td>
-              {isConvertButtonVisible && !uploadingMessage && (
-                <button
-                  className={cadStyles['cad-conversion-button']}
-                  onClick={handleConvert}
-                  disabled={isSelectDisabled}
-                >
-                  Convert
-                </button>
-              )}
+  <tr>
+    <td data-label="File Name">{textLettersLimit(file?.name,35)}.{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
+    <td data-label="File Format">{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
+    <td data-label="Convert To">
+      <Select
+        value={getSelectedOption()}
+        onChange={handleSelectFileFormat}
+        options={getFilteredOptions()}
+        className={cadStyles['cad-conversion-select']}
+        isDisabled={isSelectDisabled}
+        isSearchable={false}
+      />
+    </td>
+    <td data-label="Status">{uploadingMessage}</td>
+    <td data-label="Action">
+      {isConvertButtonVisible && !uploadingMessage && (
+        <button
+          className={cadStyles['cad-conversion-button']}
+          onClick={handleConvert}
+          disabled={isSelectDisabled}
+        >
+          Convert
+        </button>
+      )}
 
-              {uploadingMessage === 'COMPLETED' && (
-                <button
-                  className={cadStyles['cad-conversion-button']}
-                  onClick={() =>
-                    window.open(
-                      `${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${selectedFileFormate}`,
-                      '_blank'
-                    )
-                  }
-                >
-                  Download
-                </button>
-              )}
-            </td>
-          </tr>
-        </tbody>
+      {uploadingMessage === 'COMPLETED' && (
+        <button
+          className={cadStyles['cad-conversion-button']}
+          onClick={handleDownload}
+        >
+          Download
+        </button>
+      )}
+    </td>
+  </tr>
+</tbody>
+
       </table>
     </div>
   );

@@ -23,10 +23,11 @@ export async function generateMetadata({ params }) {
 
 import CadFileConversionHome from '@/Components/CadUploadingHome/CadFileConversion/CadFileConversionHome';
 
-export default function FileConverterPage() {
-  
+export default function FileConverterPage({params}) {
+ 
+  const conversion = params.conversion;
   // Debugging: Log the complete params object
-  return <CadFileConversionHome  convert={true}/>
+  return <CadFileConversionHome  convert={true} conversionParams={conversion}/>
     
   
 

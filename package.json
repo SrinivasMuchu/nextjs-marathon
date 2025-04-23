@@ -19,6 +19,7 @@
     "axios": "^1.7.9",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",
+    "cookies-next": "^5.1.0",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^11.15.0",
@@ -35,6 +36,7 @@
     "react-select": "^5.10.0",
     "react-toastify": "^11.0.5",
     "sharp": "^0.33.5",
+    "swiper": "^11.2.6",
     "tailwind-merge": "^2.5.5",
     "three": "^0.174.0",
     "uuid": "^11.1.0"

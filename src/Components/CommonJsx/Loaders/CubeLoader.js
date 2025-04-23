@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import Lottie from 'lottie-react';
 import cube from './Cube.json';
@@ -14,7 +15,7 @@ const statusMessages = {
 
 function CubeLoader({ uploadingMessage, totalImages , completedImages  }) {
   
-console.log(totalImages , completedImages)
+
   const showProgress = uploadingMessage === 'PROCESSED';
 
   return (

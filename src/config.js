@@ -25,6 +25,7 @@ export const IMAGEURLS = {
   customised: `${MARATHON_ASSET_PREFIX_URL}customised.svg`,
   demoVideo: `${MARATHON_ASSET_PREFIX_URL}marathon-demo-video.mp4`,
   check: `${MARATHON_ASSET_PREFIX_URL}check.svg`,
+  unCheck: `${MARATHON_ASSET_PREFIX_URL}cross-check.svg`,
   cadCapability: `${MARATHON_ASSET_PREFIX_URL}capability-cad.svg`,
   footerLogo: `${MARATHON_ASSET_PREFIX_URL}contact-logo.svg`,
   orgChart: `${MARATHON_ASSET_PREFIX_URL}hierarchy-img_resized.png`,
@@ -44,6 +45,12 @@ export const IMAGEURLS = {
   craneLogo: `${MARATHON_ASSET_PREFIX_URL}workflow_crane.webp`,
   closeIcon: `${MARATHON_ASSET_PREFIX_URL}close-icon-part-num.png`,
   uploadIcon: `${MARATHON_ASSET_PREFIX_URL}upload-icon.svg`,
+  solutionCad: `${MARATHON_ASSET_PREFIX_URL}solution-cad.webp`,
+  rightArrow: `${MARATHON_ASSET_PREFIX_URL}designs-right-arrow.svg`,
+  leftArrow: `${MARATHON_ASSET_PREFIX_URL}designs-left-arrow.svg`,
+  orgImg: `${MARATHON_ASSET_PREFIX_URL}org_img.webp`,
+  cadViewer: `${MARATHON_ASSET_PREFIX_URL}cad_viewer.webp`,
+  cadConveter: `${MARATHON_ASSET_PREFIX_URL}cad_converter.webp`,
 
   // close-icon-part-num.png
   // open-answer.webp
