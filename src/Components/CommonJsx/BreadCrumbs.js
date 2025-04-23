@@ -1,35 +1,13 @@
 import Link from 'next/link';
-import Head from 'next/head';
+import ServerBreadCrumbs from './ServerBreadCrumbs';
+
 
 export default function ActiveLastBreadcrumb({ links = [] }) {
-  const breadcrumbList = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://marathon-os.com/"
-      },
-      ...links.map((item, index) => ({
-        "@type": "ListItem",
-        "position": index + 2,
-        "name": item.label,
-        "item": `https://marathon-os.com${item.href}`
-      }))
-    ]
-  };
 
   return (
     <>
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }}
-        />
-      </Head>
-
+      
+     <ServerBreadCrumbs links={links}/>
       <div className="px-4 py-2 bg-gray-100 border-b border-gray-300 sticky top-16 z-50 text-sm">
         <nav aria-label="breadcrumb">
           <ol className="flex flex-wrap gap-2">
