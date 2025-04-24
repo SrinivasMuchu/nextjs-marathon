@@ -13,7 +13,7 @@ async function SampleParts({ industry, part_name }) {
             {
                 method: 'GET',
              
-                next: { revalidate: 3600 }
+                cache: 'no-store',
             }
         );
 
