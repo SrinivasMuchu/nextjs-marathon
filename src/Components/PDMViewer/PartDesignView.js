@@ -398,6 +398,7 @@ export default function PartDesignView() {
 
     // Rotation handler
     const rotateView = useCallback((direction) => {
+        console.log(direction,'401')
         switch (direction) {
             case 'up':
                 setXRotation(prev => (prev - ANGLE_STEP + MAX_ROTATION) % MAX_ROTATION);
@@ -523,6 +524,7 @@ export default function PartDesignView() {
         const timeout = setTimeout(() => {
             console.log(`Delayed setupTextures with folderId: ${folderId}`);
             setupTextures();
+            rotateView('right')
         }, 300); // Adjust delay if needed
         setIsLoading(false)
         return () => clearTimeout(timeout);
