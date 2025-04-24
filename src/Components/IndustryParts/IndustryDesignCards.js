@@ -8,7 +8,7 @@ async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
   let capabilities = [];
 
   try {
-    const res = await fetch(`${BASE_URL}/v1/cad/get-part-designs?part_name=${part_name}`, {
+    const res = await fetch(`${BASE_URL}/v1/cad/get-part-designs?part_route=${part_name}`, {
       
       cache: 'no-store', // optional: to avoid caching if data updates often
     });

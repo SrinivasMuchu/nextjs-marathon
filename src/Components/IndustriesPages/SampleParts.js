@@ -6,14 +6,11 @@ import Link from 'next/link';
 async function SampleParts({ industry, part_name }) {
    
     try {
-        
-
         const response = await fetch(
             `${BASE_URL}/v1/cad/get-industry-part-data?industry=${industry}`,
             {
                 method: 'GET',
-             
-                next: { revalidate: 3600 }
+                cache: 'no-store'
             }
         );
 

@@ -7,7 +7,7 @@ export default async function IndustryDesigns({ industryData, part_name, industr
   let capabilities = [];
 
   try {
-    const res = await fetch(`${BASE_URL}/v1/cad/get-part-designs?part_name=${part_name}`, {
+    const res = await fetch(`${BASE_URL}/v1/cad/get-part-designs?part_route=${part_name}`, {
       cache: 'no-store',
     });
 

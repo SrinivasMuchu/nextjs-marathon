@@ -17,7 +17,7 @@ const ZOOM_STEP = 0.5;
 const MIN_ZOOM = 2;
 const MAX_ZOOM = 10;
 function IndustryCadViewer({designId}) {
-    console.log(designId.design_id)
+   
     const mountRef = useRef(null);
        const rendererRef = useRef(null);
        const sceneRef = useRef(null);
@@ -43,7 +43,7 @@ function IndustryCadViewer({designId}) {
            if (!folderId) return "";  // Prevent invalid URL when folderId is empty
            const xFormatted = ((x % 360 + 360) % 360);
            const yFormatted = ((y % 360 + 360) % 360);
-           console.log(folderId)
+       
            return `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted?xFormatted:30}_${yFormatted?yFormatted:0}.webp`;
        }, [folderId]);
    
