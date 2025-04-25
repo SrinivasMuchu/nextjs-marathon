@@ -34,7 +34,7 @@ export const convertedFiles = [
   },
   {
     "id": '3',
-    "url": "https://marathon-org-assets.s3.ap-south-1.amazonaws.com/67f7f3651e29d8a1a943e57f/designs_upload/67f7f3651e29d8a1a943e57f_designs_upload_upload_1745232985_775_emjbypso8oe.ply",
+    "url": "https://marathon-org-assets.s3.ap-south-1.amazonaws.com/67f7f3651e29d8a1a943e57f/designs_upload/67f7f3651e29d8a1a943e57f_designs_upload_upload_1745562522_827_dqmd45tl4ft.ply",
     "format": "ply",
     "name": "sample.ply"
   },
@@ -55,21 +55,23 @@ export const convertedFiles = [
 
 
   export const cadViewerFiles = [
+   
     {
-      "id": "6801252ab1f61b010dd05a64",
-      "name": "Robotic arm"
+      "id": '68012016b1f61b010dd05a53',
+      "name": "end-effector.step"
+    },
+    {
+      "id": "68011f2eb1f61b010dd05a50",
+      "name": "brushless-dc-motor.step"
   
     },
     {
       "id": '6800a5b1b6b9e6583e6ec3c3',    
-      "name": "Engine block"
+      "name": "engine-block.step"
     },
     {
       "id": '6800ef3cb1f61b010dd059d1',
-      "name": "Fixture clamp"
+      "name": "fixture-clamp.step"
     },
-    {
-      "id": '68009ee0b6b9e6583e6ec3b1',
-      "name": "Wheel hub"
-    },
+    
    ]

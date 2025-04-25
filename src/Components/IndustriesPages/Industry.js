@@ -13,7 +13,7 @@ import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 
 function Industry({ industry, industryData }) {
-    // console.log(industryData)
+   
     const features = [
         {
             title: 'Seamless CAD File viewing',

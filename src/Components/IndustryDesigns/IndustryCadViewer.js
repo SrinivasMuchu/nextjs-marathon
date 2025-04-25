@@ -17,7 +17,7 @@ const ZOOM_STEP = 0.5;
 const MIN_ZOOM = 2;
 const MAX_ZOOM = 10;
 function IndustryCadViewer({designId}) {
-    console.log(designId.design_id)
+   
     const mountRef = useRef(null);
        const rendererRef = useRef(null);
        const sceneRef = useRef(null);
