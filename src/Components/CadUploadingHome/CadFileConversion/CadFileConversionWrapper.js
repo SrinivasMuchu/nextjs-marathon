@@ -446,7 +446,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
                 return shouldShow && (
                     <div className={styles["cad-dropzone-samples"]}>
-                        { <span>Sample files</span>}
+                        { <span>Don’t have a file? Try one of these samples:</span>}
                         <div className={styles["cad-dropzone-sample-btns"]}>
                             {filteredFiles.map((file) => (
                                 <button key={file.id} onClick={() => handleSampleFileUpload(file)}>

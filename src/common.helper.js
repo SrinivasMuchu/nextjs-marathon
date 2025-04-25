@@ -55,7 +55,10 @@ export const convertedFiles = [
 
 
   export const cadViewerFiles = [
-   
+    {
+      "id": '6800a5b1b6b9e6583e6ec3c3',    
+      "name": "engine-block.step"
+    },
     {
       "id": '68012016b1f61b010dd05a53',
       "name": "end-effector.step"
@@ -64,10 +67,6 @@ export const convertedFiles = [
       "id": "68011f2eb1f61b010dd05a50",
       "name": "brushless-dc-motor.step"
   
-    },
-    {
-      "id": '6800a5b1b6b9e6583e6ec3c3',    
-      "name": "engine-block.step"
     },
     {
       "id": '6800ef3cb1f61b010dd059d1',

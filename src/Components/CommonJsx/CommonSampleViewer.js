@@ -14,7 +14,7 @@ function CommonSampleViewer() {
         }
   return (
     <div className={styles["cad-dropzone-samples"]}>
-    <span>Sample files</span>
+    <span>Don’t have a file? Try one of these samples:</span>
     <div className={styles["cad-dropzone-sample-btns"]}>
         {cadViewerFiles.map((file) => (
 
