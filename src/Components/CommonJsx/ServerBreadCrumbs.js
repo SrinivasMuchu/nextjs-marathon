@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 function ServerBreadCrumbs({ links = [] }) {
   const breadcrumbList = {
@@ -11,12 +11,15 @@ function ServerBreadCrumbs({ links = [] }) {
         "name": "home",
         "item": "https://marathon-os.com"
       },
-      ...links.map((item, index) => ({
-        "@type": "ListItem",
-        "position": index + 2,
-        "name": item.label,
-        "item": `https://marathon-os.com${item.href}`
-      }))
+      ...links.map((item, index) => {
+        const isLast = index === links.length - 1;
+        return {
+          "@type": "ListItem",
+          "position": index + 2,
+          "name": item.label,
+          ...(isLast ? {} : { "item": `https://marathon-os.com${item.href}` })
+        };
+      })
     ]
   };
 

@@ -41,6 +41,12 @@ export default function PartDesignView() {
  const router = useRouter();
 
     useEffect(() => {
+        const sampleFileKey = localStorage.getItem('sample_view_cad_key');
+        if (sampleFileKey) {
+            setFolderId(sampleFileKey);
+            setIsLoading(false);
+            return;
+        }
         if (!file) return;
         const fetchFileFromIndexedDB = async () => {
             try {
@@ -235,6 +241,7 @@ export default function PartDesignView() {
 
     useEffect(() => {
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' || uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
+        if (localStorage.getItem('sample_view_cad_key')) return;
         const interval = setInterval(() => {
             getStatus();
         }, 3000);
@@ -242,6 +249,7 @@ export default function PartDesignView() {
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, [uploadingMessage, totalImages, completedImages]);
     useEffect(() => {
+        if (localStorage.getItem('sample_view_cad_key')) return;
         if (!file) {
             getStatus();
         }
@@ -250,6 +258,12 @@ export default function PartDesignView() {
 
     const getStatus = async () => {
         try {
+            const sampleFileKey = localStorage.getItem('sample_view_cad_key');
+            if (sampleFileKey) {
+                setFolderId(sampleFileKey);
+                setIsLoading(false);
+                return;
+            }
             setIsLoading(true)
             if(!localStorage.getItem('last_viewed_cad_key')){
                 router.push("/tools/cad-viewer")
@@ -304,49 +318,69 @@ export default function PartDesignView() {
 
     // Function to generate texture URL
     const getTextureUrl = useCallback((x, y) => {
-        if (!folderId) return "";  // Prevent invalid URL when folderId is empty
-        const xFormatted = ((x % 360 + 360) % 360);
-        const yFormatted = ((y % 360 + 360) % 360);
-        console.log(folderId)
-        return `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
-    }, [folderId]);
+  if (!folderId) return "";  // Prevent invalid URL when folderId is empty
+  
+  // Normalize angles to 0-359
+  const xFormatted = ((x % 360 + 360) % 360);
+  const yFormatted = ((y % 360 + 360) % 360);
+  
+  const textureUrl = `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
+  
+  console.log(`[DEBUG] Texture URL for (${x},${y}):`, textureUrl); // Log for debugging
+  return textureUrl;
+}, [folderId]);
 
 
     // Initial texture setup
     const setupTextures = useCallback(async () => {
-
         if (!rendererRef.current || !folderId) return {}; // Ensure folderId exists
-
+      
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = {};
-
+      
         for (let x = -BUFFER_SIZE; x <= BUFFER_SIZE; x += ANGLE_STEP) {
-            for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
-                const key = `${x}_${y}`;
-                const textureUrl = getTextureUrl(x, y);
-                if (!textureUrl) continue; // Skip if folderId is missing
-
-                try {
-                    const texture = await new Promise((resolve, reject) => {
-                        textureLoader.load(textureUrl, resolve, undefined, reject);
-                    });
-
-                    texture.minFilter = THREE.LinearFilter;
-                    texture.magFilter = THREE.LinearFilter;
-                    newMaterials[key] = new THREE.MeshBasicMaterial({
-                        map: texture,
-                        transparent: true,
-                        side: THREE.DoubleSide
-                    });
-                } catch (error) {
-                    console.error(`Failed to load texture: ${textureUrl}`, error);
-                }
+          for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
+            const key = `${x}_${y}`;
+            const textureUrl = getTextureUrl(x, y);
+            if (!textureUrl) continue; // Skip if folderId is missing
+      
+            try {
+              const texture = await new Promise((resolve, reject) => {
+                textureLoader.load(
+                  textureUrl,
+                  resolve,
+                  undefined,
+                  (error) => {
+                    console.error(`❌ Failed to load texture: ${textureUrl}`, error);
+                    reject(error);
+                  }
+                );
+              });
+      
+              texture.minFilter = THREE.LinearFilter;
+              texture.magFilter = THREE.LinearFilter;
+              newMaterials[key] = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide
+              });
+              
+              console.log(`✅ Loaded texture for (${x},${y})`); // Success log
+            } catch (error) {
+              console.error(`🚨 Skipping texture for (${x},${y}) due to error:`, error);
+              // Fallback: Use a placeholder material if texture fails
+              newMaterials[key] = new THREE.MeshBasicMaterial({
+                color: 0x888888,
+                transparent: true,
+                opacity: 0.5,
+                side: THREE.DoubleSide
+              });
             }
+          }
         }
-
+      
         setMaterials(newMaterials);
-        // setIsLoading(false)
-    }, [folderId, getTextureUrl]);
+      }, [folderId, getTextureUrl]);
 
     // Progressive texture loading
     const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
@@ -398,7 +432,7 @@ export default function PartDesignView() {
 
     // Rotation handler
     const rotateView = useCallback((direction) => {
-        console.log(direction,'401')
+        
         switch (direction) {
             case 'up':
                 setXRotation(prev => (prev - ANGLE_STEP + MAX_ROTATION) % MAX_ROTATION);
@@ -537,7 +571,7 @@ export default function PartDesignView() {
 
         const materialKey = `${xRotation}_${yRotation}`;
         const newMaterial = materials[materialKey];
-        setIsLoading(true)
+       
         if (newMaterial?.map) {
             if (planeRef.current.material !== newMaterial) {
                 if (planeRef.current.material &&
@@ -549,7 +583,7 @@ export default function PartDesignView() {
                 setLastValidMaterial(newMaterial);
             }
         }
-        setIsLoading(false)
+       
     }, [xRotation, yRotation, materials, lastValidMaterial, folderId]);
 
     // Buffer maintenance effect

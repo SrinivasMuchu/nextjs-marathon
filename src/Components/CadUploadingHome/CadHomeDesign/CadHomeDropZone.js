@@ -3,9 +3,13 @@
 import React from "react";
 import styles from "./CadHome.module.css";
 import CadDropZoneWrapper from "./CadDropZoneWrapper";
+import { cadViewerFiles } from "@/common.helper";
+import CommonSampleViewer from "@/Components/CommonJsx/CommonSampleViewer";
+
 
 function CadHomeDropZone({ isStyled,allowedFormats,type }) {
 
+ 
   return (
     <>
 
@@ -27,6 +31,8 @@ function CadHomeDropZone({ isStyled,allowedFormats,type }) {
         </div>
     
     </CadDropZoneWrapper>
+  
+              <CommonSampleViewer/>
 
     </>
 

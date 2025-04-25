@@ -13,8 +13,10 @@ import { useContext } from 'react';
 import CadUploadDropDown from './CadUploadDropDown'
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useParams } from 'next/navigation';
+import { convertedFiles } from "@/common.helper";
 
-function CadFileConversionWrapper({children,convert}) {
+
+function CadFileConversionWrapper({ children, convert }) {
     const fileInputRef = useRef(null);
     const [s3Url, setS3Url] = useState('');
     const [baseName, setBaseName] = useState('');
@@ -26,49 +28,51 @@ function CadFileConversionWrapper({children,convert}) {
     const [disableSelect, setDisableSelect] = useState(false)
     const [fileConvert, setFileConvert] = useState('')
     const [selectedFileFormate, setSelectedFileFormate] = useState('');
-    const { setFile ,allowedFormats, setAllowedFormats} = useContext(contextState);
+    const { setFile, allowedFormats, setAllowedFormats } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
-   const [toFormate,setToFormate]=useState('')
-  
+    const [toFormate, setToFormate] = useState('')
+    const [fromFormate, setFromFormate] = useState('')
+
     // Debugging: Log the full pathname
     useEffect(() => {
-        if(!convert){
+        if (!convert) {
             setAllowedFormats(allowedFilesList)
             return
-        } 
+        }
         console.log("Full Pathname:", pathname);
-    
+
         const pathSegments = pathname.split('/').filter(Boolean);
         const formatsSegment = pathSegments.at(-1) ?? '';
         console.log("Raw formatsSegment:", formatsSegment);
-    
+
         let from = "", to = "";
-    
+
         if (formatsSegment) {
-          const extracted = formatsSegment.split(/-to-|_to_|_/i);
-          console.log("Extracted Parts:", extracted);
-    
-          if (extracted.length === 2) {
-            [from, to] = extracted;
-          } else if (extracted.length === 1) {
-            from = extracted[0];
-          }
+            const extracted = formatsSegment.split(/-to-|_to_|_/i);
+            console.log("Extracted Parts:", extracted);
+
+            if (extracted.length === 2) {
+                [from, to] = extracted;
+            } else if (extracted.length === 1) {
+                from = extracted[0];
+            }
         }
-    
+
         // Clean up extensions
         from = from.replace(/\.\w+$/, '');
         to = to.replace(/\.\w+$/, '');
-    
+
         const formats = from ? [`.${from}`] : [];
         const toFormats = to ? [`${to}`] : [];
         console.log("Allowed Formats:", formats);
-    
+
+        setFromFormate(from)
         setAllowedFormats(formats);
         setToFormate(toFormats)
-      }, [pathname,convert]);
+    }, [pathname, convert]);
 
 
-    
+
 
     // useEffect(() => {
     //     if ( cadFile) {
@@ -126,16 +130,16 @@ function CadFileConversionWrapper({children,convert}) {
     const getStatus = async (folderId) => {
         try {
             const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
-                params: { 
-                    id: folderId, 
-                    cad_type: "CAD_CONVERTER" 
+                params: {
+                    id: folderId,
+                    cad_type: "CAD_CONVERTER"
                 },
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-                    
+
                 }
             });
-            
+
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
 
@@ -196,75 +200,91 @@ function CadFileConversionWrapper({children,convert}) {
 
 
     };
+    const handleSampleFileUpload = (file) => {
+        setFileConvert({ name: file.name })
+        setDisableSelect(false)
+        setS3Url(file.url)
 
+        setUploading(true)
+    }
     const handleDragOver = (event) => {
         event.preventDefault();
     };
 
-    const handleFileConvert = async (file) => {
-        const fileSizeMB = file.size / (1024 * 1024); // Size in MB
-        const headers = {
-            "user-uuid": localStorage.getItem("uuid"),
-        };
-        try {
-            setDisableSelect(false)
-            setUploadingMessage('UPLOADING')
-            const preSignedURL = await axios.post(
-                `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                {
-                    bucket_name: BUCKET,
-                    file: file.name,
-                    category: "designs_upload",
-                    filesize: fileSizeMB
-                },
-                {
-                    headers
-                }
-            );
-            
+    const handleFileConvert = async (file, s3url) => {
+        console.log(file, s3url)
+        if (s3url) {
 
-            if (
-                preSignedURL.data.meta.code === 200 &&
-                preSignedURL.data.meta.message === "SUCCESS" &&
-                preSignedURL.data.data.url
-            ) {
-                if (preSignedURL.data.data.is_mutipart) {
-                    await multiUpload(preSignedURL.data.data, file, {"user-uuid": localStorage.getItem("uuid")}, fileSizeMB);
+            await CadFileConversion(s3url)
+
+        } else {
+            const fileSizeMB = file.size / (1024 * 1024); // Size in MB
+            const headers = {
+                "user-uuid": localStorage.getItem("uuid"),
+            };
+            try {
+                setDisableSelect(false)
+                setUploadingMessage('UPLOADING')
+                const preSignedURL = await axios.post(
+                    `${BASE_URL}/v1/cad/get-next-presigned-url`,
+                    {
+                        bucket_name: BUCKET,
+                        file: file.name,
+                        category: "designs_upload",
+                        filesize: fileSizeMB
+                    },
+                    {
+                        headers
+                    }
+                );
+
+
+                if (
+                    preSignedURL.data.meta.code === 200 &&
+                    preSignedURL.data.meta.message === "SUCCESS" &&
+                    preSignedURL.data.data.url
+                ) {
+                    if (preSignedURL.data.data.is_mutipart) {
+                        await multiUpload(preSignedURL.data.data, file, { "user-uuid": localStorage.getItem("uuid") }, fileSizeMB);
+                    } else {
+                        await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
+                        // await CadFileConversion(preSignedURL.data.data.url)
+                    }
+
                 } else {
-                    await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
-                    // await CadFileConversion(preSignedURL.data.data.url)
-                }
+                    toast.error("⚠️ Error generating signed URL.");
 
-            } else {
-                toast.error("⚠️ Error generating signed URL.");
+                }
+            } catch (e) {
+                console.error(e);
 
             }
-        } catch (e) {
-            console.error(e);
-
         }
+
     };
 
     const CadFileConversion = async (url) => {
         try {
-         
+
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
                     s3_link: url,
-                    output_format:  selectedFileFormate,
+                    output_format: selectedFileFormate,
                     s3_bucket: "design-glb"
-                }, {headers: {
+                }, {
+                headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-                    
-                }}
-                
+
+                }
+            }
+
             );
-            
+
             // /design-view
             if (response.data.meta.success) {
                 console.log(response.data.data)
-              
+
                 setFolderId(response.data.data)
 
                 await getStatus(response.data.data)
@@ -339,21 +359,23 @@ function CadFileConversionWrapper({children,convert}) {
 
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                { bucket_name: BUCKET, file, category: "complete_mutipart",  filesize: fileSizeMB },
-                {headers: {
-                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-                    
-                }}
+                { bucket_name: BUCKET, file, category: "complete_mutipart", filesize: fileSizeMB },
+                {
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+
+                    }
+                }
             );
 
             if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
                 console.log("Multipart upload completed successfully.");
 
                 // Ensure `CadFileConversion` is called correctly
-             
+
                 setUploading(true)
                 await CadFileConversion(preSignedURL.data.data.Location)
-                setS3Url(preSignedURL.data.data.Location)
+
                 return true;
             }
         } catch (error) {
@@ -373,47 +395,74 @@ function CadFileConversionWrapper({children,convert}) {
         });
         setUploading(true)
         await CadFileConversion(data.url)
-        setS3Url(data.url)
-      
+
+
         console.log("Upload complete:", result);
     }
 
-  return (
-    <>
-    {uploading ?
-        <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
-            setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
-            folderId={folderId} baseName={baseName}
-            uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={handleFileConvert} />
-        : <div
-            className={styles["cad-dropzone"]}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onClick={handleClick}
+    return (
+        <>
+            {uploading ?
+                <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
+                    setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
+                    folderId={folderId} baseName={baseName} s3Url={s3Url}
+                    uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={handleFileConvert} />
+                : <div
+                    className={styles["cad-dropzone"]}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onClick={handleClick}
 
 
-        >
-            <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                accept={ allowedFormats.join(", ")}
-                onChange={handleFileChange}
-            />
-            {children}
-            <Image
-                src={IMAGEURLS.uploadIcon}
-                alt="upload"
-                width={68}
-                height={68}
-                style={{ cursor: "pointer" }}
-            />
-        </div>}
+                >
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: "none" }}
+                        accept={allowedFormats.join(", ")}
+                        onChange={handleFileChange}
+                    />
+                    {children}
+                    <Image
+                        src={IMAGEURLS.uploadIcon}
+                        alt="upload"
+                        width={68}
+                        height={68}
+                        style={{ cursor: "pointer" }}
+                    />
+                </div>}
+            {!uploading && (() => {
+                const filteredFiles = convertedFiles.filter(file => {
+                    if (convert && fromFormate) {
+                        return file.format === fromFormate.toLowerCase();
+                    }
+                    return true;
+                });
 
-</>
+                // Only show if:
+                // 1. We're not in convert mode (show all), OR
+                // 2. We're in convert mode and have matching files
+                const shouldShow = !convert || (convert && filteredFiles.length > 0);
+
+                return shouldShow && (
+                    <div className={styles["cad-dropzone-samples"]}>
+                        { <span>Sample files</span>}
+                        <div className={styles["cad-dropzone-sample-btns"]}>
+                            {filteredFiles.map((file) => (
+                                <button key={file.id} onClick={() => handleSampleFileUpload(file)}>
+                                    {file.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                );
+            })()}
 
 
-  )
+        </>
+
+
+    )
 }
 
 export default CadFileConversionWrapper
