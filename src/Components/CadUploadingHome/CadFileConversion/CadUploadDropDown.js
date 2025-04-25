@@ -14,7 +14,7 @@ function CadDropDown({
   uploadingMessage,
   handleFileConvert,
   disableSelect,
-  to,
+  to,s3Url,
   setDisableSelect
 }) {
   const formatOptions = [
@@ -76,7 +76,12 @@ function CadDropDown({
       return;
     }
     setDisableSelect(true);
-    handleFileConvert(file, selectedFileFormate);
+    if(s3Url){
+      handleFileConvert('',s3Url);
+    }else{
+      handleFileConvert(file);
+    }
+    
   };
 
   const isConvertButtonVisible = !!selectedFileFormate;
@@ -127,7 +132,7 @@ function CadDropDown({
         </thead>
         <tbody>
   <tr>
-    <td data-label="File Name">{textLettersLimit(file?.name,35)}.{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
+    <td data-label="File Name">{textLettersLimit(file?.name,35)}</td>
     <td data-label="File Format">{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
     <td data-label="Convert To">
       <Select

@@ -70,7 +70,7 @@ function IndustryDesignUplaodWrapper({children}) {
     
             console.log(file)
             setFile(file)
-            // handleFile(file)
+            localStorage.removeItem('sample_view_cad_key')
             // await saveFileToIndexedDB(file);
             router.push("/tools/cad-renderer");
     

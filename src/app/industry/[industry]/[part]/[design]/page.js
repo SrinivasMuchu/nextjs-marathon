@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
     const data = await response.json();
     const designData = data.data.response; // Adjusted based on your actual response structure
 
-    console.log(designData, 'meta response');
+    
 
     return {
       title: `${designData.meta_title} | Marathon OS` ,
@@ -40,8 +40,6 @@ export async function generateMetadata({ params }) {
     };
   } catch (error) {
     console.error("Failed to fetch metadata:", error);
-
-    // Fallback metadata
    
   }
 }

@@ -103,6 +103,7 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
 
         console.log(file)
         setFile(file)
+        localStorage.removeItem('sample_view_cad_key')
         // handleFile(file)
         // await saveFileToIndexedDB(file);
         router.push("/tools/cad-renderer");

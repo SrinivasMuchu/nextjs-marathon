@@ -1,10 +1,14 @@
 import React from 'react'
-import IndustryUploadWrapper from '../IndustriesPages/IndustryUploadWrapper'
+
 import styles from '../CadUploadingHome/CadHomeDesign/CadHome.module.css'
 import IndustryDesignUplaodWrapper from './IndustryDesignUplaodWrapper'
+import { cadViewerFiles } from '@/common.helper';
+import CommonSampleViewer from '../CommonJsx/CommonSampleViewer';
 
 function IndustryDesignUpload() {
+   
     return (
+        <>
         <IndustryDesignUplaodWrapper>
             <div className={styles["cad-dropzone-content"]}>
                 <p className={styles['cad-dropzone-head']}>
@@ -19,6 +23,9 @@ function IndustryDesignUpload() {
 
             </div>
         </IndustryDesignUplaodWrapper >
+        <CommonSampleViewer/>
+        </>
+        
     )
 }
 
