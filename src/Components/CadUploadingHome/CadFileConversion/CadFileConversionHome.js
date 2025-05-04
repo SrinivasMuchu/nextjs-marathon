@@ -90,7 +90,7 @@ const featuresArray = [
 ]
 
 function CadFileConversionHome({ convert, conversionParams }) {
-    console.log(convert)
+
     return (
         <>
             <HomeTopNav />

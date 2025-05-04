@@ -11,21 +11,18 @@ function CadDynamicHeaderWrapper({children}) {
   
     // Debugging: Log the full pathname
     useEffect(() => {
-        console.log("Full Pathname:", pathname);
-    
+      
         // Split path and get all segments
         const pathSegments = pathname.split("/").filter(Boolean);
-        console.log("Path Segments:", pathSegments);
     
         // Get the last segment dynamically
         const formatsSegment = pathSegments.at(-1) ?? "";
-        console.log("Raw formatsSegment:", formatsSegment);
-    
+     
         // Extract 'from' and 'to' dynamically
         let from = "dwg", to = "stl";
         if (formatsSegment) {
           const extracted = formatsSegment.split(/-to-|_to_|_/i);
-          console.log("Extracted Parts:", extracted);
+      
           
           if (extracted.length === 2) {
             [from, to] = extracted;
@@ -42,7 +39,7 @@ function CadDynamicHeaderWrapper({children}) {
           setParamsText({ from, to });
         }
     
-        console.log("Final Extracted:", { from, to });
+      
     
       }, [pathname]); // Runs only when pathname changes
   return (

@@ -208,7 +208,7 @@ function Hierarchy({ department }) {
     }
   };
   const handleImportExcel = async (event) => {
-    console.log(event)
+  
     const file = event.target.files[0];
     if (!file) return;
 
@@ -256,7 +256,7 @@ function Hierarchy({ department }) {
       if (response.data.meta.code == 200) {
 
         if (response.data.data.hierarchy.length) {
-          console.log(response.data.data.hierarchy.length)
+       
           setHierarchy(prevHierarchy => {
 
             if (parentId) {

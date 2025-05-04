@@ -7,7 +7,7 @@ import IndustrySuggestionFiles from './IndustrySuggestionFiles';
 import { useState, useEffect } from 'react'
 
 
-function IndustryDesignSuggestedImages({ type, designData = [],design }) {
+function IndustryDesignSuggestedImages({ type, designData = [],design,design_type,industryName }) {
      const [startIndex, setStartIndex] = useState(0);
       const [itemsToShow, setItemsToShow] = useState(3);
     
@@ -42,7 +42,7 @@ function IndustryDesignSuggestedImages({ type, designData = [],design }) {
       };
     
       const visibleItems = designData.slice(startIndex, startIndex + itemsToShow);
-      console.log(!type&&visibleItems,'visible items')
+     
       
   return (
      <div className={styles['industry-design-suggestion-bottom']}>
@@ -57,7 +57,7 @@ function IndustryDesignSuggestedImages({ type, designData = [],design }) {
               <Image src={IMAGEURLS.leftArrow} alt="left-arrow" width={40} height={40} />
             </div>
     
-            <IndustrySuggestionFiles visibleItems={visibleItems} type={type} design={design}/>
+            <IndustrySuggestionFiles visibleItems={visibleItems} type={type} design={design} design_type={design_type} industryName={industryName}/>
     
             <div
               className={styles['industry-design-suggestion-arrows']}

@@ -13,6 +13,22 @@ export const textLettersLimit = (text, limitType) => {
   return text;
 };
 
+export function sendViewerEvent(eventName) {
+  
+    window.gtag('event', eventName, {
+      event_category: 'CAD_VIEWER'
+    });
+ 
+}
+
+
+export function sendConverterEvent(eventName) {
+ 
+  window.gtag('event', eventName, {
+    event_category: 'CONVERTER'
+  });
+
+}
 
 //    iges 
 

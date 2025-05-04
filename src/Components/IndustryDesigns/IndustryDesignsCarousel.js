@@ -119,7 +119,7 @@ function IndustryDesignsCarousel({ designData }) {
                     className={styles.industrySwiper}
                 >
                     {slides.map((design, index) => (
-                        <SwiperSlide key={design._id}>
+                        <SwiperSlide key={index}>
                             <div className={styles.slideCard}>
                                 <Image
                                     src={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/sprite_${design.x}_${design.y}.webp`}

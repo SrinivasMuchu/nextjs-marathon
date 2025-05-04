@@ -9,6 +9,8 @@ import { toast } from 'react-toastify';
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
 import { useRouter } from "next/navigation";
+import { sendViewerEvent } from '@/common.helper';
+import DownloadIcon from '@mui/icons-material/Download';
 // Constants
 const ANGLE_STEP = 30;
 const BUFFER_SIZE = 0;
@@ -68,6 +70,22 @@ export default function PartDesignView() {
         try {
             setIsLoading(true)
             setUploadingMessage('UPLOADINGFILE')
+            sendViewerEvent('viewer_file_upload_start');
+            if (fileSizeMB < 5 ) {
+                sendViewerEvent('viewer_file_upload_under_5mb');
+              } else if (fileSizeMB < 10 ) {
+                sendViewerEvent('viewer_file_upload_5_10mb');
+              } else if (fileSizeMB < 50 ) {
+                sendViewerEvent('viewer_file_upload_10_50mb');
+              } else if (fileSizeMB < 100 ) {
+                sendViewerEvent('viewer_file_upload_50_100mb');
+              } else if (fileSizeMB < 200 ) {
+                sendViewerEvent('viewer_file_upload_100_200mb');
+              } else if (fileSizeMB < 300 ) {
+                sendViewerEvent('viewer_file_upload_200_300mb');
+              } else {
+                sendViewerEvent('viewer_file_upload_size_exceeded');
+              }
             const headers = {
                 "user-uuid": localStorage.getItem("uuid"),
             };
@@ -90,6 +108,7 @@ export default function PartDesignView() {
                 preSignedURL.data.meta.message === "SUCCESS" &&
                 preSignedURL.data.data.url
             ) {
+                
                 if (preSignedURL.data.data.is_mutipart) {
                     await multiUpload(preSignedURL.data.data, file, headers, fileSizeMB);
                 } else {
@@ -98,12 +117,14 @@ export default function PartDesignView() {
                 }
                 setFile('')
             } else {
+                sendViewerEvent('viewer_file_upload_error');
                 toast.error("⚠️ Error generating signed URL.");
                 setIsLoading(false)
                 router.push("/tools/cad-viewer")
             }
         } catch (e) {
-            console.error(e);
+            sendViewerEvent('viewer_file_upload_error');
+          
             setIsLoading(false)
         }
     };
@@ -143,7 +164,7 @@ export default function PartDesignView() {
         }
     }
     async function multiUpload(data, file, headers, fileSizeMB) {
-        console.log(data, file, headers, fileSizeMB);
+      
         const parts = [];
 
         for (let i = 0; i < data.total_parts; i++) {
@@ -151,17 +172,16 @@ export default function PartDesignView() {
             const end = Math.min(start + data.part_size, file.size);
             const part = file.slice(start, end); // FIXED: Use `slice` for binary data
 
-            console.log(`Uploading part ${i + 1}/${data.total_parts}`);
-            console.log('Part size:', part.size); // Ensure correct part size
+          
 
             parts.push(uploadPart(i, part, data, file));
         }
 
         try {
             const uploadedParts = await Promise.all(parts);
-            console.log(uploadedParts);
+         
             await completeMultipartUpload(data, uploadedParts, headers, fileSizeMB);
-            console.log('All parts uploaded successfully');
+          
         } catch (error) {
             console.error('Error uploading parts:', error);
             throw error;
@@ -171,8 +191,7 @@ export default function PartDesignView() {
     const uploadPart = async (partNumber, part, data, file) => {
         try {
             const { url } = data.url[partNumber]; // Get correct presigned URL
-            console.log(`Uploading part ${partNumber + 1} to ${url}`);
-
+          
             const result = await axios.put(url, part, {
                 headers: {
                     "Content-Type": file.type,
@@ -180,9 +199,9 @@ export default function PartDesignView() {
                 },
             });
 
-            console.log('Response Headers:', result.headers);
+        
             const etag = result.headers["etag"] || result.headers["ETag"]; // Fix header extraction
-            console.log(`Part ${partNumber + 1} uploaded successfully`, etag);
+          
             return { ETag: etag, PartNumber: partNumber + 1 };
         } catch (error) {
             console.error(`Error uploading part ${partNumber + 1}:`, error);
@@ -209,7 +228,7 @@ export default function PartDesignView() {
 
             if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
                 console.log("Multipart upload completed successfully.");
-
+                sendViewerEvent('viewer_file_upload_success');
                 // Ensure `CreateCad` is called correctly
                 // if (preSignedURL.data.data.Location) {
                 await CreateCad(preSignedURL.data.data.Location);
@@ -225,7 +244,7 @@ export default function PartDesignView() {
     };
 
     async function simpleUpload(data, file) {
-        console.log("Uploading file:", data, file);
+       
         setUploadingMessage('UPLOADINGFILE')
         const result = await axios.put(data.url, file, {
             headers: {
@@ -233,8 +252,9 @@ export default function PartDesignView() {
                 "Content-Length": file.size,
             },
         });
+        sendViewerEvent('viewer_file_upload_success');
         await CreateCad(data.url)
-        console.log("Upload complete:", result);
+     
     }
 
 
@@ -282,6 +302,7 @@ export default function PartDesignView() {
             
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
+                    sendViewerEvent('viewer_view_completed');
                     setIsLoading(false)
                     setUploadingMessage(response.data.data.status)
                     // setTotalImages(response.data.data.total_images)
@@ -291,8 +312,9 @@ export default function PartDesignView() {
                     setUploadingMessage(response.data.data.status)
                     setTotalImages(response.data.data.total_images)
                     setCompletedImages(response.data.data.image_count)
-                    console.log(response.data.data.status)
+                 
                 } else if (response.data.data.status === 'FAILED') {
+                    sendViewerEvent('viewer_view_failure')
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.meta.message)
                     router.push("/tools/cad-viewer")
@@ -325,8 +347,7 @@ export default function PartDesignView() {
   const yFormatted = ((y % 360 + 360) % 360);
   
   const textureUrl = `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
-  
-  console.log(`[DEBUG] Texture URL for (${x},${y}):`, textureUrl); // Log for debugging
+
   return textureUrl;
 }, [folderId]);
 
@@ -365,7 +386,7 @@ export default function PartDesignView() {
                 side: THREE.DoubleSide
               });
               
-              console.log(`✅ Loaded texture for (${x},${y})`); // Success log
+            
             } catch (error) {
               console.error(`🚨 Skipping texture for (${x},${y}) due to error:`, error);
               // Fallback: Use a placeholder material if texture fails
@@ -556,7 +577,7 @@ export default function PartDesignView() {
         if (!folderId) return;
         setIsLoading(true)
         const timeout = setTimeout(() => {
-            console.log(`Delayed setupTextures with folderId: ${folderId}`);
+         
             setupTextures();
             rotateView('right')
         }, 300); // Adjust delay if needed
@@ -672,6 +693,8 @@ export default function PartDesignView() {
                 position:'absolute',
                 top:'2rem', left:'1rem',zIndex:2
             }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
+
+            
 
                 {/* Three.js Canvas Container */}
                 <div ref={mountRef} style={{

@@ -12,9 +12,9 @@ async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
       
       cache: 'no-store', // optional: to avoid caching if data updates often
     });
-    console.log(res, 'res15');
+ 
     const data = await res.json();
-    console.log(data.data.response, 'data');
+  
     capabilities = data.data.response;
   } catch (error) {
     console.error('Error fetching capabilities:', error);
@@ -34,7 +34,7 @@ async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
                 height={150}
               />
             </div>
-           
+            <div style={{ width: '100%', height: '2px', background: 'grey', marginBottom: '5px' }}></div>
             <div className={styles['capabilities-page-card-text']}>
               
               <h6 className={styles['capabilities-page-card-head']}>

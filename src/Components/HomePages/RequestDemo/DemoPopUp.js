@@ -3,7 +3,7 @@ import ThanksPopUp from './ThanksPopUp'
 import RequestDemo from './RequestDemo'
 
 function DemoPopUp({ openPopUp,  setOpenDemoForm, onclose,error }) {
-    console.log(openPopUp)
+ 
     return (
 
         <>

@@ -68,7 +68,7 @@ function IndustryDesignUplaodWrapper({children}) {
             }
     
     
-            console.log(file)
+         
             setFile(file)
             localStorage.removeItem('sample_view_cad_key')
             // await saveFileToIndexedDB(file);

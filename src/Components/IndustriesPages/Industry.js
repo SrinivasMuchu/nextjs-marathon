@@ -11,6 +11,7 @@ import OurFeatures from '../OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '../OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
+import IndustryDesignsCrousel from './IndustryDesignsCrousel'
 
 function Industry({ industry, industryData }) {
    
@@ -107,6 +108,7 @@ function Industry({ industry, industryData }) {
                 <RoleOfCAD industryData={industryData} industry={industry}/>
                 <UseOfCAD industryData={industryData} />
                 <SolutionCad industryData={industryData} />
+                <IndustryDesignsCrousel industry={industry}/>
                 <SampleParts industry={industry} />
                 <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
                 <OurFeatures features={features} essentialDeatails={essentialDeatails} />
