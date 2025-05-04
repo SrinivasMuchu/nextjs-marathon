@@ -252,6 +252,7 @@ function CadFileConversionWrapper({children,convert}) {
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
                     s3_link: url,
+                    input_format: fileConvert.name.split('.').pop(), 
                     output_format:  selectedFileFormate,
                     s3_bucket: "design-glb"
                 }, {headers: {

@@ -1,0 +1,221 @@
+"use client";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL } from '@/config';
+import Image from 'next/image';
+import styles from './FileHistory.module.css';
+import EastIcon from '@mui/icons-material/East';
+
+function FileHistoryCards({ cad_type }) {
+
+  const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
+  const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
+
+  useEffect(() => {
+
+    const uuid = localStorage.getItem('uuid');
+    const fetchFileHistory = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
+          params: { uuid }
+        });
+
+        if (response.data.meta.success) {
+          const processedFiles = {
+            cad_viewer_files: response.data.data.cad_viewer_files.map(file => ({
+              ...file,
+              expiresIn: calculateExpiry(file.updatedAt),
+              createdAtFormatted: formatDate(file.createdAt)
+            })),
+            cad_converter_files: response.data.data.cad_converter_files.map(file => ({
+              ...file,
+              expiresIn: calculateExpiry(file.updatedAt),
+              createdAtFormatted: formatDate(file.createdAt)
+            }))
+          };
+
+          setCadViewerFileHistory(processedFiles.cad_viewer_files);
+          setConverterFileHistory(processedFiles.cad_converter_files);
+        }
+      } catch (err) {
+
+        console.error('Error fetching file history:', err);
+      }
+    };
+
+    fetchFileHistory();
+  }, []);
+
+
+  const calculateExpiry = (updatedAt) => {
+    const now = new Date();
+    const updatedTime = new Date(updatedAt);
+    const hoursLeft = Math.floor((24 * 60 * 60 * 1000 - (now - updatedTime)) / (1000 * 60 * 60));
+
+    return hoursLeft > 0 ? `${hoursLeft} hours remaining` : "Expired";
+  };
+
+  // Helper function to format date (e.g., "April 30, 2025")
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const handleDownload = async (file) => {
+    try {
+      const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      a.href = downloadUrl;
+      a.download = `${file?.name?.slice(0, file.name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`;
+
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Optional: Add user feedback here (e.g., toast notification)
+    }
+  };
+
+  return (
+    <>
+
+      {cad_type === 'viewer' ? (
+        <div className={styles.cadViewerContainer}>
+          <h2>History</h2>
+          {cadViewerFileHistory.length > 0 ? (
+            <div className={styles.historyContainer}>
+              {cadViewerFileHistory.map((file, index) => (
+                <a
+                  key={index}
+                  href="/tools/cad-renderer"
+                  className={styles.historyItem}
+                  onClick={() => {
+                    localStorage.setItem("last_viewed_cad_key", file._id);
+                  }}
+                >
+                  <Image
+                    src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
+                    alt="file preview"
+                    width={300}
+                    height={250}
+                  />
+                  <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
+
+                  <div className={styles.historyFileDetails}>
+                    <span className={styles.historyFileDetailsKey}>File Name</span> <span>{file.file_name}</span></div>
+                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div>
+                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
+                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Expires</span> <span>{file.expiresIn}</span></div>
+                  <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <button style={{
+                      background: '#610bee',
+                      color: 'white',
+                      padding: '5px 10px',
+                      border: 'none',
+                      borderRadius: '5px',
+                      cursor: 'pointer'
+                    }}>View design</button>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.historyItem}>
+              <Image
+                src={`${MARATHON_ASSET_PREFIX_URL}cad_viewer.webp`}
+                alt="file preview"
+                width={300}
+                height={250}
+              />
+              <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
+              <h3>No cad viewer files history found</h3>
+              <a className={styles.historyFileDetailsbtn}
+                href='/tools/cad-viewer'
+                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <button style={{
+                  background: '#610bee',
+                  color: 'white',
+                  padding: '5px 10px',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer'
+                }} >Upload to view cad</button>
+              </a>
+            </div>
+          )}
+        </div>
+      ) : (
+
+
+
+        <div className={styles.cadViewerContainer}>
+          <h2> History</h2>
+          {cadConverterFileHistory.length > 0 ? (
+            <div className={styles.historyContainer}>
+              {cadConverterFileHistory.map((file, index) => (
+                <div
+                  key={index}
+                  href={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/${file.base_name}.${file.output_format}`}
+                  className={styles.historyItem}
+                  onClick={() => {
+                    localStorage.setItem("last_viewed_cad_key", file._id);
+                  }}
+                >
+
+                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Conversion</span> <span>{file.input_format}</span> &nbsp;<EastIcon style={{ height: '25px' }} />&nbsp; <span>{file.output_format}</span></div>
+                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div>
+                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Created</span> <span>{file.createdAtFormatted}</span></div>
+                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Expires</span> <span>{file.expiresIn}</span></div>
+                  <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <button style={{
+                      background: '#610bee',
+                      color: 'white',
+                      padding: '5px 10px',
+                      border: 'none',
+                      borderRadius: '5px',
+                      cursor: 'pointer'
+                    }} onClick={() => handleDownload(file)}>Download</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.historyItem}>
+              <h3>No cad converter files history found</h3>
+              <a className={styles.historyFileDetailsbtn} href='/tools/3d-file-converter'
+                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <button style={{
+                  background: '#610bee',
+                  color: 'white',
+                  padding: '5px 10px',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer'
+                }}>Upload to convert</button>
+              </a>
+            </div>
+          )}
+        </div>
+
+      )}
+    </>
+  )
+}
+
+export default FileHistoryCards
