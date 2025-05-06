@@ -65,13 +65,13 @@ async function Library({ searchParams }) {
                 <Image
                   className={styles["library-designs-items-container-img"]}
                   src={`https://d1d8a3050v4fu6.cloudfront.net/${design._id}/sprite_0_0.webp`}
-                  alt={design.grabcad_title}
+                  alt={design.page_title}
                   width={300}
                   height={250}
                 />
                 <div style={{ width: '100%', height: '2px', background: 'grey', marginBottom: '5px' }}></div>
-                <h6>{textLettersLimit(design.page_title, 15)}</h6>
-                <p>{textLettersLimit(design.grabcad_description, 50)}</p>
+                <h6>{textLettersLimit(design.page_title, 40)}</h6>
+                <p>{textLettersLimit(design.page_description, 75)}</p>
               </div>
             </a>
           ))}

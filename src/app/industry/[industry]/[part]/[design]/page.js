@@ -8,7 +8,7 @@ export async function generateMetadata({ params }) {
   const part = params.part;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?design_route=${design}`, {
+    const response = await fetch(`${BASE_URL}/v1/cad/design-meta-data?route=${design}`, {
       method: 'GET',
       cache: 'no-store',
     });
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
     }
 
     const data = await response.json();
-    const designData = data.data?.response;
+    const designData = data.data;
 
     if (!designData) {
       notFound(); // 👈 If design not found, 404

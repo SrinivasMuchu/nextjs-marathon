@@ -30,7 +30,7 @@ function IndustryDesign({ design, designData,type }) {
       {designData.response && <IndustryDesignsCarousel designData={designData.response}  />}
       {designData.response && <IndustryDesignFilesList designData={designData.response} />} 
      {designData.designs.length &&  <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
-     industryName={designData.industryName.industry}/>}
+     industryName={ designData.industryName.industry}/>}
      {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type}/>}
       <div style={{width:'100%',height:'15px',background:'#F4F4F4'}}></div>
       {designData?.report && (

@@ -3,6 +3,7 @@ import styles from './IndustryDesign.module.css'
 import { textLettersLimit } from '@/common.helper'
 
 function AboutCad({ cadReport }) {
+ 
   if (!cadReport) {
     return (
       <div className={styles['industry-design-about-cad']}>
