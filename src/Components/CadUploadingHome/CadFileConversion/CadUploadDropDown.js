@@ -152,7 +152,7 @@ function CadDropDown({
               )}
 
               {uploadingMessage === 'COMPLETED' && (
-                <a href="/history?cad_type='converter'">
+                <a href="/history?cad_type=converter">
                   <button
                     className={cadStyles['cad-conversion-button']}
                     // onClick={handleDownload}

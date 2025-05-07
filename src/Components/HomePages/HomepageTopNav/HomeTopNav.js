@@ -7,6 +7,7 @@ import Link from "next/link";
 import styles from "./HomeTopNav.module.css";
 import TopNavRequestBtn from "../../CommonJsx/TopNavRequestBtn";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
+import CheckHistory from "@/Components/CommonJsx/CheckHistory";
 
 function HomeTopNav() {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
@@ -73,6 +74,8 @@ function HomeTopNav() {
             </div>
           )}
         </div>
+        <a href="/history">
+          <CheckHistory /></a>
       </div>
 
       <div className={styles["home-pg-btns"]}>
