@@ -18,9 +18,13 @@ export async function generateMetadata({ searchParams }) {
 
   // Canonical URL logic
   let canonicalPath = '/library';
-  if (category) {
-    canonicalPath += `?category=${category}`;
-  }
+  const canonicalParams = new URLSearchParams();
+
+  if (category) canonicalParams.set('category', category);
+  if (searchParams?.page) canonicalParams.set('page', '1'); // force page=1 if page is present in query
+
+  const queryString = canonicalParams.toString();
+  if (queryString) canonicalPath += `?${queryString}`;
 
   return {
     title,
@@ -41,6 +45,7 @@ export async function generateMetadata({ searchParams }) {
     },
   };
 }
+
 
 // Capitalizes first letter
 

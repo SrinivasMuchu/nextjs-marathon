@@ -14,7 +14,7 @@ function IndustryDesignHeader({design,designData,type}) {
         <div className={styles['industry-design-header-viewer']}>
             <span >Experience in 3-D</span>
            
-            <a href={type ? `/library/${design.industry_design}/${designData._id}`:`/industry/${design.industry}/${design.part}/${design.design}/${designData._id}`}><button >Open in 3D viewer</button></a>
+            <a href={type ? `/library/${design.industry_design}/${designData._id}`:`/industry/${design.industry}/${design.part}/${design.design}/${designData._id}`} rel="nofollow"><button >Open in 3D viewer</button></a>
             
         </div>
     </div>

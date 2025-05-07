@@ -20,11 +20,12 @@ const HomePage = () => {
       <WorkFlow />
       <WhyUs />
       <Capabilities />
-      <LibraryDetails/>
+      
       <SneakPeak />
       <Subscription />
      
       <Tools/>
+      <LibraryDetails/>
       <Security />
       <Footer />
     </div >

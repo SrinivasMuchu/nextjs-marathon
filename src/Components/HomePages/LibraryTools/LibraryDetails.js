@@ -68,7 +68,7 @@ const categories = [
 
 function LibraryDetails() {
   return (
-    <div className={styles['tools-page']}>
+    <div className={styles['library-tools-page']}>
       <div className={styles['tools-page-header']}>
         <h2>CAD Design Library</h2>
         <p>3D CAD designs for engineering and product development. Browse models across industries to accelerate design inspiration and collaboration.</p>

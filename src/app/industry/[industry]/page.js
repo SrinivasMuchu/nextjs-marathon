@@ -6,7 +6,7 @@ export async function generateMetadata({ params }) {
   const industry = params['industry'];
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
+    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?meta_route=${industry}`, {
       method: 'GET',
       cache: 'no-store',
     });

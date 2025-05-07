@@ -7,6 +7,15 @@
     padding:  clamp(24px, 5vw, 100px) clamp(24px, 6vw, 80px);
     background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF;
 }
+.library-tools-page{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 32px;
+    padding:  clamp(24px, 5vw, 100px) clamp(24px, 6vw, 80px);
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #FF7A7A;
+}
 .tools-page-items{
     display: flex;
     flex-wrap: wrap;

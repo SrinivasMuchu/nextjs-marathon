@@ -23,7 +23,7 @@ export default function IndustryCarouselClient({ designs, category, industryName
     <div className={styles["industry-designs"]} style={{ position: 'relative' }}>
       <div className={styles["industry-designs-header"]}>
         <h2>{industryName} Design Library</h2>
-        <p>
+        <p style={{ color: 'rgba(135, 134, 134, 0.7)' }}>
           Explore high-quality design inspirations curated for the {industryName}.
           <a style={{
             color: 'white', opacity: '1', padding: '5px 10px',
