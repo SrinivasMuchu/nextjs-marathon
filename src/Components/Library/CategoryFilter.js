@@ -18,20 +18,25 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories }) => {
 
   const handleChange = (selected) => {
     setSelectedOptions(selected || []);
-
     const selectedValues = (selected || []).map((opt) => opt.value);
-    const params = new URLSearchParams({
-      category: selectedValues.join(","),
-      page: 1,
-      limit: 100,
-    });
-
-    try {
-      router.push(`/library?${params.toString()}`);
-    } catch (error) {
-      console.error("Error during router.push:", error);
+  
+    if (typeof window !== 'undefined') {
+      const existingParams = new URLSearchParams(window.location.search);
+  
+      if (selectedValues.length > 0) {
+        existingParams.set('category', selectedValues.join(','));
+      } else {
+        existingParams.delete('category');
+      }
+  
+      existingParams.set('page', '1');
+      existingParams.set('limit', '20');
+  
+      router.push(`/library?${existingParams.toString()}`);
     }
   };
+  
+  
 
   const options = allCategories.map((category) => ({
     value: category.industry_category_name,

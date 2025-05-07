@@ -10,7 +10,7 @@ function IndustryDesignsSuggestion({ type, designData = [],design,design_type,in
         ? {
             background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF',
           }
-        : {};
+        : {background: '#F4F4F4'};
 
   return (
     <div className={styles['industry-design-suggestion']} style={style}>

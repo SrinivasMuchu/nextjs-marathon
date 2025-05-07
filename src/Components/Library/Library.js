@@ -18,12 +18,13 @@ async function Library({ searchParams }) {
   const searchQuery = searchParams?.search || '';
   const category = searchParams?.category || '';
   const page = parseInt(searchParams?.page) || 1;
-  const limit = parseInt(searchParams?.limit) || 100;
+  const limit = parseInt(searchParams?.limit) || 20;
 
+  
   const response = await axios.get(
     `${BASE_URL}/v1/cad/get-category-design?category=${category}&limit=${limit}&page=${page}&search=${searchQuery}`,
     { cache: 'no-store' }
-  );
+  );  
   const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, {
     cache: 'no-store',
   });
@@ -70,8 +71,8 @@ async function Library({ searchParams }) {
                   height={250}
                 />
                 <div style={{ width: '100%', height: '2px', background: 'grey', marginBottom: '5px' }}></div>
-                <h6>{textLettersLimit(design.page_title, 40)}</h6>
-                <p>{textLettersLimit(design.page_description, 75)}</p>
+                <h6 title={design.page_title}>{textLettersLimit(design.page_title, 40)}</h6>
+                <p title={design.page_description}>{textLettersLimit(design.page_description, 150)}</p>
               </div>
             </a>
           ))}

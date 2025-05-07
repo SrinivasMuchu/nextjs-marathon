@@ -58,9 +58,11 @@
     background: #FFF;
     border-radius: 8px;
     flex-shrink: 0; 
-    padding: 5px;
     display: flex;
-    flex-direction: column; /* allow content to stack vertically */
+    flex-direction: column;
+    border-radius: 12px;
+    border: 1px solid rgba(217, 183, 253, 0.30);
+    padding: 24px; /* allow content to stack vertically */
     /* justify-content: space-between; */
 }
 .industry-designs-item-img{

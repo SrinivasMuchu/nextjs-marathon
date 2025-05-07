@@ -10,21 +10,22 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
   const router = useRouter();
 
   const handleSearch = () => {
-    const params = new URLSearchParams({
-      search: searchQuery,
-      page: 1,
-      limit: 100
-    });
-
-    // Preserve category filter if it exists
-    if (typeof window !== 'undefined' && window.location.search.includes('category=')) {
+    if (typeof window !== 'undefined') {
       const existingParams = new URLSearchParams(window.location.search);
-      const category = existingParams.get('category');
-      if (category) params.set('category', category);
+  
+      if (searchQuery.trim()) {
+        existingParams.set('search', searchQuery.trim());
+      } else {
+        existingParams.delete('search');
+      }
+  
+      existingParams.set('page', '1');
+      existingParams.set('limit', '20');
+  
+      router.push(`/library?${existingParams.toString()}`);
     }
-
-    router.push(`/library?${params.toString()}`);
   };
+  
 
   return (
     <div className={styles["search-container-div"]}>

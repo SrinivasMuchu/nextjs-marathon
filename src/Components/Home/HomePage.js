@@ -9,6 +9,7 @@ import Subscription from "../HomePages/Subscription/Subscription";
 import Security from "../HomePages/Security/Security";
 import Footer from "../HomePages/Footer/Footer";
 import Tools from "../HomePages/Tools/Tools";
+import LibraryDetails from "../HomePages/LibraryTools/LibraryDetails";
 
 const HomePage = () => {
   
@@ -19,8 +20,10 @@ const HomePage = () => {
       <WorkFlow />
       <WhyUs />
       <Capabilities />
+      <LibraryDetails/>
       <SneakPeak />
       <Subscription />
+     
       <Tools/>
       <Security />
       <Footer />
