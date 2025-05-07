@@ -3,9 +3,7 @@ import { BASE_URL } from '@/config';
 import { notFound } from 'next/navigation'; // 👈
 
 export async function generateMetadata({ params }) {
-  const design = params.design;
-  const industry = params.industry;
-  const part = params.part;
+    const design = params.industry_design;
 
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/design-meta-data?route=${design}`, {
@@ -18,6 +16,7 @@ export async function generateMetadata({ params }) {
     }
 
     const data = await response.json();
+    
     const designData = data.data;
 
     if (!designData) {
@@ -39,7 +38,7 @@ export async function generateMetadata({ params }) {
       },
       metadataBase: new URL("https://marathon-os.com"),
       alternates: {
-        canonical: `/industry/${industry}/${part}/${design}`,
+        canonical: `/library/${design}`,
       },
     };
   } catch (error) {
@@ -48,11 +47,11 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function PartDesigns({ params }) {
-  const design = params.design;
+export default async function LibraryDesign({ params }) {
+  const design = params.industry_design;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?design_route=${design}`, {
+    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?industry_design_route=${design}`, {
       method: 'GET',
       cache: 'no-store',
     });
@@ -69,10 +68,10 @@ export default async function PartDesigns({ params }) {
 
     const normalizedData = {
       ...data.data,
-      report: data.data.report || { cad_report: null },
+      report: data.data.report ,
     };
 
-    return <IndustryDesign design={params} designData={normalizedData} />;
+    return <IndustryDesign design={params} designData={normalizedData} type='library'/>;
   } catch (error) {
     console.error("Failed to fetch design data:", error);
     notFound(); // 👈 Error = 404

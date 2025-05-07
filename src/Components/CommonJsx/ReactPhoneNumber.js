@@ -12,7 +12,7 @@ function ReactPhoneNumber({phoneNumber,setPhoneNumber,styles,classname}) {
     countryCallingCodeEditable={false}
     value={phoneNumber}
     onChange={setPhoneNumber}
-    inputStyle={{ backgroundColor: 'white', color: 'black', outline: 'none' }}
+    // inputStyle={{ backgroundColor: 'white', color: 'black', outline: 'none' }}
     style={{ backgroundColor: 'white', color: 'black', height: '49.6px', paddingLeft: '5px', outline: 'none', borderRadius: '4px' }} // Inline styling as a fallback
   />
   )

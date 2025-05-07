@@ -10,10 +10,10 @@ export default async function IndustryDesigns({ industryData, part_name, industr
     const res = await fetch(`${BASE_URL}/v1/cad/get-part-designs?part_route=${part_name}`, {
       cache: 'no-store',
     });
-    console.log(res, 'res13');
+  
     const data = await res.json();
     capabilities = data.data.response;
-    console.log(capabilities, 'data');
+   
   } catch (error) {
     console.error('Error fetching capabilities:', error);
   }

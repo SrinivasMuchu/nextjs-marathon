@@ -71,6 +71,7 @@ function MobileMenu({ onClose, styles }) {
             </div>
           )}
         </div>
+        <a href="/library" >Library</a>
       </div>
     </>
   );

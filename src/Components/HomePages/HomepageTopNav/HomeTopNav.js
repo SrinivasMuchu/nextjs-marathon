@@ -45,7 +45,7 @@ function HomeTopNav() {
         <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</a>
         <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</a>
         <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>
-        <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a>
+        {/* <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a> */}
 
         {/* Dropdown for Tools */}
         <div style={{ position: "relative" }}>
@@ -73,6 +73,7 @@ function HomeTopNav() {
             </div>
           )}
         </div>
+        <a href="/library" >Library</a>
       </div>
 
       <div className={styles["home-pg-btns"]}>
