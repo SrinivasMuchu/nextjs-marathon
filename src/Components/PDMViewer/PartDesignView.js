@@ -194,7 +194,7 @@ export default function PartDesignView() {
           
             const result = await axios.put(url, part, {
                 headers: {
-                    "Content-Type": file.type,
+                    
                     "Content-Length": part.size, // Ensure Content-Length is set
                 },
             });
