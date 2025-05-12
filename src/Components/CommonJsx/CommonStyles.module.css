@@ -1,7 +1,7 @@
 .popUpMain{
     width: 100%;
     height: 100vh;
-    position: fixed;
+    position: absolute;
     top: 0px;
     left: 0px;
     background-color: rgba(0, 19, 37, 0.5);

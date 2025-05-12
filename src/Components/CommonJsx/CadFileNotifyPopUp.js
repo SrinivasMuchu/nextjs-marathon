@@ -55,6 +55,7 @@ function CadFileNotifyPopUp({ setIsApiSlow }) {
             type="email"
             placeholder="Enter your email"
             value={email}
+            tabIndex={0}
             onChange={(e) => setEmail(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:border-blue-500"
           />
