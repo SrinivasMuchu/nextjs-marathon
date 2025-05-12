@@ -385,7 +385,7 @@ function IndustryCadViewer({ designId, type }) {
                             top: '2rem', left: '1rem', zIndex: 2
                         }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
                     <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}>
-                        <button
+                        <button onClick={()=>sendViewerEvent('file-downloaded')}
                             style={{
 
                                 padding: '10px',
