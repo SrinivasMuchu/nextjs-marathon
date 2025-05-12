@@ -13,8 +13,9 @@ import { useContext } from 'react';
 import CadUploadDropDown from './CadUploadDropDown'
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useParams } from 'next/navigation';
+import CadFileNotifyPopUp from "@/Components/CommonJsx/CadFileNotifyPopUp";
 
-function CadFileConversionWrapper({children,convert}) {
+function CadFileConversionWrapper({ children, convert }) {
     const fileInputRef = useRef(null);
     const [s3Url, setS3Url] = useState('');
     const [baseName, setBaseName] = useState('');
@@ -24,51 +25,52 @@ function CadFileConversionWrapper({children,convert}) {
     const pathname = usePathname();
     const [uploadingMessage, setUploadingMessage] = useState('');
     const [disableSelect, setDisableSelect] = useState(false)
-    const [fileConvert, setFileConvert] = useState('')
+    const [fileConvert, setFileConvert] = useState('');
+    const [isApiSlow, setIsApiSlow] = useState(false);
     const [selectedFileFormate, setSelectedFileFormate] = useState('');
-    const { setFile ,allowedFormats, setAllowedFormats} = useContext(contextState);
+    const { setFile, allowedFormats, setAllowedFormats } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
-   const [toFormate,setToFormate]=useState('')
-  
+    const [toFormate, setToFormate] = useState('')
+
     // Debugging: Log the full pathname
     useEffect(() => {
-        if(!convert){
+        if (!convert) {
             setAllowedFormats(allowedFilesList)
             return
-        } 
+        }
         console.log("Full Pathname:", pathname);
-    
+
         const pathSegments = pathname.split('/').filter(Boolean);
         const formatsSegment = pathSegments.at(-1) ?? '';
         console.log("Raw formatsSegment:", formatsSegment);
-    
+
         let from = "", to = "";
-    
+
         if (formatsSegment) {
-          const extracted = formatsSegment.split(/-to-|_to_|_/i);
-          console.log("Extracted Parts:", extracted);
-    
-          if (extracted.length === 2) {
-            [from, to] = extracted;
-          } else if (extracted.length === 1) {
-            from = extracted[0];
-          }
+            const extracted = formatsSegment.split(/-to-|_to_|_/i);
+            console.log("Extracted Parts:", extracted);
+
+            if (extracted.length === 2) {
+                [from, to] = extracted;
+            } else if (extracted.length === 1) {
+                from = extracted[0];
+            }
         }
-    
+
         // Clean up extensions
         from = from.replace(/\.\w+$/, '');
         to = to.replace(/\.\w+$/, '');
-    
+
         const formats = from ? [`.${from}`] : [];
         const toFormats = to ? [`${to}`] : [];
         console.log("Allowed Formats:", formats);
-    
+
         setAllowedFormats(formats);
         setToFormate(toFormats)
-      }, [pathname,convert]);
+    }, [pathname, convert]);
 
 
-    
+
 
     // useEffect(() => {
     //     if ( cadFile) {
@@ -126,16 +128,16 @@ function CadFileConversionWrapper({children,convert}) {
     const getStatus = async (folderId) => {
         try {
             const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
-                params: { 
-                    id: folderId, 
-                    cad_type: "CAD_CONVERTER" 
+                params: {
+                    id: folderId,
+                    cad_type: "CAD_CONVERTER"
                 },
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-                    
+
                 }
             });
-            
+
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
 
@@ -203,12 +205,22 @@ function CadFileConversionWrapper({children,convert}) {
 
     const handleFileConvert = async (file) => {
         const fileSizeMB = file.size / (1024 * 1024); // Size in MB
-        const headers = {
-            "user-uuid": localStorage.getItem("uuid"),
-        };
+
         try {
             setDisableSelect(false)
             setUploadingMessage('UPLOADING')
+            const headers = {
+                "user-uuid": localStorage.getItem("uuid"),
+            };
+            const slowApiTimer = setTimeout(() => {
+                console.log('API is slow');
+                if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
+                    console.log(isApiSlow, 'isApiSlow')
+                    setIsApiSlow(true);
+                }
+                console.log("API is slow, showing notification.");
+            }, 300);
+
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
@@ -221,15 +233,15 @@ function CadFileConversionWrapper({children,convert}) {
                     headers
                 }
             );
-            
 
+            // clearTimeout(slowApiTimer);
             if (
                 preSignedURL.data.meta.code === 200 &&
                 preSignedURL.data.meta.message === "SUCCESS" &&
                 preSignedURL.data.data.url
             ) {
                 if (preSignedURL.data.data.is_mutipart) {
-                    await multiUpload(preSignedURL.data.data, file, {"user-uuid": localStorage.getItem("uuid")}, fileSizeMB);
+                    await multiUpload(preSignedURL.data.data, file, { "user-uuid": localStorage.getItem("uuid") }, fileSizeMB);
                 } else {
                     await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
                     // await CadFileConversion(preSignedURL.data.data.url)
@@ -247,25 +259,28 @@ function CadFileConversionWrapper({children,convert}) {
 
     const CadFileConversion = async (url) => {
         try {
-         
+
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
                     s3_link: url,
-                    input_format: fileConvert.name.split('.').pop(), 
-                    output_format:  selectedFileFormate,
+                    input_format: fileConvert.name.split('.').pop(),
+                    output_format: selectedFileFormate,
+                    file_name: fileConvert.name,
                     s3_bucket: "design-glb"
-                }, {headers: {
+                }, {
+                headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-                    
-                }}
-                
+
+                }
+            }
+
             );
-            
+
             // /design-view
             if (response.data.meta.success) {
                 console.log(response.data.data)
-              
+
                 setFolderId(response.data.data)
 
                 await getStatus(response.data.data)
@@ -340,18 +355,20 @@ function CadFileConversionWrapper({children,convert}) {
 
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                { bucket_name: BUCKET, file, category: "complete_mutipart",  filesize: fileSizeMB },
-                {headers: {
-                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-                    
-                }}
+                { bucket_name: BUCKET, file, category: "complete_mutipart", filesize: fileSizeMB },
+                {
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+
+                    }
+                }
             );
 
             if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
                 console.log("Multipart upload completed successfully.");
 
                 // Ensure `CadFileConversion` is called correctly
-             
+
                 setUploading(true)
                 await CadFileConversion(preSignedURL.data.data.Location)
                 setS3Url(preSignedURL.data.data.Location)
@@ -375,46 +392,50 @@ function CadFileConversionWrapper({children,convert}) {
         setUploading(true)
         await CadFileConversion(data.url)
         setS3Url(data.url)
-      
+
         console.log("Upload complete:", result);
     }
 
-  return (
-    <>
-    {uploading ?
-        <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
-            setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
-            folderId={folderId} baseName={baseName}
-            uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={handleFileConvert} />
-        : <div
-            className={styles["cad-dropzone"]}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onClick={handleClick}
+    return (
+        <>
+            {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
+            {!isApiSlow && <>
+                {uploading ?
+                    <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
+                        setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
+                        folderId={folderId} baseName={baseName}
+                        uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={handleFileConvert} />
+                    : <div
+                        className={styles["cad-dropzone"]}
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onClick={handleClick}
 
 
-        >
-            <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                accept={ allowedFormats.join(", ")}
-                onChange={handleFileChange}
-            />
-            {children}
-            <Image
-                src={IMAGEURLS.uploadIcon}
-                alt="upload"
-                width={68}
-                height={68}
-                style={{ cursor: "pointer" }}
-            />
-        </div>}
+                    >
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: "none" }}
+                            accept={allowedFormats.join(", ")}
+                            onChange={handleFileChange}
+                        />
+                        {children}
+                        <Image
+                            src={IMAGEURLS.uploadIcon}
+                            alt="upload"
+                            width={68}
+                            height={68}
+                            style={{ cursor: "pointer" }}
+                        />
+                    </div>}
 
-</>
+            </>}
+
+        </>
 
 
-  )
+    )
 }
 
 export default CadFileConversionWrapper

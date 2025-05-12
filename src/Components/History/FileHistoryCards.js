@@ -5,12 +5,13 @@ import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL } from '@/co
 import Image from 'next/image';
 import styles from './FileHistory.module.css';
 import EastIcon from '@mui/icons-material/East';
+import { textLettersLimit } from '@/common.helper';
 
 function FileHistoryCards({ cad_type }) {
 
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
-
+  console.log(cadConverterFileHistory, 'cadConverterFileHistory')
   useEffect(() => {
 
     const uuid = localStorage.getItem('uuid');
@@ -24,12 +25,10 @@ function FileHistoryCards({ cad_type }) {
           const processedFiles = {
             cad_viewer_files: response.data.data.cad_viewer_files.map(file => ({
               ...file,
-              expiresIn: calculateExpiry(file.updatedAt),
               createdAtFormatted: formatDate(file.createdAt)
             })),
             cad_converter_files: response.data.data.cad_converter_files.map(file => ({
               ...file,
-              expiresIn: calculateExpiry(file.updatedAt),
               createdAtFormatted: formatDate(file.createdAt)
             }))
           };
@@ -47,13 +46,6 @@ function FileHistoryCards({ cad_type }) {
   }, []);
 
 
-  const calculateExpiry = (updatedAt) => {
-    const now = new Date();
-    const updatedTime = new Date(updatedAt);
-    const hoursLeft = Math.floor((24 * 60 * 60 * 1000 - (now - updatedTime)) / (1000 * 60 * 60));
-
-    return hoursLeft > 0 ? `${hoursLeft} hours remaining` : "Expired";
-  };
 
   // Helper function to format date (e.g., "April 30, 2025")
   const formatDate = (dateString) => {
@@ -68,7 +60,7 @@ function FileHistoryCards({ cad_type }) {
     try {
       const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
       const response = await fetch(url);
-
+      console.log(file, "file")
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -78,7 +70,7 @@ function FileHistoryCards({ cad_type }) {
       const a = document.createElement('a');
 
       a.href = downloadUrl;
-      a.download = `${file?.name?.slice(0, file.name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`;
+      a.download = `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`;
 
       document.body.appendChild(a);
       a.click();
@@ -91,6 +83,7 @@ function FileHistoryCards({ cad_type }) {
       // Optional: Add user feedback here (e.g., toast notification)
     }
   };
+
 
   return (
     <>
@@ -118,10 +111,10 @@ function FileHistoryCards({ cad_type }) {
                   <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
 
                   <div className={styles.historyFileDetails}>
-                    <span className={styles.historyFileDetailsKey}>File Name</span> <span>{file.file_name}</span></div>
+                    <span className={styles.historyFileDetailsKey}>File Name</span> <span >{textLettersLimit(file.file_name, 20)}</span></div>
                   <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div>
                   <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
-                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Expires</span> <span>{file.expiresIn}</span></div>
+
                   <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <button style={{
                       background: '#610bee',
@@ -177,11 +170,11 @@ function FileHistoryCards({ cad_type }) {
                     localStorage.setItem("last_viewed_cad_key", file._id);
                   }}
                 >
-
+                  <div className={styles.historyFileDetails}>
+                    <span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>File Name</span> <span>{textLettersLimit(file.file_name, 20)}</span></div>
                   <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Conversion</span> <span>{file.input_format}</span> &nbsp;<EastIcon style={{ height: '25px' }} />&nbsp; <span>{file.output_format}</span></div>
                   <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div>
                   <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Created</span> <span>{file.createdAtFormatted}</span></div>
-                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Expires</span> <span>{file.expiresIn}</span></div>
                   <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <button style={{
                       background: '#610bee',

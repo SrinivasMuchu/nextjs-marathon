@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect } from 'react';
-
 import { v4 as uuidv4 } from 'uuid';
 
 function CreateLocalStorage() {
@@ -11,11 +10,9 @@ function CreateLocalStorage() {
       localStorage.setItem('uuid', newUuid);
     }
   }, []);
-
-  
-
   // Return null to render nothing
   return null;
 }
+
 
 export default CreateLocalStorage;
