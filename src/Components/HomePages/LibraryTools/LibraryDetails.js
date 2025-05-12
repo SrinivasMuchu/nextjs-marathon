@@ -34,7 +34,7 @@ const categories = [
   },
   {
     title: "Robotic",
-    route: 'robotic',
+    route: 'robotics',
     thumbnail: "https://d1d8a3050v4fu6.cloudfront.net/68156780fcc7c6ee36fcf8d2/sprite_0_0.webp"
   },
   {

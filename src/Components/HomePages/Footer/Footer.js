@@ -48,7 +48,16 @@ function Footer() {
             <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a>
             <ContactUsText />
             {/* <Link href="/blog/part-number-nomenclature-guide">Blog</Link> */}
-            <Link href="/terms-and-conditions">Terms Of Service</Link>
+           
+          </div>
+          <div className={styles["footer-divider"]}></div>
+           <div className={styles["footer-navs"]}>
+            <a href="#home" onClick={(e) => handleAnchorClick(e, "home")}>Organization hierarchy</a>
+            <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>CAD viewer</a>
+            <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>3D file converter</a>
+            <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Library</a>
+            <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Part Number Nomenclature Guide</a>
+             <Link href="/terms-and-conditions">Terms Of Service</Link>
             <Link href="/privacy-policy">Privacy Policies</Link>
           </div>
           

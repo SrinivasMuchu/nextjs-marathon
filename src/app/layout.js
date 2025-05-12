@@ -72,7 +72,7 @@ export default function RootLayout({ children }) {
           href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg"
           type="image/x-icon"
         />
-        {/* <Script
+        <Script
           strategy="beforeInteractive"
           id="disable-ga-on-localhost"
           dangerouslySetInnerHTML={{
@@ -82,14 +82,14 @@ export default function RootLayout({ children }) {
       }
     `,
           }}
-        /> */}
+        />
 
-        {/* <Script
+        <Script
           strategy="lazyOnload"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
-        /> */}
+        />
 
-        {/* <Script
+        <Script
           id="google-analytics"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
@@ -102,7 +102,7 @@ export default function RootLayout({ children }) {
       });
     `,
           }}
-        /> */}
+        />
 
         <Script
           id="json-ld"

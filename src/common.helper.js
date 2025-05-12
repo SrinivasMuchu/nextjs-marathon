@@ -15,14 +15,18 @@ export const textLettersLimit = (text, limitType) => {
 
 export function sendViewerEvent(eventName) {
   
-    console.log(eventName)
+    window.gtag('event', eventName, {
+      event_category: 'CAD_VIEWER'
+    });
  
 }
 
 
 export function sendConverterEvent(eventName) {
  
-  console.log(eventName)
+  window.gtag('event', eventName, {
+    event_category: 'CONVERTER'
+  });
 
 }
 

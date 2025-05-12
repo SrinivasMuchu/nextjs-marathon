@@ -44,7 +44,7 @@ export default async function IndustryDesignsCrousel({ industry }) {
             color: 'white', opacity: '1', padding: '5px 10px',
             background: '#610bee', borderRadius: '8px', marginLeft: '10px'
           }}
-            href={`/library?category=${category.map(item => item.industry_category_name).join(',')}`}>
+            href={`/library?category=${category[0]?.industry_category_name}`}>
             View all →
           </a>
         </p>

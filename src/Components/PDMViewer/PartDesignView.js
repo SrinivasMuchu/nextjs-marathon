@@ -231,7 +231,7 @@ export default function PartDesignView() {
                 sendViewerEvent('viewer_file_upload_success');
                 // Ensure `CreateCad` is called correctly
                 // if (preSignedURL.data.data.Location) {
-                await CreateCad(preSignedURL.data.data.Location);
+                // await CreateCad(preSignedURL.data.data.Location);
                 // }
 
                 return true;
