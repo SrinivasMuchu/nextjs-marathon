@@ -42,6 +42,11 @@ const categories = [
     route: 'jewellery',
     thumbnail: "https://d1d8a3050v4fu6.cloudfront.net/680bbcc635a26ccc297a036d/sprite_0_0.webp"
   },
+   {
+    title: "Manufacturing & CNC",
+    route: 'machine-design',
+    thumbnail: "https://d1d8a3050v4fu6.cloudfront.net/681c0dbef88b4b11bc92d3c7/sprite_0_0.webp"
+  },
   {
     title: "3D Printing",
     route: '3d-printing',

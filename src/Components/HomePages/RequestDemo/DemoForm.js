@@ -58,11 +58,11 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
       <div style={{ width: '100%' }} className={styles['demo-form']}>
         {/* <span>Ask a question</span> */}
         <div className={styles['demo-inputs']}>
-          <input placeholder='Name*' onChange={(e) => setName(e.target.value)} />
+          <input placeholder='Name*' onChange={(e) => setName(e.target.value)} tabIndex={0}/>
           
-           <ReactPhoneNumber phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} styles={styles} classname='demo-phonenumber'/>
+           <ReactPhoneNumber phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} tabIndex={0} styles={styles} classname='demo-phonenumber'/>
         </div>
-        <textarea placeholder='Message*' onChange={(e) => setMessage(e.target.value)} />
+        <textarea placeholder='Message*' onChange={(e) => setMessage(e.target.value)} tabIndex={0}/>
         <span style={{ opacity: error ? '1' : '0', color: 'red', fontSize: '14px' }}>{error ? `* ${error}` : 'no text'}</span>
         <button onClick={requestDemo} className={styles['demo-form-btn']}>
           {loading ? <span className={footerStyles['btn-ring']}></span> : 'Submit'}

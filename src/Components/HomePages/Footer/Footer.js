@@ -6,7 +6,8 @@ import { IMAGEURLS } from "@/config";
 import Link from "next/link";
 import ContactUsText from "../../CommonJsx/ContactUsText";
 import FooterForm from "./FooterForm";
-import { usePathname, useRouter } from "next/navigation"; // Use the correct imports
+import { usePathname, useRouter } from "next/navigation";
+import LinkedInIcon from '@mui/icons-material/LinkedIn'; // Use the correct imports
 
 function Footer() {
   const pathname = usePathname(); // Get current route
@@ -52,11 +53,11 @@ function Footer() {
           </div>
           <div className={styles["footer-divider"]}></div>
            <div className={styles["footer-navs"]}>
-            <a href="#home" onClick={(e) => handleAnchorClick(e, "home")}>Organization hierarchy</a>
-            <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>CAD viewer</a>
-            <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>3D file converter</a>
-            <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Library</a>
-            <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Part Number Nomenclature Guide</a>
+            <a href="/tools/org-hierarchy" >Organization hierarchy</a>
+            <a href="/tools/cad-viewer" >CAD viewer</a>
+            <a href="/tools/3d-file-converter" >3D file converter</a>
+            <a href="/library" >Library</a>
+            {/* <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Part Number Nomenclature Guide</a> */}
              <Link href="/terms-and-conditions">Terms Of Service</Link>
             <Link href="/privacy-policy">Privacy Policies</Link>
           </div>
@@ -65,6 +66,7 @@ function Footer() {
         <FooterForm styles={styles} />
       </div>
       <div className={styles["footer-page-copyright"]}>
+        <a href="https://www.linkedin.com/company/marathon-os/"><LinkedInIcon style={{width:'30px',height:'30px'}}/></a>
         <span>Ⓒ Copyrights issued 2023-2024</span>
       </div>
     </div>
