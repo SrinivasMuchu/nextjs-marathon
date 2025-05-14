@@ -1,8 +1,9 @@
-'use client'; // 👈 Add this at the top
+ // 👈 Add this at the top
 
 import React from 'react';
 import styles from '../Tools/Tools.module.css';
 import Image from 'next/image';
+import LibraryScroll from './LibraryScroll';
 
 const categories = [
   {
@@ -33,13 +34,18 @@ const categories = [
   },
   {
     title: "Robotic",
-    route: 'robotic',
+    route: 'robotics',
     thumbnail: "https://d1d8a3050v4fu6.cloudfront.net/68156780fcc7c6ee36fcf8d2/sprite_0_0.webp"
   },
   {
     title: "Jewellery",
     route: 'jewellery',
     thumbnail: "https://d1d8a3050v4fu6.cloudfront.net/680bbcc635a26ccc297a036d/sprite_0_0.webp"
+  },
+   {
+    title: "Manufacturing & CNC",
+    route: 'machine-design',
+    thumbnail: "https://d1d8a3050v4fu6.cloudfront.net/681c0dbef88b4b11bc92d3c7/sprite_0_0.webp"
   },
   {
     title: "3D Printing",
@@ -68,30 +74,13 @@ const categories = [
 
 function LibraryDetails() {
   return (
-    <div className={styles['library-tools-page']}>
+    <div className={styles['library-tools-page']} style={{ position: 'relative' }}>
       <div className={styles['tools-page-header']}>
         <h2>CAD Design Library</h2>
         <p>3D CAD designs for engineering and product development. Browse models across industries to accelerate design inspiration and collaboration.</p>
       </div>
-      <div className={styles['industry-category-page-items']}>
-        {categories.map((category, index) => (
-          <a href={`/library?category=${category.route}`} key={index}>
-            <div className={styles['tools-page-items-cont']}>
-              <Image
-                src={category.thumbnail}
-                alt={category.title}
-                width={250}
-                height={0}
-                loading="lazy"
-              />
-              <div className={styles['tools-page-items-content']}>
-                <h6>{category.title}</h6>
-                <p>Explore cutting-edge solutions in the {category.title} industry.</p>
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
+      <LibraryScroll categories={categories}/>
+      
     </div>
   );
 }

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { textLettersLimit } from '@/common.helper';
 import { IMAGEURLS } from '@/config';
 
-export default function IndustryCarouselClient({ designs, category, industryName }) {
+export default function IndustryCarouselClient({ designs, category }) {
   const carouselRef = useRef(null);
   const itemWidth = 320; // width including margin/padding
 
@@ -20,20 +20,8 @@ export default function IndustryCarouselClient({ designs, category, industryName
   };
 
   return (
-    <div className={styles["industry-designs"]} style={{ position: 'relative' }}>
-      <div className={styles["industry-designs-header"]}>
-        <h2>{industryName} Design Library</h2>
-        <p style={{ color: 'rgba(135, 134, 134, 0.7)' }}>
-          Explore high-quality design inspirations curated for the {industryName}.
-          <a style={{
-            color: 'white', opacity: '1', padding: '5px 10px',
-            background: '#610bee', borderRadius: '8px', marginLeft: '10px'
-          }}
-            href={`/library?category=${category.map(item => item.industry_category_name).join(',')}`}>
-            View all →
-          </a>
-        </p>
-      </div>
+    <>
+     
 
       {/* Navigation Buttons */}
       <button onClick={() => scroll('left')} style={{
@@ -111,6 +99,6 @@ export default function IndustryCarouselClient({ designs, category, industryName
           </a>
         ))}
       </div>
-    </div>
+    </>
   );
 }

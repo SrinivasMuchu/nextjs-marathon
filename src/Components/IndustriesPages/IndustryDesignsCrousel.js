@@ -32,13 +32,28 @@ export default async function IndustryDesignsCrousel({ industry }) {
   if (!designs || designs.length === 0) return null;
 
   // Reference to the scrollable container
-  
+
 
   return (
-    <IndustryCarouselClient
-    designs={designs}
-    category={category}
-    industryName={industryName}
-  />
+    <div className={styles["industry-designs"]} style={{ position: 'relative' }}>
+      <div className={styles["industry-designs-header"]}>
+        <h2>{industryName} Design Library</h2>
+        <p style={{ color: 'rgba(135, 134, 134, 0.7)' }}>
+          Explore high-quality design inspirations curated for the {industryName}.
+          <a style={{
+            color: 'white', opacity: '1', padding: '5px 10px',
+            background: '#610bee', borderRadius: '8px', marginLeft: '10px'
+          }}
+            href={`/library?category=${category[0]?.industry_category_name}`}>
+            View all →
+          </a>
+        </p>
+      </div>
+      <IndustryCarouselClient
+        designs={designs}
+        category={category}
+        industryName={industryName}
+      />
+    </div>
   );
 }

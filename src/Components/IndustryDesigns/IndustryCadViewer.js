@@ -295,9 +295,9 @@ function IndustryCadViewer({ designId, type }) {
 
     // Keyboard controls
     useEffect(() => {
-        const handleKeyDown = (event) => {
+    const handleKeyDown = (event) => {
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
             event.preventDefault();
-
             switch (event.key) {
                 case 'ArrowLeft':
                     rotateView('left');
@@ -312,11 +312,12 @@ function IndustryCadViewer({ designId, type }) {
                     rotateView('down');
                     break;
             }
-        };
+        }
+    };
 
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [rotateView]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+}, [rotateView]);
 
     // Window resize handler
     useEffect(() => {
@@ -385,7 +386,7 @@ function IndustryCadViewer({ designId, type }) {
                             top: '2rem', left: '1rem', zIndex: 2
                         }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
                     <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}>
-                        <button
+                        <button onClick={()=>sendViewerEvent('design_view_file_download')}
                             style={{
 
                                 padding: '10px',

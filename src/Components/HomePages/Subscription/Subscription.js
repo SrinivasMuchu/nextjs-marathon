@@ -3,6 +3,7 @@ import React  from 'react'
 import styles from './Subscription.module.css'
 import SubscriptionList from './SubscriptionList'
 import SubscriptionSwitch from './SubscriptionSwitch';
+import SubscriptionDemoButton from '@/Components/CommonJsx/SubscriptionDemoButton';
 
 function Subscription() {
    
@@ -16,6 +17,8 @@ function Subscription() {
                     efficiently, with just one comprehensive plan.</p>
             </div>
             <SubscriptionSwitch styles={styles}/>
+            <SubscriptionDemoButton/>
+            {/* <button style={{background:'#610bee',color:'white',borderRadius:'8px',padding:'10px 20px'}}>Request demo</button> */}
             <div className={styles['subscription-page-list']}>
                 <SubscriptionList />
                

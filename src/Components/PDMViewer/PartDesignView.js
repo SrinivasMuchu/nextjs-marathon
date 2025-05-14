@@ -194,7 +194,7 @@ export default function PartDesignView() {
           
             const result = await axios.put(url, part, {
                 headers: {
-                    "Content-Type": file.type,
+                    
                     "Content-Length": part.size, // Ensure Content-Length is set
                 },
             });
@@ -614,9 +614,9 @@ export default function PartDesignView() {
 
     // Keyboard controls
     useEffect(() => {
-        const handleKeyDown = (event) => {
+    const handleKeyDown = (event) => {
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
             event.preventDefault();
-
             switch (event.key) {
                 case 'ArrowLeft':
                     rotateView('left');
@@ -631,11 +631,12 @@ export default function PartDesignView() {
                     rotateView('down');
                     break;
             }
-        };
+        }
+    };
 
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [rotateView]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+}, [rotateView]);
 
     // Window resize handler
     useEffect(() => {
