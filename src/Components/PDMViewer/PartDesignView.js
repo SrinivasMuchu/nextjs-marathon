@@ -9,10 +9,9 @@ import { toast } from 'react-toastify';
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
 import { useRouter } from "next/navigation";
-import FileHistory from './FileHistory';
 import HistoryIcon from '@mui/icons-material/History';
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
-import Dummy from '../CommonJsx/Dummy';
+
 // Constants
 const ANGLE_STEP = 30;
 const BUFFER_SIZE = 0;
@@ -47,17 +46,16 @@ export default function PartDesignView() {
 
     useEffect(() => {
         if (!file) return;
-        const fetchFileFromIndexedDB = async () => {
-            try {
-
-                handleFile(file);
-            } catch (error) {
-                console.error("Error retrieving file:", error);
-            }
-        };
-
-        fetchFileFromIndexedDB();
+        try {
+            console.log(file)
+            handleFile(file);
+        } catch (error) {
+            console.error("Error retrieving file:", error);
+        }
     }, []);
+
+  
+
     const handleFile = async (file) => {
 
 
@@ -73,11 +71,11 @@ export default function PartDesignView() {
             // Start a 10s timer to detect slow API
             const slowApiTimer = setTimeout(() => {
                 console.log('API is slow');
-                if(!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')){
+                if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
                     console.log(isApiSlow, 'isApiSlow')
-                     setIsApiSlow(true);
+                    setIsApiSlow(true);
                 }
-            }, 300);
+            }, 500);
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
@@ -570,30 +568,30 @@ export default function PartDesignView() {
     }, [xRotation, yRotation, maintainTextureBuffer]);
 
     // Keyboard controls
-   useEffect(() => {
-    const handleKeyDown = (event) => {
-        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
-            event.preventDefault();
-            switch (event.key) {
-                case 'ArrowLeft':
-                    rotateView('left');
-                    break;
-                case 'ArrowRight':
-                    rotateView('right');
-                    break;
-                case 'ArrowUp':
-                    rotateView('up');
-                    break;
-                case 'ArrowDown':
-                    rotateView('down');
-                    break;
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+                event.preventDefault();
+                switch (event.key) {
+                    case 'ArrowLeft':
+                        rotateView('left');
+                        break;
+                    case 'ArrowRight':
+                        rotateView('right');
+                        break;
+                    case 'ArrowUp':
+                        rotateView('up');
+                        break;
+                    case 'ArrowDown':
+                        rotateView('down');
+                        break;
+                }
             }
-        }
-    };
+        };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-}, [rotateView]);
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [rotateView]);
 
 
     // Window resize handler
@@ -618,6 +616,7 @@ export default function PartDesignView() {
     return (
         <>
             <HomeTopNav />
+          
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
             {!isApiSlow && <>
                 {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} /> :
@@ -879,7 +878,7 @@ export default function PartDesignView() {
 
 
         </>
-       
-        
+
+
     );
 }

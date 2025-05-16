@@ -5,53 +5,62 @@ import { BASE_URL } from '@/config';
 import axios from 'axios';
 
 export default function usePushNotifications() {
-    const registerPush = useCallback(async (email = '') => {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-            console.warn('Push notifications not supported.');
+    const registerPush = useCallback(async (email = '', isBrowserNotificationRequested = false) => {
+        if (!email && !isBrowserNotificationRequested) {
+            console.warn('Neither email nor browser notification requested.');
             return;
         }
 
-        try {
-            // Request notification permissions
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') {
-                console.warn('Notification permission not granted.');
-                return;
-            }
+        const uuid = localStorage.getItem('uuid');
+        let accessKey = null;
 
-            // Register the service worker
-            const reg = await navigator.serviceWorker.register('/sw.js');
-
-            // Subscribe the user to push notifications
-            const sub = await reg.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(
-                    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
-                ),
-            });
-
-            const accessKey = sub.endpoint;
-            const uuid = localStorage.getItem('uuid');
-
-            // Send subscription details to the backend
-            const result = await axios.post(`${BASE_URL}/v1/cad/user-access`, {
-                accessKey: sub,
-                email,
-                uuid
-            });
-
-            if (result.data.meta.success) {
-                // Store email and access key if provided
-                if (email) {
-                    localStorage.setItem('user_email', email);
+        // Handle browser notifications first (if requested)
+        if (isBrowserNotificationRequested) {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                console.warn('Push notifications not supported.');
+            } else {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        console.warn('Notification permission not granted.');
+                    } else {
+                        const reg = await navigator.serviceWorker.register('/sw.js');
+                        const sub = await reg.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlBase64ToUint8Array(
+                                process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+                            ),
+                        });
+                        accessKey = sub;
+                        localStorage.setItem('user_access_key', sub.endpoint);
+                    }
+                } catch (err) {
+                    console.error('❌ Push registration failed:', err);
+                    // Don't throw here - we might still want to register email
                 }
-                localStorage.setItem('user_access_key', accessKey);
-                console.log('Push subscription sent to server successfully');
             }
+        }
 
-            console.log('✅ Push subscription saved successfully');
+        // Make a single API call with all collected data
+        try {
+            const payload = {
+                uuid,
+                ...(email && { email }),
+                ...(accessKey && { accessKey })
+            };
+
+            // Only make API call if we have something to send
+            if (email || accessKey) {
+                const result = await axios.post(`${BASE_URL}/v1/cad/user-access`, payload);
+                
+                if (result.data.meta.success) {
+                    if (email) localStorage.setItem('user_email', email);
+                    console.log('✅ Notification preferences saved successfully');
+                }
+            }
         } catch (err) {
-            console.error('❌ Push registration failed:', err);
+            console.error('Notification setup failed:', err);
+            throw err;
         }
     }, []);
 

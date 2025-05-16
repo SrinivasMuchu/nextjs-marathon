@@ -15,11 +15,6 @@ function IndustryDesignUplaodWrapper({children}) {
         const { setFile } = useContext(contextState);
         const maxFileSizeMB = 300; // Max file size in MB
        
-       
-       
-       
-    
-    
         const handleClick = () => {
             fileInputRef.current?.click();
         };

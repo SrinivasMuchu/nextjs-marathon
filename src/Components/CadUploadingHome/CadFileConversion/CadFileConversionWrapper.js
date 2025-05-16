@@ -14,12 +14,15 @@ import CadUploadDropDown from './CadUploadDropDown'
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useParams } from 'next/navigation';
 import CadFileNotifyPopUp from "@/Components/CommonJsx/CadFileNotifyPopUp";
+import { unstable_useId } from "@mui/material";
+import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 
 function CadFileConversionWrapper({ children, convert }) {
     const fileInputRef = useRef(null);
     const [s3Url, setS3Url] = useState('');
     const [baseName, setBaseName] = useState('');
     const [folderId, setFolderId] = useState('');
+    const [checkLimit, setCheckLimit] = useState(false);
     const [uploading, setUploading] = useState(false)
     // const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep"])
     const pathname = usePathname();
@@ -203,6 +206,25 @@ function CadFileConversionWrapper({ children, convert }) {
         event.preventDefault();
     };
 
+    const checkingCadFileUploadLimitExceed = async (file) => {
+        try {
+            const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
+                {params:{
+                    uuid: localStorage.getItem("uuid"),
+                }}
+            )
+            if (response.data.meta.success) {
+                handleFileConvert(file)
+            }else{
+                setCheckLimit(true)
+                console.log('Limit Exceeded')
+            }
+        }
+        catch (error) {
+            console.error("Error checking file upload limit:", error);
+        }
+    }
+
     const handleFileConvert = async (file) => {
         const fileSizeMB = file.size / (1024 * 1024); // Size in MB
 
@@ -219,7 +241,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     setIsApiSlow(true);
                 }
                 console.log("API is slow, showing notification.");
-            }, 300);
+            }, 500);
 
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
@@ -398,13 +420,14 @@ function CadFileConversionWrapper({ children, convert }) {
 
     return (
         <>
+        {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
-            {!isApiSlow && <>
+            {(!isApiSlow || !checkLimit) && <>
                 {uploading ?
                     <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
                         setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
                         folderId={folderId} baseName={baseName}
-                        uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={handleFileConvert} />
+                        uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed}  />
                     : <div
                         className={styles["cad-dropzone"]}
                         onDrop={handleDrop}

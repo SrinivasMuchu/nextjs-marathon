@@ -1,20 +1,23 @@
 "use client";
-import { IMAGEURLS ,allowedFilesList} from "@/config";
+import { IMAGEURLS, allowedFilesList } from "@/config";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import styles from "./CadHome.module.css";
 import { toast } from "react-toastify";
-
+import axios from 'axios'
+import { BASE_URL } from '@/config';
 import { usePathname } from "next/navigation";
 import { useContext } from 'react';
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useRouter } from "next/navigation";
+import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 
 function CadDropZoneWrapper({ children, isStyled, type }) {
     const fileInputRef = useRef(null);
+    const [checkLimit, setCheckLimit] = useState(false);
     const [uploading, setUploading] = useState(false)
     const { allowedFormats, setAllowedFormats } = useContext(contextState);
-   
+
     const pathname = usePathname();
     const { setFile } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
@@ -24,7 +27,7 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
     useEffect(() => {
         if (type && cadFile) {
             formateAcceptor(cadFile);
-        }else{
+        } else {
             setAllowedFormats(allowedFilesList)
         }
     }, [type, cadFile]);
@@ -53,6 +56,28 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
     const handleClick = () => {
         fileInputRef.current?.click();
     };
+
+    const checkingCadFileUploadLimitExceed = async (file) => {
+        try {
+            const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
+                {
+                    params: {
+                        uuid: localStorage.getItem("uuid"),
+                    }
+                }
+            )
+            if (response.data.meta.success) {
+                setFile(file)
+                router.push("/tools/cad-renderer");
+            } else {
+                setCheckLimit(true)
+                console.log('Limit Exceeded')
+            }
+        }
+        catch (error) {
+            console.error("Error checking file upload limit:", error);
+        }
+    }
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -102,10 +127,10 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
 
 
         console.log(file)
-        setFile(file)
+        checkingCadFileUploadLimitExceed(file)
         // handleFile(file)
         // await saveFileToIndexedDB(file);
-        router.push("/tools/cad-renderer");
+      
 
     };
 
@@ -118,25 +143,31 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
 
 
     return (
-        <div
-            className={styles["cad-dropzone"]}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onClick={handleClick}
+        <>
+            {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
+            {!checkLimit && <>
+                <div
+                    className={styles["cad-dropzone"]}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onClick={handleClick}
 
-            style={isStyled ? { flexDirection: "column-reverse" } : {}}
-        ><input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                accept={allowedFormats.join(", ")} // Restrict input to allowed file types
-                onChange={handleFileChange}
-            />
-            {React.Children.map(children, (child) =>
-                React.isValidElement(child) ? React.cloneElement(child, { allowedFormats }) : child
-            )}
-            <Image src={IMAGEURLS.uploadIcon} alt="upload" width={68} height={68} style={{ cursor: "pointer" }} />
-        </div>
+                    style={isStyled ? { flexDirection: "column-reverse" } : {}}
+                ><input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: "none" }}
+                        accept={allowedFormats.join(", ")} // Restrict input to allowed file types
+                        onChange={handleFileChange}
+                    />
+                    {React.Children.map(children, (child) =>
+                        React.isValidElement(child) ? React.cloneElement(child, { allowedFormats }) : child
+                    )}
+                    <Image src={IMAGEURLS.uploadIcon} alt="upload" width={68} height={68} style={{ cursor: "pointer" }} />
+                </div>
+            </>}
+        </>
+
     )
 }
 

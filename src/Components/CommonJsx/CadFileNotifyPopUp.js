@@ -1,4 +1,3 @@
-// CadFileNotifyPopUp.js
 'use client';
 import React, { useState } from 'react';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -7,17 +6,16 @@ import usePushNotifications from './usePushNotifications';
 
 function CadFileNotifyPopUp({ setIsApiSlow }) {
   const [email, setEmail] = useState('');
-  const [testEmail, setTestEmail] = useState('');
   const [browserNotify, setBrowserNotify] = useState(false);
   const pushRegister = usePushNotifications();
 
   const handleAllow = async () => {
     try {
-      console.log('Registering push notifications...');
-      await pushRegister(email);
+      console.log('Registering notifications...');
+      await pushRegister(email, browserNotify);
       setIsApiSlow(false);
     } catch (error) {
-      console.error('Error registering push notifications:', error);
+      console.error('Error registering notifications:', error);
     }
   };
 
@@ -25,12 +23,8 @@ function CadFileNotifyPopUp({ setIsApiSlow }) {
     setIsApiSlow(false);
   };
 
-  const handleNotificationToggle = async () => {
+  const handleNotificationToggle = () => {
     setBrowserNotify(!browserNotify);
-    if (!browserNotify) {
-      await pushRegister();  // No email for browser notifications
-    }
-    setIsApiSlow(false);
   };
 
   return (
@@ -45,9 +39,8 @@ function CadFileNotifyPopUp({ setIsApiSlow }) {
         </button>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-1">Stay Updated</h2>
-        <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it’s ready.</p>
+        <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it's ready.</p>
 
-       
         {/* Email Input */}
         <div className="flex items-center gap-3 mb-4">
           <MailOutlineIcon style={{ fontSize: '20px', color: '#4B5563' }} />
@@ -59,13 +52,6 @@ function CadFileNotifyPopUp({ setIsApiSlow }) {
             onChange={(e) => setEmail(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:border-blue-500"
           />
-          <button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition duration-200"
-            onClick={handleAllow}
-
-          >
-            Notify via Email
-          </button>
         </div>
 
         {/* Browser Notifications Toggle */}
@@ -91,13 +77,24 @@ function CadFileNotifyPopUp({ setIsApiSlow }) {
           </label>
         </div>
 
-        {/* Close Button */}
-        <button
-          style={{ border: '2px solid #610bee', color: '#610bee', borderRadius: '10px', padding: '4px 6px' }}
-          onClick={handleDeny}
-        >
-          Close
-        </button>
+        {/* Submit Button */}
+        <div className="flex justify-between">
+          <button
+            style={{ border: '2px solid #610bee', color: '#610bee', borderRadius: '10px', padding: '4px 6px' }}
+            onClick={handleDeny}
+          >
+            Close
+          </button>
+          <button
+            className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition duration-200"
+            onClick={handleAllow}
+            disabled={!email && !browserNotify}
+          >
+            {email && browserNotify ? 'Notify Both Ways' : 
+             email ? 'Notify via Email' : 
+             browserNotify ? 'Enable Notifications' : 'Select Notification Method'}
+          </button>
+        </div>
       </div>
     </div>
   );
