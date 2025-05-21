@@ -407,7 +407,7 @@ function IndustryCadViewer({ designId, type }) {
                             position: 'absolute',
                             top: '2rem', left: '1rem', zIndex: 2
                         }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
-                     <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}> 
+                     {/* <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}>  */}
                     <button onClick={handleDownload}
                         disabled={isDownLoading}
                         style={{
@@ -425,7 +425,7 @@ function IndustryCadViewer({ designId, type }) {
                             position: 'absolute',
                             top: '2rem', right: '1rem', zIndex: 2
                         }}><DownloadIcon style={{ width: '24px', height: '24px' }} /></button>
-                    </a> 
+                    {/* </a>  */}
 
                     {/* Three.js Canvas Container */}
                     <div ref={mountRef} style={{
