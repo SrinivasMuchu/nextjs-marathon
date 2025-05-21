@@ -71,7 +71,7 @@ export default async function LibraryDesign({ params }) {
       report: data.data.report ,
     };
 
-    return <IndustryDesign design={params} designData={normalizedData} type='library'/>;
+    return <IndustryDesign design={design} designData={normalizedData} type='library'/>;
   } catch (error) {
     console.error("Failed to fetch design data:", error);
     notFound(); // 👈 Error = 404

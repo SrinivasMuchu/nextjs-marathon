@@ -16,7 +16,7 @@ function IndustryDesign({ design, designData,type }) {
     <div>
       {designData && <>
         <HomeTopNav />
-        {!type && 
+        {!type ?
         <ActiveLastBreadcrumb 
           links={[
             { label: 'CAD viewer', href: '/tools/cad-viewer' },       
@@ -25,7 +25,14 @@ function IndustryDesign({ design, designData,type }) {
             { label: `${designData.response.page_title}`, href: `/industry/${design.industry}/${design.part}/${design.design_id}` },
           
           ]}
+        />:<ActiveLastBreadcrumb 
+          links={[
+            { label: 'Library', href: '/library' },       
+            { label: `${designData.response.page_title}`, href: `/library/${design.industry_design}` },
+           
+          ]}
         />}
+       
       <IndustryDesignHeader design={design} type={type} designData={designData.response} />
       {designData.response && <IndustryDesignsCarousel designData={designData.response}  />}
       {designData.response && <IndustryDesignFilesList designData={designData.response} />} 

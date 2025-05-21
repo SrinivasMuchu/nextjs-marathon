@@ -2,6 +2,7 @@ import React from 'react'
 import styles from './IndustryDesign.module.css'
 import { sendViewerEvent, textLettersLimit } from '@/common.helper'
 import IndustryDesignFilesDownload from './IndustryDesignFilesDownload';
+import { DESIGN_GLB_PREFIX_URL } from '@/config';
 
 function IndustryDesignFilesList({ designData }) {
     // Static view names with their corresponding view directions
@@ -48,7 +49,7 @@ function IndustryDesignFilesList({ designData }) {
             <td data-label="Extension">webp</td>
             <td data-label="Action">
                 <a 
-                    href={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/sprite_${view.x}_${view.y}.webp`} 
+                    href={`${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_${view.x}_${view.y}.webp`} 
                     target="_blank"
                     rel="noopener noreferrer"
                 >

@@ -1,6 +1,6 @@
 // app/components/IndustryDesignCards.tsx (or .jsx if using JS)
 import IndustryDesignParallelaxWrapper from './IndustryDesignParallelaxWrapper';
-import { BASE_URL } from '@/config';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
 import { textLettersLimit } from '@/common.helper';
 import Image from 'next/image';
 
@@ -27,7 +27,7 @@ async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
           <a href={`/industry/${industry}/${part_name}/${capability.route}`}>
             <div className={styles['capabilities-img-cont']} >
               <Image
-                src={`https://d1d8a3050v4fu6.cloudfront.net/${capability._id}/sprite_0_150.webp`}
+                src={`${DESIGN_GLB_PREFIX_URL}${capability._id}/sprite_0_150.webp`}
                 alt={capability.page_title}
                 className={styles['capabilities-img']}
                 width={100}
