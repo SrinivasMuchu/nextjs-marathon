@@ -1,15 +1,18 @@
 "use client";
+import dynamic from 'next/dynamic';
+
+const CubeLoader = dynamic(() => import('../CommonJsx/Loaders/CubeLoader'), {
+  ssr: false,
+});
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from 'lucide-react';
 import DownloadIcon from '@mui/icons-material/Download';
-
-import CubeLoader from '../CommonJsx/Loaders/CubeLoader';
-
-
 import { useRouter } from "next/navigation";
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { sendViewerEvent } from '@/common.helper';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
+import axios from 'axios';
 
 const ANGLE_STEP = 30;
 const BUFFER_SIZE = 0;
@@ -33,7 +36,7 @@ function IndustryCadViewer({ designId, type }) {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [currentZoom, setCurrentZoom] = useState(3.6);
-
+    const [isDownLoading, setIsDownLoading] = useState(false);
     const [folderId, setFolderId] = useState(type ? designId.library_design : designId.design_id);
     const router = useRouter();
 
@@ -44,8 +47,8 @@ function IndustryCadViewer({ designId, type }) {
         if (!folderId) return "";  // Prevent invalid URL when folderId is empty
         const xFormatted = ((x % 360 + 360) % 360);
         const yFormatted = ((y % 360 + 360) % 360);
-   
-        return `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
+
+        return `${DESIGN_GLB_PREFIX_URL}${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
     }, [folderId]);
 
 
@@ -258,7 +261,7 @@ function IndustryCadViewer({ designId, type }) {
         if (!folderId) return;
         setIsLoading(true)
         const timeout = setTimeout(() => {
-         
+
             setupTextures();
             rotateView('right')
         }, 300); // Adjust delay if needed
@@ -295,29 +298,29 @@ function IndustryCadViewer({ designId, type }) {
 
     // Keyboard controls
     useEffect(() => {
-    const handleKeyDown = (event) => {
-        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
-            event.preventDefault();
-            switch (event.key) {
-                case 'ArrowLeft':
-                    rotateView('left');
-                    break;
-                case 'ArrowRight':
-                    rotateView('right');
-                    break;
-                case 'ArrowUp':
-                    rotateView('up');
-                    break;
-                case 'ArrowDown':
-                    rotateView('down');
-                    break;
+        const handleKeyDown = (event) => {
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+                event.preventDefault();
+                switch (event.key) {
+                    case 'ArrowLeft':
+                        rotateView('left');
+                        break;
+                    case 'ArrowRight':
+                        rotateView('right');
+                        break;
+                    case 'ArrowUp':
+                        rotateView('up');
+                        break;
+                    case 'ArrowDown':
+                        rotateView('down');
+                        break;
+                }
             }
-        }
-    };
+        };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-}, [rotateView]);
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [rotateView]);
 
     // Window resize handler
     useEffect(() => {
@@ -339,14 +342,33 @@ function IndustryCadViewer({ designId, type }) {
 
     const handleNavigateBack = () => {
         if (type) {
-            router.push(`/library`)
+            router.push(`/library/${designId.industry_design}`)
         } else {
             router.push(`/industry/${designId.industry}/${designId.part}/${designId.design}`)
         }
 
     }
 
+    const handleDownload = async () => {
+        // setIsDownLoading(true); // Disable button
+        // try {
+        //     const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
+        //         design_id: folderId,
+        //         uuid: localStorage.getItem('uuid'),
+        //     });
 
+        //     const data = response.data;
+        //     if (data.meta.success) {
+        //         const url = data.data.download_url;
+        //         window.open(url, '_blank');
+        //     }
+            sendViewerEvent('design_view_file_download');
+        // } catch (err) {
+        //     console.error('Error downloading file:', err);
+        // } finally {
+        //     setIsDownLoading(false); // Re-enable button after completion
+        // }
+    };
     return (
         <>
             <HomeTopNav />
@@ -385,24 +407,25 @@ function IndustryCadViewer({ designId, type }) {
                             position: 'absolute',
                             top: '2rem', left: '1rem', zIndex: 2
                         }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
-                    <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}>
-                        <button onClick={()=>sendViewerEvent('design_view_file_download')}
-                            style={{
+                     <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}> 
+                    <button onClick={handleDownload}
+                        // disabled={isDownLoading}
+                        style={{
 
-                                padding: '10px',
-                                borderRadius: '4px',
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                border: '1px solid #e5e7eb',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                transition: 'background-color 0.2s',
-                                cursor: 'pointer',
-                                position: 'absolute',
-                                top: '2rem', right: '1rem', zIndex: 2
-                            }}><DownloadIcon style={{ width: '24px', height: '24px' }} /></button>
-                    </a>
+                            padding: '10px',
+                            borderRadius: '4px',
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            border: '1px solid #e5e7eb',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            transition: 'background-color 0.2s',
+                            cursor: 'pointer',
+                            position: 'absolute',
+                            top: '2rem', right: '1rem', zIndex: 2
+                        }}><DownloadIcon style={{ width: '24px', height: '24px' }} /></button>
+                    </a> 
 
                     {/* Three.js Canvas Container */}
                     <div ref={mountRef} style={{

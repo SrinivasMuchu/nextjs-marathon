@@ -1,10 +1,14 @@
 "use client";
+import dynamic from 'next/dynamic';
+
+const CubeLoader = dynamic(() => import('../CommonJsx/Loaders/CubeLoader'), {
+  ssr: false,
+});
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import * as THREE from 'three';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from 'lucide-react';
 import axios from 'axios'
-import { BASE_URL, BUCKET } from '@/config';
-import CubeLoader from '../CommonJsx/Loaders/CubeLoader';
+import { BASE_URL, BUCKET, DESIGN_GLB_PREFIX_URL } from '@/config';
 import { toast } from 'react-toastify';
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
@@ -346,7 +350,7 @@ export default function PartDesignView() {
   const xFormatted = ((x % 360 + 360) % 360);
   const yFormatted = ((y % 360 + 360) % 360);
   
-  const textureUrl = `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
+  const textureUrl = `${DESIGN_GLB_PREFIX_URL}${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
 
   return textureUrl;
 }, [folderId]);

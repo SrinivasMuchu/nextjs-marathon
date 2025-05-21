@@ -4,12 +4,13 @@ import styles from '../CadUploadingHome/CadHomeDesign/CadHome.module.css'
 import IndustryDesignUplaodWrapper from './IndustryDesignUplaodWrapper'
 import { cadViewerFiles } from '@/common.helper';
 import CommonSampleViewer from '../CommonJsx/CommonSampleViewer';
+import CadDropZoneWrapper from '../CadUploadingHome/CadHomeDesign/CadDropZoneWrapper';
 
 function IndustryDesignUpload() {
    
     return (
         <>
-        <IndustryDesignUplaodWrapper>
+        <CadDropZoneWrapper>
             <div className={styles["cad-dropzone-content"]}>
                 <p className={styles['cad-dropzone-head']}>
                     Drag & drop your 3D <span className={styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>files</span>
@@ -22,7 +23,7 @@ function IndustryDesignUpload() {
 
 
             </div>
-        </IndustryDesignUplaodWrapper >
+        </CadDropZoneWrapper >
         <CommonSampleViewer/>
         </>
         

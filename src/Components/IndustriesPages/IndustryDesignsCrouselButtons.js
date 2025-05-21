@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import styles from './Industry.module.css';
 import Image from 'next/image';
 import { textLettersLimit } from '@/common.helper';
-import { IMAGEURLS } from '@/config';
+import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from '@/config';
 
 export default function IndustryCarouselClient({ designs, category }) {
   const carouselRef = useRef(null);
@@ -64,7 +64,7 @@ export default function IndustryCarouselClient({ designs, category }) {
             {!design.isExploreMore ? (
               <div>
                 <Image
-                  src={`https://d1d8a3050v4fu6.cloudfront.net/${design._id}/sprite_0_150.webp`}
+                  src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_150.webp`}
                   alt={design.page_title}
                   className={styles["industry-designs-item-img"]}
                   width={300}
