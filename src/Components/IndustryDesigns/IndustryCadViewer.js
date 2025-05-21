@@ -350,24 +350,24 @@ function IndustryCadViewer({ designId, type }) {
     }
 
     const handleDownload = async () => {
-        // setIsDownLoading(true); // Disable button
-        // try {
-        //     const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-        //         design_id: folderId,
-        //         uuid: localStorage.getItem('uuid'),
-        //     });
+        setIsDownLoading(true); // Disable button
+        try {
+            const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
+                design_id: folderId,
+                uuid: localStorage.getItem('uuid'),
+            });
 
-        //     const data = response.data;
-        //     if (data.meta.success) {
-        //         const url = data.data.download_url;
-        //         window.open(url, '_blank');
-        //     }
+            const data = response.data;
+            if (data.meta.success) {
+                const url = data.data.download_url;
+                window.open(url, '_blank');
+            }
             sendViewerEvent('design_view_file_download');
-        // } catch (err) {
-        //     console.error('Error downloading file:', err);
-        // } finally {
-        //     setIsDownLoading(false); // Re-enable button after completion
-        // }
+        } catch (err) {
+            console.error('Error downloading file:', err);
+        } finally {
+            setIsDownLoading(false); // Re-enable button after completion
+        }
     };
     return (
         <>
@@ -409,7 +409,7 @@ function IndustryCadViewer({ designId, type }) {
                         }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
                      <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}> 
                     <button onClick={handleDownload}
-                        // disabled={isDownLoading}
+                        disabled={isDownLoading}
                         style={{
 
                             padding: '10px',
