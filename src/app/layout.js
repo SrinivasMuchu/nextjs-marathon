@@ -4,11 +4,11 @@ import { Inter } from "next/font/google";
 import ToastProvider from "@/Components/CommonJsx/ReactToastify";
 import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
+import { MICROSOFT_CLARITY_ID,GA_TRACKING_ID } from "../config";
 
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const GA_TRACKING_ID = "G-6P47TN4FMC";
 const jsonLdData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -114,7 +114,7 @@ export default function RootLayout({ children }) {
           c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
           t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
           y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
-        })(window, document, "clarity", "script", "rmu78moi7c");
+        })(window, document, "clarity", "script", ${MICROSOFT_CLARITY_ID});
       }
     `,
   }}
