@@ -1,6 +1,5 @@
-'use client';
 import axios from 'axios';
-import { BASE_URL } from '@/config';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
 import Image from 'next/image';
 import styles from './Library.module.css';
 import { textLettersLimit } from '@/common.helper';
@@ -10,6 +9,7 @@ import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import Footer from '../HomePages/Footer/Footer';
 import CategoryFilter from './CategoryFilter';
 import SearchBar from './SearchFilter';
+import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -44,6 +44,11 @@ async function Library({ searchParams }) {
   return (
     <>
       <HomeTopNav />
+      <ActiveLastBreadcrumb links={[
+        { label: 'Library', href: '/library' },
+        // { label: `${industryData.industry}`, href: `/industry/${industry}` },
+
+      ]} />
       <div className={styles["library-designs-filters"]}>
         <SearchBar initialSearchQuery={searchQuery} />
         <CategoryFilter
@@ -64,7 +69,7 @@ async function Library({ searchParams }) {
               <div>
                 <Image
                   className={styles["library-designs-items-container-img"]}
-                  src={`https://d1d8a3050v4fu6.cloudfront.net/${design._id}/sprite_0_0.webp`}
+                  src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_0.webp`}
                   alt={design.page_title}
                   width={300}
                   height={250}
