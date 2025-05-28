@@ -63,8 +63,12 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
                 {
                     params: {
                         uuid: localStorage.getItem("uuid"),
-                    }
+                    },
+                headers: {
+                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+
                 }
+            }
             )
             if (response.data.meta.success) {
                 setFile(file)
@@ -130,7 +134,7 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
         checkingCadFileUploadLimitExceed(file)
         // handleFile(file)
         // await saveFileToIndexedDB(file);
-      
+
 
     };
 

@@ -10,12 +10,14 @@ const drawerItems = [
     {
         label: 'CAD Viewer',
         icon: '📷',
-        path: '/cad-viewer',
     },
     {
         label: 'CAD Convertor',
         icon: '🔄',
-        path: '/cad-convertor',
+    },
+    {
+        label: 'My CAD Files',
+        icon: '📁',
     },
 ];
 
@@ -29,15 +31,30 @@ function FileHistorySideNav() {
         const cadType = searchParams.get('cad_type');
         if (cadType === 'converter') {
             setActive('CAD Convertor');
-        } else {
+        } else if (cadType === 'viewer') {
             setActive('CAD Viewer'); // Default to viewer or when cad_type is null
+        } else if (cadType === 'user_cad_files') {
+            setActive('My CAD Files');
+        } else {
+            console.log('No valid cad_type found in search params, defaulting to CAD Viewer');
+            // setActive('CAD Viewer'); // Default to viewer if no valid cad_type is found
         }
     }, [searchParams]);
 
     const handleClick = (item) => {
         setActive(item.label);
-        // You can optionally update the URL to reflect this choice:
-        const cad_type = item.label === 'CAD Convertor' ? 'converter' : 'viewer';
+
+        let cad_type;
+        if (item.label === 'CAD Convertor') {
+            cad_type = 'converter';
+        } else if (item.label === 'CAD Viewer') {
+            cad_type = 'viewer';
+        } else if (item.label === 'My CAD Files') {
+            cad_type = 'user_cad_files';
+        } else {
+            console.error('Unknown item label:', item.label);
+        }
+
         router.push(`/history?cad_type=${cad_type}`);
     };
 
@@ -47,6 +64,9 @@ function FileHistorySideNav() {
                 return <FileHistoryCards cad_type={'viewer'} />;
             case 'CAD Convertor':
                 return <FileHistoryCards cad_type={'converter'} />;
+            case 'My CAD Files':
+                return <FileHistoryCards cad_type={'user_cad_files'} />;
+
             default:
                 return null;
         }

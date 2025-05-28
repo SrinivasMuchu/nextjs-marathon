@@ -61,7 +61,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
       setTypingTimer(setTimeout(() => {
         fetchDepartments();
 
-      }, 500));
+      }, 10000));
     } else {
       setErrorMessage('Special characters are not allowed.');
     }

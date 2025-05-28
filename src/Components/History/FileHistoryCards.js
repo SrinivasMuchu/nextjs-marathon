@@ -11,6 +11,7 @@ function FileHistoryCards({ cad_type }) {
 
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
+  const [userCadFiles, setUserCadFiles] = useState([]);
   console.log(cadConverterFileHistory, 'cadConverterFileHistory')
   useEffect(() => {
 
@@ -18,8 +19,13 @@ function FileHistoryCards({ cad_type }) {
     const fetchFileHistory = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
-          params: { uuid }
-        });
+          params: { uuid },
+          headers: {
+            "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+
+          }
+        }
+        );
 
         if (response.data.meta.success) {
           const processedFiles = {
@@ -35,6 +41,10 @@ function FileHistoryCards({ cad_type }) {
 
           setCadViewerFileHistory(processedFiles.cad_viewer_files);
           setConverterFileHistory(processedFiles.cad_converter_files);
+          setUserCadFiles(response.data.data.my_cad_files.map(file => ({
+            ...file,
+            createdAtFormatted: formatDate(file.createdAt)
+          })));
         }
       } catch (err) {
 
@@ -88,7 +98,7 @@ function FileHistoryCards({ cad_type }) {
   return (
     <>
 
-      {cad_type === 'viewer' ? (
+      {cad_type === 'viewer' && (
         <div className={styles.cadViewerContainer}>
           <h2>History</h2>
           {cadViewerFileHistory.length > 0 ? (
@@ -153,10 +163,8 @@ function FileHistoryCards({ cad_type }) {
             </div>
           )}
         </div>
-      ) : (
-
-
-
+      )}
+      {cad_type === 'converter' && (
         <div className={styles.cadViewerContainer}>
           <h2> History</h2>
           {cadConverterFileHistory.length > 0 ? (
@@ -207,6 +215,70 @@ function FileHistoryCards({ cad_type }) {
         </div>
 
       )}
+      {cad_type === 'user_cad_files' && (
+        <div className={styles.cadViewerContainer}>
+        <h2>History</h2>
+        {userCadFiles.length > 0 ? (
+          <div className={styles.historyContainer}>
+            {userCadFiles.map((file, index) => (
+              <a
+                key={index}
+                href={`/library/${file.route}/${file._id}`}
+                className={styles.historyItem}
+               
+              >
+                 <Image
+                  src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
+                  alt="file preview"
+                  width={300}
+                  height={250}
+                /> 
+                {/* <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div> */}
+
+                <div className={styles.historyFileDetails}>
+                  <span className={styles.historyFileDetailsKey}>File Name</span> <span >{textLettersLimit(file.page_title, 20)}</span></div>
+                
+                <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
+
+                <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                 <a href={`/${file.route}`}   >              
+                   <button style={{
+                    background: '#610bee',
+                    color: 'white',
+                    padding: '5px 10px',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer'
+                  }}>View design</button></a>
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div className={styles.historyItem}>
+            <Image
+              src={`${MARATHON_ASSET_PREFIX_URL}cad_viewer.webp`}
+              alt="file preview"
+              width={300}
+              height={250}
+            />
+            <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
+            <h3>No cad files history found</h3>
+            <a className={styles.historyFileDetailsbtn}
+              href='/publish-cad'
+              style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <button style={{
+                background: '#610bee',
+                color: 'white',
+                padding: '5px 10px',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer'
+              }} >Upload to view cad</button>
+            </a>
+          </div>
+        )}
+      </div>)}
     </>
   )
 }

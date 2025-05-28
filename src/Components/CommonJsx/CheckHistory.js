@@ -14,6 +14,10 @@ function CheckHistory() {
       try {
         const response = await axios.get(`${BASE_URL}/v1/cad/history`, {
           params: { uuid },
+          headers: {
+            "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+
+          }
         });
 
         if (response.data.data?.history === true) {

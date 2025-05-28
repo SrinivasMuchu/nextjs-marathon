@@ -51,8 +51,13 @@ export default function usePushNotifications() {
 
             // Only make API call if we have something to send
             if (email || accessKey) {
-                const result = await axios.post(`${BASE_URL}/v1/cad/user-access`, payload);
-                
+                const result = await axios.post(`${BASE_URL}/v1/cad/user-access`, payload, {
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+
+                    }
+                });
+
                 if (result.data.meta.success) {
                     if (email) localStorage.setItem('user_email', email);
                     console.log('✅ Notification preferences saved successfully');

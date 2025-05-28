@@ -75,7 +75,7 @@ export default function PartDesignView() {
                     console.log(isApiSlow, 'isApiSlow')
                     setIsApiSlow(true);
                 }
-            }, 500);
+            }, 10000);
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {

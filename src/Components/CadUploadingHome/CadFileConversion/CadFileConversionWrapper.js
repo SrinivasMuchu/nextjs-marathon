@@ -209,13 +209,20 @@ function CadFileConversionWrapper({ children, convert }) {
     const checkingCadFileUploadLimitExceed = async (file) => {
         try {
             const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
-                {params:{
-                    uuid: localStorage.getItem("uuid"),
-                }}
+                {
+                    params: {
+                        uuid: localStorage.getItem("uuid"),
+                    },
+          
+                headers: {
+                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+
+                }
+            }
             )
             if (response.data.meta.success) {
                 handleFileConvert(file)
-            }else{
+            } else {
                 setCheckLimit(true)
                 console.log('Limit Exceeded')
             }
@@ -241,7 +248,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     setIsApiSlow(true);
                 }
                 console.log("API is slow, showing notification.");
-            }, 500);
+            }, 10000);
 
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
@@ -420,14 +427,14 @@ function CadFileConversionWrapper({ children, convert }) {
 
     return (
         <>
-        {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
+            {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
             {(!isApiSlow || !checkLimit) && <>
                 {uploading ?
                     <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
                         setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
                         folderId={folderId} baseName={baseName}
-                        uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed}  />
+                        uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed} />
                     : <div
                         className={styles["cad-dropzone"]}
                         onDrop={handleDrop}

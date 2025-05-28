@@ -3,23 +3,26 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
 
-function FileHistory({getStatus}) {
+function FileHistory({ getStatus }) {
     const [fileHistory, setFileHistory] = useState([]);
 
     useEffect(() => {
-       
+
         const uuid = localStorage.getItem('uuid');
         const fetchFileHistory = async () => {
             try {
                 const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
-                    params: { uuid }
+                    params: { uuid },
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+                    }
                 });
 
                 if (response.data.meta.success) {
                     setFileHistory(response.data.data.cad_viewer_files);
-                } 
+                }
             } catch (err) {
-              
+
                 console.error('Error fetching file history:', err);
             }
         };
@@ -33,15 +36,15 @@ function FileHistory({getStatus}) {
             {fileHistory.length > 0 ? (
                 <ul>
                     {fileHistory.map((file, index) => (
-                        <li 
-                        key={index} 
-                        onClick={() => {
-                          localStorage.setItem("last_viewed_cad_key", file._id);
-                          getStatus();
-                        }}
-                      >
-                        File ID: {file._id}
-                      </li>
+                        <li
+                            key={index}
+                            onClick={() => {
+                                localStorage.setItem("last_viewed_cad_key", file._id);
+                                getStatus();
+                            }}
+                        >
+                            File ID: {file._id}
+                        </li>
                     ))}
                 </ul>
             ) : (

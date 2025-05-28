@@ -14,8 +14,12 @@ function CadFileLimitExceedPopUp({ setCheckLimit }) {
                 {
                     params: {
                         uuid: localStorage.getItem("uuid"),
-                    }
+                    },
+                headers: {
+                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+
                 }
+            }
             )
             if (!response.data.meta.success) {
                 setCadFilesUploaded(response.data.data.cad_files)
