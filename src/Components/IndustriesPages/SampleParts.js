@@ -10,7 +10,7 @@ async function SampleParts({ industry, part_name }) {
             `${BASE_URL}/v1/cad/get-industry-part-data?industry=${industry}`,
             {
                 method: 'GET',
-                cache: 'no-store'
+                cache: 'no-store',
             }
         );
 

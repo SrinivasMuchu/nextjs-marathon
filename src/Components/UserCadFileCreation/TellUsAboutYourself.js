@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import styles from './UserCadFileUpload.module.css'
 import Image from 'next/image';
+import { toast } from 'react-toastify';
 import NameProfile from "@/Components/CommonJsx/NameProfile";
 import axios from 'axios'
 import { BASE_URL } from '@/config';
@@ -11,7 +12,7 @@ function TellUsAboutYourself() {
     const handleClick = () => {
         photoInputRef.current?.click();
     };
-
+    const [update, setUpdate] = useState(false);
     const [user, setUser] = useState({ name: '', email: '', photo: '' });
     const [userUuid, setUserUuid] = useState('');
     const [errors, setErrors] = useState({ name: '', email: '' }); // ⭐ Validation state
@@ -19,7 +20,7 @@ function TellUsAboutYourself() {
     useEffect(() => {
         setUserUuid(localStorage.getItem('uuid') || '');
         getUserDetails();
-    }, []);
+    }, [update]);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -68,6 +69,11 @@ function TellUsAboutYourself() {
                         "user-uuid": localStorage.getItem("uuid"),
                     }
                 });
+            console.log(response.data.data)
+            if (response.data.meta.success) {
+                toast.success('Details Saved Successfully!')
+                setUpdate(response)
+            }
         } catch (error) {
             console.error('Error uploading file:', error);
         }
@@ -108,13 +114,15 @@ function TellUsAboutYourself() {
     return (
         <>
             <div className={styles["tell-us-about-yourself-page"]}>
-                <h2>{localStorage.getItem('user_name') ? 'Your Profile Details' : 'Tell Us About Yourself'}</h2>
+                <h2>{!update ? 'Your Profile Details' : 'Tell Us About Yourself'}</h2>
                 <p>We want you to feel secure, so we don't require a login...</p>
 
                 <input type='file' ref={photoInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
 
                 <>
-                    {localStorage.getItem('user_email') && localStorage.getItem('user_name') && localStorage.getItem('user_photo') ?
+                    {localStorage.getItem('user_email') &&
+                        localStorage.getItem('user_name') &&
+                        localStorage.getItem('user_photo') ?
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                             <NameProfile userName={user.name} width='100px' memberPhoto={user.photo} />
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -136,7 +144,7 @@ function TellUsAboutYourself() {
                                         <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/plus.svg' alt="plus" width={20} height={20} />
                                     </div>
                                     {user.photo ?
-                                        <NameProfile userName={user.name} width='100px' memberPhoto={user.photo} />
+                                        <Image src={user.photo} alt="User Photo" width={100} height={100} style={{ borderRadius: '50%' }} />
                                         :
                                         <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profile-empty.png' alt="User Photo" width={100} height={100} style={{ borderRadius: '50%' }} />}
                                 </div>

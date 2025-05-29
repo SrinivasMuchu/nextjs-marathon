@@ -29,7 +29,6 @@ function ChangeManager({ activeNode, hierarchy, setAction, setUpdatedData, setPa
   // Collect all entity IDs from hierarchy
   const allIds = collectAllIds(activeNode);
 
-  console.log(allIds);
   const [close, setClose] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState([]);

@@ -1,10 +1,14 @@
 "use client";
+import dynamic from 'next/dynamic';
+
+const CubeLoader = dynamic(() => import('../CommonJsx/Loaders/CubeLoader'), {
+  ssr: false,
+});
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import * as THREE from 'three';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from 'lucide-react';
 import axios from 'axios'
-import { BASE_URL, BUCKET } from '@/config';
-import CubeLoader from '../CommonJsx/Loaders/CubeLoader';
+import { BASE_URL, BUCKET, DESIGN_GLB_PREFIX_URL } from '@/config';
 import { toast } from 'react-toastify';
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
@@ -12,6 +16,9 @@ import { useRouter } from "next/navigation";
 import HistoryIcon from '@mui/icons-material/History';
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 
+import { sendViewerEvent } from '@/common.helper';
+import DownloadIcon from '@mui/icons-material/Download';
+import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
 // Constants
 const ANGLE_STEP = 30;
 const BUFFER_SIZE = 0;
@@ -41,10 +48,17 @@ export default function PartDesignView() {
     const [totalImages, setTotalImages] = useState(0);
     const [completedImages, setCompletedImages] = useState(0);
     const [isApiSlow, setIsApiSlow] = useState(false);
+    const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
     const [folderId, setFolderId] = useState('');
     const router = useRouter();
 
     useEffect(() => {
+        const sampleFileKey = localStorage.getItem('sample_view_cad_key');
+        if (sampleFileKey) {
+            setFolderId(sampleFileKey);
+            setIsLoading(false);
+            return;
+        }
         if (!file) return;
         try {
             console.log(file)
@@ -65,6 +79,22 @@ export default function PartDesignView() {
         try {
             setIsLoading(true)
             setUploadingMessage('UPLOADINGFILE')
+            sendViewerEvent('viewer_file_upload_start');
+            if (fileSizeMB < 5 ) {
+                sendViewerEvent('viewer_file_upload_under_5mb');
+              } else if (fileSizeMB < 10 ) {
+                sendViewerEvent('viewer_file_upload_5_10mb');
+              } else if (fileSizeMB < 50 ) {
+                sendViewerEvent('viewer_file_upload_10_50mb');
+              } else if (fileSizeMB < 100 ) {
+                sendViewerEvent('viewer_file_upload_50_100mb');
+              } else if (fileSizeMB < 200 ) {
+                sendViewerEvent('viewer_file_upload_100_200mb');
+              } else if (fileSizeMB < 300 ) {
+                sendViewerEvent('viewer_file_upload_200_300mb');
+              } else {
+                sendViewerEvent('viewer_file_upload_size_exceeded');
+              }
             const headers = {
                 "user-uuid": localStorage.getItem("uuid"),
             };
@@ -74,6 +104,8 @@ export default function PartDesignView() {
                 if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
                     console.log(isApiSlow, 'isApiSlow')
                     setIsApiSlow(true);
+                }else{
+                    setCloseNotifyInfoPopUp(true);
                 }
             }, 10000);
             const preSignedURL = await axios.post(
@@ -95,6 +127,7 @@ export default function PartDesignView() {
                 preSignedURL.data.meta.message === "SUCCESS" &&
                 preSignedURL.data.data.url
             ) {
+                
                 if (preSignedURL.data.data.is_mutipart) {
                     await multiUpload(preSignedURL.data.data, file, headers, fileSizeMB);
                 } else {
@@ -104,12 +137,14 @@ export default function PartDesignView() {
                 setFile('')
 
             } else {
+                sendViewerEvent('viewer_file_upload_error');
                 toast.error("⚠️ Error generating signed URL.");
                 setIsLoading(false)
                 router.push("/tools/cad-viewer")
             }
         } catch (e) {
-            console.error(e);
+            sendViewerEvent('viewer_file_upload_error');
+          
             setIsLoading(false)
         }
     };
@@ -149,7 +184,7 @@ export default function PartDesignView() {
         }
     }
     async function multiUpload(data, file, headers, fileSizeMB) {
-        console.log(data, file, headers, fileSizeMB);
+      
         const parts = [];
 
         for (let i = 0; i < data.total_parts; i++) {
@@ -157,17 +192,16 @@ export default function PartDesignView() {
             const end = Math.min(start + data.part_size, file.size);
             const part = file.slice(start, end); // FIXED: Use `slice` for binary data
 
-            console.log(`Uploading part ${i + 1}/${data.total_parts}`);
-            console.log('Part size:', part.size); // Ensure correct part size
+          
 
             parts.push(uploadPart(i, part, data, file));
         }
 
         try {
             const uploadedParts = await Promise.all(parts);
-            console.log(uploadedParts);
+         
             await completeMultipartUpload(data, uploadedParts, headers, fileSizeMB);
-            console.log('All parts uploaded successfully');
+          
         } catch (error) {
             console.error('Error uploading parts:', error);
             throw error;
@@ -177,18 +211,17 @@ export default function PartDesignView() {
     const uploadPart = async (partNumber, part, data, file) => {
         try {
             const { url } = data.url[partNumber]; // Get correct presigned URL
-            console.log(`Uploading part ${partNumber + 1} to ${url}`);
-
+          
             const result = await axios.put(url, part, {
                 headers: {
-                    "Content-Type": file.type,
+                    
                     "Content-Length": part.size, // Ensure Content-Length is set
                 },
             });
 
-            console.log('Response Headers:', result.headers);
+        
             const etag = result.headers["etag"] || result.headers["ETag"]; // Fix header extraction
-            console.log(`Part ${partNumber + 1} uploaded successfully`, etag);
+          
             return { ETag: etag, PartNumber: partNumber + 1 };
         } catch (error) {
             console.error(`Error uploading part ${partNumber + 1}:`, error);
@@ -215,7 +248,7 @@ export default function PartDesignView() {
 
             if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
                 console.log("Multipart upload completed successfully.");
-
+                sendViewerEvent('viewer_file_upload_success');
                 // Ensure `CreateCad` is called correctly
                 // if (preSignedURL.data.data.Location) {
                 await CreateCad(preSignedURL.data.data.Location);
@@ -231,7 +264,7 @@ export default function PartDesignView() {
     };
 
     async function simpleUpload(data, file) {
-        console.log("Uploading file:", data, file);
+       
         setUploadingMessage('UPLOADINGFILE')
         const result = await axios.put(data.url, file, {
             headers: {
@@ -239,14 +272,16 @@ export default function PartDesignView() {
                 "Content-Length": file.size,
             },
         });
+        sendViewerEvent('viewer_file_upload_success');
         await CreateCad(data.url)
-        console.log("Upload complete:", result);
+     
     }
 
 
 
     useEffect(() => {
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' || uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
+        if (localStorage.getItem('sample_view_cad_key')) return;
         const interval = setInterval(() => {
             getStatus();
         }, 3000);
@@ -254,6 +289,7 @@ export default function PartDesignView() {
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, [uploadingMessage, totalImages, completedImages]);
     useEffect(() => {
+        if (localStorage.getItem('sample_view_cad_key')) return;
         if (!file) {
             getStatus();
         }
@@ -262,6 +298,12 @@ export default function PartDesignView() {
 
     const getStatus = async () => {
         try {
+            const sampleFileKey = localStorage.getItem('sample_view_cad_key');
+            if (sampleFileKey) {
+                setFolderId(sampleFileKey);
+                setIsLoading(false);
+                return;
+            }
             setIsLoading(true)
             if (!localStorage.getItem('last_viewed_cad_key')) {
                 router.push("/tools/cad-viewer")
@@ -280,6 +322,7 @@ export default function PartDesignView() {
 
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
+                    sendViewerEvent('viewer_view_completed');
                     setIsLoading(false)
                     setUploadingMessage(response.data.data.status)
                     // setTotalImages(response.data.data.total_images)
@@ -289,8 +332,9 @@ export default function PartDesignView() {
                     setUploadingMessage(response.data.data.status)
                     setTotalImages(response.data.data.total_images)
                     setCompletedImages(response.data.data.image_count)
-                    console.log(response.data.data.status)
+                 
                 } else if (response.data.data.status === 'FAILED') {
+                    sendViewerEvent('viewer_view_failure')
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.meta.message)
                     router.push("/tools/cad-viewer")
@@ -316,49 +360,68 @@ export default function PartDesignView() {
 
     // Function to generate texture URL
     const getTextureUrl = useCallback((x, y) => {
-        if (!folderId) return "";  // Prevent invalid URL when folderId is empty
-        const xFormatted = ((x % 360 + 360) % 360);
-        const yFormatted = ((y % 360 + 360) % 360);
-        console.log(folderId)
-        return `https://d1d8a3050v4fu6.cloudfront.net/${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
-    }, [folderId]);
+  if (!folderId) return "";  // Prevent invalid URL when folderId is empty
+  
+  // Normalize angles to 0-359
+  const xFormatted = ((x % 360 + 360) % 360);
+  const yFormatted = ((y % 360 + 360) % 360);
+  
+  const textureUrl = `${DESIGN_GLB_PREFIX_URL}${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
+
+  return textureUrl;
+}, [folderId]);
 
 
     // Initial texture setup
     const setupTextures = useCallback(async () => {
-
         if (!rendererRef.current || !folderId) return {}; // Ensure folderId exists
-
+      
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = {};
-
+      
         for (let x = -BUFFER_SIZE; x <= BUFFER_SIZE; x += ANGLE_STEP) {
-            for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
-                const key = `${x}_${y}`;
-                const textureUrl = getTextureUrl(x, y);
-                if (!textureUrl) continue; // Skip if folderId is missing
-
-                try {
-                    const texture = await new Promise((resolve, reject) => {
-                        textureLoader.load(textureUrl, resolve, undefined, reject);
-                    });
-
-                    texture.minFilter = THREE.LinearFilter;
-                    texture.magFilter = THREE.LinearFilter;
-                    newMaterials[key] = new THREE.MeshBasicMaterial({
-                        map: texture,
-                        transparent: true,
-                        side: THREE.DoubleSide
-                    });
-                } catch (error) {
-                    console.error(`Failed to load texture: ${textureUrl}`, error);
-                }
+          for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
+            const key = `${x}_${y}`;
+            const textureUrl = getTextureUrl(x, y);
+            if (!textureUrl) continue; // Skip if folderId is missing
+      
+            try {
+              const texture = await new Promise((resolve, reject) => {
+                textureLoader.load(
+                  textureUrl,
+                  resolve,
+                  undefined,
+                  (error) => {
+                    console.error(`❌ Failed to load texture: ${textureUrl}`, error);
+                    reject(error);
+                  }
+                );
+              });
+      
+              texture.minFilter = THREE.LinearFilter;
+              texture.magFilter = THREE.LinearFilter;
+              newMaterials[key] = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide
+              });
+              
+            
+            } catch (error) {
+              console.error(`🚨 Skipping texture for (${x},${y}) due to error:`, error);
+              // Fallback: Use a placeholder material if texture fails
+              newMaterials[key] = new THREE.MeshBasicMaterial({
+                color: 0x888888,
+                transparent: true,
+                opacity: 0.5,
+                side: THREE.DoubleSide
+              });
             }
+          }
         }
-
+      
         setMaterials(newMaterials);
-        // setIsLoading(false)
-    }, [folderId, getTextureUrl]);
+      }, [folderId, getTextureUrl]);
 
     // Progressive texture loading
     const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
@@ -410,6 +473,7 @@ export default function PartDesignView() {
 
     // Rotation handler
     const rotateView = useCallback((direction) => {
+        
         switch (direction) {
             case 'up':
                 setXRotation(prev => (prev - ANGLE_STEP + MAX_ROTATION) % MAX_ROTATION);
@@ -533,8 +597,9 @@ export default function PartDesignView() {
         if (!folderId) return;
         setIsLoading(true)
         const timeout = setTimeout(() => {
-            console.log(`Delayed setupTextures with folderId: ${folderId}`);
+         
             setupTextures();
+            rotateView('right')
         }, 300); // Adjust delay if needed
         setIsLoading(false)
         return () => clearTimeout(timeout);
@@ -547,7 +612,7 @@ export default function PartDesignView() {
 
         const materialKey = `${xRotation}_${yRotation}`;
         const newMaterial = materials[materialKey];
-        setIsLoading(true)
+       
         if (newMaterial?.map) {
             if (planeRef.current.material !== newMaterial) {
                 if (planeRef.current.material &&
@@ -559,7 +624,7 @@ export default function PartDesignView() {
                 setLastValidMaterial(newMaterial);
             }
         }
-        setIsLoading(false)
+       
     }, [xRotation, yRotation, materials, lastValidMaterial, folderId]);
 
     // Buffer maintenance effect
@@ -569,29 +634,29 @@ export default function PartDesignView() {
 
     // Keyboard controls
     useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
-                event.preventDefault();
-                switch (event.key) {
-                    case 'ArrowLeft':
-                        rotateView('left');
-                        break;
-                    case 'ArrowRight':
-                        rotateView('right');
-                        break;
-                    case 'ArrowUp':
-                        rotateView('up');
-                        break;
-                    case 'ArrowDown':
-                        rotateView('down');
-                        break;
-                }
+    const handleKeyDown = (event) => {
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+            event.preventDefault();
+            switch (event.key) {
+                case 'ArrowLeft':
+                    rotateView('left');
+                    break;
+                case 'ArrowRight':
+                    rotateView('right');
+                    break;
+                case 'ArrowUp':
+                    rotateView('up');
+                    break;
+                case 'ArrowDown':
+                    rotateView('down');
+                    break;
             }
-        };
+        }
+    };
 
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [rotateView]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+}, [rotateView]);
 
 
     // Window resize handler
@@ -616,7 +681,8 @@ export default function PartDesignView() {
     return (
         <>
             <HomeTopNav />
-          
+            {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp 
+                         setClosePopUp={setCloseNotifyInfoPopUp} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
             {!isApiSlow && <>
                 {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} /> :

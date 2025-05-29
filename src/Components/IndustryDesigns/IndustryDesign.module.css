@@ -230,7 +230,7 @@
 .industry-design-suggestion-header p {
     color: #001325;
     text-align: center;
-    font-family: Inter;
+   
     font-size: 20px;
     font-style: normal;
     font-weight: 500;
@@ -242,7 +242,7 @@
 
 .industry-design-suggestion-bottom {
     width: 100%;
-    height: 480px;
+    /* height: 480px; */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -267,15 +267,17 @@
 .industry-design-suggestion-designs-cont {
     display: flex;
     flex-direction: column;
-    /* align-items: center; */
-    /* justify-content: center; */
+    /* align-items: center;
+    justify-content: center; */
     gap: 24px;
     width: 365px;
     border-radius: 12px;
     background: #FFF;
     padding: 12px;
-    height: 480px;
     box-sizing: border-box;
+    overflow:hidden;
+    height:450px
+    
 }
 
 .industry-design-suggestion-designs-cont-img {

@@ -2,7 +2,7 @@ import styles from '../CadHomeDesign/CadHome.module.css';
 import CadDynamicHeaderWrapper from './CadDynamicHeaderWrapper'
 
 function CadDynamicHeading({paramsText}) {
-  console.log(paramsText)
+ 
 
 
   return (

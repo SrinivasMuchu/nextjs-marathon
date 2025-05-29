@@ -1,22 +1,18 @@
-
-import IndustryParts from '@/Components/IndustryParts/IndustryParts'
-import React from 'react'
+import IndustryParts from '@/Components/IndustryParts/IndustryParts';
 import { BASE_URL } from '@/config';
-
+import { notFound } from 'next/navigation'; // 👈
 
 export async function generateMetadata({ params }) {
   const industry = params['industry'];
   const part = params['part'];
-  
-  // Get cookies from the request
+
   return {
     title: `${part.split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')} Head CAD Viewer | ${industry.split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')} | Marathon OS`,
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')} Head CAD Viewer | ${industry.split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')} | Marathon OS`,
     description: `Upload and view CAD files online—no software required. Explore components like the ${part.replace('-', ' ')} Head in the ${industry.replace('-', ' ')} for seamless design collaboration.`,
-    
     openGraph: {
       images: [
         {
@@ -35,54 +31,50 @@ export async function generateMetadata({ params }) {
 }
 
 async function IndustryPart({ params }) {
-    const industry = params.industry;
-    const part = params.part;
-   
-   
-    try {
-      
+  const industry = params.industry;
+  const part = params.part;
 
-      const [industryResponse, additionalDataResponse] = await Promise.all([
-        fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
-          method: 'GET',
-         
-         cache: 'no-store',
-        }),
-        fetch(`${BASE_URL}/v1/cad/get-industry-part-data?route=${part}`, {
-          method: 'GET',
-        
-         cache: 'no-store',
-        })
-      ]);
+  try {
+    const [industryResponse, partResponse] = await Promise.all([
+      fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
+        method: 'GET',
+        cache: 'no-store',
+      }),
+      fetch(`${BASE_URL}/v1/cad/get-industry-part-data?route=${part}`, {
+        method: 'GET',
+        cache: 'no-store',
+      }),
+    ]);
 
-      if (!industryResponse.ok || !additionalDataResponse.ok) {
-        throw new Error(`HTTP error! status: ${industryResponse.status} or ${additionalDataResponse.status}`);
-      }
-      
-      const [industryData, additionalData] = await Promise.all([
-        industryResponse.json(),
-        additionalDataResponse.json()
-      ]);
-    
-      // Combine the data
-      const combinedData = {
-        ...industryData.data,
-        ...additionalData.data
-      };
-   
-      return <IndustryParts 
+    if (!industryResponse.ok || !partResponse.ok) {
+      throw new Error(`HTTP error! status: ${industryResponse.status} or ${partResponse.status}`);
+    }
+
+    const [industryData, partData] = await Promise.all([
+      industryResponse.json(),
+      partResponse.json(),
+    ]);
+
+    if (!industryData.data || !partData.data) {
+      notFound(); // 👈 If either missing, show 404
+    }
+
+    const combinedData = {
+      ...industryData.data,
+      ...partData.data,
+    };
+
+    return (
+      <IndustryParts 
         industry={industry} 
         part_name={part} 
         industryData={combinedData} 
-      />;
-    } catch (error) {
-      console.error("Failed to fetch industry data:", error);
-      return <IndustryParts 
-        industry={params.industry} 
-        part_name={params.part} 
-        industryData={null} 
-      />;
-    }
+      />
+    );
+  } catch (error) {
+    console.error("Failed to fetch industry/part data:", error);
+    notFound(); // 👈 Error = 404
+  }
 }
 
-export default IndustryPart
+export default IndustryPart;

@@ -231,9 +231,9 @@ function FileHistoryCards({ cad_type }) {
                   src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
                   alt="file preview"
                   width={300}
-                  height={250}
+                  height={160}
                 /> 
-                {/* <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div> */}
+                <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
 
                 <div className={styles.historyFileDetails}>
                   <span className={styles.historyFileDetailsKey}>File Name</span> <span >{textLettersLimit(file.page_title, 20)}</span></div>
@@ -241,15 +241,21 @@ function FileHistoryCards({ cad_type }) {
                 <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
 
                 <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                 <a href={`/${file.route}`}   >              
-                   <button style={{
+                 <a href={`/library/${file.route}`}  style={{
                     background: '#610bee',
                     color: 'white',
                     padding: '5px 10px',
                     border: 'none',
                     borderRadius: '5px',
+                    cursor: 'pointer',
+                    width: '100%',
+                    textAlign: 'center'
+                  }} >              
+                   <button style={{
+                   
                     cursor: 'pointer'
-                  }}>View design</button></a>
+                  }}>View design</button>
+                  </a>
                 </div>
               </a>
             ))}

@@ -16,6 +16,7 @@ import { useParams } from 'next/navigation';
 import CadFileNotifyPopUp from "@/Components/CommonJsx/CadFileNotifyPopUp";
 import { unstable_useId } from "@mui/material";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
+import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopUp";
 
 function CadFileConversionWrapper({ children, convert }) {
     const fileInputRef = useRef(null);
@@ -33,7 +34,8 @@ function CadFileConversionWrapper({ children, convert }) {
     const [selectedFileFormate, setSelectedFileFormate] = useState('');
     const { setFile, allowedFormats, setAllowedFormats } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
-    const [toFormate, setToFormate] = useState('')
+    const [toFormate, setToFormate] = useState('');
+    const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
 
     // Debugging: Log the full pathname
     useEffect(() => {
@@ -246,6 +248,8 @@ function CadFileConversionWrapper({ children, convert }) {
                 if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
                     console.log(isApiSlow, 'isApiSlow')
                     setIsApiSlow(true);
+                }else{
+                    setCloseNotifyInfoPopUp(true);
                 }
                 console.log("API is slow, showing notification.");
             }, 10000);
@@ -427,6 +431,8 @@ function CadFileConversionWrapper({ children, convert }) {
 
     return (
         <>
+             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp 
+             setClosePopUp={setCloseNotifyInfoPopUp} />}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
             {(!isApiSlow || !checkLimit) && <>

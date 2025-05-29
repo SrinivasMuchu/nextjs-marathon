@@ -21,6 +21,7 @@ export async function generateMetadata({ params }) {
     alternates: {
       canonical: `/industry/${industry}/${part}/${design}/${design_id}`,
   },
+  robots: 'noindex, nofollow',
   };
 }
 

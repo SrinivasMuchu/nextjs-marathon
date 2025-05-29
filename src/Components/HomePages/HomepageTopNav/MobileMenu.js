@@ -74,6 +74,7 @@ function MobileMenu({ onClose, styles }) {
         </div>
         <a href="/history">
           <CheckHistory /></a>
+        <a href="/library" >Library</a>
       </div>
     </>
   );

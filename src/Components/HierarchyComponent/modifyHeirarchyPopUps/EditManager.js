@@ -14,7 +14,7 @@ import Image from 'next/image'
 import { toast } from "react-toastify";
 
 function EditManager({ activeNode, hierarchy, setAction, setUpdatedData, setParentId }) {
-  console.log(activeNode.parent_entity_id)
+
   const collectAllIds = (node) => {
     let ids = [node.entity_id];
     if (node.children && node.children.length > 0) {
@@ -27,7 +27,7 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData, setPare
 
   // Collect all entity IDs from hierarchy along with parent ID
   const allIdsWithParent = [activeNode.parent_entity_id, ...collectAllIds(activeNode)];
-  console.log(allIdsWithParent)
+ 
   const [close, setClose] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState([]);
@@ -129,7 +129,7 @@ function EditManager({ activeNode, hierarchy, setAction, setUpdatedData, setPare
               </div>
             )}
             onChange={(selectedOption) => {
-              console.log(selectedOption)
+            
               setSelectedOption(selectedOption);
             }}
             filterOption={filterOptions}

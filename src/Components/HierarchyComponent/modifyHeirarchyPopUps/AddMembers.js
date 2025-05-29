@@ -45,7 +45,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
     });
     
       const data = response.data.data.arr;
-      console.log(data.map((i) => i.designation));
+    
       data.sort((a, b) => a.fullName.localeCompare(b.fullName));
       setOptions(data);
     } catch (error) {
@@ -80,7 +80,7 @@ function AddMember({ activeNode, setAction, action, setUpdatedData, setParentId,
         
     };
       const selectedEntityId = selectedOption ? selectedOption._id : "";
-      console.log(selectedEntityId)
+     
       const response = await axios.post(BASE_URL + "/v1/org/update-hierarchy-next", {
         entity_id: selectedEntityId,
         parent_entity_id: activeNode.entity_id,

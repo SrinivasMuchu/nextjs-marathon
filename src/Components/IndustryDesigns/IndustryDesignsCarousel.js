@@ -9,7 +9,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 import styles from "./IndustryDesign.module.css";
-import { IMAGEURLS } from "@/config";
+import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from "@/config";
 import Image from "next/image";
 import IndustryDesignCarouselWrapper from "./IndustryDesignCarouselWrapper";
 
@@ -119,10 +119,10 @@ function IndustryDesignsCarousel({ designData }) {
                     className={styles.industrySwiper}
                 >
                     {slides.map((design, index) => (
-                        <SwiperSlide key={design._id}>
+                        <SwiperSlide key={index}>
                             <div className={styles.slideCard}>
                                 <Image
-                                    src={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/sprite_${design.x}_${design.y}.webp`}
+                                    src={`${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_${design.x}_${design.y}.webp`}
                                     alt={design.title}
                                     width={600}
                                     height={300}
@@ -172,7 +172,7 @@ function IndustryDesignsCarousel({ designData }) {
                         }}
                     >
                         <Image
-                            src={`https://d1d8a3050v4fu6.cloudfront.net/${designData._id}/sprite_${design.x}_${design.y}.webp`}
+                            src={`${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_${design.x}_${design.y}.webp`}
                             alt={design.title}
                             width={64}
                             height={64}

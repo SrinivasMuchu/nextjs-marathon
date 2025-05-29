@@ -1,14 +1,16 @@
 import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign';
 import { BASE_URL } from '@/config';
+import { notFound } from 'next/navigation'; // 👈
 
 export async function generateMetadata({ params }) {
-  const design = params['design'];
-  const industry = params['industry'];
-  const part = params['part'];
+  const design = params.design;
+  const industry = params.industry;
+  const part = params.part;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?design_route=${design}`, {
+    const response = await fetch(`${BASE_URL}/v1/cad/design-meta-data?route=${design}`, {
       method: 'GET',
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -16,13 +18,15 @@ export async function generateMetadata({ params }) {
     }
 
     const data = await response.json();
-    const designData = data.data.response; // Adjusted based on your actual response structure
+    const designData = data.data;
 
-    
+    if (!designData) {
+      notFound(); // 👈 If design not found, 404
+    }
 
     return {
-      title: `${designData.meta_title} | Marathon OS` ,
-      description: designData.meta_description ,
+      title: `${designData.meta_title} | Marathon OS`,
+      description: designData.meta_description,
       openGraph: {
         images: [
           {
@@ -40,7 +44,7 @@ export async function generateMetadata({ params }) {
     };
   } catch (error) {
     console.error("Failed to fetch metadata:", error);
-   
+    notFound(); // 👈 Error fetching? 404
   }
 }
 
@@ -59,6 +63,10 @@ export default async function PartDesigns({ params }) {
 
     const data = await response.json();
 
+    if (!data.data) {
+      notFound(); // 👈 If design data missing, 404
+    }
+
     const normalizedData = {
       ...data.data,
       report: data.data.report || { cad_report: null },
@@ -67,6 +75,6 @@ export default async function PartDesigns({ params }) {
     return <IndustryDesign design={params} designData={normalizedData} />;
   } catch (error) {
     console.error("Failed to fetch design data:", error);
-    return <IndustryDesign design={params} designData={null} />;
+    notFound(); // 👈 Error = 404
   }
 }

@@ -23,7 +23,7 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
     const maxFileSizeMB = 300; // Max file size in MB
     const router = useRouter();
     const cadFile = pathname.split("/")[2];
-    console.log(type)
+  
     useEffect(() => {
         if (type && cadFile) {
             formateAcceptor(cadFile);
@@ -141,10 +141,6 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
     const handleDragOver = (event) => {
         event.preventDefault();
     };
-
-
-
-
 
     return (
         <>

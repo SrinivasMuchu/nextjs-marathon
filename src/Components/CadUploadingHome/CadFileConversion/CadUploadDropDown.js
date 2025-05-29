@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import Select from 'react-select';
 import cadStyles from '../CadHomeDesign/CadHome.module.css';
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
-import { textLettersLimit } from './../../../common.helper';
+import { sendConverterEvent, textLettersLimit } from './../../../common.helper';
 
 function CadDropDown({
   file,
@@ -14,7 +14,7 @@ function CadDropDown({
   uploadingMessage,
   handleFileConvert,
   disableSelect,
-  to,
+  to, s3Url,
   setDisableSelect
 }) {
   const formatOptions = [
@@ -76,7 +76,12 @@ function CadDropDown({
       return;
     }
     setDisableSelect(true);
-    handleFileConvert(file, selectedFileFormate);
+    if (s3Url) {
+      handleFileConvert('', s3Url);
+    } else {
+      handleFileConvert(file);
+    }
+
   };
 
   const isConvertButtonVisible = !!selectedFileFormate;
@@ -84,7 +89,33 @@ function CadDropDown({
 
 
 
- 
+  const handleDownload = async () => {
+    try {
+      const url = `${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${selectedFileFormate}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      sendConverterEvent('converter_file_upload_download')
+      a.href = downloadUrl;
+      a.download = `${file?.name?.slice(0, file.name.lastIndexOf(".")) || 'design'}_converted.${selectedFileFormate}`;
+
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Optional: Add user feedback here (e.g., toast notification)
+    }
+  };
 
   return (
     <div className={cadStyles['cad-conversion-table']}>
@@ -101,7 +132,7 @@ function CadDropDown({
         </thead>
         <tbody>
           <tr>
-            <td data-label="File Name">{textLettersLimit(file?.name, 35)}.{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
+            <td data-label="File Name">{textLettersLimit(file?.name, 35)}</td>
             <td data-label="File Format">{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
             <td data-label="Convert To">
               <Select
@@ -126,14 +157,12 @@ function CadDropDown({
               )}
 
               {uploadingMessage === 'COMPLETED' && (
-                <a href="/history?cad_type=converter">
-                  <button
-                    className={cadStyles['cad-conversion-button']}
-                  >
-                    Download from history
-                  </button>
-                </a>
-
+                <button
+                  className={cadStyles['cad-conversion-button']}
+                  onClick={handleDownload}
+                >
+                  Download
+                </button>
               )}
             </td>
           </tr>
