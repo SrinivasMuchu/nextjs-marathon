@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import Select from 'react-select';
 import cadStyles from '../CadHomeDesign/CadHome.module.css';
+import { useRouter } from "next/navigation";
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
 import { sendConverterEvent, textLettersLimit } from './../../../common.helper';
 
@@ -34,7 +35,7 @@ function CadDropDown({
       setSelectedFileFormate(targetFormat);
     }
   }, [to, selectedFileFormate, setSelectedFileFormate]);
-
+   const router = useRouter();
   // Get filtered options based on file extension
   const getFilteredOptions = () => {
     if (!file) return formatOptions;
@@ -90,31 +91,7 @@ function CadDropDown({
 
 
   const handleDownload = async () => {
-    try {
-      const url = `${DESIGN_GLB_PREFIX_URL}${folderId}/${baseName}.${selectedFileFormate}`;
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      sendConverterEvent('converter_file_upload_download')
-      a.href = downloadUrl;
-      a.download = `${file?.name?.slice(0, file.name.lastIndexOf(".")) || 'design'}_converted.${selectedFileFormate}`;
-
-      document.body.appendChild(a);
-      a.click();
-
-      // Cleanup
-      window.URL.revokeObjectURL(downloadUrl);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Download failed:', error);
-      // Optional: Add user feedback here (e.g., toast notification)
-    }
+   router.push('/history?cad_type=converter');
   };
 
   return (
@@ -161,7 +138,7 @@ function CadDropDown({
                   className={cadStyles['cad-conversion-button']}
                   onClick={handleDownload}
                 >
-                  Download
+                  Download from history
                 </button>
               )}
             </td>

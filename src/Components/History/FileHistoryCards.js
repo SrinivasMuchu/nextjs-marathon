@@ -237,7 +237,7 @@ function FileHistoryCards({ cad_type }) {
 
                 <div className={styles.historyFileDetails}>
                   <span className={styles.historyFileDetailsKey}>File Name</span> <span >{textLettersLimit(file.page_title, 20)}</span></div>
-                
+                     <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Status</span> <span style={{ color: 'green' }}>COMPLETED</span></div>
                 <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
 
                 <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

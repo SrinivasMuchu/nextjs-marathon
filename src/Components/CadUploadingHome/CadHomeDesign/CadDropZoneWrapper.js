@@ -72,6 +72,9 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
             )
             if (response.data.meta.success) {
                 setFile(file)
+                  localStorage.removeItem('last_viewed_cad_key')
+                   localStorage.removeItem('sample_view_cad_key')
+                  
                 router.push("/tools/cad-renderer");
             } else {
                 setCheckLimit(true)

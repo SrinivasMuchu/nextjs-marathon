@@ -101,13 +101,14 @@ export default function PartDesignView() {
             // Start a 10s timer to detect slow API
             const slowApiTimer = setTimeout(() => {
                 console.log('API is slow');
-                if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
+                if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
                     console.log(isApiSlow, 'isApiSlow')
-                    setIsApiSlow(true);
-                }else{
                     setCloseNotifyInfoPopUp(true);
+                }else{
+                     setIsApiSlow(true);
+                    
                 }
-            }, 10000);
+            }, 100);
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
@@ -681,7 +682,7 @@ export default function PartDesignView() {
     return (
         <>
             <HomeTopNav />
-            {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp 
+            {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'viewer'}
                          setClosePopUp={setCloseNotifyInfoPopUp} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
             {!isApiSlow && <>

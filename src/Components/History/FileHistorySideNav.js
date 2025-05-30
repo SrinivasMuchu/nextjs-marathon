@@ -5,19 +5,22 @@ import styles from './FileHistory.module.css';
 import FileHistoryCards from './FileHistoryCards';
 import KeyboardArrowLeftRoundedIcon from "@mui/icons-material/KeyboardArrowLeftRounded";
 import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRightRounded";
+import FolderIcon from '@mui/icons-material/Folder';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import ScreenRotationAltSharpIcon from '@mui/icons-material/ScreenRotationAltSharp';
 
 const drawerItems = [
     {
         label: 'CAD Viewer',
-        icon: '📷',
+        icon: <CameraAltIcon style={{ fontSize: '1.5rem' }} />,
     },
     {
         label: 'CAD Convertor',
-        icon: '🔄',
+        icon: <ScreenRotationAltSharpIcon style={{ fontSize: '1.5rem' }} />,
     },
     {
         label: 'My CAD Files',
-        icon: '📁',
+        icon: <FolderIcon style={{ fontSize: '1.5rem' }} />,
     },
 ];
 

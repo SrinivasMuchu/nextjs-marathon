@@ -3,11 +3,11 @@ import React, {useState} from 'react';
 import styles from './CommonStyles.module.css';
 import ClearIcon from '@mui/icons-material/Clear';
 
-function CadFileNotifyInfoPopUp({setClosePopUp}) {
+function CadFileNotifyInfoPopUp({setClosePopUp,cad_type}) {
    
 const handleClose = () => {
     setClosePopUp(false);
-    window.location.href = '/history?cad_type=user_cad_files'
+    window.location.href = `/history?cad_type=${cad_type}`
 };
     const email = typeof window !== 'undefined' ? localStorage.getItem('user_email') : '';
     const browserNotify = typeof window !== 'undefined' ? localStorage.getItem('user_access_key') : '';

@@ -431,7 +431,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
     return (
         <>
-             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp 
+             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'converter'}
              setClosePopUp={setCloseNotifyInfoPopUp} />}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
