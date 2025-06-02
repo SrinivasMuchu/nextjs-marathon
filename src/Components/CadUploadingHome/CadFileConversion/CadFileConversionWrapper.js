@@ -267,7 +267,7 @@ function CadFileConversionWrapper({ children, convert }) {
                 }
             );
 
-            // clearTimeout(slowApiTimer);
+            clearTimeout(slowApiTimer);
             if (
                 preSignedURL.data.meta.code === 200 &&
                 preSignedURL.data.meta.message === "SUCCESS" &&

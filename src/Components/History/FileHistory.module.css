@@ -103,8 +103,8 @@
   flex-wrap: wrap;
   gap: 16px;
   width: 100%;
-  justify-content: center;
-  align-items: center;
+  /* justify-content: center;
+  align-items: center; */
 }
 .historyFileDetailsbtn{
   width:100%

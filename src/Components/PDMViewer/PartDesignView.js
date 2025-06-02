@@ -108,7 +108,7 @@ export default function PartDesignView() {
                      setIsApiSlow(true);
                     
                 }
-            }, 100);
+            }, 10000);
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
@@ -122,7 +122,7 @@ export default function PartDesignView() {
                 }
             );
 
-            // clearTimeout(slowApiTimer);
+            clearTimeout(slowApiTimer);
             if (
                 preSignedURL.data.meta.code === 200 &&
                 preSignedURL.data.meta.message === "SUCCESS" &&
