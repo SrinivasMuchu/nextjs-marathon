@@ -10,18 +10,25 @@ function CheckHistory() {
     const uuid = localStorage.getItem('uuid');
     if (!uuid) return;
 
+    const localHistory = localStorage.getItem('history');
+
+    if (localHistory === 'true') {
+      setIsAllowed(true);
+      return; // Skip API call
+    }
+
     const checkPermission = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/v1/cad/history`, {
           params: { uuid },
           headers: {
-            "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-
-          }
+            'user-uuid': uuid,
+          },
         });
 
         if (response.data.data?.history === true) {
           setIsAllowed(true);
+          localStorage.setItem('history', 'true'); // Cache result
         }
       } catch (error) {
         console.error('Error checking history:', error);
@@ -34,11 +41,9 @@ function CheckHistory() {
   if (!isAllowed) return null;
 
   return (
-    <>
     <a href="/history">
       History
-      </a>
-    </>
+    </a>
   );
 }
 
