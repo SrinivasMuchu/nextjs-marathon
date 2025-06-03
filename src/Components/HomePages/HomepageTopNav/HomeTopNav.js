@@ -74,8 +74,8 @@ function HomeTopNav() {
             </div>
           )}
         </div>
-        <a href="/history">
-          <CheckHistory /></a>
+      
+          <CheckHistory />
         <a href="/library" >Library</a>
       </div>
 

@@ -35,7 +35,9 @@ function CheckHistory() {
 
   return (
     <>
+    <a href="/history">
       History
+      </a>
     </>
   );
 }
