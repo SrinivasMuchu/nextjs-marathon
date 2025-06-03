@@ -101,43 +101,52 @@ function FileHistoryCards({ cad_type }) {
       {cad_type === 'viewer' && (
         <div className={styles.cadViewerContainer}>
           <h2>Rendered CAD Models</h2>
+
           {cadViewerFileHistory.length > 0 ? (
-            <div className={styles.historyContainer}>
-              {cadViewerFileHistory.map((file, index) => (
-                <a
-                  key={index}
-                  href="/tools/cad-renderer"
-                  className={styles.historyItem}
-                  onClick={() => {
-                    localStorage.setItem("last_viewed_cad_key", file._id);
-                  }}
-                >
-                  <Image
-                    src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
-                    alt="file preview"
-                    width={300}
-                    height={250}
-                  />
-                  <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
+            <>
 
-                  <div className={styles.historyFileDetails}>
-                    <span className={styles.historyFileDetailsKey}>File Name</span> <span >{textLettersLimit(file.file_name, 20)}</span></div>
-                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div>
-                  <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
+              <div className={styles.historyContainer}>
+                <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
+                  <span>Want to add more files</span>
+                  <a href='/tools/cad-viewer' style={{color:'blue'}}>Click here</a>
+                </div>
+                {cadViewerFileHistory.map((file, index) => (
+                  <a
+                    key={index}
+                    href="/tools/cad-renderer"
+                    className={styles.historyItem}
+                    onClick={() => {
+                      localStorage.setItem("last_viewed_cad_key", file._id);
+                    }}
+                  >
+                    <Image
+                      src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
+                      alt="file preview"
+                      width={300}
+                      height={250}
+                    />
+                    <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
 
-                  <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <button style={{
-                      background: '#610bee',
-                      color: 'white',
-                      padding: '5px 10px',
-                      border: 'none',
-                      borderRadius: '5px',
-                      cursor: 'pointer'
-                    }}>View design</button>
-                  </div>
-                </a>
-              ))}
-            </div>
+                    <div className={styles.historyFileDetails}>
+                      <span className={styles.historyFileDetailsKey}>File Name</span> <span >{textLettersLimit(file.file_name, 20)}</span></div>
+                    <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div>
+                    <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
+
+                    <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <button style={{
+                        background: '#610bee',
+                        color: 'white',
+                        padding: '5px 10px',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer'
+                      }}>View design</button>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </>
+
           ) : (
             <div className={styles.historyItem}>
               <Image
@@ -169,6 +178,10 @@ function FileHistoryCards({ cad_type }) {
           <h2> Converted CAD files</h2>
           {cadConverterFileHistory.length > 0 ? (
             <div className={styles.historyContainer}>
+              <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
+                  <span>Want to add more files</span>
+                  <a href='/tools/3d-file-converter' style={{color:'blue'}}>Click here</a>
+                </div>
               {cadConverterFileHistory.map((file, index) => (
                 <div
                   key={index}
@@ -223,6 +236,10 @@ function FileHistoryCards({ cad_type }) {
           </div>
           {userCadFiles.length > 0 ? (
             <div className={styles.historyContainer}>
+              <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
+                  <span>Want to add more files</span>
+                  <a href='/publish-cad' style={{color:'blue'}}>Click here</a>
+                </div>
               {userCadFiles.map((file, index) => (
                 <a
                   key={index}

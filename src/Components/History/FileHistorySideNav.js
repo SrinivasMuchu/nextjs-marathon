@@ -8,6 +8,7 @@ import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRigh
 import FolderIcon from '@mui/icons-material/Folder';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ScreenRotationAltSharpIcon from '@mui/icons-material/ScreenRotationAltSharp';
+import DashboardCustomizeTwoToneIcon from '@mui/icons-material/DashboardCustomizeTwoTone';
 
 const drawerItems = [
     {
@@ -85,10 +86,19 @@ function FileHistorySideNav() {
                 >
                     {isExpanded ? <KeyboardArrowLeftRoundedIcon /> : <KeyboardArrowRightRoundedIcon />}
                 </div>
+                <div className={styles.dashboardMenuItem}>
+                    <DashboardCustomizeTwoToneIcon/>
+                   {isExpanded && <span className={styles.text}>Dashboard</span>} 
+                </div>
                 <ul className={styles.menu}>
                     {drawerItems.map((item) => (
                         <li
                             key={item.label}
+                            style={{
+    
+    justifyContent: !isExpanded ? 'center' : '',
+   
+  }}
                             className={`${styles.menuItem} ${active === item.label ? styles.active : ''}`}
                             onClick={() => handleClick(item)}
                         >

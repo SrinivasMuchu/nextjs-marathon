@@ -161,7 +161,7 @@ function TellUsAboutYourself() {
   {/* Photo Upload Section */}
  {editField['photo']&&  <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button onClick={() => updateField('photo')}>
-                  <Image src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
+                  <Image title='save' src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
                 </button>
                 <button
                   onClick={() => {
@@ -171,7 +171,7 @@ function TellUsAboutYourself() {
                     setErrors((prev) => ({ ...prev, ['photo']: '' }));
                   }}
                 >
-                  <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={20} height={20} />
+                  <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} title='cancel' alt="cancel" width={20} height={20} />
                 </button>
               </div>}
 
@@ -204,7 +204,7 @@ function TellUsAboutYourself() {
             {editField[field] ? (
               <>
                 <button onClick={() => updateField(field)}>
-                  <Image src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
+                  <Image src={`${ASSET_PREFIX_URL}save-details.png`} title='save' alt="save" width={20} height={20} />
                 </button>
                 <button
                   onClick={() => {
@@ -214,7 +214,7 @@ function TellUsAboutYourself() {
                     setErrors((prev) => ({ ...prev, [field]: '' }));
                   }}
                 >
-                  <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={20} height={20} />
+                  <Image title='cancel' src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={20} height={20} />
                 </button>
               </>
             ) : (
@@ -229,13 +229,15 @@ function TellUsAboutYourself() {
     ))}
 
     {/* Save Profile Button only shown when no localStorage data exists */}
-    {!isProfileComplete && (
+    
+  </div>
+  
+</div>
+{!isProfileComplete && (
       <button onClick={updateField} className={styles['save-profile']}>
         Save Profile
       </button>
     )}
-  </div>
-</div>
 
 
             

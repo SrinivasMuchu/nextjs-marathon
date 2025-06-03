@@ -87,8 +87,8 @@
 }
 /* className="w-full py-3 mb-8" */
 .save-profile {
-  width: 100%; /* w-full */
-  padding: 0.75rem; /* py-3 */
+  /* width: 100%; w-full */
+  padding: 0.75rem 1.25rem; /* py-3 */
   margin-bottom: 2rem; /* mb-8 */
   background-color: #610bee; /* blue-500 */
   color: #ffffff; /* white */
