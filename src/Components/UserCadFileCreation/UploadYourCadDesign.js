@@ -253,6 +253,7 @@ function UploadYourCadDesign() {
                     />
                     <input
                         placeholder="Tags (separate with commas)"
+                         type="text"
                         className="mb-4"
                         value={cadFile.tags}
                         onChange={(e) => setCadFile({ ...cadFile, tags: e.target.value })}

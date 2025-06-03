@@ -6,17 +6,17 @@ import Image from 'next/image';
 import { toast } from 'react-toastify';
 import NameProfile from "@/Components/CommonJsx/NameProfile";
 import axios from 'axios';
-import { BASE_URL } from '@/config';
-
+import { BASE_URL, ASSET_PREFIX_URL} from '@/config';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 function TellUsAboutYourself() {
     const photoInputRef = useRef(null);
 
     const [isClient, setIsClient] = useState(false);
     const [isProfileComplete, setIsProfileComplete] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
     const [userUuid, setUserUuid] = useState('');
     const [user, setUser] = useState({ name: '', email: '', photo: '' });
     const [errors, setErrors] = useState({ name: '', email: '' });
+    const [editField, setEditField] = useState({ name: false, email: false });
 
     useEffect(() => setIsClient(true), []);
 
@@ -37,7 +37,6 @@ function TellUsAboutYourself() {
             if (email && name) {
                 setUser({ name, email, photo });
                 setIsProfileComplete(true);
-                setIsEditing(false);
             } else {
                 const res = await axios.get(`${BASE_URL}/v1/cad/get-user-details`, {
                     params: { uuid },
@@ -57,7 +56,6 @@ function TellUsAboutYourself() {
                         localStorage.setItem('user_name', data.full_name);
                         localStorage.setItem('user_photo', data.photo);
                         setIsProfileComplete(true);
-                        setIsEditing(false);
                     }
                 }
             }
@@ -66,30 +64,20 @@ function TellUsAboutYourself() {
         }
     };
 
-    const validateInputs = () => {
-        const newErrors = { name: '', email: '' };
-        let valid = true;
-
-        if (!user.name.trim()) {
-            newErrors.name = 'Full name is required';
-            valid = false;
+    const validate = (field, value) => {
+        if (field === 'name') return value.trim() ? '' : 'Full name is required';
+        if (field === 'email') {
+            if (!value.trim()) return 'Email is required';
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(value) ? '' : 'Enter a valid email';
         }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!user.email.trim()) {
-            newErrors.email = 'Email is required';
-            valid = false;
-        } else if (!emailRegex.test(user.email)) {
-            newErrors.email = 'Enter a valid email';
-            valid = false;
-        }
-
-        setErrors(newErrors);
-        return valid;
+        return '';
     };
 
-    const handleUserSubmit = async () => {
-        if (!validateInputs()) return;
+    const updateField = async (field) => {
+       
+        const error = validate(field, user[field]);
+        if (error) return setErrors(prev => ({ ...prev, [field]: error }));
 
         try {
             const uuid = localStorage.getItem('uuid');
@@ -103,16 +91,22 @@ function TellUsAboutYourself() {
             });
 
             if (response.data.meta.success) {
-                toast.success('Details Saved Successfully!');
-                localStorage.setItem('user_email', user.email);
-                localStorage.setItem('user_name', user.name);
-                localStorage.setItem('user_photo', response.data.data);
-                setIsProfileComplete(true);
-                setIsEditing(false);
+                toast.success(`Profile updated successfully`);
+                if(field!== 'photo'){
+ localStorage.setItem(`user_${field}`, user[field]);
+                setEditField(prev => ({ ...prev, [field]: false }));
+                setErrors(prev => ({ ...prev, [field]: '' }));
+                }else{
+
+                     localStorage.setItem(`user_${field}`, response.data.data);
+                setEditField(prev => ({ ...prev, [field]: false }));
+                setErrors(prev => ({ ...prev, [field]: '' }));
+                }
+               
             }
-        } catch (error) {
-            console.error("Error saving user details:", error);
-            toast.error('Failed to save details.');
+        } catch (err) {
+            console.error(`Error updating Profile:`, err);
+            toast.error(`Failed to update Profile`);
         }
     };
 
@@ -125,82 +119,128 @@ function TellUsAboutYourself() {
         const reader = new FileReader();
         reader.onloadend = () => setUser(prev => ({ ...prev, photo: reader.result }));
         reader.readAsDataURL(file);
+        setEditField(prev => ({ ...prev, ['photo']: true }));
     };
 
     if (!isClient) return null;
 
     return (
         <div className={styles["tell-us-about-yourself-page"]}>
-            <h2>{isProfileComplete && !isEditing ? 'Your Profile Details' : 'Tell Us About Yourself'}</h2>
-            <p>We want you to feel secure, so we don't require a login...</p>
-
+            <h2>Your Profile</h2>
             <input type="file" ref={photoInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
 
-            {isProfileComplete && !isEditing ? (
-                <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                        <NameProfile userName={user.name} width='100px' memberPhoto={user.photo} />
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <span>{user.name}</span>
-                            <span>{user.email}</span>
-                        </div>
-                    </div>
-                    <button onClick={() => setIsEditing(true)} className={styles['save-profile']}>
-                        Edit Profile
-                    </button>
-                </>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'column',justifyContent:'center' }}>
+ <div className={styles["photo-upload"]} onClick={handleClick}>
+    <div style={{
+      width: '20px',
+      height: '20px',
+      position: 'absolute',
+      bottom: '12px',
+      right: '0px',
+      backgroundColor: '#610bee',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/plus.svg' alt="plus" width={20} height={20} />
+    </div>
+    {user.photo ? (
+      !user.photo.startsWith('data') ? (
+        <NameProfile userName={user.name} memberPhoto={user.photo} width={100} />
+      ) : (
+        <Image src={user.photo} alt="User Photo" width={100} height={100} style={{ borderRadius: '50%' }} />
+      )
+    ) : (
+      <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profile-empty.png' alt="User Photo" width={100} height={100} style={{ borderRadius: '50%' }} />
+    )}
+
+
+                </div>
+  {/* Photo Upload Section */}
+ {editField['photo']&&  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={() => updateField('photo')}>
+                  <Image src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
+                </button>
+                <button
+                  onClick={() => {
+                    const original = localStorage.getItem(`user_${'photo'}`) || '';
+                    setUser((prev) => ({ ...prev, ['photo']: original }));
+                    setEditField((prev) => ({ ...prev, ['photo']: false }));
+                    setErrors((prev) => ({ ...prev, ['photo']: '' }));
+                  }}
+                >
+                  <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={20} height={20} />
+                </button>
+              </div>}
+
+    
+  </div>
+
+  {/* Form Fields Section */}
+  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'column' }}>
+    {['name', 'email'].map((field) => (
+      <div
+        key={field}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem',
+          width: '100%',
+          justifyContent: 'space-between',
+        }}
+      >
+        <input
+          style={{ flexGrow: 1 }}
+          value={user[field]}
+          onChange={(e) => setUser({ ...user, [field]: e.target.value })}
+          disabled={isProfileComplete && !editField[field]} // Editable always if profile is not yet complete
+          placeholder={`Enter your ${field}`}
+        />
+
+        {isProfileComplete && (
+          <div style={{ minWidth: '150px', display: 'flex', gap: '0.5rem' }}>
+            {editField[field] ? (
+              <>
+                <button onClick={() => updateField(field)}>
+                  <Image src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
+                </button>
+                <button
+                  onClick={() => {
+                    const original = localStorage.getItem(`user_${field}`) || '';
+                    setUser((prev) => ({ ...prev, [field]: original }));
+                    setEditField((prev) => ({ ...prev, [field]: false }));
+                    setErrors((prev) => ({ ...prev, [field]: '' }));
+                  }}
+                >
+                  <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={20} height={20} />
+                </button>
+              </>
             ) : (
-                <>
-                    <div style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        width: '100%', gap: '1rem', marginBottom: '1rem'
-                    }}>
-                        <div className={styles["photo-upload"]} onClick={handleClick}>
-                            <div style={{
-                                width: '20px', height: '20px', position: 'absolute', bottom: '12px', right: '0px',
-                                backgroundColor: '#610bee', borderRadius: '50%', display: 'flex', alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/plus.svg' alt="plus" width={20} height={20} />
-                            </div>
-                            {user.photo ? (
-                                !user.photo.startsWith('data') ? (
-                                    <NameProfile userName={user.name} memberPhoto={user.photo} width={100} />
-                                ) : (
-                                    <Image src={user.photo} alt="User Photo" width={100} height={100} style={{ borderRadius: '50%' }} />
-                                )
-                            ) : (
-                                <Image
-                                    src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profile-empty.png'
-                                    alt="User Photo"
-                                    width={100}
-                                    height={100}
-                                    style={{ borderRadius: '50%' }}
-                                />
-                            )}
-                        </div>
-                    </div>
-
-                    <input
-                        placeholder="Your Name"
-                        value={user.name}
-                        onChange={(e) => setUser({ ...user, name: e.target.value })}
-                    />
-                    {errors.name && <p style={{ color: 'red', marginTop: '-0.5rem' }}>{errors.name}</p>}
-
-                    <input
-                        placeholder="Your Email"
-                        value={user.email}
-                        onChange={(e) => setUser({ ...user, email: e.target.value })}
-                    />
-                    {errors.email && <p style={{ color: 'red', marginTop: '-0.5rem' }}>{errors.email}</p>}
-
-                    <button onClick={handleUserSubmit} className={styles['save-profile']}>
-                        Save Profile Information
-                    </button>
-                </>
+              <button onClick={() => setEditField((prev) => ({ ...prev, [field]: true }))}>
+                <Image src={`${ASSET_PREFIX_URL}edit-ticket.png`} alt="edit" width={20} height={20} />
+              </button>
             )}
+          </div>
+        )}
+        {errors[field] && <p style={{ color: 'red' }}>{errors[field]}</p>}
+      </div>
+    ))}
 
+    {/* Save Profile Button only shown when no localStorage data exists */}
+    {!isProfileComplete && (
+      <button onClick={updateField} className={styles['save-profile']}>
+        Save Profile
+      </button>
+    )}
+  </div>
+</div>
+
+
+            
+
+            
             <div
                 className={styles["unique-code"]}
                 onClick={() => {
@@ -209,9 +249,9 @@ function TellUsAboutYourself() {
                         toast.success("Unique code copied to clipboard!");
                     }
                 }}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', marginTop: '1.5rem' }}
             >
-                Unique Code: {userUuid}
+                Unique Code: {userUuid} <ContentCopyIcon/>
             </div>
 
             <p>Email us at <strong><a href="mailto:invite@marathon-os.com">invite@marathon-os.com</a></strong> from the above email address with this code for any queries or support.</p>
