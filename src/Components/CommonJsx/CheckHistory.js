@@ -4,17 +4,23 @@ import { BASE_URL } from '@/config';
 import axios from 'axios';
 
 function CheckHistory() {
-  const [isAllowed, setIsAllowed] = useState(() => {
-    // Initialize from localStorage to prevent flash
-    return localStorage.getItem('history') === 'true';
-  });
+  const [isAllowed, setIsAllowed] = useState(false);
+  const [checked, setChecked] = useState(false); // Avoid flash
 
   useEffect(() => {
-    // If already allowed, no need to check again
-    if (isAllowed) return;
-
     const uuid = localStorage.getItem('uuid');
-    if (!uuid) return;
+    const localHistory = localStorage.getItem('history');
+
+    if (localHistory === 'true') {
+      setIsAllowed(true);
+      setChecked(true);
+      return;
+    }
+
+    if (!uuid) {
+      setChecked(true);
+      return;
+    }
 
     const checkPermission = async () => {
       try {
@@ -27,21 +33,23 @@ function CheckHistory() {
 
         if (response.data.data?.history === true) {
           setIsAllowed(true);
-          localStorage.setItem('history', 'true'); // Cache result
+          localStorage.setItem('history', 'true');
         }
       } catch (error) {
         console.error('Error checking history:', error);
+      } finally {
+        setChecked(true); // Mark check as completed
       }
     };
 
     checkPermission();
-  }, [isAllowed]);
+  }, []);
 
-  if (!isAllowed) return null;
+  if (!checked || !isAllowed) return null;
 
   return (
-    <a href="/dashboard">
-      History
+    <a href="/dashboard?cad_type=CAD_VIEWER">
+      Dashboard
     </a>
   );
 }

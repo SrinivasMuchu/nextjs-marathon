@@ -12,7 +12,12 @@ function DownloadClientButton({folderId,xaxis,yaxis,isDownladable}) {
             try {
                 const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
                     design_id: folderId,xaxis,yaxis,step:xaxis ?0:1,
-                    uuid: localStorage.getItem('uuid'),
+                   
+                    
+                },{
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"),
+                    }
                 });
     
                 const data = response.data;
@@ -29,7 +34,7 @@ function DownloadClientButton({folderId,xaxis,yaxis,isDownladable}) {
         };
   return (
     <>
-    {!isDownladable ? <span>This file is view-only—downloads are disabled by the creator.</span>:<button   disabled={isDownLoading} className={styles['industry-design-files-btn']} onClick={handleDownload}> Download</button>}
+    {isDownladable===false ? <span>This file is view-only—downloads are disabled by the creator.</span>:<button   disabled={isDownLoading} className={styles['industry-design-files-btn']} onClick={handleDownload}> Download</button>}
     </>
     
   )

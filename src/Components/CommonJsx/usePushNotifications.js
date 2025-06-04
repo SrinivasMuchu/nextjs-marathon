@@ -10,8 +10,6 @@ export default function usePushNotifications() {
             console.warn('Neither email nor browser notification requested.');
             return;
         }
-
-        const uuid = localStorage.getItem('uuid');
         let accessKey = null;
 
         // Handle browser notifications first (if requested)
@@ -44,7 +42,6 @@ export default function usePushNotifications() {
         // Make a single API call with all collected data
         try {
             const payload = {
-                uuid,
                 ...(email && { email }),
                 ...(accessKey && { accessKey })
             };

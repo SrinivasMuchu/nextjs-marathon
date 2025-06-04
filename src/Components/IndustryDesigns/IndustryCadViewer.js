@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic';
 
 const CubeLoader = dynamic(() => import('../CommonJsx/Loaders/CubeLoader'), {
-  ssr: false,
+    ssr: false,
 });
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
@@ -37,10 +37,27 @@ function IndustryCadViewer({ designId, type }) {
     const [isLoading, setIsLoading] = useState(false);
     const [currentZoom, setCurrentZoom] = useState(3.6);
     const [isDownLoading, setIsDownLoading] = useState(false);
+     const [isDownLoadable, setIsDownLoadable] = useState(false);
     const [folderId, setFolderId] = useState(type ? designId.library_design : designId.design_id);
     const router = useRouter();
 
+    useEffect(() => {
+        if (folderId) {
+            checkPermission(folderId);
+        }
+    }, [folderId]);
+    const checkPermission = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/v1/cad/check-download`, {
+                params: { design_id: folderId },
+                
+            });
 
+            setIsDownLoadable(response.data.data); // Re-enable button after completion
+        } catch (error) {
+            console.error('Error checking history:', error);
+        } 
+    };
 
     // Function to generate texture URL
     const getTextureUrl = useCallback((x, y) => {
@@ -354,7 +371,11 @@ function IndustryCadViewer({ designId, type }) {
         try {
             const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
                 design_id: folderId,
-                uuid: localStorage.getItem('uuid'),
+                step:true
+            }, {
+                headers: {
+                    "user-uuid": localStorage.getItem("uuid"),
+                }
             });
 
             const data = response.data;
@@ -407,8 +428,8 @@ function IndustryCadViewer({ designId, type }) {
                             position: 'absolute',
                             top: '2rem', left: '1rem', zIndex: 2
                         }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
-                     {/* <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}>  */}
-                    <button onClick={handleDownload}
+                    {/* <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}>  */}
+                   {isDownLoadable &&<button onClick={handleDownload}
                         disabled={isDownLoading}
                         style={{
 
@@ -424,7 +445,8 @@ function IndustryCadViewer({ designId, type }) {
                             cursor: 'pointer',
                             position: 'absolute',
                             top: '2rem', right: '1rem', zIndex: 2
-                        }}><DownloadIcon style={{ width: '24px', height: '24px' }} /></button>
+                        }}><DownloadIcon style={{ width: '24px', height: '24px' }} /></button>}
+                    
                     {/* </a>  */}
 
                     {/* Three.js Canvas Container */}

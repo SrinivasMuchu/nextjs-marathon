@@ -27,15 +27,16 @@ const drawerItems = [
 
 function FileHistorySideNav() {
     const [isExpanded, setIsExpanded] = useState(true);
-    const [active, setActive] = useState('CAD Viewer');
+    const [active, setActive] = useState('');
     const router = useRouter();
     const searchParams = useSearchParams();
-
+  const [currentPage, setCurrentPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
     useEffect(() => {
         const cadType = searchParams.get('cad_type');
-        if (cadType === 'converter') {
+        if (cadType === 'CAD_CONVERTER') {
             setActive('CAD Convertor');
-        } else if (cadType === 'viewer') {
+        } else if (cadType === 'CAD_VIEWER') {
             setActive('CAD Viewer'); // Default to viewer or when cad_type is null
         } else if (cadType === 'user_cad_files') {
             setActive('My CAD Files');
@@ -47,12 +48,13 @@ function FileHistorySideNav() {
 
     const handleClick = (item) => {
         setActive(item.label);
-
+        setTotalPages(1)
+setCurrentPage(1)
         let cad_type;
         if (item.label === 'CAD Convertor') {
-            cad_type = 'converter';
+            cad_type = 'CAD_CONVERTER';
         } else if (item.label === 'CAD Viewer') {
-            cad_type = 'viewer';
+            cad_type = 'CAD_VIEWER';
         } else if (item.label === 'My CAD Files') {
             cad_type = 'user_cad_files';
         } else {
@@ -65,11 +67,15 @@ function FileHistorySideNav() {
     const renderComponent = () => {
         switch (active) {
             case 'CAD Viewer':
-                return <FileHistoryCards cad_type={'viewer'} />;
+                return <FileHistoryCards cad_type={'CAD_VIEWER'} 
+                totalPages={totalPages} setTotalPages={setTotalPages}
+                currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
             case 'CAD Convertor':
-                return <FileHistoryCards cad_type={'converter'} />;
+                return <FileHistoryCards cad_type={'CAD_CONVERTER'} totalPages={totalPages} setTotalPages={setTotalPages}
+                currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
             case 'My CAD Files':
-                return <FileHistoryCards cad_type={'user_cad_files'} />;
+                return <FileHistoryCards cad_type={'user_cad_files'} totalPages={totalPages} setTotalPages={setTotalPages}
+                currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
 
             default:
                 return null;
@@ -87,18 +93,18 @@ function FileHistorySideNav() {
                     {isExpanded ? <KeyboardArrowLeftRoundedIcon /> : <KeyboardArrowRightRoundedIcon />}
                 </div>
                 <div className={styles.dashboardMenuItem}>
-                    <DashboardCustomizeTwoToneIcon/>
-                   {isExpanded && <span className={styles.text}>Dashboard</span>} 
+                    <DashboardCustomizeTwoToneIcon />
+                    {isExpanded && <span className={styles.text}>Dashboard</span>}
                 </div>
                 <ul className={styles.menu}>
                     {drawerItems.map((item) => (
                         <li
                             key={item.label}
                             style={{
-    
-    justifyContent: !isExpanded ? 'center' : '',
-   
-  }}
+
+                                justifyContent: !isExpanded ? 'center' : '',
+
+                            }}
                             className={`${styles.menuItem} ${active === item.label ? styles.active : ''}`}
                             onClick={() => handleClick(item)}
                         >
@@ -110,6 +116,7 @@ function FileHistorySideNav() {
             </div>
             {renderComponent()}
         </div>
+
     );
 }
 

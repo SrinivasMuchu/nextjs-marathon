@@ -39,7 +39,6 @@ function TellUsAboutYourself() {
                 setIsProfileComplete(true);
             } else {
                 const res = await axios.get(`${BASE_URL}/v1/cad/get-user-details`, {
-                    params: { uuid },
                     headers: { 'user-uuid': uuid }
                 });
 
@@ -82,7 +81,6 @@ function TellUsAboutYourself() {
         try {
             const uuid = localStorage.getItem('uuid');
             const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
-                uuid,
                 user_email: user.email,
                 full_name: user.name,
                 photo: user.photo

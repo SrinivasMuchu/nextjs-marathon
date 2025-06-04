@@ -6,23 +6,25 @@ import Image from 'next/image';
 import styles from './FileHistory.module.css';
 import EastIcon from '@mui/icons-material/East';
 import { textLettersLimit } from '@/common.helper';
+import Pagenation from '../CommonJsx/Pagenation';
 
-function FileHistoryCards({ cad_type }) {
+function FileHistoryCards({ cad_type,currentPage, setCurrentPage,totalPages, setTotalPages }) {
 
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
   const [userCadFiles, setUserCadFiles] = useState([]);
+
+const limit = 10;
   console.log(cadConverterFileHistory, 'cadConverterFileHistory')
   useEffect(() => {
 
-    const uuid = localStorage.getItem('uuid');
+   
     const fetchFileHistory = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
-          params: { uuid },
+           params: { type: cad_type, page:currentPage, limit },
           headers: {
             "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-
           }
         }
         );
@@ -45,6 +47,8 @@ function FileHistoryCards({ cad_type }) {
             ...file,
             createdAtFormatted: formatDate(file.createdAt)
           })));
+          setCurrentPage(response.data.data.pagination.page);
+      setTotalPages(response.data.data.pagination.cadFilesPages);
         }
       } catch (err) {
 
@@ -53,7 +57,7 @@ function FileHistoryCards({ cad_type }) {
     };
 
     fetchFileHistory();
-  }, []);
+  }, [cad_type,currentPage]);
 
 
 
@@ -96,12 +100,14 @@ function FileHistoryCards({ cad_type }) {
 
 
   return (
-    <>
+    <div >
 
-      {cad_type === 'viewer' && (
+      {cad_type === 'CAD_VIEWER' && (
         <div className={styles.cadViewerContainer}>
           <h2>Rendered CAD Models</h2>
-
+           <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
+            ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
+          </div>
           {cadViewerFileHistory.length > 0 ? (
             <>
 
@@ -173,9 +179,12 @@ function FileHistoryCards({ cad_type }) {
           )}
         </div>
       )}
-      {cad_type === 'converter' && (
+      {cad_type === 'CAD_CONVERTER' && (
         <div className={styles.cadViewerContainer}>
           <h2> Converted CAD files</h2>
+           <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
+            ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
+          </div>
           {cadConverterFileHistory.length > 0 ? (
             <div className={styles.historyContainer}>
               <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
@@ -314,7 +323,11 @@ function FileHistoryCards({ cad_type }) {
             </div>
           )}
         </div>)}
-    </>
+        <div style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>
+{totalPages>1 && <Pagenation currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages}/>} 
+        </div>
+     
+    </div>
   )
 }
 
