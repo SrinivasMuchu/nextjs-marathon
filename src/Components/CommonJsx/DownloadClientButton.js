@@ -11,8 +11,11 @@ function DownloadClientButton({folderId,xaxis,yaxis}) {
              setIsDownLoading(true); // Disable button
             try {
                 const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-                    design_id: folderId,xaxis,yaxis,
-                    uuid: localStorage.getItem('uuid'),
+                    design_id: folderId,xaxis,yaxis
+                },{
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"),
+                    }
                 });
     
                 const data = response.data;

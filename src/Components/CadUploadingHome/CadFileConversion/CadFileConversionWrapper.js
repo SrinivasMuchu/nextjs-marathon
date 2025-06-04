@@ -212,10 +212,6 @@ function CadFileConversionWrapper({ children, convert }) {
         try {
             const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
                 {
-                    params: {
-                        uuid: localStorage.getItem("uuid"),
-                    },
-          
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
 
@@ -431,7 +427,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
     return (
         <>
-             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'converter'}
+             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_CONVERTER'}
              setClosePopUp={setCloseNotifyInfoPopUp} />}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}

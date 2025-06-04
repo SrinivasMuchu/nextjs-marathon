@@ -19,7 +19,7 @@ function CheckHistory() {
 
     const checkPermission = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/v1/cad/dashboard`, {
+        const response = await axios.get(`${BASE_URL}/v1/cad/history`, {
           params: { uuid },
           headers: {
             'user-uuid': uuid,
@@ -42,7 +42,7 @@ function CheckHistory() {
 
   return (
     <a href="/dashboard">
-      History
+     Dashboard
     </a>
   );
 }

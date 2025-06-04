@@ -682,7 +682,7 @@ export default function PartDesignView() {
     return (
         <>
             <HomeTopNav />
-            {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'viewer'}
+            {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_VIEWER'}
                          setClosePopUp={setCloseNotifyInfoPopUp} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
             {!isApiSlow && <>

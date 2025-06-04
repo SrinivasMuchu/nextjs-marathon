@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic';
 
 const CubeLoader = dynamic(() => import('../CommonJsx/Loaders/CubeLoader'), {
-  ssr: false,
+    ssr: false,
 });
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
@@ -354,7 +354,11 @@ function IndustryCadViewer({ designId, type }) {
         try {
             const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
                 design_id: folderId,
-                uuid: localStorage.getItem('uuid'),
+
+            }, {
+                headers: {
+                    "user-uuid": localStorage.getItem("uuid"),
+                }
             });
 
             const data = response.data;
@@ -407,7 +411,7 @@ function IndustryCadViewer({ designId, type }) {
                             position: 'absolute',
                             top: '2rem', left: '1rem', zIndex: 2
                         }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
-                     {/* <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}>  */}
+                    {/* <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}>  */}
                     <button onClick={handleDownload}
                         disabled={isDownLoading}
                         style={{

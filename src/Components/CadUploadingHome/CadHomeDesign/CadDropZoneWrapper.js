@@ -61,9 +61,6 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
         try {
             const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
                 {
-                    params: {
-                        uuid: localStorage.getItem("uuid"),
-                    },
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
 
