@@ -4,22 +4,21 @@ import { BASE_URL } from '@/config';
 import axios from 'axios';
 
 function CheckHistory() {
-  const [isAllowed, setIsAllowed] = useState(false);
+  const [isAllowed, setIsAllowed] = useState(() => {
+    // Initialize from localStorage to prevent flash
+    return localStorage.getItem('history') === 'true';
+  });
 
   useEffect(() => {
+    // If already allowed, no need to check again
+    if (isAllowed) return;
+
     const uuid = localStorage.getItem('uuid');
     if (!uuid) return;
 
-    const localHistory = localStorage.getItem('history');
-
-    if (localHistory === 'true') {
-      setIsAllowed(true);
-      return; // Skip API call
-    }
-
     const checkPermission = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/v1/cad/dashboard`, {
+        const response = await axios.get(`${BASE_URL}/v1/cad/history`, {
           params: { uuid },
           headers: {
             'user-uuid': uuid,
@@ -36,7 +35,7 @@ function CheckHistory() {
     };
 
     checkPermission();
-  }, []);
+  }, [isAllowed]);
 
   if (!isAllowed) return null;
 
