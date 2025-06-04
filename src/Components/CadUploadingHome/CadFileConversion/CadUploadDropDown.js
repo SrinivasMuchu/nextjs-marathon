@@ -91,7 +91,7 @@ function CadDropDown({
 
 
   const handleDownload = async () => {
-   router.push('/history?cad_type=converter');
+   router.push('/dashboard?cad_type=converter');
   };
 
   return (

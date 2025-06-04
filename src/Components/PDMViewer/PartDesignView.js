@@ -708,7 +708,7 @@ export default function PartDesignView() {
                             top: '2rem', left: '3rem', zIndex: 2
                         }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
 
-                        <button onClick={() => router.push("/history")} style={{
+                        <button onClick={() => router.push("/dashboard")} style={{
 
                             padding: '10px',
                             borderRadius: '4px',

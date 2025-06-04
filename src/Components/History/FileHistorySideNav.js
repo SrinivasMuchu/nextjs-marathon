@@ -59,7 +59,7 @@ function FileHistorySideNav() {
             console.error('Unknown item label:', item.label);
         }
 
-        router.push(`/history?cad_type=${cad_type}`);
+        router.push(`/dashboard?cad_type=${cad_type}`);
     };
 
     const renderComponent = () => {
