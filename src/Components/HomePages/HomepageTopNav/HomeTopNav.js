@@ -23,7 +23,7 @@ function HomeTopNav() {
     }
   };
 
-  
+
   const toggleDropdown = (dropdownName) => {
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
@@ -69,13 +69,15 @@ function HomeTopNav() {
             Blogs ▼
           </span>
           {openDropdown === "blogs" && (
-            <div className={styles["dropdown-menu"]} style={{width:'200px'}}>
+            <div className={styles["dropdown-menu"]} style={{ width: '200px' }}>
               <Link href="/blog/part-number-nomenclature-guide">Part Number Nomenclature Guide</Link>
             </div>
           )}
         </div>
-      
-          <CheckHistory />
+
+        <a href="/dashboard?cad_type=CAD_VIEWER" rel="nofollow">
+          Dashboard
+        </a>
         <a href="/library" >Library</a>
       </div>
 

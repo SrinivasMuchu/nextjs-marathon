@@ -91,7 +91,17 @@
   padding: 24px;
  
 }
-.cadViewerContainer h2{
+.cadViewerContainerContent {
+  width: 100%;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  /* padding: 24px; */
+ 
+}
+.cadViewerContainerContent h2{
   font-size: 24px;
   margin: 0;
  font-weight: 600;

@@ -24,6 +24,13 @@ function UploadYourCadDesign() {
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [info, setInfo] = useState(false);
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
+    const [hasUserEmail, setHasUserEmail] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setHasUserEmail(!!localStorage.getItem('user_email'));
+        }
+    }, []);
 
     const router = useRouter();
 
@@ -48,6 +55,10 @@ function UploadYourCadDesign() {
     };
 
     const validateForm = () => {
+        if (!url) {
+            setFormError("Upload your cad File.");
+            return false;
+        }
         if (!cadFile.title.trim()) {
             setFormError("Title is required.");
             return false;
@@ -56,10 +67,7 @@ function UploadYourCadDesign() {
             setFormError("Description is required.");
             return false;
         }
-        if (!url) {
-            setFormError("Upload your cad File.");
-            return false;
-        }
+        
         setFormError('');
         return true;
     };
@@ -152,10 +160,10 @@ function UploadYourCadDesign() {
 
             if (response.data.meta.success) {
                 if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
-                   
-                     setCloseNotifyInfoPopUp(true);
+
+                    setCloseNotifyInfoPopUp(true);
                 } else {
-                   setIsApiSlow(true);
+                    setIsApiSlow(true);
                 }
             }
         } catch (error) {
@@ -179,7 +187,7 @@ function UploadYourCadDesign() {
 
     return (
         <>
-            {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp setClosePopUp={setCloseNotifyInfoPopUp} cad_type={'user_cad_files'}/>}
+            {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp setClosePopUp={setCloseNotifyInfoPopUp} cad_type={'user_cad_files'} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
 
             <div className={styles["cad-upload-container"]}>
@@ -234,8 +242,8 @@ function UploadYourCadDesign() {
                     )}
                 </div>
 
-                {fileError && <p style={{ color: 'red' }}>{fileError}</p>}
-                {formError && <p style={{ color: 'red' }}>{formError}</p>}
+                {/* {fileError && <p style={{ color: 'red' }}>{fileError}</p>} */}
+                {/* {formError && <p style={{ color: 'red' }}>{formError}</p>} */}
 
                 <div className="mt-6">
                     <input
@@ -245,26 +253,43 @@ function UploadYourCadDesign() {
                         value={cadFile.title}
                         onChange={(e) => setCadFile({ ...cadFile, title: e.target.value })}
                     />
+                    {/* {formErrors.title && <p style={{ color: 'red' }}>{formErrors.title}</p>} */}
                     <textarea
                         placeholder="Description"
                         className="mb-4"
                         value={cadFile.description}
                         onChange={(e) => setCadFile({ ...cadFile, description: e.target.value })}
                     />
+                    {/* {formErrors.description && <p style={{ color: 'red' }}>{formErrors.description}</p>} */}
                     <input
                         placeholder="Tags (separate with commas)"
-                         type="text"
+                        type="text"
                         className="mb-4"
                         value={cadFile.tags}
                         onChange={(e) => setCadFile({ ...cadFile, tags: e.target.value })}
                     />
-                    <button
-                        className="w-full py-3 mb-4"
-                        style={{ backgroundColor: '#610bee', color: '#ffffff' }}
-                        onClick={handleUserCadFileSubmit}
-                    >
-                        Upload Your Cad Design
-                    </button>
+                    {formError && <p style={{ color: 'red' }}>{formError}</p>}
+                    {hasUserEmail ? (
+                        <button
+                            className="w-full py-3 mb-4"
+                            style={{ backgroundColor: '#610bee', color: '#ffffff' }}
+                            onClick={handleUserCadFileSubmit}
+                        >
+                            Upload Your Cad Design
+                        </button>
+                    ) : (
+                        <button
+                            className="w-full py-3 mb-4"
+                            style={{ backgroundColor: '#a270f2', color: '#ffffff' }}
+                            title='Please update your profile to upload your design.'
+                            disabled
+                            // onClick={handleUserCadFileSubmit}
+                        >
+                            Upload Your Cad Design
+                        </button>
+                    )}
+
+
                     <p className="text-gray-600 text-center">
                         ⚠️ It might take up to 24 hours for your design to go live.
                         We will email you the link once it is published.

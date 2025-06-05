@@ -72,7 +72,9 @@ function MobileMenu({ onClose, styles }) {
             </div>
           )}
         </div>
-         <CheckHistory />
+         <a rel="nofollow" href="/dashboard?cad_type=CAD_VIEWER">
+      Dashboard
+    </a>
         <a href="/library" >Library</a>
         
          

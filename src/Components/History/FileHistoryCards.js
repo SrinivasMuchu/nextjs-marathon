@@ -100,10 +100,10 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
 
   return (
-    < >
+    <div className={styles.cadViewerContainer} style={{width: '100%'}}>
 
       {cad_type === 'CAD_VIEWER' && (
-        <div className={styles.cadViewerContainer}>
+        <div className={styles.cadViewerContainerContent}>
           <h2>Rendered CAD Models</h2>
           <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
             ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
@@ -154,33 +154,17 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             </>
 
           ) : (
-            <div className={styles.historyItem}>
-              <Image
-                src={`${MARATHON_ASSET_PREFIX_URL}cad_viewer.webp`}
-                alt="file preview"
-                width={300}
-                height={250}
-              />
-              <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
-              <h3>No cad viewer files history found</h3>
-              <a className={styles.historyFileDetailsbtn}
-                href='/tools/cad-viewer'
-                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <button style={{
-                  background: '#610bee',
-                  color: 'white',
-                  padding: '5px 10px',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: 'pointer'
-                }} >Upload to view cad</button>
-              </a>
-            </div>
+              <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', 
+                alignItems: 'center', flexDirection: 'column', 
+              border: '2px dashed #e6e4f0',height:'350px' }}>
+                  <span>Want to add more files</span>
+                  <a href='/tools/cad-viewer' style={{ color: 'blue' }}>Click here</a>
+                </div>
           )}
         </div>
       )}
       {cad_type === 'CAD_CONVERTER' && (
-        <div className={styles.cadViewerContainer}>
+        <div className={styles.cadViewerContainerContent}>
           <h2> Converted CAD files</h2>
           <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
             ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
@@ -219,26 +203,18 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
               ))}
             </div>
           ) : (
-            <div className={styles.historyItem}>
-              <h3>No cad converter files history found</h3>
-              <a className={styles.historyFileDetailsbtn} href='/tools/3d-file-converter'
-                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <button style={{
-                  background: '#610bee',
-                  color: 'white',
-                  padding: '5px 10px',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: 'pointer'
-                }}>Upload to convert</button>
-              </a>
-            </div>
+            <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', 
+                alignItems: 'center', flexDirection: 'column', 
+              border: '2px dashed #e6e4f0',height:'250px' }}>
+                  <span>Want to add more files</span>
+                  <a href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</a>
+                </div>
           )}
         </div>
 
       )}
       {cad_type === 'user_cad_files' && (
-        <div className={styles.cadViewerContainer}>
+        <div className={styles.cadViewerContainerContent}>
           <h2>Published CAD Files</h2>
           <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
             ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
@@ -279,7 +255,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                   <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
 
                   <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <a href={`/library/${file.route}`} style={{
+                  {file.is_uploaded  ? <a href={`/library/${file.route}`} style={{
                       background: '#610bee',
                       color: 'white',
                       padding: '5px 10px',
@@ -293,46 +269,36 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
                         cursor: 'pointer'
                       }}>View design</button>
-                    </a>
+                    </a>: <button disabled style={{
+                      background: '#a270f2',
+                      color: 'white',
+                      padding: '5px 10px',
+                      border: 'none',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                      width: '100%',
+                      textAlign: 'center'
+                    }}>View design</button>}  
                   </div>
                 </a>
               ))}
             </div>
           ) : (
-              <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
-                <span>Want to add more files</span>
-                <a href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</a>
-              </div>
-            // <div className={styles.historyItem}>
-            //   <Image
-            //     src={`${MARATHON_ASSET_PREFIX_URL}cad_viewer.webp`}
-            //     alt="file preview"
-            //     width={300}
-            //     height={250}
-            //   />
-            //   <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
-            //   <h3>No cad viewer files history found</h3>
-            //   <a className={styles.historyFileDetailsbtn}
-            //     href='/tools/cad-viewer'
-            //     style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            //     <button style={{
-            //       background: '#610bee',
-            //       color: 'white',
-            //       padding: '5px 10px',
-            //       border: 'none',
-            //       borderRadius: '5px',
-            //       cursor: 'pointer'
-            //     }} >Upload to view cad</button>
-            //   </a>
-            // </div>
+              <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', 
+                alignItems: 'center', flexDirection: 'column', 
+              border: '2px dashed #e6e4f0',height:'350px' }}>
+                  <span>Want to add more files</span>
+                  <a href='/publish-cad' style={{ color: 'blue' }}>Click here</a>
+                </div>
+           
           )}
         </div>
       )}
-      {/* <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {totalPages > 1 && <Pagenation currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />}
-      </div> */}
+      </div>
 
-    </>
+    </div>
   )
 }
 

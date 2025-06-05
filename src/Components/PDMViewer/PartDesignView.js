@@ -99,16 +99,7 @@ export default function PartDesignView() {
                 "user-uuid": localStorage.getItem("uuid"),
             };
             // Start a 10s timer to detect slow API
-            const slowApiTimer = setTimeout(() => {
-                console.log('API is slow');
-                if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
-                    console.log(isApiSlow, 'isApiSlow')
-                    setCloseNotifyInfoPopUp(true);
-                }else{
-                     setIsApiSlow(true);
-                    
-                }
-            }, 10000);
+            
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
@@ -122,7 +113,7 @@ export default function PartDesignView() {
                 }
             );
 
-            clearTimeout(slowApiTimer);
+            
             if (
                 preSignedURL.data.meta.code === 200 &&
                 preSignedURL.data.meta.message === "SUCCESS" &&
@@ -149,6 +140,20 @@ export default function PartDesignView() {
             setIsLoading(false)
         }
     };
+   useEffect(() => {
+    const slowApiTimer = setTimeout(() => {
+        console.log('API is slow');
+        if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
+            console.log(isApiSlow, 'isApiSlow');
+            setCloseNotifyInfoPopUp(true);
+        } else {
+            setIsApiSlow(true);
+        }
+    }, 100);
+
+    // ✅ Cleanup on unmount
+    return () => clearTimeout(slowApiTimer);
+}, []);
 
     const CreateCad = async (link) => {
         try {
