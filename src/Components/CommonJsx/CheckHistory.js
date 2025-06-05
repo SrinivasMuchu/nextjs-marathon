@@ -5,16 +5,21 @@ import axios from 'axios';
 
 function CheckHistory() {
   const [isAllowed, setIsAllowed] = useState(false);
+  const [checked, setChecked] = useState(false); // Avoid flash
 
   useEffect(() => {
     const uuid = localStorage.getItem('uuid');
-    if (!uuid) return;
-
     const localHistory = localStorage.getItem('history');
 
     if (localHistory === 'true') {
       setIsAllowed(true);
-      return; // Skip API call
+      setChecked(true);
+      return;
+    }
+
+    if (!uuid) {
+      setChecked(true);
+      return;
     }
 
     const checkPermission = async () => {
@@ -28,21 +33,23 @@ function CheckHistory() {
 
         if (response.data.data?.history === true) {
           setIsAllowed(true);
-          localStorage.setItem('history', 'true'); // Cache result
+          localStorage.setItem('history', 'true');
         }
       } catch (error) {
         console.error('Error checking history:', error);
+      } finally {
+        setChecked(true); // Mark check as completed
       }
     };
 
     checkPermission();
   }, []);
 
-  if (!isAllowed) return null;
+  if (!checked || !isAllowed) return null;
 
   return (
-    <a href="/dashboard">
-     Dashboard
+    <a href="/dashboard?cad_type=CAD_VIEWER">
+      Dashboard
     </a>
   );
 }

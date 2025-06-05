@@ -40,7 +40,7 @@ function IndustryDesignFilesList({ designData }) {
         <td data-label="Extension">step</td>
         <td data-label="Action">
            
-                 <DownloadClientButton folderId={designData._id}/>
+                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable}/>
            
         </td>
     </tr>
@@ -58,7 +58,7 @@ function IndustryDesignFilesList({ designData }) {
                         Download
                     </button>
                 </a> */}
-                <DownloadClientButton folderId={designData._id} xaxis={view.x} yaxis={view.y}/>
+                <DownloadClientButton folderId={designData._id} xaxis={view.x} yaxis={view.y} isDownladable={designData.is_downloadable}/>
             </td>
         </tr>
     ))}

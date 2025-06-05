@@ -6,12 +6,15 @@ import Image from 'next/image';
 import styles from './FileHistory.module.css';
 import EastIcon from '@mui/icons-material/East';
 import { textLettersLimit } from '@/common.helper';
+import Pagenation from '../CommonJsx/Pagenation';
 
-function FileHistoryCards({ cad_type }) {
+function FileHistoryCards({ cad_type,currentPage, setCurrentPage,totalPages, setTotalPages }) {
 
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
   const [userCadFiles, setUserCadFiles] = useState([]);
+
+const limit = 10;
   console.log(cadConverterFileHistory, 'cadConverterFileHistory')
   useEffect(() => {
 
@@ -19,7 +22,7 @@ function FileHistoryCards({ cad_type }) {
     const fetchFileHistory = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
-          params: { type:cad_type },
+           params: { type: cad_type, page:currentPage, limit },
           headers: {
             "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
           }
@@ -44,6 +47,8 @@ function FileHistoryCards({ cad_type }) {
             ...file,
             createdAtFormatted: formatDate(file.createdAt)
           })));
+          setCurrentPage(response.data.data.pagination.page);
+      setTotalPages(response.data.data.pagination.cadFilesPages);
         }
       } catch (err) {
 
@@ -52,7 +57,7 @@ function FileHistoryCards({ cad_type }) {
     };
 
     fetchFileHistory();
-  }, [cad_type]);
+  }, [cad_type,currentPage]);
 
 
 
@@ -95,7 +100,7 @@ function FileHistoryCards({ cad_type }) {
 
 
   return (
-    <>
+    <div >
 
       {cad_type === 'CAD_VIEWER' && (
         <div className={styles.cadViewerContainer}>
@@ -318,7 +323,11 @@ function FileHistoryCards({ cad_type }) {
             </div>
           )}
         </div>)}
-    </>
+        <div style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>
+{totalPages>1 && <Pagenation currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages}/>} 
+        </div>
+     
+    </div>
   )
 }
 

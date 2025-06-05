@@ -30,7 +30,8 @@ function FileHistorySideNav() {
     const [active, setActive] = useState('');
     const router = useRouter();
     const searchParams = useSearchParams();
-
+  const [currentPage, setCurrentPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
     useEffect(() => {
         const cadType = searchParams.get('cad_type');
         if (cadType === 'CAD_CONVERTER') {
@@ -47,7 +48,8 @@ function FileHistorySideNav() {
 
     const handleClick = (item) => {
         setActive(item.label);
-
+        setTotalPages(1)
+setCurrentPage(1)
         let cad_type;
         if (item.label === 'CAD Convertor') {
             cad_type = 'CAD_CONVERTER';
@@ -65,11 +67,15 @@ function FileHistorySideNav() {
     const renderComponent = () => {
         switch (active) {
             case 'CAD Viewer':
-                return <FileHistoryCards cad_type={'CAD_VIEWER'} />;
+                return <FileHistoryCards cad_type={'CAD_VIEWER'} 
+                totalPages={totalPages} setTotalPages={setTotalPages}
+                currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
             case 'CAD Convertor':
-                return <FileHistoryCards cad_type={'CAD_CONVERTER'} />;
+                return <FileHistoryCards cad_type={'CAD_CONVERTER'} totalPages={totalPages} setTotalPages={setTotalPages}
+                currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
             case 'My CAD Files':
-                return <FileHistoryCards cad_type={'user_cad_files'} />;
+                return <FileHistoryCards cad_type={'user_cad_files'} totalPages={totalPages} setTotalPages={setTotalPages}
+                currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
 
             default:
                 return null;
@@ -110,6 +116,7 @@ function FileHistorySideNav() {
             </div>
             {renderComponent()}
         </div>
+
     );
 }
 
