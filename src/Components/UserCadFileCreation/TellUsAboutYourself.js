@@ -1,21 +1,24 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
 import NameProfile from "@/Components/CommonJsx/NameProfile";
 import axios from 'axios';
+import { contextState } from '../CommonJsx/ContextProvider';
 import { BASE_URL, ASSET_PREFIX_URL } from '@/config';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 function TellUsAboutYourself() {
   const photoInputRef = useRef(null);
   const [isApiSlow, setIsApiSlow] = useState(false);
-
+  const { setHasUserEmail } = useContext(contextState);
+  const [isUserPhoto, setIsUserPhoto] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [userUuid, setUserUuid] = useState('');
+  const [userAccessKey, setUserAccessKey] = useState(false);
   const [user, setUser] = useState({ name: '', email: '', photo: '' });
   const [errors, setErrors] = useState({ name: '', email: '' });
   const [editField, setEditField] = useState({ name: false, email: false });
@@ -27,8 +30,15 @@ function TellUsAboutYourself() {
       const uuid = localStorage.getItem('uuid') || '';
       setUserUuid(uuid);
       getUserDetails(uuid);
+      if (localStorage.getItem('user_access_key')) {
+        setUserAccessKey(true);
+      }
+      if (localStorage.getItem('user_photo')) {
+        setIsUserPhoto(true);
+      }
+
     }
-  }, [isClient]);
+  }, [isClient, isApiSlow]);
 
   const getUserDetails = async (uuid) => {
     try {
@@ -56,6 +66,10 @@ function TellUsAboutYourself() {
             localStorage.setItem('user_email', data.user_email);
             localStorage.setItem('user_name', data.full_name);
             localStorage.setItem('user_photo', data.photo);
+            // if (localStorage.getItem('user_email')) {
+            // console.log('User email found in localStorage');
+            setHasUserEmail(true);
+            // }
             setIsProfileComplete(true);
           }
         }
@@ -103,6 +117,7 @@ function TellUsAboutYourself() {
           setErrors(prev => ({ ...prev, [field]: '' }));
         }
 
+        getUserDetails(localStorage.getItem('uuid'));
       }
     } catch (err) {
       console.error(`Error updating Profile:`, err);
@@ -151,7 +166,14 @@ function TellUsAboutYourself() {
           }} />
         </div>
         <h2>Your Profile</h2>
-        <input type="file" ref={photoInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
+        <input
+          type="file"
+          ref={photoInputRef}
+          style={{ display: 'none' }}
+          accept="image/*"
+          onChange={handleFileUpload}
+        />
+
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'column', justifyContent: 'center' }}>
@@ -166,7 +188,8 @@ function TellUsAboutYourself() {
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+
               }}>
                 <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/plus.svg' alt="plus" width={20} height={20} />
               </div>
@@ -174,7 +197,12 @@ function TellUsAboutYourself() {
                 !user.photo.startsWith('data') ? (
                   <NameProfile userName={user.name} memberPhoto={user.photo} width={100} />
                 ) : (
-                  <Image src={user.photo} alt="User Photo" width={100} height={100} style={{ borderRadius: '50%' }} />
+                  <Image src={user.photo} alt="User Photo" width={100} height={100} style={{
+                    borderRadius: '50%',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }} />
                 )
               ) : (
                 <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profile-empty.png' alt="User Photo" width={100} height={100} style={{ borderRadius: '50%' }} />
@@ -183,7 +211,7 @@ function TellUsAboutYourself() {
 
             </div>
             {/* Photo Upload Section */}
-            {editField['photo'] && <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {(editField['photo'] && isUserPhoto) && <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button onClick={() => updateField('photo')}>
                 <Image title='save' src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
               </button>
@@ -223,7 +251,7 @@ function TellUsAboutYourself() {
                   placeholder={`Enter your ${field}`}
                 />
 
-                {isProfileComplete && (
+                {isProfileComplete && userAccessKey && (
                   <div style={{ minWidth: '150px', display: 'flex', gap: '0.5rem' }}>
                     {editField[field] ? (
                       <>
@@ -251,7 +279,38 @@ function TellUsAboutYourself() {
                 {errors[field] && <p style={{ color: 'red' }}>{errors[field]}</p>}
               </div>
             ))}
+            {(isProfileComplete && userAccessKey) && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                width: '100%',
+                justifyContent: 'space-between',
+              }}>
+                {/* <input type="checkbox"  style={{width:'25px'}} onChange={(e)=>handleChangeBrowserNotification(e)}/> */}
+                <label className="flex items-center gap-2 cursor-pointer">
+                  Browser notification setup
+                  <input
+                    type="checkbox"
+                    className="sr-only"
 
+
+                  />
+                  <div className="w-10 h-5 rounded-full bg-blue-600 relative transition-colors">
+                    <div
+                      className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transform translate-x-5 transition-transform"
+                    />
+                  </div>
+
+
+                </label>
+
+
+
+
+              </div>
+
+            )}
             {/* Save Profile Button only shown when no localStorage data exists */}
 
           </div>
@@ -260,7 +319,7 @@ function TellUsAboutYourself() {
         {!isProfileComplete && (
           <>
             {/* <input type="checkbox"  style={{width:'25px'}} onChange={(e)=>handleChangeBrowserNotification(e)}/> */}
-            <label className="flex items-center gap-2 cursor-pointer">
+            {!userAccessKey ? <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 className="sr-only"
@@ -272,8 +331,22 @@ function TellUsAboutYourself() {
                   className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transition-transform ${isApiSlow ? 'translate-x-5' : ''}`}
                 />
               </div>
-              Browser notification setup 
-            </label>
+              Browser notification setup
+            </label> : <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only"
+
+
+              />
+              <div className="w-10 h-5 rounded-full bg-blue-600 relative transition-colors">
+                <div
+                  className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transform translate-x-5 transition-transform"
+                />
+              </div>
+
+              Browser notification setup
+            </label>}
 
             <br />
             <button onClick={updateField} className={styles['save-profile']}>
@@ -284,7 +357,7 @@ function TellUsAboutYourself() {
           </>
 
         )}
-       
+
       </div>
       {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} action='profile' />}
     </>

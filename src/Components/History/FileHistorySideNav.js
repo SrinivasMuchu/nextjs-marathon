@@ -41,7 +41,7 @@ const [totalPages, setTotalPages] = useState(1);
         } else if (cadType === 'user_cad_files') {
             setActive('My CAD Files');
         } else {
-            console.log('No valid cad_type found in search params, defaulting to CAD Viewer');
+            setActive('CAD Viewer');
             // setActive('CAD Viewer'); // Default to viewer if no valid cad_type is found
         }
     }, [searchParams]);
@@ -78,7 +78,9 @@ setCurrentPage(1)
                 currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
 
             default:
-                return null;
+                 return <FileHistoryCards cad_type={'CAD_VIEWER'} 
+                totalPages={totalPages} setTotalPages={setTotalPages}
+                currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
         }
     };
 

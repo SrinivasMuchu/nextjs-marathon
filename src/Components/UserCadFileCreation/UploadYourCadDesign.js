@@ -1,10 +1,11 @@
 'use client';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
 import { BASE_URL, BUCKET } from '@/config';
 import { toast } from 'react-toastify';
+import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
 import { useRouter } from "next/navigation";
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
@@ -24,11 +25,11 @@ function UploadYourCadDesign() {
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [info, setInfo] = useState(false);
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
-    const [hasUserEmail, setHasUserEmail] = useState(false);
+    const {hasUserEmail, setHasUserEmail} = useContext(contextState);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setHasUserEmail(!!localStorage.getItem('user_email'));
+        if (localStorage.getItem('user_email')) {
+            setHasUserEmail(true);
         }
     }, []);
 
