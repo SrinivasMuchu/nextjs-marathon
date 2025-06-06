@@ -149,7 +149,7 @@ export default function PartDesignView() {
         } else {
             setIsApiSlow(true);
         }
-    }, 100);
+    }, 10000);
 
     // ✅ Cleanup on unmount
     return () => clearTimeout(slowApiTimer);
