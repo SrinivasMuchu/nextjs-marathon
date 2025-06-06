@@ -229,20 +229,7 @@ function CadFileConversionWrapper({ children, convert }) {
             console.error("Error checking file upload limit:", error);
         }
     }
- useEffect(() => {
-    const slowApiTimer = setTimeout(() => {
-        console.log('API is slow');
-        if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
-            console.log(isApiSlow, 'isApiSlow');
-            setCloseNotifyInfoPopUp(true);
-        } else {
-            setIsApiSlow(true);
-        }
-    }, 10000);
 
-    // ✅ Cleanup on unmount
-    return () => clearTimeout(slowApiTimer);
-}, []);
     const handleFileConvert = async (file) => {
         const fileSizeMB = file.size / (1024 * 1024); // Size in MB
 
