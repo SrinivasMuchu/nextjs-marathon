@@ -252,7 +252,16 @@ function CadFileConversionWrapper({ children, convert }) {
             const headers = {
                 "user-uuid": localStorage.getItem("uuid"),
             };
-           
+            const slowApiTimer = setTimeout(() => {
+                console.log('API is slow');
+                if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
+                    console.log(isApiSlow, 'isApiSlow')
+                    setIsApiSlow(true);
+                }else{
+                    setCloseNotifyInfoPopUp(true);
+                }
+                console.log("API is slow, showing notification.");
+            }, 10000);
 
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
@@ -267,7 +276,7 @@ function CadFileConversionWrapper({ children, convert }) {
                 }
             );
 
-           
+            clearTimeout(slowApiTimer);
             if (
                 preSignedURL.data.meta.code === 200 &&
                 preSignedURL.data.meta.message === "SUCCESS" &&
