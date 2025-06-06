@@ -40,7 +40,8 @@ function CadFileNotifyPopUp({ setIsApiSlow,action }) {
         </button>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-1">Stay Updated</h2>
-        <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it's ready.</p>
+     <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it&#39;s ready.</p>
+
 
         {/* Email Input */}
       {!action && <div className="flex items-center gap-3 mb-4">
