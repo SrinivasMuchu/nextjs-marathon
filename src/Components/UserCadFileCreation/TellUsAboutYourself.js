@@ -46,7 +46,7 @@ function TellUsAboutYourself() {
       const name = localStorage.getItem('user_name');
       const photo = localStorage.getItem('user_photo');
 
-      if (email && name) {
+      if (email && name && photo) {
         setUser({ name, email, photo });
         setIsProfileComplete(true);
       } else {
@@ -62,10 +62,10 @@ function TellUsAboutYourself() {
             photo: data?.photo || ''
           });
 
-          if (data?.user_email && data?.full_name && data?.photo) {
+          if (data?.user_email && data?.full_name) {
             localStorage.setItem('user_email', data.user_email);
             localStorage.setItem('user_name', data.full_name);
-            localStorage.setItem('user_photo', data.photo);
+           data.photo? localStorage.setItem('user_photo', data.photo):null;
             // if (localStorage.getItem('user_email')) {
             // console.log('User email found in localStorage');
             setHasUserEmail(true);
@@ -117,7 +117,7 @@ function TellUsAboutYourself() {
           setErrors(prev => ({ ...prev, [field]: '' }));
         }
 
-        getUserDetails(localStorage.getItem('uuid'));
+        getUserDetails(userUuid);
       }
     } catch (err) {
       console.error(`Error updating Profile:`, err);
@@ -211,7 +211,7 @@ function TellUsAboutYourself() {
 
             </div>
             {/* Photo Upload Section */}
-            {(editField['photo'] && isUserPhoto) && <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {(editField['photo'] ) && <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button onClick={() => updateField('photo')}>
                 <Image title='save' src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
               </button>
@@ -251,7 +251,7 @@ function TellUsAboutYourself() {
                   placeholder={`Enter your ${field}`}
                 />
 
-                {isProfileComplete && userAccessKey && (
+                {isProfileComplete  && (
                   <div style={{ minWidth: '150px', display: 'flex', gap: '0.5rem' }}>
                     {editField[field] ? (
                       <>
@@ -279,7 +279,7 @@ function TellUsAboutYourself() {
                 {errors[field] && <p style={{ color: 'red' }}>{errors[field]}</p>}
               </div>
             ))}
-            {(isProfileComplete && userAccessKey) && (
+            {/* {(isProfileComplete && userAccessKey) && (
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -287,7 +287,7 @@ function TellUsAboutYourself() {
                 width: '100%',
                 justifyContent: 'space-between',
               }}>
-                {/* <input type="checkbox"  style={{width:'25px'}} onChange={(e)=>handleChangeBrowserNotification(e)}/> */}
+               
                 <label className="flex items-center gap-2 cursor-pointer">
                   Browser notification setup
                   <input
@@ -310,7 +310,7 @@ function TellUsAboutYourself() {
 
               </div>
 
-            )}
+            )} */}
             {/* Save Profile Button only shown when no localStorage data exists */}
 
           </div>
@@ -318,37 +318,10 @@ function TellUsAboutYourself() {
         </div>
         {!isProfileComplete && (
           <>
-            {/* <input type="checkbox"  style={{width:'25px'}} onChange={(e)=>handleChangeBrowserNotification(e)}/> */}
-            {!userAccessKey ? <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={isApiSlow}
-                onChange={(e) => handleChangeBrowserNotification(e)}
-              />
-              <div className={`w-10 h-5 rounded-full ${isApiSlow ? 'bg-blue-600' : 'bg-gray-300'} relative`}>
-                <div
-                  className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transition-transform ${isApiSlow ? 'translate-x-5' : ''}`}
-                />
-              </div>
-              Browser notification setup
-            </label> : <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only"
+          
+            
 
-
-              />
-              <div className="w-10 h-5 rounded-full bg-blue-600 relative transition-colors">
-                <div
-                  className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transform translate-x-5 transition-transform"
-                />
-              </div>
-
-              Browser notification setup
-            </label>}
-
-            <br />
+           
             <button onClick={updateField} className={styles['save-profile']}>
               Save Profile
             </button>

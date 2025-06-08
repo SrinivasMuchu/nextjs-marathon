@@ -6,7 +6,7 @@ import usePushNotifications from './usePushNotifications';
 
 function CadFileNotifyPopUp({ setIsApiSlow,action }) {
   const [email, setEmail] = useState('');
-  const [browserNotify, setBrowserNotify] = useState(false);
+  const [browserNotify, setBrowserNotify] = useState(true);
   const pushRegister = usePushNotifications();
 
   const handleAllow = async () => {

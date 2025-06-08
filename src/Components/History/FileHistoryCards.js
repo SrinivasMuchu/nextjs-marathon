@@ -105,13 +105,14 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
   return (
     <div className={styles.cadViewerContainer} style={{width: '100%'}}>
-      {loading ? <Loading/> : <>
+     
        {cad_type === 'CAD_VIEWER' && (
         <div className={styles.cadViewerContainerContent}>
           <h2>Rendered CAD Models</h2>
           <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
             ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
           </div>
+           {loading ? <Loading/> : <>
           {cadViewerFileHistory.length > 0 ? (
             <>
 
@@ -165,6 +166,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                   <a href='/tools/cad-viewer' style={{ color: 'blue' }}>Click here</a>
                 </div>
           )}
+          </>}
         </div>
       )}
       {cad_type === 'CAD_CONVERTER' && (
@@ -173,7 +175,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
             ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
           </div>
-          {cadConverterFileHistory.length > 0 ? (
+           {loading ? <Loading/> : <>
+            {cadConverterFileHistory.length > 0 ? (
             <div className={styles.historyContainer}>
               <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
                 <span>Want to add more files</span>
@@ -214,6 +217,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                   <a href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</a>
                 </div>
           )}
+           </>
+}
         </div>
 
       )}
@@ -223,6 +228,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
             ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
           </div>
+           {loading ? <Loading/> : <>
           {userCadFiles.length > 0 ? (
             <div className={styles.historyContainer}>
               <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
@@ -245,7 +251,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                   <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
 
                   <div className={styles.historyFileDetails}>
-                    <span className={styles.historyFileDetailsKey}>File Name</span> <span >{textLettersLimit(file.page_title, 20)}</span></div>
+                    <span className={styles.historyFileDetailsKey}>Title</span> <span >{textLettersLimit(file.page_title, 20)}</span></div>
                   <div className={styles.historyFileDetails}>
                     <span className={styles.historyFileDetailsKey}>Status</span>
                     <span style={{ color: file.is_uploaded === true ? 'green' : file.is_uploaded === false ? 'red' : 'blue' }}>
@@ -296,13 +302,14 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                 </div>
            
           )}
+          </>}
         </div>
       )}
       <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {totalPages > 1 && <Pagenation currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />}
       </div>
       
-      </>}
+     
 
      
 

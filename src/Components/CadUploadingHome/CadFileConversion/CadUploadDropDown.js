@@ -138,7 +138,7 @@ function CadDropDown({
                   className={cadStyles['cad-conversion-button']}
                   onClick={handleDownload}
                 >
-                  Download from history
+                  Download from dashboard
                 </button>
               )}
             </td>
