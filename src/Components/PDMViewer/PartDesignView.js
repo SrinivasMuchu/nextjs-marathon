@@ -166,7 +166,8 @@ export default function PartDesignView() {
                 {
                     cad_view_link: link,
                     file_name: file.name,
-                    s3_bucket: 'design-glb'
+                    s3_bucket: 'design-glb',
+                    uuid: localStorage.getItem('uuid'),
                 },
                 { headers: HEADERS } // Headers should be the third argument
             );

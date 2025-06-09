@@ -29,6 +29,7 @@ function TellUsAboutYourself() {
     if (isClient) {
       const uuid = localStorage.getItem('uuid') || '';
       setUserUuid(uuid);
+      
       getUserDetails(uuid);
       if (localStorage.getItem('user_access_key')) {
         setUserAccessKey(true);
@@ -42,14 +43,7 @@ function TellUsAboutYourself() {
 
   const getUserDetails = async (uuid) => {
     try {
-      const email = localStorage.getItem('user_email');
-      const name = localStorage.getItem('user_name');
-      const photo = localStorage.getItem('user_photo');
-
-      if (email && name && photo) {
-        setUser({ name, email, photo });
-        setIsProfileComplete(true);
-      } else {
+      
         const res = await axios.get(`${BASE_URL}/v1/cad/get-user-details`, {
           headers: { 'user-uuid': uuid }
         });
@@ -74,7 +68,7 @@ function TellUsAboutYourself() {
           }
         }
       }
-    } catch (err) {
+     catch (err) {
       console.error("Error fetching user details:", err);
     }
   };
@@ -134,7 +128,7 @@ function TellUsAboutYourself() {
     const reader = new FileReader();
     reader.onloadend = () => setUser(prev => ({ ...prev, photo: reader.result }));
     reader.readAsDataURL(file);
-    setEditField(prev => ({ ...prev, ['photo']: true }));
+    setEditField(prev => ({ ...prev, ['photo']: localStorage.getItem('user_name')?true:false }));
   };
 
   if (!isClient) return null;

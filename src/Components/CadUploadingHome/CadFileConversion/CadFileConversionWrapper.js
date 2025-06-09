@@ -296,7 +296,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     input_format: fileConvert.name.split('.').pop(),
                     output_format: selectedFileFormate,
                     file_name: fileConvert.name,
-                    s3_bucket: "design-glb"
+                    s3_bucket: "design-glb",uuid: localStorage.getItem('uuid'),
                 }, {
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
