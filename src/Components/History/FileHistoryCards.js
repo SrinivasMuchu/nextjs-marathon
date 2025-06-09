@@ -222,7 +222,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
         </div>
 
       )}
-      {cad_type === 'user_cad_files' && (
+      {cad_type === 'USER_CADS' && (
         <div className={styles.cadViewerContainerContent}>
           <h2>Published CAD Files</h2>
           <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">

@@ -38,7 +38,7 @@ const [totalPages, setTotalPages] = useState(1);
             setActive('CAD Convertor');
         } else if (cadType === 'CAD_VIEWER') {
             setActive('CAD Viewer'); // Default to viewer or when cad_type is null
-        } else if (cadType === 'user_cad_files') {
+        } else if (cadType === 'USER_CADS') {
             setActive('My CAD Files');
         } else {
             setActive('CAD Viewer');
@@ -56,7 +56,7 @@ setCurrentPage(1)
         } else if (item.label === 'CAD Viewer') {
             cad_type = 'CAD_VIEWER';
         } else if (item.label === 'My CAD Files') {
-            cad_type = 'user_cad_files';
+            cad_type = 'USER_CADS';
         } else {
             console.error('Unknown item label:', item.label);
         }
@@ -74,7 +74,7 @@ setCurrentPage(1)
                 return <FileHistoryCards cad_type={'CAD_CONVERTER'} totalPages={totalPages} setTotalPages={setTotalPages}
                 currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
             case 'My CAD Files':
-                return <FileHistoryCards cad_type={'user_cad_files'} totalPages={totalPages} setTotalPages={setTotalPages}
+                return <FileHistoryCards cad_type={'USER_CADS'} totalPages={totalPages} setTotalPages={setTotalPages}
                 currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
 
             default:
