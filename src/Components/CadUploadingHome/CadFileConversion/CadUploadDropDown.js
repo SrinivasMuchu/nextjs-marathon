@@ -35,7 +35,7 @@ function CadDropDown({
       setSelectedFileFormate(targetFormat);
     }
   }, [to, selectedFileFormate, setSelectedFileFormate]);
-   const router = useRouter();
+  const router = useRouter();
   // Get filtered options based on file extension
   const getFilteredOptions = () => {
     if (!file) return formatOptions;
@@ -90,9 +90,7 @@ function CadDropDown({
 
 
 
-  const handleDownload = async () => {
-   router.push('/dashboard?cad_type=converter');
-  };
+  
 
   return (
     <div className={cadStyles['cad-conversion-table']}>
@@ -134,12 +132,12 @@ function CadDropDown({
               )}
 
               {uploadingMessage === 'COMPLETED' && (
-                <button
-                  className={cadStyles['cad-conversion-button']}
-                  onClick={handleDownload}
-                >
-                  Download from dashboard
-                </button>
+                <a href='/dashboard?cad_type=converter' className={cadStyles['cad-conversion-button']}>
+                
+                    Download from dashboard
+                  
+                </a>
+
               )}
             </td>
           </tr>

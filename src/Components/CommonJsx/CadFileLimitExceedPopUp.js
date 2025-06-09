@@ -4,6 +4,7 @@ import styles from './CommonStyles.module.css';
 import ClearIcon from '@mui/icons-material/Clear';
 import { BASE_URL } from '@/config';
 import axios from 'axios';
+import { textLettersLimit } from './../../common.helper';
 
 function CadFileLimitExceedPopUp({ setCheckLimit }) {
     const [cadFilesUploaded, setCadFilesUploaded] = useState([])
@@ -36,7 +37,7 @@ function CadFileLimitExceedPopUp({ setCheckLimit }) {
     return (
         <div className={styles.popUpMain}>
             <div style={{
-                width: '40%', display: 'flex',
+                width: '60%', display: 'flex',
                 flexDirection: 'column', gap: '16px'
             }} className="relative w-full bg-white rounded-lg p-6 shadow-lg max-w-lg mx-auto">
                 <div>
@@ -63,7 +64,7 @@ function CadFileLimitExceedPopUp({ setCheckLimit }) {
                             <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
                                 <div style={{ listStyleType: 'decimal', paddingLeft: '20px', margin: 0 }}>
                                     <span style={{ fontSize: '14px', fontWeight: '600' }}>
-                                        {item.file_name} - {item.cad_type}
+                                       File name: {textLettersLimit(item.file_name,15)} - {item.cad_type} - <span style={{color:'blue'}}>{item.status}</span>
                                     </span>
                                 </div>
                             </div>
