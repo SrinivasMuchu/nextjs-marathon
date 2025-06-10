@@ -8,6 +8,7 @@ import EastIcon from '@mui/icons-material/East';
 import { textLettersLimit } from '@/common.helper';
 import Pagenation from '../CommonJsx/Pagenation';
 import Loading from '../CommonJsx/Loaders/Loading';
+import {  sendConverterEvent } from "@/common.helper";
 
 function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages }) {
 
@@ -94,6 +95,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       a.click();
 
       // Cleanup
+      sendConverterEvent('converter_file_upload_download')
       window.URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
     } catch (error) {

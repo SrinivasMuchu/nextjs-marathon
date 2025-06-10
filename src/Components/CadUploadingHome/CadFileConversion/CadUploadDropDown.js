@@ -132,7 +132,7 @@ function CadDropDown({
               )}
 
               {uploadingMessage === 'COMPLETED' && (
-                <a href='/dashboard?cad_type=converter' className={cadStyles['cad-conversion-button']}>
+                <a href='/dashboard?cad_type=CAD_CONVERTER' className={cadStyles['cad-conversion-button']}>
                 
                     Download from dashboard
                   

@@ -17,6 +17,7 @@ import CadFileNotifyPopUp from "@/Components/CommonJsx/CadFileNotifyPopUp";
 import { unstable_useId } from "@mui/material";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopUp";
+import { convertedFiles, sendConverterEvent } from "@/common.helper";
 
 function CadFileConversionWrapper({ children, convert }) {
     const fileInputRef = useRef(null);
@@ -37,6 +38,7 @@ function CadFileConversionWrapper({ children, convert }) {
     const [toFormate, setToFormate] = useState('');
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
 
+    const [fromFormate, setFromFormate] = useState('')
     // Debugging: Log the full pathname
     useEffect(() => {
         if (!convert) {
@@ -69,7 +71,7 @@ function CadFileConversionWrapper({ children, convert }) {
         const formats = from ? [`.${from}`] : [];
         const toFormats = to ? [`${to}`] : [];
         console.log("Allowed Formats:", formats);
-
+        setFromFormate(from)
         setAllowedFormats(formats);
         setToFormate(toFormats)
     }, [pathname, convert]);
@@ -145,13 +147,14 @@ function CadFileConversionWrapper({ children, convert }) {
 
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
-
+                    sendConverterEvent('converter_conversion_success')
                     setUploadingMessage(response.data.data.status)
                     setBaseName(response.data.data.base_name)
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                     console.log(response.data.data.status)
                 } else if (response.data.data.status === 'FAILED') {
+                    sendConverterEvent('converter_conversion_failure')
                     setUploading(false)
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.data.status)
@@ -178,7 +181,21 @@ function CadFileConversionWrapper({ children, convert }) {
 
         const fileExtension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
         const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
-
+        if (fileSizeMB < 5) {
+            sendConverterEvent('converter_file_upload_under_5mb');
+        } else if (fileSizeMB < 10) {
+            sendConverterEvent('converter_file_upload_5_10mb');
+        } else if (fileSizeMB < 50) {
+            sendConverterEvent('converter_file_upload_10_50mb');
+        } else if (fileSizeMB < 100) {
+            sendConverterEvent('converter_file_upload_50_100mb');
+        } else if (fileSizeMB < 200) {
+            sendConverterEvent('converter_file_upload_100_200mb');
+        } else if (fileSizeMB < 300) {
+            sendConverterEvent('converter_file_upload_200_300mb');
+        } else {
+            sendConverterEvent('converter_file_upload_size_exceeded');
+        }
         if (!allowedFormats.includes(fileExtension)) {
             toast.error("❌ Invalid file format! Please upload a supported 3D file.");
             return;
@@ -208,87 +225,103 @@ function CadFileConversionWrapper({ children, convert }) {
         event.preventDefault();
     };
 
-    const checkingCadFileUploadLimitExceed = async (file) => {
-        try {
-            const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
-                {
-                headers: {
-                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+    const checkingCadFileUploadLimitExceed = async (file, s3Url) => {
+        if (s3Url) {
 
+            await CadFileConversion(s3Url)
+            return
+        } else {
+            try {
+
+                const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
+                    {
+                        headers: {
+                            "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+
+                        }
+                    }
+                )
+                if (response.data.meta.success) {
+                    handleFileConvert(file)
+                } else {
+                    setCheckLimit(true)
+                    console.log('Limit Exceeded')
                 }
             }
-            )
-            if (response.data.meta.success) {
-                handleFileConvert(file)
-            } else {
-                setCheckLimit(true)
-                console.log('Limit Exceeded')
+            catch (error) {
+                console.error("Error checking file upload limit:", error);
             }
         }
-        catch (error) {
-            console.error("Error checking file upload limit:", error);
-        }
+
     }
 
-    const handleFileConvert = async (file) => {
-        const fileSizeMB = file.size / (1024 * 1024); // Size in MB
+    const handleFileConvert = async (file, s3Url) => {
+        if (s3Url) {
 
-        try {
-            setDisableSelect(false)
-            setUploadingMessage('UPLOADING')
-            const headers = {
-                "user-uuid": localStorage.getItem("uuid"),
-            };
-            const slowApiTimer = setTimeout(() => {
-                console.log('API is slow');
-                if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
-                    console.log(isApiSlow, 'isApiSlow')
-                    setIsApiSlow(true);
-                }else{
-                    setCloseNotifyInfoPopUp(true);
-                }
-                console.log("API is slow, showing notification.");
-            }, 10000);
+            await CadFileConversion(s3Url)
+        } else {
+            const fileSizeMB = file.size / (1024 * 1024); // Size in MB
+            sendConverterEvent('converter_file_upload_start')
+            try {
+                setDisableSelect(false)
+                setUploadingMessage('UPLOADING')
+                const headers = {
+                    "user-uuid": localStorage.getItem("uuid"),
+                };
+                const slowApiTimer = setTimeout(() => {
+                    console.log('API is slow');
+                    if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
+                        console.log(isApiSlow, 'isApiSlow')
+                        setIsApiSlow(true);
+                    } else {
+                        setCloseNotifyInfoPopUp(true);
+                    }
+                    console.log("API is slow, showing notification.");
+                }, 10000);
 
-            const preSignedURL = await axios.post(
-                `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                {
-                    bucket_name: BUCKET,
-                    file: file.name,
-                    category: "designs_upload",
-                    filesize: fileSizeMB
-                },
-                {
-                    headers
-                }
-            );
+                const preSignedURL = await axios.post(
+                    `${BASE_URL}/v1/cad/get-next-presigned-url`,
+                    {
+                        bucket_name: BUCKET,
+                        file: file.name,
+                        category: "designs_upload",
+                        filesize: fileSizeMB
+                    },
+                    {
+                        headers
+                    }
+                );
 
-            clearTimeout(slowApiTimer);
-            if (
-                preSignedURL.data.meta.code === 200 &&
-                preSignedURL.data.meta.message === "SUCCESS" &&
-                preSignedURL.data.data.url
-            ) {
-                if (preSignedURL.data.data.is_mutipart) {
-                    await multiUpload(preSignedURL.data.data, file, { "user-uuid": localStorage.getItem("uuid") }, fileSizeMB);
+                clearTimeout(slowApiTimer);
+                if (
+                    preSignedURL.data.meta.code === 200 &&
+                    preSignedURL.data.meta.message === "SUCCESS" &&
+                    preSignedURL.data.data.url
+                ) {
+                    if (preSignedURL.data.data.is_mutipart) {
+                        await multiUpload(preSignedURL.data.data, file, { "user-uuid": localStorage.getItem("uuid") }, fileSizeMB);
+                    } else {
+                        await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
+                        // await CadFileConversion(preSignedURL.data.data.url)
+                    }
+
                 } else {
-                    await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
-                    // await CadFileConversion(preSignedURL.data.data.url)
-                }
+                    sendConverterEvent('converter_file_upload_error')
+                    toast.error("⚠️ Error generating signed URL.");
 
-            } else {
-                toast.error("⚠️ Error generating signed URL.");
+                }
+            } catch (e) {
+                sendConverterEvent('converter_file_upload_error')
+                console.error(e);
 
             }
-        } catch (e) {
-            console.error(e);
-
         }
+
     };
 
     const CadFileConversion = async (url) => {
         try {
-
+            sendConverterEvent(`converter_file_${fileConvert.name.slice(fileConvert.name.lastIndexOf(".")).toLowerCase()}_${selectedFileFormate}`)
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
@@ -296,7 +329,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     input_format: fileConvert.name.split('.').pop(),
                     output_format: selectedFileFormate,
                     file_name: fileConvert.name,
-                    s3_bucket: "design-glb",uuid: localStorage.getItem('uuid'),
+                    s3_bucket: "design-glb", uuid: localStorage.getItem('uuid'),
                 }, {
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
@@ -399,7 +432,9 @@ function CadFileConversionWrapper({ children, convert }) {
                 // Ensure `CadFileConversion` is called correctly
 
                 setUploading(true)
+                sendConverterEvent('converter_file_upload_success')
                 await CadFileConversion(preSignedURL.data.data.Location)
+
                 setS3Url(preSignedURL.data.data.Location)
                 return true;
             }
@@ -419,23 +454,33 @@ function CadFileConversionWrapper({ children, convert }) {
             },
         });
         setUploading(true)
+        
+            sendConverterEvent('converter_file_upload_success')
+        
         await CadFileConversion(data.url)
-        setS3Url(data.url)
+
 
         console.log("Upload complete:", result);
     }
+    const handleSampleFileUpload = (file) => {
+        sendConverterEvent('converter_sample_file_clicked')
+        setFileConvert({ name: file.name })
+        setDisableSelect(false)
+        setS3Url(file.url)
 
+        setUploading(true)
+    }
     return (
         <>
-             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_CONVERTER'}
-             setClosePopUp={setCloseNotifyInfoPopUp} />}
+            {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_CONVERTER'}
+                setClosePopUp={setCloseNotifyInfoPopUp} />}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
             {(!isApiSlow || !checkLimit) && <>
                 {uploading ?
                     <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
                         setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
-                        folderId={folderId} baseName={baseName}
+                        folderId={folderId} baseName={baseName} s3Url={s3Url}
                         uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed} />
                     : <div
                         className={styles["cad-dropzone"]}
@@ -463,7 +508,32 @@ function CadFileConversionWrapper({ children, convert }) {
                     </div>}
 
             </>}
+            {!uploading && (() => {
+                const filteredFiles = convertedFiles.filter(file => {
+                    if (convert && fromFormate) {
+                        return file.format === fromFormate.toLowerCase();
+                    }
+                    return true;
+                });
 
+                // Only show if:
+                // 1. We're not in convert mode (show all), OR
+                // 2. We're in convert mode and have matching files
+                const shouldShow = !convert || (convert && filteredFiles.length > 0);
+
+                return shouldShow && (
+                    <div className={styles["cad-dropzone-samples"]}>
+                        {<span>Don’t have a file? Try one of these samples:</span>}
+                        <div className={styles["cad-dropzone-sample-btns"]}>
+                            {filteredFiles.map((file) => (
+                                <button key={file.id} onClick={() => handleSampleFileUpload(file)}>
+                                    {file.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                );
+            })()}
         </>
 
 
