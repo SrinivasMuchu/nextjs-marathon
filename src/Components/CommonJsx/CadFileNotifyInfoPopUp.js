@@ -7,22 +7,29 @@ import usePushNotifications from './usePushNotifications';
 
 function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
     const [email, setEmail] = useState('');
-    const [browserNotify, setBrowserNotify] = useState(false);
+    const [browserNotify, setBrowserNotify] = useState(true);
     const [hasToggled, setHasToggled] = useState(false); // To detect toggle change in this session
 const pushRegister = usePushNotifications();
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const storedEmail = localStorage.getItem('user_email');
-            const storedNotify = localStorage.getItem('user_access_key');
+           
+
             setEmail(storedEmail || '');
-            setBrowserNotify(!!storedNotify);
+            
+        }
+        if(localStorage.getItem('user_access_key')) {
+            setHasToggled(true)
+        }
+        if (!localStorage.getItem('user_access_key') ) {
+            setHasToggled(false)
         }
     }, []);
 
     const handleNotificationToggle = () => {
         setBrowserNotify((prev) => !prev);
-        setHasToggled(true);
+        // setHasToggled(true);
     };
 
     const handleClose = async () => {
@@ -50,7 +57,7 @@ const pushRegister = usePushNotifications();
                 <h3>Your CAD File is Processing</h3>
                 <p>We will notify you when your CAD file is ready. Thank you for your patience!</p>
 
-                {(email || browserNotify) && (
+                {(email || hasToggled) && (
                     <>
                         <div className={styles.divider} />
                         <p>Notification methods enabled:</p>
@@ -59,7 +66,7 @@ const pushRegister = usePushNotifications();
                                 <span className={styles.successText}>Email:</span> {email}
                             </div>
                         )}
-                        {browserNotify && (
+                        {hasToggled && (
                             <div className={styles.statusItem}>
                                 <span className={styles.successText}>Browser notifications:</span> Enabled
                             </div>
@@ -67,7 +74,7 @@ const pushRegister = usePushNotifications();
                     </>
                 )}
 
-                {!browserNotify && (
+                {!hasToggled && (
                     <>
                         <div className={styles.divider} />
                         <p>Notification methods enabled:</p>

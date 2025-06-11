@@ -29,7 +29,7 @@ function TellUsAboutYourself() {
     if (isClient) {
       const uuid = localStorage.getItem('uuid') || '';
       setUserUuid(uuid);
-      
+
       getUserDetails(uuid);
       if (localStorage.getItem('user_access_key')) {
         setUserAccessKey(true);
@@ -43,32 +43,32 @@ function TellUsAboutYourself() {
 
   const getUserDetails = async (uuid) => {
     try {
-      
-        const res = await axios.get(`${BASE_URL}/v1/cad/get-user-details`, {
-          headers: { 'user-uuid': uuid }
+
+      const res = await axios.get(`${BASE_URL}/v1/cad/get-user-details`, {
+        headers: { 'user-uuid': uuid }
+      });
+
+      if (res.data.meta.success) {
+        const data = res.data.data;
+        setUser({
+          email: data?.user_email || '',
+          name: data?.full_name || '',
+          photo: data?.photo || ''
         });
 
-        if (res.data.meta.success) {
-          const data = res.data.data;
-          setUser({
-            email: data?.user_email || '',
-            name: data?.full_name || '',
-            photo: data?.photo || ''
-          });
-
-          if (data?.user_email && data?.full_name) {
-            localStorage.setItem('user_email', data.user_email);
-            localStorage.setItem('user_name', data.full_name);
-           data.photo? localStorage.setItem('user_photo', data.photo):null;
-            // if (localStorage.getItem('user_email')) {
-            // console.log('User email found in localStorage');
-            setHasUserEmail(true);
-            // }
-            setIsProfileComplete(true);
-          }
+        if (data?.user_email && data?.full_name) {
+          localStorage.setItem('user_email', data.user_email);
+          localStorage.setItem('user_name', data.full_name);
+          data.photo ? localStorage.setItem('user_photo', data.photo) : null;
+          // if (localStorage.getItem('user_email')) {
+          // console.log('User email found in localStorage');
+          setHasUserEmail(true);
+          // }
+          setIsProfileComplete(true);
         }
       }
-     catch (err) {
+    }
+    catch (err) {
       console.error("Error fetching user details:", err);
     }
   };
@@ -84,9 +84,20 @@ function TellUsAboutYourself() {
   };
 
   const updateField = async (field) => {
+    const nameError = validate('name', user.name);
+    const emailError = validate('email', user.email);
 
+    setErrors({ name: nameError, email: emailError });
+
+    if (nameError || emailError) {
+      toast.error("Please fix validation errors.");
+      return;
+    }
     const error = validate(field, user[field]);
-    if (error) return setErrors(prev => ({ ...prev, [field]: error }));
+    if (error) {
+      console.log('error')
+      setErrors(prev => ({ ...prev, [field]: error }));
+    }
 
     try {
       const uuid = localStorage.getItem('uuid');
@@ -128,7 +139,7 @@ function TellUsAboutYourself() {
     const reader = new FileReader();
     reader.onloadend = () => setUser(prev => ({ ...prev, photo: reader.result }));
     reader.readAsDataURL(file);
-    setEditField(prev => ({ ...prev, ['photo']: localStorage.getItem('user_name')?true:false }));
+    setEditField(prev => ({ ...prev, ['photo']: localStorage.getItem('user_name') ? true : false }));
   };
 
   if (!isClient) return null;
@@ -205,7 +216,7 @@ function TellUsAboutYourself() {
 
             </div>
             {/* Photo Upload Section */}
-            {(editField['photo'] ) && <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {(editField['photo']) && <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button onClick={() => updateField('photo')}>
                 <Image title='save' src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
               </button>
@@ -225,8 +236,9 @@ function TellUsAboutYourself() {
           </div>
 
           {/* Form Fields Section */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexDirection: 'column' }}>
             {['name', 'email'].map((field) => (
+              <>
               <div
                 key={field}
                 style={{
@@ -245,7 +257,7 @@ function TellUsAboutYourself() {
                   placeholder={`Enter your ${field}`}
                 />
 
-                {isProfileComplete  && (
+                {isProfileComplete && (
                   <div style={{ minWidth: '150px', display: 'flex', gap: '0.5rem' }}>
                     {editField[field] ? (
                       <>
@@ -270,8 +282,11 @@ function TellUsAboutYourself() {
                     )}
                   </div>
                 )}
-                {errors[field] && <p style={{ color: 'red' }}>{errors[field]}</p>}
+               
               </div>
+               {errors[field] && <p style={{ color: 'red' }}>{errors[field]}</p>}
+              </>
+              
             ))}
             {/* {(isProfileComplete && userAccessKey) && (
               <div style={{
@@ -312,10 +327,10 @@ function TellUsAboutYourself() {
         </div>
         {!isProfileComplete && (
           <>
-          
-            
 
-           
+
+
+
             <button onClick={updateField} className={styles['save-profile']}>
               Save Profile
             </button>

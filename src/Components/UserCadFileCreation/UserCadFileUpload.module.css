@@ -66,13 +66,13 @@
 }
 /* className="mb-4" */
 .tell-us-about-yourself-page input, .cad-upload-container input[type="text"], .cad-upload-container textarea {
-  margin-bottom: 4px;
+  /* margin-bottom: 4px; */
   width: 100%;
   padding: 0.5rem; /* py-2 */
   border: 1px solid #d1d5db; /* gray-300 */
   border-radius: 4px;
   outline: none;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
   resize: none;
 }
 /* className="bg-gray-200 p-4 rounded-lg text-center font-mono text-lg mb-6" */
