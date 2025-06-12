@@ -10,6 +10,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useRouter } from "next/navigation";
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
+import CreatableSelect from 'react-select/creatable';
+import { createDropdownCustomStyles } from '@/common.helper';
 
 function UploadYourCadDesign() {
     const fileInputRef = useRef(null);
@@ -25,8 +27,9 @@ function UploadYourCadDesign() {
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [info, setInfo] = useState(false);
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
-    const {hasUserEmail, setHasUserEmail} = useContext(contextState);
-
+    const { hasUserEmail, setHasUserEmail } = useContext(contextState);
+    const [options, setOptions] = useState([]);
+       const [selectedOptions, setSelectedOptions] = useState([]);
     useEffect(() => {
         if (localStorage.getItem('user_email')) {
             setHasUserEmail(true);
@@ -68,7 +71,7 @@ function UploadYourCadDesign() {
             setFormError("Description is required.");
             return false;
         }
-        
+
         setFormError('');
         return true;
     };
@@ -148,7 +151,7 @@ function UploadYourCadDesign() {
                     uuid: localStorage.getItem("uuid"),
                     title: cadFile.title,
                     description: cadFile.description,
-                    tags: cadFile.tags,
+                    tags: selectedOptions.map(option => option.value),
                     url,
                     is_downloadable: isChecked,
                 },
@@ -185,6 +188,46 @@ function UploadYourCadDesign() {
             handlePopUp();
         }
     }, [info]);
+
+
+    const getTags = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`);
+            if (response.data.meta.success) {
+              
+               setOptions(response.data.data.map(zone => ({
+                value: zone._id,
+                label: zone.cad_tag_label
+            })));
+            }
+        } catch (error) {
+            console.error('Error fetching tags:', error);
+
+        }
+    }
+
+    const handleAddZones = async (inputValue) => {
+        try {
+            const response = await axios.post(
+                `${BASE_URL}/v1/cad/create-cad-tags`,
+                { cad_tag_label: inputValue },
+            );
+            const newTags = {
+                value: response.data.data.tag_id,
+                label: inputValue,
+            };
+
+
+            setOptions(prevOptions => [...prevOptions, newTags]);
+            setSelectedOptions(prevSelected => (prevSelected ? [...prevSelected, newTags] : [newTags]));
+        } catch (error) {
+            console.error("An error occurred during the request:", error);
+        }
+    };
+
+    const handleZoneSelection = (selected) => {
+        setSelectedOptions(selected);
+    };
 
     return (
         <>
@@ -262,13 +305,26 @@ function UploadYourCadDesign() {
                         onChange={(e) => setCadFile({ ...cadFile, description: e.target.value })}
                     />
                     {/* {formErrors.description && <p style={{ color: 'red' }}>{formErrors.description}</p>} */}
-                    <input
+                    {/* <div className='create-asset-num-div-form-label-input'>
+                                <span>Select zone</span> */}
+                    <CreatableSelect
+                        isMulti
+                        styles={createDropdownCustomStyles}
+                        options={options}
+                        value={selectedOptions}
+                        onFocus={getTags}
+                        onChange={handleZoneSelection}
+                        onCreateOption={handleAddZones}
+                        placeholder="Select or create Tags"
+                    />
+                    {/* </div> */}
+                    {/* <input
                         placeholder="Tags (separate with commas)"
                         type="text"
                         className="mb-4"
                         value={cadFile.tags}
                         onChange={(e) => setCadFile({ ...cadFile, tags: e.target.value })}
-                    />
+                    /> */}
                     {formError && <p style={{ color: 'red' }}>{formError}</p>}
                     {hasUserEmail ? (
                         <button
@@ -284,7 +340,7 @@ function UploadYourCadDesign() {
                             style={{ backgroundColor: '#a270f2', color: '#ffffff' }}
                             title='Please update your profile to upload your design.'
                             disabled
-                            // onClick={handleUserCadFileSubmit}
+                        // onClick={handleUserCadFileSubmit}
                         >
                             Upload Your Cad Design
                         </button>

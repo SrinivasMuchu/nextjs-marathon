@@ -10,7 +10,7 @@ import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 
 function IndustryDesign({ design, designData,  type }) {
-  console.log(designData, 'industry files')
+
 
   return (
     <>

@@ -1,8 +1,6 @@
 import React from 'react'
 import styles from './IndustryDesign.module.css'
-import { sendViewerEvent, textLettersLimit } from '@/common.helper'
-import IndustryDesignFilesDownload from './IndustryDesignFilesDownload';
-import { DESIGN_GLB_PREFIX_URL } from '@/config';
+
 import DownloadClientButton from '../CommonJsx/DownloadClientButton';
 
 function IndustryDesignFilesList({ designData }) {
@@ -40,7 +38,7 @@ function IndustryDesignFilesList({ designData }) {
         <td data-label="Extension">step</td>
         <td data-label="Action">
            
-                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable}/>
+                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable} step={true}/>
            
         </td>
     </tr>
@@ -58,7 +56,7 @@ function IndustryDesignFilesList({ designData }) {
                         Download
                     </button>
                 </a> */}
-                <DownloadClientButton folderId={designData._id} xaxis={view.x} yaxis={view.y} isDownladable={designData.is_downloadable}/>
+                <DownloadClientButton folderId={designData._id} xaxis={view.x} yaxis={view.y} isDownladable={designData.is_downloadable} step={false}/>
             </td>
         </tr>
     ))}
