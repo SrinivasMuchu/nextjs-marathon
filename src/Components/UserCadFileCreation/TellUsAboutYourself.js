@@ -126,6 +126,8 @@ setSigningUp(true)
         }
 
         getUserDetails(userUuid);
+      }else{
+        setErrors(prev => ({ ...prev, ['email']: response.data.meta.message  }));
       }
       setSigningUp(false)
     } catch (err) {
@@ -241,7 +243,7 @@ setSigningUp(true)
           </div>
 
           {/* Form Fields Section */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', gap: '6px', flexDirection: 'column' }}>
             {['name', 'email'].map((field) => (
               <>
               <div
