@@ -1,0 +1,152 @@
+.sidebar {
+  height: 90vh;
+  background-color: #fff;
+  border-right: 1px solid #e6e4f0;
+  transition: width 0.3s ease;
+  box-sizing: border-box;
+  position: relative;
+}
+.nextBtn {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #610bee;
+  color: white;
+  position: absolute;
+  right: -1vw;
+  top: 20px;
+
+}
+.expanded {
+  width: 200px;
+}
+
+.compact {
+  width: 60px;
+}
+
+.toggleBtn {
+  background: none;
+  color: #000;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  width: 100%;
+  text-align: right;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap:16px;
+
+  list-style: none;
+  padding:  10px;
+  margin: 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+  gap:16px;
+  padding: 15px;
+  color: #000;
+  cursor: pointer;
+  border-radius: 15px;
+}
+.dashboardMenuItem{
+   display: flex;
+  align-items: center;
+  /* justify-content: center; */
+  gap:16px;
+  padding: 15px;
+  color: #000;
+  cursor: pointer;
+  border-radius: 15px;
+}
+.menuItem:hover,
+.active {
+  background-color: #610bee;
+  color: #fff;
+}
+
+.icon {
+  font-size: 20px;
+
+}
+
+.text {
+  white-space: nowrap;
+}
+.cadViewerContainer {
+  width: 100%;
+  height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+ 
+}
+.cadViewerContainerContent {
+  width: 100%;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  /* padding: 24px; */
+ 
+}
+.cadViewerContainerContent h2{
+  font-size: 24px;
+  margin: 0;
+ font-weight: 600;
+}
+.historyFileDetails{
+  display: flex;
+  align-items: center;
+ 
+  width: 100%;
+  
+}
+.historyFileDetailsKey{
+  width: 85px;
+  opacity: 0.5;
+}
+.historyContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  /* justify-content: center;
+  align-items: center; */
+}
+.historyFileDetailsbtn{
+  width:100%
+}
+.historyFileDetailsbtn button{
+  width: 100%;
+  box-sizing: border-box;
+}
+.historyItem {
+  flex-shrink: 0;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  width: 300px;
+  cursor: pointer;
+  /* height: 350px; */
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: inherit;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.historyItem img{
+  height: 160px;
+}

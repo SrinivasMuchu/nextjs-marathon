@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic';
 
 const CubeLoader = dynamic(() => import('../CommonJsx/Loaders/CubeLoader'), {
-  ssr: false,
+    ssr: false,
 });
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
@@ -37,10 +37,27 @@ function IndustryCadViewer({ designId, type }) {
     const [isLoading, setIsLoading] = useState(false);
     const [currentZoom, setCurrentZoom] = useState(3.6);
     const [isDownLoading, setIsDownLoading] = useState(false);
+     const [isDownLoadable, setIsDownLoadable] = useState(false);
     const [folderId, setFolderId] = useState(type ? designId.library_design : designId.design_id);
     const router = useRouter();
 
+    useEffect(() => {
+        if (folderId) {
+            checkPermission(folderId);
+        }
+    }, [folderId]);
+    const checkPermission = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/v1/cad/check-download`, {
+                params: { design_id: folderId },
+                
+            });
 
+            setIsDownLoadable(response.data.data); // Re-enable button after completion
+        } catch (error) {
+            console.error('Error checking history:', error);
+        } 
+    };
 
     // Function to generate texture URL
     const getTextureUrl = useCallback((x, y) => {
@@ -350,24 +367,28 @@ function IndustryCadViewer({ designId, type }) {
     }
 
     const handleDownload = async () => {
-        // setIsDownLoading(true); // Disable button
-        // try {
-        //     const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-        //         design_id: folderId,
-        //         uuid: localStorage.getItem('uuid'),
-        //     });
+        setIsDownLoading(true); // Disable button
+        try {
+            const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
+                design_id: folderId,
+                step:true
+            }, {
+                headers: {
+                    "user-uuid": localStorage.getItem("uuid"),
+                }
+            });
 
-        //     const data = response.data;
-        //     if (data.meta.success) {
-        //         const url = data.data.download_url;
-        //         window.open(url, '_blank');
-        //     }
+            const data = response.data;
+            if (data.meta.success) {
+                const url = data.data.download_url;
+                window.open(url, '_blank');
+            }
             sendViewerEvent('design_view_file_download');
-        // } catch (err) {
-        //     console.error('Error downloading file:', err);
-        // } finally {
-        //     setIsDownLoading(false); // Re-enable button after completion
-        // }
+        } catch (err) {
+            console.error('Error downloading file:', err);
+        } finally {
+            setIsDownLoading(false); // Re-enable button after completion
+        }
     };
     return (
         <>
@@ -407,9 +428,9 @@ function IndustryCadViewer({ designId, type }) {
                             position: 'absolute',
                             top: '2rem', left: '1rem', zIndex: 2
                         }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
-                     <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}> 
-                    <button onClick={handleDownload}
-                        // disabled={isDownLoading}
+                    {/* <a href={`https://d1d8a3050v4fu6.cloudfront.net/${folderId}/${folderId}.step`} download={`sprite_${xRotation}_${yRotation}.webp`}>  */}
+                   {isDownLoadable &&<button onClick={handleDownload}
+                        disabled={isDownLoading}
                         style={{
 
                             padding: '10px',
@@ -424,8 +445,9 @@ function IndustryCadViewer({ designId, type }) {
                             cursor: 'pointer',
                             position: 'absolute',
                             top: '2rem', right: '1rem', zIndex: 2
-                        }}><DownloadIcon style={{ width: '24px', height: '24px' }} /></button>
-                    </a> 
+                        }}><DownloadIcon style={{ width: '24px', height: '24px' }} /></button>}
+                    
+                    {/* </a>  */}
 
                     {/* Three.js Canvas Container */}
                     <div ref={mountRef} style={{

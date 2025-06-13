@@ -90,3 +90,54 @@ export const convertedFiles = [
     },
     
    ]
+
+
+export const createDropdownCustomStyles = {
+    control: (provided) => ({
+        ...provided,
+        backgroundColor: "transparent",
+        border: "1px solid #EDF2F7",
+        boxShadow: "none",
+        marginBottom: "16px",
+        height:"42px"
+    }),
+
+    indicatorSeparator: () => ({
+        display: "none",
+    }),
+
+    option: (provided, state) => ({
+        ...provided,
+        backgroundColor: state.isSelected
+            ? "#3182CE"
+            : state.isFocused
+            ? "#E2E8F0"
+            : "white",
+        color: state.isSelected ? "white" : "black",
+        cursor: "pointer",
+        ":hover": {
+            backgroundColor: "#E2E8F0",
+        },
+    }),
+
+    multiValue: (provided) => ({
+        ...provided,
+        backgroundColor: "#610bee", // blue background for selected values
+        borderRadius: "4px",
+    }),
+
+    multiValueLabel: (provided) => ({
+        ...provided,
+        color: "white", // white text
+        fontWeight: 500,
+    }),
+
+    multiValueRemove: (provided) => ({
+        ...provided,
+        color: "white",
+        ":hover": {
+            backgroundColor: "#2B6CB0", // darker blue on hover
+            color: "white",
+        },
+    }),
+};

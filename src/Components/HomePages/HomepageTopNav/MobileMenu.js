@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import CheckHistory from "@/Components/CommonJsx/CheckHistory";
 
 function MobileMenu({ onClose, styles }) {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
@@ -52,7 +53,7 @@ function MobileMenu({ onClose, styles }) {
                 Org Hierarchy
               </Link>
               <Link href="/tools/cad-viewer" onClick={handleCloseMenu}>CAD Viewer</Link>
-              <Link href="/tools/3d-file-converter"  onClick={handleCloseMenu}>CAD File Convert</Link>
+              <Link href="/tools/3d-file-converter" onClick={handleCloseMenu}>CAD File Convert</Link>
               {/* <Link href="/tools/upload-cad-file" onClick={handleCloseMenu}>upload cad file</Link> */}
             </div>
           )}
@@ -71,7 +72,12 @@ function MobileMenu({ onClose, styles }) {
             </div>
           )}
         </div>
+         <a rel="nofollow" href="/dashboard?cad_type=CAD_VIEWER">
+      Dashboard
+    </a>
         <a href="/library" >Library</a>
+        
+         
       </div>
     </>
   );

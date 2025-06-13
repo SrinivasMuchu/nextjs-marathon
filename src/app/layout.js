@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import ToastProvider from "@/Components/CommonJsx/ReactToastify";
 import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
+import FloatingButton from "@/Components/CommonJsx/FloatingButton";
 
 
 
@@ -134,6 +135,7 @@ export default function RootLayout({ children }) {
 
         <ContextWrapper>
           {children}
+          <FloatingButton/>
         </ContextWrapper>
 
       </body>

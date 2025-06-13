@@ -18,6 +18,7 @@ const buildQueryString = (params) => {
   if (params.search) query.set('search', params.search);
   if (params.limit) query.set('limit', params.limit);
   if (params.page) query.set('page', params.page);
+  if (params.tags) query.set('tags', params.tags);
   return `?${query.toString()}`;
 };
 
@@ -26,20 +27,26 @@ async function Library({ searchParams }) {
   const category = searchParams?.category || '';
   const page = parseInt(searchParams?.page) || 1;
   const limit = parseInt(searchParams?.limit) || 20;
+  const tags = searchParams?.tags || '';
 
   const response = await axios.get(
-    `${BASE_URL}/v1/cad/get-category-design?category=${category}&limit=${limit}&page=${page}&search=${searchQuery}`,
+    `${BASE_URL}/v1/cad/get-category-design?category=${category}&limit=${limit}&page=${page}&search=${searchQuery}&tags=${tags}`,
     { cache: 'no-store' }
   );
   const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, {
     cache: 'no-store',
   });
+  const tagsResponse = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`, {
+    cache: 'no-store',
+  });
+console.log("designs from backend", response.data.data.designDetails.length);
 
   const allCategories = categoriesRes.data?.data || [];
   const data = response.data;
   const designs = data?.data?.designDetails || [];
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
+  const allTags = tagsResponse.data?.data || [];
 
   return (
     <>
@@ -52,8 +59,9 @@ async function Library({ searchParams }) {
       <div className={styles["library-designs-filters"]}>
         <SearchBar initialSearchQuery={searchQuery} />
         <CategoryFilter
-          allCategories={allCategories}
+          allCategories={allCategories} allTags={allTags}
           initialSelectedCategories={category.split(",")}
+          initialTagSelectedOption={tags}
         />
         {Object.keys(searchParams || {}).length > 0 && (
           <a href='/library' style={{ background: '#610bee', padding: '5px 10px', borderRadius: '4px', color: 'white' }}>
@@ -85,7 +93,7 @@ async function Library({ searchParams }) {
         {/* Pagination */}
         <div className={styles["library-pagination"]} style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
           {page > 1 && (
-            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page - 1 })}>
+            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page - 1 ,tags})}>
               <button><KeyboardBackspaceIcon /> prev</button>
             </Link>
           )}
@@ -105,7 +113,7 @@ async function Library({ searchParams }) {
             pageLinks.push(
               <Link
                 key={1}
-                href={buildQueryString({ category, search: searchQuery, limit, page: 1 })}
+                href={buildQueryString({ category, search: searchQuery, limit, page: 1,tags })}
                 className={`${styles['pagination-button']} ${page === 1 ? styles.active : ''}`}
               >
                 1
@@ -122,7 +130,7 @@ async function Library({ searchParams }) {
               pageLinks.push(
                 <Link
                   key={p}
-                  href={buildQueryString({ category, search: searchQuery, limit, page: p })}
+                  href={buildQueryString({ category, search: searchQuery, limit, page: p,tags })}
                   className={`${styles['pagination-button']} ${page === p ? styles.active : ''}`}
                 >
                   {p}
@@ -140,7 +148,7 @@ async function Library({ searchParams }) {
               pageLinks.push(
                 <Link
                   key={totalPages}
-                  href={buildQueryString({ category, search: searchQuery, limit, page: totalPages })}
+                  href={buildQueryString({ category, search: searchQuery, limit, page: totalPages,tags })}
                   className={`${styles['pagination-button']} ${page === totalPages ? styles.active : ''}`}
                 >
                   {totalPages}
@@ -152,7 +160,7 @@ async function Library({ searchParams }) {
           })()}
 
           {page < totalPages && (
-            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page + 1 })}>
+            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page + 1,tags })}>
               <button>next <KeyboardBackspaceIcon style={{ transform: "rotate(180deg)" }} /></button>
             </Link>
           )}

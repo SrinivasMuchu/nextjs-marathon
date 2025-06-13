@@ -7,6 +7,7 @@ import Link from "next/link";
 import styles from "./HomeTopNav.module.css";
 import TopNavRequestBtn from "../../CommonJsx/TopNavRequestBtn";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
+import CheckHistory from "@/Components/CommonJsx/CheckHistory";
 
 function HomeTopNav() {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
@@ -22,7 +23,7 @@ function HomeTopNav() {
     }
   };
 
-  
+
   const toggleDropdown = (dropdownName) => {
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
@@ -68,11 +69,15 @@ function HomeTopNav() {
             Blogs ▼
           </span>
           {openDropdown === "blogs" && (
-            <div className={styles["dropdown-menu"]} style={{width:'200px'}}>
+            <div className={styles["dropdown-menu"]} style={{ width: '200px' }}>
               <Link href="/blog/part-number-nomenclature-guide">Part Number Nomenclature Guide</Link>
             </div>
           )}
         </div>
+
+        <a href="/dashboard?cad_type=CAD_VIEWER" rel="nofollow">
+          Dashboard
+        </a>
         <a href="/library" >Library</a>
       </div>
 

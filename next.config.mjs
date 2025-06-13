@@ -57,6 +57,16 @@ const nextConfig = {
           },
         ],
       },
+       {
+        source: '/dashboard',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+      
     ];
   },
 };

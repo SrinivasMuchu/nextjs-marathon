@@ -1,8 +1,7 @@
 import React from 'react'
 import styles from './IndustryDesign.module.css'
-import { sendViewerEvent, textLettersLimit } from '@/common.helper'
-import IndustryDesignFilesDownload from './IndustryDesignFilesDownload';
-import { DESIGN_GLB_PREFIX_URL } from '@/config';
+
+import DownloadClientButton from '../CommonJsx/DownloadClientButton';
 
 function IndustryDesignFilesList({ designData }) {
     // Static view names with their corresponding view directions
@@ -39,7 +38,7 @@ function IndustryDesignFilesList({ designData }) {
         <td data-label="Extension">step</td>
         <td data-label="Action">
            
-                <IndustryDesignFilesDownload designData={designData}/>
+                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable} step={true}/>
            
         </td>
     </tr>
@@ -48,7 +47,7 @@ function IndustryDesignFilesList({ designData }) {
             <td data-label="View Name">{view.name}</td>
             <td data-label="Extension">webp</td>
             <td data-label="Action">
-                <a 
+                {/* <a 
                     href={`${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_${view.x}_${view.y}.webp`} 
                     target="_blank"
                     rel="noopener noreferrer"
@@ -56,7 +55,8 @@ function IndustryDesignFilesList({ designData }) {
                     <button className={styles['industry-design-files-btn']}>
                         Download
                     </button>
-                </a>
+                </a> */}
+                <DownloadClientButton folderId={designData._id} xaxis={view.x} yaxis={view.y} isDownladable={designData.is_downloadable} step={false}/>
             </td>
         </tr>
     ))}
