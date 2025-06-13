@@ -169,12 +169,12 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         localStorage.setItem("last_viewed_cad_key", file._id);
                       }}
                     >
-                      <Image
-                        src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
-                        alt="file preview"
-                        width={300}
-                        height={250}
-                      />
+                     {file.status === 'COMPLETED' ? <Image
+                          src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
+                          alt="file preview"
+                          width={300}
+                          height={160}
+                        /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
                       <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
 
                       <div className={styles.historyFileDetails}>
