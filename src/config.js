@@ -1,4 +1,6 @@
 export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
+export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
+export const MICROSOFT_CLARITY_ID = process.env.NEXT_PUBLIC_MICROSOFT_CLARITY_ID
 // export const DEFAULT_PHOTO = "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profilelogodefault.png"
 export const PHOTO_LINK = "https://marathon-org-assets.s3.ap-south-1.amazonaws.com/"
 // export const DEFAULT_COMPANY_LINK = "https://member-images.s3.ap-south-1.amazonaws.com/upload_1695283928.png"
