@@ -32,16 +32,16 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
       try {
         // ✅ Use cache if available
-        if (cachedCadHistory[cad_type]) {
-          const cached = cachedCadHistory[cad_type];
+        const cached = cachedCadHistory[cad_type];
+        if (cached && cached.page === currentPage) {
           setCadViewerFileHistory(cached.cad_viewer_files);
           setConverterFileHistory(cached.cad_converter_files);
           setUserCadFiles(cached.my_cad_files);
-          setCurrentPage(cached.page);
           setTotalPages(cached.totalPages);
           setLoading(false);
           return;
         }
+
 
         // ✅ Fetch from API
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
@@ -169,12 +169,12 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         localStorage.setItem("last_viewed_cad_key", file._id);
                       }}
                     >
-                     {file.status === 'COMPLETED' ? <Image
-                          src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
-                          alt="file preview"
-                          width={300}
-                          height={160}
-                        /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
+                      {file.status === 'COMPLETED' ? <Image
+                        src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
+                        alt="file preview"
+                        width={300}
+                        height={160}
+                      /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
                       <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
 
                       <div className={styles.historyFileDetails}>
@@ -245,7 +245,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         border: 'none',
                         borderRadius: '5px',
                         cursor: 'pointer'
-                      }} onClick={() => handleDownload(file)} disabled={downloading}>{downloading?'downloading':'Download'}</button>
+                      }} onClick={() => handleDownload(file)} disabled={downloading}>{downloading ? 'downloading' : 'Download'}</button>
                     </div>
                   </div>
                 ))}
