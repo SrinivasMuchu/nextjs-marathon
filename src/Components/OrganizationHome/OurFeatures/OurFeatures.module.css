@@ -24,9 +24,9 @@
 .our-feature-page-container {
     display: flex;
     flex-direction: column;
-   
+   background: white;
     border: 1px solid #edf2f7;
-    border-radius: 4px;
+    border-radius: 8px;
     padding: 10px;
     max-width: 400px; /* Ensure child elements are wider */
     flex-shrink: 0;

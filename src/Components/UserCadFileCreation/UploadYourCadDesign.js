@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useContext } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
-import { BASE_URL, BUCKET } from '@/config';
+import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT } from '@/config';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
@@ -22,14 +22,19 @@ function UploadYourCadDesign() {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [fileName, setFileName] = useState('');
     const [fileSize, setFileSize] = useState('');
-    const [fileError, setFileError] = useState('');
-    const [formError, setFormError] = useState('');
+    const [formErrors, setFormErrors] = useState({
+        file: '',
+        title: '',
+        description: ''
+    });
+
+    const [uploading, setUploading] = useState(false);
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [info, setInfo] = useState(false);
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
     const { hasUserEmail, setHasUserEmail } = useContext(contextState);
     const [options, setOptions] = useState([]);
-       const [selectedOptions, setSelectedOptions] = useState([]);
+    const [selectedOptions, setSelectedOptions] = useState([]);
     useEffect(() => {
         if (localStorage.getItem('user_email')) {
             setHasUserEmail(true);
@@ -59,22 +64,31 @@ function UploadYourCadDesign() {
     };
 
     const validateForm = () => {
+        const errors = {
+            file: '',
+            title: '',
+            description: ''
+        };
+
+        let isValid = true;
+
         if (!url) {
-            setFormError("Upload your cad File.");
-            return false;
+            errors.file = 'Upload your CAD file.';
+            isValid = false;
         }
         if (!cadFile.title.trim()) {
-            setFormError("Title is required.");
-            return false;
+            errors.title = 'Title is required.';
+            isValid = false;
         }
         if (!cadFile.description.trim()) {
-            setFormError("Description is required.");
-            return false;
+            errors.description = 'Description is required.';
+            isValid = false;
         }
 
-        setFormError('');
-        return true;
+        setFormErrors(errors);
+        return isValid;
     };
+
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
@@ -87,7 +101,7 @@ function UploadYourCadDesign() {
         const fileSizeMB = file.size / (1024 * 1024);
         setFileName(file.name);
         setFileSize(fileSizeMB);
-        setFileError('');
+
 
         try {
             const headers = {
@@ -143,8 +157,9 @@ function UploadYourCadDesign() {
 
     const handleUserCadFileSubmit = async () => {
         if (!validateForm()) return;
-
+        setUploading(true);
         try {
+
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/create-user-cad-file`,
                 {
@@ -170,8 +185,10 @@ function UploadYourCadDesign() {
                     setIsApiSlow(true);
                 }
             }
+            setUploading(false);
         } catch (error) {
             console.error('Error uploading file:', error);
+            setUploading(false);
         }
     };
 
@@ -194,11 +211,11 @@ function UploadYourCadDesign() {
         try {
             const response = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`);
             if (response.data.meta.success) {
-              
-               setOptions(response.data.data.map(zone => ({
-                value: zone._id,
-                label: zone.cad_tag_label
-            })));
+
+                setOptions(response.data.data.map(zone => ({
+                    value: zone._id,
+                    label: zone.cad_tag_label
+                })));
             }
         } catch (error) {
             console.error('Error fetching tags:', error);
@@ -285,25 +302,56 @@ function UploadYourCadDesign() {
                         </>
                     )}
                 </div>
+                {(formErrors.file && !url) && <p style={{ color: 'red' }}>{formErrors.file}</p>}
+
 
                 {/* {fileError && <p style={{ color: 'red' }}>{fileError}</p>} */}
                 {/* {formError && <p style={{ color: 'red' }}>{formError}</p>} */}
-
+                <div className="bg-blue-100 text-blue-800 text-sm p-4 rounded-lg mt-4">
+                    <span className="text-lg mr-2">🔍</span>
+                    <strong>Help others find your design!</strong>
+                    <p className="mt-1">
+                        A <strong>clear title</strong> and <strong>detailed description</strong> will make your design easier to discover by others through search.
+                    </p>
+                </div>
                 <div className="mt-6">
-                    <input
-                        placeholder="Model Name"
-                        type="text"
-                        className="mb-4"
-                        value={cadFile.title}
-                        onChange={(e) => setCadFile({ ...cadFile, title: e.target.value })}
-                    />
+                    <div>
+                        <input
+                            placeholder="Title"
+                            type="text"
+                            className="mb-4"
+                            maxLength={TITLELIMIT}
+                            value={cadFile.title}
+                            style={{ margin: '0px' }}
+                            onChange={(e) => setCadFile({ ...cadFile, title: e.target.value })}
+                        />
+                        <div style={{ display: 'flex', alighnItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ color: 'red', visibility: (formErrors.title && !cadFile.title) ? 'visible' : 'hidden' }}>
+                                {formErrors.title}
+                            </span>
+                            <p style={{ fontSize: '12px', color: 'gray' }}>{cadFile.title.length}/{TITLELIMIT}</p>
+                        </div>
+
+                    </div>
+                    <div>
+
+                        <textarea
+                            placeholder="Description"
+                            className="mb-4"
+                            value={cadFile.description}
+                            maxLength={DESCRIPTIONLIMIT}
+                            style={{ margin: '0px' }}
+                            onChange={(e) => setCadFile({ ...cadFile, description: e.target.value })}
+                        />
+                        <div style={{ display: 'flex', alighnItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ color: 'red', visibility: (formErrors.description && !cadFile.description) ? 'visible' : 'hidden' }}>
+                                {formErrors.description}
+                            </span>
+                            <p style={{ fontSize: '12px', color: 'gray' }}>{cadFile.description.length}/{DESCRIPTIONLIMIT}</p>
+                        </div>
+                    </div>
                     {/* {formErrors.title && <p style={{ color: 'red' }}>{formErrors.title}</p>} */}
-                    <textarea
-                        placeholder="Description"
-                        className="mb-4"
-                        value={cadFile.description}
-                        onChange={(e) => setCadFile({ ...cadFile, description: e.target.value })}
-                    />
+
                     {/* {formErrors.description && <p style={{ color: 'red' }}>{formErrors.description}</p>} */}
                     {/* <div className='create-asset-num-div-form-label-input'>
                                 <span>Select zone</span> */}
@@ -325,14 +373,15 @@ function UploadYourCadDesign() {
                         value={cadFile.tags}
                         onChange={(e) => setCadFile({ ...cadFile, tags: e.target.value })}
                     /> */}
-                    {formError && <p style={{ color: 'red' }}>{formError}</p>}
+
                     {hasUserEmail ? (
                         <button
                             className="w-full py-3 mb-4"
                             style={{ backgroundColor: '#610bee', color: '#ffffff' }}
+                            disabled={uploading}
                             onClick={handleUserCadFileSubmit}
                         >
-                            Upload Your Cad Design
+                            {uploading ? 'Uploading Your Cad Design':'Upload Your Cad Design'}
                         </button>
                     ) : (
                         <button

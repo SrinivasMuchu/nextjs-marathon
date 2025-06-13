@@ -22,6 +22,7 @@ function TellUsAboutYourself() {
   const [user, setUser] = useState({ name: '', email: '', photo: '' });
   const [errors, setErrors] = useState({ name: '', email: '' });
   const [editField, setEditField] = useState({ name: false, email: false });
+  const [signingUp, setSigningUp] = useState(false);
 
   useEffect(() => setIsClient(true), []);
 
@@ -98,8 +99,10 @@ function TellUsAboutYourself() {
       console.log('error')
       setErrors(prev => ({ ...prev, [field]: error }));
     }
+setSigningUp(true)
 
     try {
+
       const uuid = localStorage.getItem('uuid');
       const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
         user_email: user.email,
@@ -124,7 +127,9 @@ function TellUsAboutYourself() {
 
         getUserDetails(userUuid);
       }
+      setSigningUp(false)
     } catch (err) {
+      setSigningUp(false)
       console.error(`Error updating Profile:`, err);
       toast.error(`Failed to update Profile`);
     }
@@ -331,8 +336,8 @@ function TellUsAboutYourself() {
 
 
 
-            <button onClick={updateField} className={styles['save-profile']}>
-              Save Profile
+            <button onClick={updateField} className={styles['save-profile']} disabled={signingUp}>
+              {signingUp ?'Saving Profile':'Save Profile'}
             </button>
 
 
