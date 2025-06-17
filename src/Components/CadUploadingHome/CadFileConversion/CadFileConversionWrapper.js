@@ -255,7 +255,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
     }
     useEffect(() => {
-        if(!uploadingMessage) return;
+        if(!uploadingMessage|| uploadingMessage==='COMPLETED') return;
         const slowApiTimer = setTimeout(() => {
             console.log('API is slow');
             if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
