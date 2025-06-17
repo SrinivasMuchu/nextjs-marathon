@@ -35,10 +35,10 @@ function IndustryDesignFilesList({ designData }) {
                     <tbody>
     <tr>
         <td data-label="View Name">Design file</td>
-        <td data-label="Extension">step</td>
+        <td data-label="Extension">{designData.file_type?designData.file_type:'step'}</td>
         <td data-label="Action">
            
-                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable} step={true}/>
+                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type}/>
            
         </td>
     </tr>

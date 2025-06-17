@@ -367,8 +367,9 @@ function IndustryCadViewer({ designId, type }) {
     }
 
     const handleDownload = async () => {
-        setIsDownLoading(true); // Disable button
+      
         try {
+            setIsDownLoading(true); // Disable button
             const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
                 design_id: folderId,
                 step:true

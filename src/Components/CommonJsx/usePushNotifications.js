@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { BASE_URL } from '@/config';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function usePushNotifications() {
     const registerPush = useCallback(async (email = '', isBrowserNotificationRequested = false) => {
@@ -58,6 +59,9 @@ export default function usePushNotifications() {
                 if (result.data.meta.success) {
                     if (email) localStorage.setItem('user_email', email);
                     console.log('✅ Notification preferences saved successfully');
+                } else {
+                    toast.error(result.data.meta.message);
+                    throw new Error(result.data.meta.message);
                 }
             }
         } catch (err) {

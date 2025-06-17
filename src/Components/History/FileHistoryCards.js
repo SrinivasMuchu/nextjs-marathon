@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL } from '@/config';
 import Image from 'next/image';
@@ -9,31 +9,33 @@ import { textLettersLimit } from '@/common.helper';
 import Pagenation from '../CommonJsx/Pagenation';
 import Loading from '../CommonJsx/Loaders/Loading';
 import { sendConverterEvent } from "@/common.helper";
-
+import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
+import { contextState } from '../CommonJsx/ContextProvider';
 
 
 let cachedCadHistory = {};
 function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages }) {
-
+  const {  setUploadedFile } = useContext(contextState);
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [downloading, setDownloading] = useState(false);
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
   const [userCadFiles, setUserCadFiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [publishCad, setPublishCad] = useState(false);
+  const [downloadedUrl, setDownloadedUrl] = useState('');
   const limit = 10;
   console.log(cadConverterFileHistory, 'cadConverterFileHistory')
   useEffect(() => {
-
-
-    // Memory-level cache (module-scope)
+    let isMounted = true;  // Add mounted check
 
     const fetchFileHistory = async () => {
-      setLoading(true);
-
+      if (!isMounted) return;  // Don't update state if component unmounted
+      
       try {
-        // ✅ Use cache if available
+        // Check cache first
         const cached = cachedCadHistory[cad_type];
         if (cached && cached.page === currentPage) {
+          if (!isMounted) return;
           setCadViewerFileHistory(cached.cad_viewer_files);
           setConverterFileHistory(cached.cad_converter_files);
           setUserCadFiles(cached.my_cad_files);
@@ -42,14 +44,15 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           return;
         }
 
-
-        // ✅ Fetch from API
+        // Fetch from API
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
           params: { type: cad_type, page: currentPage, limit },
           headers: {
             "user-uuid": localStorage.getItem("uuid"),
           },
         });
+
+        if (!isMounted) return;  // Don't update state if component unmounted
 
         if (response.data.meta.success) {
           const cad_viewer_files = response.data.data.cad_viewer_files.map(file => ({
@@ -70,14 +73,14 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           const page = response.data.data.pagination.page;
           const totalPages = response.data.data.pagination.cadFilesPages;
 
-          // ✅ Set state
+          // Update all states at once
           setCadViewerFileHistory(cad_viewer_files);
           setConverterFileHistory(cad_converter_files);
           setUserCadFiles(my_cad_files);
           setCurrentPage(page);
           setTotalPages(totalPages);
 
-          // ✅ Cache for reuse
+          // Cache for reuse
           cachedCadHistory[cad_type] = {
             cad_viewer_files,
             cad_converter_files,
@@ -87,15 +90,23 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           };
         }
 
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       } catch (err) {
         console.error('Error fetching file history:', err);
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-
     fetchFileHistory();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
   }, [cad_type, currentPage]);
 
 
@@ -112,7 +123,15 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const handleDownload = async (file) => {
     try {
       setDownloading(true);
+     
       const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
+      // Set the state first and wait for it to be processed
+      await new Promise(resolve => {
+        setUploadedFile({url,output_format:file.output_format,file_name:file.file_name});
+        resolve();
+      });
+      
+      setPublishCad(true);
       const response = await fetch(url);
       console.log(file, "file")
       if (!response.ok) {
@@ -143,6 +162,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
 
   return (
+    <>
     <div className={styles.cadViewerContainer} style={{ width: '100%' }}>
 
       {cad_type === 'CAD_VIEWER' && (
@@ -163,7 +183,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                   {cadViewerFileHistory.map((file, index) => (
                     <a
                       key={index}
-                      href="/tools/cad-renderer"
+                      href={`/tools/cad-renderer?fileId=${file._id}`}
                       className={styles.historyItem}
                       onClick={() => {
                         localStorage.setItem("last_viewed_cad_key", file._id);
@@ -238,7 +258,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                     <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div>
                     <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Created</span> <span>{file.createdAtFormatted}</span></div>
                     <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <button style={{
+                      {file.status === 'COMPLETED' ?<button style={{
                         background: '#610bee',
                         color: 'white',
                         padding: '5px 10px',
@@ -246,6 +266,16 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         borderRadius: '5px',
                         cursor: 'pointer'
                       }} onClick={() => handleDownload(file)} disabled={downloading}>{downloading ? 'downloading' : 'Download'}</button>
+                      : <button disabled style={{
+                        background: '#a270f2',
+                        color: 'white',
+                        padding: '5px 10px',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        width: '100%',
+                        textAlign: 'center'
+                      }}>Download</button>}
                     </div>
                   </div>
                 ))}
@@ -359,6 +389,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
 
     </div>
+      {publishCad && <ConvertedFileUploadPopup url={downloadedUrl} setPublishCad={setPublishCad}/>}
+    </>
+    
   )
 }
 

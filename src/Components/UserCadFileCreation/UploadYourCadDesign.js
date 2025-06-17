@@ -19,6 +19,7 @@ function UploadYourCadDesign() {
     const [isChecked, setIsChecked] = useState(true);
     const [cadFile, setCadFile] = useState({ title: '', description: '', tags: '' });
     const [url, setUrl] = useState('');
+    const [fileFormat, setFileFormat] = useState('');
     const [uploadProgress, setUploadProgress] = useState(0);
     const [fileName, setFileName] = useState('');
     const [fileSize, setFileSize] = useState('');
@@ -27,17 +28,29 @@ function UploadYourCadDesign() {
         title: '',
         description: ''
     });
-
+    
     const [uploading, setUploading] = useState(false);
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [info, setInfo] = useState(false);
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
-    const { hasUserEmail, setHasUserEmail } = useContext(contextState);
+    const { hasUserEmail, setHasUserEmail,setUploadedFile,uploadedFile } = useContext(contextState);
     const [options, setOptions] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
+    
     useEffect(() => {
-        if (localStorage.getItem('user_email')) {
-            setHasUserEmail(true);
+        if (uploadedFile && Object.keys(uploadedFile).length > 0) {
+            setFileName(uploadedFile.file_name);
+            setFileFormat(uploadedFile.output_format);
+            setUrl(uploadedFile.url);
+            setUploadProgress(100);
+        }
+    }, [uploadedFile]);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            if (localStorage.getItem('user_email')) {
+                setHasUserEmail(true);
+            }
         }
     }, []);
 
@@ -101,7 +114,7 @@ function UploadYourCadDesign() {
         const fileSizeMB = file.size / (1024 * 1024);
         setFileName(file.name);
         setFileSize(fileSizeMB);
-
+        setFileFormat(file.name.split('.').pop());
 
         try {
             const headers = {
@@ -165,6 +178,7 @@ function UploadYourCadDesign() {
                 {
                     uuid: localStorage.getItem("uuid"),
                     title: cadFile.title,
+                    file_type: fileFormat,
                     description: cadFile.description,
                     tags: selectedOptions.map(option => option.value),
                     url,
@@ -246,6 +260,14 @@ function UploadYourCadDesign() {
         setSelectedOptions(selected);
     };
 
+    const handleRemoveCadFile = () => {
+        setUploadedFile({});
+        setFileName('');
+        setFileSize('');
+        setUploadProgress(0);
+        setUrl('');
+        toast.info("CAD file removed.");
+    }
     return (
         <>
             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp setClosePopUp={setCloseNotifyInfoPopUp} cad_type={'USER_CADS'} />}
@@ -257,10 +279,13 @@ function UploadYourCadDesign() {
                     <span>Allow others to download this design.</span>
                 </div>
 
-                <div className={styles["cad-dropzone"]} onClick={handleClick}>
+                {Object.keys(uploadedFile || {}).length === 0 ? <div className={styles["cad-dropzone"]} onClick={handleClick}>
                     <input
                         type="file"
-                        accept='.step,.stp'
+                        // off
+                        // working step,stp,off,stl,ply,brep,brp
+                        accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep"   
+                        // accept=".off"            
                         ref={fileInputRef}
                         disabled={uploadProgress > 0}
                         style={{ display: "none" }}
@@ -301,7 +326,29 @@ function UploadYourCadDesign() {
                             }}>select files</span>
                         </>
                     )}
-                </div>
+                </div> : <div className={styles["cad-dropzone"]} onClick={handleClick}>
+
+
+
+                    <div style={{ marginTop: '10px', width: '50%', textAlign: 'center' }}>
+                        <div>
+                            <span>{uploadedFile.file_name}.{uploadedFile.output_format}</span>
+                        </div>
+                        <div style={{ background: '#e0e0e0', borderRadius: '10px', overflow: 'hidden' }}>
+                            <div style={{
+                                width: `100%`,
+                                backgroundColor: '#610bee',
+                                height: '8px',
+                                transition: 'width 0.3s ease-in-out'
+                            }}></div>
+                        </div>
+                        <p style={{ textAlign: 'right', fontSize: '12px' }}>100%</p>
+                        <div>
+                            <CloseIcon onClick={handleRemoveCadFile} style={{ cursor: 'pointer', color: '#610bee' }} />
+                        </div>
+                    </div>
+
+                </div>}
                 {(formErrors.file && !url) && <p style={{ color: 'red' }}>{formErrors.file}</p>}
 
 
@@ -381,7 +428,7 @@ function UploadYourCadDesign() {
                             disabled={uploading}
                             onClick={handleUserCadFileSubmit}
                         >
-                            {uploading ? 'Uploading Your Cad Design':'Upload Your Cad Design'}
+                            {uploading ? 'Uploading Your Cad Design' : 'Upload Your Cad Design'}
                         </button>
                     ) : (
                         <button
