@@ -17,7 +17,7 @@ let cachedCadHistory = {};
 function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages }) {
   const {  setUploadedFile } = useContext(contextState);
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
-  const [downloading, setDownloading] = useState(false);
+  const [downloading, setDownloading] = useState({});
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
   const [userCadFiles, setUserCadFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -120,16 +120,23 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     });
   };
 
-  const handleDownload = async (file) => {
+  const handleDownload = async (file, index) => {
     try {
-      setDownloading(true);
+      setDownloading(prev => ({ ...prev, [index]: true }));
      
       const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
-      // Set the state first and wait for it to be processed
-      await new Promise(resolve => {
-        setUploadedFile({url,output_format:file.output_format,file_name:file.file_name});
-        resolve();
+      
+      // Set the file data in context and wait for it to be processed
+      setUploadedFile({
+        url: url,
+        output_format: file.output_format,
+        file_name: file.file_name,
+        base_name: file.base_name,
+        _id: file._id
       });
+      
+      // Wait a bit to ensure context is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       setPublishCad(true);
       const response = await fetch(url);
@@ -152,11 +159,10 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       sendConverterEvent('converter_file_upload_download')
       window.URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
-      setDownloading(false);
+      setDownloading(prev => ({ ...prev, [index]: false }));
     } catch (error) {
-      setDownloading(false);
+      setDownloading(prev => ({ ...prev, [index]: false }));
       console.error('Download failed:', error);
-      // Optional: Add user feedback here (e.g., toast notification)
     }
   };
 
@@ -265,7 +271,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         border: 'none',
                         borderRadius: '5px',
                         cursor: 'pointer'
-                      }} onClick={() => handleDownload(file)} disabled={downloading}>{downloading ? 'downloading' : 'Download'}</button>
+                      }} onClick={() => handleDownload(file, index)} disabled={downloading[index]}>
+                        {downloading[index] ? 'Downloading...' : 'Download'}
+                      </button>
                       : <button disabled style={{
                         background: '#a270f2',
                         color: 'white',

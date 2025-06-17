@@ -143,7 +143,14 @@ export default function PartDesignView() {
         }
     };
    useEffect(() => {
-    if(searchParams.get('sample')) return;
+    // Don't show notification if:
+    // 1. Upload is completed
+    // 2. It's a sample file
+    // 3. We're just viewing a file (not uploading)
+    if(uploadingMessage === 'COMPLETED' || 
+       searchParams.get('sample') || 
+       !uploadingMessage) return;
+
     const slowApiTimer = setTimeout(() => {
         console.log('API is slow');
         if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
@@ -156,7 +163,7 @@ export default function PartDesignView() {
 
     // ✅ Cleanup on unmount
     return () => clearTimeout(slowApiTimer);
-}, []);
+}, [uploadingMessage, searchParams]);
 
     const CreateCad = async (link) => {
         try {

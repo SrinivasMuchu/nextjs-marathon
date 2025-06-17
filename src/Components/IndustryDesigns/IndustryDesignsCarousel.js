@@ -184,7 +184,7 @@ function IndustryDesignsCarousel({ designData, type, design }) {
             </IndustryDesignCarouselWrapper>
            
                 <div className={styles['industry-design-header-viewer-crousal']}>
-                    <a href={type ? `/library/${design}/${designData._id}` : `/industry/${design.industry}/${design.part}/${design.design}/${designData._id}`}
+                    <a href={type ? `/library/${design}/${designData._id}.${designData.file_type?designData.file_type:'step'}`:`/industry/${design.industry}/${design.part}/${design.design}/${designData._id}.${designData.file_type?designData.file_type:'step'}`}
                         rel="nofollow"><button >Open in 3D viewer</button></a>
                 </div>
 

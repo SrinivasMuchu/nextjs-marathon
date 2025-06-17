@@ -106,3 +106,10 @@
   background-color: #e2e8f0;
   margin: 16px 0;
 }
+
+@media (max-width: 768px) {
+  .cadConvertPopup{
+    width: 90%;
+    height: 75vh;
+  }
+}

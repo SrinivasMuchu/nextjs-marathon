@@ -38,13 +38,14 @@ function UploadYourCadDesign() {
     const [selectedOptions, setSelectedOptions] = useState([]);
     
     useEffect(() => {
+        console.log(uploadedFile, "uploadedFile")
         if (uploadedFile && Object.keys(uploadedFile).length > 0) {
             setFileName(uploadedFile.file_name);
             setFileFormat(uploadedFile.output_format);
             setUrl(uploadedFile.url);
             setUploadProgress(100);
         }
-    }, [uploadedFile]);
+    }, [uploadedFile, setFileName, setFileFormat, setUrl, setUploadProgress]);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -52,7 +53,7 @@ function UploadYourCadDesign() {
                 setHasUserEmail(true);
             }
         }
-    }, []);
+    }, [setHasUserEmail]);
 
     const router = useRouter();
 

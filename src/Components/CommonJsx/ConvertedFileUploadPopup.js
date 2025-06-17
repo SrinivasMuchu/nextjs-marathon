@@ -3,7 +3,7 @@ import React from 'react'
 import PopupWrapper from './PopupWrapper';
 import styles from './CommonStyles.module.css';
 import ClearIcon from '@mui/icons-material/Clear';
-
+import { useRouter } from "next/navigation";
 
 const features = [
     {
@@ -34,14 +34,14 @@ const features = [
 ];
 
 function ConvertedFileUploadPopup({url,setPublishCad}) {
+    const router = useRouter();
     const handlePublish = () => {
         // Example object to save
      
 
         // Save object as JSON string
-        localStorage.setItem('converted_file_uploaded', JSON.stringify(url));
-
-        location.href = `/publish-cad`;
+      
+        router.push("/publish-cad");
     };
     return (
         <PopupWrapper>
@@ -66,7 +66,7 @@ function ConvertedFileUploadPopup({url,setPublishCad}) {
                         </div>
                     ))}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', width: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                     <button
                         className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition duration-200"
                         onClick={handlePublish}
