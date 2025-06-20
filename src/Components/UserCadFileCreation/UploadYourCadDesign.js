@@ -93,9 +93,15 @@ function UploadYourCadDesign() {
         if (!cadFile.title.trim()) {
             errors.title = 'Title is required.';
             isValid = false;
+        } else if (cadFile.title.trim().length < 40) {
+            errors.title = 'Title must be at least 40 characters long.';
+            isValid = false;
         }
         if (!cadFile.description.trim()) {
             errors.description = 'Description is required.';
+            isValid = false;
+        } else if (cadFile.description.trim().length < 100) {
+            errors.description = 'Description must be at least 100 characters long.';
             isValid = false;
         }
 
@@ -173,7 +179,6 @@ function UploadYourCadDesign() {
         if (!validateForm()) return;
         setUploading(true);
         try {
-
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/create-user-cad-file`,
                 {
@@ -184,6 +189,7 @@ function UploadYourCadDesign() {
                     tags: selectedOptions.map(option => option.value),
                     url,
                     is_downloadable: isChecked,
+                    published_cad_source_id: uploadedFile._id,
                 },
                 {
                     headers: {
@@ -194,7 +200,6 @@ function UploadYourCadDesign() {
 
             if (response.data.meta.success) {
                 if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
-
                     setCloseNotifyInfoPopUp(true);
                 } else {
                     setIsApiSlow(true);
@@ -204,6 +209,27 @@ function UploadYourCadDesign() {
         } catch (error) {
             console.error('Error uploading file:', error);
             setUploading(false);
+            let newFormErrors = { ...formErrors };
+            // Handle specific franc error
+            if (error.response?.data?.meta?.message?.includes('franc')) {
+                newFormErrors.title = "Please ensure the title and description are in English.";
+                newFormErrors.description = "Please ensure the title and description are in English.";
+            } else if (error.response?.data?.meta?.message) {
+                // Show backend error message if available
+                // Try to assign to the most relevant field
+                if (error.response.data.meta.message.toLowerCase().includes('title')) {
+                    newFormErrors.title = error.response.data.meta.message;
+                } else if (error.response.data.meta.message.toLowerCase().includes('description')) {
+                    newFormErrors.description = error.response.data.meta.message;
+                } else {
+                    // If not specific, show under title
+                    newFormErrors.title = error.response.data.meta.message;
+                }
+            } else {
+                // Generic error message as fallback
+                newFormErrors.title = "Failed to upload file. Please try again later.";
+            }
+            setFormErrors(newFormErrors);
         }
     };
 
@@ -333,7 +359,7 @@ function UploadYourCadDesign() {
 
                     <div style={{ marginTop: '10px', width: '50%', textAlign: 'center' }}>
                         <div>
-                            <span>{uploadedFile.file_name}.{uploadedFile.output_format}</span>
+                            <span>{uploadedFile.file_name}</span>
                         </div>
                         <div style={{ background: '#e0e0e0', borderRadius: '10px', overflow: 'hidden' }}>
                             <div style={{
@@ -365,7 +391,7 @@ function UploadYourCadDesign() {
                 <div className="mt-6">
                     <div>
                         <input
-                            placeholder="Title"
+                            placeholder="Title (minimum 40 characters)"
                             type="text"
                             className="mb-4"
                             maxLength={TITLELIMIT}
@@ -374,17 +400,15 @@ function UploadYourCadDesign() {
                             onChange={(e) => setCadFile({ ...cadFile, title: e.target.value })}
                         />
                         <div style={{ display: 'flex', alighnItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ color: 'red', visibility: (formErrors.title && !cadFile.title) ? 'visible' : 'hidden' }}>
+                            <span style={{ color: 'red', visibility: formErrors.title ? 'visible' : 'hidden' }}>
                                 {formErrors.title}
                             </span>
-                            <p style={{ fontSize: '12px', color: 'gray' }}>{cadFile.title.length}/{TITLELIMIT}</p>
+                            <p style={{ fontSize: '12px', color: cadFile.title.length >= 40 ? 'green' : 'gray' }}>{cadFile.title.length}/{TITLELIMIT}</p>
                         </div>
-
                     </div>
                     <div>
-
                         <textarea
-                            placeholder="Description"
+                            placeholder="Description (minimum 100 characters)"
                             className="mb-4"
                             value={cadFile.description}
                             maxLength={DESCRIPTIONLIMIT}
@@ -392,10 +416,10 @@ function UploadYourCadDesign() {
                             onChange={(e) => setCadFile({ ...cadFile, description: e.target.value })}
                         />
                         <div style={{ display: 'flex', alighnItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ color: 'red', visibility: (formErrors.description && !cadFile.description) ? 'visible' : 'hidden' }}>
+                            <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>
                                 {formErrors.description}
                             </span>
-                            <p style={{ fontSize: '12px', color: 'gray' }}>{cadFile.description.length}/{DESCRIPTIONLIMIT}</p>
+                            <p style={{ fontSize: '12px', color: cadFile.description.length >= 100 ? 'green' : 'gray' }}>{cadFile.description.length}/{DESCRIPTIONLIMIT}</p>
                         </div>
                     </div>
                     {/* {formErrors.title && <p style={{ color: 'red' }}>{formErrors.title}</p>} */}
