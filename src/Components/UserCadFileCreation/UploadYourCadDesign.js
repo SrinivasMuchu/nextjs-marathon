@@ -204,32 +204,38 @@ function UploadYourCadDesign() {
                 } else {
                     setIsApiSlow(true);
                 }
+            } else {
+                let newFormErrors = { ...formErrors };
+                const validationErrors = response.data?.meta?.validationErrors;
+
+                if (validationErrors) {
+                    newFormErrors.title = validationErrors.title || "";
+                    newFormErrors.description = validationErrors.description || "";
+                } else if (response?.data?.meta?.message?.includes('franc')) {
+                    newFormErrors.title = "Please ensure the title and description are in English.";
+                    newFormErrors.description = "Please ensure the title and description are in English.";
+                } else if (response?.data?.meta?.message) {
+                    // Show backend error message if available
+                    // Try to assign to the most relevant field
+                    if (response.data.meta.message.toLowerCase().includes('title')) {
+                        newFormErrors.title = response.data.meta.message;
+                    } else if (response.data.meta.message.toLowerCase().includes('description')) {
+                        newFormErrors.description = response.data.meta.message;
+                    } else {
+                        // If not specific, show under title
+                        newFormErrors.title = response.data.meta.message;
+                    }
+                } else {
+                    // Generic error message as fallback
+                    newFormErrors.title = "Failed to upload file. Please try again later.";
+                }
+                setFormErrors(newFormErrors);
             }
             setUploading(false);
         } catch (error) {
             console.error('Error uploading file:', error);
             setUploading(false);
-            let newFormErrors = { ...formErrors };
-            // Handle specific franc error
-            if (error.response?.data?.meta?.message?.includes('franc')) {
-                newFormErrors.title = "Please ensure the title and description are in English.";
-                newFormErrors.description = "Please ensure the title and description are in English.";
-            } else if (error.response?.data?.meta?.message) {
-                // Show backend error message if available
-                // Try to assign to the most relevant field
-                if (error.response.data.meta.message.toLowerCase().includes('title')) {
-                    newFormErrors.title = error.response.data.meta.message;
-                } else if (error.response.data.meta.message.toLowerCase().includes('description')) {
-                    newFormErrors.description = error.response.data.meta.message;
-                } else {
-                    // If not specific, show under title
-                    newFormErrors.title = error.response.data.meta.message;
-                }
-            } else {
-                // Generic error message as fallback
-                newFormErrors.title = "Failed to upload file. Please try again later.";
-            }
-            setFormErrors(newFormErrors);
+           
         }
     };
 
