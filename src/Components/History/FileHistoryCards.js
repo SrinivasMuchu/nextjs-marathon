@@ -189,9 +189,13 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                   {cadViewerFileHistory.map((file, index) => (
                     <a
                       key={index}
-                      href={`/tools/cad-renderer?fileId=${file._id}`}
+                      href={file.status === 'COMPLETED' ? `/tools/cad-renderer?fileId=${file._id}` : undefined}
                       className={styles.historyItem}
-                      onClick={() => {
+                      onClick={e => {
+                        if (file.status !== 'COMPLETED') {
+                          e.preventDefault();
+                          return;
+                        }
                         localStorage.setItem("last_viewed_cad_key", file._id);
                       }}
                     >
@@ -317,9 +321,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                   <a href='/publish-cad' style={{ color: 'blue' }}>Click here</a>
                 </div>
                 {userCadFiles.map((file, index) => (
-                  <a
+                  <div
                     key={index}
-                    href={`/library/${file.route}/${file._id}`}
+                    
                     className={styles.historyItem}
 
                   >
@@ -371,7 +375,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         textAlign: 'center'
                       }}>View design</button>}
                     </div>
-                  </a>
+                  </div>
                 ))}
               </div>
             ) : (
