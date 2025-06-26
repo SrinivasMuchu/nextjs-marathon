@@ -60,7 +60,19 @@ function FooterForm({ styles }) {
         <div className={styles['footer-inputs']}>
           <input placeholder='Name*' value={name} onChange={(e) => setName(e.target.value)} style={{ color: 'black' }} />
          
-          <ReactPhoneNumber phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} styles={styles} classname='footer-phone'/>
+          <label htmlFor="footer-phone-input" style={{
+            position: 'absolute',
+            width: '1px',
+            height: '1px',
+            padding: 0,
+            margin: '-1px',
+            overflow: 'hidden',
+            clip: 'rect(0,0,0,0)',
+            border: 0,
+          }}>
+            Phone number*
+          </label>
+          <ReactPhoneNumber phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} styles={styles} classname='footer-phone' id="footer-phone-input"/>
         </div>
 
 

@@ -12,7 +12,7 @@ function CommonSampleViewer() {
         }
   return (
     <div className={styles["cad-dropzone-samples"]}>
-    <span>Don't have a file? Try one of these samples:</span>
+    <span>Don&apos;t have a file? Try one of these samples:</span>
     <div className={styles["cad-dropzone-sample-btns"]}>
         {cadViewerFiles.map((file) => (
             <button key={file.id} onClick={() => handleViewFile(file.id)}>{file.name}</button>

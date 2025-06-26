@@ -2,7 +2,7 @@ import React from 'react'
 import styles from './IndustryDesign.module.css'
 
 function IndustryDesignHeader({design,designData,type}) {
-  console.log(designData)
+  
   return (
     <div className={styles['industry-design-header']}>
         <div className={styles['industry-design-header-content']}>

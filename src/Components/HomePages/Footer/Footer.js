@@ -66,7 +66,12 @@ function Footer() {
         <FooterForm styles={styles} />
       </div>
       <div className={styles["footer-page-copyright"]}>
-        <a href="https://www.linkedin.com/company/marathon-os/"><LinkedInIcon style={{width:'30px',height:'30px'}}/></a>
+        <a href="https://www.linkedin.com/company/marathon-os/" aria-label="Marathon OS LinkedIn">
+          <span style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0}}>
+            Marathon OS LinkedIn
+          </span>
+          <LinkedInIcon style={{width:'30px',height:'30px'}}/>
+        </a>
         <span>Ⓒ Copyrights issued 2023-2024</span>
       </div>
     </div>

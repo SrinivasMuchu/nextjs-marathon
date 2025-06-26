@@ -8,12 +8,22 @@ import IndustryDesignDropZone from './IndustryDesignDropZone'
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav'
 import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
+import ProductStructuredData from '../CommonJsx/DesignPageJsonLd'
+import AboutCadPara from './AboutCadPara'
 
 function IndustryDesign({ design, designData,  type }) {
 
 
   return (
     <>
+      {designData && designData.response && (
+        <ProductStructuredData 
+          designData={designData.response} 
+          design={design} 
+          type={type}
+          cadReport={designData.report}
+        />
+      )}
      
         <div>
           {designData && <>
@@ -36,6 +46,7 @@ function IndustryDesign({ design, designData,  type }) {
               />}
 
             <IndustryDesignHeader design={design} type={type} designData={designData.response} />
+            {/* <AboutCadPara cadReport={designData.report}/> */}
             {designData.response && <IndustryDesignsCarousel designData={designData.response} design={design} type={type}/>}
             {designData.response && <IndustryDesignFilesList designData={designData.response} />}
             {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
@@ -43,7 +54,7 @@ function IndustryDesign({ design, designData,  type }) {
             {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} />}
             <div style={{ width: '100%', height: '15px', background: '#F4F4F4' }}></div>
             {designData?.report && (
-              <AboutCad cadReport={designData.report} />
+              <AboutCad cadReport={designData.report} filetype={designData.response.file_type}/>
             )}
             <IndustryDesignDropZone />
             <Footer />

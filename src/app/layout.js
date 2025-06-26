@@ -46,7 +46,7 @@ const jsonLdData = {
 export default function RootLayout({ children }) {
 
   return (
-    <html lang="en">
+    <html lang="en" >
       <head>
         <link rel="icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
 
@@ -73,6 +73,7 @@ export default function RootLayout({ children }) {
           href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg"
           type="image/x-icon"
         />
+       
         <Script
           strategy="beforeInteractive"
           id="disable-ga-on-localhost"
@@ -105,7 +106,7 @@ export default function RootLayout({ children }) {
           }}
         />
 
-<Script
+{/* <Script
   id="microsoft-clarity"
   strategy="afterInteractive"
   dangerouslySetInnerHTML={{
@@ -119,7 +120,7 @@ export default function RootLayout({ children }) {
       }
     `,
   }}
-/>
+/> */}
 
         <Script
           id="json-ld"
@@ -129,6 +130,7 @@ export default function RootLayout({ children }) {
         />
 
       </head>
+
       <body className={inter.variable}>
         <ToastProvider />
         <CreateLocalStorage />

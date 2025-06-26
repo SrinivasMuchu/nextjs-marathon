@@ -1,8 +1,9 @@
 import React from 'react'
 import styles from './IndustryDesign.module.css'
 import { textLettersLimit } from '@/common.helper'
+import AboutCadPara from './AboutCadPara'
 
-function AboutCad({ cadReport }) {
+function AboutCad({ cadReport,filetype }) {
  
   if (!cadReport) {
     return (
@@ -22,7 +23,7 @@ function AboutCad({ cadReport }) {
       title: '📁 File Information',
       rows: [
         ['File Name', textLettersLimit(safeGet(cadReport, ['file_info', 'file_name']), 15)],
-        ['File Type', safeGet(cadReport, ['file_info', 'file_type'])],
+        ['File Type', filetype?filetype:'.step'],
         ['Units', safeGet(cadReport, ['file_info', 'units'])]
       ]
     },
@@ -86,11 +87,7 @@ function AboutCad({ cadReport }) {
     <div className={styles['industry-design-about-cad']}>
       <div className={styles['industry-design-about-cad-intro']}>
         <h2>About CAD</h2>
-        <p>
-          Computer-Aided Design (CAD) is a technology used for creating precision drawings or
-          technical illustrations in 2D and 3D. This report provides detailed technical
-          specifications about the CAD model.
-        </p>
+        <AboutCadPara cadReport={cadReport}/>
       </div>
       <div className={styles['industry-design-about-cad-details']}>
         {filteredSections.map((section, i) => (
