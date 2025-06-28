@@ -60,6 +60,7 @@ export default function RootLayout({ children }) {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.marathon-os.com" />
         <meta property="og:site_name" content="Marathon OS" />
+        <meta name="google-adsense-account" content="ca-pub-3333540431554607"/>
         <link
           rel="icon"
           href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg"
@@ -73,7 +74,7 @@ export default function RootLayout({ children }) {
           href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg"
           type="image/x-icon"
         />
-       
+
         <Script
           strategy="beforeInteractive"
           id="disable-ga-on-localhost"
@@ -85,7 +86,7 @@ export default function RootLayout({ children }) {
     `,
           }}
         />
-        
+
         <Script
           strategy="lazyOnload"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
@@ -106,7 +107,7 @@ export default function RootLayout({ children }) {
           }}
         />
 
-{/* <Script
+        {/* <Script
   id="microsoft-clarity"
   strategy="afterInteractive"
   dangerouslySetInnerHTML={{
@@ -121,7 +122,11 @@ export default function RootLayout({ children }) {
     `,
   }}
 /> */}
-
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3333540431554607"
+          crossOrigin="anonymous"
+        ></script>
         <Script
           id="json-ld"
           type="application/ld+json"
@@ -137,7 +142,7 @@ export default function RootLayout({ children }) {
 
         <ContextWrapper>
           {children}
-          <FloatingButton/>
+          <FloatingButton />
         </ContextWrapper>
 
       </body>

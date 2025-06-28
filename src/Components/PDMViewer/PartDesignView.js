@@ -148,7 +148,7 @@ export default function PartDesignView() {
     // 2. It's a sample file
     // 3. We're just viewing a file (not uploading)
     if(uploadingMessage === 'COMPLETED' || 
-       searchParams.get('sample') || 
+       searchParams.get('sample') || uploadingMessage === 'UPLOADINGFILE'||
        !uploadingMessage) return;
 
     const slowApiTimer = setTimeout(() => {

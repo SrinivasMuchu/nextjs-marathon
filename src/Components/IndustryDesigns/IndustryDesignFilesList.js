@@ -18,9 +18,7 @@ function IndustryDesignFilesList({ designData }) {
    
     return (
         <div className={styles['industry-design-files']}>
-            <div className={styles['industry-design-files-head']}>
-            The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.
-            </div>
+           
             <div className={styles['industry-design-files-bottom']}>
                 <span className={styles['industry-design-files-count']}>Files {viewDirections.length+1}</span>
                 <table className={styles['industry-design-files-list']}>
