@@ -189,7 +189,7 @@ function UploadYourCadDesign() {
                     tags: selectedOptions.map(option => option.value),
                     url,
                     is_downloadable: isChecked,
-                    published_cad_source_id: uploadedFile._id,
+                    converted_cad_source: uploadedFile,
                 },
                 {
                     headers: {
