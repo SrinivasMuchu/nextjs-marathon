@@ -108,7 +108,7 @@ function IndustryDesignsCarousel({ designData, type, design }) {
                 </div>
 
                 {/* Dots */}
-                <IndustryCarouselImages designData={designData} activeIndex={activeIndex} slides={slides} />
+                <IndustryCarouselImages designData={designData} activeIndex={activeIndex} slides={slides} setActiveIndex={setActiveIndex}/>
             </IndustryDesignCarouselWrapper>
 
             {/* 3D Viewer Button */}

@@ -317,7 +317,7 @@ function UploadYourCadDesign() {
                         type="file"
                         // off
                         // working step,stp,off,stl,ply,brep,brp
-                        accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep"   
+                        accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"   
                         // accept=".off"            
                         ref={fileInputRef}
                         disabled={uploadProgress > 0}

@@ -2,7 +2,9 @@ import React from 'react'
 import { DESIGN_GLB_PREFIX_URL } from "@/config";
 import Image from "next/image";
 
-function IndustryCarouselImages({ designData, activeIndex, slides }) {
+function IndustryCarouselImages({ designData, activeIndex, slides,setActiveIndex }) {
+    const total = slides.length;
+    const goTo = (idx) => setActiveIndex((idx + total) % total);
   return (
     <>
       <div className="flex justify-center items-center gap-2 sm:gap-3 mt-4">

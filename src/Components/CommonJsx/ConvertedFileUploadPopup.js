@@ -55,7 +55,7 @@ function ConvertedFileUploadPopup({url,setPublishCad}) {
                 <p className="text-2xl font-bold text-purple-700">
                     ✨ Upload Your Design & Get Paid Soon!
                 </p>
-                <div className="grid gap-4 mt-4" style={{height:'50vh',overflow:'scroll'}}>
+                <div className="grid gap-4 mt-4" style={{height:'60vh',overflow:'scroll'}}>
                     {features.map((feature, index) => (
                         <div key={index} className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl shadow-sm">
                             <span className="text-3xl">{feature.icon}</span>
