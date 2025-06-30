@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import styles from './CommonStyles.module.css';
 import usePushNotifications from './usePushNotifications';
+import PopupWrapper from './PopupWrapper';
 
-function CadFileNotifyPopUp({ setIsApiSlow,action }) {
+function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
   const [email, setEmail] = useState('');
   const [browserNotify, setBrowserNotify] = useState(true);
   const pushRegister = usePushNotifications();
@@ -14,9 +15,13 @@ function CadFileNotifyPopUp({ setIsApiSlow,action }) {
     try {
       console.log('Registering notifications...');
       await pushRegister(email, browserNotify);
+      // Only redirect if there was no error
+      window.location.href = `/dashboard?cad_type=${cad_type}`;
       setIsApiSlow(false);
     } catch (error) {
       console.error('Error registering notifications:', error);
+      // Don't close the popup on error
+      // Error toast will be shown by usePushNotifications hook
     }
   };
 
@@ -29,7 +34,7 @@ function CadFileNotifyPopUp({ setIsApiSlow,action }) {
   };
 
   return (
-    <div className={styles.popUpMain}>
+    <PopupWrapper>
       <div className="relative w-full bg-white rounded-lg p-6 shadow-lg max-w-lg mx-auto">
         {/* Close Button */}
         <button
@@ -107,7 +112,7 @@ function CadFileNotifyPopUp({ setIsApiSlow,action }) {
           
         </div>
       </div>
-    </div>
+    </PopupWrapper>
   );
 }
 

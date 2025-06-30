@@ -62,16 +62,12 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
             const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
                 {
                 headers: {
-                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-
+                    "user-uuid": localStorage.getItem("uuid"),
                 }
             }
             )
             if (response.data.meta.success) {
                 setFile(file)
-                  localStorage.removeItem('last_viewed_cad_key')
-                   localStorage.removeItem('sample_view_cad_key')
-                  
                 router.push("/tools/cad-renderer");
             } else {
                 setCheckLimit(true)
@@ -129,13 +125,8 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
             return;
         }
 
-
-        console.log(file)
-        checkingCadFileUploadLimitExceed(file)
-        // handleFile(file)
-        // await saveFileToIndexedDB(file);
-
-
+        setFile(file)
+        router.push("/tools/cad-renderer");
     };
 
     const handleDragOver = (event) => {

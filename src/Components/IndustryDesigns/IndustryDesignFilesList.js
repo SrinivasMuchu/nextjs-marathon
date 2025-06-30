@@ -18,9 +18,7 @@ function IndustryDesignFilesList({ designData }) {
    
     return (
         <div className={styles['industry-design-files']}>
-            <div className={styles['industry-design-files-head']}>
-            The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.
-            </div>
+           
             <div className={styles['industry-design-files-bottom']}>
                 <span className={styles['industry-design-files-count']}>Files {viewDirections.length+1}</span>
                 <table className={styles['industry-design-files-list']}>
@@ -35,10 +33,10 @@ function IndustryDesignFilesList({ designData }) {
                     <tbody>
     <tr>
         <td data-label="View Name">Design file</td>
-        <td data-label="Extension">step</td>
+        <td data-label="Extension">{designData.file_type?designData.file_type:'step'}</td>
         <td data-label="Action">
            
-                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable} step={true}/>
+                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type}/>
            
         </td>
     </tr>

@@ -5,6 +5,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { BASE_URL } from '@/config';
 import axios from 'axios';
 import { textLettersLimit } from './../../common.helper';
+import PopupWrapper from './PopupWrapper';
 
 function CadFileLimitExceedPopUp({ setCheckLimit }) {
     const [cadFilesUploaded, setCadFilesUploaded] = useState([])
@@ -35,7 +36,7 @@ function CadFileLimitExceedPopUp({ setCheckLimit }) {
         validationFileUpload()
     }, [])
     return (
-        <div className={styles.popUpMain}>
+        <PopupWrapper>
             <div style={{
                 width: '60%', display: 'flex',
                 flexDirection: 'column', gap: '16px'
@@ -77,7 +78,7 @@ function CadFileLimitExceedPopUp({ setCheckLimit }) {
                 </div>
             </div>
 
-        </div>
+        </PopupWrapper>
     )
 }
 

@@ -31,7 +31,7 @@
     font-weight: 500;
     line-height: 28px;
     letter-spacing: -0.3px;
-    opacity: 0.5;
+    /* opacity: 0.5; */
     text-align: justify;
 }
 
@@ -120,7 +120,7 @@
     font-weight: 500;
     line-height: 28px;
     letter-spacing: -0.3px;
-    opacity: 0.8;
+    /* opacity: 0.8; */
 }
 
 .industry-design-files-btn {
@@ -242,7 +242,7 @@
     font-weight: 500;
     line-height: 28px;
     letter-spacing: -0.3px;
-    opacity: 0.5;
+    /* opacity: 0.5; */
 }
 
 
@@ -301,7 +301,7 @@
     font-size: 12px;
     background: #e2d2fc;
 }
-.industry-design-suggestion-designs-cont h6 {
+.industry-design-suggestion-designs-cont h3 {
     color: #000;
     font-size: 24px;
     font-style: normal;
@@ -318,12 +318,7 @@
     width: 100%;
 }
 
-.industry-design-about-cad {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
+
 
 .industry-design-about-cad {
     display: flex;
@@ -331,6 +326,7 @@
     align-items: center;
     justify-content: center;
     padding: clamp(32px, 3vw, 72px) clamp(24px, 6vw, 120px) 32px;
+    background: linear-gradient(0deg, hsla(0, 0%, 100%, .96), hsla(0, 0%, 100%, .96)), #610bee;
 }
 
 .industry-design-about-cad h2 {
@@ -350,7 +346,7 @@
     font-weight: 500;
     line-height: 28px;
     letter-spacing: -0.3px;
-    opacity: 0.5;
+    /* opacity: 0.5; */
 }
 
 .industry-design-about-cad-details {
@@ -397,7 +393,7 @@
     font-style: normal;
     font-weight: 500;
     line-height: 24px;
-    opacity: 0.5;
+    /* opacity: 0.5; */
     letter-spacing: -0.192px;
 }
 
@@ -534,6 +530,9 @@
 
     .thumbnailGrid {
         flex-wrap: wrap;
+    }
+    .industry-design-header-content h1{
+        font-size: 32px;
     }
     .industry-design-header-content h1,.industry-design-header-content p{
         text-align: center;

@@ -19,7 +19,7 @@ function IndustrySuggestionFiles({ visibleItems, type, design,design_type }) {
           
           {/* <div style={{ width: '100%', height: '1px', background: 'black' }}></div> */}
           {!type && <span className={styles['industry-design-industry-tag']}>{item.industry_name}</span>}  
-            <h6 title={item.page_title}>{textLettersLimit(item.page_title, 40)}</h6>
+            <h3 title={item.page_title}>{textLettersLimit(item.page_title, 40)}</h3>
             <p title={item.page_description}>{textLettersLimit(item.page_description, 120)}</p>
           </div>
         </a>

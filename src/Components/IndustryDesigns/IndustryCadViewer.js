@@ -38,7 +38,12 @@ function IndustryCadViewer({ designId, type }) {
     const [currentZoom, setCurrentZoom] = useState(3.6);
     const [isDownLoading, setIsDownLoading] = useState(false);
      const [isDownLoadable, setIsDownLoadable] = useState(false);
-    const [folderId, setFolderId] = useState(type ? designId.library_design : designId.design_id);
+    const [folderId, setFolderId] = useState(() => {
+        if (!designId) return '';
+        const id = type ? designId.library_design : designId.design_id;
+        // Remove the format extension if present
+        return id.split('.')[0];
+    });
     const router = useRouter();
 
     useEffect(() => {
@@ -367,11 +372,15 @@ function IndustryCadViewer({ designId, type }) {
     }
 
     const handleDownload = async () => {
-        setIsDownLoading(true); // Disable button
         try {
+            setIsDownLoading(true);
+            const id = type ? designId.library_design : designId.design_id;
+            const format = id.split('.')[1] || 'step'; // Get format after dot, default to 'step' if not found
+            
             const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
                 design_id: folderId,
-                step:true
+                step: true,
+                file_type: format
             }, {
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"),
@@ -387,7 +396,7 @@ function IndustryCadViewer({ designId, type }) {
         } catch (err) {
             console.error('Error downloading file:', err);
         } finally {
-            setIsDownLoading(false); // Re-enable button after completion
+            setIsDownLoading(false);
         }
     };
     return (

@@ -254,7 +254,21 @@ function CadFileConversionWrapper({ children, convert }) {
         }
 
     }
-
+    useEffect(() => {
+        if(!uploadingMessage|| uploadingMessage==='COMPLETED'|| uploadingMessage === 'UPLOADING') return;
+        const slowApiTimer = setTimeout(() => {
+            console.log('API is slow');
+            if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
+                console.log(isApiSlow, 'isApiSlow');
+                setCloseNotifyInfoPopUp(true);
+            } else {
+                setIsApiSlow(true);
+            }
+        }, 10000);
+    
+        // ✅ Cleanup on unmount
+        return () => clearTimeout(slowApiTimer);
+    }, [uploadingMessage]);
     const handleFileConvert = async (file, s3Url) => {
         if (s3Url) {
 
@@ -268,16 +282,16 @@ function CadFileConversionWrapper({ children, convert }) {
                 const headers = {
                     "user-uuid": localStorage.getItem("uuid"),
                 };
-                const slowApiTimer = setTimeout(() => {
-                    console.log('API is slow');
-                    if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
-                        console.log(isApiSlow, 'isApiSlow')
-                        setIsApiSlow(true);
-                    } else {
-                        setCloseNotifyInfoPopUp(true);
-                    }
-                    console.log("API is slow, showing notification.");
-                }, 10000);
+                // const slowApiTimer = setTimeout(() => {
+                //     console.log('API is slow');
+                //     if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
+                //         console.log(isApiSlow, 'isApiSlow')
+                //         setIsApiSlow(true);
+                //     } else {
+                //         setCloseNotifyInfoPopUp(true);
+                //     }
+                //     console.log("API is slow, showing notification.");
+                // }, 10000);
 
                 const preSignedURL = await axios.post(
                     `${BASE_URL}/v1/cad/get-next-presigned-url`,
@@ -292,7 +306,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     }
                 );
 
-                clearTimeout(slowApiTimer);
+                // clearTimeout(slowApiTimer);
                 if (
                     preSignedURL.data.meta.code === 200 &&
                     preSignedURL.data.meta.message === "SUCCESS" &&
@@ -475,7 +489,7 @@ function CadFileConversionWrapper({ children, convert }) {
             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_CONVERTER'}
                 setClosePopUp={setCloseNotifyInfoPopUp} />}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
-            {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
+            {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} cad_type={'CAD_CONVERTER'}/>}
             {(!isApiSlow || !checkLimit) && <>
                 {uploading ?
                     <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}

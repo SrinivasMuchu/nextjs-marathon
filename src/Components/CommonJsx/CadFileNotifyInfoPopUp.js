@@ -4,6 +4,7 @@ import styles from './CommonStyles.module.css';
 import ClearIcon from '@mui/icons-material/Clear';
 import axios from 'axios';
 import usePushNotifications from './usePushNotifications';
+import PopupWrapper from './PopupWrapper';
 
 function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
     const [email, setEmail] = useState('');
@@ -49,7 +50,7 @@ const pushRegister = usePushNotifications();
     };
 
     return (
-        <div className={styles.popUpMain}>
+        <PopupWrapper>
             <div className={styles.cadNotifyPopup}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                     <ClearIcon onClick={()=>setClosePopUp(false)} />
@@ -115,7 +116,7 @@ const pushRegister = usePushNotifications();
                     </button>
                 </div>
             </div>
-        </div>
+        </PopupWrapper>
     );
 }
 

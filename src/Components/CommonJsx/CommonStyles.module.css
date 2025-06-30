@@ -52,7 +52,16 @@
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   color: #333;
 }
-
+.cadConvertPopup{
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 24px;
+  width: 40%;
+  /* height: 75vh; */
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  color: #333;
+}
 .cadNotifyPopup h3 {
   margin: 0 0 16px 0;
   font-size: 20px;
@@ -96,4 +105,11 @@
   height: 1px;
   background-color: #e2e8f0;
   margin: 16px 0;
+}
+
+@media (max-width: 768px) {
+  .cadConvertPopup{
+    width: 90%;
+    /* height: 75vh; */
+  }
 }

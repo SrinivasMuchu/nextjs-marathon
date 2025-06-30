@@ -12,7 +12,7 @@ import { BASE_URL, BUCKET, DESIGN_GLB_PREFIX_URL } from '@/config';
 import { toast } from 'react-toastify';
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from 'next/navigation';
 import HistoryIcon from '@mui/icons-material/History';
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 
@@ -29,6 +29,7 @@ const MAX_ZOOM = 10;
 
 export default function PartDesignView() {
     // Refs
+    const searchParams = useSearchParams();
     const mountRef = useRef(null);
     const rendererRef = useRef(null);
     const sceneRef = useRef(null);
@@ -53,13 +54,14 @@ export default function PartDesignView() {
     const router = useRouter();
 
     useEffect(() => {
-        const sampleFileKey = localStorage.getItem('sample_view_cad_key');
-        if (sampleFileKey) {
-            setFolderId(sampleFileKey);
+        // const sampleFileKey = localStorage.getItem('sample_view_cad_key');
+        if (searchParams.get('sample')) {
+            setFolderId(searchParams.get('fileId'));
             setIsLoading(false);
             return;
         }
-        if (!file) return;
+        // if(!searchParams.get('fileId')) router.push("/tools/cad-viewer");
+        // if (!file && !searchParams.get('fileId')) router.push("/tools/cad-viewer");
         try {
             console.log(file)
             handleFile(file);
@@ -74,7 +76,7 @@ export default function PartDesignView() {
 
 
 
-        const fileSizeMB = file.size / (1024 * 1024); // Size in MB
+        const fileSizeMB = file && file.size / (1024 * 1024); // Size in MB
 
         try {
             setIsLoading(true)
@@ -126,7 +128,7 @@ export default function PartDesignView() {
                     await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
                     // await CreateCad(preSignedURL.data.data.url)
                 }
-                setFile('')
+                // setFile('')
 
             } else {
                 sendViewerEvent('viewer_file_upload_error');
@@ -141,7 +143,14 @@ export default function PartDesignView() {
         }
     };
    useEffect(() => {
-    if(localStorage.getItem('sample_view_cad_key')) return;
+    // Don't show notification if:
+    // 1. Upload is completed
+    // 2. It's a sample file
+    // 3. We're just viewing a file (not uploading)
+    if(uploadingMessage === 'COMPLETED' || 
+       searchParams.get('sample') || uploadingMessage === 'UPLOADINGFILE'||
+       !uploadingMessage) return;
+
     const slowApiTimer = setTimeout(() => {
         console.log('API is slow');
         if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
@@ -154,11 +163,11 @@ export default function PartDesignView() {
 
     // ✅ Cleanup on unmount
     return () => clearTimeout(slowApiTimer);
-}, []);
+}, [uploadingMessage, searchParams]);
 
     const CreateCad = async (link) => {
         try {
-            localStorage.removeItem('last_viewed_cad_key')
+            
             setIsLoading(true)
             const HEADERS = { "user-uuid": localStorage.getItem('uuid') }
             setUploadingMessage('UPLOADINGFILE')
@@ -176,7 +185,8 @@ export default function PartDesignView() {
             // user-uuid
             if (response.data.meta.success) {
                 // setUploadingMessage('PENDING')
-                localStorage.setItem('last_viewed_cad_key', response.data.data)
+                router.push(`/tools/cad-renderer?fileId=${response.data.data}`)
+                // localStorage.setItem('last_viewed_cad_key', response.data.data)
                 await getStatus()
                 // await UpdateToDocker(link, response.data.data)
             } else {
@@ -289,7 +299,7 @@ export default function PartDesignView() {
 
     useEffect(() => {
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' || uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
-        if (localStorage.getItem('sample_view_cad_key')) return;
+        if (searchParams.get('sample')) return;
         const interval = setInterval(() => {
             getStatus();
         }, 3000);
@@ -297,30 +307,26 @@ export default function PartDesignView() {
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, [uploadingMessage, totalImages, completedImages]);
     useEffect(() => {
-        if (localStorage.getItem('sample_view_cad_key')) return;
-        if (!file) {
+        if (searchParams.get('sample')) return;
+        if (!file && searchParams.get('fileId')) {
             getStatus();
         }
-
-    }, [file]);
+    }, [file, searchParams]);
 
     const getStatus = async () => {
         try {
-            const sampleFileKey = localStorage.getItem('sample_view_cad_key');
-            if (sampleFileKey) {
-                setFolderId(sampleFileKey);
+           
+            if (searchParams.get('sample')) {
+                setFolderId(searchParams.get('fileId'));
                 setIsLoading(false);
                 return;
             }
             setIsLoading(true)
-            if (!localStorage.getItem('last_viewed_cad_key')) {
-                router.push("/tools/cad-viewer")
-                return
-            }
+            
             // const HEADERS = { "x-auth-token": localStorage.getItem('token') };
             const response = await axios.get(BASE_URL + '/v1/cad/get-status', {
                 params: {
-                    id: localStorage.getItem('last_viewed_cad_key'),
+                    id: searchParams.get('fileId'),
                     cad_type: 'CAD_VIEWER'
                 },
                 headers: {
@@ -335,7 +341,7 @@ export default function PartDesignView() {
                     setUploadingMessage(response.data.data.status)
                     // setTotalImages(response.data.data.total_images)
                     // setCompletedImages(response.data.data.completed_images)
-                    setFolderId(localStorage.getItem('last_viewed_cad_key'))
+                    setFolderId(searchParams.get('fileId'))
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                     setTotalImages(response.data.data.total_images)
@@ -352,7 +358,7 @@ export default function PartDesignView() {
             } else {
                 setUploadingMessage('FAILED')
                 toast.error(response.data.meta.message)
-                localStorage.removeItem('last_viewed_cad_key')
+               
                 router.push("/tools/cad-viewer")
                 setIsLoading(false)
             }
@@ -361,7 +367,7 @@ export default function PartDesignView() {
         } catch (error) {
             setUploadingMessage('FAILED')
             router.push("/tools/cad-viewer")
-            localStorage.removeItem('last_viewed_cad_key')
+           
             setIsLoading(false)
         }
     };
@@ -691,7 +697,7 @@ export default function PartDesignView() {
             <HomeTopNav />
             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_VIEWER'}
                          setClosePopUp={setCloseNotifyInfoPopUp} />}
-            {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
+            {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} cad_type={'CAD_VIEWER'}/>}
             {!isApiSlow && <>
                 {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} /> :
                     <div style={{

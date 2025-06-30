@@ -6,13 +6,13 @@ import React, { useState } from 'react'
 import { BASE_URL } from '@/config';
 import Tooltip from '@mui/material/Tooltip';
 
-function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step }) {
+function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,filetype}) {
   const [isDownLoading, setIsDownLoading] = useState(false);
   const handleDownload = async () => {
     setIsDownLoading(true); // Disable button
     try {
       const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-        design_id: folderId, xaxis, yaxis, step,
+        design_id: folderId, xaxis, yaxis, step,file_type:filetype
 
 
       }, {
