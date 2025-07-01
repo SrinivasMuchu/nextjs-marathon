@@ -128,11 +128,14 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       
       // Set the file data in context and wait for it to be processed
       setUploadedFile({
-        url: `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.input_format}`,
+        // url: `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.input_format}`,
+        
+        url: file.input_file_url,
         output_format: file.input_format,
         file_name: file.file_name,
         base_name: file.base_name,
-        _id: file._id
+        _id: file._id,
+        
       });
       
       // Wait a bit to ensure context is updated
