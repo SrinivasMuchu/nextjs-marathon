@@ -45,17 +45,17 @@ function CadFileConversionWrapper({ children, convert }) {
             setAllowedFormats(allowedFilesList)
             return
         }
-        console.log("Full Pathname:", pathname);
+
 
         const pathSegments = pathname.split('/').filter(Boolean);
         const formatsSegment = pathSegments.at(-1) ?? '';
-        console.log("Raw formatsSegment:", formatsSegment);
+      
 
         let from = "", to = "";
 
         if (formatsSegment) {
             const extracted = formatsSegment.split(/-to-|_to_|_/i);
-            console.log("Extracted Parts:", extracted);
+           
 
             if (extracted.length === 2) {
                 [from, to] = extracted;
@@ -70,7 +70,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
         const formats = from ? [`.${from}`] : [];
         const toFormats = to ? [`${to}`] : [];
-        console.log("Allowed Formats:", formats);
+      
         setFromFormate(from)
         setAllowedFormats(formats);
         setToFormate(toFormats)
@@ -152,7 +152,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     setBaseName(response.data.data.base_name)
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
-                    console.log(response.data.data.status)
+               
                 } else if (response.data.data.status === 'FAILED') {
                     sendConverterEvent('converter_conversion_failure')
                     setUploading(false)
@@ -207,7 +207,7 @@ function CadFileConversionWrapper({ children, convert }) {
         }
 
 
-        console.log(file)
+    
         setDisableSelect(false)
         setFileConvert(file)
         // handleFileConvert(file)
@@ -245,7 +245,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     handleFileConvert(file)
                 } else {
                     setCheckLimit(true)
-                    console.log('Limit Exceeded')
+                 
                 }
             }
             catch (error) {
@@ -257,9 +257,9 @@ function CadFileConversionWrapper({ children, convert }) {
     useEffect(() => {
         if(!uploadingMessage|| uploadingMessage==='COMPLETED'|| uploadingMessage === 'UPLOADING') return;
         const slowApiTimer = setTimeout(() => {
-            console.log('API is slow');
+         
             if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
-                console.log(isApiSlow, 'isApiSlow');
+             
                 setCloseNotifyInfoPopUp(true);
             } else {
                 setIsApiSlow(true);
@@ -340,6 +340,7 @@ function CadFileConversionWrapper({ children, convert }) {
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
                     s3_link: url,
+                    sample_file:s3Url?true:false,
                     input_format: fileConvert.name.split('.').pop(),
                     output_format: selectedFileFormate,
                     file_name: fileConvert.name,
@@ -355,7 +356,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
             // /design-view
             if (response.data.meta.success) {
-                console.log(response.data.data)
+              
 
                 setFolderId(response.data.data)
 
@@ -371,7 +372,7 @@ function CadFileConversionWrapper({ children, convert }) {
         }
     }
     async function multiUpload(data, file, headers, fileSizeMB) {
-        console.log(data, file, headers, fileSizeMB);
+      
         const parts = [];
 
         for (let i = 0; i < data.total_parts; i++) {
@@ -379,17 +380,16 @@ function CadFileConversionWrapper({ children, convert }) {
             const end = Math.min(start + data.part_size, file.size);
             const part = file.slice(start, end); // FIXED: Use `slice` for binary data
 
-            console.log(`Uploading part ${i + 1}/${data.total_parts}`);
-            console.log('Part size:', part.size); // Ensure correct part size
+           
 
             parts.push(uploadPart(i, part, data, file));
         }
 
         try {
             const uploadedParts = await Promise.all(parts);
-            console.log(uploadedParts);
+          
             await completeMultipartUpload(data, uploadedParts, headers, fileSizeMB);
-            console.log('All parts uploaded successfully');
+         
         } catch (error) {
             console.error('Error uploading parts:', error);
             throw error;
@@ -399,7 +399,7 @@ function CadFileConversionWrapper({ children, convert }) {
     const uploadPart = async (partNumber, part, data, file) => {
         try {
             const { url } = data.url[partNumber]; // Get correct presigned URL
-            console.log(`Uploading part ${partNumber + 1} to ${url}`);
+          
 
             const result = await axios.put(url, part, {
                 headers: {
@@ -408,9 +408,9 @@ function CadFileConversionWrapper({ children, convert }) {
                 },
             });
 
-            console.log('Response Headers:', result.headers);
+        
             const etag = result.headers["etag"] || result.headers["ETag"]; // Fix header extraction
-            console.log(`Part ${partNumber + 1} uploaded successfully`, etag);
+         
             return { ETag: etag, PartNumber: partNumber + 1 };
         } catch (error) {
             console.error(`Error uploading part ${partNumber + 1}:`, error);
@@ -419,7 +419,7 @@ function CadFileConversionWrapper({ children, convert }) {
     };
 
     const completeMultipartUpload = async (data, parts, headers, fileSizeMB) => {
-        console.log(data, parts, headers, fileSizeMB);
+     
         try {
 
             setUploadingMessage('UPLOADING')
@@ -441,7 +441,7 @@ function CadFileConversionWrapper({ children, convert }) {
             );
 
             if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
-                console.log("Multipart upload completed successfully.");
+             
 
                 // Ensure `CadFileConversion` is called correctly
 
@@ -459,7 +459,7 @@ function CadFileConversionWrapper({ children, convert }) {
     };
 
     async function simpleUpload(data, file) {
-        console.log("Uploading file:", data, file);
+      
         setUploadingMessage('UPLOADING')
         const result = await axios.put(data.url, file, {
             headers: {
@@ -474,7 +474,7 @@ function CadFileConversionWrapper({ children, convert }) {
         await CadFileConversion(data.url)
 
 
-        console.log("Upload complete:", result);
+      
     }
     const handleSampleFileUpload = (file) => {
         sendConverterEvent('converter_sample_file_clicked')

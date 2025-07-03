@@ -13,8 +13,10 @@ function IndustryDesignHeader({design,designData,type}) {
         </div>
         <div className={styles['industry-design-header-viewer']}>
             <span >Experience in 3-D</span>
-             <a href={type ? `/library/${design}/${designData._id}.${designData.file_type?designData.file_type:'step'}`:`/industry/${design.industry}/${design.part}/${design.design}/${designData._id}.${designData.file_type?designData.file_type:'step'}`} 
-            rel="nofollow"><button >Open in 3D viewer</button></a>   
+            {/* http://localhost:3000/tools/cad-renderer?fileId=6864dccdf76d3baee61d6785 */}
+            <a href={`/tools/cad-renderer?fileId=${designData._id}&format=${designData.file_type?designData.file_type:'step'}`} rel="nofollow"><button >Open in 3D viewer</button></a>   
+                {/* <a href={ `/library/${design}/${designData._id}.${designData.file_type?designData.file_type:'step'}`:`/industry/${design.industry}/${design.part}/${design.design}/${designData._id}.${designData.file_type?designData.file_type:'step'}`} 
+                rel="nofollow"><button >Open in 3D viewer</button></a>    */}
         </div>
     </div>
   )

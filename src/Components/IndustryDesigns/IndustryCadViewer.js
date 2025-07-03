@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from 'lucide-react';
 import DownloadIcon from '@mui/icons-material/Download';
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { sendViewerEvent } from '@/common.helper';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
@@ -20,7 +20,7 @@ const MAX_ROTATION = 360;
 const ZOOM_STEP = 0.5;
 const MIN_ZOOM = 2;
 const MAX_ZOOM = 10;
-function IndustryCadViewer({ designId, type }) {
+function IndustryCadViewer() {
 
     const mountRef = useRef(null);
     const rendererRef = useRef(null);
@@ -38,19 +38,18 @@ function IndustryCadViewer({ designId, type }) {
     const [currentZoom, setCurrentZoom] = useState(3.6);
     const [isDownLoading, setIsDownLoading] = useState(false);
      const [isDownLoadable, setIsDownLoadable] = useState(false);
-    const [folderId, setFolderId] = useState(() => {
-        if (!designId) return '';
-        const id = type ? designId.library_design : designId.design_id;
-        // Remove the format extension if present
-        return id.split('.')[0];
-    });
+    const searchParams = useSearchParams();
+    const file_id = searchParams.get('fileId');
+    const format = searchParams.get('format') || 'step';
+    const [folderId, setFolderId] = useState(file_id || '');
     const router = useRouter();
 
     useEffect(() => {
-        if (folderId) {
-            checkPermission(folderId);
+        if (file_id) {
+            setFolderId(file_id);
+            checkPermission(file_id);
         }
-    }, [folderId]);
+    }, [file_id]);
     const checkPermission = async () => {
         try {
             const response = await axios.get(`${BASE_URL}/v1/cad/check-download`, {
@@ -363,22 +362,14 @@ function IndustryCadViewer({ designId, type }) {
     }, []);
 
     const handleNavigateBack = () => {
-        if (type) {
-            router.push(`/library/${designId.industry_design}`)
-        } else {
-            router.push(`/industry/${designId.industry}/${designId.part}/${designId.design}`)
-        }
-
+        router.back();
     }
 
     const handleDownload = async () => {
         try {
             setIsDownLoading(true);
-            const id = type ? designId.library_design : designId.design_id;
-            const format = id.split('.')[1] || 'step'; // Get format after dot, default to 'step' if not found
-            
             const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-                design_id: folderId,
+                design_id: file_id,
                 step: true,
                 file_type: format
             }, {

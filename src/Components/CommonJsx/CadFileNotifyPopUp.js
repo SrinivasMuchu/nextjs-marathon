@@ -7,21 +7,21 @@ import PopupWrapper from './PopupWrapper';
 
 function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
   const [browserNotify, setBrowserNotify] = useState(true);
   const pushRegister = usePushNotifications();
 
   const handleAllow = async () => {
-    console.log(browserNotify)
     try {
-      console.log('Registering notifications...');
-      await pushRegister(email, browserNotify);
-      // Only redirect if there was no error
+      const result = await pushRegister(email, browserNotify);
+      if (result?.success === false) {
+        setError(result.message);
+        return;
+      }
       window.location.href = `/dashboard?cad_type=${cad_type}`;
       setIsApiSlow(false);
     } catch (error) {
-      console.error('Error registering notifications:', error);
-      // Don't close the popup on error
-      // Error toast will be shown by usePushNotifications hook
+      setError(error.message || 'An error occurred');
     }
   };
 
@@ -60,7 +60,7 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
             className="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:border-blue-500"
           />
         </div>}  
-
+        {}
         {/* Browser Notifications Toggle */}
         <div className="flex items-center gap-3 mb-6">
           <span className="text-gray-700">
@@ -83,7 +83,7 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
             </div>
           </label>
         </div>
-
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         {/* Submit Button */}
         <div className="flex justify-between">
           <button
