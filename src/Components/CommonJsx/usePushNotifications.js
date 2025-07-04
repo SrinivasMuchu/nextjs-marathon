@@ -59,9 +59,9 @@ export default function usePushNotifications() {
                 if (result.data.meta.success) {
                     if (email) localStorage.setItem('user_email', email);
                     console.log('✅ Notification preferences saved successfully');
+                    return { success: true };
                 } else {
-                    toast.error(result.data.meta.message);
-                    throw new Error(result.data.meta.message);
+                    return { success: false, message: result.data.meta.message };
                 }
             }
         } catch (err) {

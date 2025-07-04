@@ -114,7 +114,7 @@ function IndustryDesignsCarousel({ designData, type, design }) {
             {/* 3D Viewer Button */}
             <div className="w-full flex items-center justify-center mt-4 sm:mt-6 px-4">
                 <a
-                    href={type ? `/library/${design}/${designData._id}.${designData.file_type ? designData.file_type : 'step'}` : `/industry/${design.industry}/${design.part}/${design.design}/${designData._id}.${designData.file_type ? designData.file_type : 'step'}`}
+                    href={`/tools/cad-renderer?fileId=${designData._id}&format=${designData.file_type?designData.file_type:'step'}`} 
                     rel="nofollow"
                     className="w-full sm:w-auto"
                 >

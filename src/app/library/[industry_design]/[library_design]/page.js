@@ -27,7 +27,7 @@ export async function generateMetadata({ params }) {
 }
 function LibraryCategory({ params }) {
   const design = params;
-  console.log("Library Category Params:", params); // 👈 Debugging line
+ 
   return (
     <IndustryCadViewer designId={design} type='library'/>
   )

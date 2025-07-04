@@ -22,10 +22,8 @@ function CadFileLimitExceedPopUp({ setCheckLimit }) {
             )
             if (!response.data.meta.success) {
                 setCadFilesUploaded(response.data.data.cad_files)
-                console.log('cadFilesUploaded', response.data.data.cad_files)
-            } else {
-                console.log('u can upload')
-            }
+             
+            } 
         }
         catch (error) {
             console.error("Error checking file upload limit:", error);

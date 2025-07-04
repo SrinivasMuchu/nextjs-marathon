@@ -38,7 +38,7 @@ function UploadYourCadDesign() {
     const [selectedOptions, setSelectedOptions] = useState([]);
     
     useEffect(() => {
-        console.log(uploadedFile, "uploadedFile")
+     
         if (uploadedFile && Object.keys(uploadedFile).length > 0) {
             setFileName(uploadedFile.file_name);
             setFileFormat(uploadedFile.output_format);

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Select from "react-select";
 
 const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags,initialTagSelectedOption }) => {
-  console.log(initialTagSelectedOption,'dhasd')
+
   const router = useRouter();
 
   const initialSelectedOption = allCategories
