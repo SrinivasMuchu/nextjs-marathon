@@ -371,7 +371,7 @@ export default function PartDesignView() {
                     sendViewerEvent('viewer_view_completed');
                     setIsLoading(false)
                     setUploadingMessage(response.data.data.status)
-                    setPublishedCad(response.data.data.published_cad);
+                    setPublishedCad(response.data.data.published_cad_count);
                     setFileName(response.data.data.file_name);
                     setCadViewLink(response.data.data.cad_view_link);
                     // setTotalImages(response.data.data.total_images)
