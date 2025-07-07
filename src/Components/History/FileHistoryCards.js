@@ -133,6 +133,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           file_name: file.file_name,
           base_name: file.base_name,
           _id: file._id,
+          cad_type: 'CAD_CONVERTER',
         });
 
         // Wait a bit to ensure context is updated

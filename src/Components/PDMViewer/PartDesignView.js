@@ -19,6 +19,7 @@ import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 import { sendViewerEvent } from '@/common.helper';
 import DownloadIcon from '@mui/icons-material/Download';
 import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
+import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 // Constants
 const ANGLE_STEP = 30;
 const BUFFER_SIZE = 0;
@@ -38,7 +39,8 @@ export default function PartDesignView() {
     const animationFrameRef = useRef(null);
     const loadedTexturesRef = useRef(new Set()); // Track loaded textures
     const [uploadingMessage, setUploadingMessage] = useState('');
-    const { file, setFile } = useContext(contextState);
+    const [publishedCad, setPublishedCad] = useState('');
+    const { file, setFile, setUploadedFile,uploadedFile } = useContext(contextState);
     const [materials, setMaterials] = useState({});
     const [lastValidMaterial, setLastValidMaterial] = useState(null);
     const [xRotation, setXRotation] = useState(0);
@@ -51,6 +53,9 @@ export default function PartDesignView() {
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
     const [folderId, setFolderId] = useState('');
+    const [fileName, setFileName] = useState('');
+    const [cadViewLink, setCadViewLink] = useState('');
+    const [publishCadPopup, setPublishCadPopup] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -131,7 +136,7 @@ export default function PartDesignView() {
                 // setFile('')
 
             } else {
-                sendViewerEvent('viewer_file_upload_error');
+                sendViewerEvent('viewer_file_signedurl_error');
                 toast.error("⚠️ Error generating signed URL.");
                 setIsLoading(false)
                 router.push("/tools/cad-viewer")
@@ -164,6 +169,32 @@ export default function PartDesignView() {
         // ✅ Cleanup on unmount
         return () => clearTimeout(slowApiTimer);
     }, [uploadingMessage, searchParams]);
+
+    useEffect(() => {
+        // Don't show notification if:
+        // 1. Upload is completed
+        // 2. It's a sample file
+        // 3. We're just viewing a file (not uploading)
+        if (publishedCad === 0) {
+            const publishCad = setTimeout(() => {
+                setPublishCadPopup(true);
+            //   
+                setUploadedFile({
+                    url: true,                 
+                    file_name: fileName,
+                    _id: searchParams.get('fileId'),
+                    cad_view_link:cadViewLink,
+                    cad_type: 'CAD_VIEWER',
+                });
+
+            }, 10000);
+
+            // ✅ Cleanup on unmount
+            return () => clearTimeout(publishCad);
+        };
+
+
+    }, [publishedCad]);
 
     const CreateCad = async (link) => {
         try {
@@ -340,6 +371,9 @@ export default function PartDesignView() {
                     sendViewerEvent('viewer_view_completed');
                     setIsLoading(false)
                     setUploadingMessage(response.data.data.status)
+                    setPublishedCad(response.data.data.published_cad);
+                    setFileName(response.data.data.file_name);
+                    setCadViewLink(response.data.data.cad_view_link);
                     // setTotalImages(response.data.data.total_images)
                     // setCompletedImages(response.data.data.completed_images)
                     setFolderId(searchParams.get('fileId'))
@@ -705,6 +739,11 @@ export default function PartDesignView() {
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
+                {publishCadPopup && (
+                    <div style={{ pointerEvents: 'auto' }}>
+                        <ConvertedFileUploadPopup setPublishCad={setPublishCadPopup}/>
+                    </div>
+                )}
                 {closeNotifyInfoPopUp && (
                     <div style={{ pointerEvents: 'auto' }}>
                         <CadFileNotifyInfoPopUp cad_type={'CAD_VIEWER'} setClosePopUp={setCloseNotifyInfoPopUp} />
@@ -716,84 +755,108 @@ export default function PartDesignView() {
                     </div>
                 )}
             </div>
-            
-                {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} /> :
-                    <div style={{
-                        position: 'relative',
+
+            {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} /> :
+                <div style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '100vh'
+                }}>
+                    <button onClick={() => router.push("/tools/cad-viewer")} style={{
+
+                        padding: '10px',
+                        borderRadius: '4px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        border: '1px solid #e5e7eb',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        transition: 'background-color 0.2s',
+                        cursor: 'pointer',
+                        position: 'absolute',
+                        top: '2rem', left: '3rem', zIndex: 2
+                    }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
+
+                    <button onClick={() => router.push("/dashboard")} style={{
+
+                        padding: '10px',
+                        borderRadius: '4px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        border: '1px solid #e5e7eb',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        transition: 'background-color 0.2s',
+                        cursor: 'pointer',
+                        position: 'absolute',
+                        top: '2rem', left: '8rem', zIndex: 2
+                    }}><HistoryIcon style={{ width: '24px', height: '24px' }} /></button>
+                    {/* Three.js Canvas Container */}
+                    <div ref={mountRef} style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
                         width: '100%',
-                        height: '100vh'
+                        height: '100%',
+                        zIndex: 1
+                    }} />
+
+                    {/* Rotation Controls */}
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'flex-end',
+                        justifyContent: 'center',
+                        paddingBottom: '2rem',
+                        zIndex: 1
                     }}>
-                        <button onClick={() => router.push("/tools/cad-viewer")} style={{
-
-                            padding: '10px',
-                            borderRadius: '4px',
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            border: '1px solid #e5e7eb',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                            transition: 'background-color 0.2s',
-                            cursor: 'pointer',
-                            position: 'absolute',
-                            top: '2rem', left: '3rem', zIndex: 2
-                        }}><ArrowLeft style={{ width: '24px', height: '24px' }} /></button>
-
-                        <button onClick={() => router.push("/dashboard")} style={{
-
-                            padding: '10px',
-                            borderRadius: '4px',
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            border: '1px solid #e5e7eb',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                            transition: 'background-color 0.2s',
-                            cursor: 'pointer',
-                            position: 'absolute',
-                            top: '2rem', left: '8rem', zIndex: 2
-                        }}><HistoryIcon style={{ width: '24px', height: '24px' }} /></button>
-                        {/* Three.js Canvas Container */}
-                        <div ref={mountRef} style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            width: '100%',
-                            height: '100%',
-                            zIndex: 1
-                        }} />
-
-                        {/* Rotation Controls */}
                         <div style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
                             display: 'flex',
-                            alignItems: 'flex-end',
-                            justifyContent: 'center',
-                            paddingBottom: '2rem',
-                            zIndex: 1
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '1rem'
                         }}>
+                            {/* Control buttons */}
                             <div style={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                gap: '1rem'
+                                gap: '0.5rem'
                             }}>
-                                {/* Control buttons */}
+                                <button
+                                    onClick={() => rotateView('up')}
+                                    style={{
+                                        width: '3rem',
+                                        height: '3rem',
+                                        borderRadius: '9999px',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                        border: '1px solid #e5e7eb',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                        transition: 'background-color 0.2s',
+                                        cursor: 'pointer'
+                                    }}
+                                    onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
+                                    onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
+                                >
+                                    <ArrowUp style={{ width: '1.5rem', height: '1.5rem' }} />
+                                </button>
                                 <div style={{
                                     display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
                                     gap: '0.5rem'
                                 }}>
                                     <button
-                                        onClick={() => rotateView('up')}
+                                        onClick={() => rotateView('left')}
                                         style={{
                                             width: '3rem',
                                             height: '3rem',
@@ -810,55 +873,10 @@ export default function PartDesignView() {
                                         onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
                                         onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
                                     >
-                                        <ArrowUp style={{ width: '1.5rem', height: '1.5rem' }} />
+                                        <ArrowLeft style={{ width: '1.5rem', height: '1.5rem' }} />
                                     </button>
-                                    <div style={{
-                                        display: 'flex',
-                                        gap: '0.5rem'
-                                    }}>
-                                        <button
-                                            onClick={() => rotateView('left')}
-                                            style={{
-                                                width: '3rem',
-                                                height: '3rem',
-                                                borderRadius: '9999px',
-                                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                                border: '1px solid #e5e7eb',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                                transition: 'background-color 0.2s',
-                                                cursor: 'pointer'
-                                            }}
-                                            onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
-                                            onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
-                                        >
-                                            <ArrowLeft style={{ width: '1.5rem', height: '1.5rem' }} />
-                                        </button>
-                                        <button
-                                            onClick={() => rotateView('right')}
-                                            style={{
-                                                width: '3rem',
-                                                height: '3rem',
-                                                borderRadius: '9999px',
-                                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                                border: '1px solid #e5e7eb',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                                transition: 'background-color 0.2s',
-                                                cursor: 'pointer'
-                                            }}
-                                            onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
-                                            onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
-                                        >
-                                            <ArrowRight style={{ width: '1.5rem', height: '1.5rem' }} />
-                                        </button>
-                                    </div>
                                     <button
-                                        onClick={() => rotateView('down')}
+                                        onClick={() => rotateView('right')}
                                         style={{
                                             width: '3rem',
                                             height: '3rem',
@@ -875,102 +893,123 @@ export default function PartDesignView() {
                                         onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
                                         onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
                                     >
-                                        <ArrowDown style={{ width: '1.5rem', height: '1.5rem' }} />
+                                        <ArrowRight style={{ width: '1.5rem', height: '1.5rem' }} />
                                     </button>
                                 </div>
+                                <button
+                                    onClick={() => rotateView('down')}
+                                    style={{
+                                        width: '3rem',
+                                        height: '3rem',
+                                        borderRadius: '9999px',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                        border: '1px solid #e5e7eb',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                        transition: 'background-color 0.2s',
+                                        cursor: 'pointer'
+                                    }}
+                                    onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
+                                    onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
+                                >
+                                    <ArrowDown style={{ width: '1.5rem', height: '1.5rem' }} />
+                                </button>
+                            </div>
 
-                                {/* Current view info */}
-                                <div style={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                    padding: '0.5rem 1rem',
-                                    borderRadius: '9999px',
-                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                    border: '1px solid #e5e7eb'
-                                }}>
-                                    <span style={{ fontWeight: 500 }}>
-                                        Zoom: {currentZoom.toFixed(1)}x
-                                    </span>
-                                </div>
+                            {/* Current view info */}
+                            <div style={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                padding: '0.5rem 1rem',
+                                borderRadius: '9999px',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                border: '1px solid #e5e7eb'
+                            }}>
+                                <span style={{ fontWeight: 500 }}>
+                                    Zoom: {currentZoom.toFixed(1)}x
+                                </span>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Zoom Controls */}
+                    {/* Zoom Controls */}
+                    <div style={{
+                        position: 'absolute',
+                        right: '2rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem',
+                        zIndex: 2
+                    }}>
+                        <button
+                            onClick={() => handleZoom('in')}
+                            style={{
+                                width: '3rem',
+                                height: '3rem',
+                                borderRadius: '9999px',
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                border: '1px solid #e5e7eb',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                transition: 'background-color 0.2s',
+                                cursor: 'pointer',
+                                opacity: currentZoom <= MIN_ZOOM ? 0.5 : 1
+                            }}
+                            onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
+                            onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
+                            disabled={currentZoom <= MIN_ZOOM}
+                        >
+                            <ZoomIn style={{ width: '1.5rem', height: '1.5rem' }} />
+                        </button>
+                        <button
+                            onClick={() => handleZoom('out')}
+                            style={{
+                                width: '3rem',
+                                height: '3rem',
+                                borderRadius: '9999px',
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                border: '1px solid #e5e7eb',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                transition: 'background-color 0.2s',
+                                cursor: 'pointer',
+                                opacity: currentZoom >= MAX_ZOOM ? 0.5 : 1
+                            }}
+                            onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
+                            onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
+                            disabled={currentZoom >= MAX_ZOOM}
+                        >
+                            <ZoomOut style={{ width: '1.5rem', height: '1.5rem' }} />
+                        </button>
+                    </div>
+
+                    {/* Loading and Error states remain the same */}
+
+                    {error && (
                         <div style={{
                             position: 'absolute',
-                            right: '2rem',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '0.5rem',
-                            zIndex: 2
+                            top: '1rem',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            backgroundColor: '#fee2e2',
+                            border: '1px solid #ef4444',
+                            color: '#b91c1c',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '0.375rem',
+                            zIndex: 3
                         }}>
-                            <button
-                                onClick={() => handleZoom('in')}
-                                style={{
-                                    width: '3rem',
-                                    height: '3rem',
-                                    borderRadius: '9999px',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                    border: '1px solid #e5e7eb',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                    transition: 'background-color 0.2s',
-                                    cursor: 'pointer',
-                                    opacity: currentZoom <= MIN_ZOOM ? 0.5 : 1
-                                }}
-                                onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
-                                onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
-                                disabled={currentZoom <= MIN_ZOOM}
-                            >
-                                <ZoomIn style={{ width: '1.5rem', height: '1.5rem' }} />
-                            </button>
-                            <button
-                                onClick={() => handleZoom('out')}
-                                style={{
-                                    width: '3rem',
-                                    height: '3rem',
-                                    borderRadius: '9999px',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                    border: '1px solid #e5e7eb',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                    transition: 'background-color 0.2s',
-                                    cursor: 'pointer',
-                                    opacity: currentZoom >= MAX_ZOOM ? 0.5 : 1
-                                }}
-                                onMouseOver={e => e.currentTarget.style.backgroundColor = '#ffffff'}
-                                onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'}
-                                disabled={currentZoom >= MAX_ZOOM}
-                            >
-                                <ZoomOut style={{ width: '1.5rem', height: '1.5rem' }} />
-                            </button>
+                            {error}
                         </div>
+                    )}
+                </div>}
 
-                        {/* Loading and Error states remain the same */}
-
-                        {error && (
-                            <div style={{
-                                position: 'absolute',
-                                top: '1rem',
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                                backgroundColor: '#fee2e2',
-                                border: '1px solid #ef4444',
-                                color: '#b91c1c',
-                                padding: '0.5rem 1rem',
-                                borderRadius: '0.375rem',
-                                zIndex: 3
-                            }}>
-                                {error}
-                            </div>
-                        )}
-                    </div>}
-            
 
 
 

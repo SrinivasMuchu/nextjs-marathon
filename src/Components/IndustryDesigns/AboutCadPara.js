@@ -173,7 +173,7 @@ function AboutCadPara({cadReport}) {
     return [
       geometryText && `The CAD model comprises ${geometryText}`,
       solidsText && ` distributed over ${solidsText}.`,
-      !hasSurfaces && !hasOrientations ? ' Additional surface and orientation data are currently unavailable.' : '',
+      !hasSurfaces && !hasOrientations ? '' : '',
       boundingText && ` Model measures: ${boundingText}.`,
       volumeText && ` Volumes: ${volumeText}.`,
     ].filter(Boolean).join('')

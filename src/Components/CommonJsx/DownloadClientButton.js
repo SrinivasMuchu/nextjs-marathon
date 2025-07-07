@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 import { BASE_URL } from '@/config';
 import Tooltip from '@mui/material/Tooltip';
 
-function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,filetype}) {
+function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,filetype,custumDownload}) {
   const [isDownLoading, setIsDownLoading] = useState(false);
   const handleDownload = async () => {
     setIsDownLoading(true); // Disable button
@@ -35,7 +35,43 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
   };
   return (
     <>
-      {isDownladable === false ?
+    {custumDownload ? <>
+      <>
+    {isDownladable === false ?
+        <Tooltip
+          title='This file is view-only downloads are disabled by the creator.' arrow
+          placement='top'
+
+          disableHoverListener={isDownladable}
+          disableFocusListener={isDownladable}
+          disableTouchListener={isDownladable}
+          PopperProps={{
+            sx: {
+              '& .MuiTooltip-tooltip': {
+                backgroundColor: '#333',
+                color: '#fff',
+                fontSize: '12px',
+                padding: '6px',
+                borderRadius: '4px',
+              },
+            },
+          }}
+        >
+          <span>
+            <button
+              disabled
+              className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4"
+              style={{ opacity: 0.6, cursor: 'not-allowed' }}
+            >
+               Download 3d design
+            </button>
+          </span>
+        </Tooltip> : <button
+          disabled={isDownLoading} className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4" onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download 3d design'} </button>}
+  
+    </>
+    </>:<>
+    {isDownladable === false ?
         <Tooltip
           title='This file is view-only downloads are disabled by the creator.' arrow
           placement='top'
@@ -66,7 +102,10 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
           </span>
         </Tooltip> : <button
           disabled={isDownLoading} className={styles['industry-design-files-btn']} onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download'} </button>}
-    </>
+  
+    </>}
+    
+        </>
 
   )
 }
