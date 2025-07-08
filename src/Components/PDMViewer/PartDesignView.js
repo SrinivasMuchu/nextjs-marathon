@@ -175,7 +175,7 @@ export default function PartDesignView() {
         // 1. Upload is completed
         // 2. It's a sample file
         // 3. We're just viewing a file (not uploading)
-        if (publishedCad === 0) {
+        if (publishedCad === 0 && !searchParams.get('sample')) {
             const publishCad = setTimeout(() => {
                 setPublishCadPopup(true);
             //   

@@ -126,7 +126,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
      
       const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
       
-      if (!file.sample_file) {
+      if (!file.sample_file || file.is_published) {
         setUploadedFile({
           url: `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`,
           output_format: file.input_format,
@@ -140,7 +140,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      file.sample_file ? setPublishCad(false) : setPublishCad(true);
+      (file.sample_file || file.is_published)? setPublishCad(false) : setPublishCad(true);
       const response = await fetch(url);
 
       if (!response.ok) {

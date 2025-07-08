@@ -1,9 +1,10 @@
 "use client"
-import React from 'react'
+import React,{useEffect} from 'react'
 import PopupWrapper from './PopupWrapper';
 import styles from './CommonStyles.module.css';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useRouter } from "next/navigation";
+import { sendPublishModelEvent } from '@/common.helper';
 
 const features = [
     {
@@ -38,11 +39,14 @@ function ConvertedFileUploadPopup({url,setPublishCad}) {
     const handlePublish = () => {
         // Example object to save
      
-
+        sendPublishModelEvent('publish_cad_modal_button_click');
         // Save object as JSON string
       
         router.push("/publish-cad");
     };
+    useEffect(() => {
+        sendPublishModelEvent('publish_cad_modal_view');
+    }, []);
     return (
         <PopupWrapper>
             <div className={styles.cadConvertPopup}>

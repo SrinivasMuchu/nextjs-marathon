@@ -200,10 +200,12 @@ function UploadYourCadDesign() {
 
             if (response.data.meta.success) {
                 if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
+                   
                     setCloseNotifyInfoPopUp(true);
                 } else {
                     setIsApiSlow(true);
                 }
+                 sendPublishEvent('publish_cad_complete')
             } else {
                 let newFormErrors = { ...formErrors };
                 const validationErrors = response.data?.meta?.validationErrors;
@@ -225,11 +227,13 @@ function UploadYourCadDesign() {
                         // If not specific, show under title
                         newFormErrors.title = response.data.meta.message;
                     }
+                    sendPublishEvent('publish_cad_text_errors')
                 } else {
                     // Generic error message as fallback
                     newFormErrors.title = "Failed to upload file. Please try again later.";
                 }
                 setFormErrors(newFormErrors);
+                
             }
             setUploading(false);
         } catch (error) {

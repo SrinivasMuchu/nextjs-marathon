@@ -113,6 +113,7 @@ setSigningUp(true)
       });
 
       if (response.data.meta.success) {
+        sendPublishEvent('publish_cad_profile_complete')
         toast.success(`Profile updated successfully`);
         if (field !== 'photo') {
           localStorage.setItem(`user_${field}`, user[field]);

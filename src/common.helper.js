@@ -30,6 +30,33 @@ export function sendConverterEvent(eventName) {
 
 }
 
+export function sendPublishEvent(eventName) {
+ 
+   
+    window.gtag('event', eventName, {
+      event_category: 'PUBLISH',
+      
+    });
+  
+}
+export function sendPublishModelEvent(eventName) {
+  if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.gtag('event', eventName, {
+      event_category: 'PUBLISH',
+      event_label: cleanUrl // URL without query params
+    });
+  } 
+}
+
+export function sendFloatingButtonEvent(eventName) {
+ 
+  window.gtag('event', eventName, {
+    event_category: 'FLOATING_BUTTON'
+  });
+
+}
+
 //    iges 
 
 
