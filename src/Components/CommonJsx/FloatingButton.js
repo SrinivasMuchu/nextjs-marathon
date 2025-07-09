@@ -27,7 +27,7 @@ function FloatingButton() {
             e.preventDefault();
             sendFloatingButtonEvent('floating_button_convert_click');
             setTimeout(() => {
-              window.location.href = "/tools/cad-viewer";
+              window.location.href = "/tools/3d-file-converter";
             }, 100); // 100ms delay to allow GA event to fire
           }}
          
@@ -40,11 +40,11 @@ function FloatingButton() {
             e.preventDefault();
             sendFloatingButtonEvent('floating_button_publish_click');
             setTimeout(() => {
-              window.location.href = "/tools/cad-viewer";
+              window.location.href = "/publish-cad";
             }, 100); // 100ms delay to allow GA event to fire
           }}
          
-          href="/publish-cad"
+          // href="/publish-cad"
           className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
         >
           Publish CAD
