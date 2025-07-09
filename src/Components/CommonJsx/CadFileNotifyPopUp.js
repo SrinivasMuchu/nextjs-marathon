@@ -4,8 +4,9 @@ import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import styles from './CommonStyles.module.css';
 import usePushNotifications from './usePushNotifications';
 import PopupWrapper from './PopupWrapper';
+import { sendBrowserNotificationEvent } from '../../common.helper';
 
-function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
+function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [browserNotify, setBrowserNotify] = useState(true);
@@ -13,6 +14,8 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
 
   const handleAllow = async () => {
     try {
+      sendBrowserNotificationEvent(browserNotify ? 'browser_notification_approve' :
+        'browser_notification_reject');
       const result = await pushRegister(email, browserNotify);
       if (result?.success === false) {
         setError(result.message);
@@ -45,11 +48,11 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
         </button>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-1">Stay Updated</h2>
-     <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it&#39;s ready.</p>
+        <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it&#39;s ready.</p>
 
 
         {/* Email Input */}
-      {!action && <div className="flex items-center gap-3 mb-4">
+        {!action && <div className="flex items-center gap-3 mb-4">
           <MailOutlineIcon style={{ fontSize: '20px', color: '#4B5563' }} />
           <input
             type="email"
@@ -59,8 +62,8 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
             onChange={(e) => setEmail(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:border-blue-500"
           />
-        </div>}  
-        {}
+        </div>}
+        { }
         {/* Browser Notifications Toggle */}
         <div className="flex items-center gap-3 mb-6">
           <span className="text-gray-700">
@@ -97,19 +100,19 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
             onClick={handleAllow}
             disabled={!email && !browserNotify}
           >
-            {email && browserNotify ? 'Notify Both Ways' : 
-             email ? 'Notify via Email' : 
-             browserNotify ? 'Enable Notifications' : 'Select Notification Method'}
+            {email && browserNotify ? 'Notify Both Ways' :
+              email ? 'Notify via Email' :
+                browserNotify ? 'Enable Notifications' : 'Select Notification Method'}
           </button>}
           {(action && browserNotify) && <button
             className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition duration-200"
             onClick={handleAllow}
-            disabled={ !browserNotify}
+            disabled={!browserNotify}
           >
             {
-             browserNotify && 'Enable Notifications' }
+              browserNotify && 'Enable Notifications'}
           </button>}
-          
+
         </div>
       </div>
     </PopupWrapper>
