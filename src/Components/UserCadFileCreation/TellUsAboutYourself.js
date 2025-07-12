@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import NameProfile from "@/Components/CommonJsx/NameProfile";
 import axios from 'axios';
 import { contextState } from '../CommonJsx/ContextProvider';
-import { BASE_URL, ASSET_PREFIX_URL } from '@/config';
+import { BASE_URL, ASSET_PREFIX_URL, CAD_PUBLISH_EVENT } from '@/config';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 function TellUsAboutYourself() {
@@ -113,7 +113,7 @@ setSigningUp(true)
       });
 
       if (response.data.meta.success) {
-        sendPublishEvent('publish_cad_profile_complete')
+        sendGAtagEvent('publish_cad_profile_complete',CAD_PUBLISH_EVENT)
         toast.success(`Profile updated successfully`);
         if (field !== 'photo') {
           localStorage.setItem(`user_${field}`, user[field]);

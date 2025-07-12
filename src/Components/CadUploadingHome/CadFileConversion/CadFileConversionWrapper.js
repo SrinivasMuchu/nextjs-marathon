@@ -1,7 +1,7 @@
 
 
 "use client";
-import { allowedFilesList, IMAGEURLS } from "@/config";
+import { allowedFilesList, CAD_CONVERTER_EVENT, IMAGEURLS } from "@/config";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import styles from '../CadHomeDesign/CadHome.module.css'
@@ -17,7 +17,7 @@ import CadFileNotifyPopUp from "@/Components/CommonJsx/CadFileNotifyPopUp";
 import { unstable_useId } from "@mui/material";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopUp";
-import { convertedFiles, sendConverterEvent } from "@/common.helper";
+import { convertedFiles, sendGAtagEvent } from "@/common.helper";
 
 function CadFileConversionWrapper({ children, convert }) {
     const fileInputRef = useRef(null);
@@ -147,14 +147,14 @@ function CadFileConversionWrapper({ children, convert }) {
 
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
-                    sendConverterEvent('converter_conversion_success')
+                    sendGAtagEvent('converter_conversion_success',CAD_CONVERTER_EVENT)
                     setUploadingMessage(response.data.data.status)
                     setBaseName(response.data.data.base_name)
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                
                 } else if (response.data.data.status === 'FAILED') {
-                    sendConverterEvent('converter_conversion_failure')
+                    sendGAtagEvent('converter_conversion_failure',CAD_CONVERTER_EVENT)
                     setUploading(false)
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.data.status)
@@ -182,19 +182,19 @@ function CadFileConversionWrapper({ children, convert }) {
         const fileExtension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
         const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
         if (fileSizeMB < 5) {
-            sendConverterEvent('converter_file_upload_under_5mb');
+            sendGAtagEvent('converter_file_upload_under_5mb',CAD_CONVERTER_EVENT);
         } else if (fileSizeMB < 10) {
-            sendConverterEvent('converter_file_upload_5_10mb');
+            sendGAtagEvent('converter_file_upload_5_10mb',CAD_CONVERTER_EVENT);
         } else if (fileSizeMB < 50) {
-            sendConverterEvent('converter_file_upload_10_50mb');
+            sendGAtagEvent('converter_file_upload_10_50mb',CAD_CONVERTER_EVENT);
         } else if (fileSizeMB < 100) {
-            sendConverterEvent('converter_file_upload_50_100mb');
+            sendGAtagEvent('converter_file_upload_50_100mb',CAD_CONVERTER_EVENT);
         } else if (fileSizeMB < 200) {
-            sendConverterEvent('converter_file_upload_100_200mb');
+            sendGAtagEvent('converter_file_upload_100_200mb');
         } else if (fileSizeMB < 300) {
-            sendConverterEvent('converter_file_upload_200_300mb');
+            sendGAtagEvent('converter_file_upload_200_300mb',CAD_CONVERTER_EVENT);
         } else {
-            sendConverterEvent('converter_file_upload_size_exceeded');
+            sendGAtagEvent('converter_file_upload_size_exceeded',CAD_CONVERTER_EVENT);
         }
         if (!allowedFormats.includes(fileExtension)) {
             toast.error("❌ Invalid file format! Please upload a supported 3D file.");
@@ -275,7 +275,7 @@ function CadFileConversionWrapper({ children, convert }) {
             await CadFileConversion(s3Url)
         } else {
             const fileSizeMB = file.size / (1024 * 1024); // Size in MB
-            sendConverterEvent('converter_file_upload_start')
+            sendGAtagEvent('converter_file_upload_start',CAD_CONVERTER_EVENT)
             try {
                 setDisableSelect(false)
                 setUploadingMessage('UPLOADING')
@@ -320,12 +320,12 @@ function CadFileConversionWrapper({ children, convert }) {
                     }
 
                 } else {
-                    sendConverterEvent('converter_file_upload_error')
+                    sendGAtagEvent('converter_file_upload_error',CAD_CONVERTER_EVENT)
                     toast.error("⚠️ Error generating signed URL.");
 
                 }
             } catch (e) {
-                sendConverterEvent('converter_file_upload_error')
+                sendGAtagEvent('converter_file_upload_error',CAD_CONVERTER_EVENT)
                 console.error(e);
 
             }
@@ -335,7 +335,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
     const CadFileConversion = async (url) => {
         try {
-            sendConverterEvent(`converter_file_${fileConvert.name.slice(fileConvert.name.lastIndexOf(".")).toLowerCase()}_${selectedFileFormate}`)
+            sendGAtagEvent(`converter_file_${fileConvert.name.slice(fileConvert.name.lastIndexOf(".")).toLowerCase()}_${selectedFileFormate}`,CAD_CONVERTER_EVENT)
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
@@ -446,7 +446,7 @@ function CadFileConversionWrapper({ children, convert }) {
                 // Ensure `CadFileConversion` is called correctly
 
                 setUploading(true)
-                sendConverterEvent('converter_file_upload_success')
+                sendGAtagEvent('converter_file_upload_success',CAD_CONVERTER_EVENT)
                 await CadFileConversion(preSignedURL.data.data.Location)
 
                 setS3Url(preSignedURL.data.data.Location)
@@ -469,7 +469,7 @@ function CadFileConversionWrapper({ children, convert }) {
         });
         setUploading(true)
         
-            sendConverterEvent('converter_file_upload_success')
+            sendGAtagEvent('converter_file_upload_success',CAD_CONVERTER_EVENT)
         
         await CadFileConversion(data.url)
 
@@ -477,7 +477,7 @@ function CadFileConversionWrapper({ children, convert }) {
       
     }
     const handleSampleFileUpload = (file) => {
-        sendConverterEvent('converter_sample_file_clicked')
+        sendGAtagEvent('converter_sample_file_clicked',CAD_CONVERTER_EVENT)
         setFileConvert({ name: file.name })
         setDisableSelect(false)
         setS3Url(file.url)

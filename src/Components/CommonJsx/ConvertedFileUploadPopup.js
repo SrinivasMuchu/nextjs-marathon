@@ -4,7 +4,8 @@ import PopupWrapper from './PopupWrapper';
 import styles from './CommonStyles.module.css';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useRouter } from "next/navigation";
-import { sendPublishModelEvent } from '@/common.helper';
+import { sendGAtagEvent } from '@/common.helper';
+import { CAD_PUBLISH_EVENT } from '@/config';
 
 const features = [
     {
@@ -39,13 +40,13 @@ function ConvertedFileUploadPopup({url,setPublishCad}) {
     const handlePublish = () => {
         // Example object to save
      
-        sendPublishModelEvent('publish_cad_modal_button_click');
+        sendGAtagEvent('publish_cad_modal_button_click',CAD_PUBLISH_EVENT,true);
         // Save object as JSON string
       
         router.push("/publish-cad");
     };
     useEffect(() => {
-        sendPublishModelEvent('publish_cad_modal_view');
+        sendGAtagEvent('publish_cad_modal_view',CAD_PUBLISH_EVENT,true);
     }, []);
     return (
         <PopupWrapper>

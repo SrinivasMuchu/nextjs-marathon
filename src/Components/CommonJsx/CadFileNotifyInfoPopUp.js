@@ -5,7 +5,8 @@ import ClearIcon from '@mui/icons-material/Clear';
 import axios from 'axios';
 import usePushNotifications from './usePushNotifications';
 import PopupWrapper from './PopupWrapper';
-import { sendBrowserNotificationEvent } from '../../common.helper';
+import { sendGAtagEvent } from '../../common.helper';
+import { CAD_BROWSER_NOTIFICATION_EVENT } from '@/config';
 
 function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
     const [email, setEmail] = useState('');
@@ -37,8 +38,8 @@ function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
     const handleClose = async () => {
         if (browserNotify) {
             try {
-                sendBrowserNotificationEvent(browserNotify ? 'browser_notification_approve' :
-                    'browser_notification_reject');
+                sendGAtagEvent(browserNotify ? 'browser_notification_approve' :
+                    'browser_notification_reject',CAD_BROWSER_NOTIFICATION_EVENT);
                 await pushRegister(email, browserNotify);
 
                 // localStorage.setItem('user_access_key', browserNotify);

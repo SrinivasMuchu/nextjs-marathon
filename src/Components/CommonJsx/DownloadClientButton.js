@@ -1,9 +1,9 @@
 "use client";
 import axios from 'axios';
 import styles from '../IndustryDesigns/IndustryDesign.module.css'
-import { sendViewerEvent } from '@/common.helper';
+import { sendGAtagEvent } from '@/common.helper';
 import React, { useState } from 'react'
-import { BASE_URL } from '@/config';
+import { BASE_URL, CAD_VIEWER_EVENT } from '@/config';
 import Tooltip from '@mui/material/Tooltip';
 
 function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,filetype,custumDownload}) {
@@ -26,7 +26,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
         const url = data.data.download_url;
         window.open(url, '_blank');
       }
-      sendViewerEvent('design_view_file_download');
+      sendGAtagEvent('design_view_file_download',CAD_VIEWER_EVENT);
     } catch (err) {
       console.error('Error downloading file:', err);
     } finally {

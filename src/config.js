@@ -64,3 +64,11 @@ export const IMAGEURLS = {
 export const TICKET_ATTACHMENT_BUCKET = 'member-images'
 export const GOOGLE_CLIENT_ID = '489950323098-a8i5stost392oousg6k1t3u4tbupi8tq.apps.googleusercontent.com'
 export const MICROSOFT_CLIENT_ID = "8ef57ff0-a2bf-423d-8400-fe3fdf571177"
+
+
+// event categories
+export const CAD_VIEWER_EVENT = 'CAD_VIEWER'
+export const CAD_CONVERTER_EVENT = 'CONVERTER'
+export const CAD_BROWSER_NOTIFICATION_EVENT = 'BROWSER_NOTIFICATION'
+export const CAD_PUBLISH_EVENT = 'PUBLISH'
+export const CAD_FLOATING_BUTTON_EVENT = 'FLOATING_BUTTON'

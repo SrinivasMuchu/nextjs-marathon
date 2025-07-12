@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL } from '@/config';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL,CAD_CONVERTER_EVENT } from '@/config';
 import Image from 'next/image';
 import styles from './FileHistory.module.css';
 import EastIcon from '@mui/icons-material/East';
 import { textLettersLimit } from '@/common.helper';
 import Pagenation from '../CommonJsx/Pagenation';
 import Loading from '../CommonJsx/Loaders/Loading';
-import { sendConverterEvent } from "@/common.helper";
+import { sendGAtagEvent } from "@/common.helper";
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 import { contextState } from '../CommonJsx/ContextProvider';
 
@@ -158,7 +158,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       a.click();
 
       // Cleanup
-      sendConverterEvent('converter_file_upload_download')
+      sendGAtagEvent('converter_file_upload_download',CAD_CONVERTER_EVENT)
       window.URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
       setDownloading(prev => ({ ...prev, [index]: false }));

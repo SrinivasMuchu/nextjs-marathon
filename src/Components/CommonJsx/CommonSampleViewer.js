@@ -1,13 +1,14 @@
 "use client"
 import React from 'react'
 import { useRouter } from "next/navigation";
-import { cadViewerFiles, sendViewerEvent } from '@/common.helper';
+import { cadViewerFiles, sendGAtagEvent } from '@/common.helper';
 import styles from '../CadUploadingHome/CadHomeDesign/CadHome.module.css'
+import { CAD_VIEWER_EVENT } from '@/config';
 
 function CommonSampleViewer() {
       const router = useRouter();
         const handleViewFile = (fileId) => {
-          sendViewerEvent(`viewer_sample_file_clicked`);
+          sendGAtagEvent(`viewer_sample_file_clicked`,CAD_VIEWER_EVENT);
             router.push(`/tools/cad-renderer?fileId=${fileId}&sample=true`);
         }
   return (

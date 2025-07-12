@@ -4,7 +4,8 @@ import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import styles from './CommonStyles.module.css';
 import usePushNotifications from './usePushNotifications';
 import PopupWrapper from './PopupWrapper';
-import { sendBrowserNotificationEvent } from '../../common.helper';
+import { sendGAtagEvent } from '../../common.helper';
+import { CAD_BROWSER_NOTIFICATION_EVENT } from '@/config';
 
 function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
   const [email, setEmail] = useState('');
@@ -14,8 +15,8 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
 
   const handleAllow = async () => {
     try {
-      sendBrowserNotificationEvent(browserNotify ? 'browser_notification_approve' :
-        'browser_notification_reject');
+      sendGAtagEvent(browserNotify ? 'browser_notification_approve' :
+        'browser_notification_reject',CAD_BROWSER_NOTIFICATION_EVENT);
       const result = await pushRegister(email, browserNotify);
       if (result?.success === false) {
         setError(result.message);

@@ -13,56 +13,31 @@ export const textLettersLimit = (text, limitType) => {
   return text;
 };
 
-export function sendViewerEvent(eventName) {
-  
-    window.gtag('event', eventName, {
-      event_category: 'CAD_VIEWER'
-    });
- 
-}
 
-
-export function sendBrowserNotificationEvent(eventName) {
-  
-    window.gtag('event', eventName, {
-      event_category: 'BROWSER_NOTIFICATION'
-    });
- 
-}
-export function sendConverterEvent(eventName) {
- 
-  window.gtag('event', eventName, {
-    event_category: 'CONVERTER'
-  });
-
-}
-
-export function sendPublishEvent(eventName) {
- 
-   
-    window.gtag('event', eventName, {
-      event_category: 'PUBLISH',
-      
-    });
-  
-}
-export function sendPublishModelEvent(eventName) {
-  // if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+export function sendGAtagEvent(eventName,category,publish_from) {
+  if(publish_from){
     const cleanUrl = window.location.origin + window.location.pathname;
     window.gtag('event', eventName, {
       event_category: 'PUBLISH',
       event_label: cleanUrl // URL without query params
     });
-  // } 
+  }else{
+    window.gtag('event', eventName, {
+      event_category: category
+    });
+  }
+  
+  
+
 }
 
-export function sendFloatingButtonEvent(eventName) {
- 
-  window.gtag('event', eventName, {
-    event_category: 'FLOATING_BUTTON'
-  });
 
-}
+
+
+
+
+
+
 
 //    iges 
 

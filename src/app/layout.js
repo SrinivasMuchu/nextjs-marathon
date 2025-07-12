@@ -81,7 +81,7 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{
             __html: `
       if (window.location.hostname === "localhost") {
-        window['ga-disable-${GA_TRACKING_ID}'] = true;
+        window['ga-disable-${GA_TRACKING_ID}'] = false;
       }
     `,
           }}

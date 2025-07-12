@@ -1,5 +1,6 @@
 "use client"
-import { sendFloatingButtonEvent } from '@/common.helper';
+import { sendGAtagEvent } from '@/common.helper';
+import { CAD_FLOATING_BUTTON_EVENT } from '@/config';
 import { useState } from 'react'
 import React from 'react'
 
@@ -12,7 +13,7 @@ function FloatingButton() {
           href="/tools/cad-viewer"
           onClick={(e) => {
             e.preventDefault();
-            sendFloatingButtonEvent('floating_button_view_click');
+            sendGAtagEvent('floating_button_view_click',CAD_FLOATING_BUTTON_EVENT);
             setTimeout(() => {
               window.location.href = "/tools/cad-viewer";
             }, 100); // 100ms delay to allow GA event to fire
@@ -25,7 +26,7 @@ function FloatingButton() {
           href="/tools/3d-file-converter"
           onClick={(e) => {
             e.preventDefault();
-            sendFloatingButtonEvent('floating_button_convert_click');
+            sendGAtagEvent('floating_button_convert_click',CAD_FLOATING_BUTTON_EVENT);
             setTimeout(() => {
               window.location.href = "/tools/3d-file-converter";
             }, 100); // 100ms delay to allow GA event to fire
@@ -38,7 +39,7 @@ function FloatingButton() {
         <a
          onClick={(e) => {
             e.preventDefault();
-            sendFloatingButtonEvent('floating_button_publish_click');
+            sendGAtagEvent('floating_button_publish_click',CAD_FLOATING_BUTTON_EVENT);
             setTimeout(() => {
               window.location.href = "/publish-cad";
             }, 100); // 100ms delay to allow GA event to fire

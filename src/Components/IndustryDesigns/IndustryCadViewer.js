@@ -10,8 +10,8 @@ import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from 'luci
 import DownloadIcon from '@mui/icons-material/Download';
 import { useRouter, useSearchParams } from "next/navigation";
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
-import { sendViewerEvent } from '@/common.helper';
-import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
+import { sendGAtagEvent } from '@/common.helper';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL,CAD_VIEWER_EVENT } from '@/config';
 import axios from 'axios';
 
 const ANGLE_STEP = 30;
@@ -383,7 +383,7 @@ function IndustryCadViewer() {
                 const url = data.data.download_url;
                 window.open(url, '_blank');
             }
-            sendViewerEvent('design_view_file_download');
+            sendGAtagEvent('design_view_file_download',CAD_VIEWER_EVENT);
         } catch (err) {
             console.error('Error downloading file:', err);
         } finally {
