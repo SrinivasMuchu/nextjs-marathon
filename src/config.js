@@ -66,7 +66,7 @@ export const GOOGLE_CLIENT_ID = '489950323098-a8i5stost392oousg6k1t3u4tbupi8tq.a
 export const MICROSOFT_CLIENT_ID = "8ef57ff0-a2bf-423d-8400-fe3fdf571177"
 
 
-// event categories
+// event categories gatag
 export const CAD_VIEWER_EVENT = 'CAD_VIEWER'
 export const CAD_CONVERTER_EVENT = 'CONVERTER'
 export const CAD_BROWSER_NOTIFICATION_EVENT = 'BROWSER_NOTIFICATION'
