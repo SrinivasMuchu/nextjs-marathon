@@ -5,6 +5,7 @@ import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from "@/config";
 import Image from "next/image";
 import IndustryDesignCarouselWrapper from "./IndustryDesignCarouselWrapper";
 import IndustryCarouselImages from "./IndustryCarouselImages";
+import DownloadClientButton from "../CommonJsx/DownloadClientButton";
 
 function IndustryDesignsCarousel({ designData, type, design }) {
     const slides = [
@@ -112,14 +113,17 @@ function IndustryDesignsCarousel({ designData, type, design }) {
             </IndustryDesignCarouselWrapper>
 
             {/* 3D Viewer Button */}
-            <div className="w-full flex items-center justify-center mt-4 sm:mt-6 px-4">
+            <div className="w-full flex flex-wrap items-center justify-around gap-4 mt-4 sm:mt-6 px-4">
+
                 <a
-                    href={type ? `/library/${design}/${designData._id}.${designData.file_type ? designData.file_type : 'step'}` : `/industry/${design.industry}/${design.part}/${design.design}/${designData._id}.${designData.file_type ? designData.file_type : 'step'}`}
+                    href={`/tools/cad-renderer?fileId=${designData._id}&format=${designData.file_type?designData.file_type:'step'}`} 
                     rel="nofollow"
                     className="w-full sm:w-auto"
                 >
                     <button className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4">Open in 3D viewer</button>
+                    
                 </a>
+                <DownloadClientButton custumDownload={true} folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type?designData.file_type:'step'}/>
             </div>
         </>
     );

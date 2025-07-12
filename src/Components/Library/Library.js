@@ -39,7 +39,7 @@ async function Library({ searchParams }) {
   const tagsResponse = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`, {
     cache: 'no-store',
   });
-console.log("designs from backend", response.data.data.designDetails.length);
+
 
   const allCategories = categoriesRes.data?.data || [];
   const data = response.data;

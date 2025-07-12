@@ -70,9 +70,14 @@ function AboutCadPara({cadReport}) {
   }
 
   // Helper function to make values bold
-  const makeBold = (value) => {
-    return `<strong>${value}</strong>`
-  }
+  const makeBold = (value) => `<strong>${value}</strong>`
+
+  // Helper to conditionally render a label/value pair if value is present and not zero
+  const showIf = (value, label, suffix = '', prefix = '') =>
+    value && value !== 0 ? `${prefix}${makeBold(value)}${suffix} ${label}` : ''
+
+  // Helper for comma-separated lists, skipping empty
+  const joinNonEmpty = (arr) => arr.filter(Boolean).join(', ')
 
   // Generate the appropriate text based on available data
   const generateText = () => {
@@ -82,23 +87,96 @@ function AboutCadPara({cadReport}) {
     const hasVolumes = hasVolumeData()
     const hasBoundingBox = hasBoundingBoxData()
 
+    // Geometry
+    const geometryParts = [
+      showIf(faces, 'faces'),
+      showIf(edges, 'edges'),
+      showIf(vertices, 'vertices'),
+    ]
+    const geometryText = joinNonEmpty(geometryParts)
+    const solidsText = showIf(solids, 'solids')
+
+    // Surface types
+    const surfaceParts = [
+      showIf(planarSurfaces, 'planar'),
+      showIf(cylindricalSurfaces, 'cylindrical'),
+      showIf(conicalSurfaces, 'conical'),
+      showIf(sphericalSurfaces, 'spherical'),
+      showIf(toroidalSurfaces, 'toroidal'),
+      showIf(otherSurfaces, 'other surfaces'),
+    ]
+    const surfaceText = joinNonEmpty(surfaceParts)
+
+    // Orientations
+    const orientationParts = [
+      showIf(xAxisOrientations, 'along the X-axis'),
+      showIf(yAxisOrientations, 'along the Y-axis'),
+      showIf(zAxisOrientations, 'along the Z-axis'),
+      showIf(otherOrientations, 'with various orientations'),
+    ]
+    const orientationText = joinNonEmpty(orientationParts)
+
+    // Bounding box
+    const boundingParts = [
+      width && width !== 0 ? `${makeBold(width.toFixed(2))} mm wide` : '',
+      height && height !== 0 ? `${makeBold(height.toFixed(2))} mm high` : '',
+      depth && depth !== 0 ? `${makeBold(depth.toFixed(2))} mm deep` : '',
+    ]
+    const boundingText = joinNonEmpty(boundingParts)
+
+    // Volumes
+    const volumeParts = [
+      maxVolume && maxVolume !== 0 ? `maximum volume of ${makeBold(maxVolume.toFixed(2))} mm³` : '',
+      minVolume && minVolume !== 0 ? `minimum volume of ${makeBold(minVolume.toFixed(2))} mm³` : '',
+      avgVolume && avgVolume !== 0 ? `average volume of ${makeBold(avgVolume.toFixed(2))} mm³` : '',
+      totalVolume && totalVolume !== 0 ? `total volume of ${makeBold(totalVolume.toFixed(2))} mm³` : '',
+    ]
+    const volumeText = joinNonEmpty(volumeParts)
+
     // Template 1: Complete Data Available
     if (hasSurfaces && hasOrientations && hasVolumes && hasBoundingBox) {
-      return `The CAD model comprises ${makeBold(faces || 0)} faces, ${makeBold(edges || 0)} edges, and ${makeBold(vertices || 0)} vertices. It consists of ${makeBold(solids || 0)} solids, with surface types including ${makeBold(planarSurfaces || 0)} planar, ${makeBold(cylindricalSurfaces || 0)} cylindrical, ${makeBold(conicalSurfaces || 0)} conical, ${makeBold(sphericalSurfaces || 0)} spherical, ${makeBold(toroidalSurfaces || 0)} toroidal, and ${makeBold(otherSurfaces || 0)} other surfaces. Its orientations include ${makeBold(xAxisOrientations || 0)} along the X-axis, ${makeBold(yAxisOrientations || 0)} along the Y-axis, ${makeBold(zAxisOrientations || 0)} along the Z-axis, and ${makeBold(otherOrientations || 0)} with various orientations. The model dimensions are approximately ${makeBold(width?.toFixed(2) || 0)} mm wide, ${makeBold(height?.toFixed(2) || 0)} mm high, and ${makeBold(depth?.toFixed(2) || 0)} mm deep. Volumetric data includes a maximum volume of ${makeBold(maxVolume?.toFixed(2) || 0)} mm³, minimum volume of ${makeBold(minVolume?.toFixed(2) || 0)} mm³, and average volume of ${makeBold(avgVolume?.toFixed(2) || 0)} mm³, with a total volume of ${makeBold(totalVolume?.toFixed(2) || 0)} mm³.`
+      return [
+        geometryText && `The CAD model comprises ${geometryText}`,
+        solidsText && `, ${solidsText}`,
+        surfaceText && `. Surface types include ${surfaceText}`,
+        orientationText && `. Orientations: ${orientationText}`,
+        boundingText && `. Model dimensions: ${boundingText}`,
+        volumeText && `. Volumetric data: ${volumeText}`,
+      ].filter(Boolean).join('')
     }
 
     // Template 2: Missing Surface Details
     if (!hasSurfaces && hasOrientations && hasVolumes && hasBoundingBox) {
-      return `The CAD model comprises ${makeBold(faces || 0)} faces, ${makeBold(edges || 0)} edges, and ${makeBold(vertices || 0)} vertices distributed among ${makeBold(solids || 0)} solid bodies. Specific surface details are currently unavailable. Orientation-wise, it includes ${makeBold(xAxisOrientations || 0)} X-axis, ${makeBold(yAxisOrientations || 0)} Y-axis, and ${makeBold(zAxisOrientations || 0)} Z-axis orientations. Its approximate dimensions are ${makeBold(width?.toFixed(2) || 0)} mm wide, ${makeBold(height?.toFixed(2) || 0)} mm high, and ${makeBold(depth?.toFixed(2) || 0)} mm deep. Volumes range from ${makeBold(maxVolume?.toFixed(2) || 0)} mm³ (maximum) to ${makeBold(minVolume?.toFixed(2) || 0)} mm³ (minimum), averaging ${makeBold(avgVolume?.toFixed(2) || 0)} mm³ for a cumulative total of ${makeBold(totalVolume?.toFixed(2) || 0)} mm³.`
+      return [
+        geometryText && `The CAD model comprises ${geometryText}`,
+        solidsText && ` distributed among ${solidsText} bodies.`,
+        ` Specific surface details are currently unavailable.`,
+        orientationText && ` Orientation-wise: ${orientationText}.`,
+        boundingText && ` Dimensions: ${boundingText}.`,
+        volumeText && ` Volumes: ${volumeText}.`,
+      ].filter(Boolean).join('')
     }
 
     // Template 3: Missing Orientation Data
     if (hasSurfaces && !hasOrientations && hasVolumes && hasBoundingBox) {
-      return `The CAD model comprises ${makeBold(faces || 0)} faces, ${makeBold(edges || 0)} edges, and ${makeBold(vertices || 0)} vertices, forming ${makeBold(solids || 0)} solid components. Surface classifications include ${makeBold(planarSurfaces || 0)} planar, ${makeBold(cylindricalSurfaces || 0)} cylindrical, ${makeBold(conicalSurfaces || 0)} conical, ${makeBold(sphericalSurfaces || 0)} spherical, ${makeBold(toroidalSurfaces || 0)} toroidal, and ${makeBold(otherSurfaces || 0)} other surfaces. Orientation details are unavailable. Dimensions measure approximately ${makeBold(width?.toFixed(2) || 0)} mm wide, ${makeBold(height?.toFixed(2) || 0)} mm high, and ${makeBold(depth?.toFixed(2) || 0)} mm deep. The volume characteristics include a maximum of ${makeBold(maxVolume?.toFixed(2) || 0)} mm³, minimum of ${makeBold(minVolume?.toFixed(2) || 0)} mm³, and average volume of ${makeBold(avgVolume?.toFixed(2) || 0)} mm³, totaling ${makeBold(totalVolume?.toFixed(2) || 0)} mm³.`
+      return [
+        geometryText && `The CAD model comprises ${geometryText}`,
+        solidsText && `, forming ${solidsText} components.`,
+        surfaceText && ` Surface classifications: ${surfaceText}.`,
+        ` Orientation details are unavailable.`,
+        boundingText && ` Dimensions: ${boundingText}.`,
+        volumeText && ` Volume characteristics: ${volumeText}.`,
+      ].filter(Boolean).join('')
     }
 
     // Template 4: Minimal Data (Generalized Template)
-    return `The CAD model comprises ${makeBold(faces || 0)} faces, ${makeBold(edges || 0)} edges, and ${makeBold(vertices || 0)} vertices distributed over ${makeBold(solids || 0)} solids. ${!hasSurfaces && !hasOrientations ? 'Additional surface and orientation data are currently unavailable. ' : ''}${hasBoundingBox ? `The model measures approximately ${makeBold(width?.toFixed(2) || 0)} mm in width, ${makeBold(height?.toFixed(2) || 0)} mm in height, and ${makeBold(depth?.toFixed(2) || 0)} mm in depth. ` : ''}${hasVolumes ? `Volumes span from ${makeBold(maxVolume?.toFixed(2) || 0)} mm³ (maximum) to ${makeBold(minVolume?.toFixed(2) || 0)} mm³ (minimum), averaging ${makeBold(avgVolume?.toFixed(2) || 0)} mm³, with a total volume of ${makeBold(totalVolume?.toFixed(2) || 0)} mm³.` : ''}`
+    return [
+      geometryText && `The CAD model comprises ${geometryText}`,
+      solidsText && ` distributed over ${solidsText}.`,
+      !hasSurfaces && !hasOrientations ? '' : '',
+      boundingText && ` Model measures: ${boundingText}.`,
+      volumeText && ` Volumes: ${volumeText}.`,
+    ].filter(Boolean).join('')
   }
 
   return (

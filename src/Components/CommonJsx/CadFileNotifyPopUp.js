@@ -4,24 +4,28 @@ import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import styles from './CommonStyles.module.css';
 import usePushNotifications from './usePushNotifications';
 import PopupWrapper from './PopupWrapper';
+import { sendGAtagEvent } from '../../common.helper';
+import { CAD_BROWSER_NOTIFICATION_EVENT } from '@/config';
 
-function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
+function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
   const [browserNotify, setBrowserNotify] = useState(true);
   const pushRegister = usePushNotifications();
 
   const handleAllow = async () => {
-    console.log(browserNotify)
     try {
-      console.log('Registering notifications...');
-      await pushRegister(email, browserNotify);
-      // Only redirect if there was no error
+      sendGAtagEvent(browserNotify ? 'browser_notification_approve' :
+        'browser_notification_reject',CAD_BROWSER_NOTIFICATION_EVENT);
+      const result = await pushRegister(email, browserNotify);
+      if (result?.success === false) {
+        setError(result.message);
+        return;
+      }
       window.location.href = `/dashboard?cad_type=${cad_type}`;
       setIsApiSlow(false);
     } catch (error) {
-      console.error('Error registering notifications:', error);
-      // Don't close the popup on error
-      // Error toast will be shown by usePushNotifications hook
+      setError(error.message || 'An error occurred');
     }
   };
 
@@ -45,11 +49,11 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
         </button>
 
         <h2 className="text-lg font-semibold text-gray-800 mb-1">Stay Updated</h2>
-     <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it&#39;s ready.</p>
+        <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it&#39;s ready.</p>
 
 
         {/* Email Input */}
-      {!action && <div className="flex items-center gap-3 mb-4">
+        {!action && <div className="flex items-center gap-3 mb-4">
           <MailOutlineIcon style={{ fontSize: '20px', color: '#4B5563' }} />
           <input
             type="email"
@@ -59,8 +63,8 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
             onChange={(e) => setEmail(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:border-blue-500"
           />
-        </div>}  
-
+        </div>}
+        { }
         {/* Browser Notifications Toggle */}
         <div className="flex items-center gap-3 mb-6">
           <span className="text-gray-700">
@@ -83,7 +87,7 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
             </div>
           </label>
         </div>
-
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         {/* Submit Button */}
         <div className="flex justify-between">
           <button
@@ -97,19 +101,19 @@ function CadFileNotifyPopUp({ setIsApiSlow,action,cad_type }) {
             onClick={handleAllow}
             disabled={!email && !browserNotify}
           >
-            {email && browserNotify ? 'Notify Both Ways' : 
-             email ? 'Notify via Email' : 
-             browserNotify ? 'Enable Notifications' : 'Select Notification Method'}
+            {email && browserNotify ? 'Notify Both Ways' :
+              email ? 'Notify via Email' :
+                browserNotify ? 'Enable Notifications' : 'Select Notification Method'}
           </button>}
           {(action && browserNotify) && <button
             className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition duration-200"
             onClick={handleAllow}
-            disabled={ !browserNotify}
+            disabled={!browserNotify}
           >
             {
-             browserNotify && 'Enable Notifications' }
+              browserNotify && 'Enable Notifications'}
           </button>}
-          
+
         </div>
       </div>
     </PopupWrapper>

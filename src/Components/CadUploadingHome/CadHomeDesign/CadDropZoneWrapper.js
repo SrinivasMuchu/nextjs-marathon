@@ -71,7 +71,7 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
                 router.push("/tools/cad-renderer");
             } else {
                 setCheckLimit(true)
-                console.log('Limit Exceeded')
+              
             }
         }
         catch (error) {

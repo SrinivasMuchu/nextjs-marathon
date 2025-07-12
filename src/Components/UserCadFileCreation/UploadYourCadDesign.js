@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useContext } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
-import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT } from '@/config';
+import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT } from '@/config';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
 import CreatableSelect from 'react-select/creatable';
-import { createDropdownCustomStyles } from '@/common.helper';
+import { createDropdownCustomStyles,sendGAtagEvent } from '@/common.helper';
 
 function UploadYourCadDesign() {
     const fileInputRef = useRef(null);
@@ -38,7 +38,7 @@ function UploadYourCadDesign() {
     const [selectedOptions, setSelectedOptions] = useState([]);
     
     useEffect(() => {
-        console.log(uploadedFile, "uploadedFile")
+     
         if (uploadedFile && Object.keys(uploadedFile).length > 0) {
             setFileName(uploadedFile.file_name);
             setFileFormat(uploadedFile.output_format);
@@ -200,10 +200,12 @@ function UploadYourCadDesign() {
 
             if (response.data.meta.success) {
                 if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
+                   
                     setCloseNotifyInfoPopUp(true);
                 } else {
                     setIsApiSlow(true);
                 }
+                 sendGAtagEvent('publish_cad_complete',CAD_PUBLISH_EVENT)
             } else {
                 let newFormErrors = { ...formErrors };
                 const validationErrors = response.data?.meta?.validationErrors;
@@ -225,11 +227,13 @@ function UploadYourCadDesign() {
                         // If not specific, show under title
                         newFormErrors.title = response.data.meta.message;
                     }
+                    sendGAtagEvent('publish_cad_text_errors',CAD_PUBLISH_EVENT)
                 } else {
                     // Generic error message as fallback
                     newFormErrors.title = "Failed to upload file. Please try again later.";
                 }
                 setFormErrors(newFormErrors);
+                
             }
             setUploading(false);
         } catch (error) {

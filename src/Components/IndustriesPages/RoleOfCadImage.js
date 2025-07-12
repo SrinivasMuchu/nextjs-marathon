@@ -18,7 +18,6 @@ async function RoleOfCadImage({ styles, industry, part_name, uuid }) {
     });
 
     const data = await res.json();
-    console.log(data)
     designId = data?.data?.design_id || '';
   } catch (error) {
     console.error('Error fetching design:', error);

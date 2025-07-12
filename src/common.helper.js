@@ -13,22 +13,31 @@ export const textLettersLimit = (text, limitType) => {
   return text;
 };
 
-export function sendViewerEvent(eventName) {
-  
+
+export function sendGAtagEvent(eventName,category,publish_from) {
+  if(publish_from){
+    const cleanUrl = window.location.origin + window.location.pathname;
     window.gtag('event', eventName, {
-      event_category: 'CAD_VIEWER'
+      event_category: 'PUBLISH',
+      event_label: cleanUrl // URL without query params
     });
- 
-}
-
-
-export function sendConverterEvent(eventName) {
- 
-  window.gtag('event', eventName, {
-    event_category: 'CONVERTER'
-  });
+  }else{
+    window.gtag('event', eventName, {
+      event_category: category
+    });
+  }
+  
+  
 
 }
+
+
+
+
+
+
+
+
 
 //    iges 
 

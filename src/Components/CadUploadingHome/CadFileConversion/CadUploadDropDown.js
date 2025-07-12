@@ -4,7 +4,7 @@ import Select from 'react-select';
 import cadStyles from '../CadHomeDesign/CadHome.module.css';
 import { useRouter } from "next/navigation";
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
-import { sendConverterEvent, textLettersLimit } from './../../../common.helper';
+import {  textLettersLimit } from './../../../common.helper';
 
 function CadDropDown({
   file,

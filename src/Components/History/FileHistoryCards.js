@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL } from '@/config';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL,CAD_CONVERTER_EVENT } from '@/config';
 import Image from 'next/image';
 import styles from './FileHistory.module.css';
 import EastIcon from '@mui/icons-material/East';
 import { textLettersLimit } from '@/common.helper';
 import Pagenation from '../CommonJsx/Pagenation';
 import Loading from '../CommonJsx/Loaders/Loading';
-import { sendConverterEvent } from "@/common.helper";
+import { sendGAtagEvent } from "@/common.helper";
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 import { contextState } from '../CommonJsx/ContextProvider';
 
@@ -24,7 +24,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const [publishCad, setPublishCad] = useState(false);
   const [downloadedUrl, setDownloadedUrl] = useState('');
   const limit = 10;
-  console.log(cadConverterFileHistory, 'cadConverterFileHistory')
+
   useEffect(() => {
     let isMounted = true;  // Add mounted check
 
@@ -126,21 +126,23 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
      
       const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
       
-      // Set the file data in context and wait for it to be processed
-      setUploadedFile({
-        url: `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.input_format}`,
-        output_format: file.input_format,
-        file_name: file.file_name,
-        base_name: file.base_name,
-        _id: file._id
-      });
-      
-      // Wait a bit to ensure context is updated
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      setPublishCad(true);
+      if (!file.sample_file || file.is_published) {
+        setUploadedFile({
+          url: `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`,
+          output_format: file.input_format,
+          file_name: file.file_name,
+          base_name: file.base_name,
+          _id: file._id,
+          cad_type: 'CAD_CONVERTER',
+        });
+
+        // Wait a bit to ensure context is updated
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      (file.sample_file || file.is_published)? setPublishCad(false) : setPublishCad(true);
       const response = await fetch(url);
-      console.log(file, "file")
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -156,7 +158,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       a.click();
 
       // Cleanup
-      sendConverterEvent('converter_file_upload_download')
+      sendGAtagEvent('converter_file_upload_download',CAD_CONVERTER_EVENT)
       window.URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
       setDownloading(prev => ({ ...prev, [index]: false }));
