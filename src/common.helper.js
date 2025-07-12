@@ -22,6 +22,13 @@ export function sendViewerEvent(eventName) {
 }
 
 
+export function sendBrowserNotificationEvent(eventName) {
+  
+    window.gtag('event', eventName, {
+      event_category: 'BROWSER_NOTIFICATION'
+    });
+ 
+}
 export function sendConverterEvent(eventName) {
  
   window.gtag('event', eventName, {

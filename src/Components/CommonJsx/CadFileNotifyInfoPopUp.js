@@ -5,25 +5,26 @@ import ClearIcon from '@mui/icons-material/Clear';
 import axios from 'axios';
 import usePushNotifications from './usePushNotifications';
 import PopupWrapper from './PopupWrapper';
+import { sendBrowserNotificationEvent } from '../../common.helper';
 
 function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
     const [email, setEmail] = useState('');
     const [browserNotify, setBrowserNotify] = useState(true);
     const [hasToggled, setHasToggled] = useState(false); // To detect toggle change in this session
-const pushRegister = usePushNotifications();
+    const pushRegister = usePushNotifications();
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const storedEmail = localStorage.getItem('user_email');
-           
+
 
             setEmail(storedEmail || '');
-            
+
         }
-        if(localStorage.getItem('user_access_key')) {
+        if (localStorage.getItem('user_access_key')) {
             setHasToggled(true)
         }
-        if (!localStorage.getItem('user_access_key') ) {
+        if (!localStorage.getItem('user_access_key')) {
             setHasToggled(false)
         }
     }, []);
@@ -34,15 +35,17 @@ const pushRegister = usePushNotifications();
     };
 
     const handleClose = async () => {
-        if (browserNotify ) {
+        if (browserNotify) {
             try {
+                sendBrowserNotificationEvent(browserNotify ? 'browser_notification_approve' :
+                    'browser_notification_reject');
                 await pushRegister(email, browserNotify);
-                
+
                 // localStorage.setItem('user_access_key', browserNotify);
                 window.location.href = `/dashboard?cad_type=${cad_type}`;
             } catch (error) {
                 console.error("Notification registration failed", error);
-               
+
             }
         } else {
             window.location.href = `/dashboard?cad_type=${cad_type}`;
@@ -53,7 +56,7 @@ const pushRegister = usePushNotifications();
         <PopupWrapper>
             <div className={styles.cadNotifyPopup}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-                    <ClearIcon onClick={()=>setClosePopUp(false)} />
+                    <ClearIcon onClick={() => setClosePopUp(false)} />
                 </div>
                 <h3>Your CAD File is Processing</h3>
                 <p>We will notify you when your CAD file is ready. Thank you for your patience!</p>
