@@ -58,8 +58,8 @@ function Footer() {
             <a href="/tools/3d-file-converter" >3D file converter</a>
             <a href="/library" >Library</a>
             {/* <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Part Number Nomenclature Guide</a> */}
-             <Link href="/terms-and-conditions">Terms Of Service</Link>
-            <Link href="/privacy-policy">Privacy Policies</Link>
+             <a href="/terms-and-conditions">Terms Of Service</a>
+            <a href="/privacy-policy">Privacy Policy</a>
           </div>
           
         </div>
