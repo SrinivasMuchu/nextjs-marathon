@@ -21,12 +21,16 @@ export async function generateMetadata({ params }) {
   };
 }
 
+import { converterTypes } from '@/common.helper';
 import CadFileConversionHome from '@/Components/CadUploadingHome/CadFileConversion/CadFileConversionHome';
-
+import { notFound } from 'next/navigation';
 export default function FileConverterPage({params}) {
  
   const conversion = params.conversion;
   // Debugging: Log the complete params object
+  if (!converterTypes.some(type => type.path === `/${conversion}`)) {
+    return notFound();
+  }
   return <CadFileConversionHome  convert={true} conversionParams={conversion}/>
     
   

@@ -50,6 +50,9 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
         if (cadFile === 'brep') {
             setAllowedFormats([".brp", ".brep"])
         }
+        if (cadFile === 'obj') {
+            setAllowedFormats([".obj"])
+        }
     }
 
 
