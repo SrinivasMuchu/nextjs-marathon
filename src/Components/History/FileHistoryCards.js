@@ -403,7 +403,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
 
     </div>
-      {publishCad && <ConvertedFileUploadPopup  setPublishCad={setPublishCad}/>}
+      {publishCad && <ConvertedFileUploadPopup setPublishCad={setPublishCad} />}
     </>
     
   )

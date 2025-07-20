@@ -1,24 +1,29 @@
 "use client";
+const CubeLoader = dynamic(() => import('@/Components/CommonJsx/Loaders/CubeLoader'), {
+  ssr: false,
+});
+// import CubeLoader from "@/Components/CommonJsx/Loaders/CubeLoader";
 import IndustryCadViewer from "@/Components/IndustryDesigns/IndustryCadViewer";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 
 const PartDesignView = dynamic(() => import("@/Components/PDMViewer/PartDesignView"), { ssr: false });
-const CadHomeDesign = dynamic(() => import("@/Components/CadUploadingHome/CadHomeDesign/CadHomeDesign"), { ssr: false });
 
-function DesignView() {
+function DesignViewContent() {
   const searchParams = useSearchParams();
   const format = searchParams.get("format");
- 
 
-  // If format is present, render CadHomeDesign (or your format-specific component)
   if (format) {
     return <IndustryCadViewer />;
   }
-
-  // Default: render the 3D part viewer
   return <PartDesignView />;
 }
 
-export default DesignView;
+export default function DesignView() {
+  return (
+    <Suspense fallback={<CubeLoader/>}>
+      <DesignViewContent />
+    </Suspense>
+  );
+}
