@@ -47,7 +47,7 @@ function Footer() {
             <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</a>
             <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>
             <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a>
-            <a href="/contactus" >Contact us</a>
+            <a href="/contact-us" >Contact us</a>
             {/* <Link href="/blog/part-number-nomenclature-guide">Blog</Link> */}
            
           </div>
