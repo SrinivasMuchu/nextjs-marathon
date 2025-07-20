@@ -34,7 +34,7 @@ export async function generateMetadata({ params }) {
 
 export default function CadFileFormat({ params }) {
   const cadFile = params?.['cad-file']?.toLowerCase();
-  if (!BLOCKED_CAD_FILES.includes(cadFile)) {
+  if (!ALLOWED_CAD_FILES.includes(cadFile)) {
     return notFound();
   }
   return  <CadHomeDesign type={true}/>;
