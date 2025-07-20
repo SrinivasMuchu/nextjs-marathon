@@ -23,15 +23,15 @@ const contactArray = [
   {
     logo: <LocationOnIcon />,
     title: 'Visit Us',
-    details: '123 Business Street Suite 100 New York, NY 10001',
+    details: '4th Floor, Bs4F, Mallibu Towne, Sector 47, Gurgaon, Haryana, 122018 India',
     isLink: false
   },
   {
     logo: <CallEndIcon />,
     title: 'Call Us',
-    details: '+1 (555) 123-4567',
+    details: '+91 9899032961',
     isLink: true,
-    href: 'tel:+15551234567'
+    href: 'tel:+919899032961'
   },
   {
     logo: <MailIcon />,
