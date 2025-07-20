@@ -37,7 +37,7 @@ function FloatingButton() {
           Convert CAD
         </a>
         <a
-        // href="/publish-cad"
+        href="/publish-cad"
          onClick={(e) => {
             e.preventDefault();
             sendGAtagEvent({ event_name: 'floating_button_publish_click', event_category: CAD_FLOATING_BUTTON_EVENT });
