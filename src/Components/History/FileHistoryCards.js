@@ -158,7 +158,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       a.click();
 
       // Cleanup
-      sendGAtagEvent('converter_file_upload_download',CAD_CONVERTER_EVENT)
+      sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT })
       window.URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
       setDownloading(prev => ({ ...prev, [index]: false }));
@@ -403,7 +403,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
 
     </div>
-      {publishCad && <ConvertedFileUploadPopup  setPublishCad={setPublishCad}/>}
+      {publishCad && <ConvertedFileUploadPopup setPublishCad={setPublishCad} />}
     </>
     
   )

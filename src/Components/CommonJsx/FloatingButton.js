@@ -13,7 +13,7 @@ function FloatingButton() {
           href="/tools/cad-viewer"
           onClick={(e) => {
             e.preventDefault();
-            sendGAtagEvent('floating_button_view_click',CAD_FLOATING_BUTTON_EVENT);
+            sendGAtagEvent({ event_name: 'floating_button_view_click', event_category: CAD_FLOATING_BUTTON_EVENT });
             setTimeout(() => {
               window.location.href = "/tools/cad-viewer";
             }, 100); // 100ms delay to allow GA event to fire
@@ -26,7 +26,7 @@ function FloatingButton() {
           href="/tools/3d-file-converter"
           onClick={(e) => {
             e.preventDefault();
-            sendGAtagEvent('floating_button_convert_click',CAD_FLOATING_BUTTON_EVENT);
+            sendGAtagEvent({ event_name: 'floating_button_convert_click', event_category: CAD_FLOATING_BUTTON_EVENT });
             setTimeout(() => {
               window.location.href = "/tools/3d-file-converter";
             }, 100); // 100ms delay to allow GA event to fire
@@ -37,9 +37,10 @@ function FloatingButton() {
           Convert CAD
         </a>
         <a
+        href="/publish-cad"
          onClick={(e) => {
             e.preventDefault();
-            sendGAtagEvent('floating_button_publish_click',CAD_FLOATING_BUTTON_EVENT);
+            sendGAtagEvent({ event_name: 'floating_button_publish_click', event_category: CAD_FLOATING_BUTTON_EVENT });
             setTimeout(() => {
               window.location.href = "/publish-cad";
             }, 100); // 100ms delay to allow GA event to fire

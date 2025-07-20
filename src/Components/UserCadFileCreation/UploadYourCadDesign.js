@@ -205,7 +205,7 @@ function UploadYourCadDesign() {
                 } else {
                     setIsApiSlow(true);
                 }
-                 sendGAtagEvent('publish_cad_complete',CAD_PUBLISH_EVENT)
+                 sendGAtagEvent({ event_name: 'publish_cad_complete', event_category: CAD_PUBLISH_EVENT })
             } else {
                 let newFormErrors = { ...formErrors };
                 const validationErrors = response.data?.meta?.validationErrors;
@@ -227,7 +227,7 @@ function UploadYourCadDesign() {
                         // If not specific, show under title
                         newFormErrors.title = response.data.meta.message;
                     }
-                    sendGAtagEvent('publish_cad_text_errors',CAD_PUBLISH_EVENT)
+                    sendGAtagEvent({ event_name: 'publish_cad_text_errors', event_category: CAD_PUBLISH_EVENT })
                 } else {
                     // Generic error message as fallback
                     newFormErrors.title = "Failed to upload file. Please try again later.";

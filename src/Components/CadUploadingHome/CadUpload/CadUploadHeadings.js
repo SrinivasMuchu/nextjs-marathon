@@ -4,7 +4,7 @@ import cadStyles from '../CadHomeDesign/CadHome.module.css'
 import { usePathname } from "next/navigation";
 
 function CadUploadHeadings(type) {
-    const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep"])
+    const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj"])
      const pathname = usePathname();
     const cadFile = pathname.split("/")[2];
 
@@ -31,6 +31,9 @@ function CadUploadHeadings(type) {
         }
         if (cadFile === 'brep') {
             setAllowedFormats([".brp", ".brep"])
+        }
+        if (cadFile === 'obj') {
+            setAllowedFormats([".obj"])
         }
     }
 

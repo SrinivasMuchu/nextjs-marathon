@@ -38,8 +38,10 @@ function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
     const handleClose = async () => {
         if (browserNotify) {
             try {
-                sendGAtagEvent(browserNotify ? 'browser_notification_approve' :
-                    'browser_notification_reject',CAD_BROWSER_NOTIFICATION_EVENT);
+                sendGAtagEvent({ 
+                    event_name: browserNotify ? 'browser_notification_approve' : 'browser_notification_reject',
+                    event_category: CAD_BROWSER_NOTIFICATION_EVENT 
+                });
                 await pushRegister(email, browserNotify);
 
                 // localStorage.setItem('user_access_key', browserNotify);

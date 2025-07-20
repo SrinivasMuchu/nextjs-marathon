@@ -86,21 +86,21 @@ export default function PartDesignView() {
         try {
             setIsLoading(true)
             setUploadingMessage('UPLOADINGFILE')
-            sendGAtagEvent('viewer_file_upload_start',CAD_VIEWER_EVENT);
+            sendGAtagEvent({ event_name: 'viewer_file_upload_start', event_category: CAD_VIEWER_EVENT });
             if (fileSizeMB < 5) {
-                sendGAtagEvent('viewer_file_upload_under_5mb',CAD_VIEWER_EVENT);
+                sendGAtagEvent({ event_name: 'viewer_file_upload_under_5mb', event_category: CAD_VIEWER_EVENT });
             } else if (fileSizeMB < 10) {
-                sendGAtagEvent('viewer_file_upload_5_10mb',CAD_VIEWER_EVENT);
+                sendGAtagEvent({ event_name: 'viewer_file_upload_5_10mb', event_category: CAD_VIEWER_EVENT });
             } else if (fileSizeMB < 50) {
-                sendGAtagEvent('viewer_file_upload_10_50mb',CAD_VIEWER_EVENT);
+                sendGAtagEvent({ event_name: 'viewer_file_upload_10_50mb', event_category: CAD_VIEWER_EVENT });
             } else if (fileSizeMB < 100) {
-                sendGAtagEvent('viewer_file_upload_50_100mb',CAD_VIEWER_EVENT);
+                sendGAtagEvent({ event_name: 'viewer_file_upload_50_100mb', event_category: CAD_VIEWER_EVENT });
             } else if (fileSizeMB < 200) {
-                sendGAtagEvent('viewer_file_upload_100_200mb',CAD_VIEWER_EVENT);
+                sendGAtagEvent({ event_name: 'viewer_file_upload_100_200mb', event_category: CAD_VIEWER_EVENT });
             } else if (fileSizeMB < 300) {
-                sendGAtagEvent('viewer_file_upload_200_300mb',CAD_VIEWER_EVENT);
+                sendGAtagEvent({ event_name: 'viewer_file_upload_200_300mb', event_category: CAD_VIEWER_EVENT });
             } else {
-                sendGAtagEvent('viewer_file_upload_size_exceeded',CAD_VIEWER_EVENT);
+                sendGAtagEvent({ event_name: 'viewer_file_upload_size_exceeded', event_category: CAD_VIEWER_EVENT });
             }
             const headers = {
                 "user-uuid": localStorage.getItem("uuid"),
@@ -136,13 +136,13 @@ export default function PartDesignView() {
                 // setFile('')
 
             } else {
-                sendGAtagEvent('viewer_file_signedurl_error',CAD_VIEWER_EVENT);
+                sendGAtagEvent({ event_name: 'viewer_file_signedurl_error', event_category: CAD_VIEWER_EVENT });
                 toast.error("⚠️ Error generating signed URL.");
                 setIsLoading(false)
                 router.push("/tools/cad-viewer")
             }
         } catch (e) {
-            sendGAtagEvent('viewer_file_upload_error',CAD_VIEWER_EVENT);
+            sendGAtagEvent({ event_name: 'viewer_file_upload_error', event_category: CAD_VIEWER_EVENT });
 
             setIsLoading(false)
         }
@@ -298,7 +298,7 @@ export default function PartDesignView() {
 
             if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
 
-                sendGAtagEvent('viewer_file_upload_success',CAD_VIEWER_EVENT);
+                sendGAtagEvent({ event_name: 'viewer_file_upload_success', event_category: CAD_VIEWER_EVENT });
                 // Ensure `CreateCad` is called correctly
                 // if (preSignedURL.data.data.Location) {
                 await CreateCad(preSignedURL.data.data.Location);
@@ -322,7 +322,7 @@ export default function PartDesignView() {
                 "Content-Length": file.size,
             },
         });
-        sendGAtagEvent('viewer_file_upload_success',CAD_VIEWER_EVENT);
+        sendGAtagEvent({ event_name: 'viewer_file_upload_success', event_category: CAD_VIEWER_EVENT });
         await CreateCad(data.url)
 
     }
@@ -368,7 +368,7 @@ export default function PartDesignView() {
 
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
-                    sendGAtagEvent('viewer_view_completed',CAD_VIEWER_EVENT);
+                    sendGAtagEvent({ event_name: 'viewer_view_completed', event_category: CAD_VIEWER_EVENT });
                     setIsLoading(false)
                     setUploadingMessage(response.data.data.status)
                     setPublishedCad(response.data.data.published_cad_count);
@@ -383,7 +383,7 @@ export default function PartDesignView() {
                     setCompletedImages(response.data.data.image_count)
 
                 } else if (response.data.data.status === 'FAILED') {
-                    sendGAtagEvent('viewer_view_failure',CAD_VIEWER_EVENT)
+                    sendGAtagEvent({ event_name: 'viewer_view_failure', event_category: CAD_VIEWER_EVENT })
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.meta.message)
                     router.push("/tools/cad-viewer")

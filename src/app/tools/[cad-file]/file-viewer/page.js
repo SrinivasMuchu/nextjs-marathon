@@ -1,10 +1,15 @@
 import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDesign';
 import CadUpload from '@/Components/CadUploadingHome/CadUpload/CadUpload';
+import { notFound } from 'next/navigation';
+
+const ALLOWED_CAD_FILES = ['step', 'brep', 'stp' ,'off','obj','iges','igs','stl'];
 
 export async function generateMetadata({ params }) {
+  const cadFile = params['cad-file'];
+ 
   // Access the dynamic route parameter
-  const cadFile = params['cad-file']; // Use the correct parameter name
-
+  // Use the correct parameter name
+  
   return {
     title: `${cadFile.toUpperCase()} File Viewer – Instantly Open & Explore ${cadFile.toUpperCase()} Files
 `,
@@ -27,6 +32,10 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function CadFileFormat() {
+export default function CadFileFormat({ params }) {
+  const cadFile = params?.['cad-file']?.toLowerCase();
+  if (!ALLOWED_CAD_FILES.includes(cadFile)) {
+    return notFound();
+  }
   return  <CadHomeDesign type={true}/>;
 }

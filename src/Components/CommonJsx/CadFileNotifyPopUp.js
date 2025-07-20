@@ -15,8 +15,10 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
 
   const handleAllow = async () => {
     try {
-      sendGAtagEvent(browserNotify ? 'browser_notification_approve' :
-        'browser_notification_reject',CAD_BROWSER_NOTIFICATION_EVENT);
+      sendGAtagEvent({ 
+        event_name: browserNotify ? 'browser_notification_approve' : 'browser_notification_reject',
+        event_category: CAD_BROWSER_NOTIFICATION_EVENT 
+      });
       const result = await pushRegister(email, browserNotify);
       if (result?.success === false) {
         setError(result.message);

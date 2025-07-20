@@ -8,7 +8,7 @@ function IndustryDesignFilesDownload({designData}) {
     return (
           <a 
                 href={`${DESIGN_GLB_PREFIX_URL}${designData._id}/${designData._id}.step`} 
-                onClick={() => sendGAtagEvent('design_page_file_download',CAD_VIEWER_EVENT)}
+                onClick={() => sendGAtagEvent({ event_name: 'design_page_file_download', event_category: CAD_VIEWER_EVENT })}
                 rel="noopener noreferrer"
             ><button className={styles['industry-design-files-btn']} >
             Download
