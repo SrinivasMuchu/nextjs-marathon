@@ -14,7 +14,7 @@ export const textLettersLimit = (text, limitType) => {
 };
 
 
-export function sendGAtagEvent(eventName,category,publish_from) {
+export function sendGAtagEvent1(eventName,category,publish_from) {
   if(publish_from){
     const cleanUrl = window.location.origin + window.location.pathname;
     window.gtag('event', eventName, {
@@ -30,6 +30,14 @@ export function sendGAtagEvent(eventName,category,publish_from) {
   
 
 }
+export function sendGAtagEvent(eventData) {
+  const { event_name, ...eventParams } = eventData;
+  
+
+    window.gtag('event', event_name, eventParams);
+  
+}
+
 
 
 
@@ -82,24 +90,24 @@ export const convertedFiles = [
   export const cadViewerFiles = [
     {
       "id": '6800a5b1b6b9e6583e6ec3c3',    
-      "name": "engine-block.step",
-      "format":"step"
+      "name": "Engine Block",
+      
     },
     {
       "id": '68012016b1f61b010dd05a53',
-      "name": "end-effector.step",
-      "format":"step"
+      "name": "End Effector",
+      
     },
     {
       "id": "68011f2eb1f61b010dd05a50",
-      "name": "brushless-dc-motor.step",
-      "format":"step"
+      "name": "Brushless DC Motor",
+      
   
     },
     {
       "id": '6800ef3cb1f61b010dd059d1',
-      "name": "fixture-clamp.step",
-      "format":"step"
+      "name": "Fixture Clamp",
+      
     },
     
    ]

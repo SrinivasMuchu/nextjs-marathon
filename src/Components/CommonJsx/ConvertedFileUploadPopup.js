@@ -40,13 +40,21 @@ function ConvertedFileUploadPopup({url,setPublishCad}) {
     const handlePublish = () => {
         // Example object to save
      
-        sendGAtagEvent('publish_cad_modal_button_click',CAD_PUBLISH_EVENT,true);
+        sendGAtagEvent({ 
+            event_name: 'publish_cad_modal_button_click', 
+            event_category: CAD_PUBLISH_EVENT,
+            event_url: window.location.pathname 
+        });
         // Save object as JSON string
       
-        router.push("/publish-cad");
+        // router.push("/publish-cad");
     };
     useEffect(() => {
-        sendGAtagEvent('publish_cad_modal_view',CAD_PUBLISH_EVENT,true);
+        sendGAtagEvent({ 
+            event_name: 'publish_cad_modal_view', 
+            event_category: CAD_PUBLISH_EVENT,
+            event_url: window.location.pathname 
+        });
     }, []);
     return (
         <PopupWrapper>

@@ -2,7 +2,7 @@ import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDe
 import CadUpload from '@/Components/CadUploadingHome/CadUpload/CadUpload';
 import { notFound } from 'next/navigation';
 
-const BLOCKED_CAD_FILES = ['step', 'brep', 'stp' ,'off','obj','iges','igs','stl'];
+const ALLOWED_CAD_FILES = ['step', 'brep', 'stp' ,'off','obj','iges','igs','stl'];
 
 export async function generateMetadata({ params }) {
   const cadFile = params['cad-file'];

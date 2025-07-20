@@ -26,7 +26,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
         const url = data.data.download_url;
         window.open(url, '_blank');
       }
-      sendGAtagEvent('design_view_file_download',CAD_VIEWER_EVENT);
+      sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
     } catch (err) {
       console.error('Error downloading file:', err);
     } finally {

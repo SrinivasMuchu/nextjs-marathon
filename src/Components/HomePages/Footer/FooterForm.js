@@ -5,9 +5,9 @@ import { BASE_URL } from "@/config";
 import ThanksPopUp from '../RequestDemo/ThanksPopUp';
 import { isValidPhoneNumber } from "react-phone-number-input";
 import ReactPhoneNumber from '@/Components/CommonJsx/ReactPhoneNumber';
+import styles from "./Footer.module.css";
 
-
-function FooterForm({ styles }) {
+function FooterForm({getIntouch}) {
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [message, setMessage] = useState('');
@@ -55,10 +55,14 @@ function FooterForm({ styles }) {
 
   return (
     <>
-      <div className={styles['footer-form']}>
+      <div className={styles['footer-form']} style={getIntouch ? { width: '100%' } : {}}>
         <span>Ask a question</span>
-        <div className={styles['footer-inputs']}>
-          <input placeholder='Name*' value={name} onChange={(e) => setName(e.target.value)} style={{ color: 'black' }} />
+        <div className={styles[!getIntouch?'footer-inputs':'footer-getin-touch']} style={getIntouch ? { flexDirection: 'column' } : {}}>
+          <input placeholder='Name*'  
+          value={name} onChange={(e) => setName(e.target.value)} style={{
+            width: getIntouch ? '100%' : '',
+            color: 'black',
+          }} />
          
           <label htmlFor="footer-phone-input" style={{
             position: 'absolute',
@@ -77,9 +81,9 @@ function FooterForm({ styles }) {
 
 
 
-        <textarea placeholder='Message*' value={message} onChange={(e) => setMessage(e.target.value)} style={{ color: 'black' }} />
+        <textarea placeholder='Message*' value={message} onChange={(e) => setMessage(e.target.value)} style={{ color: 'black',marginTop:getIntouch?'16px':'' }} />
         <div>
-          <button onClick={requestDemo} disabled={loading}>
+          <button onClick={requestDemo} disabled={loading} style={getIntouch?{width:'100%'}:{}}>
             {loading ? <span className={styles['btn-ring']}></span> : 'Submit'}
           </button>
           <span style={{ opacity: error ? '1' : '0', color: 'red', fontSize: '14px' }}>{error ? `* ${error}` : ''}</span>

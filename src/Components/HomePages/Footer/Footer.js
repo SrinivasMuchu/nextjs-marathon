@@ -60,6 +60,7 @@ function Footer() {
             {/* <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Part Number Nomenclature Guide</a> */}
              <a href="/terms-and-conditions">Terms Of Service</a>
             <a href="/privacy-policy">Privacy Policy</a>
+            <a href="/refund-policy">Refund Policy</a>
           </div>
           
         </div>

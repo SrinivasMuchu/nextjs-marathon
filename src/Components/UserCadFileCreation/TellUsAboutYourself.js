@@ -113,7 +113,7 @@ setSigningUp(true)
       });
 
       if (response.data.meta.success) {
-        sendGAtagEvent('publish_cad_profile_complete',CAD_PUBLISH_EVENT)
+        sendGAtagEvent({ event_name: 'publish_cad_profile_complete', event_category: CAD_PUBLISH_EVENT })
         toast.success(`Profile updated successfully`);
         if (field !== 'photo') {
           localStorage.setItem(`user_${field}`, user[field]);

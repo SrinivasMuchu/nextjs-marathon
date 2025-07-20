@@ -147,14 +147,14 @@ function CadFileConversionWrapper({ children, convert }) {
 
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
-                    sendGAtagEvent('converter_conversion_success',CAD_CONVERTER_EVENT)
+                    sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
                     setUploadingMessage(response.data.data.status)
                     setBaseName(response.data.data.base_name)
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                
                 } else if (response.data.data.status === 'FAILED') {
-                    sendGAtagEvent('converter_conversion_failure',CAD_CONVERTER_EVENT)
+                    sendGAtagEvent({ event_name: 'converter_conversion_failure', event_category: CAD_CONVERTER_EVENT })
                     setUploading(false)
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.data.status)
@@ -182,19 +182,19 @@ function CadFileConversionWrapper({ children, convert }) {
         const fileExtension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
         const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
         if (fileSizeMB < 5) {
-            sendGAtagEvent('converter_file_upload_under_5mb',CAD_CONVERTER_EVENT);
+            sendGAtagEvent({ event_name: 'converter_file_upload_under_5mb', event_category: CAD_CONVERTER_EVENT });
         } else if (fileSizeMB < 10) {
-            sendGAtagEvent('converter_file_upload_5_10mb',CAD_CONVERTER_EVENT);
+            sendGAtagEvent({ event_name: 'converter_file_upload_5_10mb', event_category: CAD_CONVERTER_EVENT });
         } else if (fileSizeMB < 50) {
-            sendGAtagEvent('converter_file_upload_10_50mb',CAD_CONVERTER_EVENT);
+            sendGAtagEvent({ event_name: 'converter_file_upload_10_50mb', event_category: CAD_CONVERTER_EVENT });
         } else if (fileSizeMB < 100) {
-            sendGAtagEvent('converter_file_upload_50_100mb',CAD_CONVERTER_EVENT);
+            sendGAtagEvent({ event_name: 'converter_file_upload_50_100mb', event_category: CAD_CONVERTER_EVENT });
         } else if (fileSizeMB < 200) {
-            sendGAtagEvent('converter_file_upload_100_200mb');
+            sendGAtagEvent({ event_name: 'converter_file_upload_100_200mb', event_category: CAD_CONVERTER_EVENT });
         } else if (fileSizeMB < 300) {
-            sendGAtagEvent('converter_file_upload_200_300mb',CAD_CONVERTER_EVENT);
+            sendGAtagEvent({ event_name: 'converter_file_upload_200_300mb', event_category: CAD_CONVERTER_EVENT });
         } else {
-            sendGAtagEvent('converter_file_upload_size_exceeded',CAD_CONVERTER_EVENT);
+            sendGAtagEvent({ event_name: 'converter_file_upload_size_exceeded', event_category: CAD_CONVERTER_EVENT });
         }
         if (!allowedFormats.includes(fileExtension)) {
             toast.error("❌ Invalid file format! Please upload a supported 3D file.");
@@ -275,7 +275,7 @@ function CadFileConversionWrapper({ children, convert }) {
             await CadFileConversion(s3Url)
         } else {
             const fileSizeMB = file.size / (1024 * 1024); // Size in MB
-            sendGAtagEvent('converter_file_upload_start',CAD_CONVERTER_EVENT)
+            sendGAtagEvent({ event_name: 'converter_file_upload_start', event_category: CAD_CONVERTER_EVENT })
             try {
                 setDisableSelect(false)
                 setUploadingMessage('UPLOADING')
@@ -320,12 +320,12 @@ function CadFileConversionWrapper({ children, convert }) {
                     }
 
                 } else {
-                    sendGAtagEvent('converter_file_upload_error',CAD_CONVERTER_EVENT)
+                    sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
                     toast.error("⚠️ Error generating signed URL.");
 
                 }
             } catch (e) {
-                sendGAtagEvent('converter_file_upload_error',CAD_CONVERTER_EVENT)
+                sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
                 console.error(e);
 
             }
@@ -335,7 +335,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
     const CadFileConversion = async (url) => {
         try {
-            sendGAtagEvent(`converter_file_${fileConvert.name.slice(fileConvert.name.lastIndexOf(".")).toLowerCase()}_${selectedFileFormate}`,CAD_CONVERTER_EVENT)
+            sendGAtagEvent({ event_name: `converter_file_${fileConvert.name.slice(fileConvert.name.lastIndexOf(".")).toLowerCase()}_${selectedFileFormate}`, event_category: CAD_CONVERTER_EVENT })
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
@@ -446,7 +446,7 @@ function CadFileConversionWrapper({ children, convert }) {
                 // Ensure `CadFileConversion` is called correctly
 
                 setUploading(true)
-                sendGAtagEvent('converter_file_upload_success',CAD_CONVERTER_EVENT)
+                sendGAtagEvent({ event_name: 'converter_file_upload_success', event_category: CAD_CONVERTER_EVENT })
                 await CadFileConversion(preSignedURL.data.data.Location)
 
                 setS3Url(preSignedURL.data.data.Location)
@@ -469,7 +469,7 @@ function CadFileConversionWrapper({ children, convert }) {
         });
         setUploading(true)
         
-            sendGAtagEvent('converter_file_upload_success',CAD_CONVERTER_EVENT)
+            sendGAtagEvent({ event_name: 'converter_file_upload_success', event_category: CAD_CONVERTER_EVENT })
         
         await CadFileConversion(data.url)
 
@@ -477,7 +477,7 @@ function CadFileConversionWrapper({ children, convert }) {
       
     }
     const handleSampleFileUpload = (file) => {
-        sendGAtagEvent('converter_sample_file_clicked',CAD_CONVERTER_EVENT)
+        sendGAtagEvent({ event_name: 'converter_sample_file_clicked', event_category: CAD_CONVERTER_EVENT })
         setFileConvert({ name: file.name })
         setDisableSelect(false)
         setS3Url(file.url)

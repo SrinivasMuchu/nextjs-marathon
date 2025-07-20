@@ -8,7 +8,8 @@ import { CAD_VIEWER_EVENT } from '@/config';
 function CommonSampleViewer() {
       const router = useRouter();
         const handleViewFile = (fileId) => {
-          sendGAtagEvent(`viewer_sample_file_clicked`,CAD_VIEWER_EVENT);
+          sendGAtagEvent({ event_name: 'viewer_sample_file_clicked', event_category: CAD_VIEWER_EVENT })
+
             router.push(`/tools/cad-renderer?fileId=${fileId}&sample=true`);
         }
   return (

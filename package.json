@@ -12,6 +12,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.13.1",
+    "@react-google-maps/api": "^2.20.7",
     "@react-three/drei": "^10.0.4",
     "@react-three/fiber": "^9.1.0",
     "@studio-freight/react-lenis": "^0.0.47",

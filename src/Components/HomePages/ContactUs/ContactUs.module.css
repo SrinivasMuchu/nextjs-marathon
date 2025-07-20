@@ -1,0 +1,134 @@
+.contactus-page{
+    display:flex;
+    flex-direction:column;
+    width:100%
+}
+.contactus-header{
+    display: flex;
+    align-items: center;
+    flex-direction:column;
+    justify-content: center;
+    background: #610bee;
+    min-height: 50vh;
+    color: white;
+    padding:20px
+}
+.contactus-header h1{
+    font-size: 64px;
+    font-weight:800;
+}
+.contactus-header p{
+    font-size: 24px;
+    font-weight:600;
+    text-align:center;
+}
+
+.contactus-types{
+    display:flex;
+    flex-wrap:wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap:16px;
+    width: 100%;
+    padding: clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);
+
+}
+.contactus-types-item{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width:300px;
+    text-align:center;
+    gap:6px;
+}
+
+.contactus-types-item span{
+    font-size: 24px;
+    font-weight: 700;
+}
+.contactus-types-item p{
+    font-size: 18px;
+    font-weight: 400;
+    color: rgb(103, 102, 102);
+}
+
+.contactus-types-item-logo{
+    color:white;
+    background:#610bee;
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.contactus-message{
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    width: 100%;
+    padding: clamp(24px, 5vw, 96px) clamp(24px, 6vw, 120px);;
+}
+.contactus-conversation{
+    display:flex;
+    /* flex-wrap: wrap; */
+    width: 70%;
+    overflow: hidden;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    
+    border-radius: 12px;
+
+}
+.contactus-conversation-text{
+    padding:20px;
+    width: 50%;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+}
+.contactus-conversation-text h1{
+    font-size: 24px;
+    font-weight: 700;
+}
+.contactus-conversation-header{
+    background:#610bee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color:white;
+    padding: 20px;
+    width: 50%;
+}
+.contactus-conversation-header p{
+   width: 85%;
+    text-align:center;
+}
+.contactus-conversation-header h1{
+    font-weight:800;
+    font-size:32px;
+    text-align:center;
+}
+
+
+
+@media screen and (max-width:1250px){
+    .contactus-conversation{
+        flex-direction: column;
+    }
+    .contactus-conversation{
+        width: 90%;
+    }
+    .contactus-conversation-text,.contactus-conversation-header{
+        width:100%
+    }
+
+}
+@media screen and (max-width:750px){
+    .contactus-header h1{
+        font-size:48px;
+    }
+}
