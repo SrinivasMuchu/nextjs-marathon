@@ -2,7 +2,7 @@ import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDe
 import CadUpload from '@/Components/CadUploadingHome/CadUpload/CadUpload';
 import { notFound } from 'next/navigation';
 
-const ALLOWED_CAD_FILES = ['step', 'brep', 'stp' ,'off','obj','iges','igs','stl'];
+const ALLOWED_CAD_FILES = ['step', 'brep', 'stp' ,'off','obj','iges','igs','stl','brp'];
 
 export async function generateMetadata({ params }) {
   const cadFile = params['cad-file'];
@@ -11,8 +11,7 @@ export async function generateMetadata({ params }) {
   // Use the correct parameter name
   
   return {
-    title: `${cadFile.toUpperCase()} File Viewer – Instantly Open & Explore ${cadFile.toUpperCase()} Files
-`,
+    title: `${cadFile.toUpperCase()} File Viewer – Instantly Open & Explore ${cadFile.toUpperCase()} Files`,
     description: `View ${cadFile.toUpperCase()} (${cadFile}) files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds. Our proprietary rendering engine ensures smooth performance with zero lag and no glitches, even for large assemblies.`,
     
     openGraph: {
