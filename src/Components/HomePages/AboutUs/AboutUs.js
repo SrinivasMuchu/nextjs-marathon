@@ -60,13 +60,13 @@ const teamMembersArray = [
         image:IMAGEURLS.apoorv,
         name:'Apoorv Garg',
         // designation:'15+ years in tech leadership',
-        role:'Investor'
+        role:'Strategic Advisor'
     },
     {
         image:IMAGEURLS.yugal,
         name:'Yugal Raj Jain',
         // designation:'15+ years in tech leadership',
-        role:'Investor'
+        role:'Strategic Advisor'
     },
     {
         image:IMAGEURLS.karishma,
