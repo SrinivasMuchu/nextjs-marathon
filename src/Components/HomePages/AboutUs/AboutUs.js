@@ -86,7 +86,7 @@ const teamMembersArray = [
 const achievementsArray = [
     {
         logo:<SiConvertio/>,
-        title:'0.5M+',
+        title:'500K+',
         description:'CAD converted'
     },
     {
@@ -96,7 +96,7 @@ const achievementsArray = [
     },
     {
         logo:<MdFileDownload/>,
-        title:'1L+',
+        title:'100K+',
         description:'CAD downloaded'
     },
     
@@ -110,7 +110,7 @@ function AboutUs() {
             <div className={styles["aboutus-our-story"]}>
                 <div className={styles["aboutus-our-story-content"]}>
                     <h1>Our Story</h1>
-                    <p>Founded in 2021, Marathon-OS began with a vision to empower hardware teams with the same level of 
+                    <p>Founded in 2023, Marathon-OS began with a vision to empower hardware teams with the same level of 
                         digital infrastructure that software teams have long enjoyed. We saw a gap — hardware engineers 
                         lacked a seamless way to manage, share, and collaborate on designs. So, we built a platform that bridges that gap.</p>
                     <p>Today, Marathon-OS offers engineers a powerful suite of tools — from an online CAD viewer and CAD 
@@ -129,7 +129,7 @@ function AboutUs() {
                     </div> */}
                 </div>
                 <div className={styles["aboutus-our-story-img"]}>
-                        <Image width={400} height={400} src={IMAGEURLS.ourStory}/>
+                        <Image width={400} height={400} src={IMAGEURLS.ourStory} alt='about us'/>
                 </div>
             </div>
 
@@ -156,7 +156,7 @@ function AboutUs() {
             <div className={styles["aboutus-our-team-items"]}>
                 {teamMembersArray.map((item,index)=>(
                     <div className={styles["aboutus-our-team-cont"]} key={index}>
-                        <Image width={100} height={100} src={item.image}/>
+                        <Image width={100} height={100} src={item.image} alt={item.name}/>
                         <span className={styles["aboutus-our-team-name"]}>{item.name}</span>
                         <span className={styles["aboutus-our-team-role"]}>{item.role}</span>
                         {/* <span className={styles["aboutus-our-team-designation"]}>{item.designation}</span> */}

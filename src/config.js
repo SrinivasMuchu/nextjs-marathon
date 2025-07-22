@@ -53,7 +53,7 @@ export const IMAGEURLS = {
   orgImg: `${MARATHON_ASSET_PREFIX_URL}org_img.webp`,
   cadViewer: `${MARATHON_ASSET_PREFIX_URL}cad_viewer.webp`,
   cadConveter: `${MARATHON_ASSET_PREFIX_URL}cad_converter.webp`,
-  ourStory:`${MARATHON_ASSET_PREFIX_URL}our-story-img.webp`,
+  ourStory:`${MARATHON_ASSET_PREFIX_URL}new_our-story-img.webp`,
   uday:`${MARATHON_ASSET_PREFIX_URL}uday_khatry.jpg`,
   suyog:`${MARATHON_ASSET_PREFIX_URL}suyog_patel.jpg`,
   apoorv:`${MARATHON_ASSET_PREFIX_URL}apoorv_garg.jpg`,
