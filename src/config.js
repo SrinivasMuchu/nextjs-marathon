@@ -53,8 +53,14 @@ export const IMAGEURLS = {
   orgImg: `${MARATHON_ASSET_PREFIX_URL}org_img.webp`,
   cadViewer: `${MARATHON_ASSET_PREFIX_URL}cad_viewer.webp`,
   cadConveter: `${MARATHON_ASSET_PREFIX_URL}cad_converter.webp`,
-
-  // close-icon-part-num.png
+  ourStory:`${MARATHON_ASSET_PREFIX_URL}our-story-img.webp`,
+  uday:`${MARATHON_ASSET_PREFIX_URL}uday_khatry.jpg`,
+  suyog:`${MARATHON_ASSET_PREFIX_URL}suyog_patel.jpg`,
+  apoorv:`${MARATHON_ASSET_PREFIX_URL}apoorv_garg.jpg`,
+  yugal:`${MARATHON_ASSET_PREFIX_URL}yugal_raj_jain.jpg`,
+  karishma:`${MARATHON_ASSET_PREFIX_URL}karishma.jpg`,
+  srinivas:`${MARATHON_ASSET_PREFIX_URL}srinivas.jpg`,
+  // our-story-img.webp
   // open-answer.webp
   // Add more images as needed
 };
