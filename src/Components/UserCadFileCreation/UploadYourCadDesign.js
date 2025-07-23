@@ -199,7 +199,7 @@ function UploadYourCadDesign() {
             );
 
             if (response.data.meta.success) {
-                if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
+                if ( localStorage.getItem('user_email')) {
                    
                     setCloseNotifyInfoPopUp(true);
                 } else {
@@ -244,7 +244,7 @@ function UploadYourCadDesign() {
     };
 
     const handlePopUp = () => {
-        if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
+        if ( !localStorage.getItem('user_email')) {
             setIsApiSlow(true);
         } else {
             setCloseNotifyInfoPopUp(true);

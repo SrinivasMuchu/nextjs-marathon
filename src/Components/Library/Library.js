@@ -47,7 +47,7 @@ async function Library({ searchParams }) {
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
   const allTags = tagsResponse.data?.data || [];
-
+// console.log(designs)
   return (
     <>
       <HomeTopNav />
@@ -85,6 +85,7 @@ async function Library({ searchParams }) {
                 <div style={{ width: '100%', height: '2px', background: 'grey', marginBottom: '5px' }}></div>
                 <h6 title={design.page_title}>{textLettersLimit(design.page_title, 40)}</h6>
                 <p title={design.page_description}>{textLettersLimit(design.page_description, 150)}</p>
+                <span>{design.display_views}</span>
               </div>
             </a>
           ))}

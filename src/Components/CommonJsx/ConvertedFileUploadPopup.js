@@ -47,7 +47,7 @@ function ConvertedFileUploadPopup({url,setPublishCad}) {
         });
         // Save object as JSON string
       
-        // router.push("/publish-cad");
+        router.push("/publish-cad");
     };
     useEffect(() => {
         sendGAtagEvent({ 
