@@ -21,7 +21,7 @@ function Security() {
           is more important than anything else.
         </p>
         <div className={styles["security-btn"]}>
-          <TopNavRequestBtn className={'security-btn-button'} styles={styles} />
+          <TopNavRequestBtn />
           {/* <button onClick={()=>setOpenDemoForm(!openDemoForm)}>Request a demo</button> */}
         </div>
       </div>

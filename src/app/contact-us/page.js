@@ -2,7 +2,7 @@
 export const metadata = {
     title: "Contact us | Marathon OS",
     description:
-      "Contact us",
+      "Have questions or need support? Contact the Marathon OS team for assistance with our hardware lifecycle management platform.",
       openGraph: {images: [
         {
           url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",

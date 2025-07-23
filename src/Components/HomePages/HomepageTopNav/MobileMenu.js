@@ -36,6 +36,7 @@ function MobileMenu({ onClose, styles }) {
       </div>
 
       <div className={styles["menu-navs"]}>
+      <a href="/about-us" >About us</a>
         <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</a>
         <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</a>
         <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</a>

@@ -2,7 +2,8 @@
 export const metadata = {
     title: "Refund Policy | Marathon OS",
     description:
-      "Refund policy",
+      "Read Marathon OS's refund policy to understand our terms for subscription cancellations, refunds, and dispute resolution for digital purchases.",
+ 
       openGraph: {images: [
         {
           url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
