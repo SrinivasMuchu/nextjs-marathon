@@ -42,7 +42,7 @@ function HomeTopNav() {
       </Link>
 
       <div className={styles["home-page-navs"]}>
-        <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</a>
+        <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why Us?</a>
         <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</a>
         <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</a>
         <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>

@@ -42,21 +42,21 @@ function Footer() {
           <div className={styles["footer-divider"]}></div>
           <div className={styles["footer-navs"]}>
             <a href="#home" onClick={(e) => handleAnchorClick(e, "home")}>Home</a>
-            <a href="/about-us" >About us</a>
-            <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</a>
+            <a href="/about-us" >About Us</a>
+            <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why Us?</a>
             {/* <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Features</a> */}
             <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</a>
             <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>
             <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a>
-            <a href="/contact-us" >Contact us</a>
+            <a href="/contact-us" >Contact Us</a>
             {/* <Link href="/blog/part-number-nomenclature-guide">Blog</Link> */}
            
           </div>
           <div className={styles["footer-divider"]}></div>
            <div className={styles["footer-navs"]}>
-            <a href="/tools/org-hierarchy" >Organization hierarchy</a>
-            <a href="/tools/cad-viewer" >CAD viewer</a>
-            <a href="/tools/3d-file-converter" >3D file converter</a>
+            <a href="/tools/org-hierarchy" >Organization Hierarchy</a>
+            <a href="/tools/cad-viewer" >CAD Viewer</a>
+            <a href="/tools/3d-file-converter" >CAD File Converter</a>
             <a href="/library" >Library</a>
             {/* <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Part Number Nomenclature Guide</a> */}
              <a href="/terms-and-conditions">Terms Of Service</a>
