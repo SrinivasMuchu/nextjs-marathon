@@ -49,7 +49,7 @@ function UploadYourCadDesign() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            if (localStorage.getItem('user_email')) {
+            if (localStorage.getItem('is_verified')) {
                 setHasUserEmail(true);
             }
         }

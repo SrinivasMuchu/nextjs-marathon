@@ -10,6 +10,7 @@ import Footer from '../HomePages/Footer/Footer';
 import CategoryFilter from './CategoryFilter';
 import SearchBar from './SearchFilter';
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
+import DesignStats from '../CommonJsx/DesignStats';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -47,7 +48,7 @@ async function Library({ searchParams }) {
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
   const allTags = tagsResponse.data?.data || [];
-// console.log(designs)
+  // console.log(designs)
   return (
     <>
       <HomeTopNav />
@@ -74,7 +75,7 @@ async function Library({ searchParams }) {
         <div className={styles["library-designs-items"]}>
           {designs.map((design) => (
             <a key={design._id} href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
-              <div>
+              <div className={styles["library-designs-inner"]}>
                 <Image
                   className={styles["library-designs-items-container-img"]}
                   src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_0.webp`}
@@ -85,16 +86,20 @@ async function Library({ searchParams }) {
                 <div style={{ width: '100%', height: '2px', background: 'grey', marginBottom: '5px' }}></div>
                 <h6 title={design.page_title}>{textLettersLimit(design.page_title, 40)}</h6>
                 <p title={design.page_description}>{textLettersLimit(design.page_description, 150)}</p>
-                <span>{design.display_views}</span>
+
+                <div className={styles["design-stats-wrapper"]}>
+                  <DesignStats views={design.display_views} downloads={design.display_downloads} />
+                </div>
               </div>
             </a>
+
           ))}
         </div>
 
         {/* Pagination */}
         <div className={styles["library-pagination"]} style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
           {page > 1 && (
-            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page - 1 ,tags})}>
+            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page - 1, tags })}>
               <button><KeyboardBackspaceIcon /> prev</button>
             </Link>
           )}
@@ -114,7 +119,7 @@ async function Library({ searchParams }) {
             pageLinks.push(
               <Link
                 key={1}
-                href={buildQueryString({ category, search: searchQuery, limit, page: 1,tags })}
+                href={buildQueryString({ category, search: searchQuery, limit, page: 1, tags })}
                 className={`${styles['pagination-button']} ${page === 1 ? styles.active : ''}`}
               >
                 1
@@ -131,7 +136,7 @@ async function Library({ searchParams }) {
               pageLinks.push(
                 <Link
                   key={p}
-                  href={buildQueryString({ category, search: searchQuery, limit, page: p,tags })}
+                  href={buildQueryString({ category, search: searchQuery, limit, page: p, tags })}
                   className={`${styles['pagination-button']} ${page === p ? styles.active : ''}`}
                 >
                   {p}
@@ -149,7 +154,7 @@ async function Library({ searchParams }) {
               pageLinks.push(
                 <Link
                   key={totalPages}
-                  href={buildQueryString({ category, search: searchQuery, limit, page: totalPages,tags })}
+                  href={buildQueryString({ category, search: searchQuery, limit, page: totalPages, tags })}
                   className={`${styles['pagination-button']} ${page === totalPages ? styles.active : ''}`}
                 >
                   {totalPages}
@@ -161,7 +166,7 @@ async function Library({ searchParams }) {
           })()}
 
           {page < totalPages && (
-            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page + 1,tags })}>
+            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page + 1, tags })}>
               <button>next <KeyboardBackspaceIcon style={{ transform: "rotate(180deg)" }} /></button>
             </Link>
           )}
