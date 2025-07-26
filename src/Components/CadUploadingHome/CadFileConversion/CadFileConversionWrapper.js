@@ -258,7 +258,7 @@ function CadFileConversionWrapper({ children, convert }) {
         if(!uploadingMessage|| uploadingMessage==='COMPLETED'|| uploadingMessage === 'UPLOADING') return;
         const slowApiTimer = setTimeout(() => {
          
-            if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
+            if ( localStorage.getItem('user_email')) {
              
                 setCloseNotifyInfoPopUp(true);
             } else {

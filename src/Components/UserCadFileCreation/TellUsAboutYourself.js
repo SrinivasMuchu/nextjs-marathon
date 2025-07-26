@@ -10,9 +10,11 @@ import { contextState } from '../CommonJsx/ContextProvider';
 import { BASE_URL, ASSET_PREFIX_URL, CAD_PUBLISH_EVENT } from '@/config';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
+import EmailOTP from '../CommonJsx/EmailOTP';
+import { sendGAtagEvent } from '@/common.helper';
 function TellUsAboutYourself() {
   const photoInputRef = useRef(null);
-  const [isApiSlow, setIsApiSlow] = useState(false);
+  const [isEmailVerify, setIsEmailVerify] = useState(false);
   const { setHasUserEmail } = useContext(contextState);
   const [isUserPhoto, setIsUserPhoto] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -40,7 +42,7 @@ function TellUsAboutYourself() {
       }
 
     }
-  }, [isClient, isApiSlow]);
+  }, [isClient]);
 
   const getUserDetails = async (uuid) => {
     try {
@@ -54,7 +56,8 @@ function TellUsAboutYourself() {
         setUser({
           email: data?.user_email || '',
           name: data?.full_name || '',
-          photo: data?.photo || ''
+          photo: data?.photo || '',
+
         });
 
         if (data?.user_email && data?.full_name) {
@@ -99,7 +102,7 @@ function TellUsAboutYourself() {
       console.log('error')
       setErrors(prev => ({ ...prev, [field]: error }));
     }
-setSigningUp(true)
+    setSigningUp(true)
 
     try {
 
@@ -112,7 +115,11 @@ setSigningUp(true)
         headers: { 'user-uuid': uuid }
       });
 
+
+
       if (response.data.meta.success) {
+        // /request-otp
+      
         sendGAtagEvent({ event_name: 'publish_cad_profile_complete', event_category: CAD_PUBLISH_EVENT })
         toast.success(`Profile updated successfully`);
         if (field !== 'photo') {
@@ -125,11 +132,12 @@ setSigningUp(true)
           setEditField(prev => ({ ...prev, [field]: false }));
           setErrors(prev => ({ ...prev, [field]: '' }));
         }
-
+       
+        
         getUserDetails(userUuid);
-      }else{
-        setErrors(prev => ({ ...prev, ['email']: response.data.meta.message  }));
-      }
+        setIsEmailVerify(true);
+       
+    }
       setSigningUp(false)
     } catch (err) {
       setSigningUp(false)
@@ -153,14 +161,7 @@ setSigningUp(true)
   if (!isClient) return null;
 
 
-  const handleChangeBrowserNotification = (e) => {
-    const isChecked = e.target.checked;
-    setIsApiSlow(!isApiSlow);
-    if (isChecked) {
-      // Logic to enable browser notifications
-      setIsApiSlow(true);
-    }
-  }
+   
   return (
     <>
       <div className={styles["tell-us-about-yourself-page"]}>
@@ -284,9 +285,13 @@ setSigningUp(true)
                         </button>
                       </>
                     ) : (
-                      <button onClick={() => setEditField((prev) => ({ ...prev, [field]: true }))}>
+                      <>
+                       <button onClick={() => setEditField((prev) => ({ ...prev, [field]: true }))}>
                         <Image src={`${ASSET_PREFIX_URL}edit-ticket.png`} alt="edit" width={20} height={20} />
                       </button>
+                     {field === 'email' && !localStorage.getItem('is_verified') && <button style={{color:'blue',cursor:'pointer'}} onClick={()=>setIsEmailVerify(true)}>verify</button>} 
+                    
+                      </>
                     )}
                   </div>
                 )}
@@ -342,6 +347,9 @@ setSigningUp(true)
             <button onClick={updateField} className={styles['save-profile']} disabled={signingUp}>
               {signingUp ?'Saving Profile':'Save Profile'}
             </button>
+            {/* <button onClick={()=>setIsEmailVerify(true)} className={styles['save-profile']} >
+              {signingUp ?'Saving Profile':'Save Profile'}
+            </button> */}
 
 
           </>
@@ -349,7 +357,8 @@ setSigningUp(true)
         )}
 
       </div>
-      {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} action='profile' />}
+
+      {isEmailVerify && <EmailOTP />}
     </>
 
   );

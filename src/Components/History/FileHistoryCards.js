@@ -11,6 +11,7 @@ import Loading from '../CommonJsx/Loaders/Loading';
 import { sendGAtagEvent } from "@/common.helper";
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 import { contextState } from '../CommonJsx/ContextProvider';
+import DesignStats from '../CommonJsx/DesignStats';
 
 
 let cachedCadHistory = {};
@@ -377,6 +378,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         textAlign: 'center'
                       }}>View design</button>}
                     </div>
+                    <DesignStats views={file.display_views} downloads={file.display_downloads} />
                   </div>
                 ))}
               </div>

@@ -158,7 +158,7 @@ export default function PartDesignView() {
 
         const slowApiTimer = setTimeout(() => {
 
-            if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
+            if ( localStorage.getItem('user_email')) {
 
                 setCloseNotifyInfoPopUp(true);
             } else {

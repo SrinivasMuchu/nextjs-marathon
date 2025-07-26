@@ -4,20 +4,14 @@ import styles from './ContactUs.module.css'
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MailIcon from '@mui/icons-material/Mail';
-// import { GoogleMap, useJsApiLoader } from '@react-google-maps/api'
 import FooterForm from '../Footer/FooterForm';
 import HomeTopNav from '../HomepageTopNav/HomeTopNav';
 import Footer from '../Footer/Footer';
+import CommonTitleCard from '@/Components/CommonJsx/CommonTitleCard';
 
-const containerStyle = {
-  width: '400px',
-  height: '400px',
-}
+// Replace with your actual Google Maps API key or use an environment variable
 
-const center = {
-  lat: -3.745,
-  lng: -38.523,
-}
+
 
 const contactArray = [
   {
@@ -47,10 +41,11 @@ function ContactUs() {
     <>
       <HomeTopNav />
       <div className={styles["contactus-page"]}>
-        <div className={styles["contactus-header"]}>
+        {/* <div className={styles["contactus-header"]}>
           <h1>Get in Touch</h1>
           <p>Have a question or want to work together? We&rsquo;d love to hear from you.</p>
-        </div>
+        </div> */}
+        <CommonTitleCard title="Get in Touch" description="Have a question or want to work together? We'd love to hear from you."/>
 
         <div className={styles["contactus-types"]}>
           {contactArray.map((item, index) => (
@@ -82,6 +77,8 @@ function ContactUs() {
             </div>
           </div>
         </div>
+        {/* Google Map Section */}
+       
       </div>
       <Footer />
     </>

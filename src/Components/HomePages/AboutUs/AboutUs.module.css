@@ -1,0 +1,221 @@
+.aboutus-page{
+    display:flex;
+    flex-direction:column;
+    width:100%
+}
+.aboutus-our-story{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    padding: clamp(24px, 5vw, 96px) clamp(16px, 6vw, 40px);
+    width:100%;
+}
+.aboutus-our-story-img{
+     display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width:50%;
+    height:400px;
+
+}
+.aboutus-our-story-img img{
+    width:80%;
+    height:400px;
+}
+.aboutus-our-story h1{
+    font-size:48px;
+    font-weight:800;
+}
+.aboutus-our-story p{
+    font-size:18px;
+    text-align: justify;
+    /* font-weight:600; */
+}
+.aboutus-our-story-content{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    width:50%
+}
+.aboutus-our-story-array{
+    display: flex;
+    align-items:center;
+    justify-content:space-between;
+}
+.aboutus-our-story-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    /* gap:4px; */
+}
+.aboutus-our-story-item span{
+    color:#610bee;
+    font-size:32px;
+    font-weight:800;
+}
+.aboutus-our-missons{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content: center;
+    gap: 16px;
+    padding: clamp(24px, 5vw, 96px) clamp(16px, 6vw, 40px);
+}
+.aboutus-our-missons-items{
+    display:flex;
+    /* align-items: center; */
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width:100%;
+}
+.aboutus-our-missons-cont{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 30%;
+    padding:24px;
+    border-radius:12px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    flex-grow: 0;
+}
+
+.aboutus-our-team-cont{
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    gap: 4px;
+    min-width: 300px;
+    padding:24px;
+    box-sizing:border-box;
+
+}
+.aboutus-our-team-name{
+    font-size:24px;
+    font-weight:700;
+
+}
+.aboutus-our-team-role{
+    font-size: 18px;
+    color:#610bee;
+}
+
+.aboutus-our-team-designation{
+    color: #AFABA9;
+}
+.aboutus-our-team-cont img{
+    width:150px;
+    height:150px;
+    border-radius: 50%;
+
+}
+.aboutus-our-missons-cont-logo{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    color: #610bee;
+    background: #EFE6FD;
+    width: 75px;
+    height: 75px;
+    font-size:44px;
+
+
+}
+
+.aboutus-our-missons-cont h6{
+    font-weight: 800;
+    font-size: 24px;
+}
+.aboutus-our-missons-cont p{
+    color: #9BA0A9;
+    text-align:justify;
+}
+.aboutus-our-missons-cont:hover{
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+
+.aboutus-our-missons-title{
+    color: #001325;
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+
+}
+
+.aboutus-our-missons-desc{
+    color: #9BA0A9;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 26px;
+    text-align: center;
+
+}
+
+.aboutus-our-team-items{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width:100%;
+    gap:16px;
+}
+
+.about-pg-btns button {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: 1px solid #610bee;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: 500;
+    font-style: normal;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    color: #610bee;
+  }
+  .about-pg-btns button:hover{
+    color: white;
+    background: #610bee;
+  }
+
+
+
+  @media screen and (max-width:800px){
+    .aboutus-our-story{
+        flex-direction: column;
+        gap:16px;
+    }
+    .aboutus-our-story-img,.aboutus-our-story-content,.aboutus-our-story-img img{
+        width:100%;
+        justify-content:center;
+       
+    }
+    .aboutus-our-story-array{
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:16px;
+    }
+    .aboutus-our-missons-items{
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:24px;
+    }
+    .aboutus-our-missons-cont{
+        width:300px;
+        justify-content:center;
+        align-items: center;
+        text-align: center;
+    }
+    .aboutus-our-missons-title{
+        text-align: center;
+    }
+    .aboutus-our-story-content{
+        text-align: center;
+    }
+}

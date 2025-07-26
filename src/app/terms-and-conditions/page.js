@@ -1,7 +1,7 @@
 export const metadata = {
     title: "Terms and Conditions | Marathon OS",
     description:
-      "Terms and conditions",
+    "Review the terms and conditions for using Marathon OS. Understand your rights, responsibilities, and the rules that govern access to our platform.",
       openGraph: {images: [
         {
           url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
