@@ -18,7 +18,7 @@ function IndustryDesignHeader({design,designData,type}) {
             <a href={`/tools/cad-renderer?fileId=${designData._id}&format=${designData.file_type?designData.file_type:'step'}`} rel="nofollow"><button >Open in 3D viewer</button></a>   
                 {/* <a href={ `/library/${design}/${designData._id}.${designData.file_type?designData.file_type:'step'}`:`/industry/${design.industry}/${design.part}/${design.design}/${designData._id}.${designData.file_type?designData.file_type:'step'}`} 
                 rel="nofollow"><button >Open in 3D viewer</button></a>    */}
-               <DesignStats views={designData.display_views} downloads={designData.display_downloads}/>
+               <DesignStats views={designData.total_design_views} downloads={designData.total_design_downloads}/>
         </div>
        
     </div>

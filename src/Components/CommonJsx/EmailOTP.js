@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import styles from './CommonStyles.module.css';
 import { BASE_URL } from '@/config';
+import { toast } from 'react-toastify';
 
-function EmailOTP() {
+function EmailOTP({email,setIsEmailVerify,setError,type,saveDetails}) {
+  // console.log(email)
   const inputs = Array(4).fill(0).map(() => useRef(null));
   const [otp, setOtp] = useState(['', '', '', '']);
   const [loading, setLoading] = useState(false);
@@ -14,17 +16,33 @@ function EmailOTP() {
 
   // ✅ Reusable function to send OTP
   const sendOtp = async () => {
+    console.log(email)
     setLoading(true);
     setMessage('');
     try {
-      await axios.post(
+    const response =   await axios.post(
         `${BASE_URL}/v1/cad/request-otp`,
-        { email: user },
+        { email: email },
         { headers: { 'user-uuid': uuid } }
       );
-      setMessage('OTP sent to your email.');
+
+    if(response.data.meta.success){
+          toast.success('OTP sent to your email.');
+         
+    }else{
+     
+      if(type){
+          // setErrors({ name: nameError, email: emailError });
+
+        setError({email:response.data.meta.message});
+      }else{
+        setError(response.data.meta.message);
+      }
+       setIsEmailVerify(false)
+    }
+      
     } catch (err) {
-      setMessage('Failed to send OTP.');
+      toast.error('Failed to send OTP.');
     }
     setLoading(false);
   };
@@ -32,7 +50,7 @@ function EmailOTP() {
   useEffect(() => {
     // Send OTP on mount
     sendOtp();
-  }, []);
+  }, [email]);
 
  const handleChange = (e, idx) => {
   const value = e.target.value.replace(/[^0-9]/g, '');
@@ -75,19 +93,20 @@ const handleKeyDown = (e, idx) => {
       const enteredOtp = otp.join('');
       const res = await axios.post(
         `${BASE_URL}/v1/cad/verify-otp`,
-        { email: user, otp: enteredOtp },
+        { email: email, otp: enteredOtp },
         { headers: { 'user-uuid': uuid } }
       );
       if (res.data.meta.success) {
-        setMessage('OTP verified successfully!');
+        toast.success('OTP verified successfully!');
         localStorage.setItem('is_verified', true);
-        window.location.reload();
+        saveDetails()
+        // setIsEmailVerify(false)
       } else {
         setOtp(['', '', '', '']);
-        setMessage(res.data.meta.message);
+        toast.error(res.data.meta.message);
       }
     } catch (err) {
-      setMessage('Verification failed.');
+      toast.error('Verification failed.');
     }
     setLoading(false);
   };
@@ -149,7 +168,8 @@ const handleKeyDown = (e, idx) => {
             disabled={loading}
             style={{
               width: '100%',
-              background: '#610bee',
+              background: '#38a169',
+              
               color: '#fff',
               border: 'none',
               borderRadius: 8,
@@ -169,7 +189,7 @@ const handleKeyDown = (e, idx) => {
             disabled={loading}
             style={{
               width: '100%',
-              background: '#38a169',
+              background: '#610bee',
               color: '#fff',
               border: 'none',
               borderRadius: 8,

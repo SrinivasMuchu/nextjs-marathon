@@ -378,7 +378,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         textAlign: 'center'
                       }}>View design</button>}
                     </div>
-                    <DesignStats views={file.display_views} downloads={file.display_downloads} />
+                    <DesignStats views={file.total_design_views} downloads={file.total_design_downloads} />
                   </div>
                 ))}
               </div>
