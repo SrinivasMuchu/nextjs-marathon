@@ -11,6 +11,7 @@ import CategoryFilter from './CategoryFilter';
 import SearchBar from './SearchFilter';
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import DesignStats from '../CommonJsx/DesignStats';
+import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -27,13 +28,16 @@ async function Library({ searchParams }) {
   const searchQuery = searchParams?.search || '';
   const category = searchParams?.category || '';
   const page = parseInt(searchParams?.page) || 1;
-  const limit = parseInt(searchParams?.limit) || 20;
+  const limit = parseInt(searchParams?.limit) || 19;
   const tags = searchParams?.tags || '';
+  let response;
 
-  const response = await axios.get(
-    `${BASE_URL}/v1/cad/get-category-design?category=${category}&limit=${limit}&page=${page}&search=${searchQuery}&tags=${tags}`,
+    response = await axios.get(
+       `${BASE_URL}/v1/cad/get-category-design?category=${category}&limit=${limit}&page=${page}&search=${searchQuery}&tags=${tags}`,
     { cache: 'no-store' }
-  );
+    );
+
+  
   const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, {
     cache: 'no-store',
   });
@@ -75,22 +79,35 @@ async function Library({ searchParams }) {
         <div className={styles["library-designs-items"]}>
           {designs.map((design) => (
             <a key={design._id} href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
-              <div className={styles["library-designs-inner"]}>
-                <Image
-                  className={styles["library-designs-items-container-img"]}
+              {/* <div className={styles["library-designs-inner"]}> */}
+              <div className={styles["library-designs-items-container-cost"]}>Free</div>
+                <div className={styles["library-designs-items-container-img"]}>
+                    <Image
+                  // className={styles["library-designs-items-container-img"]}
                   src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_0.webp`}
                   alt={design.page_title}
                   width={300}
                   height={250}
                 />
-                <div style={{ width: '100%', height: '2px', background: 'grey', marginBottom: '5px' }}></div>
-                <h6 title={design.page_title}>{textLettersLimit(design.page_title, 40)}</h6>
-                <p title={design.page_description}>{textLettersLimit(design.page_description, 150)}</p>
-
-                <div className={styles["design-stats-wrapper"]}>
-                  <DesignStats views={design.display_views} downloads={design.display_downloads} />
                 </div>
-              </div>
+              
+                <div className={styles["design-stats-wrapper"]}>
+                  <DesignStats views={design.total_design_views ?? 0}
+                    downloads={design.total_design_downloads ?? 0} />
+                </div>
+                <div className={styles["design-title-wrapper"]}>
+                  <h6 title={design.page_title}>{textLettersLimit(design.page_title, 30)}</h6>
+                   <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>
+                  <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />}
+                    <DesignDetailsStats fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'} text={design.file_type ? `.${design.file_type.toUpperCase()}`  : '.STEP'} />
+                  </div>
+                  <span className={styles["design-title-wrapper-price"]}>Free</span>
+                
+                </div>
+                
+                
+              {/* </div> */}
             </a>
 
           ))}

@@ -25,7 +25,7 @@ function TellUsAboutYourself() {
   const [errors, setErrors] = useState({ name: '', email: '' });
   const [editField, setEditField] = useState({ name: false, email: false });
   const [signingUp, setSigningUp] = useState(false);
-
+ 
   useEffect(() => setIsClient(true), []);
 
   useEffect(() => {
@@ -102,11 +102,14 @@ function TellUsAboutYourself() {
       console.log('error')
       setErrors(prev => ({ ...prev, [field]: error }));
     }
-    setSigningUp(true)
+    
 
     try {
-
-      const uuid = localStorage.getItem('uuid');
+      if(!localStorage.getItem('is_verified')){
+        setIsEmailVerify(true)
+      }else{
+        setSigningUp(true)
+        const uuid = localStorage.getItem('uuid');
       const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
         user_email: user.email,
         full_name: user.name,
@@ -135,10 +138,13 @@ function TellUsAboutYourself() {
        
         
         getUserDetails(userUuid);
-        setIsEmailVerify(true);
+        setIsEmailVerify(false)
+       
        
     }
       setSigningUp(false)
+      }
+      
     } catch (err) {
       setSigningUp(false)
       console.error(`Error updating Profile:`, err);
@@ -254,12 +260,12 @@ function TellUsAboutYourself() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '1rem',
-                  width: '100%',
+                  // width: '100%',
                   justifyContent: 'space-between',
                 }}
               >
                 <input
-                  style={{ flexGrow: 1 }}
+                  style={{ width:'100%' }}
                   value={user[field]}
                   onChange={(e) => setUser({ ...user, [field]: e.target.value })}
                   disabled={isProfileComplete && !editField[field]} // Editable always if profile is not yet complete
@@ -286,10 +292,10 @@ function TellUsAboutYourself() {
                       </>
                     ) : (
                       <>
-                       <button onClick={() => setEditField((prev) => ({ ...prev, [field]: true }))}>
+                      {field !== 'email' && <button onClick={() => setEditField((prev) => ({ ...prev, [field]: true }))}>
                         <Image src={`${ASSET_PREFIX_URL}edit-ticket.png`} alt="edit" width={20} height={20} />
-                      </button>
-                     {field === 'email' && !localStorage.getItem('is_verified') && <button style={{color:'blue',cursor:'pointer'}} onClick={()=>setIsEmailVerify(true)}>verify</button>} 
+                      </button>} 
+                     {/* {field === 'email' && !localStorage.getItem('is_verified') && <button style={{color:'blue',cursor:'pointer'}} onClick={()=>setIsEmailVerify(true)}>verify</button>}  */}
                     
                       </>
                     )}
@@ -358,7 +364,8 @@ function TellUsAboutYourself() {
 
       </div>
 
-      {isEmailVerify && <EmailOTP />}
+      {isEmailVerify && <EmailOTP email={user.email}  saveDetails={updateField}
+      setIsEmailVerify={setIsEmailVerify} setError={setErrors} type='publish'/>}
     </>
 
   );
