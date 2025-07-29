@@ -12,6 +12,7 @@ import SearchBar from './SearchFilter';
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import DesignStats from '../CommonJsx/DesignStats';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
+import HoverImageSequence from './RotatedImages';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -28,7 +29,7 @@ async function Library({ searchParams }) {
   const searchQuery = searchParams?.search || '';
   const category = searchParams?.category || '';
   const page = parseInt(searchParams?.page) || 1;
-  const limit = parseInt(searchParams?.limit) || 19;
+  const limit = parseInt(searchParams?.limit) || 20;
   const tags = searchParams?.tags || '';
   let response;
 
@@ -81,7 +82,7 @@ async function Library({ searchParams }) {
             <a key={design._id} href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
               {/* <div className={styles["library-designs-inner"]}> */}
               <div className={styles["library-designs-items-container-cost"]}>Free</div>
-                <div className={styles["library-designs-items-container-img"]}>
+                {/* <div className={styles["library-designs-items-container-img"]}>
                     <Image
                   // className={styles["library-designs-items-container-img"]}
                   src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_0.webp`}
@@ -89,7 +90,8 @@ async function Library({ searchParams }) {
                   width={300}
                   height={250}
                 />
-                </div>
+                </div> */}
+                <HoverImageSequence design={design} />
               
                 <div className={styles["design-stats-wrapper"]}>
                   <DesignStats views={design.total_design_views ?? 0}
@@ -98,8 +100,14 @@ async function Library({ searchParams }) {
                 <div className={styles["design-title-wrapper"]}>
                   <h6 title={design.page_title}>{textLettersLimit(design.page_title, 30)}</h6>
                    <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>
-                  <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center',flexWrap:'wrap' }}>
                     {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />}
+                    {design.category_labels && design.category_labels.map((label, index) => (
+                      <DesignDetailsStats key={index} text={label} />
+                    ))}
+                    {design.tag_labels && design.tag_labels.map((label, index) => (
+                      <DesignDetailsStats key={index} text={label} />
+                    ))}
                     <DesignDetailsStats fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'} text={design.file_type ? `.${design.file_type.toUpperCase()}`  : '.STEP'} />
                   </div>
                   <span className={styles["design-title-wrapper-price"]}>Free</span>
