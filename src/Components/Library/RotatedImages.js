@@ -5,8 +5,8 @@ import styles from './Library.module.css';
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
 
 const HoverImageSequence = ({ design }) => {
-  const angles = [0,30, 60, 90, 120, 150, 180, 210, 240,270,300,330,360]; // custom order
-  const yangles = [0,360,330,300,270,240,210,180,150, 120, 90, 60, 30]; // custom order
+const angles = [0, 60, 90, 120, 150, 180, 210, 240,270,300,330]; // custom order
+  const yangles = [0,330,300,270,240,210,180,150, 120, 90, 60]; // custom order // custom order
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef(null);
   const hoverRef = useRef(false);

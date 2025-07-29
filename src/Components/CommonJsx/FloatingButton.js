@@ -51,6 +51,21 @@ function FloatingButton() {
         >
           Publish CAD
         </a>
+        <a
+        href="/library"
+         onClick={(e) => {
+            e.preventDefault();
+            sendGAtagEvent({ event_name: 'floating_button_library_click', event_category: CAD_FLOATING_BUTTON_EVENT });
+            setTimeout(() => {
+              window.location.href = "/library";
+            }, 100); // 100ms delay to allow GA event to fire
+          }}
+         
+          // href="/publish-cad"
+          className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
+        >
+          Library
+        </a>
       </div>
     )}
 
