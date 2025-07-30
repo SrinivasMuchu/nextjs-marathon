@@ -12,7 +12,7 @@ import SearchBar from './SearchFilter';
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import DesignStats from '../CommonJsx/DesignStats';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
-import HoverImageSequence from './RotatedImages';
+import HoverImageSequence from '../CommonJsx/RotatedImages';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -91,7 +91,7 @@ async function Library({ searchParams }) {
                   height={250}
                 />
                 </div> */}
-                <HoverImageSequence design={design} />
+                <HoverImageSequence design={design} width={300} height={250}/>
               
                 <div className={styles["design-stats-wrapper"]}>
                   <DesignStats views={design.total_design_views ?? 0}

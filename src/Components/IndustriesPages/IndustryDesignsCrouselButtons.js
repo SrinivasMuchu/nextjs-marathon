@@ -5,6 +5,7 @@ import styles from './Industry.module.css';
 import Image from 'next/image';
 import { textLettersLimit } from '@/common.helper';
 import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from '@/config';
+import HoverImageSequence from '../CommonJsx/RotatedImages';
 
 export default function IndustryCarouselClient({ designs, category }) {
   const carouselRef = useRef(null);
@@ -63,13 +64,14 @@ export default function IndustryCarouselClient({ designs, category }) {
           >
             {!design.isExploreMore ? (
               <div>
-                <Image
+                {/* <Image
                   src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_150.webp`}
                   alt={design.page_title}
                   className={styles["industry-designs-item-img"]}
                   width={300}
                   height={250}
-                />
+                /> */}
+                <HoverImageSequence design={design} width={300} height={250} />
                 <div style={{ width: '100%', height: '2px', background: 'grey' }}></div>
                 <h6 title={design.page_title}>{textLettersLimit(design.page_title, 40)}</h6>
                 <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>

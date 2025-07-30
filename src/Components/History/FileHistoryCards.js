@@ -12,6 +12,7 @@ import { sendGAtagEvent } from "@/common.helper";
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 import { contextState } from '../CommonJsx/ContextProvider';
 import DesignStats from '../CommonJsx/DesignStats';
+import HoverImageSequence from '../CommonJsx/RotatedImages';
 
 
 let cachedCadHistory = {};
@@ -330,12 +331,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                     className={styles.historyItem}
 
                   >
-                    {file.is_uploaded ? <Image
-                      src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
-                      alt="file preview"
-                      width={300}
-                      height={160}
-                    /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
+                    {file.is_uploaded ? <HoverImageSequence design={file} width={300} height={160} /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
                     <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
 
                     <div className={styles.historyFileDetails}>
@@ -378,7 +374,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         textAlign: 'center'
                       }}>View design</button>}
                     </div>
-                    {file.is_uploaded && <DesignStats views={file.total_design_views} downloads={file.total_design_downloads} />}
+                    {file.is_uploaded === true && <DesignStats views={file.total_design_views} downloads={file.total_design_downloads} />}
                   </div>
                 ))}
               </div>

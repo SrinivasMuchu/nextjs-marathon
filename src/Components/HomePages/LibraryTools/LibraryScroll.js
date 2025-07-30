@@ -4,6 +4,7 @@ import React, { useRef } from 'react';
 import styles from '../Tools/Tools.module.css';
 import Image from 'next/image';
 import { IMAGEURLS } from '@/config';
+import HoverImageSequence from '@/Components/CommonJsx/RotatedImages';
 
 function LibraryScroll({categories}) {
     const carouselRef = useRef(null);
@@ -33,13 +34,15 @@ function LibraryScroll({categories}) {
                 {categories.map((category, index) => (
                     <a href={`/library?category=${category.route}`} key={index}>
                         <div className={styles['tools-page-items-cont']}>
-                            <Image
+
+                            {/* <Image
                                 src={category.thumbnail}
                                 alt={category.title}
                                 width={250}
                                 height={0}
                                 loading="lazy"
-                            />
+                            /> */}
+                            <HoverImageSequence design={{ _id: category._id,page_title:category.title }} width={250} height={250} loading='lazy'/>
                             <div className={styles['tools-page-items-content']}>
                                 <h6>{category.title}</h6>
                                 <p>Explore cutting-edge solutions in the {category.title} industry.</p>
