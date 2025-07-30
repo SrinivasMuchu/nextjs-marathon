@@ -27,7 +27,7 @@ function IndustryDesign({ design, designData, type }) {
 
       <div>
         {designData && <>
-          <HomeTopNav />
+          {/* <HomeTopNav /> */}
           {!type ?
             <ActiveLastBreadcrumb
               links={[

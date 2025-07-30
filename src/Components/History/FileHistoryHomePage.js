@@ -6,7 +6,7 @@ import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 function FileHistoryHomePage(){
   return (
     <>
-      <HomeTopNav />
+      {/* <HomeTopNav /> */}
       <FileHistorySideNav />
     </>
   )

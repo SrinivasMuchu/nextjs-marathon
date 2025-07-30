@@ -56,7 +56,7 @@ async function Library({ searchParams }) {
   // console.log(designs)
   return (
     <>
-      <HomeTopNav />
+      {/* <HomeTopNav /> */}
       <ActiveLastBreadcrumb links={[
         { label: 'Library', href: '/library' },
         // { label: `${industryData.industry}`, href: `/industry/${industry}` },
@@ -70,16 +70,16 @@ async function Library({ searchParams }) {
           initialTagSelectedOption={tags}
         />
         {Object.keys(searchParams || {}).length > 0 && (
-          <a href='/library' style={{ background: '#610bee', padding: '5px 10px', borderRadius: '4px', color: 'white' }}>
+          <Link href='/library' style={{ background: '#610bee', padding: '5px 10px', borderRadius: '4px', color: 'white' }}>
             <button>Reset filters</button>
-          </a>
+          </Link>
         )}
       </div>
 
       <div className={styles["library-designs"]}>
         <div className={styles["library-designs-items"]}>
           {designs.map((design) => (
-            <a key={design._id} href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
+            <Link key={design._id} href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
               {/* <div className={styles["library-designs-inner"]}> */}
               <div className={styles["library-designs-items-container-cost"]}>Free</div>
                 {/* <div className={styles["library-designs-items-container-img"]}>
@@ -116,7 +116,7 @@ async function Library({ searchParams }) {
                 
                 
               {/* </div> */}
-            </a>
+            </Link>
 
           ))}
         </div>

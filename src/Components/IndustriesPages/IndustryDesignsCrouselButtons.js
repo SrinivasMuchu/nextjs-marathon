@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { textLettersLimit } from '@/common.helper';
 import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from '@/config';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
-
+import libraryStyles from '../Library/Library.module.css';
+import Link from 'next/link';
 export default function IndustryCarouselClient({ designs, category }) {
   const carouselRef = useRef(null);
   const itemWidth = 320; // width including margin/padding
@@ -22,17 +23,17 @@ export default function IndustryCarouselClient({ designs, category }) {
 
   return (
     <>
-     
+
 
       {/* Navigation Buttons */}
       <button onClick={() => scroll('left')} style={{
         position: 'absolute', left: '0', top: '45%',
-        zIndex: 1,  padding: '6px 12px'
+        zIndex: 1, padding: '6px 12px'
       }}><Image src={IMAGEURLS.leftArrow} alt="left-arrow" width={40} height={40} /></button>
 
       <button onClick={() => scroll('right')} style={{
         position: 'absolute', right: '0', top: '45%',
-        zIndex: 1,  padding: '6px 12px'
+        zIndex: 1, padding: '6px 12px'
       }}><Image src={IMAGEURLS.rightArrow} alt="right-arrow" width={40} height={40} /></button>
 
       {/* Carousel */}
@@ -56,11 +57,11 @@ export default function IndustryCarouselClient({ designs, category }) {
           page_description: '',
           isExploreMore: true,
         }].map((design, index) => (
-          <a
+          <Link
             key={design._id || index}
             href={design.isExploreMore ? `/library?category=${category.map(item => item.industry_category_name).join(',')}` : `/library/${design.route}`}
-            className={styles["industry-designs-item"]}
-           
+            className={libraryStyles["library-designs-items-container"]}
+
           >
             {!design.isExploreMore ? (
               <div>
@@ -73,22 +74,25 @@ export default function IndustryCarouselClient({ designs, category }) {
                 /> */}
                 <HoverImageSequence design={design} width={300} height={250} />
                 <div style={{ width: '100%', height: '2px', background: 'grey' }}></div>
-                <h6 title={design.page_title}>{textLettersLimit(design.page_title, 40)}</h6>
-                <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>
+                <div className={libraryStyles["design-title-wrapper"]}>
+                  <h6 title={design.page_title}>{textLettersLimit(design.page_title, 30)}</h6>
+                  <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>
+
+                </div>
               </div>
             ) : (
-              <div  style={{
+              <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 textDecoration: 'none',
-               
-               
+
+
                 borderRadius: '12px',
                 transition: 'all 0.3s ease',
                 color: 'black',
-                height:'100%'
+                height: '100%'
               }}>
                 <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
                   Explore More
@@ -98,7 +102,7 @@ export default function IndustryCarouselClient({ designs, category }) {
                 </div>
               </div>
             )}
-          </a>
+          </Link>
         ))}
       </div>
     </>

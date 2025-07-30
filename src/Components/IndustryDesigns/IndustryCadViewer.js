@@ -392,7 +392,7 @@ function IndustryCadViewer() {
     };
     return (
         <>
-            <HomeTopNav />
+            {/* <HomeTopNav /> */}
             {/* <button onClick={()=> router.push("/tools/cad-viewer")} style={{
                 width: '3rem',
                 height: '3rem',

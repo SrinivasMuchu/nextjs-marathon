@@ -1,46 +1,37 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import styles from './CommonStyles.module.css';
 import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
 
-function EmailOTP({email,setIsEmailVerify,setError,type,saveDetails}) {
-  // console.log(email)
-  const inputs = Array(4).fill(0).map(() => useRef(null));
+function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
+  const inputs = useMemo(() => Array(4).fill().map(() => React.createRef()), []);
   const [otp, setOtp] = useState(['', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const user = localStorage.getItem('user_email') || '';
   const uuid = localStorage.getItem('uuid');
 
-  // ✅ Reusable function to send OTP
   const sendOtp = async () => {
-    console.log(email)
     setLoading(true);
     setMessage('');
     try {
-    const response =   await axios.post(
+      const response = await axios.post(
         `${BASE_URL}/v1/cad/request-otp`,
-        { email: email },
+        { email },
         { headers: { 'user-uuid': uuid } }
       );
 
-    if(response.data.meta.success){
-          toast.success('OTP sent to your email.');
-         
-    }else{
-     
-      if(type){
-          // setErrors({ name: nameError, email: emailError });
-
-        setError({email:response.data.meta.message});
-      }else{
-        setError(response.data.meta.message);
+      if (response.data.meta.success) {
+        toast.success('OTP sent to your email.');
+      } else {
+        if (type) {
+          setError({ email: response.data.meta.message });
+        } else {
+          setError(response.data.meta.message);
+        }
+        setIsEmailVerify(false);
       }
-       setIsEmailVerify(false)
-    }
-      
     } catch (err) {
       toast.error('Failed to send OTP.');
     }
@@ -48,43 +39,39 @@ function EmailOTP({email,setIsEmailVerify,setError,type,saveDetails}) {
   };
 
   useEffect(() => {
-    // Send OTP on mount
     sendOtp();
   }, [email]);
 
- const handleChange = (e, idx) => {
-  const value = e.target.value.replace(/[^0-9]/g, '');
-  const newOtp = [...otp];
-
-  if (value) {
-    newOtp[idx] = value[0]; // only take first digit
-    setOtp(newOtp);
-    if (idx < inputs.length - 1) {
-      inputs[idx + 1].current.focus();
-    }
-  } else {
-    newOtp[idx] = '';
-    setOtp(newOtp);
-  }
-};
-
-const handleKeyDown = (e, idx) => {
-  if (e.key === 'Backspace') {
+  const handleChange = (e, idx) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
     const newOtp = [...otp];
 
-    if (otp[idx]) {
-      // If there's a digit, just clear it
+    if (value) {
+      newOtp[idx] = value[0]; // Only first digit
+      setOtp(newOtp);
+      if (idx < inputs.length - 1) {
+        inputs[idx + 1].current?.focus();
+      }
+    } else {
       newOtp[idx] = '';
       setOtp(newOtp);
-    } else if (idx > 0) {
-      // If empty, go to previous field and clear that too
-      inputs[idx - 1].current.focus();
-      newOtp[idx - 1] = '';
-      setOtp(newOtp);
     }
-  }
-};
+  };
 
+  const handleKeyDown = (e, idx) => {
+    if (e.key === 'Backspace') {
+      const newOtp = [...otp];
+
+      if (otp[idx]) {
+        newOtp[idx] = '';
+        setOtp(newOtp);
+      } else if (idx > 0) {
+        inputs[idx - 1].current?.focus();
+        newOtp[idx - 1] = '';
+        setOtp(newOtp);
+      }
+    }
+  };
 
   const handleVerify = async () => {
     setLoading(true);
@@ -93,14 +80,14 @@ const handleKeyDown = (e, idx) => {
       const enteredOtp = otp.join('');
       const res = await axios.post(
         `${BASE_URL}/v1/cad/verify-otp`,
-        { email: email, otp: enteredOtp },
+        { email, otp: enteredOtp },
         { headers: { 'user-uuid': uuid } }
       );
+
       if (res.data.meta.success) {
         toast.success('OTP verified successfully!');
         localStorage.setItem('is_verified', true);
-        saveDetails()
-        // setIsEmailVerify(false)
+        saveDetails();
       } else {
         setOtp(['', '', '', '']);
         toast.error(res.data.meta.message);
@@ -120,12 +107,12 @@ const handleKeyDown = (e, idx) => {
         borderRadius: 16,
         background: '#fff'
       }}>
-        {/* SVG Icon */}
+        {/* Optional SVG Icon */}
         <div style={{ marginBottom: 24 }}>
-          {/* ... SVG here ... */}
+          {/* ... Insert SVG if needed ... */}
         </div>
 
-        {/* OTP Input */}
+        {/* OTP Input Fields */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 24 }}>
           {inputs.map((ref, idx) => (
             <input
@@ -150,7 +137,7 @@ const handleKeyDown = (e, idx) => {
           ))}
         </div>
 
-        {/* Title and Message */}
+        {/* Title and Info */}
         <h3 style={{ fontWeight: 600, fontSize: 22, marginBottom: 8 }}>Verification Code</h3>
         <p style={{ color: '#6B7280', fontSize: 14, marginBottom: 24 }}>
           Please enter the 4-digit code sent to your email address to verify your account.
@@ -169,7 +156,6 @@ const handleKeyDown = (e, idx) => {
             style={{
               width: '100%',
               background: '#38a169',
-              
               color: '#fff',
               border: 'none',
               borderRadius: 8,
@@ -185,7 +171,7 @@ const handleKeyDown = (e, idx) => {
           </button>
         ) : (
           <button
-            onClick={sendOtp} // 🔁 Resend uses same function
+            onClick={sendOtp}
             disabled={loading}
             style={{
               width: '100%',

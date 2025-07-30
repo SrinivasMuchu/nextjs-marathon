@@ -31,7 +31,7 @@ export default function usePushNotifications() {
                             ),
                         });
                         accessKey = sub;
-                        localStorage.setItem('user_access_key', sub.endpoint);
+                        // localStorage.setItem('user_access_key', sub.endpoint);
                     }
                 } catch (err) {
                     console.error('❌ Push registration failed:', err);
@@ -57,8 +57,8 @@ export default function usePushNotifications() {
                 });
 
                 if (result.data.meta.success) {
-                    if (email) localStorage.setItem('user_email', email);
-                    console.log('✅ Notification preferences saved successfully');
+                    // if (email) localStorage.setItem('user_email', email);
+                    // console.log('✅ Notification preferences saved successfully');
                     return { success: true };
                 } else {
                     return { success: false, message: result.data.meta.message };

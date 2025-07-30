@@ -13,7 +13,7 @@ function TermsAndCondition() {
         <>
             
 
-        <HomeTopNav />
+        {/* <HomeTopNav /> */}
            
             <div className={styles['privacy-policy']}>
                 <h1>Terms of Service</h1>

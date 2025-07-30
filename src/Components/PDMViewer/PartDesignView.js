@@ -158,7 +158,7 @@ export default function PartDesignView() {
 
         const slowApiTimer = setTimeout(() => {
 
-            if ( localStorage.getItem('user_email')) {
+            if ( localStorage.getItem('is_verified')) {
 
                 setCloseNotifyInfoPopUp(true);
             } else {
@@ -729,7 +729,7 @@ export default function PartDesignView() {
 
     return (
         <>
-            <HomeTopNav />
+            {/* <HomeTopNav /> */}
             <div style={{
                 position: 'fixed',
                 top: 0, left: 0, right: 0, bottom: 0,

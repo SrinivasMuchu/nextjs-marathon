@@ -4,7 +4,7 @@ import { MARATHON_ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import styles from './CadHome.module.css';
 import { textLettersLimit } from '@/common.helper';
 import CadIndustryHeads from './CadIndustryHeads';
-
+import Link from 'next/link';
 
 async function getIndustryData() {
     try {
@@ -31,7 +31,7 @@ export default async function CadIndustry() {
 
             <div className={styles['cad-industries-items']}>
                 {data.map((item) => (
-                    <a href={`/industry/${item.route}`} key={item._id}>
+                    <Link href={`/industry/${item.route}`} key={item._id}>
                         <div className={styles['cad-industries-item-cont']}>
                             <div className={styles['cad-industries-item-cont-head']} >
                                 <img
@@ -46,7 +46,7 @@ export default async function CadIndustry() {
                             
                             <p>{item.description}</p>
                         </div>
-                    </a>
+                    </Link>
                 ))}
             </div>
         </div>

@@ -1,33 +1,30 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import styles from './CommonStyles.module.css';
 import ClearIcon from '@mui/icons-material/Clear';
 import axios from 'axios';
 import usePushNotifications from './usePushNotifications';
 import PopupWrapper from './PopupWrapper';
 import { sendGAtagEvent } from '../../common.helper';
-import { CAD_BROWSER_NOTIFICATION_EVENT } from '@/config';
-
+import { BASE_URL, CAD_BROWSER_NOTIFICATION_EVENT } from '@/config';
+import { contextState } from './ContextProvider';
+import Link from 'next/link';
 function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
     const [email, setEmail] = useState('');
     const [browserNotify, setBrowserNotify] = useState(true);
     const [hasToggled, setHasToggled] = useState(false); // To detect toggle change in this session
     const pushRegister = usePushNotifications();
+    const { user } = useContext(contextState);
 
+
+   
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const storedEmail = localStorage.getItem('user_email');
-
-
-            setEmail(storedEmail || '');
-
-        }
-        if (localStorage.getItem('user_access_key')) {
-            setHasToggled(true)
-        }
-        if (!localStorage.getItem('user_access_key')) {
-            setHasToggled(false)
-        }
+         setEmail(user.email);
+            if (user.user_access_key) {
+                setHasToggled(true);
+            } else {
+                setHasToggled(false);
+            }
     }, []);
 
     const handleNotificationToggle = () => {
@@ -104,9 +101,9 @@ function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
 
                 <p>
                     For any issues, please contact our support team at{' '}
-                    <a className={styles.supportLink} href="mailto:invite@marathon-os.com">
+                    <Link className={styles.supportLink} href="mailto:invite@marathon-os.com">
                         invite@marathon-os.com
-                    </a>
+                    </Link>
                 </p>
 
                 <p className={styles.footerText}>

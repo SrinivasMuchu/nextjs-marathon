@@ -8,7 +8,7 @@ import FooterForm from '../Footer/FooterForm';
 import HomeTopNav from '../HomepageTopNav/HomeTopNav';
 import Footer from '../Footer/Footer';
 import CommonTitleCard from '@/Components/CommonJsx/CommonTitleCard';
-
+import Link from 'next/link';
 // Replace with your actual Google Maps API key or use an environment variable
 
 
@@ -39,7 +39,7 @@ const contactArray = [
 function ContactUs() {
   return (
     <>
-      <HomeTopNav />
+      {/* <HomeTopNav /> */}
       <div className={styles["contactus-page"]}>
         {/* <div className={styles["contactus-header"]}>
           <h1>Get in Touch</h1>
@@ -55,9 +55,9 @@ function ContactUs() {
               </div>
               <span>{item.title}</span>
               {item.isLink ? (
-                <a href={item.href} className={styles["contactus-link"]}>
+                <Link href={item.href} className={styles["contactus-link"]}>
                   {item.details}
-                </a>
+                </Link>
               ) : (
                 <p>{item.details}</p>
               )}

@@ -5,7 +5,7 @@ import styles from '../Tools/Tools.module.css';
 import Image from 'next/image';
 import { IMAGEURLS } from '@/config';
 import HoverImageSequence from '@/Components/CommonJsx/RotatedImages';
-
+import Link from 'next/link';
 function LibraryScroll({categories}) {
     const carouselRef = useRef(null);
     const itemWidth = 320; // width including margin/padding
@@ -32,7 +32,7 @@ function LibraryScroll({categories}) {
 
             <div className={styles['industry-category-page-items']}  ref={carouselRef}>
                 {categories.map((category, index) => (
-                    <a href={`/library?category=${category.route}`} key={index}>
+                    <Link href={`/library?category=${category.route}`} key={index}>
                         <div className={styles['tools-page-items-cont']}>
 
                             {/* <Image
@@ -48,7 +48,7 @@ function LibraryScroll({categories}) {
                                 <p>Explore cutting-edge solutions in the {category.title} industry.</p>
                             </div>
                         </div>
-                    </a>
+                    </Link>
                 ))}
             </div>
         </>

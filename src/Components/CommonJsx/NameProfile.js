@@ -2,7 +2,7 @@ import React from 'react';
 import {PHOTO_LINK} from '@/config';
 import Image from 'next/image'
 
-function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,borderRadius }) {
+function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,borderRadius, border }) {
     const renderInitials = () => {
         if (!userName) return '';
         const names = userName.split(' ');
@@ -15,11 +15,25 @@ function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,
 
     return (
         <>
-            {memberPhoto ? (
+            {memberPhoto && !memberPhoto.startsWith('data:') ? (
                 <Image width={parseInt(width)} 
-                height={parseInt(width)}  style={{width:width,height:width,borderRadius:borderRadius?borderRadius: '50%',}}
+                height={parseInt(width)}  style={{width:width,height:width,borderRadius:borderRadius?borderRadius: '50%',border:border?'1px solid #E2E8F0':'none'}}
                     src={!memberPhoto.includes(PHOTO_LINK)?PHOTO_LINK + memberPhoto:memberPhoto}
                     alt=""
+                />
+            ) : memberPhoto && memberPhoto.startsWith('data:') ? (
+                <Image 
+                    src={memberPhoto} 
+                    alt="User Photo" 
+                    width={parseInt(width)} 
+                    height={parseInt(width)} 
+                    style={{
+                        borderRadius: borderRadius?borderRadius: '50%',
+                        width: width,
+                        height: width,
+                        objectFit: 'cover',
+                        border:border?'1px solid #E2E8F0':'none'
+                    }} 
                 />
             ) : (
                 <div style={{
@@ -33,7 +47,7 @@ function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    // borderRadius:borderRadius,
+                    border:border?'1px solid #E2E8F0':'none',
                     fontSize:fontSize,fontWeight:fontweight
                 }}>
                     <span style={{margin:'0px'}}>{renderInitials()}</span>

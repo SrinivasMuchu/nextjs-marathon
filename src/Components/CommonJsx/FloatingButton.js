@@ -3,69 +3,61 @@ import { sendGAtagEvent } from '@/common.helper';
 import { CAD_FLOATING_BUTTON_EVENT } from '@/config';
 import { useState } from 'react'
 import React from 'react'
-
+import Link from 'next/link';
 function FloatingButton() {
   const [showOptions, setShowOptions] = useState(false);
   return (
     <div>{showOptions && (
       <div className="fixed bottom-20 right-6 flex flex-col gap-2 z-[9999]">
-        <a
+        <Link
           href="/tools/cad-viewer"
-          onClick={(e) => {
-            e.preventDefault();
+          onClick={() => {
+           
             sendGAtagEvent({ event_name: 'floating_button_view_click', event_category: CAD_FLOATING_BUTTON_EVENT });
-            setTimeout(() => {
-              window.location.href = "/tools/cad-viewer";
-            }, 100); // 100ms delay to allow GA event to fire
+            // 100ms delay to allow GA event to fire
           }}
           className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
         >
           View CAD
-        </a>
-        <a
+        </Link>
+        <Link
           href="/tools/3d-file-converter"
-          onClick={(e) => {
-            e.preventDefault();
+          onClick={() => {
+           
             sendGAtagEvent({ event_name: 'floating_button_convert_click', event_category: CAD_FLOATING_BUTTON_EVENT });
-            setTimeout(() => {
-              window.location.href = "/tools/3d-file-converter";
-            }, 100); // 100ms delay to allow GA event to fire
+             // 100ms delay to allow GA event to fire
           }}
          
           className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
         >
           Convert CAD
-        </a>
-        <a
+        </Link>
+        <Link
         href="/publish-cad"
-         onClick={(e) => {
-            e.preventDefault();
+         onClick={() => {
+          
             sendGAtagEvent({ event_name: 'floating_button_publish_click', event_category: CAD_FLOATING_BUTTON_EVENT });
-            setTimeout(() => {
-              window.location.href = "/publish-cad";
-            }, 100); // 100ms delay to allow GA event to fire
+            // 100ms delay to allow GA event to fire
           }}
          
           // href="/publish-cad"
           className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
         >
           Publish CAD
-        </a>
-        <a
+        </Link>
+        <Link
         href="/library"
-         onClick={(e) => {
-            e.preventDefault();
+         onClick={() => {
+         
             sendGAtagEvent({ event_name: 'floating_button_library_click', event_category: CAD_FLOATING_BUTTON_EVENT });
-            setTimeout(() => {
-              window.location.href = "/library";
-            }, 100); // 100ms delay to allow GA event to fire
+            // 100ms delay to allow GA event to fire
           }}
          
           // href="/publish-cad"
           className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
         >
           Library
-        </a>
+        </Link>
       </div>
     )}
 
