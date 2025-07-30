@@ -40,7 +40,7 @@ export default function PartDesignView() {
     const loadedTexturesRef = useRef(new Set()); // Track loaded textures
     const [uploadingMessage, setUploadingMessage] = useState('');
     const [publishedCad, setPublishedCad] = useState('');
-    const { file, setFile, setUploadedFile,uploadedFile } = useContext(contextState);
+    const { file, setFile, setUploadedFile,user } = useContext(contextState);
     const [materials, setMaterials] = useState({});
     const [lastValidMaterial, setLastValidMaterial] = useState(null);
     const [xRotation, setXRotation] = useState(0);
@@ -160,6 +160,8 @@ export default function PartDesignView() {
 
             if ( localStorage.getItem('is_verified')) {
 
+                setCloseNotifyInfoPopUp(true);
+            }else if(!localStorage.getItem('is_verified') && user.email){
                 setCloseNotifyInfoPopUp(true);
             } else {
                 setIsApiSlow(true);

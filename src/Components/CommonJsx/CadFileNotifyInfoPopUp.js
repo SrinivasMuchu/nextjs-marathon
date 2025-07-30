@@ -9,22 +9,28 @@ import { sendGAtagEvent } from '../../common.helper';
 import { BASE_URL, CAD_BROWSER_NOTIFICATION_EVENT } from '@/config';
 import { contextState } from './ContextProvider';
 import Link from 'next/link';
+import EmailOTP from './EmailOTP'
+
 function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
     const [email, setEmail] = useState('');
     const [browserNotify, setBrowserNotify] = useState(true);
     const [hasToggled, setHasToggled] = useState(false); // To detect toggle change in this session
     const pushRegister = usePushNotifications();
     const { user } = useContext(contextState);
-
+    const [verifyEmail, setVerifyEmail] = useState(false);
 
    
     useEffect(() => {
+        if(!localStorage.getItem('is_verified')){
+            setVerifyEmail(true)
+        }
+            
          setEmail(user.email);
-            if (user.user_access_key) {
-                setHasToggled(true);
-            } else {
-                setHasToggled(false);
-            }
+        if (user.user_access_key) {
+            setHasToggled(true);
+        } else {
+            setHasToggled(false);
+        }
     }, []);
 
     const handleNotificationToggle = () => {
@@ -54,6 +60,8 @@ function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
 
     return (
         <PopupWrapper>
+            {verifyEmail ? (
+                <EmailOTP email={email} setIsEmailVerify={setVerifyEmail} saveDetails={handleClose}/>) : (
             <div className={styles.cadNotifyPopup}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                     <ClearIcon onClick={() => setClosePopUp(false)} />
@@ -118,7 +126,7 @@ function CadFileNotifyInfoPopUp({ setClosePopUp, cad_type }) {
                         Done
                     </button>
                 </div>
-            </div>
+            </div>)}
         </PopupWrapper>
     );
 }

@@ -33,7 +33,7 @@ function CadFileConversionWrapper({ children, convert }) {
     const [fileConvert, setFileConvert] = useState('');
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [selectedFileFormate, setSelectedFileFormate] = useState('');
-    const { setFile, allowedFormats, setAllowedFormats } = useContext(contextState);
+    const { setFile, allowedFormats, setAllowedFormats,user } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
     const [toFormate, setToFormate] = useState('');
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
@@ -260,6 +260,8 @@ function CadFileConversionWrapper({ children, convert }) {
          
             if ( localStorage.getItem('is_verified')) {
              
+                setCloseNotifyInfoPopUp(true);
+            }else if(!localStorage.getItem('is_verified') && user.email){
                 setCloseNotifyInfoPopUp(true);
             } else {
                 setIsApiSlow(true);
