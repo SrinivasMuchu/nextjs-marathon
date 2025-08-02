@@ -93,7 +93,7 @@ const essentialDeatails = {
 function OrgHome() {
     return (
         <div>
-            <HomeTopNav />
+            {/* <HomeTopNav /> */}
             <ActiveLastBreadcrumb
                       links={[
                         { label: 'Organization hierarchy', href: '/tools/org-hierarchy' },       

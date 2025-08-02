@@ -317,7 +317,7 @@ function Hierarchy({ department }) {
   return (
     <>
       {/* <OrgTopNav /> */}
-      <OrgTopNav orgStyles={styles} handleDownloadExcel={handleDownloadExcel} />
+      {/* <OrgTopNav orgStyles={styles} handleDownloadExcel={handleDownloadExcel} /> */}
       <div style={{ width: '100%', height: '99vh' }} ref={containerRef} className={styles["org-hierarchy"]} onClick={handleToggleOfMenu}>
         {loading ? (
           // <img src={loadingImg} />

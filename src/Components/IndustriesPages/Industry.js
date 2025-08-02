@@ -97,7 +97,7 @@ function Industry({ industry, industryData }) {
     return (
         <div>
             {industryData && <>
-                <HomeTopNav />
+                {/* <HomeTopNav /> */}
                 <ActiveLastBreadcrumb links={[
                     { label: 'CAD viewer', href: '/tools/cad-viewer' },   
                     { label: `${industryData.industry}`, href: `/industry/${industry}` },

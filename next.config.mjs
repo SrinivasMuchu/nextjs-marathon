@@ -40,16 +40,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/library/:industry_design/:library_design',
-        headers: [
-          {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow',
-          },
-        ],
-      },
-      {
-        source: '/industry/:industry/:part/:design/:design_id',
+        source: '/tools/cad-renderer',
         headers: [
           {
             key: 'X-Robots-Tag',

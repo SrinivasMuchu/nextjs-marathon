@@ -13,7 +13,7 @@ function RefundPolicy() {
         <>
             
 
-        <HomeTopNav />
+        {/* <HomeTopNav /> */}
            
             <div className={styles['privacy-policy']}>
                 <h1>Refund Policy</h1>

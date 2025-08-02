@@ -3,7 +3,7 @@ import IndustryDesignParallelaxWrapper from './IndustryDesignParallelaxWrapper';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
 import { textLettersLimit } from '@/common.helper';
 import Image from 'next/image';
-
+import Link from 'next/link';
 async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
   let capabilities = [];
 
@@ -24,7 +24,7 @@ async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
     <div className={styles['industry-horizontal-img-cont']}  >
       {capabilities.map((capability, index) => (
         <IndustryDesignParallelaxWrapper key={index} styles={styles} >
-          <a href={`/industry/${industry}/${part_name}/${capability.route}`}>
+          <Link href={`/industry/${industry}/${part_name}/${capability.route}`}>
             <div className={styles['capabilities-img-cont']} >
               <Image
                 src={`${DESIGN_GLB_PREFIX_URL}${capability._id}/sprite_0_150.webp`}
@@ -44,7 +44,7 @@ async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
                 {textLettersLimit(capability.page_description, 45)}
               </p>
             </div>
-          </a>
+          </Link>
         </IndustryDesignParallelaxWrapper>
       ))}
     </div>

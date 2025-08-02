@@ -15,13 +15,12 @@ import { sendGAtagEvent } from '@/common.helper';
 function TellUsAboutYourself() {
   const photoInputRef = useRef(null);
   const [isEmailVerify, setIsEmailVerify] = useState(false);
-  const { setHasUserEmail } = useContext(contextState);
-  const [isUserPhoto, setIsUserPhoto] = useState(false);
+  const { setUser,user,isProfileComplete,setIsProfileComplete } = useContext(contextState);
   const [isClient, setIsClient] = useState(false);
-  const [isProfileComplete, setIsProfileComplete] = useState(false);
+  
   const [userUuid, setUserUuid] = useState('');
-  const [userAccessKey, setUserAccessKey] = useState(false);
-  const [user, setUser] = useState({ name: '', email: '', photo: '' });
+ 
+  // const [user, setUser] = useState({ name: '', email: '', photo: '' });
   const [errors, setErrors] = useState({ name: '', email: '' });
   const [editField, setEditField] = useState({ name: false, email: false });
   const [signingUp, setSigningUp] = useState(false);
@@ -33,49 +32,15 @@ function TellUsAboutYourself() {
       const uuid = localStorage.getItem('uuid') || '';
       setUserUuid(uuid);
 
-      getUserDetails(uuid);
-      if (localStorage.getItem('user_access_key')) {
-        setUserAccessKey(true);
-      }
-      if (localStorage.getItem('user_photo')) {
-        setIsUserPhoto(true);
-      }
+      // getUserDetails();
+
+      
 
     }
   }, [isClient]);
 
-  const getUserDetails = async (uuid) => {
-    try {
+ 
 
-      const res = await axios.get(`${BASE_URL}/v1/cad/get-user-details`, {
-        headers: { 'user-uuid': uuid }
-      });
-
-      if (res.data.meta.success) {
-        const data = res.data.data;
-        setUser({
-          email: data?.user_email || '',
-          name: data?.full_name || '',
-          photo: data?.photo || '',
-
-        });
-
-        if (data?.user_email && data?.full_name) {
-          localStorage.setItem('user_email', data.user_email);
-          localStorage.setItem('user_name', data.full_name);
-          data.photo ? localStorage.setItem('user_photo', data.photo) : null;
-          // if (localStorage.getItem('user_email')) {
-          // console.log('User email found in localStorage');
-          setHasUserEmail(true);
-          // }
-          setIsProfileComplete(true);
-        }
-      }
-    }
-    catch (err) {
-      console.error("Error fetching user details:", err);
-    }
-  };
 
   const validate = (field, value) => {
     if (field === 'name') return value.trim() ? '' : 'Full name is required';
@@ -110,7 +75,7 @@ function TellUsAboutYourself() {
       }else{
         setSigningUp(true)
         const uuid = localStorage.getItem('uuid');
-      const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
+        const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
         user_email: user.email,
         full_name: user.name,
         photo: user.photo
@@ -125,22 +90,22 @@ function TellUsAboutYourself() {
       
         sendGAtagEvent({ event_name: 'publish_cad_profile_complete', event_category: CAD_PUBLISH_EVENT })
         toast.success(`Profile updated successfully`);
+        setIsProfileComplete(true);
         if (field !== 'photo') {
-          localStorage.setItem(`user_${field}`, user[field]);
+         
           setEditField(prev => ({ ...prev, [field]: false }));
           setErrors(prev => ({ ...prev, [field]: '' }));
         } else {
 
-          localStorage.setItem(`user_${field}`, response.data.data);
+         
           setEditField(prev => ({ ...prev, [field]: false }));
           setErrors(prev => ({ ...prev, [field]: '' }));
         }
-       
-        
-        getUserDetails(userUuid);
-        setIsEmailVerify(false)
-       
-       
+
+
+        setIsEmailVerify(false);
+
+
     }
       setSigningUp(false)
       }
@@ -161,7 +126,7 @@ function TellUsAboutYourself() {
     const reader = new FileReader();
     reader.onloadend = () => setUser(prev => ({ ...prev, photo: reader.result }));
     reader.readAsDataURL(file);
-    setEditField(prev => ({ ...prev, ['photo']: localStorage.getItem('user_name') ? true : false }));
+    setEditField(prev => ({ ...prev, ['photo']: localStorage.getItem('is_verified') ? true : false }));
   };
 
   if (!isClient) return null;
@@ -253,59 +218,54 @@ function TellUsAboutYourself() {
           {/* Form Fields Section */}
           <div style={{ display: 'flex', gap: '6px', flexDirection: 'column' }}>
             {['name', 'email'].map((field) => (
-              <>
-              <div
-                key={field}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  // width: '100%',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <input
-                  style={{ width:'100%' }}
-                  value={user[field]}
-                  onChange={(e) => setUser({ ...user, [field]: e.target.value })}
-                  disabled={isProfileComplete && !editField[field]} // Editable always if profile is not yet complete
-                  placeholder={`Enter your ${field}`}
-                />
+              <React.Fragment key={field}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <input
+                    style={{ width:'100%' }}
+                    value={user[field]}
+                    onChange={(e) => setUser({ ...user, [field]: e.target.value })}
+                    disabled={isProfileComplete && !editField[field]}
+                    placeholder={`Enter your ${field}`}
+                  />
 
-                {isProfileComplete && (
-                  <div style={{ minWidth: '150px', display: 'flex', gap: '0.5rem' }}>
-                    {editField[field] ? (
-                      <>
-                        <button onClick={() => updateField(field)}>
-                          <Image src={`${ASSET_PREFIX_URL}save-details.png`} title='save' alt="save" width={20} height={20} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            const original = localStorage.getItem(`user_${field}`) || '';
-                            setUser((prev) => ({ ...prev, [field]: original }));
-                            setEditField((prev) => ({ ...prev, [field]: false }));
-                            setErrors((prev) => ({ ...prev, [field]: '' }));
-                          }}
-                        >
-                          <Image title='cancel' src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={20} height={20} />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                      {field !== 'email' && <button onClick={() => setEditField((prev) => ({ ...prev, [field]: true }))}>
-                        <Image src={`${ASSET_PREFIX_URL}edit-ticket.png`} alt="edit" width={20} height={20} />
-                      </button>} 
-                     {/* {field === 'email' && !localStorage.getItem('is_verified') && <button style={{color:'blue',cursor:'pointer'}} onClick={()=>setIsEmailVerify(true)}>verify</button>}  */}
-                    
-                      </>
-                    )}
-                  </div>
-                )}
-               
-              </div>
-               {errors[field] && <p style={{ color: 'red' }}>{errors[field]}</p>}
-              </>
-              
+                  {isProfileComplete && (
+                    <div style={{ minWidth: '150px', display: 'flex', gap: '0.5rem' }}>
+                      {editField[field] ? (
+                        <>
+                          <button onClick={() => updateField(field)}>
+                            <Image src={`${ASSET_PREFIX_URL}save-details.png`} title='save' alt="save" width={20} height={20} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              const original = localStorage.getItem(`user_${field}`) || '';
+                              setUser((prev) => ({ ...prev, [field]: original }));
+                              setEditField((prev) => ({ ...prev, [field]: false }));
+                              setErrors((prev) => ({ ...prev, [field]: '' }));
+                            }}
+                          >
+                            <Image title='cancel' src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={20} height={20} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {field !== 'email' && <button onClick={() => setEditField((prev) => ({ ...prev, [field]: true }))}>
+                            <Image src={`${ASSET_PREFIX_URL}edit-ticket.png`} alt="edit" width={20} height={20} />
+                          </button>} 
+                          {field === 'email' && !localStorage.getItem('is_verified') && <button style={{color:'blue',cursor:'pointer'}} onClick={()=>setIsEmailVerify(true)}>verify</button>} 
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {errors[field] && <p style={{ color: 'red' }}>{errors[field]}</p>}
+              </React.Fragment>
             ))}
             {/* {(isProfileComplete && userAccessKey) && (
               <div style={{

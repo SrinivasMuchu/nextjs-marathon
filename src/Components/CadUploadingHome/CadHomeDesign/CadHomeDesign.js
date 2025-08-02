@@ -94,7 +94,7 @@ function CadHomeDesign({type}) {
    
     return (
         <>
-            <HomeTopNav />
+            {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
                       links={[
                         { label: 'CAD viewer', href: '/tools/cad-viewer' },       

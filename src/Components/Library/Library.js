@@ -12,7 +12,7 @@ import SearchBar from './SearchFilter';
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import DesignStats from '../CommonJsx/DesignStats';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
-import HoverImageSequence from './RotatedImages';
+import HoverImageSequence from '../CommonJsx/RotatedImages';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -56,7 +56,7 @@ async function Library({ searchParams }) {
   // console.log(designs)
   return (
     <>
-      <HomeTopNav />
+      {/* <HomeTopNav /> */}
       <ActiveLastBreadcrumb links={[
         { label: 'Library', href: '/library' },
         // { label: `${industryData.industry}`, href: `/industry/${industry}` },
@@ -70,16 +70,16 @@ async function Library({ searchParams }) {
           initialTagSelectedOption={tags}
         />
         {Object.keys(searchParams || {}).length > 0 && (
-          <a href='/library' style={{ background: '#610bee', padding: '5px 10px', borderRadius: '4px', color: 'white' }}>
+          <Link href='/library' style={{ background: '#610bee', padding: '5px 10px', borderRadius: '4px', color: 'white' }}>
             <button>Reset filters</button>
-          </a>
+          </Link>
         )}
       </div>
 
       <div className={styles["library-designs"]}>
         <div className={styles["library-designs-items"]}>
           {designs.map((design) => (
-            <a key={design._id} href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
+            <Link key={design._id} href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
               {/* <div className={styles["library-designs-inner"]}> */}
               <div className={styles["library-designs-items-container-cost"]}>Free</div>
                 {/* <div className={styles["library-designs-items-container-img"]}>
@@ -91,7 +91,7 @@ async function Library({ searchParams }) {
                   height={250}
                 />
                 </div> */}
-                <HoverImageSequence design={design} />
+                <HoverImageSequence design={design} width={300} height={250}/>
               
                 <div className={styles["design-stats-wrapper"]}>
                   <DesignStats views={design.total_design_views ?? 0}
@@ -101,7 +101,7 @@ async function Library({ searchParams }) {
                   <h6 title={design.page_title}>{textLettersLimit(design.page_title, 30)}</h6>
                    <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>
                   <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center',flexWrap:'wrap' }}>
-                    {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />}
+                    {/* {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />} */}
                     {design.category_labels && design.category_labels.map((label, index) => (
                       <DesignDetailsStats key={index} text={label} />
                     ))}
@@ -116,7 +116,7 @@ async function Library({ searchParams }) {
                 
                 
               {/* </div> */}
-            </a>
+            </Link>
 
           ))}
         </div>

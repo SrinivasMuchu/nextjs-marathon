@@ -9,7 +9,7 @@ import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 function Blogs() {
     return (
         <>
-            <HomeTopNav />
+            {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
                                   links={[
                                     { label: 'Part Number Nomenclature guide', href: '/blog/part-number-nomenclature-guide' },       

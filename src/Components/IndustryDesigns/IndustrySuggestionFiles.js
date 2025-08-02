@@ -3,14 +3,14 @@ import styles from './IndustryDesign.module.css'
 import { textLettersLimit } from '@/common.helper'
 import Image from 'next/image'
 import { DESIGN_GLB_PREFIX_URL } from '@/config'
-
+import Link from 'next/link'
 function IndustrySuggestionFiles({ visibleItems, type, design,design_type }) {
 
 
   return (
     <div className={styles['industry-design-suggestion-designs']}>
       {visibleItems.map((item, index) => (
-        <a key={index} className={styles['industry-design-suggestion-designs-cont']}
+        <Link key={index} className={styles['industry-design-suggestion-designs-cont']}
          href={design_type?`/library/${item.route}`:type ?`/industry/${design.industry}/${design.part}/${item.route}`:`/industry/${item.industry_id}/${item.part_name}/${item.route}`} >
           <div  style={{display:'flex',flexDirection:'column',gap:'16px'
           }}>
@@ -22,7 +22,7 @@ function IndustrySuggestionFiles({ visibleItems, type, design,design_type }) {
             <h3 title={item.page_title}>{textLettersLimit(item.page_title, 40)}</h3>
             <p title={item.page_description}>{textLettersLimit(item.page_description, 120)}</p>
           </div>
-        </a>
+        </Link>
 
       ))}
     </div>

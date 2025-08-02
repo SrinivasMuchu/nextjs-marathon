@@ -83,6 +83,16 @@ function AboutCad({ cadReport,filetype }) {
     }))
     .filter(section => section.rows.length > 0)
 
+  // Check if only File Information section exists, and if so, don't render the component
+  if (filteredSections.length === 1 && filteredSections[0].title === '📁 File Information') {
+    return null
+  }
+
+  // If no sections have data, don't render the component
+  if (filteredSections.length === 0) {
+    return null
+  }
+
   return (
     <div className={styles['industry-design-about-cad']}>
       <div className={styles['industry-design-about-cad-intro']}>
