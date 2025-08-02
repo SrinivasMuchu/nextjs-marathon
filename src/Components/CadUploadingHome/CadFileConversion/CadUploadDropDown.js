@@ -5,7 +5,7 @@ import cadStyles from '../CadHomeDesign/CadHome.module.css';
 import { useRouter } from "next/navigation";
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
 import {  textLettersLimit } from './../../../common.helper';
-
+import Link from 'next/link';
 function CadDropDown({
   file,
   selectedFileFormate,
@@ -132,11 +132,11 @@ function CadDropDown({
               )}
 
               {uploadingMessage === 'COMPLETED' && (
-                <a href='/dashboard?cad_type=CAD_CONVERTER' className={cadStyles['cad-conversion-button']}>
+                <Link href='/dashboard?cad_type=CAD_CONVERTER' className={cadStyles['cad-conversion-button']}>
                 
                     Download from dashboard
                   
-                </a>
+                </Link>
 
               )}
             </td>

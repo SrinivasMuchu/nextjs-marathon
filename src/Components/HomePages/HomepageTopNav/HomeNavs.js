@@ -12,7 +12,7 @@ function HomeNavs({ onClose }) {
     <div className={styles['menu-page']}>
      <MobileMenu styles={styles} onClose={onClose}/>
       <div className={styles['menu-buttons']}>
-        <TopNavRequestBtn styles={styles} className={'try-demo'}/>
+        <TopNavRequestBtn styles={styles} className={'try-demo'} topBar='profile'/>
         {/* <button className={styles['try-demo']} onClick={() => setOpenDemoForm(true)}>Request demo</button> */}
         {/* <button className={styles['home-login-menu']} onClick={HnadleNavigate}>
           Login

@@ -41,39 +41,39 @@ function Footer() {
           </div>
           <div className={styles["footer-divider"]}></div>
           <div className={styles["footer-navs"]}>
-            <a href="#home" onClick={(e) => handleAnchorClick(e, "home")}>Home</a>
-            <a href="/about-us" >About Us</a>
-            <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why Us?</a>
-            {/* <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Features</a> */}
-            <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</a>
-            <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>
-            <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a>
-            <a href="/contact-us" >Contact Us</a>
+            <Link href="#home" onClick={(e) => handleAnchorClick(e, "home")}>Home</Link>
+            <Link href="/about-us" >About us</Link>
+            <Link href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</Link>
+            {/* <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Features</Link> */}
+            <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
+            <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link>
+            <Link href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</Link>
+            <Link href="/contact-us">Contact us</Link>
             {/* <Link href="/blog/part-number-nomenclature-guide">Blog</Link> */}
            
           </div>
           <div className={styles["footer-divider"]}></div>
            <div className={styles["footer-navs"]}>
-            <a href="/tools/org-hierarchy" >Organization Hierarchy</a>
-            <a href="/tools/cad-viewer" >CAD Viewer</a>
-            <a href="/tools/3d-file-converter" >CAD File Converter</a>
-            <a href="/library" >Library</a>
+            <Link href="/tools/org-hierarchy" >Organization hierarchy</Link>
+            <Link href="/tools/cad-viewer" >CAD viewer</Link>
+            <Link href="/tools/3d-file-converter" >3D file converter</Link>
+            <Link href="/library" >Library</Link>
             {/* <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Part Number Nomenclature Guide</a> */}
-             <a href="/terms-and-conditions">Terms Of Service</a>
-            <a href="/privacy-policy">Privacy Policy</a>
-            <a href="/refund-policy">Refund Policy</a>
+             <Link href="/terms-and-conditions">Terms Of Service</Link>
+            <Link href="/privacy-policy">Privacy Policy</Link>
+            <Link href="/refund-policy">Refund Policy</Link>
           </div>
           
         </div>
         <FooterForm styles={styles} />
       </div>
       <div className={styles["footer-page-copyright"]}>
-        <a href="https://www.linkedin.com/company/marathon-os/" aria-label="Marathon OS LinkedIn">
+        <Link href="https://www.linkedin.com/company/marathon-os/" aria-label="Marathon OS LinkedIn">
           <span style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0}}>
             Marathon OS LinkedIn
           </span>
           <LinkedInIcon style={{width:'30px',height:'30px'}}/>
-        </a>
+        </Link>
         <span>Ⓒ Copyrights issued 2023-2024</span>
       </div>
     </div>

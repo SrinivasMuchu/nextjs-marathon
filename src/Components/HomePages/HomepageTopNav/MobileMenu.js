@@ -36,13 +36,12 @@ function MobileMenu({ onClose, styles }) {
       </div>
 
       <div className={styles["menu-navs"]}>
-      <a href="/about-us" >About us</a>
-        <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why Us?</a>
-        <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</a>
-        <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</a>
-        <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>
-        <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a>
-
+      <Link href="/about-us" >About us</Link>
+        <Link href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</Link>
+        <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
+        <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
+        <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link>
+        <Link href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</Link>
         {/* Dropdown for Tools */}
         <div className={styles["menu-dropdown"]}>
           <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("tools")}>
@@ -73,10 +72,10 @@ function MobileMenu({ onClose, styles }) {
             </div>
           )}
         </div>
-         <a rel="nofollow" href="/dashboard?cad_type=CAD_VIEWER">
+         <Link rel="nofollow" href="/dashboard?cad_type=CAD_VIEWER">
       Dashboard
-    </a>
-        <a href="/library" >Library</a>
+    </Link>
+        <Link href="/library" >Library</Link>
         
          
       </div>

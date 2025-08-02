@@ -2,7 +2,7 @@ import { IMAGEURLS } from '@/config'
 import Image from 'next/image'
 import React from 'react'
 import styles from './Tools.module.css'
-
+import Link from 'next/link'
 const toolsData = [
     {
         image: IMAGEURLS.orgImg,
@@ -33,7 +33,7 @@ function Tools() {
             </div>
             <div className={styles['tools-page-items']}>
                 {toolsData.map((tool, index) => (
-                    <a href={`${tool.route}`} key={index}>
+                    <Link href={`${tool.route}`} key={index}>
                         <div  className={styles['tools-page-items-cont']}>
                             <Image src={tool.image} alt={tool.heading} width={250} height={150} loading="lazy"/>
                             <div className={styles['tools-page-items-content']}>
@@ -41,7 +41,7 @@ function Tools() {
                                 <p>{tool.description}</p>
                             </div>
                         </div>
-                    </a>
+                    </Link>
 
                 ))}
             </div>

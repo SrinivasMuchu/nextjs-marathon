@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL,CAD_CONVERTER_EVENT } from '@/config';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL, CAD_CONVERTER_EVENT, allowedFilesList } from '@/config';
 import Image from 'next/image';
 import styles from './FileHistory.module.css';
 import EastIcon from '@mui/icons-material/East';
@@ -11,6 +11,9 @@ import Loading from '../CommonJsx/Loaders/Loading';
 import { sendGAtagEvent } from "@/common.helper";
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 import { contextState } from '../CommonJsx/ContextProvider';
+import DesignStats from '../CommonJsx/DesignStats';
+import HoverImageSequence from '../CommonJsx/RotatedImages';
+import Link from 'next/link';
 
 
 let cachedCadHistory = {};
@@ -186,7 +189,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                 <div className={styles.historyContainer}>
                   <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
                     <span>Want to add more files</span>
-                    <a href='/tools/cad-viewer' style={{ color: 'blue' }}>Click here</a>
+                    <Link href='/tools/cad-viewer' style={{ color: 'blue' }}>Click here</Link>
                   </div>
                   {cadViewerFileHistory.map((file, index) => (
                     <a
@@ -198,7 +201,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                           e.preventDefault();
                           return;
                         }
-                        localStorage.setItem("last_viewed_cad_key", file._id);
+                        // localStorage.setItem("last_viewed_cad_key", file._id);
                       }}
                     >
                       {file.status === 'COMPLETED' ? <Image
@@ -236,7 +239,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                 border: '2px dashed #e6e4f0', height: '350px'
               }}>
                 <span>Want to add more files</span>
-                <a href='/tools/cad-viewer' style={{ color: 'blue' }}>Click here</a>
+                <Link href='/tools/cad-viewer' style={{ color: 'blue' }}>Click here</Link>
               </div>
             )}
           </>}
@@ -253,15 +256,15 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
               <div className={styles.historyContainer}>
                 <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
                   <span>Want to add more files</span>
-                  <a href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</a>
+                  <Link href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</Link>
                 </div>
                 {cadConverterFileHistory.map((file, index) => (
-                  <div
+                  <Link
                     key={index}
                     href={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/${file.base_name}.${file.output_format}`}
                     className={styles.historyItem}
                     onClick={() => {
-                      localStorage.setItem("last_viewed_cad_key", file._id);
+                      // localStorage.setItem("last_viewed_cad_key", file._id);
                     }}
                   >
                     <div className={styles.historyFileDetails}>
@@ -291,7 +294,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         textAlign: 'center'
                       }}>Download</button>}
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -301,7 +304,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                 border: '2px dashed #e6e4f0', height: '250px'
               }}>
                 <span>Want to add more files</span>
-                <a href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</a>
+                <Link href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</Link>
               </div>
             )}
           </>
@@ -320,7 +323,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
               <div className={styles.historyContainer}>
                 <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
                   <span>Want to add more files</span>
-                  <a href='/publish-cad' style={{ color: 'blue' }}>Click here</a>
+                  <Link href='/publish-cad' style={{ color: 'blue' }}>Click here</Link>
                 </div>
                 {userCadFiles.map((file, index) => (
                   <div
@@ -329,12 +332,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                     className={styles.historyItem}
 
                   >
-                    {file.is_uploaded ? <Image
-                      src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
-                      alt="file preview"
-                      width={300}
-                      height={160}
-                    /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
+                    {file.is_uploaded ? <HoverImageSequence design={file} width={300} height={160} /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
                     <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
 
                     <div className={styles.historyFileDetails}>
@@ -352,7 +350,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                     <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
 
                     <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      {file.is_uploaded ? <a href={`/library/${file.route}`} style={{
+                      {file.is_uploaded ? <Link href={`/library/${file.route}`} style={{
                         background: '#610bee',
                         color: 'white',
                         padding: '5px 10px',
@@ -366,7 +364,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
                           cursor: 'pointer'
                         }}>View design</button>
-                      </a> : <button disabled style={{
+                      </Link> : <button disabled style={{
                         background: '#a270f2',
                         color: 'white',
                         padding: '5px 10px',
@@ -377,6 +375,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         textAlign: 'center'
                       }}>View design</button>}
                     </div>
+                    {file.is_uploaded === true && <DesignStats views={file.total_design_views} downloads={file.total_design_downloads} />}
                   </div>
                 ))}
               </div>
@@ -387,7 +386,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                 border: '2px dashed #e6e4f0', height: '350px'
               }}>
                 <span>Want to add more files</span>
-                <a href='/publish-cad' style={{ color: 'blue' }}>Click here</a>
+                <Link href='/publish-cad' style={{ color: 'blue' }}>Click here</Link>
               </div>
 
             )}

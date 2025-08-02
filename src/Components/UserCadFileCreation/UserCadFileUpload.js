@@ -8,7 +8,7 @@ import Footer from '../HomePages/Footer/Footer';
 function UserCadFileUpload() {
     return (
         <>
-            <HomeTopNav />
+            {/* <HomeTopNav /> */}
             <WhyShareYourDesign />
             <TellUsAboutYourself />
             <UploadYourCadDesign />

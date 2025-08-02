@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { BASE_URL } from '@/config';
 import axios from 'axios';
-
+import Link from 'next/link';
 function CheckHistory() {
   const [isAllowed, setIsAllowed] = useState(false);
   const [checked, setChecked] = useState(false); // Avoid flash
@@ -48,9 +48,9 @@ function CheckHistory() {
   if (!checked || !isAllowed) return null;
 
   return (
-    <a href="/dashboard?cad_type=CAD_VIEWER">
+    <Link href="/dashboard?cad_type=CAD_VIEWER">
       Dashboard
-    </a>
+    </Link>
   );
 }
 

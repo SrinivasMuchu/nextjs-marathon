@@ -49,7 +49,7 @@ function UploadYourCadDesign() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            if (localStorage.getItem('user_email')) {
+            if (localStorage.getItem('is_verified')) {
                 setHasUserEmail(true);
             }
         }
@@ -199,7 +199,7 @@ function UploadYourCadDesign() {
             );
 
             if (response.data.meta.success) {
-                if (localStorage.getItem('user_access_key') || localStorage.getItem('user_email')) {
+                if ( localStorage.getItem('is_verified')) {
                    
                     setCloseNotifyInfoPopUp(true);
                 } else {
@@ -244,7 +244,7 @@ function UploadYourCadDesign() {
     };
 
     const handlePopUp = () => {
-        if (!localStorage.getItem('user_access_key') || !localStorage.getItem('user_email')) {
+        if ( !localStorage.getItem('is_verified')) {
             setIsApiSlow(true);
         } else {
             setCloseNotifyInfoPopUp(true);
@@ -469,7 +469,7 @@ function UploadYourCadDesign() {
                         <button
                             className="w-full py-3 mb-4"
                             style={{ backgroundColor: '#a270f2', color: '#ffffff' }}
-                            title='Please update your profile to upload your design.'
+                            title='Please verify your email to upload your design.'
                             disabled
                         // onClick={handleUserCadFileSubmit}
                         >

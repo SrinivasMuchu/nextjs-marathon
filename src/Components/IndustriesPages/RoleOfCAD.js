@@ -1,8 +1,8 @@
 import React from 'react'
 import styles from './Industry.module.css'
-import RoleOfCadImage from './RoleOfCadImage'
 import Image from 'next/image';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
+import HoverImageSequence from '../CommonJsx/RotatedImages';
 
 
 async function RoleOfCAD({industryData,part_name,industry}) {
@@ -45,13 +45,14 @@ async function RoleOfCAD({industryData,part_name,industry}) {
           
         </div>
         {designId && <div className={styles['role-of-cad-desgin']}>
-            <Image
+            {/* <Image
               src={`${DESIGN_GLB_PREFIX_URL}${designId}/sprite_0_150.webp`}
               alt={part_name ? part_name : industry}
               width={400}
               height={400}
               className={styles['role-of-cad-desgin-image']}
-            />
+            /> */}
+            <HoverImageSequence design={{ _id: designId, page_title: part_name ? part_name : industry }} width={400} height={400} />
           </div>}
         
        

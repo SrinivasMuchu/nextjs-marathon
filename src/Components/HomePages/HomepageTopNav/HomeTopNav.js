@@ -5,7 +5,7 @@ import { IMAGEURLS } from "@/config";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./HomeTopNav.module.css";
-import TopNavRequestBtn from "../../CommonJsx/TopNavRequestBtn";
+import TopNavProfileButton from "../../CommonJsx/TopNavProfileButton";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
 import CheckHistory from "@/Components/CommonJsx/CheckHistory";
 
@@ -24,12 +24,13 @@ function HomeTopNav() {
   };
 
 
-  const toggleDropdown = (dropdownName) => {
+  const toggleDropdown = (e,dropdownName) => {
+    e.stopPropagation()
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
 
   return (
-    <div className={styles["home-page-top"]}>
+    <div className={styles["home-page-top"]} onClick={()=> setOpenDropdown(false)}>
       <Link href="/">
         <Image
           src={IMAGEURLS.logo}
@@ -42,22 +43,22 @@ function HomeTopNav() {
       </Link>
 
       <div className={styles["home-page-navs"]}>
-        <a href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why Us?</a>
-        <a href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</a>
-        <a href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</a>
-        <a href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</a>
+        <Link href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</Link>
+        <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
+        <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
+        <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link>
         {/* <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a> */}
 
         {/* Dropdown for Tools */}
         <div style={{ position: "relative" }}>
-          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("tools")}>
+          <span style={{ cursor: "pointer" }} onClick={(e) => toggleDropdown(e,"tools")}>
             Tools ▼
           </span>
           {openDropdown === "tools" && (
             <div className={styles["dropdown-menu"]}>
-              <Link href="/tools/org-hierarchy">Org Hierarchy</Link>
-              <Link href="/tools/cad-viewer">CAD Viewer</Link>
-              <Link href="/tools/3d-file-converter">CAD File Convert</Link>
+              <Link href="/tools/org-hierarchy" onClick={()=>setOpenDropdown(false)}>Org Hierarchy</Link>
+              <Link href="/tools/cad-viewer" onClick={()=>setOpenDropdown(false)}>CAD Viewer</Link>
+              <Link href="/tools/3d-file-converter" onClick={()=>setOpenDropdown(false)}>CAD File Convert</Link>
               {/* <Link href="/tools/upload-cad-file">upload cad file</Link> */}
             </div>
           )}
@@ -65,24 +66,24 @@ function HomeTopNav() {
 
         {/* Dropdown for Blogs */}
         <div style={{ position: "relative" }}>
-          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("blogs")}>
+          <span style={{ cursor: "pointer" }} onClick={(e) => toggleDropdown(e,"blogs")}>
             Blogs ▼
           </span>
           {openDropdown === "blogs" && (
             <div className={styles["dropdown-menu"]} style={{ width: '200px' }}>
-              <Link href="/blog/part-number-nomenclature-guide">Part Number Nomenclature Guide</Link>
+              <Link href="/blog/part-number-nomenclature-guide" onClick={()=>setOpenDropdown(false)}>Part Number Nomenclature Guide</Link>
             </div>
           )}
         </div>
 
-        <a href="/dashboard?cad_type=CAD_VIEWER" rel="nofollow">
+        <Link href="/dashboard?cad_type=CAD_VIEWER" rel="nofollow">
           Dashboard
-        </a>
-        <a href="/library" >Library</a>
+        </Link>
+        <Link href="/library" >Library</Link>
       </div>
 
       <div className={styles["home-pg-btns"]}>
-        <TopNavRequestBtn styles={styles} className={"try-demo"} />
+        <TopNavProfileButton styles={styles} className={"try-demo"} topBar='profile'/>
       </div>
 
       <div className={styles["home-pg-menu"]}>

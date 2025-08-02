@@ -5,6 +5,7 @@ import ToastProvider from "@/Components/CommonJsx/ReactToastify";
 import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 import FloatingButton from "@/Components/CommonJsx/FloatingButton";
+import HomeTopNav from "@/Components/HomePages/HomepageTopNav/HomeTopNav";
 
 
 
@@ -141,6 +142,7 @@ export default function RootLayout({ children }) {
         <CreateLocalStorage />
 
         <ContextWrapper>
+          <HomeTopNav/>
           {children}
           <FloatingButton />
         </ContextWrapper>
