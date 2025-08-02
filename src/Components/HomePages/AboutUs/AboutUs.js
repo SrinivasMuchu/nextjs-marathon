@@ -106,7 +106,7 @@ function AboutUs() {
         <>
         {/* <HomeTopNav/> */}
         <div className={styles["aboutus-page"]}>
-            <CommonTitleCard title="About Marathon" description="Empowering businesses through innovative technology solutions and exceptional service delivery" />
+            <CommonTitleCard title="About Marathon-OS" description="Empowering businesses through innovative technology solutions and exceptional service delivery" />
             <div className={styles["aboutus-our-story"]}>
                 <div className={styles["aboutus-our-story-content"]}>
                     <h1>Our Story</h1>

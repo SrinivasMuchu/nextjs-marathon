@@ -42,7 +42,6 @@ function MobileMenu({ onClose, styles }) {
         <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
         <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link>
         <Link href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</Link>
-
         {/* Dropdown for Tools */}
         <div className={styles["menu-dropdown"]}>
           <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("tools")}>
