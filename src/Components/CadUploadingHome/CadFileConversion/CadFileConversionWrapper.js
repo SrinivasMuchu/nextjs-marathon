@@ -1,6 +1,11 @@
 
 
 "use client";
+import dynamic from 'next/dynamic';
+
+const CubeLoader = dynamic(() => import('@/Components/CommonJsx/Loaders/CubeLoader'), {
+    ssr: false,
+});
 import { allowedFilesList, CAD_CONVERTER_EVENT, IMAGEURLS } from "@/config";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
@@ -18,6 +23,7 @@ import { unstable_useId } from "@mui/material";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopUp";
 import { convertedFiles, sendGAtagEvent } from "@/common.helper";
+import { useRouter } from "next/navigation";
 
 function CadFileConversionWrapper({ children, convert }) {
     const fileInputRef = useRef(null);
@@ -26,6 +32,7 @@ function CadFileConversionWrapper({ children, convert }) {
     const [folderId, setFolderId] = useState('');
     const [checkLimit, setCheckLimit] = useState(false);
     const [uploading, setUploading] = useState(false)
+    const [loading, setLoading] = useState(false)
     // const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep"])
     const pathname = usePathname();
     const [uploadingMessage, setUploadingMessage] = useState('');
@@ -37,7 +44,7 @@ function CadFileConversionWrapper({ children, convert }) {
     const maxFileSizeMB = 300; // Max file size in MB
     const [toFormate, setToFormate] = useState('');
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
-
+  const router = useRouter();
     const [fromFormate, setFromFormate] = useState('')
     // Debugging: Log the full pathname
     useEffect(() => {
@@ -124,7 +131,7 @@ function CadFileConversionWrapper({ children, convert }) {
     useEffect(() => {
         if (!folderId) return;
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' ||
-            uploadingMessage === '' || uploadingMessage === 'UPLOADING') return;
+            uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
         const interval = setInterval(() => {
             getStatus(folderId);
         }, 3000);
@@ -150,6 +157,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
                     setUploadingMessage(response.data.data.status)
                     setBaseName(response.data.data.base_name)
+                    router.push('/dashboard?cad_type=CAD_CONVERTER')
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                
@@ -255,15 +263,11 @@ function CadFileConversionWrapper({ children, convert }) {
 
     }
     useEffect(() => {
-        if(!uploadingMessage|| uploadingMessage==='COMPLETED'|| uploadingMessage === 'UPLOADING') return;
+        if(!uploadingMessage|| uploadingMessage==='COMPLETED'|| uploadingMessage === 'UPLOADINGFILE') return;
         const slowApiTimer = setTimeout(() => {
          
-            if ( localStorage.getItem('is_verified')) {
+            if ( !localStorage.getItem('is_verified')) {
              
-                setCloseNotifyInfoPopUp(true);
-            }else if(!localStorage.getItem('is_verified') && user.email){
-                setCloseNotifyInfoPopUp(true);
-            } else {
                 setIsApiSlow(true);
             }
         }, 10000);
@@ -280,7 +284,8 @@ function CadFileConversionWrapper({ children, convert }) {
             sendGAtagEvent({ event_name: 'converter_file_upload_start', event_category: CAD_CONVERTER_EVENT })
             try {
                 setDisableSelect(false)
-                setUploadingMessage('UPLOADING')
+                setLoading(true)
+                setUploadingMessage('UPLOADINGFILE')
                 const headers = {
                     "user-uuid": localStorage.getItem("uuid"),
                 };
@@ -324,11 +329,13 @@ function CadFileConversionWrapper({ children, convert }) {
                 } else {
                     sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
                     toast.error("⚠️ Error generating signed URL.");
+                    setLoading(false);
 
                 }
             } catch (e) {
                 sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
                 console.error(e);
+                  setLoading(false);
 
             }
         }
@@ -338,6 +345,7 @@ function CadFileConversionWrapper({ children, convert }) {
     const CadFileConversion = async (url) => {
         try {
             sendGAtagEvent({ event_name: `converter_file_${fileConvert.name.slice(fileConvert.name.lastIndexOf(".")).toLowerCase()}_${selectedFileFormate}`, event_category: CAD_CONVERTER_EVENT })
+          
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
@@ -424,7 +432,7 @@ function CadFileConversionWrapper({ children, convert }) {
      
         try {
 
-            setUploadingMessage('UPLOADING')
+            setUploadingMessage('UPLOADINGFILE')
             const file = {
                 key: data.key,
                 upload_id: data.upload_id,
@@ -462,7 +470,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
     async function simpleUpload(data, file) {
       
-        setUploadingMessage('UPLOADING')
+        setUploadingMessage('UPLOADINGFILE')
         const result = await axios.put(data.url, file, {
             headers: {
                 "Content-Type": file.type,
@@ -488,10 +496,37 @@ function CadFileConversionWrapper({ children, convert }) {
     }
     return (
         <>
-            {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_CONVERTER'}
-                setClosePopUp={setCloseNotifyInfoPopUp} />}
+         <div style={{
+                position: 'fixed',
+                top: 0, left: 0, right: 0, bottom: 0,
+                zIndex: 9999,
+                pointerEvents: (closeNotifyInfoPopUp || checkLimit || isApiSlow) ? 'auto' : 'none', // allow clicks when popup is open
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                 {/* {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_CONVERTER'}
+                setClosePopUp={setCloseNotifyInfoPopUp} />} */}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} cad_type={'CAD_CONVERTER'}/>}
+           
+            </div>
+        {loading ?  <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                // height: '100vh',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                zIndex: 9998,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                <CubeLoader uploadingMessage={uploadingMessage} type='convert'/>
+            </div> :
+        <>
+           
             {(!isApiSlow || !checkLimit) && <>
                 {uploading ?
                     <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
@@ -551,6 +586,9 @@ function CadFileConversionWrapper({ children, convert }) {
                 );
             })()}
         </>
+        }
+        </>
+        
 
 
     )

@@ -123,11 +123,13 @@ export default function RootLayout({ children }) {
     `,
   }}
 /> */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3333540431554607"
-          crossOrigin="anonymous"
-        ></script>
+        {process.env.NODE_ENV === 'production' && (
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3333540431554607"
+            crossOrigin="anonymous"
+          ></script>
+        )}
         <Script
           id="json-ld"
           type="application/ld+json"
@@ -140,7 +142,6 @@ export default function RootLayout({ children }) {
       <body className={inter.variable}>
         <ToastProvider />
         <CreateLocalStorage />
-
         <ContextWrapper>
           <HomeTopNav/>
           {children}
