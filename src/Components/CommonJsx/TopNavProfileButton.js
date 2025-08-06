@@ -28,6 +28,7 @@ function TopNavProfileButton() {
       if (res.data.meta.success) {
         setIsProfileComplete(true)
         const data = res.data.data;
+        console.log("User details fetched successfully:", data);
         setUser({
           email: data?.user_email || '',
           name: data?.full_name || '',

@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect } from 'react'
 
 function LeftRightBanner({ adSlot }) {
@@ -21,7 +22,7 @@ function LeftRightBanner({ adSlot }) {
   }, [adSlot]);
 
   return (
-    <div style={{ background: 'transparent' }}>
+    <>
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
@@ -30,7 +31,7 @@ function LeftRightBanner({ adSlot }) {
         data-ad-format="auto"
         data-full-width-responsive="true"
       />
-    </div>
+    </>
   )
 }
 
