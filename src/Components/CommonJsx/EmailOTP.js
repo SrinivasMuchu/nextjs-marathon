@@ -104,9 +104,11 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
       );
 
       if (res.data.meta.success) {
+        localStorage.clear();
         toast.success('OTP verified successfully!');
         localStorage.setItem('is_verified', true);
         console.log("OTP verified successfully");
+        localStorage.setItem('uuid', res.data.data.uuid);
         saveDetails();
         console.log("saveDetails function called");
       } else {
@@ -132,7 +134,7 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
         <div style={{ marginBottom: 24 }}>
           {/* ... Insert SVG if needed ... */}
           Verification code sent to your email <strong>{email}</strong> 
-          <br />Want to change your email?
+          <br />Want to change your email? 
           <span style={{ color: '#610bee', cursor: 'pointer' }} 
           onClick={handleNavigateToProfile}>
             Click here

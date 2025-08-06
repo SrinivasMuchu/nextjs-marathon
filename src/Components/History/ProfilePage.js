@@ -28,10 +28,10 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
   useEffect(() => setIsClient(true), []);
 
   useEffect(() => {
-    if (isClient) {
+    if (isClient && originalUser.name === '' && originalUser.email === '' && originalUser.photo === '') {
       const uuid = localStorage.getItem('uuid') || '';
       setUserUuid(uuid);
-      // Store original user data for cancel functionality
+      // Store original user data for cancel functionality - only set once
       setOriginalUser({ ...user });
     }
   }, [isClient, user]);
@@ -47,7 +47,7 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
   };
 
   const handleInputChange = (field, value) => {
-    setOriginalUser({ ...user, [field]: value });
+    setUser({ ...user, [field]: value })
     setHasChanges(true);
     // Clear error when user starts typing
     if (errors[field]) {
@@ -66,10 +66,13 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
       setErrors(prev => ({ ...prev, [field]: error }));
       return;
     }
-  //   if (user[field] === originalUser[field]) {
-  //   setEditField(prev => ({ ...prev, [field]: false }));
-  //   return;
-  // }
+    
+    // Check if the field value hasn't changed
+    if (user[field] === originalUser[field]) {
+      setEditField(prev => ({ ...prev, [field]: false }));
+      return;
+    }
+    console.log('different')
 
     try {
       if (!localStorage.getItem('is_verified')||field === 'email') {
@@ -452,7 +455,7 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
               <div className={styles.inputWrapper}>
                 <input
                   type="text"
-                  value={userUuid}
+                  value={localStorage.getItem('uuid')}
                   className={styles.input}
                   readOnly
                   style={{ backgroundColor: '#f8f9fa' }}

@@ -50,7 +50,7 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type  }) {
           lineHeight: '1.4'
         }}>
           We will notify you when your CAD file is ready.<br />
-          Thank you for your patience!
+          
         </h3>
         
         <div style={{
