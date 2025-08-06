@@ -9,6 +9,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ScreenRotationAltSharpIcon from '@mui/icons-material/ScreenRotationAltSharp';
 import DashboardCustomizeTwoToneIcon from '@mui/icons-material/DashboardCustomizeTwoTone';
+import { FaUserAlt } from "react-icons/fa";
 
 const drawerItems = [
     {
@@ -22,6 +23,10 @@ const drawerItems = [
     {
         label: 'My CAD Files',
         icon: <FolderIcon style={{ fontSize: '1.5rem' }} />,
+    },
+    {
+        label: 'My Profile',
+        icon: <FaUserAlt style={{ fontSize: '1.5rem' }} />,
     },
 ];
 
@@ -40,6 +45,8 @@ const [totalPages, setTotalPages] = useState(1);
             setActive('CAD Viewer'); // Default to viewer or when cad_type is null
         } else if (cadType === 'USER_CADS') {
             setActive('My CAD Files');
+        } else if (cadType === 'USER_PROFILE') {
+            setActive('My Profile');
         } else {
             setActive('CAD Viewer');
             // setActive('CAD Viewer'); // Default to viewer if no valid cad_type is found
@@ -57,6 +64,8 @@ setCurrentPage(1)
             cad_type = 'CAD_VIEWER';
         } else if (item.label === 'My CAD Files') {
             cad_type = 'USER_CADS';
+        } else if (item.label === 'My Profile') {
+            cad_type = 'USER_PROFILE';
         } else {
             console.error('Unknown item label:', item.label);
         }
@@ -76,7 +85,9 @@ setCurrentPage(1)
             case 'My CAD Files':
                 return <FileHistoryCards cad_type={'USER_CADS'} totalPages={totalPages} setTotalPages={setTotalPages}
                 currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
-
+            case 'My Profile':
+                return <FileHistoryCards cad_type={'USER_PROFILE'} />;
+            
             default:
                  return <FileHistoryCards cad_type={'CAD_VIEWER'} 
                 totalPages={totalPages} setTotalPages={setTotalPages}

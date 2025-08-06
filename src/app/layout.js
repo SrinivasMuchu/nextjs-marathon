@@ -123,11 +123,21 @@ export default function RootLayout({ children }) {
     `,
   }}
 /> */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3333540431554607"
-          crossOrigin="anonymous"
-        ></script>
+        <Script
+          id="adsense-loader"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (window.location.hostname !== "localhost") {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3333540431554607';
+                script.crossOrigin = 'anonymous';
+                document.head.appendChild(script);
+              }
+            `,
+          }}
+        />
         <Script
           id="json-ld"
           type="application/ld+json"
@@ -140,7 +150,6 @@ export default function RootLayout({ children }) {
       <body className={inter.variable}>
         <ToastProvider />
         <CreateLocalStorage />
-
         <ContextWrapper>
           <HomeTopNav/>
           {children}

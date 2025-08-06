@@ -1,0 +1,336 @@
+.profileContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width:100%;
+
+ 
+}
+.saveProfileButton{
+      padding: 0.75rem 1.25rem; /* py-3 */
+ 
+  background-color: #610bee; /* blue-500 */
+  color: #ffffff; /* white */
+  border-radius: 0.5rem; /* rounded-lg */
+  font-size: 1rem; /* text-base */
+  font-weight: 600; /* font-semibold */
+  cursor: pointer;
+}
+.profileCard {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  width: 80%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.photoSection {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.photoUpload {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid #e0e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.photoUpload:hover {
+  border-color: #610bee;
+}
+
+.photoEditIcon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: #2d3748;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  border: 2px solid white;
+}
+
+.profileImage {
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.defaultAvatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 50px 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  background: white;
+}
+
+.input:focus {
+  border-color: #610bee;
+  box-shadow: 0 0 0 3px rgba(97, 11, 238, 0.1);
+}
+
+.input:read-only {
+  background-color: #f8f9fa;
+  color: #6b7280;
+}
+
+.inputError {
+  border-color: #ef4444;
+}
+
+.inputError:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.editIcon {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.editIcon:hover {
+  opacity: 1;
+  background: #f3f4f6;
+}
+
+.actionButtons {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.photo-upload{
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 50%; /* rounded-lg */
+  /* padding: 1rem; p-4 */
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+.saveIconButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: all 0.2s;
+}
+
+.saveIconButton:hover:not(:disabled) {
+  opacity: 1;
+  background: #dcfdf7;
+}
+
+.saveIconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelIconButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: all 0.2s;
+}
+
+.cancelIconButton:hover:not(:disabled) {
+  opacity: 1;
+  background: #fef2f2;
+}
+
+.cancelIconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.copyButton {
+  position: absolute;
+  right: 8px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.copyButton:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.errorText {
+  color: #ef4444;
+  font-size: 12px;
+  margin: 0;
+}
+
+.verifyButton {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-top: 4px;
+}
+
+.verifyButton:hover {
+  color: #1d4ed8;
+}
+
+.buttonSection {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.saveButton {
+  flex: 1;
+  background: #2d3748;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: #1a202c;
+}
+
+.saveButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  flex: 1;
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.cancelButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .profileContainer {
+    padding: 16px;
+    min-height: auto;
+  }
+  
+  .profileCard {
+    padding: 24px;
+    max-width: 100%;
+  }
+  
+  .buttonSection {
+    flex-direction: column;
+  }
+  
+  .saveButton,
+  .cancelButton {
+    width: 100%;
+  }
+}

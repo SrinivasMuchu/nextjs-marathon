@@ -1,15 +1,27 @@
+"use client"
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import styles from './CommonStyles.module.css';
 import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation'; 
+
+
 
 function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
+  
   const inputs = useMemo(() => Array(4).fill().map(() => React.createRef()), []);
   const [otp, setOtp] = useState(['', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const router = useRouter();
+  // Safe router usage - handle case where router might not be available
+  const handleNavigateToProfile=()=>{
+    router.push('/dashboard?cad_type=USER_PROFILE');
+  }
 
+  
+  
   const uuid = localStorage.getItem('uuid');
 
   const sendOtp = async () => {
@@ -39,6 +51,13 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
   };
 
   useEffect(() => {
+    if(!email){
+      
+      router.push('/dashboard?cad_type=USER_PROFILE');
+      toast.info('Please update your profile')
+      setIsEmailVerify(false)
+      return;
+    }
     sendOtp();
   }, [email]);
 
@@ -85,9 +104,13 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
       );
 
       if (res.data.meta.success) {
+        localStorage.clear();
         toast.success('OTP verified successfully!');
         localStorage.setItem('is_verified', true);
+        console.log("OTP verified successfully");
+        localStorage.setItem('uuid', res.data.data.uuid);
         saveDetails();
+        console.log("saveDetails function called");
       } else {
         setOtp(['', '', '', '']);
         toast.error(res.data.meta.message);
@@ -110,6 +133,12 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
         {/* Optional SVG Icon */}
         <div style={{ marginBottom: 24 }}>
           {/* ... Insert SVG if needed ... */}
+          Verification code sent to your email <strong>{email}</strong> 
+          <br />Want to change your email? 
+          <span style={{ color: '#610bee', cursor: 'pointer' }} 
+          onClick={handleNavigateToProfile}>
+            Click here
+          </span>
         </div>
 
         {/* OTP Input Fields */}

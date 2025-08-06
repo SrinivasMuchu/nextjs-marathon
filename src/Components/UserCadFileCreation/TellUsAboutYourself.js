@@ -136,8 +136,8 @@ function TellUsAboutYourself() {
   return (
     <>
       <div className={styles["tell-us-about-yourself-page"]}>
-        <p>Email us at <strong><a href="mailto:invite@marathon-os.com">invite@marathon-os.com</a></strong>
-          from the above email address with this code for any queries or support.</p>
+        <p>Email us at <strong><a href="mailto:invite@marathon-os.com">invite@marathon-os.com </a></strong>
+           from the above email address with this code for any queries or support.</p>
         <div
           className={styles["unique-code"]}
 
@@ -258,7 +258,7 @@ function TellUsAboutYourself() {
                           {field !== 'email' && <button onClick={() => setEditField((prev) => ({ ...prev, [field]: true }))}>
                             <Image src={`${ASSET_PREFIX_URL}edit-ticket.png`} alt="edit" width={20} height={20} />
                           </button>} 
-                          {field === 'email' && !localStorage.getItem('is_verified') && <button style={{color:'blue',cursor:'pointer'}} onClick={()=>setIsEmailVerify(true)}>verify</button>} 
+                          {field === 'email' && localStorage.getItem('user_email') && !localStorage.getItem('is_verified') && <button style={{color:'blue',cursor:'pointer'}} onClick={()=>setIsEmailVerify(true)}>verify</button>} 
                         </>
                       )}
                     </div>
