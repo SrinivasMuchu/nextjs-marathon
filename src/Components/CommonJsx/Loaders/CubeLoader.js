@@ -23,7 +23,10 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type  }) {
   return (
     <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', 
     justifyContent: 'space-between',background:'white' }}>
-      <LeftRightBanner adSlot={type === 'convert' ? "9130570279" : "7541354101"} />
+      <div style={{ width: '300px', height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>
+              <LeftRightBanner adSlot={type === 'convert' ? "9130570279" : "7541354101"} />
+
+      </div>
       <div style={{ width: '100%',height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',flexDirection: 'column', gap: '10px' }}>
            <Lottie animationData={cube} loop={true} style={{ width: 200, height: 200 }} />
       <span>{statusMessages[uploadingMessage] || ''}</span>
@@ -135,7 +138,11 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type  }) {
           </span>
         </div>
       )}
-      <LeftRightBanner adSlot={type === 'convert' ? "2565161929" : "1112495361"} />
+      <div style={{ width: '300px', height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>
+               <LeftRightBanner adSlot={type === 'convert' ? "2565161929" : "1112495361"} />
+
+      </div>
+     
     </div>
   );
 }
