@@ -158,7 +158,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
                     setUploadingMessage(response.data.data.status)
                     setBaseName(response.data.data.base_name)
-                    window.location.href = '/dashboard?cad_type=CAD_CONVERTER';
+                    router.push('/dashboard?cad_type=CAD_CONVERTER')
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                
@@ -167,7 +167,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     setUploading(false)
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.data.status)
-                     window.location.href = '/dashboard?cad_type=CAD_CONVERTER';
+                     router.push('/dashboard?cad_type=CAD_CONVERTER')
                 }
 
             } else {
