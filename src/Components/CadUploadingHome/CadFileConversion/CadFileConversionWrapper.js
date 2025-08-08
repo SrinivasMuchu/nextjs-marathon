@@ -151,13 +151,14 @@ function CadFileConversionWrapper({ children, convert }) {
 
                 }
             });
-
+//  router.push('/dashboard?cad_type=CAD_CONVERTER')
+ 
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
                     sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
                     setUploadingMessage(response.data.data.status)
                     setBaseName(response.data.data.base_name)
-                    router.push('/dashboard?cad_type=CAD_CONVERTER')
+                    window.location.href = '/dashboard?cad_type=CAD_CONVERTER';
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                
