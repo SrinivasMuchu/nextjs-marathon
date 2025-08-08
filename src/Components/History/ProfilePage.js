@@ -19,7 +19,7 @@ function ProfilePage() {
   const [isClient, setIsClient] = useState(false);
   const [userUuid, setUserUuid] = useState('');
   const [errors, setErrors] = useState({ name: '', email: '' });
-const [editField, setEditField] = useState({ name: false, email: false, photo: false });
+  const [editField, setEditField] = useState({ name: false, email: false, photo: false });
 
   const [signingUp, setSigningUp] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -66,20 +66,23 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
       setErrors(prev => ({ ...prev, [field]: error }));
       return;
     }
-    
+
     // Check if the field value hasn't changed
     if (user[field] === originalUser[field]) {
       setEditField(prev => ({ ...prev, [field]: false }));
       return;
     }
-    console.log('different')
+    console.log(field)
 
     try {
-      if (!localStorage.getItem('is_verified')||field === 'email') {
+      if (!localStorage.getItem('is_verified') || field === 'email') {
         setIsEmailVerify(true);
         return;
       }
-      
+      if (field === 'email') {
+        return;
+      }
+
 
       setSigningUp(true);
       const uuid = localStorage.getItem('uuid');
@@ -117,17 +120,37 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
 
   const saveProfileAfterVerification = async () => {
     try {
-      setSigningUp(true);
-      const uuid = localStorage.getItem('uuid');
-      const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
-        user_email: user.email,
-        full_name: user.name,
-        photo: user.photo
-      }, {
-        headers: { 'user-uuid': uuid }
-      });
 
-      if (response.data.meta.success) {
+      if (!isProfileComplete) {
+        setSigningUp(true);
+
+        const uuid = localStorage.getItem('uuid');
+        const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
+          user_email: user.email,
+          full_name: user.name,
+          photo: user.photo
+        }, {
+          headers: { 'user-uuid': uuid }
+        });
+
+        if (response.data.meta.success) {
+          sendGAtagEvent({ event_name: 'publish_cad_profile_complete', event_category: CAD_PUBLISH_EVENT });
+          toast.success('Profile updated successfully');
+          setIsProfileComplete(true);
+          // Reset all edit fields
+          setEditField({ name: false, email: false });
+          setErrors({ name: '', email: '' });
+          setOriginalUser({ ...user });
+          setHasChanges(false);
+          setIsEmailVerify(false);
+        }
+        setSigningUp(false);
+      } else {
+        setSigningUp(true);
+
+
+
+
         sendGAtagEvent({ event_name: 'publish_cad_profile_complete', event_category: CAD_PUBLISH_EVENT });
         toast.success('Profile updated successfully');
         setIsProfileComplete(true);
@@ -137,8 +160,9 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
         setOriginalUser({ ...user });
         setHasChanges(false);
         setIsEmailVerify(false);
+        window.location.reload();
       }
-      setSigningUp(false);
+
     } catch (err) {
       setSigningUp(false);
       console.error('Error updating Profile:', err);
@@ -231,63 +255,63 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
               accept="image/*"
               onChange={handleFileUpload}
             />
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'column', justifyContent: 'center' }}>
-            <div className={styles["photo-upload"]} onClick={handleClick}>
-              <div style={{
-                width: '30px',
-                height: '30px',
-                position: 'absolute',
-                color:'white',
-                bottom: '12px',
-                right: '0px',
-                background: '#610bee',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor:'pointer'
 
-              }}>
-                <FaCamera/>
-              </div>
-              {user.photo ? (
-                !user.photo.startsWith('data') ? (
-                  <NameProfile userName={user.name} memberPhoto={user.photo} width={150} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'column', justifyContent: 'center' }}>
+              <div className={styles["photo-upload"]} onClick={handleClick}>
+                <div style={{
+                  width: '30px',
+                  height: '30px',
+                  position: 'absolute',
+                  color: 'white',
+                  bottom: '12px',
+                  right: '0px',
+                  background: '#610bee',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+
+                }}>
+                  <FaCamera />
+                </div>
+                {user.photo ? (
+                  !user.photo.startsWith('data') ? (
+                    <NameProfile userName={user.name} memberPhoto={user.photo} width={150} />
+                  ) : (
+                    <Image src={user.photo} alt="User Photo" width={150} height={150} style={{
+                      borderRadius: '50%',
+                      width: '150px',
+                      height: '150px',
+                      // objectFit: 'cover',
+                    }} />
+                  )
                 ) : (
-                  <Image src={user.photo} alt="User Photo" width={150} height={150} style={{
-                    borderRadius: '50%',
-                    width: '150px',
-                    height: '150px',
-                    // objectFit: 'cover',
-                  }} />
-                )
-              ) : (
-                <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profile-empty.png' alt="User Photo" width={150} height={150} style={{ borderRadius: '50%' }} />
-              )}
+                  <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profile-empty.png' alt="User Photo" width={150} height={150} style={{ borderRadius: '50%' }} />
+                )}
+
+
+              </div>
+              {/* Photo Upload Section */}
+              {(editField['photo']) && <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={() => handleSaveField('photo')}>
+                  <Image title='save' src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
+                </button>
+                <button
+                  onClick={() => {
+                    const original = localStorage.getItem(`user_${'photo'}`) || '';
+                    setUser((prev) => ({ ...prev, ['photo']: original }));
+                    setEditField((prev) => ({ ...prev, ['photo']: false }));
+                    setErrors((prev) => ({ ...prev, ['photo']: '' }));
+                  }}
+                >
+                  <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} title='cancel' alt="cancel" width={20} height={20} />
+                </button>
+              </div>}
 
 
             </div>
-            {/* Photo Upload Section */}
-            {(editField['photo']) && <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={() => handleSaveField('photo')}>
-                <Image title='save' src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={20} height={20} />
-              </button>
-              <button
-                onClick={() => {
-                  const original = localStorage.getItem(`user_${'photo'}`) || '';
-                  setUser((prev) => ({ ...prev, ['photo']: original }));
-                  setEditField((prev) => ({ ...prev, ['photo']: false }));
-                  setErrors((prev) => ({ ...prev, ['photo']: '' }));
-                }}
-              >
-                <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} title='cancel' alt="cancel" width={20} height={20} />
-              </button>
-            </div>}
 
-
-          </div>
-            
             {/* Photo Save/Cancel Buttons */}
             {/* {editField.photo && (
               <div className={styles.photoActionButtons}>
@@ -332,53 +356,53 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
                   placeholder="Enter your full name"
-                   disabled={isProfileComplete && !editField.name}
-                    
+                  disabled={isProfileComplete && !editField.name}
+
                   style={{ backgroundColor: !editField.name ? '#f8f9fa' : 'white' }}
                 />
-                {isProfileComplete && 
-                <>
-                {!editField.name ? (
-                  <button className={styles.editIcon} onClick={() => handleEditClick('name')}>
-                    <Image 
-                      src={`${ASSET_PREFIX_URL}edit-ticket.png`} 
-                      alt="edit" 
-                      width={16} 
-                      height={16} 
-                    />
-                  </button>
-                ) : (
-                  <div className={styles.actionButtons}>
-                    <button 
-                      className={styles.saveIconButton} 
-                      onClick={() => handleSaveField('name')}
-                      disabled={signingUp}
-                      title={signingUp ? 'Saving...' : 'Save'}
-                    >
-                      <Image 
-                        src={`${ASSET_PREFIX_URL}save-details.png`} 
-                        alt="save" 
-                        width={16} 
-                        height={16} 
-                      />
-                    </button>
-                    <button 
-                      className={styles.cancelIconButton} 
-                      onClick={() => handleCancelEdit('name')}
-                      disabled={signingUp}
-                    >
-                      <Image 
-                        src={`${ASSET_PREFIX_URL}cancel-detail.png`} 
-                        alt="cancel" 
-                        width={16} 
-                        height={16} 
-                      />
-                    </button>
-                  </div>
-                )}
-                </>
+                {isProfileComplete &&
+                  <>
+                    {!editField.name ? (
+                      <button className={styles.editIcon} onClick={() => handleEditClick('name')}>
+                        <Image
+                          src={`${ASSET_PREFIX_URL}edit-ticket.png`}
+                          alt="edit"
+                          width={16}
+                          height={16}
+                        />
+                      </button>
+                    ) : (
+                      <div className={styles.actionButtons}>
+                        <button
+                          className={styles.saveIconButton}
+                          onClick={() => handleSaveField('name')}
+                          disabled={signingUp}
+                          title={signingUp ? 'Saving...' : 'Save'}
+                        >
+                          <Image
+                            src={`${ASSET_PREFIX_URL}save-details.png`}
+                            alt="save"
+                            width={16}
+                            height={16}
+                          />
+                        </button>
+                        <button
+                          className={styles.cancelIconButton}
+                          onClick={() => handleCancelEdit('name')}
+                          disabled={signingUp}
+                        >
+                          <Image
+                            src={`${ASSET_PREFIX_URL}cancel-detail.png`}
+                            alt="cancel"
+                            width={16}
+                            height={16}
+                          />
+                        </button>
+                      </div>
+                    )}
+                  </>
                 }
-                
+
               </div>
               {errors.name && <p className={styles.errorText}>{errors.name}</p>}
             </div>
@@ -396,57 +420,66 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
                   disabled={isProfileComplete && !editField.email}
                   style={{ backgroundColor: !editField.email ? '#f8f9fa' : 'white' }}
                 />
-                {isProfileComplete && 
-                <>
-                {!editField.email ? (
-                  <button className={styles.editIcon} onClick={() => handleEditClick('email')}>
-                    <Image 
-                      src={`${ASSET_PREFIX_URL}edit-ticket.png`} 
-                      alt="edit" 
-                      width={16} 
-                      height={16} 
-                    />
-                  </button>
-                ) : (
-                  <div className={styles.actionButtons}>
-                    <button 
-                      className={styles.saveIconButton} 
-                      onClick={() => handleSaveField('email')}
-                      disabled={signingUp}
-                      title={signingUp ? 'Saving...' : 'Save'}
-                    >
-                      <Image 
-                        src={`${ASSET_PREFIX_URL}save-details.png`} 
-                        alt="save" 
-                        width={16} 
-                        height={16} 
-                      />
-                    </button>
-                    <button 
-                      className={styles.cancelIconButton} 
-                      onClick={() => handleCancelEdit('email')}
-                      disabled={signingUp}
-                    >
-                      <Image 
-                        src={`${ASSET_PREFIX_URL}cancel-detail.png`} 
-                        alt="cancel" 
-                        width={16} 
-                        height={16} 
-                      />
-                    </button>
-                  </div>
-                )}
-                </>}
+                {isProfileComplete &&
+                  <>
+                    {!editField.email ? (
+                      <button className={styles.editIcon} onClick={() => handleEditClick('email')}>
+                        <Image
+                          src={`${ASSET_PREFIX_URL}edit-ticket.png`}
+                          alt="edit"
+                          width={16}
+                          height={16}
+                        />
+                      </button>
+                    ) : (
+                      <div className={styles.actionButtons}>
+                        <button
+                          className={styles.saveIconButton}
+                          onClick={() => handleSaveField('email')}
+                          disabled={signingUp}
+                          title={signingUp ? 'Saving...' : 'Save'}
+                        >
+                          <Image
+                            src={`${ASSET_PREFIX_URL}save-details.png`}
+                            alt="save"
+                            width={16}
+                            height={16}
+                          />
+                        </button>
+                        <button
+                          className={styles.cancelIconButton}
+                          onClick={() => handleCancelEdit('email')}
+                          disabled={signingUp}
+                        >
+                          <Image
+                            src={`${ASSET_PREFIX_URL}cancel-detail.png`}
+                            alt="cancel"
+                            width={16}
+                            height={16}
+                          />
+                        </button>
+                      </div>
+                    )}
+                  </>}
               </div>
               {errors.email && <p className={styles.errorText}>{errors.email}</p>}
-              {localStorage.getItem('user_email') &&!localStorage.getItem('is_verified') && (
-                <button 
-                  className={styles.verifyButton} 
+              {localStorage.getItem('user_email') && !localStorage.getItem('is_verified') && (
+                <button
+                  className={styles.verifyButton}
                   onClick={() => setIsEmailVerify(true)}
                 >
                   verify
                 </button>
               )}
+              {!localStorage.getItem('user_email') && !localStorage.getItem('is_verified') && (
+                <button
+                  className={styles.verifyButton}
+                  onClick={() => setIsEmailVerify(true)}
+                >
+                  verify
+                </button>
+              )}
+
             </div>
 
             {/* User ID */}
@@ -467,7 +500,7 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
               </div>
             </div>
             {!isProfileComplete && (
-              <button 
+              <button
                 className={styles.saveProfileButton}
                 onClick={saveChanges}
                 disabled={signingUp}
@@ -480,11 +513,11 @@ const [editField, setEditField] = useState({ name: false, email: false, photo: f
       </div>
 
       {isEmailVerify && (
-        <EmailOTP 
-          email={user.email}  
+        <EmailOTP
+          email={user.email}
           saveDetails={saveProfileAfterVerification}
-          setIsEmailVerify={setIsEmailVerify} 
-          setError={setErrors} 
+          setIsEmailVerify={setIsEmailVerify}
+          setError={setErrors}
           type='publish'
         />
       )}
