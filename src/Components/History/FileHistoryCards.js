@@ -33,91 +33,104 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const limit = 10;
   const router = useRouter();
   useEffect(() => {
-    if(cad_type === 'USER_PROFILE') {
-      return
-    }
-    let isMounted = true;  // Add mounted check
+  if (cad_type === 'USER_PROFILE') return; // No fetch needed for profile page
 
-    const fetchFileHistory = async () => {
-      if (!isMounted) return;  // Don't update state if component unmounted
-      
-      try {
-        // Check cache first
-        const cached = cachedCadHistory[cad_type];
-        if (cached && cached.page === currentPage) {
-          if (!isMounted) return;
-          setCadViewerFileHistory(cached.cad_viewer_files);
-          setConverterFileHistory(cached.cad_converter_files);
-          setUserCadFiles(cached.my_cad_files);
-          setTotalPages(cached.totalPages);
-          setLoading(false);
-          return;
-        }
+  const controller = new AbortController();
+  let isMounted = true; // local flag to prevent state updates after unmount
 
-        // Fetch from API
-        const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
-          params: { type: cad_type, page: currentPage, limit },
-          headers: {
-            "user-uuid": localStorage.getItem("uuid"),
-          },
-        });
-
-        if (!isMounted) return;  // Don't update state if component unmounted
-
-        if (response.data.meta.success) {
-          const cad_viewer_files = response.data.data.cad_viewer_files.map(file => ({
-            ...file,
-            createdAtFormatted: formatDate(file.createdAt),
-          }));
-
-          const cad_converter_files = response.data.data.cad_converter_files.map(file => ({
-            ...file,
-            createdAtFormatted: formatDate(file.createdAt),
-          }));
-
-          const my_cad_files = response.data.data.my_cad_files.map(file => ({
-            ...file,
-            createdAtFormatted: formatDate(file.createdAt),
-          }));
-
-          const page = response.data.data.pagination.page;
-          const totalPages = response.data.data.pagination.cadFilesPages;
-
-          // Update all states at once
-          setCadViewerFileHistory(cad_viewer_files);
-          setConverterFileHistory(cad_converter_files);
-          setUserCadFiles(my_cad_files);
-          setCurrentPage(page);
-          setTotalPages(totalPages);
-
-          // Cache for reuse
-          cachedCadHistory[cad_type] = {
-            cad_viewer_files,
-            cad_converter_files,
-            my_cad_files,
-            page,
-            totalPages
-          };
-        }
-
-        if (isMounted) {
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Error fetching file history:', err);
-        if (isMounted) {
-          setLoading(false);
-        }
+  const fetchFileHistory = async () => {
+    try {
+      // 1️⃣ Check cache before making API request
+      const cached = cachedCadHistory[cad_type];
+      if (cached && cached.page === currentPage) {
+        if (!isMounted) return;
+        setCadViewerFileHistory(cached.cad_viewer_files);
+        setConverterFileHistory(cached.cad_converter_files);
+        setUserCadFiles(cached.my_cad_files);
+        setTotalPages(cached.totalPages);
+        setLoading(false);
+        return;
       }
-    };
 
-    fetchFileHistory();
+      // 2️⃣ Set loading state
+      setLoading(true);
 
-    // Cleanup function
-    return () => {
-      isMounted = false;
-    };
-  }, [cad_type, currentPage]);
+      // 3️⃣ API request with abort controller
+      const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
+        params: { type: cad_type, page: currentPage, limit },
+        headers: {
+          "user-uuid": localStorage.getItem("uuid"),
+        },
+        signal: controller.signal
+      });
+
+      if (!isMounted) return; // prevent state updates after unmount
+
+      if (response.data.meta.success) {
+        // Format dates
+        const formatDate = (dateString) =>
+          new Date(dateString).toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+          });
+
+        const cad_viewer_files = response.data.data.cad_viewer_files.map(file => ({
+          ...file,
+          createdAtFormatted: formatDate(file.createdAt),
+        }));
+
+        const cad_converter_files = response.data.data.cad_converter_files.map(file => ({
+          ...file,
+          createdAtFormatted: formatDate(file.createdAt),
+        }));
+
+        const my_cad_files = response.data.data.my_cad_files.map(file => ({
+          ...file,
+          createdAtFormatted: formatDate(file.createdAt),
+        }));
+
+        const page = response.data.data.pagination.page;
+        const totalPages = response.data.data.pagination.cadFilesPages;
+
+        // Update states
+        setCadViewerFileHistory(cad_viewer_files);
+        setConverterFileHistory(cad_converter_files);
+        setUserCadFiles(my_cad_files);
+        setCurrentPage(page);
+        setTotalPages(totalPages);
+
+        // Save in cache
+        cachedCadHistory[cad_type] = {
+          cad_viewer_files,
+          cad_converter_files,
+          my_cad_files,
+          page,
+          totalPages
+        };
+      }
+
+      setLoading(false);
+
+    } catch (err) {
+      if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
+        // Request was aborted, no need to log error
+        return;
+      }
+      console.error('Error fetching file history:', err);
+      if (isMounted) setLoading(false);
+    }
+  };
+
+  fetchFileHistory();
+
+  return () => {
+    isMounted = false;
+    controller.abort(); // Cancel any in-flight request
+  };
+
+}, [cad_type, currentPage]);
+
 
 
 

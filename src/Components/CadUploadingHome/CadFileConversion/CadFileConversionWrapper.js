@@ -151,13 +151,14 @@ function CadFileConversionWrapper({ children, convert }) {
 
                 }
             });
-
+//  router.push('/dashboard?cad_type=CAD_CONVERTER')
+ 
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
                     sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
                     setUploadingMessage(response.data.data.status)
                     setBaseName(response.data.data.base_name)
-                    router.push('/dashboard?cad_type=CAD_CONVERTER')
+                    window.location.href = '/dashboard?cad_type=CAD_CONVERTER';
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
                
@@ -166,7 +167,7 @@ function CadFileConversionWrapper({ children, convert }) {
                     setUploading(false)
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.data.status)
-
+                     window.location.href = '/dashboard?cad_type=CAD_CONVERTER';
                 }
 
             } else {
@@ -240,7 +241,7 @@ function CadFileConversionWrapper({ children, convert }) {
 
     const checkingCadFileUploadLimitExceed = async (file, s3Url) => {
         if (s3Url) {
-
+            setLoading(true)
             await CadFileConversion(s3Url)
             return
         } else {
@@ -282,7 +283,7 @@ function CadFileConversionWrapper({ children, convert }) {
     }, [uploadingMessage]);
     const handleFileConvert = async (file, s3Url) => {
         if (s3Url) {
-
+            
             await CadFileConversion(s3Url)
         } else {
             const fileSizeMB = file.size / (1024 * 1024); // Size in MB
