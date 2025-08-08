@@ -158,12 +158,9 @@ export default function PartDesignView() {
 
         const slowApiTimer = setTimeout(() => {
 
-            if ( localStorage.getItem('is_verified')) {
+            if ( !localStorage.getItem('is_verified')) {
 
-                setCloseNotifyInfoPopUp(true);
-            }else if(!localStorage.getItem('is_verified') && user.email){
-                setCloseNotifyInfoPopUp(true);
-            } else {
+              
                 setIsApiSlow(true);
             }
         }, 10000);

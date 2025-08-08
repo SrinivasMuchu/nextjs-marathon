@@ -14,8 +14,10 @@ import { contextState } from '../CommonJsx/ContextProvider';
 import DesignStats from '../CommonJsx/DesignStats';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 import Link from 'next/link';
-
-
+import TellUsAboutYourself from '../UserCadFileCreation/TellUsAboutYourself';
+import EmailOTP from '../CommonJsx/EmailOTP';
+import { useRouter } from "next/navigation";
+import ProfilePage from './ProfilePage'
 let cachedCadHistory = {};
 function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages }) {
   const {  setUploadedFile } = useContext(contextState);
@@ -25,10 +27,15 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const [userCadFiles, setUserCadFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [publishCad, setPublishCad] = useState(false);
-  const [downloadedUrl, setDownloadedUrl] = useState('');
+  const [isEmailVerify, setIsEmailVerify] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+   const { user } = useContext(contextState);
   const limit = 10;
-
+  const router = useRouter();
   useEffect(() => {
+    if(cad_type === 'USER_PROFILE') {
+      return
+    }
     let isMounted = true;  // Add mounted check
 
     const fetchFileHistory = async () => {
@@ -125,6 +132,17 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
   const handleDownload = async (file, index) => {
     try {
+      if(!localStorage.getItem("is_verified")){
+          setPendingAction({ action: 'download', file, index });
+          setIsEmailVerify(true);
+          return;
+      }
+      if(!user.email){
+        router.push('/dashboard?cad_type=USER_PROFILE');
+        return;
+      }
+
+
       setDownloading(prev => ({ ...prev, [index]: true }));
      
       const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
@@ -171,6 +189,33 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     }
   };
 
+  const handleViewDesign = (file)=>{
+    if(!localStorage.getItem("is_verified")){
+          setPendingAction({ action: 'view', file });
+          setIsEmailVerify(true);
+          return;
+      }
+       
+      if(cad_type === 'USER_CADS'){
+      router.push(`/library/${file.route}`);
+      }
+      if(cad_type === 'CAD_VIEWER'){
+          router.push(`/tools/cad-renderer?fileId=${file._id}`);
+      }
+
+  }
+
+  const handlePostVerificationAction = () => {
+    if (pendingAction) {
+      if (pendingAction.action === 'download') {
+        handleDownload(pendingAction.file, pendingAction.index);
+      } else if (pendingAction.action === 'view') {
+        handleViewDesign(pendingAction.file);
+      }
+      setPendingAction(null);
+    }
+    setIsEmailVerify(false);
+  };
 
   return (
     <>
@@ -194,7 +239,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                   {cadViewerFileHistory.map((file, index) => (
                     <a
                       key={index}
-                      href={file.status === 'COMPLETED' ? `/tools/cad-renderer?fileId=${file._id}` : undefined}
+                      // href={file.status === 'COMPLETED' ? `/tools/cad-renderer?fileId=${file._id}` : undefined}
                       className={styles.historyItem}
                       onClick={e => {
                         if (file.status !== 'COMPLETED') {
@@ -204,12 +249,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         // localStorage.setItem("last_viewed_cad_key", file._id);
                       }}
                     >
-                      {file.status === 'COMPLETED' ? <Image
-                        src={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/sprite_90_180.webp`}
-                        alt="file preview"
-                        width={300}
-                        height={160}
-                      /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
+                      {file.status === 'COMPLETED' ? <HoverImageSequence design={{ _id:file._id,page_title:file.file_name}} width={300} height={160} /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
                       <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
 
                       <div className={styles.historyFileDetails}>
@@ -218,8 +258,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                       <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
 
                       <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <button style={{
-                          background: '#610bee',
+                        <button onClick={() => handleViewDesign(file)} disabled={file.status !== 'COMPLETED'} style={{
+                          background: file.status !== 'COMPLETED' ? '#a270f2' : '#610bee',
                           color: 'white',
                           padding: '5px 10px',
                           border: 'none',
@@ -259,13 +299,11 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                   <Link href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</Link>
                 </div>
                 {cadConverterFileHistory.map((file, index) => (
-                  <Link
+                  <div
                     key={index}
-                    href={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/${file.base_name}.${file.output_format}`}
+                    // href={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/${file.base_name}.${file.output_format}`}
                     className={styles.historyItem}
-                    onClick={() => {
-                      // localStorage.setItem("last_viewed_cad_key", file._id);
-                    }}
+                   
                   >
                     <div className={styles.historyFileDetails}>
                       <span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>File Name</span> <span>{textLettersLimit(file.file_name, 20)}</span></div>
@@ -294,7 +332,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                         textAlign: 'center'
                       }}>Download</button>}
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -328,7 +366,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                 {userCadFiles.map((file, index) => (
                   <div
                     key={index}
-                    
+                    onClick={() => handleViewDesign(file)}
                     className={styles.historyItem}
 
                   >
@@ -350,7 +388,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
                     <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
 
                     <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      {file.is_uploaded ? <Link href={`/library/${file.route}`} style={{
+                      {file.is_uploaded ?
+                       <div onClick={() => handleViewDesign(file)} style={{
                         background: '#610bee',
                         color: 'white',
                         padding: '5px 10px',
@@ -364,7 +403,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
                           cursor: 'pointer'
                         }}>View design</button>
-                      </Link> : <button disabled style={{
+                      </div> : <button disabled style={{
                         background: '#a270f2',
                         color: 'white',
                         padding: '5px 10px',
@@ -393,6 +432,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           </>}
         </div>
       )}
+      {cad_type === 'USER_PROFILE' && (
+        <ProfilePage type = 'profile'/>
+      )}
       <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {totalPages > 1 && <Pagenation currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />}
       </div>
@@ -403,6 +445,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
     </div>
       {publishCad && <ConvertedFileUploadPopup setPublishCad={setPublishCad} />}
+      {isEmailVerify && <EmailOTP setIsEmailVerify={setIsEmailVerify} email={user.email} saveDetails={handlePostVerificationAction} />}
     </>
     
   )

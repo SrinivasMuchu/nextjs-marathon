@@ -7,7 +7,7 @@ export const ASSET_PREFIX_URL = "https://marathon-web-assets.s3.ap-south-1.amazo
 export const TITLELIMIT = 100;
 export const DESCRIPTIONLIMIT = 500;
 // export const HEADERS = { "x-auth-token": localStorage.getItem('token')}
-export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep"]
+export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj"]
 export const BUCKET = 'marathon-org-assets';
 export const DESIGN_GLB_PREFIX_URL = 'https://d1d8a3050v4fu6.cloudfront.net/';
 export const IMAGEURLS = {
@@ -78,3 +78,5 @@ export const CAD_CONVERTER_EVENT = 'CONVERTER'
 export const CAD_BROWSER_NOTIFICATION_EVENT = 'BROWSER_NOTIFICATION'
 export const CAD_PUBLISH_EVENT = 'PUBLISH'
 export const CAD_FLOATING_BUTTON_EVENT = 'FLOATING_BUTTON'
+
+export const GOOGLE_ADSENSE_CLIENT_ID = process.env.NEXT_GOOGLE_ADS_CLIENT_ID

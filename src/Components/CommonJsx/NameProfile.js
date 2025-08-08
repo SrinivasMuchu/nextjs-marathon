@@ -3,6 +3,7 @@ import {PHOTO_LINK} from '@/config';
 import Image from 'next/image'
 
 function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,borderRadius, border }) {
+    // console.log("NameProfile component rendered with userName:", userName, "and memberPhoto:", memberPhoto);
     const renderInitials = () => {
         if (!userName) return '';
         const names = userName.split(' ');

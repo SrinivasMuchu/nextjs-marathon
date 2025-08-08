@@ -36,7 +36,7 @@ function MobileMenu({ onClose, styles }) {
       </div>
 
       <div className={styles["menu-navs"]}>
-      <Link href="/about-us" >About us</Link>
+      <Link href="/about-us" onClick={handleCloseMenu}>About us</Link>
         <Link href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</Link>
         <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
         <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
@@ -72,10 +72,10 @@ function MobileMenu({ onClose, styles }) {
             </div>
           )}
         </div>
-         <Link rel="nofollow" href="/dashboard?cad_type=CAD_VIEWER">
+         <Link rel="nofollow" href="/dashboard?cad_type=CAD_VIEWER" onClick={handleCloseMenu}>
       Dashboard
     </Link>
-        <Link href="/library" >Library</Link>
+        <Link href="/library" onClick={handleCloseMenu}>Library</Link>
         
          
       </div>

@@ -1,3 +1,4 @@
+import React from 'react';
 import axios from 'axios';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
 import Image from 'next/image';
@@ -13,6 +14,7 @@ import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import DesignStats from '../CommonJsx/DesignStats';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
+import LeftRightBanner from '../CommonJsx/Adsense/LeftRightBanner';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -78,46 +80,61 @@ async function Library({ searchParams }) {
 
       <div className={styles["library-designs"]}>
         <div className={styles["library-designs-items"]}>
-          {designs.map((design) => (
-            <Link key={design._id} href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
-              {/* <div className={styles["library-designs-inner"]}> */}
-              <div className={styles["library-designs-items-container-cost"]}>Free</div>
-                {/* <div className={styles["library-designs-items-container-img"]}>
-                    <Image
-                  // className={styles["library-designs-items-container-img"]}
-                  src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_0.webp`}
-                  alt={design.page_title}
-                  width={300}
-                  height={250}
-                />
-                </div> */}
-                <HoverImageSequence design={design} width={300} height={250}/>
+          {designs.map((design, index) => (
+            <React.Fragment key={`design-${design._id}`}>
+              {/* Insert ad at position 1 (before first design) */}
+              {index === 0 && (
+                <div className={styles["library-designs-items-container"]} style={{ minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <LeftRightBanner adSlot="2408570633" />
+                </div>
+              )}
               
-                <div className={styles["design-stats-wrapper"]}>
-                  <DesignStats views={design.total_design_views ?? 0}
-                    downloads={design.total_design_downloads ?? 0} />
+              {/* Insert ad at position 6 (before 6th design) */}
+              {index === 6 && (
+                <div className={styles["library-designs-items-container"]} style={{ minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <LeftRightBanner adSlot="4799748492" />
                 </div>
-                <div className={styles["design-title-wrapper"]}>
-                  <h6 title={design.page_title}>{textLettersLimit(design.page_title, 30)}</h6>
-                   <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>
-                  <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center',flexWrap:'wrap' }}>
-                    {/* {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />} */}
-                    {design.category_labels && design.category_labels.map((label, index) => (
-                      <DesignDetailsStats key={index} text={label} />
-                    ))}
-                    {design.tag_labels && design.tag_labels.map((label, index) => (
-                      <DesignDetailsStats key={index} text={label} />
-                    ))}
-                    <DesignDetailsStats fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'} text={design.file_type ? `.${design.file_type.toUpperCase()}`  : '.STEP'} />
+              )}
+              
+              <Link href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
+                {/* <div className={styles["library-designs-inner"]}> */}
+                <div className={styles["library-designs-items-container-cost"]}>Free</div>
+                  {/* <div className={styles["library-designs-items-container-img"]}>
+                      <Image
+                    // className={styles["library-designs-items-container-img"]}
+                    src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_0.webp`}
+                    alt={design.page_title}
+                    width={300}
+                    height={250}
+                  />
+                  </div> */}
+                  <HoverImageSequence design={design} width={300} height={250}/>
+                
+                  <div className={styles["design-stats-wrapper"]}>
+                    <DesignStats views={design.total_design_views ?? 0}
+                      downloads={design.total_design_downloads ?? 0} />
                   </div>
-                  <span className={styles["design-title-wrapper-price"]}>Free</span>
-                
-                </div>
-                
-                
-              {/* </div> */}
-            </Link>
-
+                  <div className={styles["design-title-wrapper"]}>
+                    <h6 title={design.page_title}>{textLettersLimit(design.page_title, 30)}</h6>
+                     <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>
+                    <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center',flexWrap:'wrap' }}>
+                      {/* {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />} */}
+                      {design.category_labels && design.category_labels.map((label, index) => (
+                        <DesignDetailsStats key={index} text={label} />
+                      ))}
+                      {design.tag_labels && design.tag_labels.map((label, index) => (
+                        <DesignDetailsStats key={index} text={label} />
+                      ))}
+                      <DesignDetailsStats fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'} text={design.file_type ? `.${design.file_type.toUpperCase()}`  : '.STEP'} />
+                    </div>
+                    <span className={styles["design-title-wrapper-price"]}>Free</span>
+                  
+                  </div>
+                  
+                  
+                {/* </div> */}
+              </Link>
+            </React.Fragment>
           ))}
         </div>
 

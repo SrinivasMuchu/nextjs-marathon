@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import styles from './CommonStyles.module.css';
 import usePushNotifications from './usePushNotifications';
@@ -7,32 +7,66 @@ import PopupWrapper from './PopupWrapper';
 import EmailOTP from './EmailOTP'
 import { sendGAtagEvent } from '../../common.helper';
 import { CAD_BROWSER_NOTIFICATION_EVENT } from '@/config';
+import { contextState } from './ContextProvider';
 
 function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
-  const [email, setEmail] = useState('');
+    const {user} = useContext(contextState);
+  const [email, setEmail] = useState(user.email);
   const [error, setError] = useState('');
   const [browserNotify, setBrowserNotify] = useState(true);
    const [verifyEmail, setVerifyEmail] = useState(false);
    const [isVerified, setIsVerified] = useState(false);
   const pushRegister = usePushNotifications();
 
+
+
+
   const handleAllow = async () => {
     try {
-      if(!localStorage.getItem('is_verified'))
-        setVerifyEmail(true)
-      if(localStorage.getItem('is_verified')){
-        sendGAtagEvent({ 
-          event_name: browserNotify ? 'browser_notification_approve' : 'browser_notification_reject',
-          event_category: CAD_BROWSER_NOTIFICATION_EVENT 
-        });
+      if(!localStorage.getItem('is_verified')) {
+        setVerifyEmail(true);
+        return; // Stop here and wait for OTP verification
+      }
+      
+      // This runs after OTP verification OR if already verified
+      sendGAtagEvent({ 
+        event_name: browserNotify ? 'browser_notification_approve' : 'browser_notification_reject',
+        event_category: CAD_BROWSER_NOTIFICATION_EVENT 
+      });
+      
       const result = await pushRegister(email, browserNotify);
       if (result?.success === false) {
         setError(result.message);
         return;
       }
+      
       window.location.href = `/dashboard?cad_type=${cad_type}`;
       setIsApiSlow(false);
+     
+    } catch (error) {
+      setError(error.message || 'An error occurred');
+    }
+  };
+
+  const handleOTPVerified = async () => {
+    // Close the OTP popup first
+    setVerifyEmail(false);
+    
+    // Then proceed with the original action
+    try {
+      sendGAtagEvent({ 
+        event_name: browserNotify ? 'browser_notification_approve' : 'browser_notification_reject',
+        event_category: CAD_BROWSER_NOTIFICATION_EVENT 
+      });
+      
+      const result = await pushRegister(email, browserNotify);
+      if (result?.success === false) {
+        setError(result.message);
+        return;
       }
+      
+      window.location.href = `/dashboard?cad_type=${cad_type}`;
+      setIsApiSlow(false);
      
     } catch (error) {
       setError(error.message || 'An error occurred');
@@ -49,7 +83,7 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
 
   return (
     <PopupWrapper>
-      {verifyEmail ? <EmailOTP email={email} setIsEmailVerify={setVerifyEmail} setError={setError} saveDetails={handleAllow}/>:
+      {verifyEmail ? <EmailOTP email={email} setIsEmailVerify={setVerifyEmail} setError={setError} saveDetails={handleOTPVerified}/>:
       <div className="relative w-full bg-white rounded-lg p-6 shadow-lg max-w-lg mx-auto">
         {/* Close Button */}
         <button
