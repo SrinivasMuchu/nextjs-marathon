@@ -6,6 +6,7 @@ import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 import FloatingButton from "@/Components/CommonJsx/FloatingButton";
 import HomeTopNav from "@/Components/HomePages/HomepageTopNav/HomeTopNav";
+import { GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 
 
 
@@ -61,7 +62,7 @@ export default function RootLayout({ children }) {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.marathon-os.com" />
         <meta property="og:site_name" content="Marathon OS" />
-        <meta name="google-adsense-account" content="ca-pub-3333540431554607"/>
+        <meta name="google-adsense-account" content={GOOGLE_ADSENSE_CLIENT_ID} />
         <link
           rel="icon"
           href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg"
@@ -123,7 +124,7 @@ export default function RootLayout({ children }) {
     `,
   }}
 /> */}
-        <Script
+        {/* <Script
           id="adsense-loader"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
@@ -131,13 +132,16 @@ export default function RootLayout({ children }) {
               if (window.location.hostname !== "localhost") {
                 const script = document.createElement('script');
                 script.async = true;
-                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3333540431554607';
+                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={GOOGLE_ADSENSE_CLIENT_ID}';
                 script.crossOrigin = 'anonymous';
                 document.head.appendChild(script);
               }
             `,
           }}
-        />
+        /> */}
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+     data-ad-client={GOOGLE_ADSENSE_CLIENT_ID}></script>
+
         <Script
           id="json-ld"
           type="application/ld+json"
