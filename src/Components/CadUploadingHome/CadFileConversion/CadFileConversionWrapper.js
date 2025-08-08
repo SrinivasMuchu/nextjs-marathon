@@ -185,6 +185,11 @@ function CadFileConversionWrapper({ children, convert }) {
         }
     };
     const validateAndProcessFile = async (file) => {
+        if(!localStorage.getItem('is_verified')) {
+            toast.error("Please verify your email to upload files.");
+            router.push('/dashboard?cad_type=USER_PROFILE')
+            return
+        }
         if (!file) return;
 
         const fileExtension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
