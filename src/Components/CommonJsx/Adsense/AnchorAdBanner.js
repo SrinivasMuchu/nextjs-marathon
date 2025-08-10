@@ -21,7 +21,7 @@ function AnchorAdBanner() {
     if (!isLoaded) return null;
 
     return (
-        <div style={{ width: "80%", margin: "0 auto", height: "100px" }}>
+        <div style={{ width: "80%", margin: "0 auto", height: "75px" }}>
             {isLoaded ? <LeftRightBanner adSlot="4237862906" /> : null}
         </div>
 
