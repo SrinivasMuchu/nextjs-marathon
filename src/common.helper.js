@@ -1,3 +1,4 @@
+import { Label } from "@mui/icons-material";
 
 
 export const textLettersLimit = (text, limitType) => {
@@ -221,3 +222,26 @@ export const converterTypes = [
 
  
 ];
+// export const allowedFilesList = [ ".stp",  ,  ".igs", , ".brp", ]
+export const cadViewTypes =[{
+  label:'OBJ',
+  path:'/obj'
+},{  label:'STL',
+  path:'/stl'
+},{  label:'PLY',
+  path:'/ply'
+},{  label:'OFF',
+  path:'/off'
+},{  label:'IGES',
+  path:'/iges'
+},{  label:'BREP',
+  path:'/brep'
+},{  label:'STEP',
+  path:'/step'
+},{label:'STP',
+  path:'/stp'
+},{label:'BRP',
+  path:'/brp'
+},{label:'BRP',
+  path:'/brp'
+}]

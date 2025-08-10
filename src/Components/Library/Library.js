@@ -14,7 +14,7 @@ import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import DesignStats from '../CommonJsx/DesignStats';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
-import LeftRightBanner from '../CommonJsx/Adsense/LeftRightBanner';
+import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {

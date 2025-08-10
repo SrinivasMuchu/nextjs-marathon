@@ -9,6 +9,7 @@ import Footer from '@/Components/HomePages/Footer/Footer'
 import CadUpload from '../CadUpload/CadUpload'
 import CadIndustry from './CadIndustry'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
+import CadViewrTypes from './CadViewrTypes'
 
 
 
@@ -104,6 +105,7 @@ function CadHomeDesign({type}) {
             {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
            
             <OrgFeatures type='cad'/>
+            <CadViewrTypes/>
             <CadIndustry/>
             <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails}/>

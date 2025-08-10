@@ -59,6 +59,10 @@ export default function PartDesignView() {
     const router = useRouter();
 
     useEffect(() => {
+        if (!file && !searchParams.get('fileId')) {
+        router.push("/tools/cad-viewer");
+        return;
+    }
         // const sampleFileKey = localStorage.getItem('sample_view_cad_key');
         if (searchParams.get('sample')) {
             setFolderId(searchParams.get('fileId'));
