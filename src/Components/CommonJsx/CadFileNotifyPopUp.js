@@ -39,8 +39,10 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
         setError(result.message);
         return;
       }
+      if(cad_type) {
       
       window.location.href = `/dashboard?cad_type=${cad_type}`;
+      }
       setIsApiSlow(false);
      
     } catch (error) {
@@ -65,7 +67,10 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
         return;
       }
       
+      if(cad_type) {
+      
       window.location.href = `/dashboard?cad_type=${cad_type}`;
+      }
       setIsApiSlow(false);
      
     } catch (error) {
@@ -92,10 +97,17 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
         >
           &times;
         </button>
-
-        <h2 className="text-lg font-semibold text-gray-800 mb-1">Stay Updated</h2>
+        {cad_type? <>
+         <h2 className="text-lg font-semibold text-gray-800 mb-1">Stay Updated</h2>
         <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it&#39;s ready.</p>
 
+        </>:<>
+         <h2 className="text-lg font-semibold text-gray-800 mb-1">Verify your Email</h2>
+        {/* <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it&#39;s ready.</p> */}
+
+        </>}
+
+       
 
         {/* Email Input */}
         {!action && <div className="flex items-center gap-3 mb-4">
@@ -111,7 +123,7 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
         </div>}
         { }
         {/* Browser Notifications Toggle */}
-        <div className="flex items-center gap-3 mb-6">
+      {cad_type && <div className="flex items-center gap-3 mb-6">
           <span className="text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11c0-3.07-1.64-5.64-5-6.32V4a1 1 0 10-2 0v.68c-3.36.68-5 3.25-5 6.32v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -131,16 +143,19 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
               />
             </div>
           </label>
-        </div>
+        </div>}  
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {/* Submit Button */}
-        <div className="flex justify-between">
+        {cad_type && <div className="flex justify-between">
           <button
             style={{ border: '2px solid #610bee', color: '#610bee', borderRadius: '10px', padding: '4px 6px' }}
             onClick={handleDeny}
           >
             Close
           </button>
+          {cad_type && <>
+          
+          </>}
           {!action && <button
             className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition duration-200"
             onClick={handleAllow}
@@ -159,7 +174,15 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
               browserNotify && 'Enable Notifications'}
           </button>}
 
-        </div>
+        </div>}
+        {!cad_type && <div style={{display:'flex',aligItems:'center',justifyContent:'flex-end'}}><button
+            className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition duration-200"
+            onClick={handleAllow}
+           
+          >
+            Verify
+          </button></div>}
+        
       </div>
       }
       
