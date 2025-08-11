@@ -6,33 +6,14 @@ import Link from 'next/link';
 
 function FloatingButton() {
   const [showOptions, setShowOptions] = useState(false);
-  const [bottomOffset, setBottomOffset] = useState(65); // Tailwind bottom-6 = 1.5rem ≈ 24px
-
-  useEffect(() => {
-    // AdSense anchor ads use a div with id="google_ads_iframe_*" fixed to bottom.
-    const checkAd = () => {
-      const adElement = document.querySelector('iframe[id^="google_ads_iframe"]');
-      if (adElement) {
-        // Add extra space so button is above the ad
-        setBottomOffset(adElement.offsetHeight + 16);
-      } else {
-        setBottomOffset(65);
-      }
-    };
-
-    checkAd();
-    const observer = new MutationObserver(checkAd);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, []);
+  
 
   return (
     <div>
       {showOptions && (
         <div
           className="fixed right-6 flex flex-col gap-2 z-[9999]"
-          style={{ bottom: bottomOffset + 56 }} // 56px is approx height of main button
+          style={{ bottom: '120px' }} // 56px is approx height of main button
         >
 
           <Link
@@ -88,7 +69,7 @@ function FloatingButton() {
       <button
         onClick={() => setShowOptions(!showOptions)}
         className="fixed right-6 bg-[#610bee] text-white px-5 py-3 rounded-full shadow-lg transition z-[9999]"
-        style={{ bottom: bottomOffset }}
+        style={{ bottom: '60px' }}
       >
         CAD Actions
       </button>
