@@ -67,7 +67,7 @@ function IndustryDesign({ design, designData, type }) {
 
           <IndustryDesignDropZone />
           <Footer />
-          <AnchorAdBanner/>
+          <AnchorAdBanner adSlot='4237862906'/>
         </>}
 
       </div>

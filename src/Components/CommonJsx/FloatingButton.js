@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 function FloatingButton() {
   const [showOptions, setShowOptions] = useState(false);
-  const [bottomOffset, setBottomOffset] = useState(24); // Tailwind bottom-6 = 1.5rem ≈ 24px
+  const [bottomOffset, setBottomOffset] = useState(65); // Tailwind bottom-6 = 1.5rem ≈ 24px
 
   useEffect(() => {
     // AdSense anchor ads use a div with id="google_ads_iframe_*" fixed to bottom.
@@ -16,7 +16,7 @@ function FloatingButton() {
         // Add extra space so button is above the ad
         setBottomOffset(adElement.offsetHeight + 16);
       } else {
-        setBottomOffset(24);
+        setBottomOffset(65);
       }
     };
 
@@ -34,6 +34,7 @@ function FloatingButton() {
           className="fixed right-6 flex flex-col gap-2 z-[9999]"
           style={{ bottom: bottomOffset + 56 }} // 56px is approx height of main button
         >
+
           <Link
             href="/tools/cad-viewer"
               onClick={() => {
