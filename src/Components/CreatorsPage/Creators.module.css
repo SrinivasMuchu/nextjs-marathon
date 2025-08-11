@@ -1,0 +1,105 @@
+.profileContainer,.statsContainer{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    width:320px;
+    gap:16px;
+    padding:24px;
+}
+.statDivider{
+    background:black;
+    width:100%;
+    height:2px;
+    
+}
+.profileDetails{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+   text-align:center;
+}
+.profileDetailsTitle{
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    display:flex;
+     align-items:center;
+    justify-content:center;
+    gap:8px;
+}
+.profileDetailsRole{
+    font-size: 18px;
+    font-weight: 500;
+    color: #2d3748;
+    
+}
+.profileActions{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    gap:8px;
+}
+
+.profileActions button{
+    width:100%;
+    padding:8px 16px;
+    border-radius: 8px;
+    cursor:pointer;
+}
+.followButton{
+    background-color: #610bee;
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+}
+.actionButton{
+    border: 1px solid #edf2f7;
+}
+.statItem{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    width:100%;
+}
+
+
+.aboutContainer,.toolsContainer{
+    display:flex;
+    flex-direction:column;
+    /* align-items:center; */
+    /* justify-content:center; */
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    width:320px;
+    gap:16px;
+    padding:24px;
+}
+.aboutTitle,.toolsTitle{
+    font-size:20px;
+}
+.aboutDescription{
+  text-align:justify;
+}
+.readMoreButton{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.toolsList{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+.toolItem{
+    background:#edf2f7;
+    border-radius:12px;
+    padding:8px;
+    font-size:12px;
+}
