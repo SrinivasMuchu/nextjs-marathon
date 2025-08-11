@@ -6,17 +6,21 @@ function AnchorAdBanner() {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        const check = setTimeout(() => {
-            const adEl = document.querySelector('ins[data-ad-slot="4237862906"]');
-            if (adEl && adEl.innerHTML.trim().length > 0) {
-                setIsLoaded(true);
-            } else {
-                setIsLoaded(false);
-            }
-        }, 3000);
+    const adEl = document.querySelector('ins[data-ad-slot="4237862906"]');
+    if (!adEl) return;
 
-        return () => clearTimeout(check);
-    }, []);
+    const observer = new MutationObserver(() => {
+        if (adEl.innerHTML.trim().length > 0) {
+            setIsLoaded(true);
+            observer.disconnect();
+        }
+    });
+
+    observer.observe(adEl, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+}, []);
+
 
     if (!isLoaded) return null;
 
