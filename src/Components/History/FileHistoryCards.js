@@ -43,16 +43,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       
       try {
         // Check cache first
-        const cached = cachedCadHistory[cad_type];
-        if (cached && cached.page === currentPage) {
-          if (!isMounted) return;
-          setCadViewerFileHistory(cached.cad_viewer_files);
-          setConverterFileHistory(cached.cad_converter_files);
-          setUserCadFiles(cached.my_cad_files);
-          setTotalPages(cached.totalPages);
-          setLoading(false);
-          return;
-        }
+       
 
         // Fetch from API
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {

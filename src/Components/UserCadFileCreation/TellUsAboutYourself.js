@@ -15,16 +15,16 @@ import { sendGAtagEvent } from '@/common.helper';
 function TellUsAboutYourself() {
   const photoInputRef = useRef(null);
   const [isEmailVerify, setIsEmailVerify] = useState(false);
-  const { setUser,user,isProfileComplete,setIsProfileComplete } = useContext(contextState);
+  const { setUser, user, isProfileComplete, setIsProfileComplete } = useContext(contextState);
   const [isClient, setIsClient] = useState(false);
-  
+
   const [userUuid, setUserUuid] = useState('');
- 
+
   // const [user, setUser] = useState({ name: '', email: '', photo: '' });
   const [errors, setErrors] = useState({ name: '', email: '' });
   const [editField, setEditField] = useState({ name: false, email: false });
   const [signingUp, setSigningUp] = useState(false);
- 
+
   useEffect(() => setIsClient(true), []);
 
   useEffect(() => {
@@ -34,12 +34,12 @@ function TellUsAboutYourself() {
 
       // getUserDetails();
 
-      
+
 
     }
   }, [isClient]);
 
- 
+
 
 
   const validate = (field, value) => {
@@ -67,50 +67,65 @@ function TellUsAboutYourself() {
       console.log('error')
       setErrors(prev => ({ ...prev, [field]: error }));
     }
-    
+
 
     try {
-      if(!localStorage.getItem('is_verified')){
+      if (!localStorage.getItem('is_verified')) {
         setIsEmailVerify(true)
-      }else{
-        setSigningUp(true)
-        const uuid = localStorage.getItem('uuid');
-        const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
-        user_email: user.email,
-        full_name: user.name,
-        photo: user.photo
-      }, {
-        headers: { 'user-uuid': uuid }
-      });
+      } else {
+        if (!isProfileComplete) {
+          setSigningUp(true)
+          const uuid = localStorage.getItem('uuid');
+          const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
+            user_email: user.email,
+            full_name: user.name,
+            photo: user.photo
+          }, {
+            headers: { 'user-uuid': uuid }
+          });
 
 
 
-      if (response.data.meta.success) {
-        // /request-otp
-      
-        sendGAtagEvent({ event_name: 'publish_cad_profile_complete', event_category: CAD_PUBLISH_EVENT })
-        toast.success(`Profile updated successfully`);
-        setIsProfileComplete(true);
-        if (field !== 'photo') {
-         
-          setEditField(prev => ({ ...prev, [field]: false }));
-          setErrors(prev => ({ ...prev, [field]: '' }));
-        } else {
+          if (response.data.meta.success) {
+            // /request-otp
 
-         
-          setEditField(prev => ({ ...prev, [field]: false }));
-          setErrors(prev => ({ ...prev, [field]: '' }));
+            sendGAtagEvent({ event_name: 'publish_cad_profile_complete', event_category: CAD_PUBLISH_EVENT })
+            toast.success(`Profile updated successfully`);
+            setIsProfileComplete(true);
+            if (field !== 'photo') {
+
+              setEditField(prev => ({ ...prev, [field]: false }));
+              setErrors(prev => ({ ...prev, [field]: '' }));
+            } else {
+
+
+              setEditField(prev => ({ ...prev, [field]: false }));
+              setErrors(prev => ({ ...prev, [field]: '' }));
+            }
+
+
+            setIsEmailVerify(false);
+
+
+          }
+          setSigningUp(false)
         }
+      else {
+        setSigningUp(true);
 
 
+
+
+        sendGAtagEvent({ event_name: 'publish_cad_profile_complete', event_category: CAD_PUBLISH_EVENT });
+        toast.success('Profile updated successfully');
+        setIsProfileComplete(true);
         setIsEmailVerify(false);
+        window.location.reload();
+      }
 
 
     }
-      setSigningUp(false)
-      }
-      
-    } catch (err) {
+   } catch (err) {
       setSigningUp(false)
       console.error(`Error updating Profile:`, err);
       toast.error(`Failed to update Profile`);
@@ -132,12 +147,12 @@ function TellUsAboutYourself() {
   if (!isClient) return null;
 
 
-   
+
   return (
     <>
       <div className={styles["tell-us-about-yourself-page"]}>
         <p>Email us at <strong><a href="mailto:invite@marathon-os.com">invite@marathon-os.com </a></strong>
-           from the above email address with this code for any queries or support.</p>
+          from the above email address with this code for any queries or support.</p>
         <div
           className={styles["unique-code"]}
 
@@ -228,7 +243,7 @@ function TellUsAboutYourself() {
                   }}
                 >
                   <input
-                    style={{ width:'100%' }}
+                    style={{ width: '100%' }}
                     value={user[field]}
                     onChange={(e) => setUser({ ...user, [field]: e.target.value })}
                     disabled={isProfileComplete && !editField[field]}
@@ -257,8 +272,8 @@ function TellUsAboutYourself() {
                         <>
                           {field !== 'email' && <button onClick={() => setEditField((prev) => ({ ...prev, [field]: true }))}>
                             <Image src={`${ASSET_PREFIX_URL}edit-ticket.png`} alt="edit" width={20} height={20} />
-                          </button>} 
-                          {field === 'email' && localStorage.getItem('user_email') && !localStorage.getItem('is_verified') && <button style={{color:'blue',cursor:'pointer'}} onClick={()=>setIsEmailVerify(true)}>verify</button>} 
+                          </button>}
+                          {field === 'email' && localStorage.getItem('user_email') && !localStorage.getItem('is_verified') && <button style={{ color: 'blue', cursor: 'pointer' }} onClick={() => setIsEmailVerify(true)}>verify</button>}
                         </>
                       )}
                     </div>
@@ -311,7 +326,7 @@ function TellUsAboutYourself() {
 
 
             <button onClick={updateField} className={styles['save-profile']} disabled={signingUp}>
-              {signingUp ?'Saving Profile':'Save Profile'}
+              {signingUp ? 'Saving Profile' : 'Save Profile'}
             </button>
             {/* <button onClick={()=>setIsEmailVerify(true)} className={styles['save-profile']} >
               {signingUp ?'Saving Profile':'Save Profile'}
@@ -324,8 +339,8 @@ function TellUsAboutYourself() {
 
       </div>
 
-      {isEmailVerify && <EmailOTP email={user.email}  saveDetails={updateField}
-      setIsEmailVerify={setIsEmailVerify} setError={setErrors} type='publish'/>}
+      {isEmailVerify && <EmailOTP email={user.email} saveDetails={updateField}
+        setIsEmailVerify={setIsEmailVerify} setError={setErrors} type='publish' />}
     </>
 
   );
