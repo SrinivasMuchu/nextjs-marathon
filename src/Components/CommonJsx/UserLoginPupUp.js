@@ -101,7 +101,7 @@ function UserLoginPupUp({ onClose }) {
                         localStorage.setItem('is_verified', true);
                         console.log("OTP verified successfully");
                         localStorage.setItem('uuid', result.data.data.uuid);
-                    // onClose();
+                    onClose();
               
                 
             } else {
