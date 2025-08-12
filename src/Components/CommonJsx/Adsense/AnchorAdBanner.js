@@ -32,7 +32,7 @@ const pathname = usePathname();
         bottom: "0",
         right: "0",
         width: "100%",   // mobile: 320x50, desktop: maybe bigger
-        height: "60px",
+        height: "90px",
         background: "#fff",
         zIndex: 9999,
         boxShadow: "0 -2px 5px rgba(0,0,0,0.15)"
