@@ -101,7 +101,8 @@ function UserLoginPupUp({ onClose }) {
                         localStorage.setItem('is_verified', true);
                         console.log("OTP verified successfully");
                         localStorage.setItem('uuid', result.data.data.uuid);
-                    onClose();
+                    // onClose();
+                    window.location.reload();
               
                 
             } else {
@@ -182,7 +183,7 @@ function UserLoginPupUp({ onClose }) {
                 // Save user data
                 
                 
-                onClose();
+               window.location.reload();
             } else {
                 setErrorMessage(result.data.meta.message || 'Login failed. Please try again.');
             }
