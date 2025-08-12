@@ -60,7 +60,8 @@ export const IMAGEURLS = {
   yugal:`${MARATHON_ASSET_PREFIX_URL}yugal_raj_jain.jpg`,
   karishma:`${MARATHON_ASSET_PREFIX_URL}karishma.jpg`,
   srinivas:`${MARATHON_ASSET_PREFIX_URL}srinivas.jpg`,
-  googleLogo:`${MARATHON_ASSET_PREFIX_URL}google_logo.svg`
+  googleLogo:`${MARATHON_ASSET_PREFIX_URL}google_logo.svg`,
+  marathonLogo:`${MARATHON_ASSET_PREFIX_URL}m-logo.svg`
   // our-story-img.webp
   // open-answer.webp
   // Add more images as needed
