@@ -242,6 +242,4 @@ export const cadViewTypes =[{
   path:'/stp'
 },{label:'BRP',
   path:'/brp'
-},{label:'BRP',
-  path:'/brp'
 }]

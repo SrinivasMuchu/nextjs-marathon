@@ -14,10 +14,10 @@ function CadUploadHeadings(type) {
         }
     }, [ cadFile]);
     const formateAcceptor = (cadFile) => {
-        if (cadFile === 'step') {
+        if (cadFile === 'step'||cadFile === 'stp') {
             setAllowedFormats([".step", ".stp"])
         }
-        if (cadFile === 'iges') {
+        if (cadFile === 'iges'||cadFile === 'igs') {
             setAllowedFormats([".igs", ".iges"])
         }
         if (cadFile === 'stl') {
@@ -29,7 +29,7 @@ function CadUploadHeadings(type) {
         if (cadFile === 'off') {
             setAllowedFormats([".off"])
         }
-        if (cadFile === 'brep') {
+        if (cadFile === 'brep'||cadFile === 'brp') {
             setAllowedFormats([".brp", ".brep"])
         }
         if (cadFile === 'obj') {

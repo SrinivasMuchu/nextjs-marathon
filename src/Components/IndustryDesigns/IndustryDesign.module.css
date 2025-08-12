@@ -314,10 +314,11 @@
 
 .industry-design-suggestion-designs {
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     justify-content: center;
     gap: 40px;
     width: 100%;
+    flex-grow: 0;
 }
 
 
