@@ -1,10 +1,12 @@
 "use client";
 import { sendGAtagEvent } from '@/common.helper';
 import { CAD_FLOATING_BUTTON_EVENT } from '@/config';
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useContext } from 'react';
 import Link from 'next/link';
+import { contextState } from './ContextProvider';
 
 function FloatingButton() {
+  const {anchorAds} = useContext(contextState);
   const [showOptions, setShowOptions] = useState(false);
   
 
@@ -13,7 +15,7 @@ function FloatingButton() {
       {showOptions && (
         <div
           className="fixed right-6 flex flex-col gap-2 z-[9999]"
-          style={{ bottom: '120px' }} // 56px is approx height of main button
+          style={{ bottom: anchorAds?'150px':'80px' }} // 56px is approx height of main button
         >
 
           <Link
@@ -69,7 +71,7 @@ function FloatingButton() {
       <button
         onClick={() => setShowOptions(!showOptions)}
         className="fixed right-6 bg-[#610bee] text-white px-5 py-3 rounded-full shadow-lg transition z-[9999]"
-        style={{ bottom: '60px' }}
+        style={{ bottom: anchorAds?'95px':'20px' }}
       >
         CAD Actions
       </button>

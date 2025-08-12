@@ -14,7 +14,7 @@ function UserLoginPupUp({ onClose }) {
     const {user} = useContext(contextState);
     console.log(user)
     const [email, setEmail] = useState(user.email);
-    const [agreed, setAgreed] = useState(false);
+    const [agreed, setAgreed] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const [isSSO, setIsSSO] = useState(false); // Track if user used SSO login
@@ -297,10 +297,10 @@ function UserLoginPupUp({ onClose }) {
                 </button>
                 <div style={{ display: 'flex', alignItems: 'center',
                     width:'100%',justifyContent: 'center'  }}>
-
-                    <div style={{ background: '#610bee', color: 'white', borderRadius: '50%', padding: '10px', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Image src={IMAGEURLS.marathonLogo} alt="marathon Logo" width={40} height={40} />
+                    {/* <div style={{ background: '#610bee', color: 'white', borderRadius: '50%', padding: '10px', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <FaLock />
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className={styles.header}>
@@ -316,7 +316,7 @@ function UserLoginPupUp({ onClose }) {
 
                 <div className={styles.formSection}>
                     <div className={styles.inputGroup}>
-                        <label htmlFor="email">Email Address</label>
+                        <label htmlFor="email">Email Id</label>
                         <input
                             type="email"
                             id="email"
@@ -344,7 +344,9 @@ function UserLoginPupUp({ onClose }) {
                     </button>
 
                     <div className={styles.divider}>
+                        <div className={styles.dividerLine}></div>
                         <span>or</span>
+                        <div className={styles.dividerLine}></div>
                     </div>
 
                     <button

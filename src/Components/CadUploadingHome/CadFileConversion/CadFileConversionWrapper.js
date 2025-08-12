@@ -510,9 +510,9 @@ function CadFileConversionWrapper({ children, convert }) {
                 top: 0, left: 0, right: 0, bottom: 0,
                 zIndex: 9999,
                 pointerEvents: (verifyEmail || checkLimit ) ? 'auto' : 'none', // allow clicks when popup is open
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                // display: 'flex',
+                // alignItems: 'center',
+                // justifyContent: 'center'
             }}>
                  {/* {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_CONVERTER'}
                 setClosePopUp={setCloseNotifyInfoPopUp} />} */}

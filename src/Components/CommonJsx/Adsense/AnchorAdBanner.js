@@ -1,16 +1,24 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
+import { contextState } from "../ContextProvider";
 import { GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 import { usePathname } from "next/navigation";
+import styles from '../CommonStyles.module.css'
 
 function AnchorAdBanner({ adSlot }) {
+  const {setAnchorAds,anchorAds} = useContext(contextState);
 const pathname = usePathname();
   const [key, setKey] = useState(0);
-  const [visible, setVisible] = useState(true);
+  
 
   useEffect(() => {
     setKey(prev => prev + 1);
-    setVisible(true);
+     if (window.innerWidth < 480) {
+      setAnchorAds(false);
+      return; // Don't observe
+    }
+
+    setAnchorAds(true);
   }, [pathname, adSlot]);
 
   useEffect(() => {
@@ -23,23 +31,27 @@ const pathname = usePathname();
     }
   }, [key]);
 
-  if (!visible) return null;
+  if (!anchorAds) return null;
 
   return (
     <div
+      title='Advertisement'
+      className={styles.anchorAds}
       style={{
         position: "fixed",
         bottom: "0",
         right: "0",
         width: "100%",   // mobile: 320x50, desktop: maybe bigger
         height: "90px",
-        background: "#fff",
+        background: "#edf2f7",
         zIndex: 9999,
-        boxShadow: "0 -2px 5px rgba(0,0,0,0.15)"
+        boxShadow: "0 -2px 5px rgba(0,0,0,0.15)",
+        justifyContent:'center',
+        alignItems:'center'
       }}
     >
         <button
-        onClick={() => setVisible(false)}
+        onClick={() => setAnchorAds(false)}
         style={{
           position: "absolute",
           top: "-8px",
@@ -53,15 +65,17 @@ const pathname = usePathname();
           cursor: "pointer",
           fontSize: "12px",
           lineHeight: "20px",
-          textAlign: "center"
+          textAlign: "center",
+          
         }}
       >
         ×
       </button>
+      
       <ins
         key={key}
         className="adsbygoogle"
-        style={{ display: "inline-block", width: "100%", height: "100%" }}
+        style={{ display: "inline-block", width: "750px", height: "100%",background:'#fff' }}
         data-ad-client={GOOGLE_ADSENSE_CLIENT_ID}
         data-ad-slot={adSlot}
         data-full-width-responsive="true"
