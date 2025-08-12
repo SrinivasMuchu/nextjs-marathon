@@ -2,7 +2,7 @@
 import React,{useContext} from 'react';
 import Lottie from 'lottie-react';
 import cube from './Cube.json';
-import LeftRightBanner from '../Adsense/LeftRightBanner';
+import LeftRightBanner from '../Adsense/AdsBanner';
 import { contextState } from '../ContextProvider';
 import HomeTopNav from '@/Components/HomePages/HomepageTopNav/HomeTopNav';
 

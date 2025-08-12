@@ -11,13 +11,14 @@ import { useContext } from 'react';
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useRouter } from "next/navigation";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
+import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 
 function CadDropZoneWrapper({ children, isStyled, type }) {
     const fileInputRef = useRef(null);
     const [checkLimit, setCheckLimit] = useState(false);
     const [uploading, setUploading] = useState(false)
     const { allowedFormats, setAllowedFormats } = useContext(contextState);
-
+    const [verifyEmail, setVerifyEmail] = useState('');
     const pathname = usePathname();
     const { setFile } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
@@ -115,7 +116,7 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
     const validateAndProcessFile = async (file) => {
         if(!localStorage.getItem('is_verified')) {
                     toast.error("Please verify your email to upload files.");
-                    router.push('/dashboard?cad_type=USER_PROFILE')
+                    setVerifyEmail(true);
                     return
                 }
         if (!file) return;
@@ -143,6 +144,7 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
 
     return (
         <>
+            {verifyEmail && <UserLoginPupUp onClose={() => setVerifyEmail(false)} />}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {!checkLimit && <>
                 <div
