@@ -11,13 +11,13 @@ import Link from 'next/link';
 function TopNavProfileButton() {
   const [openDemoForm, setOpenDemoForm] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
-  const { user, setUser, setIsProfileComplete, isProfileComplete } = useContext(contextState);
+  const { user, setUser, setIsProfileComplete } = useContext(contextState);
   
   useEffect(() => {
     // Only run on client side
     setIsVerified(localStorage.getItem('is_verified'));
     getUserDetails();
-  }, [isProfileComplete]);
+  }, []);
 
   const getUserDetails = async () => {
     try {

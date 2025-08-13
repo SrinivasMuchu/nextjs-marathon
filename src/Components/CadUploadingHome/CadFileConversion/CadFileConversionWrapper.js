@@ -24,6 +24,7 @@ import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPo
 import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopUp";
 import { convertedFiles, sendGAtagEvent } from "@/common.helper";
 import { useRouter } from "next/navigation";
+import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
 
 function CadFileConversionWrapper({ children, convert }) {
     const fileInputRef = useRef(null);
@@ -43,6 +44,7 @@ function CadFileConversionWrapper({ children, convert }) {
     const { setFile, allowedFormats, setAllowedFormats,user } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
     const [toFormate, setToFormate] = useState('');
+    const [verifyEmail, setVerifyEmail] = useState('');
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
   const router = useRouter();
     const [fromFormate, setFromFormate] = useState('')
@@ -188,7 +190,8 @@ function CadFileConversionWrapper({ children, convert }) {
     const validateAndProcessFile = async (file) => {
         if(!localStorage.getItem('is_verified')) {
             toast.error("Please verify your email to upload files.");
-            router.push('/dashboard?cad_type=USER_PROFILE')
+            setVerifyEmail(true);
+            // router.push('/dashboard?cad_type=USER_PROFILE')
             return
         }
         if (!file) return;
@@ -506,16 +509,16 @@ function CadFileConversionWrapper({ children, convert }) {
                 position: 'fixed',
                 top: 0, left: 0, right: 0, bottom: 0,
                 zIndex: 9999,
-                pointerEvents: (closeNotifyInfoPopUp || checkLimit || isApiSlow) ? 'auto' : 'none', // allow clicks when popup is open
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                pointerEvents: (verifyEmail || checkLimit ) ? 'auto' : 'none', // allow clicks when popup is open
+                // display: 'flex',
+                // alignItems: 'center',
+                // justifyContent: 'center'
             }}>
                  {/* {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp cad_type={'CAD_CONVERTER'}
                 setClosePopUp={setCloseNotifyInfoPopUp} />} */}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} cad_type={'CAD_CONVERTER'}/>}
-           
+            {verifyEmail && <UserLoginPupUp onClose={() => setVerifyEmail(false)} />}
             </div>
         {loading ?  <div style={{
                 position: 'fixed',

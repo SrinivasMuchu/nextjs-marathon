@@ -113,7 +113,7 @@ function IndustryDesignsCarousel({ designData, type, design }) {
             </IndustryDesignCarouselWrapper>
 
             {/* 3D Viewer Button */}
-            <div className="w-full flex flex-wrap items-center justify-around gap-4 mt-4 sm:mt-6 px-4">
+            <div style={{marginBottom:'24px'}} className="w-full flex flex-wrap items-center justify-around gap-4 mt-4 sm:mt-6 px-4">
 
                 <Link
                     href={`/tools/cad-renderer?fileId=${designData._id}&format=${designData.file_type?designData.file_type:'step'}`} 

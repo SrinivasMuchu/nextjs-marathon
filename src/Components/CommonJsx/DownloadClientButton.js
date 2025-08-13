@@ -5,12 +5,19 @@ import { sendGAtagEvent } from '@/common.helper';
 import React, { useState } from 'react'
 import { BASE_URL, CAD_VIEWER_EVENT } from '@/config';
 import Tooltip from '@mui/material/Tooltip';
+import CadFileNotifyPopUp from './CadFileNotifyPopUp';
+import UserLoginPupUp from './UserLoginPupUp';
 
 function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,filetype,custumDownload}) {
   const [isDownLoading, setIsDownLoading] = useState(false);
+  const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
   const handleDownload = async () => {
     setIsDownLoading(true); // Disable button
     try {
+      if(!localStorage.getItem('is_verified')) {
+            setOpenEmailPopUp(true)
+            return
+      }
       const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
         design_id: folderId, xaxis, yaxis, step,file_type:filetype
 
@@ -104,7 +111,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
           disabled={isDownLoading} className={styles['industry-design-files-btn']} onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download'} </button>}
   
     </>}
-    
+    {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
         </>
 
   )

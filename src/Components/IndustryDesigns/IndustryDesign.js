@@ -10,6 +10,7 @@ import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 import ProductStructuredData from '../CommonJsx/DesignPageJsonLd'
 import styles from './IndustryDesign.module.css'
+import AnchorAdBanner from '../CommonJsx/Adsense/AnchorAdBanner'
 
 function IndustryDesign({ design, designData, type }) {
 
@@ -48,15 +49,16 @@ function IndustryDesign({ design, designData, type }) {
           <IndustryDesignHeader design={design} type={type} designData={designData.response} />
           {/* <AboutCadPara cadReport={designData.report}/> */}
           {designData.response && <IndustryDesignsCarousel designData={designData.response} design={design} type={type} />}
-          <div className={styles['industry-design-files']}>
-            <div className={styles['industry-design-files-head']}>
-              The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.
-            </div>
-          </div>
+         
 
           {designData?.report && (
             <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
           )}
+           <div className={styles['industry-design-files']}>
+            <div className={styles['industry-design-files-head']}>
+              The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.
+            </div>
+          </div>
           {designData.response && <IndustryDesignFilesList designData={designData.response} />}
           {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
             industryName={designData.industryName.industry} />}
@@ -65,6 +67,7 @@ function IndustryDesign({ design, designData, type }) {
 
           <IndustryDesignDropZone />
           <Footer />
+          <AnchorAdBanner adSlot='4237862906'/>
         </>}
 
       </div>
