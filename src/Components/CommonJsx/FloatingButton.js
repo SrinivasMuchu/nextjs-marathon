@@ -7,6 +7,7 @@ import { contextState } from './ContextProvider';
 
 function FloatingButton() {
   const {anchorAds} = useContext(contextState);
+  console.log(anchorAds)
   const [showOptions, setShowOptions] = useState(false);
   
 
