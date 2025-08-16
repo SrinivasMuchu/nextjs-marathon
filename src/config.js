@@ -61,8 +61,10 @@ export const IMAGEURLS = {
   karishma:`${MARATHON_ASSET_PREFIX_URL}karishma.jpg`,
   srinivas:`${MARATHON_ASSET_PREFIX_URL}srinivas.jpg`,
   googleLogo:`${MARATHON_ASSET_PREFIX_URL}google_logo.svg`,
-  marathonLogo:`${MARATHON_ASSET_PREFIX_URL}m-logo.svg`
-  // our-story-img.webp
+  marathonLogo:`${MARATHON_ASSET_PREFIX_URL}m-logo.svg`,
+  creatorBg:`${MARATHON_ASSET_PREFIX_URL}creator-bg.webp`,
+  uploadCover:`${MARATHON_ASSET_PREFIX_URL}ImageSquare.svg`,
+  // ImageSquare.svg
   // open-answer.webp
   // Add more images as needed
 };

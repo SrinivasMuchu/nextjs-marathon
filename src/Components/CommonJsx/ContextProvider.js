@@ -15,7 +15,7 @@ function ContextProvider({children}) {
      const [anchorAds, setAnchorAds] = useState(false);
     const [uploadedFile, setUploadedFile] = useState({});
     const [isProfileComplete, setIsProfileComplete] = useState(false);
-      const [user, setUser] = useState({ name: '', email: '', photo: '',user_access_key: '' });
+      const [user, setUser] = useState({ name: '', email: '', photo: '',user_access_key: '', desc: '', skills: [], website: '', linkedin: '',cover_image: '' });
   return (
     <contextState.Provider value={{ 
       file, setFile,allowedFormats, setAllowedFormats,
