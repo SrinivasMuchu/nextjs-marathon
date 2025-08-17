@@ -11,7 +11,7 @@ import Link from 'next/link';
 function TopNavProfileButton() {
   const [openDemoForm, setOpenDemoForm] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
-  const { user, setUser, setIsProfileComplete, isProfileComplete } = useContext(contextState);
+  const { user, setUser, setIsProfileComplete,isProfileComplete } = useContext(contextState);
   
   useEffect(() => {
     // Only run on client side
@@ -26,14 +26,19 @@ function TopNavProfileButton() {
       });
 
       if (res.data.meta.success) {
-        setIsProfileComplete(true)
+        // setIsProfileComplete(true)
         const data = res.data.data;
         console.log("User details fetched successfully:", data);
         setUser({
           email: data?.user_email || '',
           name: data?.full_name || '',
           photo: data?.photo || '',
-          user_access_key: data?.user_access_key || false
+          user_access_key: data?.user_access_key || false,
+          desc: data?.creator_des || '',
+          skills: data?.creator_specific_cad_category || [],
+          website: data?.website_url || '',
+          linkedin: data?.linkedin_url || '',
+          cover_image:data?.cover_photo || ''
         });
       }
     }

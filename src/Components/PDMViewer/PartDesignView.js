@@ -40,7 +40,7 @@ export default function PartDesignView() {
     const loadedTexturesRef = useRef(new Set()); // Track loaded textures
     const [uploadingMessage, setUploadingMessage] = useState('');
     const [publishedCad, setPublishedCad] = useState('');
-    const { file, setFile, setUploadedFile,user } = useContext(contextState);
+    const { file, setFile, setUploadedFile, user } = useContext(contextState);
     const [materials, setMaterials] = useState({});
     const [lastValidMaterial, setLastValidMaterial] = useState(null);
     const [xRotation, setXRotation] = useState(0);
@@ -60,9 +60,9 @@ export default function PartDesignView() {
 
     useEffect(() => {
         if (!file && !searchParams.get('fileId')) {
-        router.push("/tools/cad-viewer");
-        return;
-    }
+            router.push("/tools/cad-viewer");
+            return;
+        }
         // const sampleFileKey = localStorage.getItem('sample_view_cad_key');
         if (searchParams.get('sample')) {
             setFolderId(searchParams.get('fileId'));
@@ -72,20 +72,47 @@ export default function PartDesignView() {
         // if(!searchParams.get('fileId')) router.push("/tools/cad-viewer");
         // if (!file && !searchParams.get('fileId')) router.push("/tools/cad-viewer");
         try {
-
-            handleFile(file);
+            // Only handle file if it exists and we don't already have a fileId from URL
+            if (file && !searchParams.get('fileId')) {
+                handleFile(file);
+            } else if (searchParams.get('fileId')) {
+                // Clear file state if we're viewing an existing file to prevent conflicts
+                setFile(null);
+            }
         } catch (error) {
             console.error("Error retrieving file:", error);
         }
     }, []);
 
+    // Cleanup effect to reset file state when navigating away
+    useEffect(() => {
+        return () => {
+            // Clear file state when component unmounts to prevent conflicts on re-entry
+            setFile(null);
+        };
+    }, [setFile]);
+
+    // Function to handle navigation back to CAD viewer
+    const handleBackToViewer = () => {
+        setFile(null); // Clear file state to prevent conflicts
+        setUploadingMessage(''); // Reset upload status
+        setFolderId(''); // Clear folder ID
+        setError(null); // Clear any errors
+        setIsLoading(false); // Reset loading state
+        router.push("/tools/cad-viewer");
+    };
+
 
 
     const handleFile = async (file) => {
+        // Check if file exists to prevent processing null/undefined files
+        if (!file) {
+            console.error("No file provided to handleFile");
+            setIsLoading(false);
+            return;
+        }
 
-
-
-        const fileSizeMB = file && file.size / (1024 * 1024); // Size in MB
+        const fileSizeMB = file.size / (1024 * 1024); // Size in MB
 
         try {
             setIsLoading(true)
@@ -143,7 +170,7 @@ export default function PartDesignView() {
                 sendGAtagEvent({ event_name: 'viewer_file_signedurl_error', event_category: CAD_VIEWER_EVENT });
                 toast.error("⚠️ Error generating signed URL.");
                 setIsLoading(false)
-                router.push("/tools/cad-viewer")
+                handleBackToViewer();
             }
         } catch (e) {
             sendGAtagEvent({ event_name: 'viewer_file_upload_error', event_category: CAD_VIEWER_EVENT });
@@ -162,9 +189,9 @@ export default function PartDesignView() {
 
         const slowApiTimer = setTimeout(() => {
 
-            if ( !localStorage.getItem('is_verified')) {
+            if (!localStorage.getItem('is_verified')) {
 
-              
+
                 setIsApiSlow(true);
             }
         }, 10000);
@@ -181,12 +208,12 @@ export default function PartDesignView() {
         if (publishedCad === 0 && !searchParams.get('sample')) {
             const publishCad = setTimeout(() => {
                 setPublishCadPopup(true);
-            //   
+                //   
                 setUploadedFile({
-                    url: true,                 
+                    url: true,
                     file_name: fileName,
                     _id: searchParams.get('fileId'),
-                    cad_view_link:cadViewLink,
+                    cad_view_link: cadViewLink,
                     cad_type: 'CAD_VIEWER',
                 });
 
@@ -227,8 +254,7 @@ export default function PartDesignView() {
             } else {
                 setUploadingMessage('')
                 toast.error(response.data.meta.message)
-                router.push("/tools/cad-viewer")
-                setIsLoading(false)
+                handleBackToViewer();
             }
             // await clearIndexedDB()
         } catch (error) {
@@ -312,7 +338,7 @@ export default function PartDesignView() {
         } catch (error) {
             console.error("Error completing multipart upload:", error);
             setIsLoading(false);
-            router.push("/tools/cad-viewer")
+            handleBackToViewer();
         }
     };
 
@@ -389,24 +415,19 @@ export default function PartDesignView() {
                     sendGAtagEvent({ event_name: 'viewer_view_failure', event_category: CAD_VIEWER_EVENT })
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.meta.message)
-                    router.push("/tools/cad-viewer")
-                    setIsLoading(false)
+                    handleBackToViewer();
                 }
 
             } else {
                 setUploadingMessage('FAILED')
                 toast.error(response.data.meta.message)
-
-                router.push("/tools/cad-viewer")
-                setIsLoading(false)
+                handleBackToViewer();
             }
 
 
         } catch (error) {
             setUploadingMessage('FAILED')
-            router.push("/tools/cad-viewer")
-
-            setIsLoading(false)
+            handleBackToViewer();
         }
     };
 
@@ -744,7 +765,7 @@ export default function PartDesignView() {
             }}>
                 {publishCadPopup && (
                     <div style={{ pointerEvents: 'auto' }}>
-                        <ConvertedFileUploadPopup setPublishCad={setPublishCadPopup}/>
+                        <ConvertedFileUploadPopup setPublishCad={setPublishCadPopup} />
                     </div>
                 )}
                 {closeNotifyInfoPopUp && (
@@ -765,7 +786,7 @@ export default function PartDesignView() {
                     width: '100%',
                     height: '100vh'
                 }}>
-                    <button onClick={() => router.push("/tools/cad-viewer")} style={{
+                    <button onClick={handleBackToViewer} style={{
 
                         padding: '10px',
                         borderRadius: '4px',

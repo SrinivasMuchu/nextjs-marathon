@@ -1,39 +1,23 @@
 "use client";
 import { sendGAtagEvent } from '@/common.helper';
 import { CAD_FLOATING_BUTTON_EVENT } from '@/config';
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useContext } from 'react';
 import Link from 'next/link';
+import { contextState } from './ContextProvider';
 
 function FloatingButton() {
+  const {anchorAds} = useContext(contextState);
   const [showOptions, setShowOptions] = useState(false);
-  const [bottomOffset, setBottomOffset] = useState(24); // Tailwind bottom-6 = 1.5rem ≈ 24px
-
-  useEffect(() => {
-    // AdSense anchor ads use a div with id="google_ads_iframe_*" fixed to bottom.
-    const checkAd = () => {
-      const adElement = document.querySelector('iframe[id^="google_ads_iframe"]');
-      if (adElement) {
-        // Add extra space so button is above the ad
-        setBottomOffset(adElement.offsetHeight + 16);
-      } else {
-        setBottomOffset(24);
-      }
-    };
-
-    checkAd();
-    const observer = new MutationObserver(checkAd);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, []);
+  
 
   return (
     <div>
       {showOptions && (
         <div
           className="fixed right-6 flex flex-col gap-2 z-[9999]"
-          style={{ bottom: bottomOffset + 56 }} // 56px is approx height of main button
+          style={{ bottom: anchorAds?'150px':'80px' }} // 56px is approx height of main button
         >
+
           <Link
             href="/tools/cad-viewer"
               onClick={() => {
@@ -87,7 +71,7 @@ function FloatingButton() {
       <button
         onClick={() => setShowOptions(!showOptions)}
         className="fixed right-6 bg-[#610bee] text-white px-5 py-3 rounded-full shadow-lg transition z-[9999]"
-        style={{ bottom: bottomOffset }}
+        style={{ bottom: anchorAds?'95px':'20px' }}
       >
         CAD Actions
       </button>

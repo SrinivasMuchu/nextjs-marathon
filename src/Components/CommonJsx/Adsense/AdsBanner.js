@@ -1,8 +1,8 @@
-"use client"
-import { GOOGLE_ADSENSE_CLIENT_ID } from '@/config';
-import React, { useEffect } from 'react'
+"use client";
+import { useEffect } from "react";
+import { GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 
-function LeftRightBanner({ adSlot }) {
+export default function LeftRightBanner({ adSlot }) {
   useEffect(() => {
   const observer = new ResizeObserver(entries => {
     const width = entries[0].contentRect.width;
@@ -20,28 +20,15 @@ function LeftRightBanner({ adSlot }) {
   if (el) observer.observe(el);
 }, [adSlot]);
 
-
   return (
-    <>
-      {/* <ins
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client="ca-pub-3333540431554607"
-        data-ad-slot={adSlot}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      /> */}
-      <ins
-        className="adsbygoogle"
-        style={{ display: 'block', width: '100%', minHeight: '100px' }}
-        data-ad-client={GOOGLE_ADSENSE_CLIENT_ID}
-        data-ad-slot={adSlot}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
-
-    </>
-  )
+    <ins
+      
+      className="adsbygoogle"
+      style={{ display: "block", width: "100%", minHeight: "100px" }}
+      data-ad-client={GOOGLE_ADSENSE_CLIENT_ID}
+      data-ad-slot={adSlot}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    />
+  );
 }
-
-export default LeftRightBanner

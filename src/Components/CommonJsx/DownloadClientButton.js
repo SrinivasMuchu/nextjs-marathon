@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 import { BASE_URL, CAD_VIEWER_EVENT } from '@/config';
 import Tooltip from '@mui/material/Tooltip';
 import CadFileNotifyPopUp from './CadFileNotifyPopUp';
+import UserLoginPupUp from './UserLoginPupUp';
 
 function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,filetype,custumDownload}) {
   const [isDownLoading, setIsDownLoading] = useState(false);
@@ -110,7 +111,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
           disabled={isDownLoading} className={styles['industry-design-files-btn']} onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download'} </button>}
   
     </>}
-    {openEmailPopUp && <CadFileNotifyPopUp setIsApiSlow={setOpenEmailPopUp}/>}
+    {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
         </>
 
   )

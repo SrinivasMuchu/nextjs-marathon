@@ -15,7 +15,7 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
   const [error, setError] = useState('');
   const [browserNotify, setBrowserNotify] = useState(true);
    const [verifyEmail, setVerifyEmail] = useState(false);
-   const [isVerified, setIsVerified] = useState(false);
+   
   const pushRegister = usePushNotifications();
 
 
@@ -145,6 +145,9 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
           </label>
         </div>}  
         {error && <p className="text-red-500 text-sm">{error}</p>}
+        {!cad_type && <span style={{fontSize:'16px'}}>
+          For support <a href='mailto:invite@marathon-os.com'><strong>invite@marathon-os.com</strong></a>
+          </span>}
         {/* Submit Button */}
         {cad_type && <div className="flex justify-between">
           <button

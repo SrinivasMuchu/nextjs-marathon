@@ -60,7 +60,11 @@ export const IMAGEURLS = {
   yugal:`${MARATHON_ASSET_PREFIX_URL}yugal_raj_jain.jpg`,
   karishma:`${MARATHON_ASSET_PREFIX_URL}karishma.jpg`,
   srinivas:`${MARATHON_ASSET_PREFIX_URL}srinivas.jpg`,
-  // our-story-img.webp
+  googleLogo:`${MARATHON_ASSET_PREFIX_URL}google_logo.svg`,
+  marathonLogo:`${MARATHON_ASSET_PREFIX_URL}m-logo.svg`,
+  creatorBg:`${MARATHON_ASSET_PREFIX_URL}creator-bg.webp`,
+  uploadCover:`${MARATHON_ASSET_PREFIX_URL}ImageSquare.svg`,
+  // ImageSquare.svg
   // open-answer.webp
   // Add more images as needed
 };
@@ -68,7 +72,7 @@ export const IMAGEURLS = {
 
 
 export const TICKET_ATTACHMENT_BUCKET = 'member-images'
-export const GOOGLE_CLIENT_ID = '489950323098-a8i5stost392oousg6k1t3u4tbupi8tq.apps.googleusercontent.com'
+// export const GOOGLE_CLIENT_ID = '489950323098-a8i5stost392oousg6k1t3u4tbupi8tq.apps.googleusercontent.com'
 export const MICROSOFT_CLIENT_ID = "8ef57ff0-a2bf-423d-8400-fe3fdf571177"
 
 
@@ -78,5 +82,5 @@ export const CAD_CONVERTER_EVENT = 'CONVERTER'
 export const CAD_BROWSER_NOTIFICATION_EVENT = 'BROWSER_NOTIFICATION'
 export const CAD_PUBLISH_EVENT = 'PUBLISH'
 export const CAD_FLOATING_BUTTON_EVENT = 'FLOATING_BUTTON'
-
+export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 export const GOOGLE_ADSENSE_CLIENT_ID = process.env.NEXT_GOOGLE_ADS_CLIENT_ID
