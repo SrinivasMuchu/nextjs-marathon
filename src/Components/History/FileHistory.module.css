@@ -17,6 +17,15 @@
   top: 20px;
 
 }
+.cadUploadingButton{
+  display: flex;
+  padding: 10px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 100px;
+  border: 1.5px solid  #610BEE;
+}
 .expanded {
   width: 200px;
 }

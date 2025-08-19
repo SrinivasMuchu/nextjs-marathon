@@ -38,7 +38,11 @@ function TopNavProfileButton() {
           skills: data?.creator_specific_cad_category || [],
           website: data?.website_url || '',
           linkedin: data?.linkedin_url || '',
-          cover_image:data?.cover_photo || ''
+          cover_image:data?.cover_photo || '',
+          projects:data?.file_stats.totalFiles||0,
+          views:data?.file_stats.totalViews||0,
+          downloads:data?.file_stats.totalDownloads||0,
+          designation:data?.designation||''
         });
       }
     }

@@ -6,7 +6,7 @@ import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import { contextState } from '../CommonJsx/ContextProvider';
 import axios from 'axios';
 
-function AboutCreator() {
+function AboutCreator({ creatorId, viewer }) {
   const { user, setUser, setIsProfileComplete } = useContext(contextState);
   const [editField, setEditField] = useState({
     description: false,
@@ -14,6 +14,7 @@ function AboutCreator() {
     website: false,
     linkedin: false
   });
+  const profileData = !creatorId ? user : viewer;
 
   const [inputValue, setInputValue] = useState("");
 
@@ -160,12 +161,12 @@ function AboutCreator() {
 
       {/* Description */}
       <div className={styles.editableField}>
-        <div className={styles.fieldEdit}>
+        {!creatorId ? <div className={styles.fieldEdit}>
           <div className={styles.inputWrapper}>
             {!editField.description ? (
               <>
-                <span style={{ color: user.desc ? '#000' : '#999', fontStyle: user.desc ? 'normal' : 'italic' }}>
-                  {user.desc || 'Write about you'}
+                <span style={{ color: profileData.desc ? '#000' : '#999', fontStyle:  'normal'  }}>
+                  {profileData.desc || 'Write about you'}
                 </span>
                 &nbsp;&nbsp;&nbsp;
                 <button 
@@ -178,7 +179,7 @@ function AboutCreator() {
             ) : (
               <>
                 <textarea
-                  value={user.desc || ''}
+                  value={profileData.desc || ''}
                   onChange={(e) => handleInputChange("description", e.target.value)}
                   placeholder="Enter description about yourself"
                   className={styles.editTextarea}
@@ -198,18 +199,40 @@ function AboutCreator() {
               </button>
             </div>
           )}
-        </div>
+        </div>:<div className={styles.fieldEdit}>
+          <div className={styles.inputWrapper}>
+            
+              
+                <span style={{ color: profileData.desc ? '#000' : '#999', fontStyle:  'normal'  }}>
+                  {profileData.desc }
+                </span>
+                
+             
+            
+          </div>
+          {editField.description && shouldShowActions('description') && (
+            <div className={styles.editActions}>
+              <button onClick={() => handleSaveField("description")}>
+                <Image src={`${ASSET_PREFIX_URL}save-details.png`} alt="save" width={16} height={16}/>
+              </button>
+              <button onClick={() => handleCancelEdit("description")}>
+                <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={16} height={16}/>
+              </button>
+            </div>
+          )}
+        </div>}
+        
       </div>
 
       {/* Skills */}
       <div className={styles.editableField}>
-        <div className={styles.fieldEdit}>
+        {!creatorId ? <div className={styles.fieldEdit}>
           <div className={styles.inputWrapper}>
             {!editField.skills ? (
               <>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-                  {user.skills && user.skills.length > 0 ? (
-                    user.skills.map((skill, index) => (
+                  {profileData.skills && profileData.skills.length > 0 ? (
+                    profileData.skills.map((skill, index) => (
                       <div key={index} className={styles.tag}>{skill}</div>
                     ))
                   ) : (
@@ -228,7 +251,7 @@ function AboutCreator() {
               </>
             ) : (
               <div className={styles.tagsWrapper}>
-                {user.skills && user.skills.length > 0 && user.skills.map((skill, index) => (
+                {profileData.skills && profileData.skills.length > 0 && profileData.skills.map((skill, index) => (
                   <div key={index} className={styles.tag}>
                     {skill}
                     <button className={styles.removeBtn} onClick={() => removeSkill(skill)}>✕</button>
@@ -256,15 +279,37 @@ function AboutCreator() {
               </button>
             </div>
           )}
-        </div>
+        </div>:
+        
+        <div className={styles.fieldEdit}>
+          <div className={styles.inputWrapper}>
+          
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                  {profileData.skills && profileData.skills.length > 0 && (
+                    profileData.skills.map((skill, index) => (
+                      <div key={index} className={styles.tag}>{skill}</div>
+                    ))
+                  
+                  )}
+                </div>
+                
+               
+             
+            
+           
+          </div>
+          
+        </div>}
+        
       </div>
 
       {/* Website */}
-      <div className={styles.editableField}>
+      {!creatorId && <>
+       <div className={styles.editableField}>
         <div className={styles.fieldEdit}>
           <div className={styles.inputWrapper}>
-            {renderUrlField(user.website, editField.website, "website", "Enter your website URL")}
-            {!editField.website && (
+            {renderUrlField(profileData.website, editField.website, "website", "Enter your website URL")}
+             {!editField.website && (
               <button 
                 className={styles.editButton} 
                 onClick={() => handleEditClick("website")}
@@ -290,7 +335,7 @@ function AboutCreator() {
       <div className={styles.editableField}>
         <div className={styles.fieldEdit}>
           <div className={styles.inputWrapper}>
-            {renderUrlField(user.linkedin, editField.linkedin, "linkedin", "Enter your LinkedIn profile URL")}
+            {renderUrlField(profileData.linkedin, editField.linkedin, "linkedin", "Enter your LinkedIn profile URL")}
             {!editField.linkedin && (
               <button 
                 className={styles.editButton} 
@@ -312,6 +357,30 @@ function AboutCreator() {
           )}
         </div>
       </div>
+      </>}
+      {creatorId && <>
+       <div className={styles.editableField}>
+        <div className={styles.fieldEdit}>
+          <div className={styles.inputWrapper}>
+            {renderUrlField(profileData.website, editField.website, "website")}
+             
+          </div>
+          
+        </div>
+      </div>
+
+      {/* LinkedIn */}
+      <div className={styles.editableField}>
+        <div className={styles.fieldEdit}>
+          <div className={styles.inputWrapper}>
+            {renderUrlField(profileData.linkedin, editField.linkedin, "linkedin")}
+
+          </div>
+          
+        </div>
+      </div>
+      </>}
+     
     </div>
   )
 }
