@@ -64,6 +64,7 @@ export const IMAGEURLS = {
   marathonLogo:`${MARATHON_ASSET_PREFIX_URL}m-logo.svg`,
   creatorBg:`${MARATHON_ASSET_PREFIX_URL}creator-bg.webp`,
   uploadCover:`${MARATHON_ASSET_PREFIX_URL}ImageSquare.svg`,
+  nofilesLogo:`${MARATHON_ASSET_PREFIX_URL}nofiles_img.webp`
   // ImageSquare.svg
   // open-answer.webp
   // Add more images as needed

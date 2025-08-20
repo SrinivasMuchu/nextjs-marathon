@@ -9,11 +9,12 @@ import { contextState } from '../CommonJsx/ContextProvider';
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import axios from 'axios'
 
-function CreatorsProfile() {
+function CreatorsProfile({ creatorId, viewer }) {
   const photoInputRef = useRef(null);
-  const { user, setUser, setIsProfileComplete } = useContext(contextState);
-  const [editField, setEditField] = useState({ name: false, email: false, photo: false });
   
+  const { user, setUser, setIsProfileComplete } = useContext(contextState);
+  const [editField, setEditField] = useState({ name: false, email: false, photo: false, designation: false });
+  const profileData = !creatorId ? user : viewer;
 
   const handleEditClick = (field) => {
     setEditField(prev => ({ ...prev, [field]: true }));
@@ -23,115 +24,98 @@ function CreatorsProfile() {
     setUser(prev => ({ ...prev, [field]: value }));
   };
 
-  // const handleSaveField = (field) => {
-  //   // Here you can add API call to save the data
-  //   console.log(`Saving ${field}:`, user[field]);
-  //   setEditField(prev => ({ ...prev, [field]: false }));
-    
-  //   // Update context if needed
-  //   if (field === 'name') {
-  //     setUser(prev => ({ ...prev, name: user.name }));
-  //   }
-  // };
-
   const handleCancelEdit = (field) => {
     // Reset to original value
     if (field === 'name') {
-      setUser(prev => ({ ...prev, name: user?.name || 'Srinivas muchu' }));
+      setUser(prev => ({ ...prev, name: user?.name }));
     } else if (field === 'email') {
       setUser(prev => ({ ...prev, email: user?.email }));
+    } else if(field === 'designation'){
+      setUser(prev => ({ ...prev, designation: user?.designation }));
     }
     setEditField(prev => ({ ...prev, [field]: false }));
   };
 
   const handleClick = () => photoInputRef.current?.click();
 
-const handleFileUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  // Convert to base64 preview first
-  const reader = new FileReader();
-  reader.onloadend = async () => {
-    const base64Photo = reader.result;
-    setUser(prev => ({ ...prev, photo: base64Photo }));
+    // Convert to base64 preview first
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Photo = reader.result;
+      setUser(prev => ({ ...prev, photo: base64Photo }));
 
+      try {
+        const uuid = localStorage.getItem("uuid");
+        const response = await axios.post(
+          `${BASE_URL}/v1/cad/create-user-details`,
+          {
+            user_email: user.email,
+            full_name: user.name,
+            photo: base64Photo
+          },
+          { headers: { "user-uuid": uuid } }
+        );
+
+        if (response.data.meta.success) {
+          setIsProfileComplete(user);
+          console.log("Photo uploaded successfully ✅");
+        }
+      } catch (err) {
+        console.error("Error uploading photo:", err);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveField = async (field) => {
     try {
-      const uuid = localStorage.getItem("uuid");
-      const response = await axios.post(
-        `${BASE_URL}/v1/cad/create-user-details`,
-        {
-          user_email: user.email,
-          full_name: user.name,
-          photo: base64Photo
-        },
-        { headers: { "user-uuid": uuid } }
-      );
+      if (!localStorage.getItem('is_verified') || field === 'email') {
+        return;
+      }
+      if (field === 'email') {
+        return;
+      }
+
+      const uuid = localStorage.getItem('uuid');
+      const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
+        user_email: user.email,
+        full_name: user.name,
+        photo: user.photo
+      }, {
+        headers: { 'user-uuid': uuid }
+      });
+
+      if (response.data.meta.success) {
+        setIsProfileComplete(user)
+        setEditField(prev => ({ ...prev, [field]: false }));
+      }
+    } catch (err) {
+      console.error(`Error updating ${field}:`, err);
+    }
+  };
+
+  const handleSaveDesignationField = async (field) => {
+    try {
+      const uuid = localStorage.getItem('uuid');
+      const response = await axios.post(`${BASE_URL}/v1/cad-creator/create-creator-profile`, {
+        designation: user.designation,
+      }, {
+        headers: { 'user-uuid': uuid }
+      });
 
       if (response.data.meta.success) {
         setIsProfileComplete(user);
-        console.log("Photo uploaded successfully ✅");
+        setEditField(prev => ({ ...prev, designation: false }));
       }
     } catch (err) {
-      console.error("Error uploading photo:", err);
+      console.error(`Error updating ${field}:`, err);
     }
   };
-  reader.readAsDataURL(file);
-};
 
-
-
-  const handleSaveField = async (field) => {
-      // console.log(originalUser[field], user[field]);
-      
-      
-  
-      // Check if the field value hasn't changed
-      // if (user[field] === originalUser[field]) {
-      //   setEditField(prev => ({ ...prev, [field]: false }));
-      //   return;
-      // }
-      // console.log(field)
-  
-      try {
-        if (!localStorage.getItem('is_verified') || field === 'email') {
-          // setIsEmailVerify(true);
-          return;
-        }
-        if (field === 'email') {
-          return;
-        }
-  
-  
-        // setSigningUp(true);
-        const uuid = localStorage.getItem('uuid');
-        const response = await axios.post(`${BASE_URL}/v1/cad/create-user-details`, {
-          user_email: user.email,
-          full_name: user.name,
-          photo: user.photo
-        }, {
-          headers: { 'user-uuid': uuid }
-        });
-  
-        if (response.data.meta.success) {
-          setIsProfileComplete(user)
-         
-          // setUser({...user,[field]:})
-          // sendGAtagEvent({ event_name: 'publish_cad_profile_complete', event_category: CAD_PUBLISH_EVENT });
-          // toast.success(`${field} updated successfully`);
-          setEditField(prev => ({ ...prev, [field]: false }));
-          // setErrors(prev => ({ ...prev, [field]: '' }));
-          // setOriginalUser({ ...user });
-          // setHasChanges(false);
-          // setIsEmailVerify(false);
-        }
-        // setSigningUp(false);
-      } catch (err) {
-        // setSigningUp(false);
-        console.error(`Error updating ${field}:`, err);
-        toast.error(`Failed to update ${field}`);
-      }
-    };
   return (
     <div className={styles.profileContainer}>
       {/* Profile Photo Section */}
@@ -144,16 +128,17 @@ const handleFileUpload = async (e) => {
           onChange={handleFileUpload}
         />
         
-        <div className={styles.photoUpload} onClick={handleClick}>
-          <div className={styles.cameraIcon}>
+        <div className={styles.photoUpload} >
+          {!creatorId && <div className={styles.cameraIcon} onClick={handleClick}>
             <FaCamera />
-          </div>
-          {user.photo ? (
-            !user.photo.startsWith('data') ? (
-              <NameProfile userName={user.name?user.name:user.email} memberPhoto={user.photo} width='120px' />
+          </div>}
+          {profileData.photo ? (
+            !profileData.photo.startsWith('data') ? (
+              <NameProfile userName={profileData.name ? profileData.name : profileData.email} memberPhoto={profileData.photo} width='120px'
+              fontSize='64px'  />
             ) : (
               <Image 
-                src={user.photo} 
+                src={profileData.photo} 
                 alt="Profile" 
                 width={120} 
                 height={120} 
@@ -161,7 +146,7 @@ const handleFileUpload = async (e) => {
               />
             )
           ) : (
-            <NameProfile width='100px' userName={user.name} />
+            <NameProfile width='100px' userName={profileData.name ? profileData.name : profileData.email} fontSize='64px' memberPhoto={profileData.photo}/>
           )}
         </div>
 
@@ -186,114 +171,165 @@ const handleFileUpload = async (e) => {
           </div>
         )}
       </div>
-
-      <div className={styles.profileDetails}>
-        {/* Name Field */}
-        <div className={styles.editableField}>
-          {!editField.name ? (
-            <div className={styles.fieldDisplay}>
-              <span className={styles.profileDetailsTitle}>
-                {user.name} 
-              </span>
-              <button 
-                className={styles.editButton} 
-                onClick={() => handleEditClick('name')}
-              >
-                <Image
-                  src={`${ASSET_PREFIX_URL}edit-ticket.png`}
-                  alt="edit"
-                  width={16}
-                  height={16}
-                />
-              </button>
-            </div>
-          ) : (
-            <div className={styles.fieldEdit}>
-              <input
-                type="text"
-                value={user.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="Enter your name"
-                className={styles.editInput}
-                autoFocus
-              />
-              <div className={styles.editActions}>
-                <button onClick={() => handleSaveField('name')}>
-                  <Image
-                    src={`${ASSET_PREFIX_URL}save-details.png`}
-                    alt="save"
-                    width={16}
-                    height={16}
+      {!creatorId ? (
+        <div className={styles.profileDetails}>
+          {/* Name Field */}
+          <div className={styles.editableField}>
+            {!editField.name ? (
+              <div className={styles.fieldDisplay}>
+                {!user.name ? (
+                  <input 
+                    type="text"
+                    value={user.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Enter your name"
+                    className={styles.editInput}
+                    autoFocus 
+                    disabled
                   />
-                </button>
-                <button onClick={() => handleCancelEdit('name')}>
+                ) : (
+                  <span className={styles.profileDetailsTitle}>
+                    {user.name}
+                  </span>
+                )}
+                <button 
+                  className={styles.editButton} 
+                  onClick={() => handleEditClick('name')}
+                >
                   <Image
-                    src={`${ASSET_PREFIX_URL}cancel-detail.png`}
-                    alt="cancel"
+                    src={`${ASSET_PREFIX_URL}edit-ticket.png`}
+                    alt="edit"
                     width={16}
                     height={16}
                   />
                 </button>
               </div>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className={styles.fieldEdit}>
+                <input
+                  type="text"
+                  value={user.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Enter your name"
+                  className={styles.editInput}
+                  autoFocus 
+                />
+                <div className={styles.editActions}>
+                  <button onClick={() => handleSaveField('name')}>
+                    <Image
+                      src={`${ASSET_PREFIX_URL}save-details.png`}
+                      alt="save"
+                      width={16}
+                      height={16}
+                    />
+                  </button>
+                  <button onClick={() => handleCancelEdit('name')}>
+                    <Image
+                      src={`${ASSET_PREFIX_URL}cancel-detail.png`}
+                      alt="cancel"
+                      width={16}
+                      height={16}
+                    />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
-        {/* Email Field */}
-        <div className={styles.editableField}>
-          {!editField.email ? (
+          {/* Email Field */}
+          <div className={styles.editableField}>
             <div className={styles.fieldDisplay}>
               <span className={styles.profileDetailsRole}>{user.email}</span>
-              {/* <button 
-                className={styles.editButton} 
-                onClick={() => handleEditClick('email ')}
-              >
-                <Image
-                  src={`${ASSET_PREFIX_URL}edit-ticket.png`}
-                  alt="edit"
-                  width={16}
-                  height={16}
-                />
-              </button> */}
             </div>
-          ) : (
-            <div className={styles.fieldEdit}>
-              <input
-                type="text"
-                value={user.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder="Enter your email"
-                className={styles.editInput}
-                autoFocus
-              />
-              <div className={styles.editActions}>
-                <button onClick={() => handleSaveField('email')}>
-                  <Image
-                    src={`${ASSET_PREFIX_URL}save-details.png`}
-                    alt="save"
-                    width={16}
-                    height={16}
+          </div>
+
+          {/* Designation Field */}
+          <div className={styles.editableField}>
+            {!editField.designation ? (
+              <div className={styles.fieldDisplay}>
+                {!user.designation ? (
+                  <input 
+                    type="text"
+                    value={user.designation}
+                    onChange={(e) => handleInputChange('designation', e.target.value)}
+                    placeholder="Enter your designation"
+                    className={styles.editInput}
+                    autoFocus 
+                    disabled
                   />
-                </button>
-                <button onClick={() => handleCancelEdit('email')}>
+                ) : (
+                  <span className={styles.profileDetailsTitle} style={{fontSize:'18px',fontWeight:'500'}}>
+                    {user.designation}
+                  </span>
+                )}
+                <button
+                  className={styles.editButton}
+                  onClick={() => handleEditClick('designation')}
+                >
                   <Image
-                    src={`${ASSET_PREFIX_URL}cancel-detail.png`}
-                    alt="cancel"
+                    src={`${ASSET_PREFIX_URL}edit-ticket.png`}
+                    alt="edit"
                     width={16}
                     height={16}
                   />
                 </button>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className={styles.fieldEdit}>
+                <input
+                  type="text"
+                  value={user.designation}
+                  onChange={(e) => handleInputChange('designation', e.target.value)}
+                  placeholder="Enter your designation"
+                  className={styles.editInput}
+                  autoFocus
+                />
+                <div className={styles.editActions}>
+                  <button onClick={() => handleSaveDesignationField('designation')}>
+                    <Image
+                      src={`${ASSET_PREFIX_URL}save-details.png`}
+                      alt="save"
+                      width={16}
+                      height={16}
+                    />
+                  </button>
+                  <button onClick={() => handleCancelEdit('designation')}>
+                    <Image
+                      src={`${ASSET_PREFIX_URL}cancel-detail.png`}
+                      alt="cancel"
+                      width={16}
+                      height={16}
+                    />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className={styles.profileDetails}>
+          {/* Name Field - View Only */}
+          <div className={styles.editableField}>
+            <span className={styles.profileDetailsTitle}>
+              {profileData.name}
+            </span>
+          </div>
 
-      {/* <div className={styles.profileActions}>
-        <button className={styles.followButton}>Follow</button>
-        <button className={styles.actionButton}>Message</button>
-        <button className={styles.actionButton}>Book a call</button>
-      </div> */}
+          {/* Email Field - View Only */}
+          <div className={styles.editableField}>
+            <div className={styles.fieldDisplay}>
+              <span className={styles.profileDetailsRole}>{profileData.email}</span>
+            </div>
+          </div>
+
+          {/* Designation Field - View Only */}
+          <div className={styles.editableField}>
+            <span className={styles.profileDetailsTitle} style={{fontSize:'18px',fontWeight:'500'}}>
+              {profileData.designation}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

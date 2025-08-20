@@ -3,12 +3,12 @@ import CreatorsProfile from './CreatorsProfile'
 import CreatorsStats from './CreatorsStats'
 import AboutCreator from './AboutCreator'
 
-function CreatorLeftCont() {
+function CreatorLeftCont({creatorId,viewer}) {
   return (
     <div style={{display:'flex', flexDirection:'column', width:'30%',gap:'16px'}}>
-        <CreatorsProfile/>
-        <CreatorsStats/>
-        <AboutCreator/>
+        <CreatorsProfile creatorId={creatorId} viewer={viewer}/>
+        <CreatorsStats creatorId={creatorId} viewer={viewer}/>
+        <AboutCreator creatorId={creatorId} viewer={viewer}/>
         {/* <ToolsAndSkills/>
         <WebsiteUrls/> */}
         {/* <CreatorTools/> */}

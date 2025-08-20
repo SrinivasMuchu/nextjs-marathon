@@ -106,10 +106,13 @@ function UserLoginPupUp({ onClose, type }) {
                 // onClose()
                 setUser({...user,email:googleEmail,name:userName})
                 
-                if (type) {
+                if (type="profile") {
                     setIsProfileComplete(user)
                     route.push('/creator')
-                } else {
+                } else if (type === 'creator'){
+                    setIsProfileComplete(user)
+                    onClose()
+                } else{
                     setIsProfileComplete(user)
                 }
 
@@ -193,11 +196,15 @@ function UserLoginPupUp({ onClose, type }) {
                 console.log('✅ Email login successful!');
                 setUser({...user,email})
                 
-                if (type) {
+                if (type="profile") {
                     setIsProfileComplete(user)
                     route.push('/creator')
+                }else if (type === 'creator'){
+                    setIsProfileComplete(user)
+                    onClose()
                 } else {
                    setIsProfileComplete(user)
+                   onClose()
                 }
 
 
@@ -312,9 +319,9 @@ function UserLoginPupUp({ onClose, type }) {
         <PopupWrapper>
             {verifyEmail ? <EmailOTP email={email} setIsEmailVerify={setVerifyEmail} saveDetails={handleSendOTP} /> :
                 <div className={styles.loginPopup}>
-                    <button className={styles.closeButton} onClick={onClose}>
+                  {type!== 'creator' && <button className={styles.closeButton} onClick={onClose}>
                         ×
-                    </button>
+                    </button>}  
                     <div style={{
                         display: 'flex', alignItems: 'center',
                         width: '100%', justifyContent: 'center'

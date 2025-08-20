@@ -1,15 +1,26 @@
-import React from 'react'
+"use client"
+import React,{useContext} from 'react'
 import styles from './Creators.module.css'
-import { TiStarFullOutline } from "react-icons/ti";
+import { contextState } from '../CommonJsx/ContextProvider';
+
+// Function to format numbers with k+ notation
+const formatNumberWithK = (num) => {
+  if (num >= 1000) {
+    return Math.floor(num / 1000) + 'k+';
+  }
+  return num.toString();
+};
+
 function CreatorsStats() {
+  const { user } = useContext(contextState);
   return (
     <div className={styles.statsContainer}>
-        <span>120 projects</span>
+        <span>{user.projects} projects</span>
                 <div className={styles.statsLines}></div>
-                <span>120 views</span>
+                <span>{formatNumberWithK(user.views)} views</span>
         <div className={styles.statsLines}></div>
-        <span>120 downloads</span>
-      
+        <span>{formatNumberWithK(user.downloads)} downloads</span>
+
     </div>
   )
 }

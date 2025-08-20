@@ -391,13 +391,13 @@ function UploadYourCadDesign() {
 
                 {/* {fileError && <p style={{ color: 'red' }}>{fileError}</p>} */}
                 {/* {formError && <p style={{ color: 'red' }}>{formError}</p>} */}
-                <div className="bg-blue-100 text-blue-800 text-sm p-4 rounded-lg mt-4">
+                {/* <div className="bg-blue-100 text-blue-800 text-sm p-4 rounded-lg mt-4">
                     <span className="text-lg mr-2">🔍</span>
                     <strong>Help others find your design!</strong>
                     <p className="mt-1">
                         A <strong>clear title</strong> and <strong>detailed description</strong> will make your design easier to discover by others through search.
                     </p>
-                </div>
+                </div> */}
                 <div className="mt-6">
                     <div>
                         <input
