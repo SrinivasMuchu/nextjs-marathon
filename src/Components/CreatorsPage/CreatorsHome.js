@@ -6,6 +6,7 @@ import CreatorCoverPage from './CreatorCoverPage'
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
+import styles from './Creators.module.css'
 
 function CreatorsHome({ creatorId }) {
   console.log(creatorId)
@@ -60,7 +61,7 @@ function CreatorsHome({ creatorId }) {
     <>
       {isVerified && <UserLoginPupUp onClose={() => setIsVerified(false)} type='creator' />}
       <CreatorCoverPage viewer={viewer} creatorId={creatorId} />
-      <div style={{ display: 'flex' }}>
+      <div className={styles.creatorDetails} >
         <CreatorLeftCont viewer={viewer} creatorId={creatorId} />
         <CreatorsRightCont viewer={viewer} creatorId={creatorId} />
       </div>

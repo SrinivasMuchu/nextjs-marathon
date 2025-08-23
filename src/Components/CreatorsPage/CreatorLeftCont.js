@@ -2,12 +2,14 @@ import React from 'react'
 import CreatorsProfile from './CreatorsProfile'
 import CreatorsStats from './CreatorsStats'
 import AboutCreator from './AboutCreator'
-
+import CreatorRating from './CreatorRating'
+import styles from './Creators.module.css'
 function CreatorLeftCont({creatorId,viewer}) {
   return (
-    <div style={{display:'flex', flexDirection:'column', width:'30%',gap:'16px'}}>
+    <div className={styles.creatorLeft} style={{display:'flex', flexDirection:'column', gap:'16px'}}>
         <CreatorsProfile creatorId={creatorId} viewer={viewer}/>
         <CreatorsStats creatorId={creatorId} viewer={viewer}/>
+        <CreatorRating/>
         <AboutCreator creatorId={creatorId} viewer={viewer}/>
         {/* <ToolsAndSkills/>
         <WebsiteUrls/> */}

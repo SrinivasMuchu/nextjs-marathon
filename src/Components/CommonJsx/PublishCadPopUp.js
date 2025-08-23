@@ -3,7 +3,7 @@ import PopupWrapper from './PopupWrapper'
 import styles from './CommonStyles.module.css';
 import UploadYourCadDesign from '../UserCadFileCreation/UploadYourCadDesign';
 
-function PublishCadPopUp({onClose}) {
+function PublishCadPopUp({onClose,editedDetails}) {
   return (
     <PopupWrapper>
         <div className={styles.publishPopUp}>
@@ -12,7 +12,7 @@ function PublishCadPopUp({onClose}) {
                 <button className={styles.closeButton} onClick={onClose}>
                         ×
                     </button>
-            <UploadYourCadDesign/>
+            <UploadYourCadDesign editedDetails={editedDetails}/>
         </div>
     </PopupWrapper>
   )

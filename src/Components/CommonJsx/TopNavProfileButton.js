@@ -11,13 +11,13 @@ import Link from 'next/link';
 function TopNavProfileButton() {
   const [openDemoForm, setOpenDemoForm] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
-  const { user, setUser, setIsProfileComplete,isProfileComplete } = useContext(contextState);
+  const { user, setUser, setIsProfileComplete,isProfileComplete,updatedDetails, setUpdatedDetails, } = useContext(contextState);
   
   useEffect(() => {
     // Only run on client side
     setIsVerified(localStorage.getItem('is_verified'));
     getUserDetails();
-  }, [isProfileComplete]);
+  }, [updatedDetails]);
 
   const getUserDetails = async () => {
     try {
@@ -26,7 +26,7 @@ function TopNavProfileButton() {
       });
 
       if (res.data.meta.success) {
-        // setIsProfileComplete(true)
+        setIsProfileComplete(true)
         const data = res.data.data;
         console.log("User details fetched successfully:", data);
         setUser({

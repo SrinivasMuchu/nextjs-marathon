@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 
 function UserLoginPupUp({ onClose, type }) {
     console.log('Google Client ID:', GOOGLE_CLIENT_ID);
-    const { user,setUser,setIsProfileComplete } = useContext(contextState);
+    const { user,setUser,setUpdatedDetails } = useContext(contextState);
     const route = useRouter();
     const [email, setEmail] = useState(user.email);
    
@@ -107,13 +107,15 @@ function UserLoginPupUp({ onClose, type }) {
                 setUser({...user,email:googleEmail,name:userName})
                 
                 if (type="profile") {
-                    setIsProfileComplete(user)
+                    setUpdatedDetails(user)
+                    onClose()
                     route.push('/creator')
                 } else if (type === 'creator'){
-                    setIsProfileComplete(user)
+                    setUpdatedDetails(user)
                     onClose()
                 } else{
-                    setIsProfileComplete(user)
+                    setUpdatedDetails(user)
+                    onClose()
                 }
 
 
@@ -197,13 +199,13 @@ function UserLoginPupUp({ onClose, type }) {
                 setUser({...user,email})
                 
                 if (type="profile") {
-                    setIsProfileComplete(user)
+                    setUpdatedDetails(user)
                     route.push('/creator')
                 }else if (type === 'creator'){
-                    setIsProfileComplete(user)
+                    setUpdatedDetails(user)
                     onClose()
                 } else {
-                   setIsProfileComplete(user)
+                   setUpdatedDetails(user)
                    onClose()
                 }
 

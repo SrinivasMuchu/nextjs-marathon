@@ -26,9 +26,9 @@ function CreatorDashboardButton() {
         >
           Create My Profile
         </button>
-        <button className={styles.creatorDashboardButton}>
+        {/* <button className={styles.creatorDashboardButton}>
           Already have files? Start Uploading
-        </button>
+        </button> */}
       </div>
 
       {emailVerify &&
