@@ -331,7 +331,14 @@
     padding: clamp(32px, 3vw, 72px) clamp(24px, 6vw, 120px) 32px;
     background: linear-gradient(0deg, hsla(0, 0%, 100%, .96), hsla(0, 0%, 100%, .96)), #610bee;
 }
-
+.edit-input,.edit-textarea{
+    width:100%;
+    padding:8px;
+}
+.error-text{
+    color:red;
+    font-size:14px;
+}
 .industry-design-about-cad h2 {
     color: #000;
     text-align: center;

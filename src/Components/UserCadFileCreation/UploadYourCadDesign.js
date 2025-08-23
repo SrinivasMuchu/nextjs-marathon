@@ -11,13 +11,17 @@ import { useRouter } from "next/navigation";
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
 import CreatableSelect from 'react-select/creatable';
-import { createDropdownCustomStyles,sendGAtagEvent } from '@/common.helper';
+import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
+import HoverImageSequence from '../CommonJsx/RotatedImages';
 
-function UploadYourCadDesign() {
+function UploadYourCadDesign({ editedDetails }) {
     const fileInputRef = useRef(null);
     const uploadAbortControllerRef = useRef(null); // AbortController ref
-    const [isChecked, setIsChecked] = useState(true);
-    const [cadFile, setCadFile] = useState({ title: '', description: '', tags: '' });
+    const [isChecked, setIsChecked] = useState(editedDetails ? editedDetails.is_downloadable : true);
+    const [cadFile, setCadFile] = useState({
+        title: editedDetails ? editedDetails.page_title : '',
+        description: editedDetails ? editedDetails.page_description : '', tags: editedDetails ? editedDetails.cad_tags : ''
+    });
     const [url, setUrl] = useState('');
     const [fileFormat, setFileFormat] = useState('');
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -28,17 +32,16 @@ function UploadYourCadDesign() {
         title: '',
         description: ''
     });
-    
+
     const [uploading, setUploading] = useState(false);
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [info, setInfo] = useState(false);
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
-    const { hasUserEmail, setHasUserEmail,setUploadedFile,uploadedFile } = useContext(contextState);
+    const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile } = useContext(contextState);
     const [options, setOptions] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
-    
     useEffect(() => {
-     
+
         if (uploadedFile && Object.keys(uploadedFile).length > 0) {
             setFileName(uploadedFile.file_name);
             setFileFormat(uploadedFile.output_format);
@@ -54,7 +57,11 @@ function UploadYourCadDesign() {
             }
         }
     }, [setHasUserEmail]);
-
+    useEffect(() => {
+        if (editedDetails?.cad_tags?.length && options.length === 0) {
+            getTags();
+        }
+    }, [editedDetails.cad_tags.length, options.length]);
     const router = useRouter();
 
     const handleChange = (e) => {
@@ -199,13 +206,13 @@ function UploadYourCadDesign() {
             );
 
             if (response.data.meta.success) {
-                if ( localStorage.getItem('is_verified')) {
-                   
-                    setCloseNotifyInfoPopUp(true);
+                if (localStorage.getItem('is_verified')) {
+
+                    window.location.reload();
                 } else {
                     setIsApiSlow(true);
                 }
-                 sendGAtagEvent({ event_name: 'publish_cad_complete', event_category: CAD_PUBLISH_EVENT })
+                sendGAtagEvent({ event_name: 'publish_cad_complete', event_category: CAD_PUBLISH_EVENT })
             } else {
                 let newFormErrors = { ...formErrors };
                 const validationErrors = response.data?.meta?.validationErrors;
@@ -233,18 +240,85 @@ function UploadYourCadDesign() {
                     newFormErrors.title = "Failed to upload file. Please try again later.";
                 }
                 setFormErrors(newFormErrors);
-                
+
             }
             setUploading(false);
         } catch (error) {
             console.error('Error uploading file:', error);
             setUploading(false);
-           
+
+        }
+    };
+    const handleUpdateUserCadFileSubmit = async () => {
+
+        setUploading(true);
+        try {
+            const response = await axios.post(
+                `${BASE_URL}/v1/cad/create-user-cad-file`,
+                {
+                    file_id: editedDetails._id,
+                    title: cadFile.title,
+
+                    description: cadFile.description,
+                    tags: selectedOptions.map(option => option.value),
+
+                    is_downloadable: isChecked,
+
+                },
+                {
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"),
+                    }
+                }
+            );
+
+            if (response.data.meta.success) {
+                if (localStorage.getItem('is_verified')) {
+
+                    window.location.reload();
+                } else {
+                    setIsApiSlow(true);
+                }
+                sendGAtagEvent({ event_name: 'publish_cad_complete', event_category: CAD_PUBLISH_EVENT })
+            } else {
+                let newFormErrors = { ...formErrors };
+                const validationErrors = response.data?.meta?.validationErrors;
+
+                if (validationErrors) {
+                    newFormErrors.title = validationErrors.title || "";
+                    newFormErrors.description = validationErrors.description || "";
+                } else if (response?.data?.meta?.message?.includes('franc')) {
+                    newFormErrors.title = "Please ensure the title and description are in English.";
+                    newFormErrors.description = "Please ensure the title and description are in English.";
+                } else if (response?.data?.meta?.message) {
+                    // Show backend error message if available
+                    // Try to assign to the most relevant field
+                    if (response.data.meta.message.toLowerCase().includes('title')) {
+                        newFormErrors.title = response.data.meta.message;
+                    } else if (response.data.meta.message.toLowerCase().includes('description')) {
+                        newFormErrors.description = response.data.meta.message;
+                    } else {
+                        // If not specific, show under title
+                        newFormErrors.title = response.data.meta.message;
+                    }
+                    sendGAtagEvent({ event_name: 'publish_cad_text_errors', event_category: CAD_PUBLISH_EVENT })
+                } else {
+                    // Generic error message as fallback
+                    newFormErrors.title = "Failed to upload file. Please try again later.";
+                }
+                setFormErrors(newFormErrors);
+
+            }
+            setUploading(false);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            setUploading(false);
+
         }
     };
 
     const handlePopUp = () => {
-        if ( !localStorage.getItem('is_verified')) {
+        if (!localStorage.getItem('is_verified')) {
             setIsApiSlow(true);
         } else {
             setCloseNotifyInfoPopUp(true);
@@ -258,21 +332,34 @@ function UploadYourCadDesign() {
     }, [info]);
 
 
+
+
+    // Fetch all available tags
     const getTags = async () => {
         try {
             const response = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`);
             if (response.data.meta.success) {
-
-                setOptions(response.data.data.map(zone => ({
+                const fetchedOptions = response.data.data.map(zone => ({
                     value: zone._id,
                     label: zone.cad_tag_label
-                })));
+                }));
+
+                setOptions(fetchedOptions);
+
+                // ✅ Only set selectedOptions if they haven't been set yet
+                if (editedDetails?.cad_tags?.length && selectedOptions.length === 0) {
+                    const mappedSelections = editedDetails.cad_tags
+                        .map(id => fetchedOptions.find(opt => opt.value === id))
+                        .filter(Boolean);
+
+                    setSelectedOptions(mappedSelections);
+                }
             }
         } catch (error) {
-            console.error('Error fetching tags:', error);
-
+            console.error("Error fetching tags:", error);
         }
-    }
+    };
+
 
     const handleAddZones = async (inputValue) => {
         try {
@@ -294,8 +381,10 @@ function UploadYourCadDesign() {
     };
 
     const handleZoneSelection = (selected) => {
-        setSelectedOptions(selected);
-    };
+  setSelectedOptions(selected || []);
+};
+
+
 
     const handleRemoveCadFile = () => {
         setUploadedFile({});
@@ -316,77 +405,83 @@ function UploadYourCadDesign() {
                     <span>Allow others to download this design.</span>
                 </div>
 
-                {Object.keys(uploadedFile || {}).length === 0 ? <div className={styles["cad-dropzone"]} onClick={handleClick}>
-                    <input
-                        type="file"
-                        // off
-                        // working step,stp,off,stl,ply,brep,brp
-                        accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"   
-                        // accept=".off"            
-                        ref={fileInputRef}
-                        disabled={uploadProgress > 0}
-                        style={{ display: "none" }}
-                        onChange={handleFileChange}
-                    />
-
-                    {uploadProgress > 0 ? (
-                        <div style={{ marginTop: '10px', width: '50%', textAlign: 'center' }}>
-                            <div>
-                                <span>{fileName} - {Math.round(fileSize)}mb</span>
-                            </div>
-                            <div style={{ background: '#e0e0e0', borderRadius: '10px', overflow: 'hidden' }}>
-                                <div style={{
-                                    width: `${uploadProgress}%`,
-                                    backgroundColor: '#610bee',
-                                    height: '8px',
-                                    transition: 'width 0.3s ease-in-out'
-                                }}></div>
-                            </div>
-                            <p style={{ textAlign: 'right', fontSize: '12px' }}>{uploadProgress}%</p>
-                            <div>
-                                <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
-                            </div>
-                        </div>
-                    ) : (
-                        <>
-                            <Image
-                                src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
-                                alt='uploading-icon'
-                                width={50}
-                                height={50}
+                {!editedDetails &&
+                    <>
+                        {Object.keys(uploadedFile || {}).length === 0 ? <div className={styles["cad-dropzone"]} onClick={handleClick}>
+                            <input
+                                type="file"
+                                // off
+                                // working step,stp,off,stl,ply,brep,brp
+                                accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
+                                // accept=".off"            
+                                ref={fileInputRef}
+                                disabled={uploadProgress > 0}
+                                style={{ display: "none" }}
+                                onChange={handleFileChange}
                             />
-                            Drag files and folders here or{' '}
-                            <span style={{
-                                textDecoration: 'underline',
-                                cursor: 'pointer',
-                                color: '#610bee'
-                            }}>select files</span>
-                        </>
-                    )}
-                </div> : <div className={styles["cad-dropzone"]} onClick={handleClick}>
+
+                            {uploadProgress > 0 ? (
+                                <div style={{ marginTop: '10px', width: '50%', textAlign: 'center' }}>
+                                    <div>
+                                        <span>{fileName} - {Math.round(fileSize)}mb</span>
+                                    </div>
+                                    <div style={{ background: '#e0e0e0', borderRadius: '10px', overflow: 'hidden' }}>
+                                        <div style={{
+                                            width: `${uploadProgress}%`,
+                                            backgroundColor: '#610bee',
+                                            height: '8px',
+                                            transition: 'width 0.3s ease-in-out'
+                                        }}></div>
+                                    </div>
+                                    <p style={{ textAlign: 'right', fontSize: '12px' }}>{uploadProgress}%</p>
+                                    <div>
+                                        <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <Image
+                                        src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
+                                        alt='uploading-icon'
+                                        width={50}
+                                        height={50}
+                                    />
+                                    Drag files and folders here or{' '}
+                                    <span style={{
+                                        textDecoration: 'underline',
+                                        cursor: 'pointer',
+                                        color: '#610bee'
+                                    }}>select files</span>
+                                </>
+                            )}
+                        </div> : <div className={styles["cad-dropzone"]} onClick={handleClick}>
 
 
 
-                    <div style={{ marginTop: '10px', width: '50%', textAlign: 'center' }}>
-                        <div>
-                            <span>{uploadedFile.file_name}</span>
-                        </div>
-                        <div style={{ background: '#e0e0e0', borderRadius: '10px', overflow: 'hidden' }}>
-                            <div style={{
-                                width: `100%`,
-                                backgroundColor: '#610bee',
-                                height: '8px',
-                                transition: 'width 0.3s ease-in-out'
-                            }}></div>
-                        </div>
-                        <p style={{ textAlign: 'right', fontSize: '12px' }}>100%</p>
-                        <div>
-                            <CloseIcon onClick={handleRemoveCadFile} style={{ cursor: 'pointer', color: '#610bee' }} />
-                        </div>
-                    </div>
+                            <div style={{ marginTop: '10px', width: '50%', textAlign: 'center' }}>
+                                <div>
+                                    <span>{uploadedFile.file_name}</span>
+                                </div>
+                                <div style={{ background: '#e0e0e0', borderRadius: '10px', overflow: 'hidden' }}>
+                                    <div style={{
+                                        width: `100%`,
+                                        backgroundColor: '#610bee',
+                                        height: '8px',
+                                        transition: 'width 0.3s ease-in-out'
+                                    }}></div>
+                                </div>
+                                <p style={{ textAlign: 'right', fontSize: '12px' }}>100%</p>
+                                <div>
+                                    <CloseIcon onClick={handleRemoveCadFile} style={{ cursor: 'pointer', color: '#610bee' }} />
+                                </div>
+                            </div>
 
-                </div>}
-                {(formErrors.file && !url) && <p style={{ color: 'red' }}>{formErrors.file}</p>}
+                        </div>}
+                        {(formErrors.file && !url) && <p style={{ color: 'red' }}>{formErrors.file}</p>}
+
+                    </>
+                }
+
 
 
                 {/* {fileError && <p style={{ color: 'red' }}>{fileError}</p>} */}
@@ -455,15 +550,16 @@ function UploadYourCadDesign() {
                         value={cadFile.tags}
                         onChange={(e) => setCadFile({ ...cadFile, tags: e.target.value })}
                     /> */}
+                    
 
                     {hasUserEmail ? (
                         <button
                             className="w-full py-3 mb-4"
                             style={{ backgroundColor: '#610bee', color: '#ffffff' }}
                             disabled={uploading}
-                            onClick={handleUserCadFileSubmit}
+                            onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
                         >
-                            {uploading ? 'Uploading Your Cad Design' : 'Upload Your Cad Design'}
+                            {uploading ? `${editedDetails ? 'Updating' : 'Uploading'} Your Cad Design` : `${editedDetails ? 'Update' : 'Upload'} Your Cad Design`}
                         </button>
                     ) : (
                         <button

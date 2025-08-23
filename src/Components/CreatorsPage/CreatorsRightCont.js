@@ -33,7 +33,8 @@ function CreatorsRightCont() {
   const tabs = [
     { label: "My CAD Files", cadType: "USER_CADS" },
     { label: "CAD Viewer", cadType: "CAD_VIEWER" },
-    { label: "CAD Convertor", cadType: "CAD_CONVERTER" }
+    { label: "CAD Convertor", cadType: "CAD_CONVERTER" },
+    // { label: "Downloads", cadType: "Downloads" }
   ]
 
   useEffect(() => {
@@ -66,7 +67,7 @@ function CreatorsRightCont() {
   }
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%',marginTop:'32px' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs 
           value={value} 

@@ -8,7 +8,7 @@ import axios from 'axios';
 
 function CreatorCoverPage({ creatorId, viewer }) {
   console.log(viewer)
-  const { user, setUser, setIsProfileComplete } = useContext(contextState);
+  const { user, setUser, setUpdatedDetails } = useContext(contextState);
   const fileInputRef = useRef(null);
 
 
@@ -34,7 +34,7 @@ function CreatorCoverPage({ creatorId, viewer }) {
         });
 
         if (response.data.meta.success) {
-          setIsProfileComplete(user);
+          setUpdatedDetails(user);
           console.log("Photo uploaded successfully ✅");
         }
       } catch (err) {

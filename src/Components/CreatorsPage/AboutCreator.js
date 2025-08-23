@@ -7,7 +7,7 @@ import { contextState } from '../CommonJsx/ContextProvider';
 import axios from 'axios';
 
 function AboutCreator({ creatorId, viewer }) {
-  const { user, setUser, setIsProfileComplete } = useContext(contextState);
+  const { user, setUser, setUpdatedDetails } = useContext(contextState);
   const [editField, setEditField] = useState({
     description: false,
     skills: false,
@@ -44,7 +44,7 @@ function AboutCreator({ creatorId, viewer }) {
       });
 
       if (response.data.meta.success) {
-        setIsProfileComplete(user);
+        setUpdatedDetails(user);
         setEditField(prev => ({ ...prev, [field]: false }));
         setInputValue("");
       }

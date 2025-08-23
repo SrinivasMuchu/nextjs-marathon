@@ -14,14 +14,18 @@ const formatNumberWithK = (num) => {
 function CreatorsStats() {
   const { user } = useContext(contextState);
   return (
+    <>
     <div className={styles.statsContainer}>
         <span>{user.projects} projects</span>
                 <div className={styles.statsLines}></div>
                 <span>{formatNumberWithK(user.views)} views</span>
         <div className={styles.statsLines}></div>
         <span>{formatNumberWithK(user.downloads)} downloads</span>
-
+      
     </div>
+    <div style={{width:'100%',height:'1px',background:'#edf2f7'}}/>
+    </>
+    
   )
 }
 

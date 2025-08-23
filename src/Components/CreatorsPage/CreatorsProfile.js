@@ -12,7 +12,7 @@ import axios from 'axios'
 function CreatorsProfile({ creatorId, viewer }) {
   const photoInputRef = useRef(null);
   
-  const { user, setUser, setIsProfileComplete } = useContext(contextState);
+  const { user, setUser, setUpdatedDetails } = useContext(contextState);
   const [editField, setEditField] = useState({ name: false, email: false, photo: false, designation: false });
   const profileData = !creatorId ? user : viewer;
 
@@ -61,7 +61,7 @@ function CreatorsProfile({ creatorId, viewer }) {
         );
 
         if (response.data.meta.success) {
-          setIsProfileComplete(user);
+          setUpdatedDetails(user);
           console.log("Photo uploaded successfully ✅");
         }
       } catch (err) {
@@ -90,7 +90,7 @@ function CreatorsProfile({ creatorId, viewer }) {
       });
 
       if (response.data.meta.success) {
-        setIsProfileComplete(user)
+        setUpdatedDetails(user)
         setEditField(prev => ({ ...prev, [field]: false }));
       }
     } catch (err) {
@@ -108,7 +108,7 @@ function CreatorsProfile({ creatorId, viewer }) {
       });
 
       if (response.data.meta.success) {
-        setIsProfileComplete(user);
+        setUpdatedDetails(user);
         setEditField(prev => ({ ...prev, designation: false }));
       }
     } catch (err) {
@@ -135,7 +135,7 @@ function CreatorsProfile({ creatorId, viewer }) {
           {profileData.photo ? (
             !profileData.photo.startsWith('data') ? (
               <NameProfile userName={profileData.name ? profileData.name : profileData.email} memberPhoto={profileData.photo} width='120px'
-              fontSize='64px'  />
+              fontSize='48px'  />
             ) : (
               <Image 
                 src={profileData.photo} 
@@ -146,7 +146,7 @@ function CreatorsProfile({ creatorId, viewer }) {
               />
             )
           ) : (
-            <NameProfile width='100px' userName={profileData.name ? profileData.name : profileData.email} fontSize='64px' memberPhoto={profileData.photo}/>
+            <NameProfile width='100px' userName={profileData.name ? profileData.name : profileData.email} fontSize='48px' memberPhoto={profileData.photo}/>
           )}
         </div>
 
@@ -171,6 +171,7 @@ function CreatorsProfile({ creatorId, viewer }) {
           </div>
         )}
       </div>
+      <div className={styles.horizontalDivider}></div>
       {!creatorId ? (
         <div className={styles.profileDetails}>
           {/* Name Field */}
@@ -237,11 +238,7 @@ function CreatorsProfile({ creatorId, viewer }) {
           </div>
 
           {/* Email Field */}
-          <div className={styles.editableField}>
-            <div className={styles.fieldDisplay}>
-              <span className={styles.profileDetailsRole}>{user.email}</span>
-            </div>
-          </div>
+          
 
           {/* Designation Field */}
           <div className={styles.editableField}>
@@ -304,6 +301,11 @@ function CreatorsProfile({ creatorId, viewer }) {
                 </div>
               </div>
             )}
+          </div>
+          <div className={styles.editableField}>
+            <div className={styles.fieldDisplay}>
+              <span className={styles.profileDetailsRole}>{user.email}</span>
+            </div>
           </div>
         </div>
       ) : (
