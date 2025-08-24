@@ -15,7 +15,7 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
   const [desc, setDesc] = useState(initialDesc || "");
   const [formErrors, setFormErrors] = useState({});
   const [uploading, setUploading] = useState(false);
-  const [isEditable, setIsEditable] = useState(false)
+  const [isEditable, setIsEditable] = useState(true)
   // /check-cad-editable
 
   useEffect(() => {
@@ -32,12 +32,12 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
 
         console.log("Check Editable Response:", result.data);
 
-        if (result.data.meta.success) {
-          setIsEditable(true)
-        } else {
-          setIsEditable(false)
+        // if (result.data.meta.success) {
+        //   setIsEditable(true)
+        // } else {
+        //   setIsEditable(false)
 
-        }
+        // }
       } catch (error) {
         console.error("Error checking editable:", error);
       }
@@ -74,12 +74,12 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
         const validationErrors = response.data?.meta?.validationErrors;
 
         if (validationErrors) {
-          if (fieldType === "title") {
+          // if (fieldType === "title") {
             newFormErrors.title = validationErrors.title || "";
-          }
-          if (fieldType === "description") {
+          // }
+          // if (fieldType === "description") {
             newFormErrors.description = validationErrors.description || "";
-          }
+          // }
         } else if (response?.data?.meta?.message) {
            newFormErrors.title = response.data.meta.message;
            newFormErrors.description = response.data.meta.message;
@@ -115,7 +115,6 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
             <button onClick={() => { setIsEditingTitle(false), setTitle(initialTitle) }} disabled={uploading}>
               <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={16} height={16} />
             </button>
-            {formErrors.title && <p className={styles["error-text"]} style={{ color: 'red', fontSize: '14px' }}>{formErrors.title}</p>}
           </>
         ) : (
           <>
@@ -126,6 +125,8 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
               </button>}
           </>
         )}
+                    {formErrors.title && <p className={styles["error-text"]} style={{ color: 'red', fontSize: '14px' }}>{formErrors.title}</p>}
+
       </div>
 
       {/* Description */}
@@ -144,7 +145,6 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
             <button onClick={() => setIsEditingDesc(false)} disabled={uploading}>
               <Image src={`${ASSET_PREFIX_URL}cancel-detail.png`} alt="cancel" width={16} height={16} />
             </button>
-            {formErrors.description && <p className={styles["error-text"]} style={{ color: 'red', fontSize: '14px' }}>{formErrors.description}</p>}
           </>
         ) : (
           <>
@@ -155,6 +155,8 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
               </button>}
           </>
         )}
+                    {formErrors.description && <p className={styles["error-text"]} style={{ color: 'red', fontSize: '14px' }}>{formErrors.description}</p>}
+
       </div>
     </>
   );
