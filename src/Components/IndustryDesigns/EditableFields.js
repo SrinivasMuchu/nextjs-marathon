@@ -81,8 +81,8 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
             newFormErrors.description = validationErrors.description || "";
           }
         } else if (response?.data?.meta?.message) {
-          if (fieldType === "title") newFormErrors.title = response.data.meta.message;
-          if (fieldType === "description") newFormErrors.description = response.data.meta.message;
+           newFormErrors.title = response.data.meta.message;
+           newFormErrors.description = response.data.meta.message;
         } else {
           newFormErrors[fieldType] = "Failed to update. Please try again.";
         }

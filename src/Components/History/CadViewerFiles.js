@@ -14,9 +14,7 @@ import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 function CadViewerFiles({loading, cadViewerFileHistory, searchTerm, setSearchTerm}) {
   return (
     <div className={styles.cadViewerContainerContent}>
-
-            {loading ? <Loading /> : <>
-             <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -76,6 +74,8 @@ function CadViewerFiles({loading, cadViewerFileHistory, searchTerm, setSearchTer
                       }}><IoAddSharp /> New file</Link>
                       {/* </button> */}
                   </div>
+            {loading ? <Loading smallScreen={true}/> : <>
+             
               {cadViewerFileHistory.length > 0 ? (
                 <>
                  

@@ -13,8 +13,8 @@
   .screen1{
     overflow-x: hidden;
     position: absolute;
-    top: 30%;
-    left: 80%;
+    top: 60%;
+    left: 60%;
     z-index: 5;
     display: flex;
     align-items: center;
