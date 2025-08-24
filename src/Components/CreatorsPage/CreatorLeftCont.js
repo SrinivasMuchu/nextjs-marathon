@@ -9,7 +9,7 @@ function CreatorLeftCont({creatorId,viewer}) {
     <div className={styles.creatorLeft} style={{display:'flex', flexDirection:'column', gap:'16px'}}>
         <CreatorsProfile creatorId={creatorId} viewer={viewer}/>
         <CreatorsStats creatorId={creatorId} viewer={viewer}/>
-        <CreatorRating/>
+        {/* <CreatorRating/> */}
         <AboutCreator creatorId={creatorId} viewer={viewer}/>
         {/* <ToolsAndSkills/>
         <WebsiteUrls/> */}

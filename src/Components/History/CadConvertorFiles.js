@@ -13,10 +13,7 @@ import Link from 'next/link';
 function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownloadsearchTerm, setSearchTerm,searchTerm}) {
   return (
     <div className={styles.cadViewerContainerContent}>
-
-            {loading ? <Loading /> : <>
- 
-             <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+ <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -77,6 +74,9 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                       Convert file
                     </Link>
                   </div>
+            {loading ? <Loading smallScreen={true}/> : <>
+ 
+            
               {(cadConverterFileHistory.length) > 0 ? (
                 <div className={styles.historyContainer}>
                  

@@ -1,13 +1,14 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import FileHistoryHomePage from '@/Components/History/FileHistoryHomePage';
+
 import Loading from '@/Components/CommonJsx/Loaders/Loading';
+import CreatorsHome from '@/Components/CreatorsPage/CreatorsHome'
 
 function History() {
   return (
     <Suspense fallback={<Loading/>}>
-      <FileHistoryHomePage />
+     <CreatorsHome />
     </Suspense>
   );
 }
