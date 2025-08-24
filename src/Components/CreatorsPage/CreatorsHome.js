@@ -7,16 +7,19 @@ import UserLoginPupUp from '../CommonJsx/UserLoginPupUp'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
 import styles from './Creators.module.css'
+import { useRouter } from 'next/navigation';
 
 function CreatorsHome({ creatorId }) {
   console.log(creatorId)
   const [isVerified, setIsVerified] = useState(false);
   const [viewer, setViewer] = useState({});
+  const route = useRouter();
 
   useEffect(() => {
     if (!creatorId) {
       if (!localStorage.getItem('is_verified')) {
-        setIsVerified(true);
+         route.push('/publish-cad')
+
 
       }
     } else {

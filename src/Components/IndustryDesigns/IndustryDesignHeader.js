@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ASSET_PREFIX_URL } from "@/config";
 import EditableFields from "./EditableFields"; // client part
 import styles from "./IndustryDesign.module.css";
+import { org } from './../OrganizationHome/OrgHome';
 
 export default function IndustryDesignHeader({ design, designData, type }) {
   return (
@@ -12,6 +13,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
   initialTitle={designData?.page_title}
   initialDesc={designData?.page_description}
   fileId={designData?._id}
+  orgId={designData?.organization_id}
 />
 
       </div>

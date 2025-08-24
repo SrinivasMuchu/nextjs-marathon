@@ -11,11 +11,19 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 function UserLoginPupUp({ onClose, type }) {
-    console.log('Google Client ID:', GOOGLE_CLIENT_ID);
-    const { user,setUser,setUpdatedDetails } = useContext(contextState);
+
+    const { user, setUser, setUpdatedDetails } = useContext(contextState);
+    console.log('Google Client ID:', user.email);
     const route = useRouter();
-    const [email, setEmail] = useState(user.email);
-   
+    const [email, setEmail] = useState(user?.email || "");
+
+    // Sync email when user context updates
+    useEffect(() => {
+        if (user?.email) {
+            setEmail(user.email);
+        }
+    }, [user?.email]);
+
     const [agreed, setAgreed] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -104,16 +112,15 @@ function UserLoginPupUp({ onClose, type }) {
                 console.log("OTP verified successfully");
                 localStorage.setItem('uuid', result.data.data.uuid);
                 // onClose()
-                setUser({...user,email:googleEmail,name:userName})
-                
-                if (type="profile") {
+                setUser({ ...user, email: googleEmail, name: userName })
+
+                if (type = "profile") {
                     setUpdatedDetails(user)
                     onClose()
                     route.push('/creator')
-                } else if (type === 'creator'){
-                    setUpdatedDetails(user)
-                    onClose()
-                } else{
+                } else if (type === 'creator') {
+                    window.location.reload()
+                } else {
                     setUpdatedDetails(user)
                     onClose()
                 }
@@ -169,7 +176,7 @@ function UserLoginPupUp({ onClose, type }) {
             setErrorMessage('Please accept the Terms & Conditions and Privacy Policy to continue.');
             return;
         }
-        
+
         if (!email) {
             setErrorMessage('Please enter your email address.');
             return;
@@ -196,17 +203,16 @@ function UserLoginPupUp({ onClose, type }) {
 
             if (result.data.meta.success) {
                 console.log('✅ Email login successful!');
-                setUser({...user,email})
-                
-                if (type="profile") {
+                setUser({ ...user, email })
+
+                if (type = "profile") {
                     setUpdatedDetails(user)
                     route.push('/creator')
-                }else if (type === 'creator'){
+                } else if (type === 'creator') {
+                  window.location.reload()
+                } else {
                     setUpdatedDetails(user)
                     onClose()
-                } else {
-                   setUpdatedDetails(user)
-                   onClose()
                 }
 
 
@@ -298,7 +304,7 @@ function UserLoginPupUp({ onClose, type }) {
             setErrorMessage(''); // Clear email error when user starts typing
         }
     };
-   
+
 
     // Function to get current login status
     const getLoginStatus = () => {
@@ -321,9 +327,9 @@ function UserLoginPupUp({ onClose, type }) {
         <PopupWrapper>
             {verifyEmail ? <EmailOTP email={email} setIsEmailVerify={setVerifyEmail} saveDetails={handleSendOTP} /> :
                 <div className={styles.loginPopup}>
-                  {type!== 'creator' && <button className={styles.closeButton} onClick={onClose}>
+                    {type !== 'creator' && <button className={styles.closeButton} onClick={onClose}>
                         ×
-                    </button>}  
+                    </button>}
                     <div style={{
                         display: 'flex', alignItems: 'center',
                         width: '100%', justifyContent: 'center'
@@ -346,7 +352,7 @@ function UserLoginPupUp({ onClose, type }) {
                     </div>
 
                     <div className={styles.formSection}>
-                        
+
                         <div className={styles.inputGroup}>
                             <label htmlFor="email">Email Id</label>
                             <input

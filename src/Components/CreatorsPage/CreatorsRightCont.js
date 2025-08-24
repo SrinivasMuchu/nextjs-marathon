@@ -34,7 +34,7 @@ function CreatorsRightCont() {
     { label: "My CAD Files", cadType: "USER_CADS" },
     { label: "CAD Viewer", cadType: "CAD_VIEWER" },
     { label: "CAD Convertor", cadType: "CAD_CONVERTER" },
-    // { label: "Downloads", cadType: "Downloads" }
+    { label: "Downloads", cadType: "USER_DOWNLOADS" }
   ]
 
   useEffect(() => {
@@ -47,6 +47,8 @@ function CreatorsRightCont() {
       setValue(1)
     } else if (cadType === 'USER_CADS') {
       setValue(0)
+    } else if (cadType === 'USER_DOWNLOADS') {
+      setValue(3)
     } else {
       setValue(0) // Default to My CAD Files
     }
@@ -121,6 +123,15 @@ function CreatorsRightCont() {
       <TabPanel value={value} index={2}>
         <FileHistoryCards 
           cad_type="CAD_CONVERTER"
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+          setTotalPages={setTotalPages}
+        />
+      </TabPanel>
+      <TabPanel value={value} index={3}>
+        <FileHistoryCards 
+          cad_type="USER_DOWNLOADS"
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           totalPages={totalPages}

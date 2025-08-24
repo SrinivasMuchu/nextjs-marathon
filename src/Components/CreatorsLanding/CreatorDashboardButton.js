@@ -5,7 +5,7 @@ import styles from "./CreatorsDashboard.module.css";
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from "../CommonJsx/UserLoginPupUp";
 
-function CreatorDashboardButton() {
+function CreatorDashboardButton({buttonName}) {
   const [emailVerify, setEmailVerify] = useState(false);
   const route = useRouter();
 
@@ -24,7 +24,7 @@ function CreatorDashboardButton() {
           className={styles.creatorDashboardButtonCreate}
           onClick={handleDashboard}
         >
-          Create My Profile
+         {buttonName}
         </button>
         {/* <button className={styles.creatorDashboardButton}>
           Already have files? Start Uploading

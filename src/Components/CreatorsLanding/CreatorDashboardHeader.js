@@ -19,7 +19,7 @@ function CreatorDashboardHeader() {
       <div className={styles.headerContent}>
         <h1>Publish. Earn. Inspire.</h1>
         <p>Monetize your CAD files or share them with the open-source<br/> hardware community.</p>
-        <CreatorDashboardButton/>
+        <CreatorDashboardButton buttonName='Create My Profile'/>
       </div>
     </div>
   )

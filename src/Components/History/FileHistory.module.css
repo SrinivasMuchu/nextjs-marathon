@@ -159,3 +159,122 @@
 .historyItem img{
   height: 160px;
 }
+.industry-design-files {
+  width: 100%;
+}
+
+.industry-design-files-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.industry-design-files-count {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.industry-design-files-list {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.industry-design-files-list thead tr {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.industry-design-files-list th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+}
+
+.industry-design-files-list tbody tr {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.industry-design-files-list tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.industry-design-files-list td {
+  padding: 12px;
+  color: #495057;
+}
+
+.industry-design-files-btn {
+  background: #610bee;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  fontSize: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.industry-design-files-btn:hover:not(:disabled) {
+  background: #4a0bb8;
+}
+
+.industry-design-files-btn:disabled {
+  opacity: 0.6;
+}
+
+/* Responsive design for mobile (card layout) */
+@media (max-width: 1100px) {
+  .industry-design-files-list,
+  .industry-design-files-list thead,
+  .industry-design-files-list tbody,
+  .industry-design-files-list th,
+  .industry-design-files-list td,
+  .industry-design-files-list tr {
+    display: block;
+  }
+
+  .industry-design-files-list thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .industry-design-files-list tr {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .industry-design-files-list td {
+    border: none;
+    padding: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .industry-design-files-list td:before {
+    content: attr(data-label) ": ";
+    font-weight: bold;
+    width: 40%;
+    text-align: left;
+  }
+
+  .industry-design-files-list td:last-child {
+    justify-content: flex-end;
+  }
+
+  .industry-design-files-list td:last-child:before {
+    content: "";
+  }
+}
