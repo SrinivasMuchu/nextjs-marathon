@@ -42,6 +42,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState({ id: 'All', label: 'All' }); // Initialize as object
 
   // Debounce search term to avoid too many API calls
   useEffect(() => {
@@ -69,14 +70,23 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       if (!isMounted) return;
 
       try {
-        // Updated API call with search parameter
+        // Updated API call with search parameter and tag filter
+        const apiParams = { 
+          type: cad_type, 
+          page: currentPage, 
+          limit,
+          search: debouncedSearchTerm
+        };
+
+        // Add tag parameter only if it's not 'All' and we're dealing with CAD files
+        if (selectedFilter && selectedFilter.id !== 'All' && (cad_type === 'USER_CADS' || cad_type === 'USER_DOWNLOADS')) {
+          apiParams.tags = selectedFilter.id; // Send the tag ID
+        }
+
+        console.log('API Params:', apiParams); // Debug log
+
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
-          params: { 
-            type: cad_type, 
-            page: currentPage, 
-            limit,
-            search: debouncedSearchTerm // Add search parameter
-          },
+          params: apiParams,
           headers: {
             "user-uuid": localStorage.getItem("uuid"),
           },
@@ -143,7 +153,14 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     return () => {
       isMounted = false;
     };
-  }, [cad_type, currentPage, debouncedSearchTerm]); // Add debouncedSearchTerm to dependencies
+  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter]); // Add selectedFilter to dependencies
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    if (selectedFilter.id !== 'All') {
+      setCurrentPage(1);
+    }
+  }, [selectedFilter, setCurrentPage]);
 
   // Helper function to format date (e.g., "April 30, 2025")
   const formatDate = (dateString) => {
@@ -268,6 +285,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             userCadFiles={userCadFiles}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            selectedFilter={selectedFilter}
+            setSelectedFilter={setSelectedFilter}
           />
         )}
         {cad_type === 'USER_DOWNLOADS' && (
@@ -277,6 +296,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             type='downloads'
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            selectedFilter={selectedFilter}
+            setSelectedFilter={setSelectedFilter}
           />
         )}
         {cad_type === 'USER_PROFILE' && (

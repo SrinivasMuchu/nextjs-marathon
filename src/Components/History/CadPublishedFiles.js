@@ -13,10 +13,9 @@ import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import axios from 'axios';
 
-function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm}) {
-  const [selectedFilter, setSelectedFilter] = useState('All');
+function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,selectedFilter,setSelectedFilter}) {
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
-  const [allFilters, setAllFilters] = useState(['All']); // Initialize with 'All'
+  const [allFilters, setAllFilters] = useState([{ id: 'All', label: 'All' }]); // Store objects with id and label
   const [loadingFilters, setLoadingFilters] = useState(true);
   
   const visibleFilters = allFilters.slice(0, 3);
@@ -33,16 +32,24 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm})
         
         const allTags = tagsResponse.data?.data || [];
         
-        // Create filter options from API response
-        const tagOptions = allTags.map((tags) => tags.cad_tag_label);
+        // Create filter options from API response with both id and label
+        const tagOptions = allTags.map((tags) => ({
+          id: tags._id,
+          label: tags.cad_tag_label
+        }));
         
         // Combine 'All' with the fetched tags
-        setAllFilters(['All', ...tagOptions]);
-        
+        setAllFilters([{ id: 'All', label: 'All' }, ...tagOptions]);
       } catch (error) {
         console.error('Error fetching CAD tags:', error);
         // Fallback to default filters if API fails
-        setAllFilters(['All', 'Mechanical', 'Automotive', 'Industrial', 'Product']);
+        setAllFilters([
+          { id: 'All', label: 'All' },
+          { id: 'mechanical', label: 'Mechanical' },
+          { id: 'automotive', label: 'Automotive' },
+          { id: 'industrial', label: 'Industrial' },
+          { id: 'product', label: 'Product' }
+        ]);
       } finally {
         setLoadingFilters(false);
       }
@@ -52,12 +59,11 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm})
   }, []);
 
   const handleFilterClick = (filter) => {
-    setSelectedFilter(filter);
+    setSelectedFilter(filter); // This will now update the parent component's state with the filter object
     setShowMoreDropdown(false);
   };
 
   return (
-
     <div className={styles.cadViewerContainerContent}>
        {!type && 
           <div style={{
@@ -130,7 +136,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm})
                   {/* Visible filter buttons */}
                   {visibleFilters.map((filter) => (
                     <button
-                      key={filter}
+                      key={filter.id}
                       onClick={() => handleFilterClick(filter)}
                       style={{
                         padding: '8px 20px',
@@ -139,22 +145,22 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm})
                         fontSize: '14px',
                         fontWeight: '500',
                         cursor: 'pointer',
-                        backgroundColor: selectedFilter === filter ? '#610BEE' : 'transparent',
-                        color: selectedFilter === filter ? 'white' : '#6c757d',
+                        backgroundColor: selectedFilter?.id === filter.id ? '#610BEE' : 'transparent',
+                        color: selectedFilter?.id === filter.id ? 'white' : '#6c757d',
                         transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        if (selectedFilter !== filter) {
+                        if (selectedFilter?.id !== filter.id) {
                           e.target.style.backgroundColor = '#f8f9fa';
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (selectedFilter !== filter) {
+                        if (selectedFilter?.id !== filter.id) {
                           e.target.style.backgroundColor = 'transparent';
                         }
                       }}
                     >
-                      {filter}
+                      {filter.label}
                     </button>
                   ))}
 
@@ -170,26 +176,26 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm})
                           fontSize: '14px',
                           fontWeight: '500',
                           cursor: 'pointer',
-                          backgroundColor: moreFilters.includes(selectedFilter) ? '#610BEE' : 'transparent',
-                          color: moreFilters.includes(selectedFilter) ? 'white' : '#6c757d',
+                          backgroundColor: moreFilters.some(f => f.id === selectedFilter?.id) ? '#610BEE' : 'transparent',
+                          color: moreFilters.some(f => f.id === selectedFilter?.id) ? 'white' : '#6c757d',
                           transition: 'all 0.2s ease',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px'
                         }}
                         onMouseEnter={(e) => {
-                          if (!moreFilters.includes(selectedFilter)) {
+                          if (!moreFilters.some(f => f.id === selectedFilter?.id)) {
                             e.target.style.backgroundColor = '#f8f9fa';
                           }
                         }}
                         onMouseLeave={(e) => {
-                          if (!moreFilters.includes(selectedFilter)) {
+                          if (!moreFilters.some(f => f.id === selectedFilter?.id)) {
                             e.target.style.backgroundColor = 'transparent';
                           }
                         }}
                       >
-                        {moreFilters.includes(selectedFilter) ? selectedFilter : 'More'}
-                        <svg 
+                        {moreFilters.find(f => f.id === selectedFilter?.id)?.label || 'More'}
+                        <svg
                           width="12" 
                           height="12" 
                           viewBox="0 0 24 24" 
@@ -219,16 +225,16 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm})
                         }}>
                           {moreFilters.map((filter) => (
                             <button
-                              key={filter}
+                              key={filter.id}
                               onClick={() => handleFilterClick(filter)}
                               style={{
                                 width: '100%',
                                 padding: '8px 16px',
                                 border: 'none',
-                                backgroundColor: selectedFilter === filter ? '#f8f9fa' : 'transparent',
-                                color: selectedFilter === filter ? '#610BEE' : '#6c757d',
+                                backgroundColor: selectedFilter?.id === filter.id ? '#f8f9fa' : 'transparent',
+                                color: selectedFilter?.id === filter.id ? '#610BEE' : '#6c757d',
                                 fontSize: '14px',
-                                fontWeight: selectedFilter === filter ? '600' : '400',
+                                fontWeight: selectedFilter?.id === filter.id ? '600' : '400',
                                 cursor: 'pointer',
                                 textAlign: 'left',
                                 transition: 'all 0.2s ease',
@@ -239,12 +245,12 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm})
                                 e.target.style.backgroundColor = '#f8f9fa';
                               }}
                               onMouseLeave={(e) => {
-                                if (selectedFilter !== filter) {
+                                if (selectedFilter?.id !== filter.id) {
                                   e.target.style.backgroundColor = 'transparent';
                                 }
                               }}
                             >
-                              {filter}
+                              {filter.label}
                             </button>
                           ))}
                         </div>
@@ -288,7 +294,6 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm})
           </div>
         }
       {loading ? <Loading smallScreen={true}/> : <>
-       
         {userCadFiles.length > 0 ? (
           <div className={styles.historyContainer}>
             {/* Projects Grid */}
