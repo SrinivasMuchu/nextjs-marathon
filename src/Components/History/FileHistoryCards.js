@@ -287,6 +287,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             setSearchTerm={setSearchTerm}
             selectedFilter={selectedFilter}
             setSelectedFilter={setSelectedFilter}
+            setPublishCadPopUp={setPublishCadPopUp}
           />
         )}
         {cad_type === 'USER_DOWNLOADS' && (
@@ -298,6 +299,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             setSearchTerm={setSearchTerm}
             selectedFilter={selectedFilter}
             setSelectedFilter={setSelectedFilter}
+            setPublishCadPopUp={setPublishCadPopUp}
           />
         )}
         {cad_type === 'USER_PROFILE' && (

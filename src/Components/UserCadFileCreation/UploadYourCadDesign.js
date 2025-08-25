@@ -20,7 +20,7 @@ function UploadYourCadDesign({ editedDetails }) {
     const [isChecked, setIsChecked] = useState(editedDetails ? editedDetails.is_downloadable : true);
     const [cadFile, setCadFile] = useState({
         title: editedDetails ? editedDetails.page_title : '',
-        description: editedDetails ? editedDetails.page_description : '', tags: editedDetails ? editedDetails.cad_tags : ''
+        description: editedDetails ? editedDetails.page_description : '', tags:  ''
     });
     const [url, setUrl] = useState('');
     const [fileFormat, setFileFormat] = useState('');
@@ -57,11 +57,11 @@ function UploadYourCadDesign({ editedDetails }) {
             }
         }
     }, [setHasUserEmail]);
-    useEffect(() => {
-        if (editedDetails?.cad_tags?.length && options.length === 0) {
-            getTags();
-        }
-    }, [editedDetails.cad_tags.length, options.length]);
+    // useEffect(() => {
+    //     if (editedDetails?.cad_tags?.length && options.length === 0) {
+    //         getTags();
+    //     }
+    // }, [editedDetails.cad_tags.length, options.length]);
     const router = useRouter();
 
     const handleChange = (e) => {
