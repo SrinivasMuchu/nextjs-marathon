@@ -6,7 +6,7 @@ import { DESIGN_GLB_PREFIX_URL } from '@/config';
 import StaticDesign from './StaticDesign';
 
 const HoverImageSequence = ({ design, width, height, loading }) => {
-  console.log(design)
+  
   const angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
   // const yangles = [0, 330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30];
   const [currentIndex, setCurrentIndex] = useState(0);

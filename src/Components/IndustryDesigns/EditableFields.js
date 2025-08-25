@@ -15,7 +15,7 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
   const [desc, setDesc] = useState(initialDesc || "");
   const [formErrors, setFormErrors] = useState({});
   const [uploading, setUploading] = useState(false);
-  const [isEditable, setIsEditable] = useState(true)
+  const [isEditable, setIsEditable] = useState(false)
   // /check-cad-editable
 
   useEffect(() => {
@@ -32,12 +32,12 @@ export default function EditableFields({ initialTitle, initialDesc, fileId, orgI
 
         console.log("Check Editable Response:", result.data);
 
-        // if (result.data.meta.success) {
-        //   setIsEditable(true)
-        // } else {
-        //   setIsEditable(false)
+        if (result.data.meta.success) {
+          setIsEditable(true)
+        } else {
+          setIsEditable(false)
 
-        // }
+        }
       } catch (error) {
         console.error("Error checking editable:", error);
       }

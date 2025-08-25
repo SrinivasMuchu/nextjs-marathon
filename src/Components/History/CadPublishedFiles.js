@@ -13,13 +13,13 @@ import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import axios from 'axios';
 
-function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,selectedFilter,setSelectedFilter}) {
+function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,selectedFilter,setSelectedFilter,setPublishCadPopUp}) {
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   const [allFilters, setAllFilters] = useState([{ id: 'All', label: 'All' }]); // Store objects with id and label
   const [loadingFilters, setLoadingFilters] = useState(true);
   
-  const visibleFilters = allFilters.slice(0, 3);
-  const moreFilters = allFilters.slice(3);
+  const visibleFilters = allFilters.slice(0, 4);
+  const moreFilters = allFilters.slice(4);
 
   // Fetch CAD tags from API
   useEffect(() => {
