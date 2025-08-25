@@ -18,8 +18,8 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,s
   const [allFilters, setAllFilters] = useState([{ id: 'All', label: 'All' }]); // Store objects with id and label
   const [loadingFilters, setLoadingFilters] = useState(true);
   
-  const visibleFilters = allFilters.slice(0, 3);
-  const moreFilters = allFilters.slice(3);
+  const visibleFilters = allFilters.slice(0, 4);
+  const moreFilters = allFilters.slice(4);
 
   // Fetch CAD tags from API
   useEffect(() => {
