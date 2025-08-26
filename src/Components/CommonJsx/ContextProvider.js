@@ -17,7 +17,7 @@ function ContextProvider({children}) {
     const [isProfileComplete, setIsProfileComplete] = useState(false);
     const [updatedDetails, setUpdatedDetails] = useState(false);
     const [user, setUser] = useState({ 
-        name: '', email: '', photo: '',
+        name: '', email: '', photo: '',_id:'',
         user_access_key: '', desc: '', 
         skills: [], website: '', linkedin: '',
         cover_image: '',projects:0,views:0,downloads:0,

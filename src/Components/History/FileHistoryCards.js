@@ -24,7 +24,7 @@ import CadPublishedFiles from './CadPublishedFiles';
 
 let cachedCadHistory = {};
 
-function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages }) {
+function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages,creatorId }) {
   const { setUploadedFile } = useContext(contextState);
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [downloading, setDownloading] = useState({});
@@ -288,6 +288,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             selectedFilter={selectedFilter}
             setSelectedFilter={setSelectedFilter}
             setPublishCadPopUp={setPublishCadPopUp}
+            creatorId={creatorId}
           />
         )}
         {cad_type === 'USER_DOWNLOADS' && (

@@ -30,6 +30,7 @@ function TopNavProfileButton() {
         const data = res.data.data;
         console.log("User details fetched successfully:", data);
         setUser({
+          _id:data?._id,
           email: data?.user_email || '',
           name: data?.full_name || '',
           photo: data?.photo || '',
