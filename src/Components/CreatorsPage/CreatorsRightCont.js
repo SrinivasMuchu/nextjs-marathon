@@ -22,7 +22,8 @@ function TabPanel({ children, value, index, ...other }) {
   )
 }
 
-function CreatorsRightCont() {
+function CreatorsRightCont({viewer,
+creatorId}) {
   const [value, setValue] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -31,7 +32,7 @@ function CreatorsRightCont() {
 
   // Tab configuration
   const tabs = [
-    { label: "My CAD Files", cadType: "USER_CADS" },
+    { label: "Projects", cadType: "USER_CADS" },
     { label: "CAD Viewer", cadType: "CAD_VIEWER" },
     { label: "CAD Convertor", cadType: "CAD_CONVERTER" },
     { label: "Downloads", cadType: "USER_DOWNLOADS" }
@@ -61,7 +62,7 @@ function CreatorsRightCont() {
     
     // Update URL with corresponding cad_type
     const selectedTab = tabs[newValue]
-    router.push(`/creator?cad_type=${selectedTab.cadType}`)
+    router.push(`/dashboard?cad_type=${selectedTab.cadType}`)
   }
 
   const getCurrentCadType = () => {
@@ -70,7 +71,9 @@ function CreatorsRightCont() {
 
   return (
     <Box sx={{ width: '100%',marginTop:'32px' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      {!creatorId ?
+      <>
+       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs 
           value={value} 
           onChange={handleChange} 
@@ -99,7 +102,6 @@ function CreatorsRightCont() {
           ))}
         </Tabs>
       </Box>
-      
       <TabPanel value={value} index={0}>
         <FileHistoryCards 
           cad_type="USER_CADS"
@@ -138,6 +140,22 @@ function CreatorsRightCont() {
           setTotalPages={setTotalPages}
         />
       </TabPanel>
+      </>:
+      <TabPanel value={value} index={0}>
+        <FileHistoryCards 
+          cad_type="USER_CADS"
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+          setTotalPages={setTotalPages}
+          creatorId={creatorId}
+        />
+      </TabPanel>
+      
+      }
+     
+      
+      
     </Box>
   )
 }

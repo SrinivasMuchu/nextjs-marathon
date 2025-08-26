@@ -13,7 +13,7 @@ import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import axios from 'axios';
 
-function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,selectedFilter,setSelectedFilter,setPublishCadPopUp}) {
+function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,selectedFilter,setSelectedFilter,setPublishCadPopUp,creatorId}) {
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   const [allFilters, setAllFilters] = useState([{ id: 'All', label: 'All' }]); // Store objects with id and label
   const [loadingFilters, setLoadingFilters] = useState(true);
@@ -65,7 +65,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,s
 
   return (
     <div className={styles.cadViewerContainerContent}>
-       {!type && 
+       {(!type&&!creatorId) && 
           <div style={{
             width: '100%',
             display: 'flex',
@@ -336,8 +336,8 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,s
             width: '300px', textAlign: 'center', gap: '40px'
           }}>
             <Image src={IMAGEURLS.nofilesLogo} alt="No files" width={135} height={135} />
-            {type ? <>
-             <span>You don't have any projects yet.<br />
+            {!type ? <>
+             <span>You don&apos;t have any projects yet.<br />
               <button onClick={() => setPublishCadPopUp(true)} style={{ color: 'blue' }}>Upload</button> your project files
             </span>
             </>:<>

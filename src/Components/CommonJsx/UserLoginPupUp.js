@@ -117,7 +117,7 @@ function UserLoginPupUp({ onClose, type }) {
                 if (type = "profile") {
                     setUpdatedDetails(user)
                     onClose()
-                    route.push('/creator')
+                    route.push('/dashboard')
                 } else if (type === 'creator') {
                     window.location.reload()
                 } else {
@@ -207,7 +207,7 @@ function UserLoginPupUp({ onClose, type }) {
 
                 if (type = "profile") {
                     setUpdatedDetails(user)
-                    route.push('/creator')
+                    route.push('/dashboard')
                 } else if (type === 'creator') {
                   window.location.reload()
                 } else {

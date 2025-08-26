@@ -13,7 +13,7 @@ function CreatorDashboardButton({buttonName}) {
     if (!localStorage.getItem("is_verified")) {
       setEmailVerify(true);
     } else {
-      route.push("/creator");
+      route.push("/dashboard");
     }
   };
 
