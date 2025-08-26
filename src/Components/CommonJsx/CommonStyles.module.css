@@ -10,9 +10,20 @@
     align-items: center;
     justify-content: center;
 }
+.paginationWrapper {
+  width: 100%;
+
+  /* overflow-x: auto; */
+}
+
 .pagination {
   display: flex;
-  
+  align-items: center;
+  gap: 4px;
+ flex-wrap: wrap;
+  padding-bottom: 4px;
+  justify-content: center;
+
 }
 
 .prevButton,
@@ -353,6 +364,18 @@
     font-size: 14px;
   }
 
+}
+
+@media (max-width: 500px) {
+  .paginationButton {
+    min-width: 32px;
+    font-size: 0.95rem;
+    padding: 4px 6px;
+  }
+  .prevButton, .nextButton {
+    font-size: 0.95rem;
+    padding: 4px 6px;
+  }
 }
 
 @media (max-width: 480px) {

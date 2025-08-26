@@ -6,8 +6,8 @@ import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import { contextState } from '../CommonJsx/ContextProvider';
 import axios from 'axios';
 
-function AboutCreator({ creatorId, viewer }) {
-  const { user, setUser, setUpdatedDetails } = useContext(contextState);
+function AboutCreator({ creatorId }) {
+  const { user, setUser, setUpdatedDetails,viewer } = useContext(contextState);
   const [editField, setEditField] = useState({
     description: false,
     skills: false,

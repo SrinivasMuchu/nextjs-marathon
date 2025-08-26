@@ -9,10 +9,10 @@ import { contextState } from '../CommonJsx/ContextProvider';
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import axios from 'axios'
 
-function CreatorsProfile({ creatorId, viewer }) {
+function CreatorsProfile({ creatorId }) {
   const photoInputRef = useRef(null);
   
-  const { user, setUser, setUpdatedDetails } = useContext(contextState);
+  const { user, setUser, setUpdatedDetails,viewer } = useContext(contextState);
   const [editField, setEditField] = useState({ name: false, email: false, photo: false, designation: false });
   const profileData = !creatorId ? user : viewer;
 
@@ -318,11 +318,7 @@ function CreatorsProfile({ creatorId, viewer }) {
           </div>
 
           {/* Email Field - View Only */}
-          <div className={styles.editableField}>
-            <div className={styles.fieldDisplay}>
-              <span className={styles.profileDetailsRole}>{profileData.email}</span>
-            </div>
-          </div>
+         
 
           {/* Designation Field - View Only */}
           <div className={styles.editableField}>

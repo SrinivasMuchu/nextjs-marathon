@@ -21,12 +21,18 @@ function ContextProvider({children}) {
         user_access_key: '', desc: '', 
         skills: [], website: '', linkedin: '',
         cover_image: '',projects:0,views:0,downloads:0,
-      designation:'' });
+      designation:'',username:'' });
+    const [viewer, setViewer] = useState({ 
+        name: '', email: '', photo: '',_id:'',
+        user_access_key: '', desc: '', 
+        skills: [], website: '', linkedin: '',
+        cover_image: '',projects:0,views:0,downloads:0,
+      designation:'',username:'' });
   return (
     <contextState.Provider value={{ 
       file, setFile,allowedFormats, setAllowedFormats,
       paramsText, setParamsText,hasUserEmail, setHasUserEmail,updatedDetails, setUpdatedDetails,
-      uploadedFile, setUploadedFile,user, setUser,isProfileComplete, setIsProfileComplete,anchorAds, setAnchorAds }}>
+      uploadedFile, setUploadedFile,user, setUser,isProfileComplete, setIsProfileComplete,anchorAds, setAnchorAds,viewer, setViewer }}>
     {children}
   </contextState.Provider>
   )

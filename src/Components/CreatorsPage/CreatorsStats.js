@@ -5,25 +5,27 @@ import { contextState } from '../CommonJsx/ContextProvider';
 
 // Function to format numbers with k+ notation
 const formatNumberWithK = (num) => {
+  if (typeof num !== 'number' || isNaN(num)) return '0';
   if (num >= 1000) {
     return Math.floor(num / 1000) + 'k+';
   }
   return num.toString();
 };
 
-function CreatorsStats() {
-  const { user } = useContext(contextState);
+function CreatorsStats({ creatorId }) {
+  const { user, viewer } = useContext(contextState);
+   const profileData = !creatorId ? user : viewer;
   return (
     <>
     <div className={styles.statsContainer}>
-        <span>{user.projects} projects</span>
+        <span>{profileData.projects} projects</span>
                 <div className={styles.statsLines}></div>
-                <span>{formatNumberWithK(user.views)} views</span>
+                <span>{formatNumberWithK(profileData.views)} views</span>
         <div className={styles.statsLines}></div>
-        <span>{formatNumberWithK(user.downloads)} downloads</span>
-      
+        <span>{formatNumberWithK(profileData.downloads)} downloads</span>
+
     </div>
-    <div style={{width:'100%',height:'1px',background:'#edf2f7'}}/>
+    <div style={{width:'320px',height:'1px',background:'#edf2f7'}}/>
     </>
     
   )

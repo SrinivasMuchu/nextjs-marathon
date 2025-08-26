@@ -337,8 +337,8 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,s
           }}>
             <Image src={IMAGEURLS.nofilesLogo} alt="No files" width={135} height={135} />
             {!type ? <>
-             <span>You don&apos;t have any projects yet.<br />
-              <button onClick={() => setPublishCadPopUp(true)} style={{ color: 'blue' }}>Upload</button> your project files
+             <span>{!creatorId?"You don't have any projects yet.":'No projects yet.'}<br />
+             {!creatorId && <> <button onClick={() => setPublishCadPopUp(true)} style={{ color: 'blue' }}>Upload</button> your project files</>}
             </span>
             </>:<>
              <span>You have no downloads yet<br />
