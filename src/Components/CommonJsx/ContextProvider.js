@@ -26,7 +26,7 @@ function ContextProvider({children}) {
         name: '', email: '', photo: '',_id:'',
         user_access_key: '', desc: '', 
         skills: [], website: '', linkedin: '',
-        cover_image: '',projects:0,views:0,downloads:0,
+        cover_image: '',projects:0,views:'0',downloads:'0',
       designation:'',username:'' });
   return (
     <contextState.Provider value={{ 

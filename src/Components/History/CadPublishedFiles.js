@@ -13,7 +13,9 @@ import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import axios from 'axios';
 
-function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,selectedFilter,setSelectedFilter,setPublishCadPopUp,creatorId}) {
+function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
+  setSearchTerm,selectedFilter,setSelectedFilter,
+  setPublishCadPopUp,creatorId,setIsEmailVerify}) {
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   const [allFilters, setAllFilters] = useState([{ id: 'All', label: 'All' }]); // Store objects with id and label
   const [loadingFilters, setLoadingFilters] = useState(true);
@@ -63,6 +65,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,s
     setShowMoreDropdown(false);
   };
 
+  
   return (
     <div className={styles.cadViewerContainerContent}>
        {(!type&&!creatorId) && 
@@ -72,7 +75,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,s
             flexWrap: 'wrap',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '24px',
+            
             gap: '16px'
           }}>
             {/* Left side - Search */}
@@ -313,8 +316,8 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,s
                     downloads={file.total_design_downloads ?? 0} />
                 </div>
                 <div className={libraryStyles["design-title-wrapper"]}>
-                  <h6 title={file.page_title}>{textLettersLimit(file.page_title, 30)}</h6>
-                  <p title={file.page_description}>{textLettersLimit(file.page_description, 120)}</p>
+                  <h6 title={file.page_title}>{file.page_title}</h6>
+                  {/* <p title={file.page_description}>{textLettersLimit(file.page_description, 120)}</p> */}
                   <div className={libraryStyles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                     {file.category_labels && file.category_labels.map((label, index) => (
                       <DesignDetailsStats key={index} text={label} />
@@ -342,7 +345,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,setSearchTerm,s
             </span>
             </>:<>
              <span>You have no downloads yet<br />
-              <Link href="/library">Explore</Link>
+              <Link href="/library" style={{ color: 'blue' }}>Explore</Link>
             </span>
             </>}
           </div>

@@ -284,6 +284,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
         )}
         {cad_type === 'USER_CADS' && (
           <CadPublishedFiles 
+          setIsEmailVerify={setIsEmailVerify}
             loading={loading} 
             userCadFiles={userCadFiles}
             searchTerm={searchTerm}

@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 function UserLoginPupUp({ onClose, type }) {
-
+console.log(type)
     const { user, setUser, setUpdatedDetails } = useContext(contextState);
     console.log('Google Client ID:', user.email);
     const route = useRouter();
@@ -114,11 +114,12 @@ function UserLoginPupUp({ onClose, type }) {
                 // onClose()
                 setUser({ ...user, email: googleEmail, name: userName })
 
-                if (type = "profile") {
+                if (type === "profile") {
                     setUpdatedDetails(user)
                     onClose()
                     route.push('/dashboard')
                 } else if (type === 'creator') {
+                    console.log('creator 122')
                     window.location.reload()
                 } else {
                     setUpdatedDetails(user)
@@ -205,7 +206,7 @@ function UserLoginPupUp({ onClose, type }) {
                 console.log('✅ Email login successful!');
                 setUser({ ...user, email })
 
-                if (type = "profile") {
+                if (type === "profile") {
                     setUpdatedDetails(user)
                     route.push('/dashboard')
                 } else if (type === 'creator') {
@@ -344,11 +345,7 @@ function UserLoginPupUp({ onClose, type }) {
                         <h2>Log in to your account</h2>
                         <p>Choose your preferred login method</p>
                         {/* Show current login status for debugging */}
-                        {loginMethod && (
-                            <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
-                                Current: {isSSO ? 'SSO (Google)' : 'Email/OTP'} login
-                            </p>
-                        )}
+                       
                     </div>
 
                     <div className={styles.formSection}>

@@ -22,16 +22,36 @@
 
 .headerContent {
     position: relative;
-    z-index: 2;
-    max-width: 600px;
+    text-align:center;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap:24px;
+    width:100%;
+    /* max-width: 600px; */
 }
-
-.creatorDasboardHeader h1,.startShareDesignContainer h1{
+.publishItemsContainer{
+    display:flex;
+    align-items: center;
+    justify-content:center;
+    flex-wrap: wrap;
+    gap: 24px;
+    width:100%;
+  
+}
+.publishItem{
+    width:300px;
+    display: flex;
+    
+    gap: 12px;
+}
+.startShareDesignContainer h1{
     font-size: clamp(24px, 5vw, 48px) ;
     font-weight: 800;
 }
 
-.creatorDasboardHeader p,.startShareDesignContainer p{
+.startShareDesignContainer p{
     font-size:20px;
     margin-bottom:16px;
 }
@@ -41,14 +61,39 @@
     align-items:center;
     gap:20px;
 }
-.creatorDashboardButtonContainer button,.startShareButton{
-   padding:8px 16px;
-   border-radius: 8px;
-    color:white;
-        background:inherit;
-        border:1px solid white;
+.creatorDashboardButtonContainer button,
+.startShareButton,
+.creatorDashboardButtonContainer a {
+  display: inline-flex;                 /* inline-flex */
+  align-items: center;                  /* items-center */
+  justify-content: center;              /* justify-center */
+  border-radius: 16px;                  /* rounded-2xl ≈ 16px */
+  border: 1px solid rgba(255, 255, 255, 0.5); /* border-white/50 */
+  background: rgba(255, 255, 255, 0.1); /* bg-white/10 */
+  padding: 12px 20px;                   /* px-5 py-3 */
+  font-size: 1rem;                      /* text-base */
+  font-weight: 600;                     /* font-semibold */
+  color: white;                         /* text-white */
+  backdrop-filter: blur(4px);           /* backdrop-blur */
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
 }
-.creatorDashboardButtonContainer button:hover,.startShareButton:hover{
+
+.creatorDashboardButtonContainer button:hover,
+.startShareButton:hover,
+.creatorDashboardButtonContainer a:hover {
+  background: rgba(255, 255, 255, 0.15); /* hover:bg-white/15 */
+}
+
+.creatorDashboardButtonContainer button:focus,
+.startShareButton:focus,
+.creatorDashboardButtonContainer a:focus {
+  outline: none;                         /* focus:outline-none */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); /* focus:ring-2 focus:ring-white/30 */
+}
+
+.creatorDashboardButtonContainer button:hover,.startShareButton:hover,
+.creatorDashboardButtonContainer a:hover{
         background:white;
         color:#610bee;
     

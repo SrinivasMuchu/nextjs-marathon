@@ -8,15 +8,23 @@ import Image from 'next/image';
 import { contextState } from '../CommonJsx/ContextProvider';
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import axios from 'axios'
+import { RiUserLine } from "react-icons/ri";
 
-function CreatorsProfile({ creatorId }) {
+function CreatorsProfile({ creatorId,setIsVerified }) {
   const photoInputRef = useRef(null);
   
   const { user, setUser, setUpdatedDetails,viewer } = useContext(contextState);
   const [editField, setEditField] = useState({ name: false, email: false, photo: false, designation: false });
+  const [originalValues, setOriginalValues] = useState({ name: user?.name, designation: user?.designation });
+
   const profileData = !creatorId ? user : viewer;
 
   const handleEditClick = (field) => {
+     if(!localStorage.getItem('is_verified')){
+      setIsVerified(true)
+      return
+    }
+    setOriginalValues(prev => ({ ...prev, [field]: user[field] }));
     setEditField(prev => ({ ...prev, [field]: true }));
   };
 
@@ -25,20 +33,23 @@ function CreatorsProfile({ creatorId }) {
   };
 
   const handleCancelEdit = (field) => {
-    // Reset to original value
-    if (field === 'name') {
-      setUser(prev => ({ ...prev, name: user?.name }));
-    } else if (field === 'email') {
-      setUser(prev => ({ ...prev, email: user?.email }));
-    } else if(field === 'designation'){
-      setUser(prev => ({ ...prev, designation: user?.designation }));
-    }
+    setUser(prev => ({ ...prev, [field]: originalValues[field] }));
     setEditField(prev => ({ ...prev, [field]: false }));
   };
 
-  const handleClick = () => photoInputRef.current?.click();
+  const handleClick = () => {
+     if(!localStorage.getItem('is_verified')){
+      setIsVerified(true)
+      return
+    }
+    photoInputRef.current?.click()
+  };
 
   const handleFileUpload = async (e) => {
+     if(!localStorage.getItem('is_verified')){
+      setIsVerified(true)
+      return
+    }
     const file = e.target.files[0];
     if (!file) return;
 
@@ -133,21 +144,51 @@ function CreatorsProfile({ creatorId }) {
             <FaCamera />
           </div>}
           {profileData.photo ? (
-            !profileData.photo.startsWith('data') ? (
-              <NameProfile userName={profileData.name ? profileData.name : profileData.email} memberPhoto={profileData.photo} width='120px'
-              fontSize='48px'  />
-            ) : (
-              <Image 
-                src={profileData.photo} 
-                alt="Profile" 
-                width={120} 
-                height={120} 
-                style={{ borderRadius: '50%', width: '100px', height: '100px', objectFit: 'cover' }} 
-              />
-            )
-          ) : (
-            <NameProfile width='100px' userName={profileData.name ? profileData.name : profileData.email} fontSize='48px' memberPhoto={profileData.photo}/>
-          )}
+  !profileData.photo.startsWith('data') ? (
+    <NameProfile 
+      userName={profileData.name ? profileData.name : profileData.email} 
+      memberPhoto={profileData.photo} 
+      width="120px"
+      fontSize="48px"  
+    />
+  ) : (
+    <Image 
+      src={profileData.photo} 
+      alt="Profile" 
+      width={120} 
+      height={120} 
+      style={{ 
+        borderRadius: '50%', 
+        width: '100px', 
+        height: '100px', 
+        objectFit: 'cover' 
+      }} 
+    />
+  )
+) : (
+  profileData.name || profileData.email ? (
+    <NameProfile 
+      width="100px" 
+      userName={profileData.name ? profileData.name : profileData.email} 
+      fontSize="48px" 
+      memberPhoto={profileData.photo}
+    />
+  ) : (
+    <div 
+      style={{
+        width: "100px",
+        height: "100px",
+        borderRadius: "50%",
+        background: "#fff",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }}
+    >
+      <RiUserLine size={48} color="#610bee" />
+    </div>
+  )
+)}
         </div>
 
         {editField.photo && (
@@ -175,35 +216,16 @@ function CreatorsProfile({ creatorId }) {
       {!creatorId ? (
         <div className={styles.profileDetails}>
           {/* Name Field */}
-          <div className={styles.editableField}>
+          <div
+            className={`${styles.editableField} ${!editField.name ? styles.editableBorder : styles.editingBorder}`}
+            style={{ cursor: 'pointer' }}
+            onClick={() => !editField.name && handleEditClick('name')}
+          >
             {!editField.name ? (
-              <div className={styles.fieldDisplay}>
-                {!user.name ? (
-                  <input 
-                    type="text"
-                    value={user.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder="Enter your name"
-                    className={styles.editInput}
-                    autoFocus 
-                    disabled
-                  />
-                ) : (
-                  <span className={styles.profileDetailsTitle}>
-                    {user.name}
-                  </span>
-                )}
-                <button 
-                  className={styles.editButton} 
-                  onClick={() => handleEditClick('name')}
-                >
-                  <Image
-                    src={`${ASSET_PREFIX_URL}edit-ticket.png`}
-                    alt="edit"
-                    width={16}
-                    height={16}
-                  />
-                </button>
+              <div className={styles.fieldDisplay} style={{ position: 'relative' }}>
+                <span className={styles.profileDetailsTitle} style={{ color: !user.name ? '#999' : undefined }}>
+                  {user.name || "Enter your name"}
+                </span>
               </div>
             ) : (
               <div className={styles.fieldEdit}>
@@ -213,7 +235,8 @@ function CreatorsProfile({ creatorId }) {
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   placeholder="Enter your name"
                   className={styles.editInput}
-                  autoFocus 
+                  autoFocus
+                  onClick={e => e.stopPropagation()}
                 />
                 <div className={styles.editActions}>
                   <button onClick={() => handleSaveField('name')}>
@@ -241,35 +264,16 @@ function CreatorsProfile({ creatorId }) {
           
 
           {/* Designation Field */}
-          <div className={styles.editableField}>
+          <div
+            className={`${styles.editableField} ${!editField.designation ? styles.editableBorder : styles.editingBorder}`}
+            style={{ cursor: 'pointer' }}
+            onClick={() => !editField.designation && handleEditClick('designation')}
+          >
             {!editField.designation ? (
-              <div className={styles.fieldDisplay}>
-                {!user.designation ? (
-                  <input 
-                    type="text"
-                    value={user.designation}
-                    onChange={(e) => handleInputChange('designation', e.target.value)}
-                    placeholder="Enter your designation"
-                    className={styles.editInput}
-                    autoFocus 
-                    disabled
-                  />
-                ) : (
-                  <span className={styles.profileDetailsTitle} style={{fontSize:'18px',fontWeight:'500'}}>
-                    {user.designation}
-                  </span>
-                )}
-                <button
-                  className={styles.editButton}
-                  onClick={() => handleEditClick('designation')}
-                >
-                  <Image
-                    src={`${ASSET_PREFIX_URL}edit-ticket.png`}
-                    alt="edit"
-                    width={16}
-                    height={16}
-                  />
-                </button>
+              <div className={styles.fieldDisplay} style={{ position: 'relative' }}>
+                <span className={styles.profileDetailsTitle} style={{ fontSize: '18px', fontWeight: '500', color: !user.designation ? '#999' : undefined }}>
+                  {user.designation || "Enter your designation"}
+                </span>
               </div>
             ) : (
               <div className={styles.fieldEdit}>
@@ -280,6 +284,7 @@ function CreatorsProfile({ creatorId }) {
                   placeholder="Enter your designation"
                   className={styles.editInput}
                   autoFocus
+                  onClick={e => e.stopPropagation()}
                 />
                 <div className={styles.editActions}>
                   <button onClick={() => handleSaveDesignationField('designation')}>
@@ -322,7 +327,7 @@ function CreatorsProfile({ creatorId }) {
 
           {/* Designation Field - View Only */}
           <div className={styles.editableField}>
-            <span className={styles.profileDetailsTitle} style={{fontSize:'18px',fontWeight:'500'}}>
+            <span className={styles.profileDetailsTitle} style={{ fontSize: '18px', fontWeight: '500' }}>
               {profileData.designation}
             </span>
           </div>

@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import styles from "./CreatorsDashboard.module.css";
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from "../CommonJsx/UserLoginPupUp";
+import Link from "next/link";
 
 function CreatorDashboardButton({buttonName}) {
   const [emailVerify, setEmailVerify] = useState(false);
@@ -20,12 +21,13 @@ function CreatorDashboardButton({buttonName}) {
   return (
     <>
       <div className={styles.creatorDashboardButtonContainer}>
-        <button
+        {buttonName==='Explore Designs'? <Link className={styles.creatorDashboardButtonCreate} href='/library'>{buttonName}</Link>: <button
           className={styles.creatorDashboardButtonCreate}
           onClick={handleDashboard}
         >
          {buttonName}
-        </button>
+        </button>}
+       
         {/* <button className={styles.creatorDashboardButton}>
           Already have files? Start Uploading
         </button> */}
