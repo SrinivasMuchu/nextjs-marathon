@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useContext } from 'react'
 import CreatorLeftCont from './CreatorLeftCont'
 import CreatorsRightCont from './CreatorsRightCont'
 import CreatorCoverPage from './CreatorCoverPage'
@@ -8,11 +8,13 @@ import axios from 'axios'
 import { BASE_URL } from '@/config'
 import styles from './Creators.module.css'
 import { useRouter } from 'next/navigation';
+import { contextState } from '../CommonJsx/ContextProvider';
 
 function CreatorsHome({ creatorId }) {
-  console.log(creatorId)
+  // viewer, setViewer
+  const {   setViewer } = useContext(contextState);
   const [isVerified, setIsVerified] = useState(false);
-  const [viewer, setViewer] = useState({});
+
   const route = useRouter();
 
   useEffect(() => {
@@ -32,6 +34,7 @@ function CreatorsHome({ creatorId }) {
   const getUserDetails = async (creatorId) => {
     try {
       const res = await axios.get(`${BASE_URL}/v1/cad-creator/get-creator-details/${creatorId}`);
+      
 
       if (res.data.meta.success) {
         // setIsProfileComplete(true)
@@ -51,7 +54,8 @@ function CreatorsHome({ creatorId }) {
           projects: data?.totalFiles || 0,
           views: data?.totalViews || 0,
           downloads: data?.totalDownloads || 0,
-          designation: data?.designation || ''
+          designation: data?.designation || '',
+          username:data?.username||'',
         }));
       }
     }
@@ -63,10 +67,10 @@ function CreatorsHome({ creatorId }) {
   return (
     <>
       {isVerified && <UserLoginPupUp onClose={() => setIsVerified(false)} type='creator' />}
-      <CreatorCoverPage viewer={viewer} creatorId={creatorId} />
+      <CreatorCoverPage creatorId={creatorId} />
       <div className={styles.creatorDetails} >
-        <CreatorLeftCont viewer={viewer} creatorId={creatorId} />
-        <CreatorsRightCont viewer={viewer} creatorId={creatorId} />
+        <CreatorLeftCont creatorId={creatorId} />
+        <CreatorsRightCont creatorId={creatorId} />
       </div>
     </>
 

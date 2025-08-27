@@ -22,7 +22,7 @@ function TabPanel({ children, value, index, ...other }) {
   )
 }
 
-function CreatorsRightCont({viewer,
+function CreatorsRightCont({
 creatorId}) {
   const [value, setValue] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
@@ -78,6 +78,9 @@ creatorId}) {
           value={value} 
           onChange={handleChange} 
           aria-label="creators tabs"
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
           sx={{
             '& .MuiTab-root': {
               textTransform: 'none',
@@ -101,6 +104,7 @@ creatorId}) {
             <Tab key={index} label={tab.label} />
           ))}
         </Tabs>
+        <Box sx={{ width: '100%', height: '1.5px', background: '#e0e0e0', mt: '-1px' }} />
       </Box>
       <TabPanel value={value} index={0}>
         <FileHistoryCards 
@@ -141,6 +145,39 @@ creatorId}) {
         />
       </TabPanel>
       </>:
+      <>
+        <Tabs 
+            value={value} 
+          onChange={handleChange} 
+          aria-label="creators tabs"
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          sx={{
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: 500,
+              color: '#666',
+              '&.Mui-selected': {
+                color: '#610bee',
+              },
+              '&:hover': {
+                color: '#610bee',
+                opacity: 0.8,
+              }
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: '#610bee',
+            }
+          }}
+        >
+          {/* {tabs.map((tab, index) => (
+            <Tab key={index} label={tab.label} />
+          ))} */}
+           <Tab label='Projects' />
+        </Tabs>
+         <Box sx={{ width: '100%', height: '1.5px', background: '#e0e0e0', mt: '-1px' }} />
       <TabPanel value={value} index={0}>
         <FileHistoryCards 
           cad_type="USER_CADS"
@@ -149,8 +186,11 @@ creatorId}) {
           totalPages={totalPages}
           setTotalPages={setTotalPages}
           creatorId={creatorId}
+       
         />
       </TabPanel>
+      </>
+    
       
       }
      

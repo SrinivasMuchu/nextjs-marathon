@@ -43,7 +43,8 @@ function TopNavProfileButton() {
           projects:data?.file_stats.totalFiles||0,
           views:data?.file_stats.totalViews||0,
           downloads:data?.file_stats.totalDownloads||0,
-          designation:data?.designation||''
+          designation:data?.designation||'',
+          username:data?.username,
         });
       }
     }

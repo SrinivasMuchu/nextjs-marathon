@@ -13,7 +13,7 @@ function FileStatus({status}) {
         }
       case 'processing':
         return {
-          icon: <FaSpinner className="animate-spin" />,
+          icon: <FaSpinner />,
           bgColor: 'bg-orange-500',
           textColor: 'text-white',
           label: 'Processing'

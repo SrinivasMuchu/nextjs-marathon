@@ -6,9 +6,9 @@ import { BASE_URL, IMAGEURLS, PHOTO_LINK } from '@/config'
 import styles from './Creators.module.css'
 import axios from 'axios';
 
-function CreatorCoverPage({ creatorId, viewer }) {
-  console.log(viewer)
-  const { user, setUser, setUpdatedDetails } = useContext(contextState);
+function CreatorCoverPage({ creatorId }) {
+  
+  const { user, setUser, setUpdatedDetails,viewer } = useContext(contextState);
   const fileInputRef = useRef(null);
 
 

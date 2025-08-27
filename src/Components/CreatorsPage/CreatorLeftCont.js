@@ -8,10 +8,10 @@ import CreatorLink from './CreatorLink'
 function CreatorLeftCont({creatorId,viewer}) {
   return (
     <div className={styles.creatorLeft} style={{display:'flex', flexDirection:'column', gap:'16px'}}>
-        <CreatorsProfile creatorId={creatorId} viewer={viewer}/>
-        <CreatorsStats creatorId={creatorId} viewer={viewer}/>
+        <CreatorsProfile creatorId={creatorId}/>
+        <CreatorsStats creatorId={creatorId}/>
         {/* <CreatorRating/> */}
-        <AboutCreator creatorId={creatorId} viewer={viewer}/>
+        <AboutCreator creatorId={creatorId}/>
        {!creatorId && <CreatorLink/>}
         {/* <ToolsAndSkills/>
         <WebsiteUrls/> */}

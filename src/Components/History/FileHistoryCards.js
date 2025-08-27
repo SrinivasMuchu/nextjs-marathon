@@ -25,6 +25,7 @@ import CadPublishedFiles from './CadPublishedFiles';
 let cachedCadHistory = {};
 
 function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages,creatorId }) {
+  
   const { setUploadedFile } = useContext(contextState);
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [downloading, setDownloading] = useState({});
@@ -37,7 +38,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const [pendingAction, setPendingAction] = useState(null);
   const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
-  const { user } = useContext(contextState);
+  const { user,viewer } = useContext(contextState);
+  // console.log(viewer,user)
   const limit = 10;
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -73,6 +75,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
         // Updated API call with search parameter and tag filter
         const apiParams = { 
           type: cad_type, 
+          username:creatorId&&creatorId,
           page: currentPage, 
           limit,
           search: debouncedSearchTerm
@@ -153,7 +156,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     return () => {
       isMounted = false;
     };
-  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter]); // Add selectedFilter to dependencies
+  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter, creatorId]); // Add selectedFilter to dependencies
 
   // Reset to page 1 when filter changes
   useEffect(() => {
