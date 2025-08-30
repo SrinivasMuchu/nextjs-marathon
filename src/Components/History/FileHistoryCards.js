@@ -21,6 +21,7 @@ import ProfilePage from './ProfilePage'
 import CadViewerFiles from './CadViewerFiles';
 import CadConvertorFiles from './CadConvertorFiles';
 import CadPublishedFiles from './CadPublishedFiles';
+import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 
 let cachedCadHistory = {};
 
@@ -35,6 +36,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const [loading, setLoading] = useState(true);
   const [publishCad, setPublishCad] = useState(false);
   const [isEmailVerify, setIsEmailVerify] = useState(false);
+  const [isUserVerified, setIsUserVerified] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
@@ -55,6 +57,15 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+
+
+  const handlePublishCad=()=>{
+    if(!localStorage.getItem('is_verified')){
+      setIsUserVerified(true)
+    }else{
+      setPublishCadPopUp(true)
+    }
+  }
   // Reset to page 1 when search term changes
   useEffect(() => {
     if (debouncedSearchTerm !== '') {
@@ -240,7 +251,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       window.URL.revokeObjectURL(downloadUrl);
       
       sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT });
-      router.push(`/tools/cad-renderer?fileId=${file._id}`);
+      // router.push(`/tools/cad-renderer?fileId=${file._id}`);
       
       setDownloading(prev => ({ ...prev, [index]: false }));
     } catch (error) {
@@ -261,6 +272,11 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     setIsEmailVerify(false);
   };
 
+   const getFileHref = (file) => {
+  return file.status === 'COMPLETED'
+    ? `/tools/cad-renderer?fileId=${file._id}`
+    : undefined;
+};
   return (
     <>
       <div className={styles.cadViewerContainer} style={{ width: '100%' }}>
@@ -270,6 +286,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             cadViewerFileHistory={cadViewerFileHistory}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            getFileHref={getFileHref}
+            setIsEmailVerify={setIsEmailVerify}
           />
         )}
         {cad_type === 'CAD_CONVERTER' && (
@@ -284,6 +302,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
         )}
         {cad_type === 'USER_CADS' && (
           <CadPublishedFiles 
+          handlePublishCad={handlePublishCad}
           setIsEmailVerify={setIsEmailVerify}
             loading={loading} 
             userCadFiles={userCadFiles}
@@ -297,6 +316,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
         )}
         {cad_type === 'USER_DOWNLOADS' && (
           <CadPublishedFiles 
+          handlePublishCad={handlePublishCad}
             loading={loading} 
             userCadFiles={userDownloadFiles} 
             type='downloads'
@@ -314,6 +334,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           {totalPages > 1 && <Pagenation currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />}
         </div>
       </div>
+      {isUserVerified && <UserLoginPupUp type='dashboard'
+       onClose={() => setIsUserVerified(false)} />}
       {publishCad && <ConvertedFileUploadPopup setPublishCad={setPublishCad} />}
       {isEmailVerify && <EmailOTP setIsEmailVerify={setIsEmailVerify} email={user.email} saveDetails={handlePostVerificationAction} />}
       {publishCadPopUp && <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>

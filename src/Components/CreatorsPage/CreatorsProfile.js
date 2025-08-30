@@ -259,7 +259,12 @@ function CreatorsProfile({ creatorId,setIsVerified }) {
               </div>
             )}
           </div>
-
+          {user.username && <div className={styles.editableField}>
+            <div className={styles.fieldDisplay}>
+              <span className={styles.profileDetailsRole} style={{color:'#610bee',fontSize:'16px',fontWeight:'400'}}>@{user.username}</span>
+            </div>
+          </div>}
+          
           {/* Email Field */}
           
 
@@ -320,6 +325,11 @@ function CreatorsProfile({ creatorId,setIsVerified }) {
             <span className={styles.profileDetailsTitle}>
               {profileData.name}
             </span>
+          </div>
+          <div className={styles.editableField}>
+            <div className={styles.fieldDisplay}>
+              <span className={styles.profileDetailsRole} style={{color:'#610bee',fontSize:'16px',fontWeight:'400'}}>@{profileData.username}</span>
+            </div>
           </div>
 
           {/* Email Field - View Only */}

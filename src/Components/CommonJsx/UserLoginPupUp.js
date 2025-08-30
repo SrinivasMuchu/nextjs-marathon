@@ -118,8 +118,8 @@ console.log(type)
                     setUpdatedDetails(user)
                     onClose()
                     route.push('/dashboard')
-                } else if (type === 'creator') {
-                    console.log('creator 122')
+                } else if (type === 'creator'||type === 'dashboard') {
+                   
                     window.location.reload()
                 } else {
                     setUpdatedDetails(user)
@@ -209,7 +209,7 @@ console.log(type)
                 if (type === "profile") {
                     setUpdatedDetails(user)
                     route.push('/dashboard')
-                } else if (type === 'creator') {
+                } else if (type === 'creator' || type === 'dashboard') {
                   window.location.reload()
                 } else {
                     setUpdatedDetails(user)

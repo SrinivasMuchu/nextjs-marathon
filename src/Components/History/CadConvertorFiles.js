@@ -10,7 +10,7 @@ import FileStatus from '../CommonJsx/FileStatus';
 import { SiConvertio } from "react-icons/si";
 import Link from 'next/link';
 
-function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownloadsearchTerm, setSearchTerm,searchTerm}) {
+function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownload,searchTerm, setSearchTerm}) {
   return (
     <div className={styles.cadViewerContainerContent}>
  <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>

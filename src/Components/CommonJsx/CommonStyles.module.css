@@ -353,7 +353,10 @@
     width: 90%;
     padding: 24px;
   }
-  
+  .publishPopUp{
+    width:100%;
+    padding: 12px;
+  }
   .header h2 {
     font-size: 20px;
   }

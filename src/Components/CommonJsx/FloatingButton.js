@@ -39,7 +39,7 @@ function FloatingButton() {
             Convert CAD
           </Link>
           <Link
-            href={localStorage.getItem("is_verified") ? "/dashboard" : "/publish-cad"}
+            href="/publish-cad"
             onClick={() =>{
               sendGAtagEvent({ event_name: 'floating_button_publish_click', event_category: CAD_FLOATING_BUTTON_EVENT });
               setShowOptions(false);

@@ -15,7 +15,7 @@ import axios from 'axios';
 
 function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
   setSearchTerm,selectedFilter,setSelectedFilter,
-  setPublishCadPopUp,creatorId,setIsEmailVerify}) {
+  setPublishCadPopUp,creatorId,handlePublishCad}) {
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   const [allFilters, setAllFilters] = useState([{ id: 'All', label: 'All' }]); // Store objects with id and label
   const [loadingFilters, setLoadingFilters] = useState(true);
@@ -64,6 +64,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
     setSelectedFilter(filter); // This will now update the parent component's state with the filter object
     setShowMoreDropdown(false);
   };
+
 
   
   return (
@@ -281,7 +282,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
                 transition: 'all 0.2s ease',
                 whiteSpace: 'nowrap'
               }}
-              onClick={() => setPublishCadPopUp(true)}
+              onClick={handlePublishCad}
               onMouseEnter={(e) => {
                 e.target.style.background = '#610BEE';
                 e.target.style.color = 'white';
@@ -301,7 +302,8 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
           <div className={styles.historyContainer}>
             {/* Projects Grid */}
             {userCadFiles.map((file, index) => (
-              <Link key={index} href={`/library/${file.route}`} className={libraryStyles["library-designs-items-container"]}
+              <Link key={index} href={`/library/${file.route}`}
+              style={{width:'315px'}} className={libraryStyles["library-designs-items-container"]}
                 onClick={e => !file.is_uploaded && e.preventDefault()}
               >
                 <div className={libraryStyles["library-designs-items-container-cost"]}>Free</div>
@@ -309,14 +311,14 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
                   <FileStatus status={!file.is_uploaded?'Pending':'Completed'} />
                 </div>
                 {file.is_uploaded ?
-                  <HoverImageSequence design={file} width={300} height={250} />
-                  : <div style={{ width: '100%', height: '250px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
+                  <HoverImageSequence design={file} width={315} height={180} />
+                  : <div style={{ width: '100%', height: '180px', background: '#e6e4f0' }} />}
                 <div className={libraryStyles["design-stats-wrapper"]}>
                   <DesignStats views={file.total_design_views ?? 0}
                     downloads={file.total_design_downloads ?? 0} />
                 </div>
                 <div className={libraryStyles["design-title-wrapper"]}>
-                  <h6 title={file.page_title}>{file.page_title}</h6>
+                  <h6 title={file.page_title} style={{height:'55px'}}>{file.page_title}</h6>
                   {/* <p title={file.page_description}>{textLettersLimit(file.page_description, 120)}</p> */}
                   <div className={libraryStyles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                     {file.category_labels && file.category_labels.map((label, index) => (
@@ -341,7 +343,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
             <Image src={IMAGEURLS.nofilesLogo} alt="No files" width={135} height={135} />
             {!type ? <>
              <span>{!creatorId?"You don't have any projects yet.":'No projects yet.'}<br />
-             {!creatorId && <> <button onClick={() => setPublishCadPopUp(true)} style={{ color: 'blue' }}>Upload</button> your project files</>}
+             {!creatorId && <> <button onClick={handlePublishCad} style={{ color: 'blue' }}>Upload</button> your project files</>}
             </span>
             </>:<>
              <span>You have no downloads yet<br />

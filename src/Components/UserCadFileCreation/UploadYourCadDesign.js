@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
 import CreatableSelect from 'react-select/creatable';
-import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
+import { createDropdownCustomStyles, sendGAtagEvent, textLettersLimit } from '@/common.helper';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 
 function UploadYourCadDesign({ editedDetails }) {
@@ -20,7 +20,7 @@ function UploadYourCadDesign({ editedDetails }) {
     const [isChecked, setIsChecked] = useState(editedDetails ? editedDetails.is_downloadable : true);
     const [cadFile, setCadFile] = useState({
         title: editedDetails ? editedDetails.page_title : '',
-        description: editedDetails ? editedDetails.page_description : '', tags:  ''
+        description: editedDetails ? editedDetails.page_description : '', tags: ''
     });
     const [url, setUrl] = useState('');
     const [fileFormat, setFileFormat] = useState('');
@@ -208,7 +208,7 @@ function UploadYourCadDesign({ editedDetails }) {
             if (response.data.meta.success) {
                 if (localStorage.getItem('is_verified')) {
 
-                    window.location.reload();
+                    router.push("/dashboard")
                 } else {
                     setIsApiSlow(true);
                 }
@@ -275,7 +275,7 @@ function UploadYourCadDesign({ editedDetails }) {
             if (response.data.meta.success) {
                 if (localStorage.getItem('is_verified')) {
 
-                    window.location.reload();
+                    router.push('/dashboard');
                 } else {
                     setIsApiSlow(true);
                 }
@@ -381,8 +381,8 @@ function UploadYourCadDesign({ editedDetails }) {
     };
 
     const handleZoneSelection = (selected) => {
-  setSelectedOptions(selected || []);
-};
+        setSelectedOptions(selected || []);
+    };
 
 
 
@@ -458,9 +458,21 @@ function UploadYourCadDesign({ editedDetails }) {
 
 
 
-                            <div style={{ marginTop: '10px', width: '50%', textAlign: 'center' }}>
+                            <div style={{ marginTop: '10px', width: '50%', textAlign: 'center', width: '100%' }}>
                                 <div>
-                                    <span>{uploadedFile.file_name}</span>
+                                    <span
+                                        style={{
+                                            display: 'inline-block',
+                                            maxWidth: '100%',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            verticalAlign: 'bottom'
+                                        }}
+                                        title={uploadedFile.file_name}
+                                    >
+                                        {uploadedFile.file_name}
+                                    </span>
                                 </div>
                                 <div style={{ background: '#e0e0e0', borderRadius: '10px', overflow: 'hidden' }}>
                                     <div style={{
@@ -496,7 +508,7 @@ function UploadYourCadDesign({ editedDetails }) {
                 <div className="mt-6">
                     <div>
                         <input
-                            placeholder="Title (minimum 40 characters)"
+                            placeholder="0 5M Spur Gear | High-Quality CAD Model"
                             type="text"
                             className="mb-4"
                             maxLength={TITLELIMIT}
@@ -513,7 +525,7 @@ function UploadYourCadDesign({ editedDetails }) {
                     </div>
                     <div>
                         <textarea
-                            placeholder="Description (minimum 100 characters)"
+                            placeholder="Designed for engineers and designers, 0 5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
                             className="mb-4"
                             value={cadFile.description}
                             maxLength={DESCRIPTIONLIMIT}
@@ -550,7 +562,7 @@ function UploadYourCadDesign({ editedDetails }) {
                         value={cadFile.tags}
                         onChange={(e) => setCadFile({ ...cadFile, tags: e.target.value })}
                     /> */}
-                    
+
 
                     {hasUserEmail ? (
                         <button

@@ -11,7 +11,8 @@ import { textLettersLimit } from '@/common.helper';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 
-function CadViewerFiles({loading, cadViewerFileHistory, searchTerm, setSearchTerm}) {
+function CadViewerFiles({loading, cadViewerFileHistory, searchTerm, 
+  setSearchTerm,getFileHref,setIsEmailVerify}) {
   return (
     <div className={styles.cadViewerContainerContent}>
             <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
@@ -85,11 +86,15 @@ function CadViewerFiles({loading, cadViewerFileHistory, searchTerm, setSearchTer
                     {cadViewerFileHistory.map((file, index) => (
                       <a
                         key={index}
-
-                        href={file.status === 'COMPLETED' ? `/tools/cad-renderer?fileId=${file._id}` : undefined}
+                        href={getFileHref(file)}
                         className={styles.historyItem}
                         style={{ width: '310px', position: 'relative' }}
                         onClick={e => {
+                          if (!localStorage.getItem('is_verified')) {
+                            e.preventDefault();
+                            setIsEmailVerify(true); // <-- call this here, not in getFileHref
+                            return;
+                          }
                           if (file.status !== 'COMPLETED') {
                             e.preventDefault();
                             return;

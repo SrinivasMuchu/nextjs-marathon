@@ -1,14 +1,21 @@
 "use client"
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import styles from "./CreatorsDashboard.module.css";
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from "../CommonJsx/UserLoginPupUp";
 import Link from "next/link";
 
-function CreatorDashboardButton({buttonName}) {
+function CreatorDashboardButton({ buttonName }) {
   const [emailVerify, setEmailVerify] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const route = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsVerified(!!localStorage.getItem("is_verified"));
+    }
+  }, []);
 
   const handleDashboard = () => {
     if (!localStorage.getItem("is_verified")) {
@@ -21,16 +28,22 @@ function CreatorDashboardButton({buttonName}) {
   return (
     <>
       <div className={styles.creatorDashboardButtonContainer}>
-        {buttonName==='Explore Designs'? <Link className={styles.creatorDashboardButtonCreate} href='/library'>{buttonName}</Link>: <button
-          className={styles.creatorDashboardButtonCreate}
-          onClick={handleDashboard}
-        >
-         {buttonName}
-        </button>}
-       
-        {/* <button className={styles.creatorDashboardButton}>
-          Already have files? Start Uploading
-        </button> */}
+        {buttonName === "Explore Designs" ? (
+          <Link className={styles.creatorDashboardButtonCreate} href="/library">
+            {buttonName}
+          </Link>
+        ) : isVerified ? (
+          <Link className={styles.creatorDashboardButtonCreate} href="/dashboard">
+            Go to Dashboard
+          </Link>
+        ) : (
+          <button
+            className={styles.creatorDashboardButtonCreate}
+            onClick={handleDashboard}
+          >
+            {buttonName}
+          </button>
+        )}
       </div>
 
       {emailVerify &&
@@ -43,13 +56,13 @@ function CreatorDashboardButton({buttonName}) {
               right: 0,
               bottom: 0,
               background: "rgba(0,0,0,0.6)",
-              zIndex: 9999, // maximum priority
+              zIndex: 9999,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <UserLoginPupUp type="profile" onClose={()=>setEmailVerify(false)}/>
+            <UserLoginPupUp type="profile" onClose={() => setEmailVerify(false)} />
           </div>,
           document.body
         )}

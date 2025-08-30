@@ -30,9 +30,9 @@ function PublishItems() {
           <span className="inline-flex rounded-xl bg-white/10 p-2">
             {item.icon}
           </span>
-          <div>
-            <p className="text-white font-semibold">{item.title}</p>
-            <p className="text-violet-100 text-sm" >{item.description}</p>
+          <div >
+            <p style={{textAlign:'left'}} className="text-white font-semibold">{item.title}</p>
+            <p style={{textAlign:'left'}} className="text-violet-100 text-sm" >{item.description}</p>
           </div>
         </li>
       ))}
