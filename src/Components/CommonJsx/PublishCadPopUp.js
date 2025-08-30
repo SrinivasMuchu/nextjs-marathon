@@ -12,7 +12,7 @@ function PublishCadPopUp({onClose,editedDetails}) {
                 <button className={styles.closeButton} onClick={onClose}>
                         ×
                     </button>
-            <UploadYourCadDesign editedDetails={editedDetails}/>
+            <UploadYourCadDesign editedDetails={editedDetails} onClose={onClose}/>
         </div>
     </PopupWrapper>
   )

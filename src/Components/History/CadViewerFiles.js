@@ -112,7 +112,7 @@ function CadViewerFiles({loading, cadViewerFileHistory, searchTerm,
                         <div className={styles.historyFileDetails}>
                           <span style={{ fontSize: '16px', fontWeight: '500' }}>{textLettersLimit(file.file_name, 20)}</span></div>
                         <div style={{ width: '75px', fontSize: '12px' }}>
-                          <DesignDetailsStats fileType={file.file_type ? `.${file.file_type.toLowerCase()}` : '.STEP'} text={file.file_type ? `.${file.file_type.toUpperCase()}` : '.STEP'} />
+                          <DesignDetailsStats fileType={file.output_format ? `.${file.output_format.toLowerCase()}` : '.STEP'} text={file.output_format ? `.${file.output_format.toUpperCase()}` : '.STEP'} />
                         </div>
 
                         {/* <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div> */}

@@ -19,7 +19,7 @@ function CreatorDashboardHeader() {
       </div>
       <div className={styles.headerContent}>
         <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight">Publish. Earn. Inspire.</h1>
-        <p className="text-violet-100 text-lg sm:text-xl leading-relaxed">Turn your CAD designs into income or share them freely with the open-source 
+        <p className=" text-violet-100 text-lg sm:text-xl leading-relaxed">Turn your CAD designs into income or share them freely with the open-source 
           <br/>hardware community.</p>
         {/* <PublishItems/> */}
         <div className={styles.buttonRowBottom}>

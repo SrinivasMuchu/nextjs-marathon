@@ -35,7 +35,9 @@
 }
 
 .buttonRowBottom {
-    margin-top: auto;
+    /* margin-top: auto; */
+    position:absolute;
+    bottom:40px;
     display: flex;
     align-items: center;
     gap: 24px;

@@ -14,7 +14,7 @@ import CreatableSelect from 'react-select/creatable';
 import { createDropdownCustomStyles, sendGAtagEvent, textLettersLimit } from '@/common.helper';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 
-function UploadYourCadDesign({ editedDetails }) {
+function UploadYourCadDesign({ editedDetails,onClose }) {
     const fileInputRef = useRef(null);
     const uploadAbortControllerRef = useRef(null); // AbortController ref
     const [isChecked, setIsChecked] = useState(editedDetails ? editedDetails.is_downloadable : true);
@@ -209,6 +209,7 @@ function UploadYourCadDesign({ editedDetails }) {
                 if (localStorage.getItem('is_verified')) {
 
                     router.push("/dashboard")
+                    onClose()
                 } else {
                     setIsApiSlow(true);
                 }
@@ -276,6 +277,7 @@ function UploadYourCadDesign({ editedDetails }) {
                 if (localStorage.getItem('is_verified')) {
 
                     router.push('/dashboard');
+                    onClose()
                 } else {
                     setIsApiSlow(true);
                 }
