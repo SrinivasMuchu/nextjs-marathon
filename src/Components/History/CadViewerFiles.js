@@ -113,9 +113,15 @@ function CadViewerFiles({ loading, cadViewerFileHistory, searchTerm,
                     <span style={{ fontSize: '16px', fontWeight: '500' }}>{textLettersLimit(file.file_name, 20)}</span></div>
                   <div style={{ width: '75px', fontSize: '12px' }}>
                     <DesignDetailsStats
-                      fileType={file?.filename ? `.${file.filename.split('.').pop().toLowerCase()}` : ".step"}
-                      text={file?.filename ? `.${file.filename.split('.').pop().toUpperCase()}` : ".STEP"}
+                      fileType={file?.file_name && file.file_name.includes(".")
+                        ? `.${file.file_name.split(".").pop().toLowerCase()}`
+                        : ".step"}
+                      text={file?.file_name && file.file_name.includes(".")
+                        ? `.${file.file_name.split(".").pop().toUpperCase()}`
+                        : ".STEP"}
                     />
+
+
 
                   </div>
 
