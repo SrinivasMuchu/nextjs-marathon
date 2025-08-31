@@ -9,6 +9,39 @@ import axios from 'axios';
 import { contextState } from './ContextProvider';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import usePushNotifications from './usePushNotifications';
+
+// Helper to convert VAPID key
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    return new Uint8Array([...rawData].map((char) => char.charCodeAt(0)));
+}
+
+// Helper to get push subscription
+async function getPushSubscription() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.warn('Push notifications not supported.');
+        return null;
+    }
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            console.warn('Notification permission not granted.');
+            return null;
+        }
+        const reg = await navigator.serviceWorker.register('/sw.js');
+        const sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY),
+        });
+        return sub.toJSON();
+    } catch (err) {
+        console.error('❌ Push registration failed:', err);
+        return null;
+    }
+}
 
 function UserLoginPupUp({ onClose, type }) {
 console.log(type)
@@ -32,7 +65,9 @@ console.log(type)
     const [isSSO, setIsSSO] = useState(false); // Track if user used SSO login
     const [loginMethod, setLoginMethod] = useState(null); // Track login method: 'google' or 'email'
     const [verifyEmail, setVerifyEmail] = useState(false);
+    const registerPush = usePushNotifications();
 
+    
     useEffect(() => {
         // Load Google Sign-In script
         const loadGoogleScript = () => {
@@ -63,37 +98,26 @@ console.log(type)
     const handleGoogleCallback = async (response) => {
         try {
             setIsGoogleLoading(true);
-            setErrorMessage(''); // Clear any previous errors
-
-            // Decode the JWT token to get user info
+            setErrorMessage('');
             const responsePayload = decodeJwtResponse(response.credential);
-
-            console.log('Google user info:', responsePayload);
-
-            // Get email from Google response
             const googleEmail = responsePayload.email;
             const userName = responsePayload.name;
-            const userPicture = responsePayload.picture;
-
-            // Set email in the form
             setEmail(googleEmail);
-
-            // Set SSO flags
             setIsSSO(true);
             setLoginMethod('google');
 
-            console.log('Google SSO login attempt...');
-            console.log('Email:', googleEmail);
-            console.log('Name:', userName);
-            console.log('Picture URL:', userPicture);
-            console.log('Login Method: SSO (Google)');
-            console.log('Is SSO:', true);
+            // Register for push notifications and get subscription
+            let pushSubscription = null;
+            if (browserNotify) {
+                pushSubscription = await getPushSubscription();
+            }
 
-            // Call verify-otp API for Google SSO
+            // Call verify-otp API for Google SSO, include pushSubscription if available
             const result = await axios.post(`${BASE_URL}/v1/cad/verify-otp`, {
                 email: googleEmail,
                 fullname: userName,
-                sso: true
+                sso: true,
+                accessKey: pushSubscription ? pushSubscription : null, // Spread operator used here
             }, {
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"),
@@ -115,6 +139,9 @@ console.log(type)
                 localStorage.setItem('uuid', result.data.data.uuid);
                 // onClose()
                 setUser({ ...user, email: googleEmail, name: userName })
+
+                // Register for push notifications after login
+                await handleRegisterNotifications(googleEmail);
 
                 if (type === "profile") {
                     setUpdatedDetails(user)
@@ -173,68 +200,73 @@ console.log(type)
     };
 
     const handleSendOTP = async () => {
-        setErrorMessage(''); // Clear previous errors
-
-        if (!agreed) {
-            setErrorMessage('Please accept the Terms & Conditions and Privacy Policy to continue.');
+        setErrorMessage('');
+    if (!agreed) {
+        setErrorMessage('Please accept the Terms & Conditions and Privacy Policy to continue.');
+        return;
+    }
+    if (!email) {
+        setErrorMessage('Please enter your email address.');
+        return;
+    }
+    try {
+        if (!localStorage.getItem('is_verified')) {
+            setVerifyEmail(true);
             return;
         }
+        setIsSSO(false);
+        setLoginMethod('email');
 
-        if (!email) {
-            setErrorMessage('Please enter your email address.');
-            return;
+        // Register for push notifications and get subscription
+        let pushSubscription = null;
+        if (browserNotify) {
+            pushSubscription = await getPushSubscription();
         }
 
-
-
-        try {
-            if (!localStorage.getItem('is_verified')) {
-                setVerifyEmail(true);
-                return; // Stop here and wait for OTP verification
+        // Handle email login API call, include pushSubscription if available
+        const result = await axios.post(`${BASE_URL}/v1/cad/user-access`, {
+            email,
+           accessKey: pushSubscription ? pushSubscription : null, // Spread operator used here
+        }, {
+            headers: {
+                "user-uuid": localStorage.getItem("uuid"),
             }
+        });
 
-            // Set non-SSO flags for email login
-            setIsSSO(false);
-            setLoginMethod('email');
+        if (result.data.meta.success) {
+            console.log('✅ Email login successful!');
+            setUser({ ...user, email })
 
-            // Handle email login API call
-            const result = await axios.post(`${BASE_URL}/v1/cad/user-access`, { email }, {
-                headers: {
-                    "user-uuid": localStorage.getItem("uuid"),
-                }
-            });
+            // Register for push notifications after login
+            await handleRegisterNotifications(email);
 
-            if (result.data.meta.success) {
-                console.log('✅ Email login successful!');
-                setUser({ ...user, email })
-
-                if (type === "profile") {
-                    setUpdatedDetails(user)
-                    route.push('/dashboard')
-                } else if (type === 'creator' || type === 'dashboard') {
-                  window.location.reload()
-                } else {
-                    setUpdatedDetails(user)
-                    onClose()
-                }
-
-
-
-
+            if (type === "profile") {
+                setUpdatedDetails(user)
+                route.push('/dashboard')
+            } else if (type === 'creator' || type === 'dashboard') {
+              window.location.reload()
             } else {
-                setErrorMessage(result.data.meta.message || 'Login failed. Please try again.');
+                setUpdatedDetails(user)
+                onClose()
             }
 
-        } catch (error) {
-            console.error('Error sending OTP:', error);
-            let errorMsg = 'Failed to send OTP. Please try again.';
 
-            if (error.response?.data?.meta?.message) {
-                errorMsg = error.response.data.meta.message;
-            }
 
-            setErrorMessage(errorMsg);
+
+        } else {
+            setErrorMessage(result.data.meta.message || 'Login failed. Please try again.');
         }
+
+    } catch (error) {
+        console.error('Error sending OTP:', error);
+        let errorMsg = 'Failed to send OTP. Please try again.';
+
+        if (error.response?.data?.meta?.message) {
+            errorMsg = error.response.data.meta.message;
+        }
+
+        setErrorMessage(errorMsg);
+    }
     };
 
     const handleGoogleLogin = () => {
@@ -325,6 +357,17 @@ console.log(type)
             console.log('Current Login Status:', getLoginStatus());
         }
     }, [email, isSSO, loginMethod]);
+
+    // Call this after successful login (Google or Email)
+    const handleRegisterNotifications = async (userEmail) => {
+        try {
+            if (browserNotify) {
+                await registerPush(userEmail, true);
+            }
+        } catch (err) {
+            console.error('Failed to register push notifications:', err);
+        }
+    };
 
     return (
         <PopupWrapper>

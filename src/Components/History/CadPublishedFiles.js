@@ -306,10 +306,17 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
               style={{width:'315px'}} className={libraryStyles["library-designs-items-container"]}
                 onClick={e => !file.is_uploaded && e.preventDefault()}
               >
-                <div className={libraryStyles["library-designs-items-container-cost"]}>Free</div>
-                <div style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
+              {/* {!type ?  <div className={libraryStyles["library-designs-items-container-cost"]}>
+                  Free</div>:
+                  <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
+
                   <FileStatus status={!file.is_uploaded?'Pending':'Completed'} />
                 </div>
+                  }  */}
+                
+
+                 <div style={{ position: 'absolute', top: '10px', left: '10px' }}>  <FileStatus status={!file.is_uploaded?'Pending':'Completed'} />  </div>
+               
                 {file.is_uploaded ?
                   <HoverImageSequence design={file} width={315} height={180} />
                   : <div style={{ width: '100%', height: '180px', background: '#e6e4f0' }} />}
@@ -329,7 +336,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
                     ))}
                     <DesignDetailsStats fileType={file.file_type ? `.${file.file_type.toLowerCase()}` : '.STEP'} text={file.file_type ? `.${file.file_type.toUpperCase()}` : '.STEP'} />
                   </div>
-                  <span className={libraryStyles["design-title-wrapper-price"]}>Free</span>
+                  {/* <span className={libraryStyles["design-title-wrapper-price"]}>Free</span> */}
                 </div>
               </Link>
             ))}
