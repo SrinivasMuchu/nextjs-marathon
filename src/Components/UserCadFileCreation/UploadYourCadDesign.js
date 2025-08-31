@@ -11,8 +11,8 @@ import { useRouter } from "next/navigation";
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
 import CreatableSelect from 'react-select/creatable';
-import { createDropdownCustomStyles, sendGAtagEvent, textLettersLimit } from '@/common.helper';
-import HoverImageSequence from '../CommonJsx/RotatedImages';
+import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
+
 
 function UploadYourCadDesign({ editedDetails,onClose }) {
     const fileInputRef = useRef(null);
@@ -37,7 +37,7 @@ function UploadYourCadDesign({ editedDetails,onClose }) {
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [info, setInfo] = useState(false);
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
-    const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile } = useContext(contextState);
+    const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate } = useContext(contextState);
     const [options, setOptions] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
     useEffect(() => {
@@ -209,6 +209,7 @@ function UploadYourCadDesign({ editedDetails,onClose }) {
                 if (localStorage.getItem('is_verified')) {
 
                     router.push("/dashboard")
+                      setCadDetailsUpdate(response)
                     onClose()
                 } else {
                     setIsApiSlow(true);
@@ -277,6 +278,7 @@ function UploadYourCadDesign({ editedDetails,onClose }) {
                 if (localStorage.getItem('is_verified')) {
 
                     router.push('/dashboard');
+                    setCadDetailsUpdate(response)
                     onClose()
                 } else {
                     setIsApiSlow(true);

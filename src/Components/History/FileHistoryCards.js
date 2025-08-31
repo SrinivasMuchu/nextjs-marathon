@@ -1,19 +1,12 @@
 "use client";
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL, CAD_CONVERTER_EVENT, ASSET_PREFIX_URL, IMAGEURLS } from '@/config';
-import Image from 'next/image';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL,  CAD_CONVERTER_EVENT,  } from '@/config';
 import styles from './FileHistory.module.css';
-import EastIcon from '@mui/icons-material/East';
-import { textLettersLimit } from '@/common.helper';
 import Pagenation from '../CommonJsx/Pagenation';
-import Loading from '../CommonJsx/Loaders/Loading';
 import { sendGAtagEvent } from "@/common.helper";
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 import { contextState } from '../CommonJsx/ContextProvider';
-
-import libraryStyles from '../Library/Library.module.css'
-import TellUsAboutYourself from '../UserCadFileCreation/TellUsAboutYourself';
 import EmailOTP from '../CommonJsx/EmailOTP';
 import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
 import { useRouter } from "next/navigation";
@@ -39,8 +32,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const [isUserVerified, setIsUserVerified] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [publishCadPopUp, setPublishCadPopUp] = useState(null);
+  // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
-  const { user,viewer } = useContext(contextState);
+  const { user,cadDetailsUpdate } = useContext(contextState);
   // console.log(viewer,user)
   const limit = 10;
   const router = useRouter();
@@ -167,7 +161,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     return () => {
       isMounted = false;
     };
-  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter, creatorId]); // Add selectedFilter to dependencies
+  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter, creatorId,cadDetailsUpdate]); // Add selectedFilter to dependencies
 
   // Reset to page 1 when filter changes
   useEffect(() => {

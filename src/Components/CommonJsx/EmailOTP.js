@@ -17,7 +17,7 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
   const router = useRouter();
   // Safe router usage - handle case where router might not be available
   const handleNavigateToProfile=()=>{
-    router.push('/dashboard?cad_type=USER_PROFILE');
+    router.push('/dashboard');
   }
 
   
@@ -53,7 +53,7 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
   useEffect(() => {
     if(!email){
       
-      router.push('/dashboard?cad_type=USER_PROFILE');
+      router.push('/dashboard');
       toast.info('Please update your profile')
       setIsEmailVerify(false)
       return;
