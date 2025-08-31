@@ -16,14 +16,16 @@ console.log(type)
     console.log('Google Client ID:', user.email);
     const route = useRouter();
     const [email, setEmail] = useState(user?.email || "");
-
+    const [browserNotify, setBrowserNotify] = useState(true);
     // Sync email when user context updates
     useEffect(() => {
         if (user?.email) {
             setEmail(user.email);
         }
     }, [user?.email]);
-
+     const handleNotificationToggle = () => {
+    setBrowserNotify(!browserNotify);
+  };
     const [agreed, setAgreed] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -400,8 +402,28 @@ console.log(type)
                                 isSSO ? 'Logged in with Google' :
                                     'Continue with Google'}
                         </button>
-
-                        <div className={styles.termsSection}>
+                         <div className="flex items-center gap-3 mb-6">
+          <span className="text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11c0-3.07-1.64-5.64-5-6.32V4a1 1 0 10-2 0v.68c-3.36.68-5 3.25-5 6.32v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </span>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <span className="text-gray-700">Enable Browser Notifications</span>
+            <input
+              type="checkbox"
+              className="sr-only"
+              checked={browserNotify}
+              onChange={handleNotificationToggle}
+            />
+            <div className={`w-10 h-5 rounded-full ${browserNotify ? 'bg-blue-600' : 'bg-gray-300'} relative`}>
+              <div
+                className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transition-transform ${browserNotify ? 'translate-x-5' : ''}`}
+              />
+            </div>
+          </label>
+        </div>
+                        <div className={styles.notificationsSection}>
                             <label className={styles.checkboxContainer}>
                                 <input
                                     type="checkbox"
