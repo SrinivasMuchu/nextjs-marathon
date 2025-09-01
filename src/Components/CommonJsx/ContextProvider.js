@@ -15,12 +15,27 @@ function ContextProvider({children}) {
      const [anchorAds, setAnchorAds] = useState(false);
     const [uploadedFile, setUploadedFile] = useState({});
     const [isProfileComplete, setIsProfileComplete] = useState(false);
-      const [user, setUser] = useState({ name: '', email: '', photo: '',user_access_key: '' });
+    const [updatedDetails, setUpdatedDetails] = useState(false);
+    const [cadDetailsUpdate, setCadDetailsUpdate] = useState(false);
+    const [user, setUser] = useState({ 
+        name: '', email: '', photo: '',_id:'',
+        user_access_key: '', desc: '', 
+        skills: [], website: '', linkedin: '',
+        cover_image: '',projects:0,views:0,downloads:0,
+      designation:'',username:'' });
+    const [viewer, setViewer] = useState({ 
+        name: '', email: '', photo: '',_id:'',
+        user_access_key: '', desc: '', 
+        skills: [], website: '', linkedin: '',
+        cover_image: '',projects:0,views:'0',downloads:'0',
+      designation:'',username:'' });
   return (
     <contextState.Provider value={{ 
       file, setFile,allowedFormats, setAllowedFormats,
-      paramsText, setParamsText,hasUserEmail, setHasUserEmail,
-      uploadedFile, setUploadedFile,user, setUser,isProfileComplete, setIsProfileComplete,anchorAds, setAnchorAds }}>
+      paramsText, setParamsText,hasUserEmail, setHasUserEmail,updatedDetails, setUpdatedDetails,
+      uploadedFile, setUploadedFile,user, setUser,isProfileComplete,
+       setIsProfileComplete,anchorAds, setAnchorAds,viewer, setViewer,
+       cadDetailsUpdate, setCadDetailsUpdate }}>
     {children}
   </contextState.Provider>
   )

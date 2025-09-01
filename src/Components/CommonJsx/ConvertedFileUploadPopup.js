@@ -1,11 +1,12 @@
 "use client"
-import React,{useEffect} from 'react'
+import React,{useEffect,useState} from 'react'
 import PopupWrapper from './PopupWrapper';
 import styles from './CommonStyles.module.css';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useRouter } from "next/navigation";
 import { sendGAtagEvent } from '@/common.helper';
 import { CAD_PUBLISH_EVENT } from '@/config';
+import PublishCadPopUp from './PublishCadPopUp';
 
 const features = [
     {
@@ -36,6 +37,7 @@ const features = [
 ];
 
 function ConvertedFileUploadPopup({url,setPublishCad}) {
+    const [publishCadPopUp, setPublishCadPopUp] = useState(false);
     const router = useRouter();
     const handlePublish = () => {
         // Example object to save
@@ -46,8 +48,8 @@ function ConvertedFileUploadPopup({url,setPublishCad}) {
             event_url: window.location.pathname 
         });
         // Save object as JSON string
-      
-        router.push("/publish-cad");
+      setPublishCadPopUp(true);
+        // router.push("/publish-cad");
     };
     useEffect(() => {
         sendGAtagEvent({ 
@@ -57,6 +59,8 @@ function ConvertedFileUploadPopup({url,setPublishCad}) {
         });
     }, []);
     return (
+        <>
+        {publishCadPopUp ? <PublishCadPopUp onClose={() => setPublishCadPopUp(false)} />:
         <PopupWrapper>
             <div className={styles.cadConvertPopup}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
@@ -89,7 +93,9 @@ function ConvertedFileUploadPopup({url,setPublishCad}) {
                 </div>
 
             </div>
-        </PopupWrapper>
+        </PopupWrapper>}
+        </>
+        
     )
 }
 

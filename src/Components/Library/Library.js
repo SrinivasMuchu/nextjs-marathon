@@ -115,8 +115,8 @@ async function Library({ searchParams }) {
                       downloads={design.total_design_downloads ?? 0} />
                   </div>
                   <div className={styles["design-title-wrapper"]}>
-                    <h6 title={design.page_title}>{textLettersLimit(design.page_title, 30)}</h6>
-                     <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>
+                    <h6 title={design.page_title}>{design.page_title}</h6>
+                     {/* <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p> */}
                     <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center',flexWrap:'wrap' }}>
                       {/* {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />} */}
                       {design.category_labels && design.category_labels.map((label, index) => (

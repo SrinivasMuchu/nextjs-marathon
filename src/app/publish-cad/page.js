@@ -19,12 +19,12 @@ export const metadata = {
 
 
 import React from 'react'
-import UserCadFileUpload from '@/Components/UserCadFileCreation/UserCadFileUpload';
+import CreatorDashboard from '@/Components/CreatorsLanding/CreatorDashboard'
 
 function PublishCad() {
   return (
     <>
-      <UserCadFileUpload />
+      <CreatorDashboard/>
     </>
   )
 }

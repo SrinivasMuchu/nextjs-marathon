@@ -11,13 +11,13 @@ import Link from 'next/link';
 function TopNavProfileButton() {
   const [openDemoForm, setOpenDemoForm] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
-  const { user, setUser, setIsProfileComplete } = useContext(contextState);
+  const { user, setUser, setIsProfileComplete,isProfileComplete,updatedDetails, setUpdatedDetails, } = useContext(contextState);
   
   useEffect(() => {
     // Only run on client side
     setIsVerified(localStorage.getItem('is_verified'));
     getUserDetails();
-  }, []);
+  }, [updatedDetails]);
 
   const getUserDetails = async () => {
     try {
@@ -30,10 +30,21 @@ function TopNavProfileButton() {
         const data = res.data.data;
         console.log("User details fetched successfully:", data);
         setUser({
+          _id:data?._id,
           email: data?.user_email || '',
           name: data?.full_name || '',
           photo: data?.photo || '',
-          user_access_key: data?.user_access_key || false
+          user_access_key: data?.user_access_key || false,
+          desc: data?.creator_des || '',
+          skills: data?.creator_specific_cad_category || [],
+          website: data?.website_url || '',
+          linkedin: data?.linkedin_url || '',
+          cover_image:data?.cover_photo || '',
+          projects:data?.file_stats.totalFiles||0,
+          views:data?.file_stats.totalViews||0,
+          downloads:data?.file_stats.totalDownloads||0,
+          designation:data?.designation||'',
+          username:data?.username,
         });
       }
     }
@@ -45,7 +56,7 @@ function TopNavProfileButton() {
   return (
     <>
       {isVerified ? (
-        <Link href="/dashboard?cad_type=USER_PROFILE" className={styles['profile-button']}>
+        <Link href="/dashboard" className={styles['profile-button']}>
           <NameProfile userName={user.name?user.name:user.email} memberPhoto={user.photo} width={50} height={50} border={true}/></Link>
         ) : ( 
           <>

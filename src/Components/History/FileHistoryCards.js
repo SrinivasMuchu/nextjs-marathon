@@ -1,53 +1,100 @@
 "use client";
-import React, { useState, useEffect,useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL, CAD_CONVERTER_EVENT, allowedFilesList } from '@/config';
-import Image from 'next/image';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL,  CAD_CONVERTER_EVENT,  } from '@/config';
 import styles from './FileHistory.module.css';
-import EastIcon from '@mui/icons-material/East';
-import { textLettersLimit } from '@/common.helper';
 import Pagenation from '../CommonJsx/Pagenation';
-import Loading from '../CommonJsx/Loaders/Loading';
 import { sendGAtagEvent } from "@/common.helper";
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 import { contextState } from '../CommonJsx/ContextProvider';
-import DesignStats from '../CommonJsx/DesignStats';
-import HoverImageSequence from '../CommonJsx/RotatedImages';
-import Link from 'next/link';
-import TellUsAboutYourself from '../UserCadFileCreation/TellUsAboutYourself';
 import EmailOTP from '../CommonJsx/EmailOTP';
+import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
 import { useRouter } from "next/navigation";
 import ProfilePage from './ProfilePage'
+import CadViewerFiles from './CadViewerFiles';
+import CadConvertorFiles from './CadConvertorFiles';
+import CadPublishedFiles from './CadPublishedFiles';
+import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
+
 let cachedCadHistory = {};
-function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages }) {
-  const {  setUploadedFile } = useContext(contextState);
+
+function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages,creatorId }) {
+  
+  const { setUploadedFile } = useContext(contextState);
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [downloading, setDownloading] = useState({});
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
   const [userCadFiles, setUserCadFiles] = useState([]);
+  const [userDownloadFiles, setUserDownloadFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [publishCad, setPublishCad] = useState(false);
   const [isEmailVerify, setIsEmailVerify] = useState(false);
+  const [isUserVerified, setIsUserVerified] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
-   const { user } = useContext(contextState);
+  const [publishCadPopUp, setPublishCadPopUp] = useState(null);
+  // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
+  const [editDetails, serEditDetails] = useState(null);
+  const { user,cadDetailsUpdate } = useContext(contextState);
+  // console.log(viewer,user)
   const limit = 10;
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState({ id: 'All', label: 'All' }); // Initialize as object
+
+  // Debounce search term to avoid too many API calls
   useEffect(() => {
-    if(cad_type === 'USER_PROFILE') {
-      return
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+
+
+  const handlePublishCad=()=>{
+    if(!localStorage.getItem('is_verified')){
+      setIsUserVerified(true)
+    }else{
+      setPublishCadPopUp(true)
     }
-    let isMounted = true;  // Add mounted check
+  }
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    if (debouncedSearchTerm !== '') {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm, setCurrentPage]);
+
+  useEffect(() => {
+    if (cad_type === 'USER_PROFILE') {
+      return;
+    }
+    let isMounted = true;
 
     const fetchFileHistory = async () => {
-      if (!isMounted) return;  // Don't update state if component unmounted
-      
-      try {
-        // Check cache first
-       
+      if (!isMounted) return;
 
-        // Fetch from API
+      try {
+        // Updated API call with search parameter and tag filter
+        const apiParams = { 
+          type: cad_type, 
+          username:creatorId&&creatorId,
+          page: currentPage, 
+          limit,
+          search: debouncedSearchTerm
+        };
+
+        // Add tag parameter only if it's not 'All' and we're dealing with CAD files
+        if (selectedFilter && selectedFilter.id !== 'All' && (cad_type === 'USER_CADS' || cad_type === 'USER_DOWNLOADS')) {
+          apiParams.tags = selectedFilter.id; // Send the tag ID
+        }
+
+        console.log('API Params:', apiParams); // Debug log
+
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
-          params: { type: cad_type, page: currentPage, limit },
+          params: apiParams,
           headers: {
             "user-uuid": localStorage.getItem("uuid"),
           },
@@ -71,6 +118,11 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             createdAtFormatted: formatDate(file.createdAt),
           }));
 
+          const my_download_files = response.data.data.user_download_files.map(file => ({
+            ...file,
+            createdAtFormatted: formatDate(file.createdAt),
+          }));
+
           const page = response.data.data.pagination.page;
           const totalPages = response.data.data.pagination.cadFilesPages;
 
@@ -78,6 +130,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           setCadViewerFileHistory(cad_viewer_files);
           setConverterFileHistory(cad_converter_files);
           setUserCadFiles(my_cad_files);
+          setUserDownloadFiles(my_download_files);
           setCurrentPage(page);
           setTotalPages(totalPages);
 
@@ -108,9 +161,14 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     return () => {
       isMounted = false;
     };
-  }, [cad_type, currentPage]);
+  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter, creatorId,cadDetailsUpdate]); // Add selectedFilter to dependencies
 
-
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    if (selectedFilter.id !== 'All') {
+      setCurrentPage(1);
+    }
+  }, [selectedFilter, setCurrentPage]);
 
   // Helper function to format date (e.g., "April 30, 2025")
   const formatDate = (dateString) => {
@@ -121,38 +179,51 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     });
   };
 
+  const handleViewDesign = (file) => {
+    if (!localStorage.getItem("is_verified")) {
+      setPendingAction({ action: 'view', file });
+      setIsEmailVerify(true);
+      return;
+    }
+    
+    if (cad_type === 'USER_CADS') {
+      router.push(`/library/${file.route}`);
+    } else {
+      router.push(`/tools/cad-renderer?fileId=${file._id}`);
+    }
+  };
+
   const handleDownload = async (file, index) => {
     try {
-      if(!localStorage.getItem("is_verified")){
-          setPendingAction({ action: 'download', file, index });
-          setIsEmailVerify(true);
-          return;
+      if (!localStorage.getItem("is_verified")) {
+        setPendingAction({ action: 'download', file, index });
+        setIsEmailVerify(true);
+        return;
       }
-      if(!user.email){
+      if (!user.email) {
         router.push('/dashboard?cad_type=USER_PROFILE');
         return;
       }
 
-
       setDownloading(prev => ({ ...prev, [index]: true }));
-     
+
       const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
-      
-      if (!file.sample_file || file.is_published) {
-        setUploadedFile({
-          url: `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`,
-          output_format: file.input_format,
-          file_name: file.file_name,
-          base_name: file.base_name,
-          _id: file._id,
-          cad_type: 'CAD_CONVERTER',
-        });
 
-        // Wait a bit to ensure context is updated
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
+      // if (!file.sample_file || file.is_published) {
+      //   setUploadedFile({
+      //     url: `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`,
+      //     output_format: file.input_format,
+      //     file_name: file.file_name,
+      //     base_name: file.base_name,
+      //     _id: file._id,
+      //     cad_type: 'CAD_CONVERTER',
+      //   });
 
-      (file.sample_file || file.is_published)? setPublishCad(false) : setPublishCad(true);
+      //   // Wait a bit to ensure context is updated
+      //   await new Promise(resolve => setTimeout(resolve, 100));
+      // }
+
+      // (file.sample_file || file.is_published) ? setPublishCad(false) : setPublishCad(true);
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -170,31 +241,18 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       a.click();
 
       // Cleanup
-      sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT })
-      window.URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT });
+      // router.push(`/tools/cad-renderer?fileId=${file._id}`);
+      
       setDownloading(prev => ({ ...prev, [index]: false }));
     } catch (error) {
+      console.error('Download error:', error);
       setDownloading(prev => ({ ...prev, [index]: false }));
-      console.error('Download failed:', error);
     }
   };
-
-  const handleViewDesign = (file)=>{
-    if(!localStorage.getItem("is_verified")){
-          setPendingAction({ action: 'view', file });
-          setIsEmailVerify(true);
-          return;
-      }
-       
-      if(cad_type === 'USER_CADS'){
-      router.push(`/library/${file.route}`);
-      }
-      if(cad_type === 'CAD_VIEWER'){
-          router.push(`/tools/cad-renderer?fileId=${file._id}`);
-      }
-
-  }
 
   const handlePostVerificationAction = () => {
     if (pendingAction) {
@@ -208,238 +266,77 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     setIsEmailVerify(false);
   };
 
+   const getFileHref = (file) => {
+  return file.status === 'COMPLETED'
+    ? `/tools/cad-renderer?fileId=${file._id}`
+    : undefined;
+};
   return (
     <>
-    <div className={styles.cadViewerContainer} style={{ width: '100%' }}>
-
-      {cad_type === 'CAD_VIEWER' && (
-        <div className={styles.cadViewerContainerContent}>
-          <h2>Rendered CAD Models</h2>
-          <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
-            ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
-          </div>
-          {loading ? <Loading /> : <>
-            {cadViewerFileHistory.length > 0 ? (
-              <>
-
-                <div className={styles.historyContainer}>
-                  <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
-                    <span>Want to add more files</span>
-                    <Link href='/tools/cad-viewer' style={{ color: 'blue' }}>Click here</Link>
-                  </div>
-                  {cadViewerFileHistory.map((file, index) => (
-                    <a
-                      key={index}
-                      // href={file.status === 'COMPLETED' ? `/tools/cad-renderer?fileId=${file._id}` : undefined}
-                      className={styles.historyItem}
-                      onClick={e => {
-                        if (file.status !== 'COMPLETED') {
-                          e.preventDefault();
-                          return;
-                        }
-                        // localStorage.setItem("last_viewed_cad_key", file._id);
-                      }}
-                    >
-                      {file.status === 'COMPLETED' ? <HoverImageSequence design={{ _id:file._id,page_title:file.file_name}} width={300} height={160} /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
-                      <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
-
-                      <div className={styles.historyFileDetails}>
-                        <span className={styles.historyFileDetailsKey}>File Name</span> <span >{textLettersLimit(file.file_name, 20)}</span></div>
-                      <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div>
-                      <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
-
-                      <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <button onClick={() => handleViewDesign(file)} disabled={file.status !== 'COMPLETED'} style={{
-                          background: file.status !== 'COMPLETED' ? '#a270f2' : '#610bee',
-                          color: 'white',
-                          padding: '5px 10px',
-                          border: 'none',
-                          borderRadius: '5px',
-                          cursor: 'pointer'
-                        }}>View design</button>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </>
-
-            ) : (
-              <div className={styles.historyItem} style={{
-                display: 'flex', justifyContent: 'center',
-                alignItems: 'center', flexDirection: 'column',
-                border: '2px dashed #e6e4f0', height: '350px'
-              }}>
-                <span>Want to add more files</span>
-                <Link href='/tools/cad-viewer' style={{ color: 'blue' }}>Click here</Link>
-              </div>
-            )}
-          </>}
+      <div className={styles.cadViewerContainer} style={{ width: '100%' }}>
+        {cad_type === 'CAD_VIEWER' && (
+          <CadViewerFiles 
+            loading={loading} 
+            cadViewerFileHistory={cadViewerFileHistory}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            getFileHref={getFileHref}
+            setIsEmailVerify={setIsEmailVerify}
+          />
+        )}
+        {cad_type === 'CAD_CONVERTER' && (
+          <CadConvertorFiles 
+            loading={loading} 
+            cadConverterFileHistory={cadConverterFileHistory} 
+            downloading={downloading} 
+            handleDownload={handleDownload}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+          />
+        )}
+        {cad_type === 'USER_CADS' && (
+          <CadPublishedFiles 
+          handlePublishCad={handlePublishCad}
+          setIsEmailVerify={setIsEmailVerify}
+            loading={loading} 
+            userCadFiles={userCadFiles}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedFilter={selectedFilter}
+            setSelectedFilter={setSelectedFilter}
+            setPublishCadPopUp={setPublishCadPopUp}
+            creatorId={creatorId}
+          />
+        )}
+        {cad_type === 'USER_DOWNLOADS' && (
+          <CadPublishedFiles 
+          handlePublishCad={handlePublishCad}
+            loading={loading} 
+            userCadFiles={userDownloadFiles} 
+            type='downloads'
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedFilter={selectedFilter}
+            setSelectedFilter={setSelectedFilter}
+            setPublishCadPopUp={setPublishCadPopUp}
+          />
+        )}
+        {cad_type === 'USER_PROFILE' && (
+          <ProfilePage type='profile' />
+        )}
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {totalPages > 1 && <Pagenation currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />}
         </div>
-      )}
-      {cad_type === 'CAD_CONVERTER' && (
-        <div className={styles.cadViewerContainerContent}>
-          <h2> Converted CAD files</h2>
-          <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
-            ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
-          </div>
-          {loading ? <Loading /> : <>
-            {cadConverterFileHistory.length > 0 ? (
-              <div className={styles.historyContainer}>
-                <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
-                  <span>Want to add more files</span>
-                  <Link href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</Link>
-                </div>
-                {cadConverterFileHistory.map((file, index) => (
-                  <div
-                    key={index}
-                    // href={`https://d1d8a3050v4fu6.cloudfront.net/${file._id}/${file.base_name}.${file.output_format}`}
-                    className={styles.historyItem}
-                   
-                  >
-                    <div className={styles.historyFileDetails}>
-                      <span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>File Name</span> <span>{textLettersLimit(file.file_name, 20)}</span></div>
-                    <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Conversion</span> <span>{file.input_format}</span> &nbsp;<EastIcon style={{ height: '25px' }} />&nbsp; <span>{file.output_format}</span></div>
-                    <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Status</span> <span style={{ color: 'green' }}>{file.status}</span></div>
-                    <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey} style={{ width: '100px' }}>Created</span> <span>{file.createdAtFormatted}</span></div>
-                    <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      {file.status === 'COMPLETED' ?<button style={{
-                        background: '#610bee',
-                        color: 'white',
-                        padding: '5px 10px',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer'
-                      }} onClick={() => handleDownload(file, index)} disabled={downloading[index]}>
-                        {downloading[index] ? 'Downloading...' : 'Download'}
-                      </button>
-                      : <button disabled style={{
-                        background: '#a270f2',
-                        color: 'white',
-                        padding: '5px 10px',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        width: '100%',
-                        textAlign: 'center'
-                      }}>Download</button>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={styles.historyItem} style={{
-                display: 'flex', justifyContent: 'center',
-                alignItems: 'center', flexDirection: 'column',
-                border: '2px dashed #e6e4f0', height: '250px'
-              }}>
-                <span>Want to add more files</span>
-                <Link href='/tools/3d-file-converter' style={{ color: 'blue' }}>Click here</Link>
-              </div>
-            )}
-          </>
-          }
-        </div>
-
-      )}
-      {cad_type === 'USER_CADS' && (
-        <div className={styles.cadViewerContainerContent}>
-          <h2>Published CAD Files</h2>
-          <div className="max-w-xxl mx-auto mt-1 px-4 py-3 bg-yellow-100 text-yellow-800 text-sm rounded-md border border-yellow-300">
-            ⚠️ Please refresh the page to see the latest status. Real-time updates are not yet enabled.
-          </div>
-          {loading ? <Loading /> : <>
-            {userCadFiles.length > 0 ? (
-              <div className={styles.historyContainer}>
-                <div className={styles.historyItem} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', border: '2px dashed #e6e4f0', }}>
-                  <span>Want to add more files</span>
-                  <Link href='/publish-cad' style={{ color: 'blue' }}>Click here</Link>
-                </div>
-                {userCadFiles.map((file, index) => (
-                  <div
-                    key={index}
-                    onClick={() => handleViewDesign(file)}
-                    className={styles.historyItem}
-
-                  >
-                    {file.is_uploaded ? <HoverImageSequence design={file} width={300} height={160} /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
-                    <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div>
-
-                    <div className={styles.historyFileDetails}>
-                      <span className={styles.historyFileDetailsKey}>Title</span> <span >{textLettersLimit(file.page_title, 20)}</span></div>
-                    <div className={styles.historyFileDetails}>
-                      <span className={styles.historyFileDetailsKey}>Status</span>
-                      <span style={{ color: file.is_uploaded === true ? 'green' : file.is_uploaded === false ? 'red' : 'blue' }}>
-                        {file.is_uploaded === true
-                          ? 'COMPLETED'
-                          : file.is_uploaded === false
-                            ? 'FAILED'
-                            : 'PENDING'}
-                      </span>
-                    </div>
-                    <div className={styles.historyFileDetails}><span className={styles.historyFileDetailsKey}>Created</span> <span>{file.createdAtFormatted}</span></div>
-
-                    <div className={styles.historyFileDetailsbtn} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      {file.is_uploaded ?
-                       <div onClick={() => handleViewDesign(file)} style={{
-                        background: '#610bee',
-                        color: 'white',
-                        padding: '5px 10px',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        width: '100%',
-                        textAlign: 'center'
-                      }} >
-                        <button style={{
-
-                          cursor: 'pointer'
-                        }}>View design</button>
-                      </div> : <button disabled style={{
-                        background: '#a270f2',
-                        color: 'white',
-                        padding: '5px 10px',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        width: '100%',
-                        textAlign: 'center'
-                      }}>View design</button>}
-                    </div>
-                    {file.is_uploaded === true && <DesignStats views={file.total_design_views} downloads={file.total_design_downloads} />}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={styles.historyItem} style={{
-                display: 'flex', justifyContent: 'center',
-                alignItems: 'center', flexDirection: 'column',
-                border: '2px dashed #e6e4f0', height: '350px'
-              }}>
-                <span>Want to add more files</span>
-                <Link href='/publish-cad' style={{ color: 'blue' }}>Click here</Link>
-              </div>
-
-            )}
-          </>}
-        </div>
-      )}
-      {cad_type === 'USER_PROFILE' && (
-        <ProfilePage type = 'profile'/>
-      )}
-      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {totalPages > 1 && <Pagenation currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />}
       </div>
-
-
-
-
-
-    </div>
+      {isUserVerified && <UserLoginPupUp type='dashboard'
+       onClose={() => setIsUserVerified(false)} />}
       {publishCad && <ConvertedFileUploadPopup setPublishCad={setPublishCad} />}
       {isEmailVerify && <EmailOTP setIsEmailVerify={setIsEmailVerify} email={user.email} saveDetails={handlePostVerificationAction} />}
+      {publishCadPopUp && <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
+        <PublishCadPopUp onClose={() => setPublishCadPopUp(false)} editedDetails={editDetails} />
+      </div>}
     </>
-    
-  )
+  );
 }
 
-export default FileHistoryCards
+export default FileHistoryCards;
