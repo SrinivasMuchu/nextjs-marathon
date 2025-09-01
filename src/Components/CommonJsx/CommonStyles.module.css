@@ -10,9 +10,20 @@
     align-items: center;
     justify-content: center;
 }
+.paginationWrapper {
+  width: 100%;
+
+  /* overflow-x: auto; */
+}
+
 .pagination {
   display: flex;
-  
+  align-items: center;
+  gap: 4px;
+ flex-wrap: wrap;
+  padding-bottom: 4px;
+  justify-content: center;
+
 }
 
 .prevButton,
@@ -123,7 +134,17 @@
   color: #333;
   position: relative;
 }
-
+.publishPopUp{
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 32px;
+  /* width: 450px; */
+  /* max-width: 90vw; */
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  color: #333;
+  position: relative;
+}
 .closeButton {
   position: absolute;
   top: 16px;
@@ -332,7 +353,10 @@
     width: 90%;
     padding: 24px;
   }
-  
+  .publishPopUp{
+    width:100%;
+    padding: 12px;
+  }
   .header h2 {
     font-size: 20px;
   }
@@ -343,6 +367,18 @@
     font-size: 14px;
   }
 
+}
+
+@media (max-width: 500px) {
+  .paginationButton {
+    min-width: 32px;
+    font-size: 0.95rem;
+    padding: 4px 6px;
+  }
+  .prevButton, .nextButton {
+    font-size: 0.95rem;
+    padding: 4px 6px;
+  }
 }
 
 @media (max-width: 480px) {

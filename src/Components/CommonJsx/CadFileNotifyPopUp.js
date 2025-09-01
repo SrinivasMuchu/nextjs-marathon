@@ -15,7 +15,7 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
   const [error, setError] = useState('');
   const [browserNotify, setBrowserNotify] = useState(true);
    const [verifyEmail, setVerifyEmail] = useState(false);
-   const [isVerified, setIsVerified] = useState(false);
+   
   const pushRegister = usePushNotifications();
 
 

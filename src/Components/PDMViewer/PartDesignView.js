@@ -205,23 +205,23 @@ export default function PartDesignView() {
         // 1. Upload is completed
         // 2. It's a sample file
         // 3. We're just viewing a file (not uploading)
-        if (publishedCad === 0 && !searchParams.get('sample')) {
-            const publishCad = setTimeout(() => {
-                setPublishCadPopup(true);
-                //   
-                setUploadedFile({
-                    url: true,
-                    file_name: fileName,
-                    _id: searchParams.get('fileId'),
-                    cad_view_link: cadViewLink,
-                    cad_type: 'CAD_VIEWER',
-                });
+        // if (publishedCad === 0 && !searchParams.get('sample')) {
+        //     const publishCad = setTimeout(() => {
+        //         setPublishCadPopup(true);
+        //         //   
+        //         setUploadedFile({
+        //             url: true,
+        //             file_name: fileName,
+        //             _id: searchParams.get('fileId'),
+        //             cad_view_link: cadViewLink,
+        //             cad_type: 'CAD_VIEWER',
+        //         });
 
-            }, 10000);
+        //     }, 10000);
 
-            // ✅ Cleanup on unmount
-            return () => clearTimeout(publishCad);
-        };
+        //     // ✅ Cleanup on unmount
+        //     return () => clearTimeout(publishCad);
+        // };
 
 
     }, [publishedCad]);

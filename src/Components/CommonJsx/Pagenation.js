@@ -16,35 +16,37 @@ function Pagenation({currentPage,setCurrentPage,totalPages}) {
         }
     };
     return (
+      <div className={styles.paginationWrapper}>
         <div className={styles.pagination}>
-            <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={styles.prevButton}
-            >
-                <KeyboardBackspaceIcon />
-                prev
-            </button>
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={styles.prevButton}
+          >
+            <KeyboardBackspaceIcon />
+            prev
+          </button>
 
-            {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                    key={index + 1}
-                    onClick={() => handlePageChange(index + 1)}
-                    className={`${styles.paginationButton} ${currentPage === index + 1 ? styles.active : ''}`}
-                >
-                    {index + 1}
-                </button>
-            ))}
-
+          {Array.from({ length: totalPages }, (_, index) => (
             <button
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-                className={styles.nextButton}
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`${styles.paginationButton} ${currentPage === index + 1 ? styles.active : ''}`}
             >
-                next
-                <KeyboardBackspaceIcon style={{ transform: 'rotate(180deg)' }} />
+              {index + 1}
             </button>
+          ))}
+
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className={styles.nextButton}
+          >
+            next
+            <KeyboardBackspaceIcon style={{ transform: 'rotate(180deg)' }} />
+          </button>
         </div>
+      </div>
     )
 }
 

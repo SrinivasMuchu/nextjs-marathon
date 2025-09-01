@@ -104,15 +104,21 @@
     
 }
 
-.library-designs-items-container h6{
-    color: #000;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 28px;
-    letter-spacing: -0.288px;
-    word-break: break-all
+.library-designs-items-container h6 {
+  color: #000;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: -0.288px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;  /* limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height:55px;
 }
+
 .design-title-text{
   color: #000;
 

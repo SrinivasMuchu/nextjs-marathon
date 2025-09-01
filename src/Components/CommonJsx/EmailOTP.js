@@ -8,7 +8,8 @@ import { useRouter } from 'next/navigation';
 
 
 
-function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
+function EmailOTP({ email, accessKey,
+  setIsEmailVerify, setError, type, saveDetails }) {
   
   const inputs = useMemo(() => Array(4).fill().map(() => React.createRef()), []);
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -17,7 +18,7 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
   const router = useRouter();
   // Safe router usage - handle case where router might not be available
   const handleNavigateToProfile=()=>{
-    router.push('/dashboard?cad_type=USER_PROFILE');
+    router.push('/dashboard');
   }
 
   
@@ -53,7 +54,7 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
   useEffect(() => {
     if(!email){
       
-      router.push('/dashboard?cad_type=USER_PROFILE');
+      router.push('/dashboard');
       toast.info('Please update your profile')
       setIsEmailVerify(false)
       return;
@@ -99,7 +100,7 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
       const enteredOtp = otp.join('');
       const res = await axios.post(
         `${BASE_URL}/v1/cad/verify-otp`,
-        { email, otp: enteredOtp },
+        { email, otp: enteredOtp,accessKey:accessKey?accessKey:'' },
         { headers: { 'user-uuid': uuid } }
       );
 
