@@ -429,6 +429,31 @@ background: var(--Primary-50, linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%
     padding:0px 24px;
 
 }
+
+.downloadAlertContainer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #FF3B2F;
+    border-radius: 8px;
+    border: 0.5px solid  #FF7A7A;
+    padding:12px;
+    /* background-image: url('https://d2o2bcehk92sin.cloudfront.net/downloads-bg.png'); */
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 20px; /* 142.857% */
+    letter-spacing: -0.14px;
+      background: 
+      
+      url('https://d2o2bcehk92sin.cloudfront.net/downloads-bg.png'),
+      linear-gradient(92deg, #FFF6F6 0%, #FFE8E8 100.66%);
+
+    background-repeat: no-repeat;
+    background-position: left center;  /* 👈 aligns image to the left */
+    background-size: auto 100%; 
+    cursor:pointer; 
+}
 @media (max-width: 1000px){
     .creatorDetails{
         flex-direction:column;

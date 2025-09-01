@@ -268,7 +268,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
             {/* Right side - New Project Button */}
             <button
               style={{
-                borderRadius: '24px',
+                borderRadius: '8px',
                 border: '2px solid #610BEE',
                 background: 'white',
                 color: '#610BEE',
@@ -325,7 +325,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
                     downloads={file.total_design_downloads ?? 0} />
                 </div>
                 <div className={libraryStyles["design-title-wrapper"]}>
-                  <h6 title={file.page_title} style={{height:'55px'}}>{file.page_title}</h6>
+                  <h6 title={file.page_title} style={{height:'55px',fontSize:'16px'}}>{file.page_title}</h6>
                   {/* <p title={file.page_description}>{textLettersLimit(file.page_description, 120)}</p> */}
                   <div className={libraryStyles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                     {file.category_labels && file.category_labels.map((label, index) => (
