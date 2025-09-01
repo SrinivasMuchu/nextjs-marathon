@@ -44,12 +44,13 @@ async function getPushSubscription() {
 }
 
 function UserLoginPupUp({ onClose, type }) {
-console.log(type)
     const { user, setUser, setUpdatedDetails } = useContext(contextState);
     console.log('Google Client ID:', user.email);
     const route = useRouter();
     const [email, setEmail] = useState(user?.email || "");
     const [browserNotify, setBrowserNotify] = useState(true);
+    const [accessKey, setAccessKey] = useState(null); // <-- Add this state
+
     // Sync email when user context updates
     useEffect(() => {
         if (user?.email) {
@@ -369,9 +370,27 @@ console.log(type)
         }
     };
 
+    // When verifyEmail is triggered, get the push subscription
+    useEffect(() => {
+        const fetchSubscription = async () => {
+            if ( browserNotify) {
+                const sub = await getPushSubscription();
+                setAccessKey(sub);
+            }
+        };
+        fetchSubscription();
+    }, [ browserNotify]);
+
     return (
         <PopupWrapper>
-            {verifyEmail ? <EmailOTP email={email} setIsEmailVerify={setVerifyEmail} saveDetails={handleSendOTP} /> :
+            {verifyEmail ? 
+                <EmailOTP 
+                    email={email} 
+                    setIsEmailVerify={setVerifyEmail} 
+                    saveDetails={handleSendOTP}
+                    accessKey={accessKey} // <-- Pass as prop
+                /> 
+                :
                 <div className={styles.loginPopup}>
                     {type !== 'creator' && <button className={styles.closeButton} onClick={onClose}>
                         ×

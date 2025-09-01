@@ -8,7 +8,8 @@ import { useRouter } from 'next/navigation';
 
 
 
-function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
+function EmailOTP({ email, accessKey,
+  setIsEmailVerify, setError, type, saveDetails }) {
   
   const inputs = useMemo(() => Array(4).fill().map(() => React.createRef()), []);
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -99,7 +100,7 @@ function EmailOTP({ email, setIsEmailVerify, setError, type, saveDetails }) {
       const enteredOtp = otp.join('');
       const res = await axios.post(
         `${BASE_URL}/v1/cad/verify-otp`,
-        { email, otp: enteredOtp },
+        { email, otp: enteredOtp,accessKey:accessKey?accessKey:'' },
         { headers: { 'user-uuid': uuid } }
       );
 
