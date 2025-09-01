@@ -76,7 +76,7 @@ function HomeTopNav() {
           )}
         </div>
 
-        <Link href="/dashboard?cad_type=CAD_VIEWER" rel="nofollow">
+        <Link href="/dashboard" rel="nofollow">
           Dashboard
         </Link>
         <Link href="/library" >Library</Link>

@@ -1,19 +1,12 @@
 "use client";
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL, CAD_CONVERTER_EVENT, ASSET_PREFIX_URL, IMAGEURLS } from '@/config';
-import Image from 'next/image';
+import { BASE_URL, DESIGN_GLB_PREFIX_URL,  CAD_CONVERTER_EVENT,  } from '@/config';
 import styles from './FileHistory.module.css';
-import EastIcon from '@mui/icons-material/East';
-import { textLettersLimit } from '@/common.helper';
 import Pagenation from '../CommonJsx/Pagenation';
-import Loading from '../CommonJsx/Loaders/Loading';
 import { sendGAtagEvent } from "@/common.helper";
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 import { contextState } from '../CommonJsx/ContextProvider';
-
-import libraryStyles from '../Library/Library.module.css'
-import TellUsAboutYourself from '../UserCadFileCreation/TellUsAboutYourself';
 import EmailOTP from '../CommonJsx/EmailOTP';
 import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
 import { useRouter } from "next/navigation";
@@ -21,6 +14,7 @@ import ProfilePage from './ProfilePage'
 import CadViewerFiles from './CadViewerFiles';
 import CadConvertorFiles from './CadConvertorFiles';
 import CadPublishedFiles from './CadPublishedFiles';
+import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 
 let cachedCadHistory = {};
 
@@ -35,10 +29,12 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const [loading, setLoading] = useState(true);
   const [publishCad, setPublishCad] = useState(false);
   const [isEmailVerify, setIsEmailVerify] = useState(false);
+  const [isUserVerified, setIsUserVerified] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [publishCadPopUp, setPublishCadPopUp] = useState(null);
+  // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
-  const { user,viewer } = useContext(contextState);
+  const { user,cadDetailsUpdate } = useContext(contextState);
   // console.log(viewer,user)
   const limit = 10;
   const router = useRouter();
@@ -55,6 +51,15 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+
+
+  const handlePublishCad=()=>{
+    if(!localStorage.getItem('is_verified')){
+      setIsUserVerified(true)
+    }else{
+      setPublishCadPopUp(true)
+    }
+  }
   // Reset to page 1 when search term changes
   useEffect(() => {
     if (debouncedSearchTerm !== '') {
@@ -156,7 +161,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     return () => {
       isMounted = false;
     };
-  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter, creatorId]); // Add selectedFilter to dependencies
+  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter, creatorId,cadDetailsUpdate]); // Add selectedFilter to dependencies
 
   // Reset to page 1 when filter changes
   useEffect(() => {
@@ -204,21 +209,21 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
 
       const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
 
-      if (!file.sample_file || file.is_published) {
-        setUploadedFile({
-          url: `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`,
-          output_format: file.input_format,
-          file_name: file.file_name,
-          base_name: file.base_name,
-          _id: file._id,
-          cad_type: 'CAD_CONVERTER',
-        });
+      // if (!file.sample_file || file.is_published) {
+      //   setUploadedFile({
+      //     url: `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`,
+      //     output_format: file.input_format,
+      //     file_name: file.file_name,
+      //     base_name: file.base_name,
+      //     _id: file._id,
+      //     cad_type: 'CAD_CONVERTER',
+      //   });
 
-        // Wait a bit to ensure context is updated
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
+      //   // Wait a bit to ensure context is updated
+      //   await new Promise(resolve => setTimeout(resolve, 100));
+      // }
 
-      (file.sample_file || file.is_published) ? setPublishCad(false) : setPublishCad(true);
+      // (file.sample_file || file.is_published) ? setPublishCad(false) : setPublishCad(true);
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -240,7 +245,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
       window.URL.revokeObjectURL(downloadUrl);
       
       sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT });
-      router.push(`/tools/cad-renderer?fileId=${file._id}`);
+      // router.push(`/tools/cad-renderer?fileId=${file._id}`);
       
       setDownloading(prev => ({ ...prev, [index]: false }));
     } catch (error) {
@@ -261,6 +266,11 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     setIsEmailVerify(false);
   };
 
+   const getFileHref = (file) => {
+  return file.status === 'COMPLETED'
+    ? `/tools/cad-renderer?fileId=${file._id}`
+    : undefined;
+};
   return (
     <>
       <div className={styles.cadViewerContainer} style={{ width: '100%' }}>
@@ -270,6 +280,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             cadViewerFileHistory={cadViewerFileHistory}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            getFileHref={getFileHref}
+            setIsEmailVerify={setIsEmailVerify}
           />
         )}
         {cad_type === 'CAD_CONVERTER' && (
@@ -284,6 +296,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
         )}
         {cad_type === 'USER_CADS' && (
           <CadPublishedFiles 
+          handlePublishCad={handlePublishCad}
+          setIsEmailVerify={setIsEmailVerify}
             loading={loading} 
             userCadFiles={userCadFiles}
             searchTerm={searchTerm}
@@ -296,6 +310,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
         )}
         {cad_type === 'USER_DOWNLOADS' && (
           <CadPublishedFiles 
+          handlePublishCad={handlePublishCad}
             loading={loading} 
             userCadFiles={userDownloadFiles} 
             type='downloads'
@@ -313,6 +328,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           {totalPages > 1 && <Pagenation currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />}
         </div>
       </div>
+      {isUserVerified && <UserLoginPupUp type='dashboard'
+       onClose={() => setIsUserVerified(false)} />}
       {publishCad && <ConvertedFileUploadPopup setPublishCad={setPublishCad} />}
       {isEmailVerify && <EmailOTP setIsEmailVerify={setIsEmailVerify} email={user.email} saveDetails={handlePostVerificationAction} />}
       {publishCadPopUp && <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>

@@ -20,8 +20,8 @@ const faqQuestions = [
         answer: "We take intellectual property seriously. If there's a dispute, we have a clear process for review. You maintain ownership of your designs, and we provide tools to help protect your work."
     },
     {
-        question: "Can I remove my designs later?",
-        answer: "Yes, you have full control over your content. You can update or remove your designs at any time through your creator dashboard."
+        question: "What happens if there’s an IP dispute?",
+        answer: "We do not verify or take responsibility for the originality or ownership of CAD files uploaded by users. All intellectual property rights remain with the respective creators or rights holders. In the event of a dispute, it is the responsibility of the parties involved to resolve the matter directly. Marathon-OS does not mediate or assume liability for intellectual property claims."
     },
     
 

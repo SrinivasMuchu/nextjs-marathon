@@ -10,7 +10,24 @@ import FileStatus from '../CommonJsx/FileStatus';
 import { SiConvertio } from "react-icons/si";
 import Link from 'next/link';
 
-function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownloadsearchTerm, setSearchTerm,searchTerm}) {
+function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownload,searchTerm, setSearchTerm}) {
+
+
+  function formatTime(value) {
+    if (value === null || value === undefined || isNaN(value)) {
+        return "";
+    }
+
+    if (value < 60) {
+        return `${parseFloat(value.toFixed(2))} sec`;
+    } else if (value < 3600) {
+        let minutes = value / 60;
+        return `${parseFloat(minutes.toFixed(2))} min`;
+    } else {
+        let hours = value / 3600;
+        return `${parseFloat(hours.toFixed(2))} hr`;
+    }
+}
   return (
     <div className={styles.cadViewerContainerContent}>
  <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -91,6 +108,7 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                             <th style={{ width: '20%' }}>Conversion</th>
                             <th style={{ width: '15%' }}>Status</th>
                             <th style={{ width: '20%' }}>Created</th>
+                            <th style={{ width: '20%' }}>Time to convert</th>
                             <th style={{ width: '20%' }}>Action</th>
                           </tr>
                         </thead>
@@ -112,6 +130,9 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                               </td>
                               <td data-label="Created">
                                 {file.createdAtFormatted}
+                              </td>
+                               <td data-label="Time to convert">
+                                {formatTime(file.time_taken_seconds)}
                               </td>
                               <td data-label="Action">
                                 {file.status === 'COMPLETED' ? (

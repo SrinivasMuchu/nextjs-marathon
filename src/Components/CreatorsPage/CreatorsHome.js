@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState,useContext } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import CreatorLeftCont from './CreatorLeftCont'
 import CreatorsRightCont from './CreatorsRightCont'
 import CreatorCoverPage from './CreatorCoverPage'
@@ -12,19 +12,15 @@ import { contextState } from '../CommonJsx/ContextProvider';
 
 function CreatorsHome({ creatorId }) {
   // viewer, setViewer
-  const {   setViewer } = useContext(contextState);
+  const { setViewer } = useContext(contextState);
   const [isVerified, setIsVerified] = useState(false);
+  // const [isVerified, setIsVerified] = useState(false);
 
   const route = useRouter();
 
   useEffect(() => {
-    if (!creatorId) {
-      if (!localStorage.getItem('is_verified')) {
-         route.push('/publish-cad')
+    if (creatorId) {
 
-
-      }
-    } else {
       getUserDetails(creatorId);
     }
 
@@ -34,7 +30,7 @@ function CreatorsHome({ creatorId }) {
   const getUserDetails = async (creatorId) => {
     try {
       const res = await axios.get(`${BASE_URL}/v1/cad-creator/get-creator-details/${creatorId}`);
-      
+
 
       if (res.data.meta.success) {
         // setIsProfileComplete(true)
@@ -52,10 +48,11 @@ function CreatorsHome({ creatorId }) {
           linkedin: data?.linkedin_url || '',
           cover_image: data?.cover_photo || '',
           projects: data?.totalFiles || 0,
-          views: data?.totalViews || 0,
-          downloads: data?.totalDownloads || 0,
+          views: data?.totalViews || "0",
+          downloads: data?.totalDownloads || "0",
+
           designation: data?.designation || '',
-          username:data?.username||'',
+          username: data?.username || '',
         }));
       }
     }
@@ -67,9 +64,11 @@ function CreatorsHome({ creatorId }) {
   return (
     <>
       {isVerified && <UserLoginPupUp onClose={() => setIsVerified(false)} type='creator' />}
-      <CreatorCoverPage creatorId={creatorId} />
+      <CreatorCoverPage creatorId={creatorId} setIsVerified={setIsVerified}/>
       <div className={styles.creatorDetails} >
-        <CreatorLeftCont creatorId={creatorId} />
+        <CreatorLeftCont creatorId={creatorId} setIsVerified={setIsVerified}/>
+        <div className={styles.creatorDetailsVertical} style={{ width: '2px', background: '#edf2f7', marginTop: '80px' }} />
+        <div className={styles.creatorDetailsHorizontal} style={{ width: '100%', background: '#edf2f7', height: '2px' }} />
         <CreatorsRightCont creatorId={creatorId} />
       </div>
     </>

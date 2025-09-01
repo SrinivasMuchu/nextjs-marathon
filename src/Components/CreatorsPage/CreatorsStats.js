@@ -20,9 +20,9 @@ function CreatorsStats({ creatorId }) {
     <div className={styles.statsContainer}>
         <span>{profileData.projects} projects</span>
                 <div className={styles.statsLines}></div>
-                <span>{formatNumberWithK(profileData.views)} views</span>
+                <span>{profileData.views} views</span>
         <div className={styles.statsLines}></div>
-        <span>{formatNumberWithK(profileData.downloads)} downloads</span>
+        <span>{profileData.downloads} downloads</span>
 
     </div>
     <div style={{width:'320px',height:'1px',background:'#edf2f7'}}/>

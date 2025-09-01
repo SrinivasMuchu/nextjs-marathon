@@ -56,7 +56,7 @@ function TopNavProfileButton() {
   return (
     <>
       {isVerified ? (
-        <Link href="/dashboard?cad_type=USER_PROFILE" className={styles['profile-button']}>
+        <Link href="/dashboard" className={styles['profile-button']}>
           <NameProfile userName={user.name?user.name:user.email} memberPhoto={user.photo} width={50} height={50} border={true}/></Link>
         ) : ( 
           <>

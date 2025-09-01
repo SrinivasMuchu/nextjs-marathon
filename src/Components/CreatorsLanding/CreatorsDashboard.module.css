@@ -11,31 +11,63 @@
 }
 
 .backgroundImage {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  opacity: 0.3;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* z-index: 1; */
+    opacity: 0.3;
 }
 
 .headerContent {
-  position: relative;
-  z-index: 2;
-  max-width: 600px;
+    position: relative;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 24px;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    padding-bottom: 32px;
 }
 
-.creatorDasboardHeader h1,
-.startShareDesignContainer h1 {
-  font-size: clamp(24px, 5vw, 48px);
-  font-weight: 800;
+.buttonRowBottom {
+    /* margin-top: auto; */
+    position:absolute;
+    bottom:40px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    justify-content: center;
+    width: 100%;
 }
 
-.creatorDasboardHeader p,
-.startShareDesignContainer p {
-  font-size: 20px;
-  margin-bottom: 16px;
+.publishItemsContainer{
+    display:flex;
+    /* align-items: center; */
+    justify-content:center;
+    flex-wrap: wrap;
+    gap: 24px;
+    width:100%;
+  
+}
+.publishItem{
+    width:300px;
+    display: flex;
+    
+    gap: 12px;
+}
+.startShareDesignContainer h1{
+    font-size: clamp(24px, 5vw, 48px) ;
+    font-weight: 800;
+}
+
+.startShareDesignContainer p{
+    font-size:20px;
+    margin-bottom:16px;
 }
 
 .creatorDashboardButtonContainer {
@@ -44,17 +76,39 @@
   gap: 20px;
 }
 .creatorDashboardButtonContainer button,
-.startShareButton {
-  padding: 8px 16px;
-  border-radius: 8px;
-  color: white;
-  background: inherit;
-  border: 1px solid white;
+.startShareButton,
+.creatorDashboardButtonContainer a {
+  display: inline-flex;                 /* inline-flex */
+  align-items: center;                  /* items-center */
+  justify-content: center;              /* justify-center */
+  border-radius: 16px;                  /* rounded-2xl ≈ 16px */
+  border: 1px solid rgba(255, 255, 255, 0.5); /* border-white/50 */
+  background: rgba(255, 255, 255, 0.1); /* bg-white/10 */
+  padding: 12px 20px;                   /* px-5 py-3 */
+  font-size: 20px;                      /* text-base */
+  font-weight: 600;                     /* font-semibold */
+  color: white;                         /* text-white */
+  backdrop-filter: blur(4px);           /* backdrop-blur */
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
 }
-.creatorDashboardButtonContainer button:hover,
-.startShareButton:hover {
-  background: white;
-  color: #610bee;
+
+
+.creatorDashboardButtonContainer a:hover {
+  background: rgba(255, 255, 255, 0.15); /* hover:bg-white/15 */
+}
+
+.startShareButton:focus,
+.creatorDashboardButtonContainer a:focus {
+  outline: none;                         /* focus:outline-none */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); /* focus:ring-2 focus:ring-white/30 */
+}
+
+.startShareButton:hover,
+.creatorDashboardButtonContainer a:hover,.creatorDashboardButtonContainer button{
+        background:white;
+        color:#610bee;
+    
 }
 
 .shareYourDesignsContainer,
