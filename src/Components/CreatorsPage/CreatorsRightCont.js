@@ -106,7 +106,7 @@ creatorId}) {
         </Tabs>
         <Box sx={{ width: '100%', height: '1.5px', background: '#e0e0e0', mt: '-1px' }} />
       </Box>
-      <TabPanel value={value} index={0}>
+      <TabPanel value={value} index={0} style={{ background: '#F6F6F6',height:'100%' }}>
         <FileHistoryCards 
           cad_type="USER_CADS"
           currentPage={currentPage}
@@ -116,7 +116,7 @@ creatorId}) {
         />
       </TabPanel>
       
-      <TabPanel value={value} index={1}>
+      <TabPanel value={value} index={1} style={{ background: '#F6F6F6',height:'100%' }}>
         <FileHistoryCards 
           cad_type="CAD_VIEWER"
           currentPage={currentPage}
@@ -126,7 +126,7 @@ creatorId}) {
         />
       </TabPanel>
       
-      <TabPanel value={value} index={2}>
+      <TabPanel value={value} index={2} style={{ background: '#F6F6F6',height:'100%' }}>
         <FileHistoryCards 
           cad_type="CAD_CONVERTER"
           currentPage={currentPage}
@@ -135,7 +135,7 @@ creatorId}) {
           setTotalPages={setTotalPages}
         />
       </TabPanel>
-      <TabPanel value={value} index={3}>
+      <TabPanel value={value} index={3} style={{ background: '#F6F6F6',height:'100%' }}>
         <FileHistoryCards 
           cad_type="USER_DOWNLOADS"
           currentPage={currentPage}
@@ -178,8 +178,9 @@ creatorId}) {
            <Tab label='Projects' />
         </Tabs>
          <Box sx={{ width: '100%', height: '1.5px', background: '#e0e0e0', mt: '-1px' }} />
-      <TabPanel value={value} index={0}>
-        <FileHistoryCards 
+      <TabPanel value={value} index={0} style={{ background: '#F6F6F6',height:'100%' }}>
+        <FileHistoryCards  
+          
           cad_type="USER_CADS"
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}

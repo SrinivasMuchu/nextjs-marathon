@@ -1,25 +1,88 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
 import PopupWrapper from './PopupWrapper';
 import { GoStarFill } from "react-icons/go";
 import styles from './CommonStyles.module.css';
 import Image from 'next/image';
-import { DESIGN_GLB_PREFIX_URL, IMAGEURLS, MARATHON_ASSET_PREFIX_URL } from '@/config';
+import { DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL, BASE_URL } from '@/config';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
+import { contextState } from './ContextProvider';
+import { FaRegStar } from "react-icons/fa";
 
-const model = {
-  name: "0 5M Spur Gear - Standard Mechanical Component",
-  img: 'https://via.placeholder.com/48?text=3D', // Replace with actual image if available
-};
-
-function RatingsPopUp({ onClose, designId ,designTitle}) {
-  const [rating, setRating] = useState(0);
-  const [hover, setHover] = useState(0);
-  const [feedback, setFeedback] = useState('');
+function RatingsPopUp({ onClose, designArray = [] }) {
+    //  const { setUpdatedDetails } = useContext(contextState);
+  const [current, setCurrent] = useState(0);
+  const [ratings, setRatings] = useState(Array(designArray.length).fill(0));
+  const [feedbacks, setFeedbacks] = useState(Array(designArray.length).fill(''));
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleNext = () => {
-    // You can add your save logic here (API call, etc.)
-    setSubmitted(true);
+  if (!designArray.length) return null;
+
+  const design = designArray[current];
+
+  const handleStar = (star) => {
+    const newRatings = [...ratings];
+    newRatings[current] = star;
+    setRatings(newRatings);
+  };
+
+  const handleFeedback = (e) => {
+    const newFeedbacks = [...feedbacks];
+    newFeedbacks[current] = e.target.value;
+    setFeedbacks(newFeedbacks);
+  };
+
+  // Helper to call API for current design
+  const submitCurrentRating = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/v1/cad-creator/cad-file-design-ratings`,
+        {
+          design_id: design._id,
+          comment: feedbacks[current],
+          star_rating: ratings[current],
+        },
+        {
+          headers: { 'user-uuid': localStorage.getItem('uuid') }, // Replace with actual uuid if you have it in context
+        }
+      );
+      if (res.data.meta.success) {
+        return true;
+      } else {
+        toast.error(res.data.meta.message || "Failed to submit rating.");
+        return false;
+      }
+    } catch (err) {
+      toast.error('Failed to submit rating.');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNext = async () => {
+    if (ratings[current] === 0) return;
+    const ok = await submitCurrentRating();
+    if (ok && current < designArray.length - 1) {
+      setCurrent(current + 1);
+    }
+  };
+
+  const handleSkip = async () => {
+    // Optionally, you can send a "skipped" status or just move to next
+    if (current < designArray.length - 1) {
+      setCurrent(current + 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (ratings[current] === 0) return;
+    const ok = await submitCurrentRating();
+    if (ok) setSubmitted(true);
   };
 
   return (
@@ -32,17 +95,21 @@ function RatingsPopUp({ onClose, designId ,designTitle}) {
         {!submitted ? (
           <>
             <div className={styles.modelRow}>
-              <Image src={`${DESIGN_GLB_PREFIX_URL}${designId}/sprite_0_0.webp`} alt="model" className={styles.modelImg} width={80} height={80} />
-              <span className={styles.modelInfo}>{designTitle}</span>
+              <Image
+                src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_0.webp`}
+                alt="model"
+                className={styles.modelImg}
+                width={80}
+                height={80}
+              />
+              <span className={styles.modelInfo}>{design.title}</span>
             </div>
             <div className={styles.starsRow}>
               {[1,2,3,4,5].map((star) => (
                 <span
                   key={star}
-                  className={`${styles.star} ${star <= (hover || rating) ? styles.filled : ''}`}
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHover(star)}
-                  onMouseLeave={() => setHover(0)}
+                  className={`${styles.star} ${star <= ratings[current] ? styles.filled : ''}`}
+                  onClick={() => handleStar(star)}
                   role="button"
                   tabIndex={0}
                   aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
@@ -53,18 +120,35 @@ function RatingsPopUp({ onClose, designId ,designTitle}) {
               <textarea
                 className={styles.textarea}
                 placeholder="Type your valuable feedback/ comment for the creater here"
-                value={feedback}
-                onChange={e => setFeedback(e.target.value)}
+                value={feedbacks[current]}
+                onChange={handleFeedback}
+                disabled={loading}
               />
             </div>
             <div className={styles.actionsRow}>
-              <button className={styles.nextBtn} disabled={rating === 0} onClick={handleNext}>
-                Submit
-              </button>
-              {/* <button className={styles.skipBtn} type="button" onClick={onClose}>
-                Skip
-              </button> */}
-              <span className={styles.progressText}>1/5</span>
+              {current < designArray.length - 1 ? (
+                <>
+                  <button
+                    className={styles.nextBtn}
+                    disabled={ratings[current] === 0 || loading}
+                    onClick={handleNext}
+                  >
+                    {loading ? "Saving..." : "Next"}
+                  </button>
+                  <button className={styles.skipBtn} type="button" onClick={handleSkip} disabled={loading}>
+                    Skip
+                  </button>
+                </>
+              ) : (
+                <button
+                  className={styles.nextBtn}
+                  disabled={ratings[current] === 0 || loading}
+                  onClick={handleSubmit}
+                >
+                  {loading ? "Saving..." : "Submit"}
+                </button>
+              )}
+              <span className={styles.progressText}>{current + 1}/{designArray.length}</span>
             </div>
           </>
         ) : (

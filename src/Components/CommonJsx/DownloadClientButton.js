@@ -70,7 +70,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
               className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4"
               style={{ opacity: 0.6, cursor: 'not-allowed' }}
             >
-               Download 3d design
+               Download 3-D design
             </button>
           </span>
         </Tooltip> : <button

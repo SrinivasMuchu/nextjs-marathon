@@ -394,6 +394,7 @@
   width: 80px;
   height: 80px;
   border-radius: 8px;
+  border: 1px solid #edf2f7;
   background: #f3f3f3;
   object-fit: cover;
 }
@@ -407,6 +408,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  height:70px;
 }
 
 .starsRow {

@@ -13,6 +13,7 @@ import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import axios from 'axios';
 
+
 function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
   setSearchTerm,selectedFilter,setSelectedFilter,
   setPublishCadPopUp,creatorId,handlePublishCad}) {
@@ -322,7 +323,8 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
                   : <div style={{ width: '100%', height: '180px', background: '#e6e4f0' }} />}
                 <div className={libraryStyles["design-stats-wrapper"]}>
                   <DesignStats views={file.total_design_views ?? 0}
-                    downloads={file.total_design_downloads ?? 0} />
+                    downloads={file.total_design_downloads ?? 0}
+                    ratings={{ average: file.average_rating, total: file.total_ratings }} />
                 </div>
                 <div className={libraryStyles["design-title-wrapper"]}>
                   <h6 title={file.page_title} style={{height:'55px',fontSize:'16px'}}>{file.page_title}</h6>
@@ -334,6 +336,9 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
                     {file.tag_labels && file.tag_labels.map((label, index) => (
                       <DesignDetailsStats key={index} text={label} />
                     ))}
+                    {/* {file?.average_rating && (
+                      <DesignDetailsStats key={index} text={`${file.average_rating}(${file.total_ratings})`} />
+                    )} */}
                     <DesignDetailsStats fileType={file.file_type ? `.${file.file_type.toLowerCase()}` : '.STEP'} text={file.file_type ? `.${file.file_type.toUpperCase()}` : '.STEP'} />
                   </div>
                   {/* <span className={libraryStyles["design-title-wrapper-price"]}>Free</span> */}

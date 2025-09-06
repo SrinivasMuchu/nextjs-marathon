@@ -2,6 +2,8 @@ import React from 'react'
 import IndustryDesignHeader from './IndustryDesignHeader'
 import IndustryDesignFilesList from './IndustryDesignFilesList'
 import IndustryDesignsSuggestion from './IndustryDesignsSuggestion'
+import { IoMdInformationCircleOutline } from "react-icons/io";
+
 import AboutCad from './AboutCad'
 import IndustryDesignsCarousel from './IndustryDesignsCarousel'
 import IndustryDesignDropZone from './IndustryDesignDropZone'
@@ -11,6 +13,10 @@ import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 import ProductStructuredData from '../CommonJsx/DesignPageJsonLd'
 import styles from './IndustryDesign.module.css'
 import AnchorAdBanner from '../CommonJsx/Adsense/AnchorAdBanner'
+import IndustryHeaderDetails from './IndustryHeaderDetails'
+import DownloadsRatingAlert from '../CreatorsPage/DownloadsRatingAlert'
+import CadDesignDownload from './CadDesignDownlaod'
+import DesignViewer from './DesignViewer';
 
 function IndustryDesign({ design, designData, type }) {
 
@@ -45,21 +51,32 @@ function IndustryDesign({ design, designData, type }) {
 
               ]}
             />}
-
-          <IndustryDesignHeader design={design} type={type} designData={designData.response} />
-          {/* <AboutCadPara cadReport={designData.report}/> */}
-          {designData.response && <IndustryDesignsCarousel designData={designData.response} design={design} type={type} />}
-         
-
-          {designData?.report && (
-            <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
-          )}
-           <div className={styles['industry-design-files']}>
-            <div className={styles['industry-design-files-head']}>
-              The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.
+          <div className={styles['industry-design-header-container']} >
+            <div  className={styles['industry-design-header-container-left']}  >
+              <DesignViewer designId={designData.response._id} />
             </div>
+            <div  className={styles['industry-design-header-container-right']} >
+              <IndustryHeaderDetails designData={designData}/>
+              <IndustryDesignHeader design={design} type={type} designData={designData.response} />
+              <CadDesignDownload designId={designData.response._id} designTitle={designData.response.page_title}/>
+
+              {/* <div className={styles['industry-design-files']}> */}
+
+              <div className={styles['industry-design-files-head']}>
+                <IoMdInformationCircleOutline style={{width:'65px',height:'65px'}}/>
+                <p> The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.</p>
+
+                {/* </div> */}
+              </div>
+              {designData.response && <IndustryDesignFilesList designData={designData.response} />}
+              {designData?.report && (
+                <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
+              )}
+            </div>
+
           </div>
-          {designData.response && <IndustryDesignFilesList designData={designData.response} />}
+
+
           {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
             industryName={designData.industryName.industry} />}
           {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} />}
@@ -67,7 +84,7 @@ function IndustryDesign({ design, designData, type }) {
 
           <IndustryDesignDropZone />
           <Footer />
-          <AnchorAdBanner adSlot='4237862906'/>
+          <AnchorAdBanner adSlot='4237862906' />
         </>}
 
       </div>

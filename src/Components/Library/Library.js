@@ -112,7 +112,8 @@ async function Library({ searchParams }) {
                 
                   <div className={styles["design-stats-wrapper"]}>
                     <DesignStats views={design.total_design_views ?? 0}
-                      downloads={design.total_design_downloads ?? 0} />
+                      downloads={design.total_design_downloads ?? 0} 
+                       ratings={{ average: design.average_rating, total: design.total_ratings }} />
                   </div>
                   <div className={styles["design-title-wrapper"]}>
                     <h6 title={design.page_title}>{design.page_title}</h6>
