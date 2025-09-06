@@ -50,7 +50,7 @@ function CadViewerFiles({ loading, cadViewerFileHistory, searchTerm,
         <Link href='/tools/cad-viewer'
           // style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
           style={{
-            borderRadius: '24px',
+            borderRadius: '8px',
             border: '2px solid #610BEE',
             background: 'white',
             color: '#610BEE',

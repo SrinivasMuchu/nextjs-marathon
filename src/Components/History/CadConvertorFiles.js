@@ -64,7 +64,7 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                     href='/tools/3d-file-converter' 
                       className={styles.cadUploadingButton}
                       style={{
-                        borderRadius: '24px',
+                        borderRadius: '8px',
                         border: '2px solid #610BEE',
                         background: 'white',
                         color: '#610BEE',

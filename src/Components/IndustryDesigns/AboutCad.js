@@ -2,9 +2,9 @@ import React from 'react'
 import styles from './IndustryDesign.module.css'
 import { textLettersLimit } from '@/common.helper'
 import AboutCadPara from './AboutCadPara'
+import { RiArrowDropDownLine } from "react-icons/ri";
 
-function AboutCad({ cadReport,filetype }) {
- 
+function AboutCad({ cadReport, filetype }) {
   if (!cadReport) {
     return (
       <div className={styles['industry-design-about-cad']}>
@@ -14,16 +14,15 @@ function AboutCad({ cadReport,filetype }) {
     )
   }
 
-  const safeGet = (obj, path, defaultVal = '') => {
-    return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : defaultVal), obj)
-  }
+  const safeGet = (obj, path, defaultVal = '') =>
+    path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : defaultVal), obj)
 
   const sections = [
     {
       title: '📁 File Information',
       rows: [
         ['File Name', textLettersLimit(safeGet(cadReport, ['file_info', 'file_name']), 15)],
-        ['File Type', filetype?filetype:'.step'],
+        ['File Type', filetype ? filetype : '.step'],
         ['Units', safeGet(cadReport, ['file_info', 'units'])]
       ]
     },
@@ -75,7 +74,6 @@ function AboutCad({ cadReport,filetype }) {
     }
   ]
 
-  // Filter sections where at least one value exists
   const filteredSections = sections
     .map(section => ({
       ...section,
@@ -83,15 +81,7 @@ function AboutCad({ cadReport,filetype }) {
     }))
     .filter(section => section.rows.length > 0)
 
-  // Check if only File Information section exists, and if so, don't render the component
-  if (filteredSections.length === 1 && filteredSections[0].title === '📁 File Information') {
-    return null
-  }
-
-  // If no sections have data, don't render the component
-  if (filteredSections.length === 0) {
-    return null
-  }
+  if (filteredSections.length === 0) return null
 
   return (
     <div className={styles['industry-design-about-cad']}>
@@ -99,17 +89,21 @@ function AboutCad({ cadReport,filetype }) {
         <h2>About CAD</h2>
         <AboutCadPara cadReport={cadReport}/>
       </div>
+
       <div className={styles['industry-design-about-cad-details']}>
         {filteredSections.map((section, i) => (
-          <div key={i} className={styles['industry-design-about-cad-sub-content']}>
-            <h3 className={styles['industry-design-about-cad-sub-head']}>{section.title}</h3>
+          <details key={i} className={styles['industry-design-about-cad-sub-content']} open={i === 0}>
+            <summary className={styles['industry-design-about-cad-sub-head']}>
+              {section.title}
+              <RiArrowDropDownLine style={{fontSize:'30px'}}/>
+            </summary>
             {section.rows.map(([key, value], j) => (
               <div key={j} className={styles['industry-design-about-cad-sub-details']}>
                 <span className={styles['industry-design-about-cad-key']}>{key}</span>
                 <span className={styles['industry-design-about-cad-value']}>{value}</span>
               </div>
             ))}
-          </div>
+          </details>
         ))}
       </div>
     </div>
