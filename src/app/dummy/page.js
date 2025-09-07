@@ -16,11 +16,15 @@ function loadRazorpayScript() {
 
 async function handleBuyClick() {
   try {
-    const res = await axios.post(`${BASE_URL}/v1/cad/razor`, {
-      userId: 123, // replace with actual user ID or data
+    const res = await axios.post(`${BASE_URL}/v1/payment/create-order`, {
+      cad_file_id: '684a7a795eefe5e0adbd7a36', // replace with actual user ID or data
+    }, {
+      headers: {
+        "user-uuid": localStorage.getItem("uuid"), 
+      }
     });
-    const data = res.data;
 
+ 
     const loaded = await loadRazorpayScript();
     if (!loaded) {
       alert('Razorpay SDK failed to load.');
@@ -29,19 +33,19 @@ async function handleBuyClick() {
 
     const options = {
       key: RAZORPAY_KEY_ID, // Replace with your Razorpay key ID
-      amount: data.amount, // in paise
-      currency: data.currency,
-      name: 'Your Company Name',
-      description: 'Test Transaction',
-      order_id: data.order_id,
+      amount: res.data.amount, // in paise
+      currency: res.data.currency,
+      name: 'Marathon-OS',
+      description: 'CAD Management Tool',
+      order_id: res.data.orderId,
       handler: function (response) {
         alert('Payment successful! Payment ID: ' + response.razorpay_payment_id);
         // Optionally verify payment on the server here
       },
       prefill: {
-        name: 'Test User',
-        email: 'test@example.com',
-        contact: '9999999999'
+        name: 'Karishma Mohammed',
+        email: 'karishma@marathon-os.com',
+        contact: '9878987698'
       },
       theme: { color: '#3399cc' }
     };
@@ -56,7 +60,7 @@ async function handleBuyClick() {
 function page() {
   return (
     <div>
-      <button style={{background:'#610bee',padding:'12px',color:'white'}} onClick={handleBuyClick}>Razorpay</button>
+      <button style={{ background: '#610bee', padding: '12px', color: 'white' }} onClick={handleBuyClick}>Razorpay</button>
     </div>
   )
 }
