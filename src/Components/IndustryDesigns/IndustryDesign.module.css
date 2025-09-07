@@ -610,8 +610,27 @@ line-height: 24px; /* 150% */
     align-items:center;
     gap:12px;
     text-align: justify;
+   
 }
-
+.industryDesignHeaderDetailsOwner span{
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px; /* 140% */
+    letter-spacing: -0.3px;
+}
+.industryDesignHeaderDetailsOwner p{
+    font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px;
+}
+.industryDesignHeaderDetailsOwnerDivider{
+    opacity: 0.5;
+background:  #D1D4D7;
+width:1px;
+height:32px;
+}
 .cadDesignDownload{
     display:flex;
     flex-direction: column;
