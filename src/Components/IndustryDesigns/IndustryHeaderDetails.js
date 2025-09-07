@@ -4,6 +4,7 @@ import React from 'react'
 import styles from './IndustryDesign.module.css'
 import { GoPencil } from "react-icons/go";
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
+import NameProfile from '../CommonJsx/NameProfile';
 
 function IndustryHeaderDetails({designData}) {
     // console.log(designData)
@@ -13,19 +14,21 @@ function IndustryHeaderDetails({designData}) {
             <h1>{designData.response.page_title}</h1>
         </div>
         {/* <div className={styles.industryDesignHeaderDetailsOwner}> */}
-            <div className={styles.industryDesignHeaderDetailsOwner}>
-                <Image src={IMAGEURLS.allInOne} width={40} height={40} alt='icon'/>
-                <span>name</span>
-                <div></div>
-                <span>112 projects</span>
-            </div>
+        {designData.response.fullname && <div className={styles.industryDesignHeaderDetailsOwner}>
+                <NameProfile userName={designData.response.fullname} width={40} memberPhoto={designData.response.photo}/>
+                {/* <Image src={IMAGEURLS.allInOne} width={40} height={40} alt='icon'/> */}
+                <span>{designData.response.fullname}</span>
+                <div className={styles.industryDesignHeaderDetailsOwnerDivider}></div>
+                <p>{designData.total_files} projects</p>
+            </div>}
+            
         {/* </div> */}
         <p>{designData.response.page_description}</p>
-        <div>
-            {designData.category_labels && designData.category_labels.map((label, index) => (
+        <div className={styles.industryDesignHeaderDesignStats} style={{ display: 'flex', gap: '10px', alignItems: 'center',flexWrap:'wrap' }}>
+            {designData.response.category_labels && designData.response.category_labels.map((label, index) => (
                         <DesignDetailsStats key={index} text={label} />
                       ))}
-                      {designData.tag_labels && designData.tag_labels.map((label, index) => (
+                      {designData.response.tag_labels && designData.response.tag_labels.map((label, index) => (
                         <DesignDetailsStats key={index} text={label} />
                       ))}
             {/* <DesignDetailsStats designData={designData} /> */}
