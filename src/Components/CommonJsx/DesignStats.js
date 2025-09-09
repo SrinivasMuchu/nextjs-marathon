@@ -17,7 +17,7 @@ function DesignStats({ views, downloads,ratings }) {
       {ratings.average ?
       <div style={{ display: 'flex', alignItems: 'center',gap:'8px' }}>
         <FaStar style={{fontSize:'18px'}}/>
-        <span style={{fontSize:'16px'}}> {ratings.average} ({ratings.total} ratings)</span>
+        <span style={{fontSize:'16px'}}> {ratings.average} ({ratings.total})</span>
       </div>:null}
     </div>
    

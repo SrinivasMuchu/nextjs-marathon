@@ -300,11 +300,16 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
         }
       {loading ? <Loading smallScreen={true}/> : <>
         {userCadFiles.length > 0 ? (
-          <div className={styles.historyContainer}>
+         
+            <div className={styles.historyContainer} style={{gap:'0px'}}>
             {/* Projects Grid */}
             {userCadFiles.map((file, index) => (
-              <Link key={index} href={`/library/${file.route}`}
-              style={{width:'315px'}} className={libraryStyles["library-designs-items-container"]}
+               <div key={index}
+
+                className={styles["library-designs-items-div"]} style={{borderRadius:'8px',boxSizing:'border-box',width:'330px'}}>
+              <Link  href={`/library/${file.route}`}
+              style={{boxShadow:'none',background:'white',border:'none',height:'auto'}}
+               className={libraryStyles["library-designs-items-container"]}
                 onClick={e => !file.is_uploaded && e.preventDefault()}
               >
               {/* {!type ?  <div className={libraryStyles["library-designs-items-container-cost"]}>
@@ -321,11 +326,7 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
                 {file.is_uploaded ?
                   <HoverImageSequence design={file} width={315} height={180} />
                   : <div style={{ width: '100%', height: '180px', background: '#e6e4f0' }} />}
-                <div className={libraryStyles["design-stats-wrapper"]}>
-                  <DesignStats views={file.total_design_views ?? 0}
-                    downloads={file.total_design_downloads ?? 0}
-                    ratings={{ average: file.average_rating, total: file.total_ratings }} />
-                </div>
+               
                 <div className={libraryStyles["design-title-wrapper"]}>
                   <h6 title={file.page_title} style={{height:'55px',fontSize:'16px'}}>{file.page_title}</h6>
                   {/* <p title={file.page_description}>{textLettersLimit(file.page_description, 120)}</p> */}
@@ -340,12 +341,20 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
                       <DesignDetailsStats key={index} text={`${file.average_rating}(${file.total_ratings})`} />
                     )} */}
                     <DesignDetailsStats fileType={file.file_type ? `.${file.file_type.toLowerCase()}` : '.STEP'} text={file.file_type ? `.${file.file_type.toUpperCase()}` : '.STEP'} />
+                     <div className={libraryStyles["design-stats-wrapper"]}>
+                  <DesignStats views={file.total_design_views ?? 0}
+                    downloads={file.total_design_downloads ?? 0}
+                    ratings={{ average: file.average_rating, total: file.total_ratings }} />
+                </div>
                   </div>
                   {/* <span className={libraryStyles["design-title-wrapper-price"]}>Free</span> */}
                 </div>
               </Link>
+               </div>
             ))}
+         
           </div>
+          
         ) : (
           <div style={{
             display: 'flex', justifyContent: 'center',

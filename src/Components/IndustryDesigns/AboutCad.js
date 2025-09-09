@@ -92,7 +92,7 @@ function AboutCad({ cadReport, filetype }) {
 
       <div className={styles['industry-design-about-cad-details']}>
         {filteredSections.map((section, i) => (
-          <details key={i} className={styles['industry-design-about-cad-sub-content']} open={i === 0}>
+          <details key={i} className={styles['industry-design-about-cad-sub-content']}>
             <summary className={styles['industry-design-about-cad-sub-head']}>
               {section.title}
               <RiArrowDropDownLine style={{fontSize:'30px'}}/>

@@ -5,6 +5,7 @@ import styles from './IndustryDesign.module.css'
 import { GoPencil } from "react-icons/go";
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import NameProfile from '../CommonJsx/NameProfile';
+import IndustryDetailsEditButton from './IndustryDetailsEditButton';
 
 function IndustryHeaderDetails({designData}) {
     // console.log(designData)
@@ -33,9 +34,13 @@ function IndustryHeaderDetails({designData}) {
                       ))}
             {/* <DesignDetailsStats designData={designData} /> */}
         </div>
-        {designData.response.organization_id && <div className={styles.industryDesignHeaderEdit}>
-            <GoPencil /> Edit details
-        </div>}
+        {designData.response.organization_id && <IndustryDetailsEditButton
+        EditableFields={{page_title:designData.response.page_title,
+        page_description:designData.response.page_description,
+        is_downloadable:designData.response.is_downloadable,
+        cad_tags:designData.response.tag_labels,_id:designData.response._id,}}
+        
+        />}
         
         
 

@@ -36,7 +36,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
   const [editDetails, serEditDetails] = useState(null);
   const { user,cadDetailsUpdate } = useContext(contextState);
   // console.log(viewer,user)
-  const limit = 10;
+  const limit = 12;
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');

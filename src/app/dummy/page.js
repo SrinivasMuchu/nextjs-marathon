@@ -33,11 +33,11 @@ async function handleBuyClick() {
 
     const options = {
       key: RAZORPAY_KEY_ID, // Replace with your Razorpay key ID
-      amount: res.data.amount, // in paise
-      currency: res.data.currency,
+      amount: res.data.data.amount, // in paise
+      currency: res.data.data.currency,
       name: 'Marathon-OS',
       description: 'CAD Management Tool',
-      order_id: res.data.orderId,
+      order_id: res.data.data.orderId,
       handler: function (response) {
         alert('Payment successful! Payment ID: ' + response.razorpay_payment_id);
         // Optionally verify payment on the server here
@@ -45,7 +45,7 @@ async function handleBuyClick() {
       prefill: {
         name: 'Karishma Mohammed',
         email: 'karishma@marathon-os.com',
-        contact: '9878987698'
+        contact: '9390333636'
       },
       theme: { color: '#3399cc' }
     };

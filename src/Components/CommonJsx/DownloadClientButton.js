@@ -19,7 +19,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
             return
       }
       const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-        design_id: folderId, xaxis, yaxis, step,file_type:filetype
+        design_id: folderId, xaxis, yaxis, step,file_type:filetype,action_type:'DOWNLOAD'
 
 
       }, {
@@ -67,14 +67,14 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
           <span>
             <button
               disabled
-              className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4"
-              style={{ opacity: 0.6, cursor: 'not-allowed' }}
+              className="rounded bg-[#610BEE] h-12"
+              style={{ opacity: 0.6, cursor: 'not-allowed', color: 'white', fontSize: '20px' }}
             >
                Download 3-D design
             </button>
           </span>
         </Tooltip> : <button
-          disabled={isDownLoading} className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4" onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download 3d design'} </button>}
+          disabled={isDownLoading} style={{  fontSize: '20px' }} className="rounded bg-[#610BEE] h-12" onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download 3-D design'} </button>}
   
     </>
     </>:<>

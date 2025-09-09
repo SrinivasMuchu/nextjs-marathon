@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import styles from "./IndustryDesign.module.css";
 import { DESIGN_GLB_PREFIX_URL } from "@/config";
 import { IoIosArrowBack,IoIosArrowDown ,IoIosArrowForward ,IoIosArrowUp  } from "react-icons/io";
@@ -7,12 +7,16 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { HiOutlineMinus } from "react-icons/hi";
 import { CiUndo } from "react-icons/ci";
 import IndustryAnglePicker from "./IndustryAnglePicker";
+import IndustryDesignHeader from "./IndustryDesignHeader";
+import DesignStats from "../CommonJsx/DesignStats";
+import Link from "next/link";// client part
+import DownloadClientButton from "../CommonJsx/DownloadClientButton";
 
 const wrapDeg = (deg) => ((deg % 360) + 360) % 360;
 const step = 30;
 
 export default function DesignViewer({
-  designId,
+  designId,designData,
   padX = 0,
   padY = 0,
   ext = "webp",
@@ -22,7 +26,17 @@ export default function DesignViewer({
   const baseUrl = `${DESIGN_GLB_PREFIX_URL}${designId}`;
   const [xDeg, setXDeg] = useState(initialX);
   const [yDeg, setYDeg] = useState(initialY);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(0.8);
+
+  // Add this state and effect for screen size
+  const [showHeader, setShowHeader] = useState(false);
+
+  useEffect(() => {
+    const checkScreen = () => setShowHeader(window.innerWidth < 850);
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
 
   const fmt = (n, width) => (width > 0 ? String(n).padStart(width, "0") : String(n));
   const src = useMemo(() => {
@@ -37,6 +51,33 @@ export default function DesignViewer({
 
   return (
     <>
+      {showHeader && <div className={styles["industry-design-header-viewer-top"]}>
+         {/* <EditableFields initialTitle={designData.response.page_title} initialDesc={designData.page_description} fileId={designData._id} orgId={designData._id}/> */}
+        {/* <span>Experience in 3-D</span> */}
+        <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
+    <DesignStats
+            views={designData.total_design_views}
+            downloads={designData.total_design_downloads}
+            ratings={{ average: designData.average_rating, total: designData.total_ratings }} />
+
+
+        </div>
+      
+        <div className={styles.statsCont} style={{display:'flex',alignItems:'center',gap:'10px',justifyContent:'center',width:'100%',flexWrap:'wrap'}}>
+            <DownloadClientButton custumDownload={true}
+          folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type ? designData.file_type : 'step'} />
+ <Link
+          href={`/tools/cad-renderer?fileId=${designData._id}&format=${
+            designData.file_type ? designData.file_type : "step"
+          }`}
+          rel="nofollow"
+        >
+          <button>Open in 3D viewer</button>
+        </Link>
+       
+        </div>
+        
+      </div>}
       <div className={styles.viewerRoot}>
         <div className={styles.stage} style={{ transform: `scale(${scale})` }}>
           <img className={styles.frame} src={src} alt={`sprite x=${xDeg} y=${yDeg}`} draggable={false} />

@@ -15,6 +15,7 @@ import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
 
 
 function UploadYourCadDesign({ editedDetails,onClose }) {
+    console.log(editedDetails)
     const fileInputRef = useRef(null);
     const uploadAbortControllerRef = useRef(null); // AbortController ref
     const [isChecked, setIsChecked] = useState(editedDetails ? editedDetails.is_downloadable : true);
@@ -57,11 +58,13 @@ function UploadYourCadDesign({ editedDetails,onClose }) {
             }
         }
     }, [setHasUserEmail]);
-    // useEffect(() => {
-    //     if (editedDetails?.cad_tags?.length && options.length === 0) {
-    //         getTags();
-    //     }
-    // }, [editedDetails.cad_tags.length, options.length]);
+    useEffect(() => {
+        if (editedDetails?.cad_tags?.length) {
+            getTags();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editedDetails]);
+
     const router = useRouter();
 
     const handleChange = (e) => {
@@ -208,7 +211,7 @@ function UploadYourCadDesign({ editedDetails,onClose }) {
             if (response.data.meta.success) {
                 if (localStorage.getItem('is_verified')) {
 
-                    router.push("/dashboard")
+                    // router.push("/dashboard")
                       setCadDetailsUpdate(response)
                     onClose()
                 } else {
@@ -277,7 +280,7 @@ function UploadYourCadDesign({ editedDetails,onClose }) {
             if (response.data.meta.success) {
                 if (localStorage.getItem('is_verified')) {
 
-                    router.push('/dashboard');
+                    // router.push('/dashboard');
                     setCadDetailsUpdate(response)
                     onClose()
                 } else {
@@ -353,7 +356,7 @@ function UploadYourCadDesign({ editedDetails,onClose }) {
                 // ✅ Only set selectedOptions if they haven't been set yet
                 if (editedDetails?.cad_tags?.length && selectedOptions.length === 0) {
                     const mappedSelections = editedDetails.cad_tags
-                        .map(id => fetchedOptions.find(opt => opt.value === id))
+                        .map(id => fetchedOptions.find(opt => opt.label === id))
                         .filter(Boolean);
 
                     setSelectedOptions(mappedSelections);

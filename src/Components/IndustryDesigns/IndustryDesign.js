@@ -53,7 +53,7 @@ function IndustryDesign({ design, designData, type }) {
             />}
           <div className={styles['industry-design-header-container']} >
             <div  className={styles['industry-design-header-container-left']}  >
-              <DesignViewer designId={designData.response._id} />
+              <DesignViewer designId={designData.response._id} designData={designData.response}/>
             </div>
             <div  className={styles['industry-design-header-container-right']} >
               <IndustryHeaderDetails designData={designData}/>

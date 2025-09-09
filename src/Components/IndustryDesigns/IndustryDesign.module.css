@@ -35,7 +35,7 @@
     text-align: justify;
 }
 
-.industry-design-header-viewer {
+.industry-design-header-viewer,.industry-design-header-viewer-top {
     width: 100%;
     box-sizing: border-box;
     display: flex;
@@ -49,7 +49,7 @@ border: 1px solid  #D1D4D7;
     /* background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #610BEE; */
 }
 
-.industry-design-header-viewer span {
+.industry-design-header-viewer span,.industry-design-header-viewer-top span {
     color: #001325;
     font-size: 20px;
     font-style: normal;
@@ -64,7 +64,8 @@ border: 1px solid  #D1D4D7;
     justify-content: center;
   
 }
-.industry-design-header-viewer button,.industry-design-header-viewer-crousal button {
+.industry-design-header-viewer button,.industry-design-header-viewer-crousal button,
+.industry-design-header-viewer-top button {
     border-radius: 4px;
     background: #610BEE;
     color: #FFF;
@@ -379,11 +380,11 @@ align-self: stretch;
     justify-content: center;
     gap: 32px;
     width: 100%;
-    padding:  16px;
+    /* padding:  16px; */
 }.industry-design-about-cad-sub-head::marker { content: ''; }
 .industry-design-about-cad-sub-head::-webkit-details-marker { display: none; }
 .industry-design-about-cad-sub-head {
-    padding: 16px 20px;
+    padding: 16px 0px;
     border-bottom: 1px solid #F3F3F3;
     color: #001325;
     font-size: 16px;
@@ -631,6 +632,9 @@ background:  #D1D4D7;
 width:1px;
 height:32px;
 }
+.industryDesignHeaderDesignStats{
+
+}
 .cadDesignDownload{
     display:flex;
     flex-direction: column;
@@ -704,6 +708,14 @@ font-weight: 500;
 line-height: 24px; /* 150% */
 letter-spacing: -0.192px;
 }
+
+@media screen and (max-width: 1200px){
+    .statsCont{
+        flex-wrap: wrap;
+    
+}
+}
+
 @media screen and (max-width: 850px) {
    .industry-design-header-container{
     flex-direction: column;
@@ -716,6 +728,12 @@ letter-spacing: -0.192px;
    }
    .industry-design-header-container-left{
        width:100%;
+   }
+   .statsCont button,.statsCont a{
+    width:100%
+   }
+   .industry-design-header-viewer{
+    display:none;
    }
 }
 
@@ -734,7 +752,7 @@ letter-spacing: -0.192px;
   width: 100%;
   height: 650px;
   display: grid;
-  place-items: center;
+  /* place-items: center; */
   background: #fff;
   border: 1px solid #eee;
   border-radius: 12px;
@@ -748,13 +766,18 @@ letter-spacing: -0.192px;
   transform-origin: center center;
   display: grid;
   place-items: center;
+  height: 100%;
 }
 
 .frame {
   max-width: 100%;
   max-height: 100%;
+  width: auto;
+  height: auto;
   image-rendering: auto;
   pointer-events: none;
+  display: block;
+  margin: auto;
 }
 
 .controls {
