@@ -58,7 +58,7 @@ export default function DesignViewer({
     <DesignStats
             views={designData.total_design_views}
             downloads={designData.total_design_downloads}
-            ratings={{ average: designData.average_rating, total: designData.total_ratings }} />
+            ratings={{ average: designData.average_rating, total: designData.rating_count }} />
 
 
         </div>

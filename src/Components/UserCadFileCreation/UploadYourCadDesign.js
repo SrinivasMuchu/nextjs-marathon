@@ -14,7 +14,7 @@ import CreatableSelect from 'react-select/creatable';
 import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
 
 
-function UploadYourCadDesign({ editedDetails,onClose }) {
+function UploadYourCadDesign({ editedDetails,onClose,type }) {
     console.log(editedDetails)
     const fileInputRef = useRef(null);
     const uploadAbortControllerRef = useRef(null); // AbortController ref
@@ -210,8 +210,13 @@ function UploadYourCadDesign({ editedDetails,onClose }) {
 
             if (response.data.meta.success) {
                 if (localStorage.getItem('is_verified')) {
-
-                    // router.push("/dashboard")
+                    if(type){
+                        router.push(`/library/${response.data.data.route}`)
+                        router.refresh();
+                    }else{
+                        router.push("/dashboard")
+                    }
+                    
                       setCadDetailsUpdate(response)
                     onClose()
                 } else {
@@ -280,7 +285,13 @@ function UploadYourCadDesign({ editedDetails,onClose }) {
             if (response.data.meta.success) {
                 if (localStorage.getItem('is_verified')) {
 
-                    // router.push('/dashboard');
+                      if(type){
+                        router.push(`/library/${response.data.data.route}`)
+                        
+                        router.refresh();
+                    }else{
+                        router.push("/dashboard")
+                    }
                     setCadDetailsUpdate(response)
                     onClose()
                 } else {

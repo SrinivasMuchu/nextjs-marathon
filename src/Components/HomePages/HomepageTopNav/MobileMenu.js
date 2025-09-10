@@ -29,6 +29,12 @@ function MobileMenu({ onClose, styles }) {
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
 
+  // Add this handler inside your component
+  const handleDashboardClick = (e) => {
+    handleCloseMenu();
+    router.refresh();
+  };
+
   return (
     <>
       <div className={styles["menu-close-icon"]}>
@@ -72,9 +78,9 @@ function MobileMenu({ onClose, styles }) {
             </div>
           )}
         </div>
-         <Link rel="nofollow" href="/dashboard" onClick={handleCloseMenu}>
-      Dashboard
-    </Link>
+         <Link rel="nofollow" href="/dashboard" onClick={handleDashboardClick}>
+           Dashboard
+         </Link>
         <Link href="/library" onClick={handleCloseMenu}>Library</Link>
         
          

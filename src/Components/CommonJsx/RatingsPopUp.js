@@ -7,11 +7,9 @@ import Image from 'next/image';
 import { DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { v4 as uuidv4 } from 'uuid';
-import { contextState } from './ContextProvider';
-import { FaRegStar } from "react-icons/fa";
 
-function RatingsPopUp({ onClose, designArray = [] }) {
+
+function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downlaodCount }) {
     //  const { setUpdatedDetails } = useContext(contextState);
   const [current, setCurrent] = useState(0);
   const [ratings, setRatings] = useState(Array(designArray.length).fill(0));
@@ -51,6 +49,7 @@ function RatingsPopUp({ onClose, designArray = [] }) {
         }
       );
       if (res.data.meta.success) {
+        setDownloadCount(downlaodCount-1)
         return true;
       } else {
         toast.error(res.data.meta.message || "Failed to submit rating.");

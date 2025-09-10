@@ -23,10 +23,15 @@ function HomeTopNav() {
     }
   };
 
-
   const toggleDropdown = (e,dropdownName) => {
     e.stopPropagation()
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+  };
+
+  // Add this handler inside your component
+  const handleDashboardClick = (e) => {
+    setOpenDropdown(false);
+    router.refresh();
   };
 
   return (
@@ -76,7 +81,7 @@ function HomeTopNav() {
           )}
         </div>
 
-        <Link href="/dashboard" rel="nofollow">
+        <Link href="/dashboard" rel="nofollow" onClick={handleDashboardClick}>
           Dashboard
         </Link>
         <Link href="/library" >Library</Link>

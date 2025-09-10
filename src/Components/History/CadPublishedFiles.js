@@ -338,13 +338,13 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
                       <DesignDetailsStats key={index} text={label} />
                     ))}
                     {/* {file?.average_rating && (
-                      <DesignDetailsStats key={index} text={`${file.average_rating}(${file.total_ratings})`} />
+                      <DesignDetailsStats key={index} text={`${file.average_rating}(${file.rating_count})`} />
                     )} */}
                     <DesignDetailsStats fileType={file.file_type ? `.${file.file_type.toLowerCase()}` : '.STEP'} text={file.file_type ? `.${file.file_type.toUpperCase()}` : '.STEP'} />
                      <div className={libraryStyles["design-stats-wrapper"]}>
                   <DesignStats views={file.total_design_views ?? 0}
                     downloads={file.total_design_downloads ?? 0}
-                    ratings={{ average: file.average_rating, total: file.total_ratings }} />
+                    ratings={{ average: file.average_rating, total: file.rating_count }} />
                 </div>
                   </div>
                   {/* <span className={libraryStyles["design-title-wrapper-price"]}>Free</span> */}

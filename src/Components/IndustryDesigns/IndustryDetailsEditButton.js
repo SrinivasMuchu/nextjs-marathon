@@ -3,7 +3,7 @@ import React,{useState} from 'react'
 import { GoPencil } from "react-icons/go";
 import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
 import styles from './IndustryDesign.module.css'
-function IndustryDetailsEditButton({ EditableFields }) {
+function IndustryDetailsEditButton({ EditableFields,type }) {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEditClick = () => {
@@ -15,7 +15,7 @@ function IndustryDetailsEditButton({ EditableFields }) {
       <div className={styles.industryDesignHeaderEdit} onClick={handleEditClick}>
             <GoPencil /> Edit details
         </div>
-        {isEditing && <PublishCadPopUp onClose={() => setIsEditing(false)} editedDetails={EditableFields} />}
+        {isEditing && <PublishCadPopUp onClose={() => setIsEditing(false)} editedDetails={EditableFields} type={type}/>}
     </>
    
   )

@@ -126,7 +126,7 @@ async function Library({ searchParams }) {
                       <div className={styles["design-stats-wrapper"]}>
                     <DesignStats views={design.total_design_views ?? 0}
                       downloads={design.total_design_downloads ?? 0} 
-                       ratings={{ average: design.average_rating, total: design.total_ratings }} />
+                       ratings={{ average: design.average_rating, total: design.rating_count }} />
                   </div>
                     </div>
                     <span className={styles["design-title-wrapper-price"]}>Free</span>
