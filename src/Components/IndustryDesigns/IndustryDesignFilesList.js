@@ -20,7 +20,7 @@ function IndustryDesignFilesList({ designData }) {
         <div className={styles['industry-design-files']}>
            
             <div className={styles['industry-design-files-bottom']}>
-                <span className={styles['industry-design-files-count']}>Files {viewDirections.length+1}</span>
+                {/* <span className={styles['industry-design-files-count']}>Files {viewDirections.length+1}</span> */}
                 <table className={styles['industry-design-files-list']}>
                     <thead>
                         <tr>

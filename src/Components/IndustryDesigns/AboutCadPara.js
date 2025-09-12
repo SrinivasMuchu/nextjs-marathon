@@ -181,7 +181,7 @@ function AboutCadPara({cadReport}) {
 
   return (
     // <div className={styles['industry-design-about-cad']} style={{textAlign: 'left'}}>
-      <p  dangerouslySetInnerHTML={{ __html: generateText() }}></p>
+      <p   dangerouslySetInnerHTML={{ __html: generateText() }}></p>
     // </div>
   )
 }
