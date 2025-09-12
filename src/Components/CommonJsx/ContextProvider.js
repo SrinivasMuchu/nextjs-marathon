@@ -17,6 +17,9 @@ function ContextProvider({children}) {
     const [isProfileComplete, setIsProfileComplete] = useState(false);
     const [updatedDetails, setUpdatedDetails] = useState(false);
     const [cadDetailsUpdate, setCadDetailsUpdate] = useState(false);
+    const [downloadedFileUpdate, setDownloadedFileUpdate] = useState(false);
+    const [designLiked, setDesignLiked] = useState(false);
+    const [isLiked, setIsLiked] = useState(false);
     const [user, setUser] = useState({ 
         name: '', email: '', photo: '',_id:'',
         user_access_key: '', desc: '', 
@@ -35,7 +38,9 @@ function ContextProvider({children}) {
       paramsText, setParamsText,hasUserEmail, setHasUserEmail,updatedDetails, setUpdatedDetails,
       uploadedFile, setUploadedFile,user, setUser,isProfileComplete,
        setIsProfileComplete,anchorAds, setAnchorAds,viewer, setViewer,
-       cadDetailsUpdate, setCadDetailsUpdate }}>
+       cadDetailsUpdate, setCadDetailsUpdate,downloadedFileUpdate, setDownloadedFileUpdate,
+       designLiked, setDesignLiked,isLiked, setIsLiked
+      }}>
     {children}
   </contextState.Provider>
   )

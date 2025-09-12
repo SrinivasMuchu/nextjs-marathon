@@ -1,14 +1,16 @@
 "use client"
-import React,{useEffect, useState} from 'react'
+import React,{useEffect, useState,useContext} from 'react'
 import { MdKeyboardArrowRight } from "react-icons/md";
 import styles from './IndustryDesign.module.css'
 import { BASE_URL } from '@/config';
 import axios from 'axios';
 import RatingsPopUp from '../CommonJsx/RatingsPopUp';
+import { contextState } from '../CommonJsx/ContextProvider';
 
 function CadDesignDownload ({designId,designTitle}) {
   const [downloadedAt,setDownloadedAt] = useState('');
    const [openRatingModal,setOpenRatingModal] = useState(false);
+   const { downloadedFileUpdate,setDesignLiked,setIsLiked } = useContext(contextState);
 
   const getIsRated=async()=>{
     try {
@@ -16,7 +18,12 @@ function CadDesignDownload ({designId,designTitle}) {
         headers: { 'user-uuid': localStorage.getItem('uuid') }
       });
       if (res.data.meta.success) {
-        setDownloadedAt(res.data.data.latest_created_at);
+        setDownloadedAt(res.data.data.latest_download_created_at);
+       
+        if(!res.data.data.latest_download_created_at){
+           setDesignLiked(true);
+           setIsLiked(res.data.data.is_liked);
+        }
       }
     } catch (error) {
       console.log(error)
@@ -25,7 +32,7 @@ function CadDesignDownload ({designId,designTitle}) {
 
   useEffect(()=>{
     getIsRated();
-  },[])
+  },[downloadedFileUpdate])
   function daysSince(dateString) {
   const inputDate = new Date(dateString);
   const today = new Date();

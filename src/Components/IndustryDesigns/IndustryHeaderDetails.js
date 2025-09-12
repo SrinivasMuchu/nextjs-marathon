@@ -6,13 +6,15 @@ import { GoPencil } from "react-icons/go";
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import NameProfile from '../CommonJsx/NameProfile';
 import IndustryDetailsEditButton from './IndustryDetailsEditButton';
+import DesignLike from './DesignLike';
 
 function IndustryHeaderDetails({designData}) {
     // console.log(designData)
   return (
     <div className={styles.industryDesignHeaderDetails}>
-        <div>
+        <div style={{display:'flex',alignItems:'center'}}>
             <h1>{designData.response.page_title}</h1>
+            <DesignLike designId={designData.response._id}/>
         </div>
         {/* <div className={styles.industryDesignHeaderDetailsOwner}> */}
         {designData.response.fullname && <div className={styles.industryDesignHeaderDetailsOwner}>

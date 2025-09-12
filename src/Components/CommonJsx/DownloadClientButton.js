@@ -2,15 +2,17 @@
 import axios from 'axios';
 import styles from '../IndustryDesigns/IndustryDesign.module.css'
 import { sendGAtagEvent } from '@/common.helper';
-import React, { useState } from 'react'
+import React, { useState,useContext } from 'react'
 import { BASE_URL, CAD_VIEWER_EVENT } from '@/config';
 import Tooltip from '@mui/material/Tooltip';
 import CadFileNotifyPopUp from './CadFileNotifyPopUp';
 import UserLoginPupUp from './UserLoginPupUp';
+import { contextState } from './ContextProvider';
 
 function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,filetype,custumDownload}) {
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
+  const { setDownloadedFileUpdate } = useContext(contextState);
   const handleDownload = async () => {
     setIsDownLoading(true); // Disable button
     try {
@@ -31,6 +33,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
       const data = response.data;
       if (data.meta.success) {
         const url = data.data.download_url;
+        setDownloadedFileUpdate(data.data.download_url)
         window.open(url, '_blank');
       }
       sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
