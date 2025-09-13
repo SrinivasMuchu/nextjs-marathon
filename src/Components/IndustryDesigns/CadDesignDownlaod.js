@@ -19,10 +19,14 @@ function CadDesignDownload ({designId,designTitle}) {
       });
       if (res.data.meta.success) {
         setDownloadedAt(res.data.data.latest_download_created_at);
-       
-        if(!res.data.data.latest_download_created_at){
-           setDesignLiked(true);
-           setIsLiked(res.data.data.is_liked);
+
+        // Only set designLiked and isLiked if data is a non-empty object
+        if (res.data.data && Object.keys(res.data.data).length > 0) {
+            setDesignLiked(true);
+            setIsLiked(res.data.data.is_liked);
+        } else {
+            setDesignLiked(false);
+            setIsLiked(false);
         }
       }
     } catch (error) {
@@ -33,36 +37,43 @@ function CadDesignDownload ({designId,designTitle}) {
   useEffect(()=>{
     getIsRated();
   },[downloadedFileUpdate])
-  function daysSince(dateString) {
+  function timeSince(dateString) {
   const inputDate = new Date(dateString);
-  const today = new Date();
+  const now = new Date();
 
-  // normalize both dates to midnight to avoid time differences
-  inputDate.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
+  const diffMs = now - inputDate;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  const diffTime = today - inputDate;
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays > 0) {
+    return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+  }
 
-  return diffDays;
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  if (diffHours > 0) {
+    return `${diffHours} hour${diffHours > 1 ? 's' : ''}`;
+  }
+
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  if (diffMinutes > 0) {
+    return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
+  }
+
+  const diffSeconds = Math.floor(diffMs / 1000);
+  return `${diffSeconds} second${diffSeconds !== 1 ? 's' : ''}`;
 }
-
-// Example usage:
-
-// -> e.g. 79 (depending on today's date)
 
   if (!downloadedAt) return null;
   return (
     <>
      <div className={styles.cadDesignDownload} onClick={() => setOpenRatingModal(true)}>
         <div className={styles.cadDesignDownloadTitle}>
-            <span>You downloaded this 3-D file {daysSince(downloadedAt)} days back!</span>
+            <span>You downloaded this 3-D file {timeSince(downloadedAt)} ago!</span>
             <MdKeyboardArrowRight style={{fontSize:'20px'}}/>
         </div>
      
         <p>Please rate the 3-D model file and share your experience. It will help creators to ....bla bla</p>
     </div>
-    {openRatingModal && <RatingsPopUp designArray={[{ _id: designId, title: designTitle }]} onClose={() => setOpenRatingModal(false)} />}
+    {openRatingModal && <RatingsPopUp designArray={[{ _id: designId, title: designTitle }]} onClose={() => setOpenRatingModal(false)} ratingType="cad-design" />}
     </>
    
   )

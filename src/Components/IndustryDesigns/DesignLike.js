@@ -2,6 +2,7 @@
 import React, { useContext } from 'react'
 import { contextState } from '../CommonJsx/ContextProvider';
 import { PiHandsClapping } from "react-icons/pi";
+import { FaHandsClapping } from "react-icons/fa6";
 import axios from "axios";
 import { BASE_URL } from "../../config"; // Adjust the import if needed
 
@@ -34,9 +35,17 @@ function DesignLike({ designId }) {
 
     return (
         <div style={{ display: 'inline-block', cursor: 'pointer' }} onClick={handleClick}>
-            <PiHandsClapping
+           {isLiked ?<FaHandsClapping size={48}
+                color={skinColor }
+                style={{
+                    borderRadius: "50%",
+                    background: "#f5f5f5", // Keep the background neutral
+                    padding: 8,
+                    // boxShadow: isLiked ? "0 0 8px #FFD19C" : "none",
+                    transition: "color 0.2s"
+                }}/> :  <PiHandsClapping
                 size={48}
-                color={isLiked ? skinColor : whiteColor}
+                color={ whiteColor}
                 style={{
                     borderRadius: "50%",
                     background: "#f5f5f5", // Keep the background neutral
@@ -44,7 +53,7 @@ function DesignLike({ designId }) {
                     // boxShadow: isLiked ? "0 0 8px #FFD19C" : "none",
                     transition: "color 0.2s"
                 }}
-            />
+            />}
         </div>
     )
 }

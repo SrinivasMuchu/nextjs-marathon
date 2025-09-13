@@ -9,7 +9,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 
-function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downlaodCount }) {
+function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downloadCount ,ratingType}) {
     //  const { setUpdatedDetails } = useContext(contextState);
   const [current, setCurrent] = useState(0);
   const [ratings, setRatings] = useState(Array(designArray.length).fill(0));
@@ -49,7 +49,9 @@ function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downlaodCount
         }
       );
       if (res.data.meta.success) {
-        setDownloadCount(downlaodCount-1)
+        if (!ratingType) {
+          setDownloadCount(downloadCount - 1);
+        }
         return true;
       } else {
         toast.error(res.data.meta.message || "Failed to submit rating.");
