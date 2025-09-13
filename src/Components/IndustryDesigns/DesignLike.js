@@ -21,8 +21,8 @@ function DesignLike({ designId }) {
             setIsLiked(!isLiked);
             // setDownloadedFileUpdate(prev => prev + 1);
 
-            await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-                action_type: 'LIKE',
+            await axios.post(`${BASE_URL}/v1/cad-creator/design-appreciation`, {
+               
                 is_liked: !isLiked,
                 design_id: designId
             }, {
