@@ -110,10 +110,7 @@ async function Library({ searchParams }) {
                   </div> */}
                   <HoverImageSequence design={design} width={300} height={250}/>
                 
-                  <div className={styles["design-stats-wrapper"]}>
-                    <DesignStats views={design.total_design_views ?? 0}
-                      downloads={design.total_design_downloads ?? 0} />
-                  </div>
+                  
                   <div className={styles["design-title-wrapper"]}>
                     <h6 title={design.page_title}>{design.page_title}</h6>
                      {/* <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p> */}
@@ -126,6 +123,11 @@ async function Library({ searchParams }) {
                         <DesignDetailsStats key={index} text={label} />
                       ))}
                       <DesignDetailsStats fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'} text={design.file_type ? `.${design.file_type.toUpperCase()}`  : '.STEP'} />
+                      <div className={styles["design-stats-wrapper"]}>
+                    <DesignStats views={design.total_design_views ?? 0}
+                      downloads={design.total_design_downloads ?? 0} 
+                       ratings={{ average: design.average_rating, total: design.rating_count }} />
+                  </div>
                     </div>
                     <span className={styles["design-title-wrapper-price"]}>Free</span>
                   

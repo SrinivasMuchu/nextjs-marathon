@@ -126,6 +126,19 @@
   width: 85px;
   opacity: 0.5;
 }
+.library-designs-items-div {
+  padding: 20px;
+  overflow:hidden;
+  transition: padding 0.3s ease;
+  /* background: inherit; smooth animation */
+}
+
+.library-designs-items-div:hover {
+  padding: 0px;
+  background: white;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
 .historyContainer {
   display: flex;
   flex-wrap: wrap;

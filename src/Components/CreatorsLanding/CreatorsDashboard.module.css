@@ -1,13 +1,13 @@
-.creatorDasboardHeader{
-    position: relative;
-    display: flex;
-    /* align-items: center; */
-    justify-content: flex-start;
-    background: linear-gradient(135deg, #610bee 0%, #610bee 50%, #c084fc 100%);
-    min-height: 70vh;
-    color: white;
-    padding: clamp(24px, 5vw, 96px) clamp(16px, 6vw, 40px);
-    overflow: hidden;
+.creatorDasboardHeader {
+  position: relative;
+  display: flex;
+  /* align-items: center; */
+  justify-content: flex-start;
+  background: linear-gradient(135deg, #610bee 0%, #610bee 50%, #c084fc 100%);
+  min-height: 70vh;
+  color: white;
+  padding: clamp(24px, 5vw, 96px) clamp(16px, 6vw, 40px);
+  overflow: hidden;
 }
 
 .backgroundImage {
@@ -70,10 +70,10 @@
     margin-bottom:16px;
 }
 
-.creatorDashboardButtonContainer{
-    display:flex;
-    align-items:center;
-    gap:20px;
+.creatorDashboardButtonContainer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 .creatorDashboardButtonContainer button,
 .startShareButton,
@@ -111,93 +111,103 @@
     
 }
 
-.shareYourDesignsContainer,.startShareDesignContainer{
-    padding: clamp(24px, 5vw, 48px) clamp(16px, 6vw, 40px);
-    display: flex;
-    align-items: center;
-    flex-direction:column;
-    gap:24px;
-    justify-content: center;
-    width:100%;
-    box-sizing:border-box;
-
+.shareYourDesignsContainer,
+.startShareDesignContainer {
+  padding: clamp(24px, 5vw, 48px) clamp(16px, 6vw, 40px);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.shareYourDesignsContainer h1{
-    color: #001325;
-    font-size: 36px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 52px;
+.shareYourDesignsContainer h1 {
+  color: #001325;
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 52px;
 }
-.shareYourDesignsList{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    /* align-items: center; */
-    width:100%;
+.shareYourDesignsList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  /* align-items: center; */
+  width: 100%;
 }
 
-.shareYourDesignsItem{
-    width:350px;
-    padding:12px;
-    border-radius:4px;
-    display: flex;
-    gap:8px;
-    text-align: justify;
-    /* align-items: center; */
-    flex-direction:column;
-    background: linear-gradient(0deg, hsla(0, 0%, 100%, .9), hsla(0, 0%, 100%, .9)), #5b89ff;
-    /* height: 400px; */
-    /* background: #f0f0f0;
+.shareYourDesignsItem {
+  width: 350px;
+  padding: 12px;
+  border-radius: 4px;
+  display: flex;
+  gap: 8px;
+  text-align: justify;
+  /* align-items: center; */
+  flex-direction: column;
+  background: linear-gradient(
+      0deg,
+      hsla(0, 0%, 100%, 0.9),
+      hsla(0, 0%, 100%, 0.9)
+    ),
+    #5b89ff;
+  /* height: 400px; */
+  /* background: #f0f0f0;
     border: 1px solid #eee;
     border-radius: 8px;
     padding: 16px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
 }
 
-.shareYourDesignsItem h2,.faqItem h2{
-    font-weight: 700;
-    font-size: 18px;
+.shareYourDesignsItem h2,
+.faqItem h2 {
+  font-weight: 700;
+  font-size: 18px;
 }
 
-.shareYourDesignsItem p,.faqItem p{
-    font-size:16px;
-    color:#4B5563;
+.shareYourDesignsItem p,
+.faqItem p {
+  font-size: 16px;
+  color: #4b5563;
 }
 
-
-.itemStep{
-   border-radius:50%;
-   color:#610bee;
-   width: 35px;
-   height: 35px;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   background:rgb(224, 211, 245);
-   font-weight:600;
+.itemStep {
+  border-radius: 50%;
+  color: #610bee;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(224, 211, 245);
+  font-weight: 600;
 }
 
-.faqItem{
-    width:60%;
-    border-radius: 8px;
+.faqItem {
+  width: 60%;
+  border-radius: 8px;
 }
 
-.notificationContainer{
-    display:flex;
-    width:100%;
-    padding:12px;
-    align-items:flex-start;
-    justify-content: center;
-    gap:10px;
-    background:linear-gradient(0deg, hsla(0, 0%, 100%, .9), hsla(0, 0%, 100%, .9)), #16A34A;
+.notificationContainer {
+  display: flex;
+  width: 100%;
+  padding: 12px;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(
+      0deg,
+      hsla(0, 0%, 100%, 0.9),
+      hsla(0, 0%, 100%, 0.9)
+    ),
+    #16a34a;
 }
 
-
-  @media screen and (max-width:800px){
-    .faqItem{
-        width:90%;
-    }
+@media screen and (max-width: 800px) {
+  .faqItem {
+    width: 90%;
   }
+}

@@ -2,15 +2,17 @@
 import axios from 'axios';
 import styles from '../IndustryDesigns/IndustryDesign.module.css'
 import { sendGAtagEvent } from '@/common.helper';
-import React, { useState } from 'react'
+import React, { useState,useContext } from 'react'
 import { BASE_URL, CAD_VIEWER_EVENT } from '@/config';
 import Tooltip from '@mui/material/Tooltip';
 import CadFileNotifyPopUp from './CadFileNotifyPopUp';
 import UserLoginPupUp from './UserLoginPupUp';
+import { contextState } from './ContextProvider';
 
 function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,filetype,custumDownload}) {
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
+  const { setDownloadedFileUpdate } = useContext(contextState);
   const handleDownload = async () => {
     setIsDownLoading(true); // Disable button
     try {
@@ -19,7 +21,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
             return
       }
       const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-        design_id: folderId, xaxis, yaxis, step,file_type:filetype
+        design_id: folderId, xaxis, yaxis, step,file_type:filetype,action_type:'DOWNLOAD'
 
 
       }, {
@@ -31,6 +33,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
       const data = response.data;
       if (data.meta.success) {
         const url = data.data.download_url;
+        setDownloadedFileUpdate(data.data.download_url)
         window.open(url, '_blank');
       }
       sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
@@ -67,14 +70,14 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
           <span>
             <button
               disabled
-              className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4"
-              style={{ opacity: 0.6, cursor: 'not-allowed' }}
+              className="rounded bg-[#610BEE] h-12"
+              style={{ opacity: 0.6, cursor: 'not-allowed', color: 'white', fontSize: '20px' }}
             >
-               Download 3d design
+               Download 3-D design
             </button>
           </span>
         </Tooltip> : <button
-          disabled={isDownLoading} className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4" onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download 3d design'} </button>}
+          disabled={isDownLoading} style={{  fontSize: '20px' }} className="rounded bg-[#610BEE] h-12" onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download 3-D design'} </button>}
   
     </>
     </>:<>
