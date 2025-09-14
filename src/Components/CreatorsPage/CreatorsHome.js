@@ -67,8 +67,8 @@ function CreatorsHome({ creatorId }) {
       <CreatorCoverPage creatorId={creatorId} setIsVerified={setIsVerified}/>
       <div className={styles.creatorDetails} >
         <CreatorLeftCont creatorId={creatorId} setIsVerified={setIsVerified}/>
-        <div className={styles.creatorDetailsVertical} style={{ width: '2px', background: '#edf2f7', marginTop: '80px' }} />
-        <div className={styles.creatorDetailsHorizontal} style={{ width: '100%', background: '#edf2f7', height: '2px' }} />
+        {/* <div className={styles.creatorDetailsVertical} style={{ width: '2px', background: '#edf2f7', marginTop: '80px' }} />
+        <div className={styles.creatorDetailsHorizontal} style={{ width: '100%', background: '#edf2f7', height: '2px' }} /> */}
         <CreatorsRightCont creatorId={creatorId} />
       </div>
     </>
