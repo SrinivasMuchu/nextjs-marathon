@@ -12,6 +12,7 @@ import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
 import CreatableSelect from 'react-select/creatable';
 import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
+import { FaRupeeSign } from "react-icons/fa";
 
 
 function UploadYourCadDesign({ editedDetails,onClose,type }) {
@@ -23,6 +24,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type }) {
         title: editedDetails ? editedDetails.page_title : '',
         description: editedDetails ? editedDetails.page_description : '', tags: ''
     });
+   
+
     const [url, setUrl] = useState('');
     const [fileFormat, setFileFormat] = useState('');
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -41,6 +44,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type }) {
     const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate } = useContext(contextState);
     const [options, setOptions] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
+    const [price, setPrice] = useState(editedDetails?.price || "");
+
     useEffect(() => {
 
         if (uploadedFile && Object.keys(uploadedFile).length > 0) {
@@ -200,6 +205,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type }) {
                     url,
                     is_downloadable: isChecked,
                     converted_cad_source: uploadedFile,
+                    price: Number(price) || 0, // Send price as number
                 },
                 {
                     headers: {
@@ -271,7 +277,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type }) {
 
                     description: cadFile.description,
                     tags: selectedOptions.map(option => option.value),
-
+                    price: Number(price) || 0, // Send price as number
                     is_downloadable: isChecked,
 
                 },
@@ -557,6 +563,26 @@ function UploadYourCadDesign({ editedDetails,onClose,type }) {
                             <p style={{ fontSize: '12px', color: cadFile.description.length >= 100 ? 'green' : 'gray' }}>{cadFile.description.length}/{DESCRIPTIONLIMIT}</p>
                         </div>
                     </div>
+                     <div style={{  display: 'flex', alignItems: 'center', gap: 8,marginBottom:'16px' }}>
+                   
+                    <input
+                        type="number"
+                        min={0}
+                        placeholder="Enter price"
+                        value={price}
+                        onChange={e => setPrice(e.target.value)}
+                        style={{
+                            width: 120,
+                            padding: '6px',
+                            border: '1px solid #ccc',
+                            borderRadius: 4
+                        }}
+                    />
+                     <label style={{ fontWeight: 500, marginRight: 8 }}>
+                        <FaRupeeSign style={{ verticalAlign: 'middle' }} /> 
+                    </label>
+                </div>
+                    
                     {/* {formErrors.title && <p style={{ color: 'red' }}>{formErrors.title}</p>} */}
 
                     {/* {formErrors.description && <p style={{ color: 'red' }}>{formErrors.description}</p>} */}
