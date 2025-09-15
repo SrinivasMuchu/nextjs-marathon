@@ -118,7 +118,7 @@ export const createDropdownCustomStyles = {
     control: (provided) => ({
         ...provided,
         backgroundColor: "transparent",
-        border: "1px solid #EDF2F7",
+        border: "1px solid #d1d5db",
         boxShadow: "none",
         marginBottom: "16px",
         height:"42px"
