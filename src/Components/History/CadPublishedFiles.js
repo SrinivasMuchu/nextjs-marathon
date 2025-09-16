@@ -322,6 +322,8 @@ const tagsResponse = await axios.get(
                className={libraryStyles["library-designs-items-container"]}
                 onClick={e => !file.is_uploaded && e.preventDefault()}
               >
+                 {/* <div className={libraryStyles["library-designs-items-container-cost"]}>
+                  {file.price ? <span>{file.price} </span> : 'Free'}</div> */}
               {/* {!type ?  <div className={libraryStyles["library-designs-items-container-cost"]}>
                   Free</div>:
                   <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
@@ -357,7 +359,7 @@ const tagsResponse = await axios.get(
                     ratings={{ average: file.average_rating, total: file.rating_count }} />
                 </div>
                   </div>
-                  {/* <span className={libraryStyles["design-title-wrapper-price"]}>Free</span> */}
+                  <span className={libraryStyles["design-title-wrapper-price"]}>{file.price?file.price:'Free'}</span>
                 </div>
               </Link>
                </div>
