@@ -14,11 +14,12 @@ import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import axios from 'axios';
 
 
+
 function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
   setSearchTerm,selectedFilter,setSelectedFilter,
   setPublishCadPopUp,creatorId,handlePublishCad}) {
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
-  const [allFilters, setAllFilters] = useState([{ id: 'All', label: 'All' }]); // Store objects with id and label
+  const [allFilters, setAllFilters] = useState([]); // Store objects with id and label
   const [loadingFilters, setLoadingFilters] = useState(true);
   
   const visibleFilters = allFilters.slice(0, 4);
@@ -28,12 +29,21 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
   useEffect(() => {
     const fetchCadTags = async () => {
       try {
+        if(type === 'USER_DOWNLOADS'){
+          return
+        }
         setLoadingFilters(true);
-        const tagsResponse = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`, {
-          cache: 'no-store',
-        });
+const tagsResponse = await axios.get(
+  `${BASE_URL}/v1/cad-creator/get-cad-tags`,
+  {
+    headers: {
+      "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
+    },
+    cache: 'no-store',
+  }
+);
         
-        const allTags = tagsResponse.data?.data || [];
+        const allTags = tagsResponse.data?.data?.cad_tags || [];
         
         // Create filter options from API response with both id and label
         const tagOptions = allTags.map((tags) => ({
@@ -46,13 +56,13 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
       } catch (error) {
         console.error('Error fetching CAD tags:', error);
         // Fallback to default filters if API fails
-        setAllFilters([
-          { id: 'All', label: 'All' },
-          { id: 'mechanical', label: 'Mechanical' },
-          { id: 'automotive', label: 'Automotive' },
-          { id: 'industrial', label: 'Industrial' },
-          { id: 'product', label: 'Product' }
-        ]);
+        // setAllFilters([
+        //   { id: 'All', label: 'All' },
+        //   { id: 'mechanical', label: 'Mechanical' },
+        //   { id: 'automotive', label: 'Automotive' },
+        //   { id: 'industrial', label: 'Industrial' },
+        //   { id: 'product', label: 'Product' }
+        // ]);
       } finally {
         setLoadingFilters(false);
       }

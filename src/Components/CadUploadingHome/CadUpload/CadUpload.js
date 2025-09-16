@@ -14,7 +14,7 @@ function CadUpload({type}) {
            <CadDropZoneContent isStyled={true} type={type}/>
             
         </div>
-        <div className={cadStyles['cad-uploading-circle-bg']}></div>
+        {/* <div className={cadStyles['cad-uploading-circle-bg']}></div> */}
     </div>
     </>
    
