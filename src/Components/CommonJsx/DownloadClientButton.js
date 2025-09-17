@@ -85,6 +85,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step, fil
         description: "CAD Management Tool",
         order_id: res.data.data.orderId,
         handler: async function (response) {
+          // console.log(response,'razorpay response');
           // 3. After payment success, verify with backend
           try {
             const verifyRes = await axios.post(
@@ -93,6 +94,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step, fil
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature,
+                cad_file_id: folderId,
               },
               {
                 headers: {
@@ -104,6 +106,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step, fil
             if (verifyRes.data.meta.success) {
               // Payment verified, proceed to download
               await downloadFile();
+              // console.log('success')
             } else {
               alert("⚠️ Payment verification failed!");
             }
