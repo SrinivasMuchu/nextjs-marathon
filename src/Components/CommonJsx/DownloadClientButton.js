@@ -101,7 +101,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step, fil
               }
             );
 
-            if (verifyRes.data.success) {
+            if (verifyRes.data.meta.success) {
               // Payment verified, proceed to download
               await downloadFile();
             } else {
@@ -246,3 +246,5 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step, fil
 }
 
 export default DownloadClientButton;
+
+console.log("RAZORPAY_KEY_ID:", RAZORPAY_KEY_ID); // Should print your key, not undefined

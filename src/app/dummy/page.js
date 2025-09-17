@@ -60,7 +60,7 @@ async function handleBuyClick() {
             }
           );
 
-          if (verifyRes.data.success) {
+          if (verifyRes.data.meta.success) {
             alert("✅ Payment verified successfully!");
           } else {
             alert("⚠️ Payment verification failed!");

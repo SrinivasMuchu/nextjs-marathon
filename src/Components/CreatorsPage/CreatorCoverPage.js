@@ -2,9 +2,10 @@
 import React, { useContext, useRef, useState } from 'react'
 import { contextState } from '../CommonJsx/ContextProvider';
 import Image from 'next/image'
-import { BASE_URL, IMAGEURLS, PHOTO_LINK } from '@/config'
+import { MARATHON_ASSET_PREFIX_URL, BASE_URL, IMAGEURLS, PHOTO_LINK } from '@/config'
 import styles from './Creators.module.css'
 import axios from 'axios';
+import ShareYourDesignItems from '../CreatorsLanding/ShareYourDesignItems';
 
 function CreatorCoverPage({ creatorId,setIsVerified }) {
   
@@ -70,7 +71,8 @@ function CreatorCoverPage({ creatorId,setIsVerified }) {
   };
 
   return (
-    <div>
+    <>
+     <div>
       <div className={styles.coverPhotoCont}>
         {uploading ? (
           <div className={styles.coverPhoto} style={{ background: 'none', position: 'relative' }}>
@@ -88,7 +90,7 @@ function CreatorCoverPage({ creatorId,setIsVerified }) {
             />
             {!creatorId && (
               <>
-                <input
+                {/* <input
                   ref={fileInputRef}
                   id="coverUpload"
                   type="file"
@@ -105,7 +107,17 @@ function CreatorCoverPage({ creatorId,setIsVerified }) {
                     height={24}
                   />
                   Add cover image <br/>(1440 x 180px)
-                </button>
+                </button> */}
+                 <div style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',flexDirection:'column'}}>
+      <h1>Share Your Designs on Marathon-OS</h1>
+       <Image
+              src={MARATHON_ASSET_PREFIX_URL+'publish-banner.webp'}
+              alt="Cover Image"
+              width={1200}
+              height={300}
+            />
+      <button className={styles.coverPhotoPublishCad}>Publish CAD</button>
+    </div>
               </>
             )}
           </div>
@@ -113,7 +125,7 @@ function CreatorCoverPage({ creatorId,setIsVerified }) {
           <div className={styles.coverPhoto}>
             {!creatorId && (
               <>
-                <input
+                {/* <input
                   ref={fileInputRef}
                   id="coverUpload"
                   type="file"
@@ -130,13 +142,26 @@ function CreatorCoverPage({ creatorId,setIsVerified }) {
                     height={24}
                   />
                   Add cover image <br/>(1440 x 180px)
-                </button>
+                </button> */}
+                 <div style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',flexDirection:'column'}}>
+      <h1>Share Your Designs on Marathon-OS</h1>
+       <Image
+              src={MARATHON_ASSET_PREFIX_URL+'publish-banner.webp'}
+              alt="Cover Image"
+              width={1200}
+              height={300}
+            />
+      <button className={styles.coverPhotoPublishCad}>Publish CAD</button>
+    </div>
               </>
             )}
           </div>
         )}
       </div>
     </div>
+   
+    </>
+   
   )
 }
 
