@@ -20,7 +20,8 @@ function loadRazorpayScript() {
   });
 }
 
-function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step, filetype, custumDownload }) {
+function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, 
+  step, filetype, custumDownload, designPrice }) {
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
   const { setDownloadedFileUpdate } = useContext(contextState);
@@ -69,13 +70,17 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step, fil
           },
         }
       );
+      if(res.data.meta.status === 'active'){
+           await downloadFile();
+           return
+      }else if(res.data.meta.success ){
 
       const loaded = await loadRazorpayScript();
       if (!loaded) {
         alert("Razorpay SDK failed to load.");
         return;
       }
-
+    }
       // 2. Setup checkout options
       const options = {
         key: RAZORPAY_KEY_ID,
@@ -155,7 +160,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step, fil
   // Decide which handler to use
   const downloadHandler = isDownladable === false
     ? null
-    : (/* condition for paid/free download here if needed */ handleDownload);
+    : (designPrice ? handleDownload : handleFreeDownload);
 
   return (
     <>

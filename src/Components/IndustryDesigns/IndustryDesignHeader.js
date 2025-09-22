@@ -5,6 +5,7 @@ import styles from "./IndustryDesign.module.css";
 import DownloadClientButton from "../CommonJsx/DownloadClientButton";
 
 export default function IndustryDesignHeader({ design, designData, type }) {
+
   return (
     
      
@@ -22,8 +23,9 @@ export default function IndustryDesignHeader({ design, designData, type }) {
         </div>
       
         <div className={styles.statsCont} style={{display:'flex',alignItems:'center',gap:'10px',justifyContent:'center',width:'100%'}}>
-            <DownloadClientButton custumDownload={true}
-          folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type ? designData.file_type : 'step'} />
+            <DownloadClientButton custumDownload={true} 
+          folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type ? designData.file_type : 'step'} 
+          designPrice={designData?.price} />
  <Link
           href={`/tools/cad-renderer?fileId=${designData._id}&format=${
             designData.file_type ? designData.file_type : "step"
