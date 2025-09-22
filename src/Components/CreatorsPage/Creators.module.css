@@ -66,7 +66,26 @@
     /* 150% */
     letter-spacing: -0.192px;
 }
-
+.coverPhotoPublishCad{
+    border-radius: 2.696px;
+background: #FFF;
+color: #610BEE;
+font-size: 9.437px;
+font-style: normal;
+font-weight: 500;
+line-height: 13.481px; /* 142.857% */
+letter-spacing: -0.094px;
+display: inline-flex;
+padding: 4px 13.481px;
+justify-content: center;
+align-items: center;
+gap: 8.089px;
+}
+@media (max-width: 450px){
+    .coverPhotoPublishCad{
+        margin-left:200px;
+    }
+}
 .coverPhotoCont:hover .coverBtn {
     background: rgba(0, 0, 0, 0.5);
     border: none;
@@ -453,6 +472,9 @@ background: var(--Primary-50, linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%
     cursor:pointer; 
 }
 @media (max-width: 1000px){
+    .coverPhotoPublishCad{
+        margin-left:350px;
+    } 
     .creatorDetails{
         flex-direction:column;
         align-items:center;
