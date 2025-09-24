@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { MARATHON_ASSET_PREFIX_URL, BASE_URL, IMAGEURLS, PHOTO_LINK } from '@/config'
 import styles from './Creators.module.css'
 import axios from 'axios';
+import Link from "next/link";
 import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
 
 function CreatorCoverPage({ creatorId, setIsVerified }) {
@@ -133,16 +134,18 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
                       (1440 x 180px)
                     </button>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', flexDirection: 'column' }}>
-                      <h1>Share Your Designs on Marathon-OS</h1>
+                    <div 
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', flexDirection: 'column' }}>
+                      <h1 style={{color:'white',}}>Share Your Designs on Marathon-OS</h1>
                       <Image
                         src={MARATHON_ASSET_PREFIX_URL + 'publish-banner.webp'}
                         alt="Cover Image"
                         width={1200}
                         height={300}
                       />
-                      <button className={styles.coverPhotoPublishCad} 
-                      onClick={()=>setPublishCadPopUp(true)}>Publish CAD</button>
+                      
+                     <Link href="/publish-cad" className={styles.coverPhotoPublishCad}
+                      >Publish CAD</Link>
                     </div>
                   )}
                 </div>
@@ -180,8 +183,8 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
                         width={1200}
                         height={300}
                       />
-                      <button className={styles.coverPhotoPublishCad}
-                      onClick={()=>setPublishCadPopUp(true)}>Publish CAD</button>
+                      <Link href="/publish-cad" className={styles.coverPhotoPublishCad}
+                      >Publish CAD</Link>
                     </div>
                   )}
                 </div>
