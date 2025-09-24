@@ -16,11 +16,10 @@ function loadRazorpayScript() {
 
 async function handleBuyClick() {
   try {
-    // 1. Create Razorpay order from backend
     const res = await axios.post(
       `${BASE_URL}/v1/payment/create-order`,
       {
-        cad_file_id: "684a7a795eefe5e0adbd7a36", // replace with actual data
+        cad_file_id: "684a7a795eefe5e0adbd7a36",
       },
       {
         headers: {
@@ -35,7 +34,6 @@ async function handleBuyClick() {
       return;
     }
 
-    // 2. Setup checkout options
     const options = {
       key: RAZORPAY_KEY_ID,
       amount: res.data.data.amount,
@@ -44,7 +42,6 @@ async function handleBuyClick() {
       description: "CAD Management Tool",
       order_id: res.data.data.orderId,
       handler: async function (response) {
-        // 3. After payment success, verify with backend
         try {
           const verifyRes = await axios.post(
             `${BASE_URL}/v1/payment/verify-payment`,
@@ -78,7 +75,6 @@ async function handleBuyClick() {
       theme: { color: "#3399cc" },
     };
 
-    // 4. Open Razorpay checkout
     const rzp = new window.Razorpay(options);
     rzp.open();
   } catch (error) {
@@ -87,9 +83,50 @@ async function handleBuyClick() {
   }
 }
 
+// Use axios and BASE_URL for verifySeller
+const verifySeller = async (sellerData) => {
+  const res = await axios.post(`${BASE_URL}/v1/payment/verify-seller`, sellerData, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.data;
+};
+
 function Page() {
+ 
+  const handleVerify = async () => {
+    const result = await verifySeller({
+  "amount": 100,
+  "mode": "NEFT",
+  "purpose": "payout",
+  "fund_account": {
+    "account_type": "bank_account",
+    "bank_account": {
+      "name": "MUCHU SRINIVAS",
+      "ifsc": "KKBK0007629",
+      "account_number": "9914659786"
+    },
+    "contact": {
+      "name": "MUCHU SRINIVAS",
+      "email": "srinivasmuchu77@gmail.com",
+      "contact": "9390333636",
+      "type": "vendor"
+    }
+  },
+  "narration": "Vendor payout for CAD file",
+  "reference_id": "CADPAYOUT-001"
+});
+    console.log(result);
+    alert(JSON.stringify(result, null, 2));
+  };
+
   return (
     <div>
+      <button
+        style={{ background: "#610bee", padding: "12px", color: "white" }}
+        onClick={handleVerify}
+      >
+        Verify Seller
+      </button>
       <button
         style={{ background: "#610bee", padding: "12px", color: "white" }}
         onClick={handleBuyClick}
@@ -101,3 +138,5 @@ function Page() {
 }
 
 export default Page;
+
+

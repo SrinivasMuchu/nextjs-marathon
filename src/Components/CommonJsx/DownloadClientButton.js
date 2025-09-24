@@ -160,7 +160,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   // Decide which handler to use
   const downloadHandler = isDownladable === false
     ? null
-    : (designPrice ? handleDownload : handleFreeDownload);
+    :  handleDownload;
 
   return (
     <>
