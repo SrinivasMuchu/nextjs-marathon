@@ -1,0 +1,240 @@
+"use client"
+import React, { useState } from 'react';
+import styles from './Kyc.module.css';
+
+function Kyc() {
+  const [formData, setFormData] = useState({
+    name: '',
+    ifsc: '',
+    account_number: '',
+    contact: '',
+    aadhar: '',
+    pan: ''
+  });
+
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    }
+
+    // IFSC validation
+    const ifscPattern = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+    if (!formData.ifsc.trim()) {
+      newErrors.ifsc = 'IFSC code is required';
+    } else if (!ifscPattern.test(formData.ifsc.trim())) {
+      newErrors.ifsc = 'Invalid IFSC code format';
+    }
+
+    // Account number validation
+    if (!formData.account_number.trim()) {
+      newErrors.account_number = 'Account number is required';
+    } else if (!/^\d{9,18}$/.test(formData.account_number.trim())) {
+      newErrors.account_number = 'Account number must be 9-18 digits';
+    }
+
+    // Contact validation
+    if (!formData.contact.trim()) {
+      newErrors.contact = 'Contact number is required';
+    } else if (!/^[6-9]\d{9}$/.test(formData.contact.trim())) {
+      newErrors.contact = 'Invalid mobile number';
+    }
+
+    // Aadhar validation
+    if (!formData.aadhar.trim()) {
+      newErrors.aadhar = 'Aadhar number is required';
+    } else if (!/^\d{12}$/.test(formData.aadhar.trim())) {
+      newErrors.aadhar = 'Aadhar must be 12 digits';
+    }
+
+    // PAN validation
+    const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!formData.pan.trim()) {
+      newErrors.pan = 'PAN number is required';
+    } else if (!panPattern.test(formData.pan.trim().toUpperCase())) {
+      newErrors.pan = 'Invalid PAN format (e.g., ABCDE1234F)';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Prepare data for submission
+      const submissionData = {
+        bank_account: {
+          name: formData.name.trim(),
+          ifsc: formData.ifsc.trim().toUpperCase(),
+          account_number: formData.account_number.trim()
+        },
+        contact: {
+          contact: formData.contact.trim()
+        },
+        aadhar: formData.aadhar.trim(),
+        pan: formData.pan.trim().toUpperCase()
+      };
+
+      console.log('Submitting KYC data:', submissionData);
+      
+      // TODO: Replace with actual API call
+      // await axios.post(`${BASE_URL}/kyc/submit`, submissionData);
+      
+      alert('KYC submitted successfully!');
+    } catch (error) {
+      console.error('KYC submission error:', error);
+      alert('Failed to submit KYC. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className={styles.kycContainer}>
+      <div className={styles.kycForm}>
+        <h2 className={styles.title}>KYC Verification</h2>
+        <form onSubmit={handleSubmit}>
+          
+          {/* Name */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="name" className={styles.label}>Holder Name *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
+              placeholder="Enter your full name"
+            />
+            {errors.name && <span className={styles.errorText}>{errors.name}</span>}
+          </div>
+
+          {/* IFSC Code */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="ifsc" className={styles.label}>IFSC Code *</label>
+            <input
+              type="text"
+              id="ifsc"
+              name="ifsc"
+              value={formData.ifsc}
+              onChange={handleInputChange}
+              className={`${styles.input} ${errors.ifsc ? styles.inputError : ''}`}
+              placeholder="e.g., KKBK0007529"
+              maxLength={11}
+              style={{ textTransform: 'uppercase' }}
+            />
+            {errors.ifsc && <span className={styles.errorText}>{errors.ifsc}</span>}
+          </div>
+
+          {/* Account Number */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="account_number" className={styles.label}>Account Number *</label>
+            <input
+              type="text"
+              id="account_number"
+              name="account_number"
+              value={formData.account_number}
+              onChange={handleInputChange}
+              className={`${styles.input} ${errors.account_number ? styles.inputError : ''}`}
+              placeholder="Enter account number"
+              maxLength={18}
+            />
+            {errors.account_number && <span className={styles.errorText}>{errors.account_number}</span>}
+          </div>
+
+          {/* Contact */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="contact" className={styles.label}>Mobile Number *</label>
+            <input
+              type="tel"
+              id="contact"
+              name="contact"
+              value={formData.contact}
+              onChange={handleInputChange}
+              className={`${styles.input} ${errors.contact ? styles.inputError : ''}`}
+              placeholder="e.g., 9390333636"
+              maxLength={10}
+            />
+            {errors.contact && <span className={styles.errorText}>{errors.contact}</span>}
+          </div>
+
+          {/* Aadhar */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="aadhar" className={styles.label}>Aadhar Number *</label>
+            <input
+              type="text"
+              id="aadhar"
+              name="aadhar"
+              value={formData.aadhar}
+              onChange={handleInputChange}
+              className={`${styles.input} ${errors.aadhar ? styles.inputError : ''}`}
+              placeholder="Enter 12-digit Aadhar number"
+              maxLength={12}
+            />
+            {errors.aadhar && <span className={styles.errorText}>{errors.aadhar}</span>}
+          </div>
+
+          {/* PAN */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="pan" className={styles.label}>PAN Number *</label>
+            <input
+              type="text"
+              id="pan"
+              name="pan"
+              value={formData.pan}
+              onChange={handleInputChange}
+              className={`${styles.input} ${errors.pan ? styles.inputError : ''}`}
+              placeholder="e.g., ABCDE1234F"
+              maxLength={10}
+              style={{ textTransform: 'uppercase' }}
+            />
+            {errors.pan && <span className={styles.errorText}>{errors.pan}</span>}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit KYC'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default Kyc;

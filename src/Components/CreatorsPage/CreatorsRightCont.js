@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { Box, Tabs, Tab, Typography } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FileHistoryCards from '../History/FileHistoryCards'
+import Kyc from '../KYC/Kyc'
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -35,7 +36,8 @@ creatorId}) {
     { label: "Projects", cadType: "USER_CADS" },
     { label: "CAD Viewer", cadType: "CAD_VIEWER" },
     { label: "CAD Convertor", cadType: "CAD_CONVERTER" },
-    { label: "Downloads", cadType: "USER_DOWNLOADS" }
+    { label: "Downloads", cadType: "USER_DOWNLOADS" },
+    { label: "KYC", cadType: "USER_KYC" }
   ]
 
   useEffect(() => {
@@ -50,6 +52,8 @@ creatorId}) {
       setValue(0)
     } else if (cadType === 'USER_DOWNLOADS') {
       setValue(3)
+    } else if (cadType === 'USER_KYC') {
+      setValue(4)
     } else {
       setValue(0) // Default to My CAD Files
     }
@@ -143,6 +147,9 @@ creatorId}) {
           totalPages={totalPages}
           setTotalPages={setTotalPages}
         />
+      </TabPanel>
+      <TabPanel value={value} index={4} style={{ background: '#F6F6F6',height:'100%' }}>
+       <Kyc/>
       </TabPanel>
       </>:
       <>
