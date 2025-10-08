@@ -26,13 +26,23 @@ export default function IndustryDesignHeader({ design, designData, type }) {
             <DownloadClientButton custumDownload={true} 
           folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type ? designData.file_type : 'step'} 
           designPrice={designData?.price} />
- <Link
+ <Link 
           href={`/tools/cad-renderer?fileId=${designData._id}&format=${
             designData.file_type ? designData.file_type : "step"
           }`}
           rel="nofollow"
         >
-          <button>Open in 3D viewer</button>
+          <button style={{ 
+                              
+                              color: 'white', 
+                              fontSize: '20px',
+                              background: '#610BEE',
+                              borderRadius: '4px',
+                              height: '48px',
+                              padding: '10px 20px',
+                              border: 'none',
+                              width: 'auto'
+                            }}>Open in 3D viewer</button>
         </Link>
        
         </div>

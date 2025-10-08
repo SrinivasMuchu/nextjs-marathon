@@ -8,6 +8,7 @@ import Tooltip from '@mui/material/Tooltip';
 import CadFileNotifyPopUp from './CadFileNotifyPopUp';
 import UserLoginPupUp from './UserLoginPupUp';
 import { contextState } from './ContextProvider';
+import BillingAddress from './BillingAddress';
 
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -24,6 +25,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   step, filetype, custumDownload, designPrice }) {
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
+  const [openBillingDetails, setOpenBillingDetails] = useState(false);
   const { setDownloadedFileUpdate } = useContext(contextState);
 
   // Download logic after payment
@@ -50,19 +52,23 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   };
 
   // Razorpay payment + download
-  const handleDownload = async () => {
+  const handleDownload = async (cadId,billingId,currency) => {
     setIsDownLoading(true);
+    console.log('designPrice', folderId)
     try {
       if (!localStorage.getItem('is_verified')) {
-        setOpenEmailPopUp(true)
-        return
+        setOpenEmailPopUp(true);
+        setIsDownLoading(false);
+        return;
       }
 
       // 1. Create Razorpay order from backend
       const res = await axios.post(
         `${BASE_URL}/v1/payment/create-order`,
         {
-          cad_file_id: folderId, // Use folderId as file id
+          cad_file_id: cadId,
+          billing_id: billingId,
+          currency
         },
         {
           headers: {
@@ -70,17 +76,20 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           },
         }
       );
-      if(res.data.meta.status === 'active'){
-           await downloadFile();
-           return
-      }else if(res.data.meta.success ){
 
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        alert("Razorpay SDK failed to load.");
+      if (res.data.meta.status === 'active') {
+        await downloadFile();
+        setIsDownLoading(false);
         return;
+      } else if (res.data.meta.success) {
+        const loaded = await loadRazorpayScript();
+        if (!loaded) {
+          alert("Razorpay SDK failed to load.");
+          setIsDownLoading(false);
+          return;
+        }
       }
-    }
+
       // 2. Setup checkout options
       const options = {
         key: RAZORPAY_KEY_ID,
@@ -90,8 +99,6 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
         description: "CAD Management Tool",
         order_id: res.data.data.orderId,
         handler: async function (response) {
-          // console.log(response,'razorpay response');
-          // 3. After payment success, verify with backend
           try {
             const verifyRes = await axios.post(
               `${BASE_URL}/v1/payment/verify-payment`,
@@ -109,9 +116,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
             );
 
             if (verifyRes.data.meta.success) {
-              // Payment verified, proceed to download
               await downloadFile();
-              // console.log('success')
             } else {
               alert("⚠️ Payment verification failed!");
             }
@@ -156,11 +161,22 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       setIsDownLoading(false);
     }
   };
+  const billingHandler = () => {
+    if (!localStorage.getItem('is_verified')) {
+      setOpenEmailPopUp(true)
+      return
+    }
+    if(!designPrice) {
+      handleFreeDownload()
+      return
+    }
+    setOpenBillingDetails(true);
 
-  // Decide which handler to use
+  }
+  // Decide which handler to use (do NOT call it during render)
   const downloadHandler = isDownladable === false
-    ? null
-    :  handleDownload;
+    ? undefined
+    : billingHandler;
 
   return (
     <>
@@ -189,7 +205,18 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
                 <button
                   disabled
                   className="rounded bg-[#610BEE] h-12"
-                  style={{ opacity: 0.6, cursor: 'not-allowed', color: 'white', fontSize: '20px' }}
+                  style={{  
+                    opacity: 0.6, 
+                    cursor: 'not-allowed', 
+                    color: 'white', 
+                    fontSize: '20px',
+                    background: '#610BEE',
+                    borderRadius: '4px',
+                    height: '48px',
+                    padding: '10px 20px',
+                    border: 'none',
+                    width: 'auto'
+                  }}
                 >
                   Download 3-D design
                 </button>
@@ -198,7 +225,17 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           ) : (
             <button
               disabled={isDownLoading}
-              style={{ fontSize: '20px' }}
+          style={{ 
+                              
+                              color: 'white', 
+                              fontSize: '20px',
+                              background: '#610BEE',
+                              borderRadius: '4px',
+                              height: '48px',
+                              padding: '10px 20px',
+                              border: 'none',
+                              width: 'auto'
+                            }}
               className="rounded bg-[#610BEE] h-12"
               onClick={downloadHandler}
             >
@@ -248,6 +285,8 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           )}
         </>
       )}
+      {openBillingDetails && <BillingAddress onClose={() => setOpenBillingDetails(false)} 
+      onSave={handleDownload} cadId={folderId}/>}
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
     </>
   );
@@ -255,4 +294,4 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
 
 export default DownloadClientButton;
 
-console.log("RAZORPAY_KEY_ID:", RAZORPAY_KEY_ID); // Should print your key, not undefined
+// console.log("RAZORPAY_KEY_ID:", RAZORPAY_KEY_ID); // Should print your key, not undefined

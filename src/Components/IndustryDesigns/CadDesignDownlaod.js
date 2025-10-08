@@ -71,7 +71,7 @@ function CadDesignDownload ({designId,designTitle}) {
             <MdKeyboardArrowRight style={{fontSize:'20px'}}/>
         </div>
      
-        <p>Please rate the 3-D model file and share your experience. It will help creators to ....bla bla</p>
+        <p>Please rate this 3D model and share your experience. Your feedback helps creators improve their work and deliver better designs.</p>
     </div>
     {openRatingModal && <RatingsPopUp designArray={[{ _id: designId, title: designTitle }]} onClose={() => setOpenRatingModal(false)} ratingType="cad-design" />}
     </>

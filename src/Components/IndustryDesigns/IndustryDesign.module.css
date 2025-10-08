@@ -64,8 +64,7 @@ border: 1px solid  #D1D4D7;
     justify-content: center;
   
 }
-.industry-design-header-viewer button,.industry-design-header-viewer-crousal button,
-.industry-design-header-viewer-top button {
+.industry-design-header-viewer-crousal button {
     border-radius: 4px;
     background: #610BEE;
     color: #FFF;

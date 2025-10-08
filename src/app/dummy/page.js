@@ -2,6 +2,7 @@
 import React from "react";
 import axios from "axios";
 import { BASE_URL, RAZORPAY_KEY_ID } from "@/config";
+import BillingAddress from './../../Components/CommonJsx/BillingAddress';
 
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -120,20 +121,21 @@ function Page() {
   };
 
   return (
-    <div>
-      <button
-        style={{ background: "#610bee", padding: "12px", color: "white" }}
-        onClick={handleVerify}
-      >
-        Verify Seller
-      </button>
-      <button
-        style={{ background: "#610bee", padding: "12px", color: "white" }}
-        onClick={handleBuyClick}
-      >
-        Razorpay
-      </button>
-    </div>
+    // <div>
+    //   <button
+    //     style={{ background: "#610bee", padding: "12px", color: "white" }}
+    //     onClick={handleVerify}
+    //   >
+    //     Verify Seller
+    //   </button>
+    //   <button
+    //     style={{ background: "#610bee", padding: "12px", color: "white" }}
+    //     onClick={handleBuyClick}
+    //   >
+    //     Razorpay
+    //   </button>
+    // </div>
+    <BillingAddress />
   );
 }
 
