@@ -41,7 +41,7 @@ function IndustryHeaderDetails({designData}) {
         page_description:designData.response.page_description,
         is_downloadable:designData.response.is_downloadable,
         cad_tags:designData.response.tag_labels,_id:designData.response._id,}}
-        type={"design"}
+        type={"design"} fileId={designData.response._id}
         />}
         
         
