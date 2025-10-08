@@ -120,7 +120,17 @@ function IndustryDesignsCarousel({ designData, type, design }) {
                     rel="nofollow"
                     className="w-full sm:w-auto"
                 >
-                    <button className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4">Open in 3D viewer</button>
+                    <button className="rounded bg-[#610BEE] text-white text-base sm:text-lg font-medium w-full sm:w-[243px] h-12 px-4" style={{ 
+                              
+                              color: 'white', 
+                              fontSize: '20px',
+                              background: '#610BEE',
+                              borderRadius: '4px',
+                              height: '48px',
+                              padding: '10px 20px',
+                              border: 'none',
+                              width: 'auto'
+                            }}>Open in 3D viewer</button>
                     
                 </Link>
                 <DownloadClientButton custumDownload={true} folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type?designData.file_type:'step'}/>

@@ -71,13 +71,35 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, step ,fil
             <button
               disabled
               className="rounded bg-[#610BEE] h-12"
-              style={{ opacity: 0.6, cursor: 'not-allowed', color: 'white', fontSize: '20px' }}
+              style={{ 
+                              opacity: 0.6, cursor: 'not-allowed', color: 'white', fontSize: '20px',
+                              color: 'white', 
+                              fontSize: '20px',
+                              background: '#610BEE',
+                              borderRadius: '4px',
+                              height: '48px',
+                              padding: '10px 20px',
+                              border: 'none',
+                              width: 'auto'
+                            }}
+              
             >
                Download 3-D design
             </button>
           </span>
         </Tooltip> : <button
-          disabled={isDownLoading} style={{  fontSize: '20px' }} className="rounded bg-[#610BEE] h-12" onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download 3-D design'} </button>}
+          disabled={isDownLoading}  className="rounded bg-[#610BEE] h-12"
+          style={{ 
+                              
+                              color: 'white', 
+                              fontSize: '20px',
+                              background: '#610BEE',
+                              borderRadius: '4px',
+                              height: '48px',
+                              padding: '10px 20px',
+                              border: 'none',
+                              width: 'auto'
+                            }} onClick={handleDownload}>{isDownLoading ? 'Downloading' : 'Download 3-D design'} </button>}
   
     </>
     </>:<>
