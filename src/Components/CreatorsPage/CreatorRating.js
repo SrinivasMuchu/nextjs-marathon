@@ -1,11 +1,17 @@
 "use client";
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FaStar, FaStarHalfAlt, FaRegStar, FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import styles from './Creators.module.css'
+import { sendGAtagEvent } from '@/common.helper';
+// import { CAD_CONVERTER_EVENT } from '@/config';
+import { CAD_RATING_EVENT } from '@/config';
 
 function CreatorRating() {
   const [isExpanded, setIsExpanded] = useState(false)
-  
+  useEffect(() => {
+        // Send GA tag event when the component is rendered
+        sendGAtagEvent({ event_name: 'rating_showed', event_category: CAD_RATING_EVENT });
+    }, []);
   // Sample data - replace with actual props or API data
   const rating = 4.2
   const totalRatings = 322

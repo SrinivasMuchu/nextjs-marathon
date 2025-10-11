@@ -161,16 +161,49 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       setIsDownLoading(false);
     }
   };
-  const billingHandler = () => {
+  const billingHandler = async() => {
     if (!localStorage.getItem('is_verified')) {
       setOpenEmailPopUp(true)
       return
     }
-    if(!designPrice) {
-      handleFreeDownload()
-      return
+    try {
+      const downloadCheck = await axios.post(`${BASE_URL}/v1/payment/check-download`, {
+      cad_file_id: folderId, // Include cad_file_id in the request body
+    }, {
+      headers: { 'user-uuid': localStorage.getItem('uuid') }
+    });
+
+      if(downloadCheck.data.meta.success ) {
+        if(!downloadCheck.data.data.sameUser ){
+          if(downloadCheck.data.data.filePrice ) {
+            if(!downloadCheck.data.data.subscriptionActive) {
+              setOpenBillingDetails(true);
+            }else if(downloadCheck.data.data.subscriptionActive) {
+              await handleFreeDownload();
+            }
+          }
+        }
+        }else{
+          await handleFreeDownload();
+        }
+        // if(!downloadCheck.data.data.sameUser &&
+        //   downloadCheck.data.data.fileType &&
+        //   // !downloadCheck.data.data.subscriptionActive &&
+        //   !downloadCheck.data.data.canDownload
+        // ) {
+        //   setOpenBillingDetails(true);
+        // }else if(downloadCheck.data.data.sameUser &&
+        //   !downloadCheck.data.data.fileType &&
+        //   // downloadCheck.data.data.subscriptionActive &&
+        //   downloadCheck.data.data.canDownload){
+        //   await handleFreeDownload();
+        //   }
+         
+      // }
+    } catch (error) {
+      console.error("Error checking download permissions:", error);
     }
-    setOpenBillingDetails(true);
+    
 
   }
   // Decide which handler to use (do NOT call it during render)

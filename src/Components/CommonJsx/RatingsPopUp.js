@@ -1,21 +1,24 @@
 "use client"
-import React, { useState,useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import PopupWrapper from './PopupWrapper';
 import { GoStarFill } from "react-icons/go";
 import styles from './CommonStyles.module.css';
 import Image from 'next/image';
-import { DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL, BASE_URL } from '@/config';
+import { DESIGN_GLB_PREFIX_URL, MARATHON_ASSET_PREFIX_URL, BASE_URL, CAD_RATING_EVENT } from '@/config';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { sendGAtagEvent } from '@/common.helper';
 
 
-function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downloadCount ,ratingType}) {
-    //  const { setUpdatedDetails } = useContext(contextState);
+function RatingsPopUp({ onClose, designArray = [], setDownloadCount, downloadCount, ratingType }) {
+  //  const { setUpdatedDetails } = useContext(contextState);
   const [current, setCurrent] = useState(0);
   const [ratings, setRatings] = useState(Array(designArray.length).fill(0));
   const [feedbacks, setFeedbacks] = useState(Array(designArray.length).fill(''));
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+   // Empty dependency array to run only on mount
 
   if (!designArray.length) return null;
 
@@ -47,9 +50,10 @@ function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downloadCount
         {
           headers: { 'user-uuid': localStorage.getItem('uuid') }, // Replace with actual uuid if you have it in context
         }
-      );
+      ); 
       if (res.data.meta.success) {
         if (!ratingType) {
+          sendGAtagEvent({ event_name: 'rating_given', event_category: CAD_RATING_EVENT });
           setDownloadCount(downloadCount - 1);
         }
         return true;
@@ -91,7 +95,7 @@ function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downloadCount
       <div className={styles.popupContainer}>
         <div className={styles.headerRow}>
           <span className={styles.headerTitle}>Rate the 3-D model file</span>
-          <button className={styles.closeBtn} onClick={onClose || (()=>{})}>&times;</button>
+          <button className={styles.closeBtn} onClick={onClose || (() => {})}>&times;</button>
         </div>
         {!submitted ? (
           <>
@@ -106,7 +110,7 @@ function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downloadCount
               <span className={styles.modelInfo}>{design.title}</span>
             </div>
             <div className={styles.starsRow}>
-              {[1,2,3,4,5].map((star) => (
+              {[1, 2, 3, 4, 5].map((star) => (
                 <span
                   key={star}
                   className={`${styles.star} ${star <= ratings[current] ? styles.filled : ''}`}
@@ -114,7 +118,7 @@ function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downloadCount
                   role="button"
                   tabIndex={0}
                   aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
-                ><GoStarFill/></span>
+                ><GoStarFill /></span>
               ))}
             </div>
             <div className={styles.textareaRow}>
@@ -153,7 +157,7 @@ function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downloadCount
             </div>
           </>
         ) : (
-          <div style={{textAlign: 'center', padding: '32px 0'}}>
+          <div style={{ textAlign: 'center', padding: '32px 0' }}>
             <div style={{
               background: '#faf7ff',
               borderRadius: '12px',
@@ -169,11 +173,11 @@ function RatingsPopUp({ onClose, designArray = [],setDownloadCount,downloadCount
                 alt="Thank you"
                 width={100}
                 height={100}
-                style={{margin: '0 auto'}}
+                style={{ margin: '0 auto' }}
               />
             </div>
-            <div style={{fontWeight: 600, fontSize: 18, color: '#222', marginBottom: 8}}>
-              We appreciate your valuable time to<br/>rate the 3-D files.
+            <div style={{ fontWeight: 600, fontSize: 18, color: '#222', marginBottom: 8 }}>
+              We appreciate your valuable time to<br />rate the 3-D files.
             </div>
           </div>
         )}
