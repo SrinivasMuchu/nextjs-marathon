@@ -14,12 +14,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
          {/* <EditableFields initialTitle={designData.response.page_title} initialDesc={designData.page_description} fileId={designData._id} orgId={designData._id}/> */}
         {/* <span>Experience in 3-D</span> */}
         <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
-    <DesignStats
-            views={designData.total_design_views}
-            downloads={designData.total_design_downloads}
-            ratings={{ average: designData.average_rating, total: designData.rating_count }} />
-
-
+          {designData.price? <p style={{fontSize:'24px',fontWeight:'500'}}>₹{designData.price}<span style={{fontSize:'16px',fontWeight:'400',color:'#001325'}}>/download</span></p>:<p style={{fontSize:'24px',fontWeight:'500'}}>Free</p>}
         </div>
       
         <div className={styles.statsCont} style={{display:'flex',alignItems:'center',gap:'10px',justifyContent:'center',width:'100%'}}>
@@ -45,6 +40,14 @@ export default function IndustryDesignHeader({ design, designData, type }) {
                             }}>Open in 3D viewer</button>
         </Link>
        
+        </div>
+        <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
+    <DesignStats
+            views={designData.total_design_views}
+            downloads={designData.total_design_downloads}
+            ratings={{ average: designData.average_rating, total: designData.rating_count }} />
+
+
         </div>
         
       </div>
