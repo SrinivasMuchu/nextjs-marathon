@@ -44,7 +44,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type }) {
     const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate } = useContext(contextState);
     const [options, setOptions] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
-    const [price, setPrice] = useState(editedDetails?.price || "");
+   
 
     useEffect(() => {
 
@@ -205,7 +205,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type }) {
                     url,
                     is_downloadable: isChecked,
                     converted_cad_source: uploadedFile,
-                    price: Number(price) || 0, // Send price as number
+                    
                 },
                 {
                     headers: {
@@ -277,7 +277,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type }) {
 
                     description: cadFile.description,
                     tags: selectedOptions.map(option => option.value),
-                    price: Number(price) || 0, // Send price as number
+                   
                     is_downloadable: isChecked,
 
                 },
@@ -565,22 +565,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type }) {
                     </div>
                      <div style={{  display: 'flex', alignItems: 'center', gap: 8,marginBottom:'16px' }}>
                    
-                    <input
-                        type="number"
-                        min={0}
-                        placeholder="Enter price"
-                        value={price}
-                        onChange={e => setPrice(e.target.value)}
-                        style={{
-                            width: 120,
-                            padding: '6px',
-                            border: '1px solid #ccc',
-                            borderRadius: 4
-                        }}
-                    />
-                     <label style={{ fontWeight: 500, marginRight: 8 }}>
-                        <FaRupeeSign style={{ verticalAlign: 'middle' }} /> 
-                    </label>
+                    
+                    
                 </div>
                     
                     {/* {formErrors.title && <p style={{ color: 'red' }}>{formErrors.title}</p>} */}
