@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './Kyc.module.css';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
@@ -17,6 +17,40 @@ function Kyc() {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasExistingData, setHasExistingData] = useState(false);
+
+  useEffect(() => {
+    fetchSellerDetails();
+  }, []);
+
+  const fetchSellerDetails = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(`${BASE_URL}/v1/payment/get-seller-details`, {
+        headers: { 'user-uuid': localStorage.getItem('uuid') }
+      });
+
+      if (response.data.meta.success && response.data.data) {
+        const data = response.data.data;
+        setFormData({
+          name: data.account_details.name || '',
+          ifsc: data.account_details.ifsc || '',
+          account_number: data.account_details.account_number || '',
+          contact: data.user_data.phone_number || '',
+          aadhar: data.user_data.aadhaar || '',
+          pan: data.user_data.pan || ''
+        });
+        setHasExistingData(true);
+      }
+    } catch (error) {
+      console.error('Error fetching seller details:', error);
+      // If no data or error, allow user to create new
+      setHasExistingData(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -108,15 +142,7 @@ function Kyc() {
 
       if (response.data.meta.success) {
         toast.success(response.data.meta.message || 'KYC submitted successfully!');
-        // Reset form
-        setFormData({
-          name: '',
-          ifsc: '',
-          account_number: '',
-          contact: '',
-          aadhar: '',
-          pan: ''
-        });
+        setHasExistingData(true);
       } else {
         toast.error(response.data.meta.message || 'Failed to submit KYC. Please try again.');
       }
@@ -128,10 +154,27 @@ function Kyc() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className={styles.kycContainer}>
+        <div className={styles.kycForm}>
+          <div style={{ textAlign: 'center', padding: '40px' }}>Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.kycContainer}>
       <div className={styles.kycForm}>
-        <h2 className={styles.title}>KYC Verification</h2>
+        <h2 className={styles.title}>
+         KYC Details
+        </h2>
+        {/* {hasExistingData && (
+          <div className={styles.infoMessage}>
+            Your KYC details have been submitted and are under verification.
+          </div>
+        )} */}
         <form onSubmit={handleSubmit}>
           
           {/* Name */}
@@ -145,6 +188,7 @@ function Kyc() {
               onChange={handleInputChange}
               className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
               placeholder="Enter your full name"
+              disabled={hasExistingData}
             />
             {errors.name && <span className={styles.errorText}>{errors.name}</span>}
           </div>
@@ -162,6 +206,7 @@ function Kyc() {
               placeholder="e.g., KKBK0007529"
               maxLength={11}
               style={{ textTransform: 'uppercase' }}
+              disabled={hasExistingData}
             />
             {errors.ifsc && <span className={styles.errorText}>{errors.ifsc}</span>}
           </div>
@@ -178,6 +223,7 @@ function Kyc() {
               className={`${styles.input} ${errors.account_number ? styles.inputError : ''}`}
               placeholder="Enter account number"
               maxLength={18}
+              disabled={hasExistingData}
             />
             {errors.account_number && <span className={styles.errorText}>{errors.account_number}</span>}
           </div>
@@ -194,6 +240,7 @@ function Kyc() {
               className={`${styles.input} ${errors.contact ? styles.inputError : ''}`}
               placeholder="e.g., 9390333636"
               maxLength={10}
+              disabled={hasExistingData}
             />
             {errors.contact && <span className={styles.errorText}>{errors.contact}</span>}
           </div>
@@ -210,6 +257,7 @@ function Kyc() {
               className={`${styles.input} ${errors.aadhar ? styles.inputError : ''}`}
               placeholder="Enter 12-digit Aadhar number"
               maxLength={12}
+              disabled={hasExistingData}
             />
             {errors.aadhar && <span className={styles.errorText}>{errors.aadhar}</span>}
           </div>
@@ -227,18 +275,21 @@ function Kyc() {
               placeholder="e.g., ABCDE1234F"
               maxLength={10}
               style={{ textTransform: 'uppercase' }}
+              disabled={hasExistingData}
             />
             {errors.pan && <span className={styles.errorText}>{errors.pan}</span>}
           </div>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit KYC'}
-          </button>
+          {!hasExistingData && (
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit KYC'}
+            </button>
+          )}
         </form>
       </div>
     </div>
