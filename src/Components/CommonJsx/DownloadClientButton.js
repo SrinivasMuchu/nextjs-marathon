@@ -174,15 +174,10 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
     });
 
       if(downloadCheck.data.meta.success ) {
-        if(!downloadCheck.data.data.sameUser ){
-          if(downloadCheck.data.data.filePrice ) {
-            if(!downloadCheck.data.data.subscriptionActive) {
+        if(!downloadCheck.data.data.can_download ){
+          
               setOpenBillingDetails(true);
-            }else if(downloadCheck.data.data.subscriptionActive) {
-              await handleFreeDownload();
-            }
-          }
-        }
+          
         }else{
           await handleFreeDownload();
         }
@@ -200,6 +195,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
         //   }
          
       // }
+      }
     } catch (error) {
       console.error("Error checking download permissions:", error);
     }

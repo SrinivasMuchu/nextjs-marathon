@@ -1,6 +1,9 @@
 "use client"
 import React, { useState } from 'react';
 import styles from './Kyc.module.css';
+import axios from 'axios';
+import { BASE_URL } from '@/config';
+import { toast } from 'react-toastify';
 
 function Kyc() {
   const [formData, setFormData] = useState({
@@ -92,29 +95,34 @@ function Kyc() {
     setIsSubmitting(true);
     
     try {
-      // Prepare data for submission
-      const submissionData = {
-        bank_account: {
-          name: formData.name.trim(),
-          ifsc: formData.ifsc.trim().toUpperCase(),
-          account_number: formData.account_number.trim()
-        },
-        contact: {
-          contact: formData.contact.trim()
-        },
-        aadhar: formData.aadhar.trim(),
+      const response = await axios.post(`${BASE_URL}/v1/payment/verify-seller`, {
+        name: formData.name.trim(),
+        contact: formData.contact.trim(),
+        ifsc: formData.ifsc.trim().toUpperCase(),
+        account_number: formData.account_number.trim(),
+        aadhaar: formData.aadhar.trim(),
         pan: formData.pan.trim().toUpperCase()
-      };
+      }, {
+        headers: { 'user-uuid': localStorage.getItem('uuid') }
+      });
 
-      console.log('Submitting KYC data:', submissionData);
-      
-      // TODO: Replace with actual API call
-      // await axios.post(`${BASE_URL}/kyc/submit`, submissionData);
-      
-      alert('KYC submitted successfully!');
+      if (response.data.meta.success) {
+        toast.success(response.data.meta.message || 'KYC submitted successfully!');
+        // Reset form
+        setFormData({
+          name: '',
+          ifsc: '',
+          account_number: '',
+          contact: '',
+          aadhar: '',
+          pan: ''
+        });
+      } else {
+        toast.error(response.data.meta.message || 'Failed to submit KYC. Please try again.');
+      }
     } catch (error) {
       console.error('KYC submission error:', error);
-      alert('Failed to submit KYC. Please try again.');
+      toast.error(error.response?.data?.meta?.message || 'Failed to submit KYC. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
