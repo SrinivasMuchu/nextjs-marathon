@@ -4,53 +4,25 @@ import styles from './Kyc.module.css';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
+import PopupWrapper from '../CommonJsx/PopupWrapper';
+import Select from 'react-select'; // Add this import
 
-function Kyc() {
+function Kyc({ onClose }) {
   const [formData, setFormData] = useState({
     name: '',
     ifsc: '',
     account_number: '',
     contact: '',
-    aadhar: '',
-    pan: ''
+    
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasExistingData, setHasExistingData] = useState(false);
+  
+ 
 
-  useEffect(() => {
-    fetchSellerDetails();
-  }, []);
-
-  const fetchSellerDetails = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(`${BASE_URL}/v1/payment/get-seller-details`, {
-        headers: { 'user-uuid': localStorage.getItem('uuid') }
-      });
-
-      if (response.data.meta.success && response.data.data) {
-        const data = response.data.data;
-        setFormData({
-          name: data.account_details.name || '',
-          ifsc: data.account_details.ifsc || '',
-          account_number: data.account_details.account_number || '',
-          contact: data.user_data.phone_number || '',
-          aadhar: data.user_data.aadhaar || '',
-          pan: data.user_data.pan || ''
-        });
-        setHasExistingData(true);
-      }
-    } catch (error) {
-      console.error('Error fetching seller details:', error);
-      // If no data or error, allow user to create new
-      setHasExistingData(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+ 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -59,7 +31,6 @@ function Kyc() {
       [name]: value
     }));
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -71,14 +42,12 @@ function Kyc() {
   const validateForm = () => {
     const newErrors = {};
 
-    // Name validation
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     } else if (formData.name.trim().length < 2) {
       newErrors.name = 'Name must be at least 2 characters';
     }
 
-    // IFSC validation
     const ifscPattern = /^[A-Z]{4}0[A-Z0-9]{6}$/;
     if (!formData.ifsc.trim()) {
       newErrors.ifsc = 'IFSC code is required';
@@ -86,34 +55,19 @@ function Kyc() {
       newErrors.ifsc = 'Invalid IFSC code format';
     }
 
-    // Account number validation
     if (!formData.account_number.trim()) {
       newErrors.account_number = 'Account number is required';
     } else if (!/^\d{9,18}$/.test(formData.account_number.trim())) {
       newErrors.account_number = 'Account number must be 9-18 digits';
     }
 
-    // Contact validation
     if (!formData.contact.trim()) {
       newErrors.contact = 'Contact number is required';
     } else if (!/^[6-9]\d{9}$/.test(formData.contact.trim())) {
       newErrors.contact = 'Invalid mobile number';
     }
 
-    // Aadhar validation
-    if (!formData.aadhar.trim()) {
-      newErrors.aadhar = 'Aadhar number is required';
-    } else if (!/^\d{12}$/.test(formData.aadhar.trim())) {
-      newErrors.aadhar = 'Aadhar must be 12 digits';
-    }
-
-    // PAN validation
-    const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (!formData.pan.trim()) {
-      newErrors.pan = 'PAN number is required';
-    } else if (!panPattern.test(formData.pan.trim().toUpperCase())) {
-      newErrors.pan = 'Invalid PAN format (e.g., ABCDE1234F)';
-    }
+   
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -134,15 +88,15 @@ function Kyc() {
         contact: formData.contact.trim(),
         ifsc: formData.ifsc.trim().toUpperCase(),
         account_number: formData.account_number.trim(),
-        aadhaar: formData.aadhar.trim(),
-        pan: formData.pan.trim().toUpperCase()
+       
       }, {
         headers: { 'user-uuid': localStorage.getItem('uuid') }
       });
 
       if (response.data.meta.success) {
         toast.success(response.data.meta.message || 'KYC submitted successfully!');
-        setHasExistingData(true);
+        // setHasExistingData(true);
+         onClose()
       } else {
         toast.error(response.data.meta.message || 'Failed to submit KYC. Please try again.');
       }
@@ -154,145 +108,152 @@ function Kyc() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className={styles.kycContainer}>
-        <div className={styles.kycForm}>
-          <div style={{ textAlign: 'center', padding: '40px' }}>Loading...</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.kycContainer}>
-      <div className={styles.kycForm}>
-        <h2 className={styles.title}>
-         KYC Details
-        </h2>
-        {/* {hasExistingData && (
-          <div className={styles.infoMessage}>
-            Your KYC details have been submitted and are under verification.
-          </div>
-        )} */}
-        <form onSubmit={handleSubmit}>
-          
-          {/* Name */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="name" className={styles.label}>Holder Name *</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
-              placeholder="Enter your full name"
-              disabled={hasExistingData}
-            />
-            {errors.name && <span className={styles.errorText}>{errors.name}</span>}
-          </div>
+    <PopupWrapper>
+      <div className={styles.popupContainer}>
+        <div className={styles.headerRow}>
+          <h2 className={styles.title}>Verify your bank details</h2>
+          <button className={styles.closeBtn} onClick={onClose || (() => {})}>&times;</button>
+        </div>
+        
+        <p className={styles.subtitle}>
+          Selling CAD files on Marathon works when you have an Indian bank account. Currently we collect money from buyer and transfer to your bank account (India).
+        </p>
 
-          {/* IFSC Code */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="ifsc" className={styles.label}>IFSC Code *</label>
-            <input
-              type="text"
-              id="ifsc"
-              name="ifsc"
-              value={formData.ifsc}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.ifsc ? styles.inputError : ''}`}
-              placeholder="e.g., KKBK0007529"
-              maxLength={11}
-              style={{ textTransform: 'uppercase' }}
-              disabled={hasExistingData}
-            />
-            {errors.ifsc && <span className={styles.errorText}>{errors.ifsc}</span>}
-          </div>
+        
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.formRow}>
+              {/* Name */}
+              <div className={styles.inputGroup}>
+                <label htmlFor="name" className={styles.label}>Account Holder</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
+                  placeholder="Enter your name as per Bank Account"
+                
+                />
+                {errors.name && <span className={styles.errorText}>{errors.name}</span>}
+              </div>
 
-          {/* Account Number */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="account_number" className={styles.label}>Account Number *</label>
-            <input
-              type="text"
-              id="account_number"
-              name="account_number"
-              value={formData.account_number}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.account_number ? styles.inputError : ''}`}
-              placeholder="Enter account number"
-              maxLength={18}
-              disabled={hasExistingData}
-            />
-            {errors.account_number && <span className={styles.errorText}>{errors.account_number}</span>}
-          </div>
+              {/* Bank - Placeholder for now */}
+              <div className={styles.inputGroup}>
+                <label htmlFor="bank" className={styles.label}>Select bank</label>
+                <Select
+                  id="bank"
+                  name="bank"
+                  className={styles.selectInput}
+               
+                  
+                  options={[
+                    { value: 'bank1', label: 'Bank 1' },
+                    { value: 'bank2', label: 'Bank 2' },
+                    // Add more banks as needed
+                  ]}
+                  onChange={(selectedOption) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      bank: selectedOption ? selectedOption.value : ''
+                    }));
+                  }}
+                />
+              </div>
+            </div>
 
-          {/* Contact */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="contact" className={styles.label}>Mobile Number *</label>
-            <input
-              type="tel"
-              id="contact"
-              name="contact"
-              value={formData.contact}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.contact ? styles.inputError : ''}`}
-              placeholder="e.g., 9390333636"
-              maxLength={10}
-              disabled={hasExistingData}
-            />
-            {errors.contact && <span className={styles.errorText}>{errors.contact}</span>}
-          </div>
+            <div className={styles.formRow}>
+              {/* Account Number */}
+              <div className={styles.inputGroup}>
+                <label htmlFor="account_number" className={styles.label}>Account number</label>
+                <input
+                  type="text"
+                  id="account_number"
+                  name="account_number"
+                  value={formData.account_number}
+                  onChange={handleInputChange}
+                  className={`${styles.input} ${errors.account_number ? styles.inputError : ''}`}
+                  placeholder="Enter your bank account number"
+                  maxLength={18}
+                  
+                />
+                {errors.account_number && <span className={styles.errorText}>{errors.account_number}</span>}
+              </div>
 
-          {/* Aadhar */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="aadhar" className={styles.label}>Aadhar Number *</label>
-            <input
-              type="text"
-              id="aadhar"
-              name="aadhar"
-              value={formData.aadhar}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.aadhar ? styles.inputError : ''}`}
-              placeholder="Enter 12-digit Aadhar number"
-              maxLength={12}
-              disabled={hasExistingData}
-            />
-            {errors.aadhar && <span className={styles.errorText}>{errors.aadhar}</span>}
-          </div>
+              {/* IFSC Code */}
+              <div className={styles.inputGroup}>
+                <label htmlFor="ifsc" className={styles.label}>IFSC Code</label>
+                <input
+                  type="text"
+                  id="ifsc"
+                  name="ifsc"
+                  value={formData.ifsc}
+                  onChange={handleInputChange}
+                  className={`${styles.input} ${errors.ifsc ? styles.inputError : ''}`}
+                  placeholder="Enter your bank IFSC code"
+                  maxLength={11}
+                  // style={{ textTransform: 'uppercase' }}
+                  
+                />
+                {errors.ifsc && <span className={styles.errorText}>{errors.ifsc}</span>}
+              </div>
+            </div>
 
-          {/* PAN */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="pan" className={styles.label}>PAN Number *</label>
-            <input
-              type="text"
-              id="pan"
-              name="pan"
-              value={formData.pan}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.pan ? styles.inputError : ''}`}
-              placeholder="e.g., ABCDE1234F"
-              maxLength={10}
-              style={{ textTransform: 'uppercase' }}
-              disabled={hasExistingData}
-            />
-            {errors.pan && <span className={styles.errorText}>{errors.pan}</span>}
-          </div>
+            <div className={styles.formRow}>
+              {/* Contact */}
+              <div className={styles.inputGroup}>
+                <label htmlFor="contact" className={styles.label}>Mobile Number</label>
+                <input
+                  type="tel"
+                  id="contact"
+                  name="contact"
+                  value={formData.contact}
+                  onChange={handleInputChange}
+                  className={`${styles.input} ${errors.contact ? styles.inputError : ''}`}
+                  placeholder="Enter your bank account number"
+                  maxLength={10}
+                  
+                />
+                {errors.contact && <span className={styles.errorText}>{errors.contact}</span>}
+              </div>
 
-          {/* Submit Button */}
-          {!hasExistingData && (
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit KYC'}
-            </button>
-          )}
-        </form>
+              {/* Aadhar */}
+             
+            </div>
+
+            {/* PAN */}
+            {/* <div className={styles.formRow}>
+              <label htmlFor="pan" className={styles.label}>PAN Number</label>
+              <input
+                type="text"
+                id="pan"
+                name="pan"
+                value={formData.pan}
+                onChange={handleInputChange}
+                className={`${styles.input} ${errors.pan ? styles.inputError : ''}`}
+                placeholder="Enter your bank account number"
+                maxLength={10}
+                style={{ textTransform: 'uppercase' }}
+                disabled={hasExistingData}
+              />
+              {errors.pan && <span className={styles.errorText}>{errors.pan}</span>}
+            </div> */}
+
+            {/* Submit Button */}
+            
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
+              >
+                {isSubmitting ? 'Verifying...' : 'Verify now'}
+              </button>
+            
+          </form>
+       
       </div>
-    </div>
+    </PopupWrapper>
   );
 }
 

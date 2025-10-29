@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react'
 import { Box, Tabs, Tab, Typography } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FileHistoryCards from '../History/FileHistoryCards'
-import Kyc from '../KYC/Kyc'
+import KycTab from '../KYC/KycTab'
+import Earnings from '../Earnings/Earnings'
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -37,7 +38,8 @@ creatorId}) {
     { label: "CAD Viewer", cadType: "CAD_VIEWER" },
     { label: "CAD Convertor", cadType: "CAD_CONVERTER" },
     { label: "Downloads", cadType: "USER_DOWNLOADS" },
-    { label: "KYC", cadType: "USER_KYC" }
+    { label: "KYC", cadType: "USER_KYC" },
+    { label: "Earnings", cadType: "EARNINGS" }
   ]
 
   useEffect(() => {
@@ -54,6 +56,8 @@ creatorId}) {
       setValue(3)
     } else if (cadType === 'USER_KYC') {
       setValue(4)
+    } else if (cadType === 'EARNINGS') {
+      setValue(5)
     } else {
       setValue(0) // Default to My CAD Files
     }
@@ -149,7 +153,10 @@ creatorId}) {
         />
       </TabPanel>
       <TabPanel value={value} index={4} style={{ background: '#F6F6F6',height:'100%' }}>
-       <Kyc/>
+       <KycTab/>
+      </TabPanel>
+       <TabPanel value={value} index={5} style={{ background: '#F6F6F6',height:'100%' }}>
+       <Earnings/>
       </TabPanel>
       </>:
       <>
