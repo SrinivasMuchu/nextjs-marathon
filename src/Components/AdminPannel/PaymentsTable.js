@@ -7,6 +7,7 @@ import { formatDate } from '@/common.helper'
 import Pagenation from '@/Components/CommonJsx/Pagenation'
 import Loading from '../CommonJsx/Loaders/Loading'
 import SearchIcon from '@mui/icons-material/Search';
+import { toast } from 'react-toastify'
 
 function statusBadge(status) {
   const base = styles.badge
@@ -114,6 +115,35 @@ function PaymentsTable() {
     }
   }
 
+
+  const handleActions = async(action, id) => {
+      try {
+        setSubmitting(prev => ({ ...prev, [id]: action }))
+        
+        const response = await axios.post(`${BASE_URL}/v1/admin-pannel/approve-transaction`, {
+          action: action,
+          transactionId: id
+        }, { headers: { 'admin-uuid': localStorage.getItem('admin-uuid') } });
+        
+        if(response.data.meta.success){
+          toast.success(`Transaction ${action}d successfully`)
+          fetchPayments(currentPage, searchTerm)
+        } else {
+          toast.error('Failed to perform action')
+        }
+       
+      } catch (error) {
+        console.log('Error handling action:', error);
+        toast.error('Failed to perform action')
+      } finally {
+        setSubmitting(prev => {
+          const next = { ...prev }
+          delete next[id]
+          return next
+        })
+      }
+    }
+
   return (
     <>
       <div className={styles.searchContainer}>
@@ -142,7 +172,7 @@ function PaymentsTable() {
         </form>
         {searchTerm && (
           <p className={styles.searchInfo}>
-            Showing results for "{searchTerm}" ({total} found)
+            Showing results for &quot;{searchTerm}&quot; ({total} found)
           </p>
         )}
       </div>
@@ -191,7 +221,7 @@ function PaymentsTable() {
                           <button
                             type="button"
                             className={`${styles.actionBtn} ${styles.actionApprove}`}
-                            onClick={() => handleApprove(id)}
+                            onClick={() => handleActions('approve', p._id)}
                             disabled={isSubmitting || !canAct}
                           >
                             {submitting[id] === 'approve' ? 'Approving…' : 'Approve'}
@@ -199,10 +229,10 @@ function PaymentsTable() {
                           <button
                             type="button"
                             className={`${styles.actionBtn} ${styles.actionReject}`}
-                            onClick={() => handleReject(id)}
+                            onClick={() => handleActions('reject', p._id)}
                             disabled={isSubmitting || !canAct}
                           >
-                            {submitting[id] === 'reject' ? 'Rejecting…' : 'Reject'}
+                            {submitting[p._id] === 'reject' ? 'Rejecting…' : 'Reject'}
                           </button>
                         </div>
                       </td>

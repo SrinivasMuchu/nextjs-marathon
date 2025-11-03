@@ -108,7 +108,7 @@ function DesignTable() {
         </form>
         {searchTerm && (
           <p className={styles.searchInfo}>
-            Showing results for "{searchTerm}" ({total} found)
+            Showing results for &quot;{searchTerm}&quot; ({total} found)
           </p>
         )}
       </div>
