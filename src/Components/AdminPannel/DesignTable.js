@@ -30,16 +30,27 @@ function DesignTable() {
   const [searchTerm, setSearchTerm] = useState('')
   const [searchInput, setSearchInput] = useState('')
 
-  useEffect(() => {
-    fetchDesignDetails(currentPage, searchTerm);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, searchTerm]);
+  // filter state
+  const [statusFilter, setStatusFilter] = useState('all')
 
-  const fetchDesignDetails = async (page = 1, q = '') => {
+  useEffect(() => {
+    fetchDesignDetails(currentPage, searchTerm, statusFilter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, searchTerm, statusFilter]);
+
+  const fetchDesignDetails = async (page = 1, q = '', action = 'all') => {
     setIsLoading(true);
     try {
+      // Prepare params object
+      const params = { page, limit, q };
+      
+      // Only add status param if it's not 'all'
+      if (action !== 'all') {
+        params.action = action;
+      }
+
       const response = await axios.get(`${BASE_URL}/v1/admin-pannel/get-cad-files`, {
-        params: { page, limit, q },
+        params,
         headers: { 'admin-uuid': localStorage.getItem('admin-uuid') }
       });
 
@@ -80,9 +91,30 @@ function DesignTable() {
     setCurrentPage(1)
   }
 
+  const handleFilterChange = (filter) => {
+    setStatusFilter(filter)
+    setCurrentPage(1) // Reset to first page when filtering
+  }
+
   return (
     <>
       <div className={styles.searchContainer}>
+        {/* Filter buttons */}
+        <div className={styles.filterContainer}>
+          <div className={styles.filterButtons}>
+            {['all', 'pending', 'approved', 'rejected'].map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                className={`${styles.filterBtn} ${statusFilter === filter ? styles.filterBtnActive : ''}`}
+                onClick={() => handleFilterChange(filter)}
+              >
+                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <form onSubmit={handleSearch} className={styles.searchForm}>
           <div className={styles["search-container"]}>
              <SearchIcon className={styles["search-icon"]} />
@@ -120,6 +152,7 @@ function DesignTable() {
               <th>ID</th>
               <th>Design</th>
               <th>Owner</th>
+              <th>Status</th>
               <th>Uploaded date</th>
             </tr>
           </thead>
@@ -131,7 +164,7 @@ function DesignTable() {
             <tbody>
               {cadDesigns.length === 0 ? (
                 <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', padding: 20 }}>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: 20 }}>
                     {searchTerm ? 'No designs found for your search' : 'No designs found'}
                   </td>
                 </tr>
@@ -149,6 +182,9 @@ function DesignTable() {
                       </td>
                       <td>
                         <Link href={href} className={styles.rowLink}>{d.fullName}</Link>
+                      </td>
+                      <td>
+                        <span className={statusBadge(d.status || 'In Review')}>{d.status || 'In Review'}</span>
                       </td>
                       <td>
                         <Link href={href} className={styles.rowLink}>

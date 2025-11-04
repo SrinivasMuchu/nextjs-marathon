@@ -357,3 +357,42 @@
     color:#610bee;
     /* background:#610bee */
   }
+
+  /* Filter styles */
+  .filterContainer {
+    margin-bottom: 16px;
+  }
+
+  .filterButtons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filterBtn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .filterBtn:hover {
+    border-color: #610bee;
+    color: #610bee;
+  }
+
+  .filterBtnActive {
+    background: #610bee;
+    color: white;
+    border-color: #610bee;
+  }
+
+  .filterBtnActive:hover {
+    background: #5a0cd8;
+    border-color: #5a0cd8;
+  }

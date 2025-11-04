@@ -45,7 +45,8 @@ function TopNavProfileButton() {
           downloads:data?.file_stats.totalDownloads||0,
           designation:data?.designation||'',
           username:data?.username,
-          downloadRating:data?.unrated_designs_count||0
+          downloadRating:data?.unrated_designs_count||0,
+          kycStatus:data?.kyc_status||'',
         });
       }
     }

@@ -320,7 +320,7 @@ const tagsResponse = await axios.get(
               <Link  href={`/library/${file.route}`}
               style={{boxShadow:'none',background:'white',border:'none',height:'auto'}}
                className={libraryStyles["library-designs-items-container"]}
-                onClick={e => !file.is_uploaded && e.preventDefault()}
+                onClick={e => !file.is_live && e.preventDefault()}
               >
                  {/* <div className={libraryStyles["library-designs-items-container-cost"]}>
                   {file.price ? <span>{file.price} </span> : 'Free'}</div> */}
@@ -333,9 +333,9 @@ const tagsResponse = await axios.get(
                   }  */}
                 
 
-                 <div style={{ position: 'absolute', top: '10px', left: '10px' }}>  <FileStatus status={!file.is_uploaded?'Pending':'Completed'} />  </div>
+                 <div style={{ position: 'absolute', top: '10px', left: '10px' }}>  <FileStatus status={file.status} />  </div>
                
-                {file.is_uploaded ?
+                {file.is_live ?
                   <HoverImageSequence design={file} width={315} height={180} />
                   : <div style={{ width: '100%', height: '180px', background: '#e6e4f0' }} />}
                

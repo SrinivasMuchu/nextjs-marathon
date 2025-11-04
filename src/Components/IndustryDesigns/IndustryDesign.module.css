@@ -604,6 +604,7 @@ font-style: normal;
 font-weight: 400;
 opacity:0.8;
 line-height: 24px; /* 150% */
+word-wrap: break-word;
 }
 .industryDesignHeaderDetailsOwner{
     display:flex;

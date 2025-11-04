@@ -11,8 +11,9 @@ import { toast } from 'react-toastify'
 
 function statusBadge(status) {
   const base = styles.badge
-  if (status === 'Paid') return `${base} ${styles.badgeSuccess}`
-  if (status === 'Pending') return `${base} ${styles.badgeWarn}`
+  if (status === 'approved') return `${base} ${styles.badgeSuccess}`
+  if (status === 'pending') return `${base} ${styles.badgeWarn}`
+  if (status === 'rejected') return `${base} ${styles.badgeDanger}`
   return `${base} ${styles.badgeDanger}`
 }
 
@@ -31,16 +32,27 @@ function PaymentsTable() {
   const [searchTerm, setSearchTerm] = useState('')
   const [searchInput, setSearchInput] = useState('')
 
-  useEffect(() => {
-    fetchPayments(currentPage, searchTerm)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, searchTerm])
+  // filter state
+  const [statusFilter, setStatusFilter] = useState('all')
 
-  const fetchPayments = async (page = 1, q = '') => {
+  useEffect(() => {
+    fetchPayments(currentPage, searchTerm, statusFilter)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, searchTerm, statusFilter]) 
+
+  const fetchPayments = async (page = 1, q = '', status = 'all') => {
     setLoading(true)
     try {
+      // Prepare params object
+      const params = { page, limit, q };
+      
+      // Only add status param if it's not 'all'
+      if (status !== 'all') {
+        params.status = status;
+      }
+
       const response = await axios.get(`${BASE_URL}/v1/admin-pannel/get-transactions`, {
-        params: { page, limit, q },
+        params,
         headers: { 'admin-uuid': localStorage.getItem('admin-uuid') }
       })
 
@@ -79,6 +91,11 @@ function PaymentsTable() {
     setSearchInput('')
     setSearchTerm('')
     setCurrentPage(1)
+  }
+
+  const handleFilterChange = (filter) => {
+    setStatusFilter(filter)
+    setCurrentPage(1) // Reset to first page when filtering
   }
 
   const handleApprove = async (id) => {
@@ -126,10 +143,10 @@ function PaymentsTable() {
         }, { headers: { 'admin-uuid': localStorage.getItem('admin-uuid') } });
         
         if(response.data.meta.success){
-          toast.success(`Transaction ${action}d successfully`)
-          fetchPayments(currentPage, searchTerm)
+          toast.success(response.data.meta.message)
+          fetchPayments(currentPage, searchTerm, statusFilter)
         } else {
-          toast.error('Failed to perform action')
+          toast.error(response.data.meta.message)
         }
        
       } catch (error) {
@@ -147,6 +164,22 @@ function PaymentsTable() {
   return (
     <>
       <div className={styles.searchContainer}>
+        {/* Filter buttons */}
+        <div className={styles.filterContainer}>
+          <div className={styles.filterButtons}>
+            {['all', 'pending', 'approved', 'rejected'].map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                className={`${styles.filterBtn} ${statusFilter === filter ? styles.filterBtnActive : ''}`}
+                onClick={() => handleFilterChange(filter)}
+              >
+                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
        <form onSubmit={handleSearch} className={styles.searchForm}>
           <div className={styles["search-container"]}>
              <SearchIcon className={styles["search-icon"]} />
@@ -206,15 +239,15 @@ function PaymentsTable() {
                 payments.map(p => {
                   const id = p._id
                   const isSubmitting = Boolean(submitting[id])
-                  const canAct = !p.transfered_to_publisher
-                  const status = p.transfered_to_publisher ? 'Paid' : 'Pending'
+                  const canAct = p.transfered_to_publisher === 'pending' || !p.transfered_to_publisher
+                  
                   return (
                     <tr key={id} className={styles.row}>
                       <td>{p._id}</td>
                       <td>{p.razorpay_order_id}</td>
                       <td>${p.amount}</td>
                       <td>{p.razorpay_payment_id}</td>
-                      <td><span className={statusBadge(status)}>{status}</span></td>
+                      <td><span className={statusBadge(p.transfered_to_publisher)}>{p.transfered_to_publisher}</span></td>
                       <td>{formatDate(p.createdAt)}</td>
                       <td>
                         <div className={styles.actionCell}>

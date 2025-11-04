@@ -42,7 +42,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     const [isApiSlow, setIsApiSlow] = useState(false);
     const [info, setInfo] = useState(false);
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
-    const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate } = useContext(contextState);
+    const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate,user,setUser } = useContext(contextState);
     const [options, setOptions] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [price, setPrice] = useState(editedDetails?.price || "");
@@ -557,7 +557,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                         <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>Pricing details</h3>
 
                         {/* KYC box */}
-                        <div style={{ background: '#f8f9fa', padding: 16, borderRadius: 8, marginBottom: 16 }}>
+                        {user.kycStatus !== 'SUCCESS' &&  <div style={{ background: '#f8f9fa', padding: 16, borderRadius: 8, marginBottom: 16 }}>
                             <p style={{ margin: 0, color: '#666' }}>
                                 To sell and set price for your CAD file, please verify your bank details.
                             </p>
@@ -577,7 +577,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                             >
                                 Verify bank details
                             </button>
-                        </div>
+                        </div>}
+                       
 
                         {/* Price with rupee icon on the right */}
                         <div style={{ position: 'relative', marginBottom: 16 }}>
@@ -588,13 +589,13 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 placeholder="Enter price"
                                 value={price}
                                 onChange={e => setPrice(e.target.value)}
-                                disabled={!isKycVerified}
+                                disabled={user.kycStatus !== 'SUCCESS'}
                                 style={{
                                     width: '100%',
                                     padding: '10px 34px 10px 12px',
                                     border: '1px solid #ddd',
                                     borderRadius: 6,
-                                    background: isKycVerified ? '#fff' : '#f5f5f5',
+                                    background: user.kycStatus === 'SUCCESS' ? '#fff' : '#f5f5f5',
                                 }}
                             />
                             <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
