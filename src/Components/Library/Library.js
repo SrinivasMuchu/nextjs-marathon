@@ -55,8 +55,7 @@ async function Library({ searchParams }) {
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
   const allTags = tagsResponse.data?.data || [];
-  console.log(designs);
-  // console.log(designs)
+ 
   return (
     <>
       {/* <HomeTopNav /> */}
