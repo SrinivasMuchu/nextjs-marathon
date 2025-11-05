@@ -439,7 +439,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     // KYC handlers
     const handleVerifyBankDetails = () => setShowKyc(true);
     const handleKycClose = () => {
-        setShowKyc(false);
+        setShowKyc(!showKyc);
         // TODO: replace with real verification check
         setIsKycVerified(true);
     };
@@ -447,10 +447,10 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     return (
         <>
             {/* Render KYC modal when requested */}
-            {showKyc && <Kyc onClose={handleKycClose} setUser={setUser}/>}
+           
             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp setClosePopUp={setCloseNotifyInfoPopUp} cad_type={'USER_CADS'} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
-
+             {showKyc ? <Kyc onClose={handleKycClose} setUser={setUser}/>:
             <div className={styles["cad-upload-container"]}>
                 {/* Header row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -679,7 +679,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                         ⚠️ It might take up to 24 hours for your design to go live. We will email you the link once it is published.
                     </p>
                 </div>
-            </div>
+            </div>}
         </>
     );
 }

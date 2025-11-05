@@ -4,6 +4,7 @@ import styles from './KycDetails.module.css';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
+import Loading from '../CommonJsx/Loaders/Loading';
 
 function KycTab() {
    const [formData, setFormData] = useState({
@@ -147,11 +148,7 @@ function KycTab() {
 
   if (isLoading) {
     return (
-      <div className={styles.kycContainer}>
-        <div className={styles.kycForm}>
-          <div style={{ textAlign: 'center', padding: '40px' }}>Loading...</div>
-        </div>
-      </div>
+      <Loading/>
     );
   }
 
