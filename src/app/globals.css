@@ -30,3 +30,21 @@ body {
   background: black;
   border-radius: 5px;
 }
+
+/* Toast styling - Ensure toasts appear above all elements */
+.Toastify__toast-container {
+  z-index: 2147483647 !important;
+}
+
+.Toastify__toast {
+  z-index: 2147483647 !important;
+}
+
+.Toastify__toast-container--top-right,
+.Toastify__toast-container--top-left,
+.Toastify__toast-container--top-center,
+.Toastify__toast-container--bottom-right,
+.Toastify__toast-container--bottom-left,
+.Toastify__toast-container--bottom-center {
+  z-index: 2147483647 !important;
+}

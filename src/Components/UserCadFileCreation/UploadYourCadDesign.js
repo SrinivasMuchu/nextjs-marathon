@@ -35,7 +35,9 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     const [formErrors, setFormErrors] = useState({
         file: '',
         title: '',
-        description: ''
+        description: '',
+        terms: '',
+        price: ''
     });
 
     const [uploading, setUploading] = useState(false);
@@ -101,7 +103,9 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         const errors = {
             file: '',
             title: '',
-            description: ''
+            description: '',
+            terms: '',
+            price: ''
         };
 
         let isValid = true;
@@ -122,6 +126,14 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
             isValid = false;
         } else if (cadFile.description.trim().length < 100) {
             errors.description = 'Description must be at least 100 characters long.';
+            isValid = false;
+        }
+        if (!termsAccepted) {
+            errors.terms = 'You must agree to the terms and conditions.';
+            isValid = false;
+        }
+        if (price && Number(price) > 500) {
+            errors.price = 'Price cannot be greater than ₹500.';
             isValid = false;
         }
 
@@ -271,7 +283,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         }
     };
     const handleUpdateUserCadFileSubmit = async () => {
-
+        if (!validateForm()) return;
         setUploading(true);
         try {
             const response = await axios.post(
@@ -435,7 +447,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     return (
         <>
             {/* Render KYC modal when requested */}
-            {showKyc && <Kyc onClose={handleKycClose} />}
+            {showKyc && <Kyc onClose={handleKycClose} setUser={setUser}/>}
             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp setClosePopUp={setCloseNotifyInfoPopUp} cad_type={'USER_CADS'} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
 
@@ -586,6 +598,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                             <input
                                 type="number"
                                 min={0}
+                                max={500}
                                 placeholder="Enter price"
                                 value={price}
                                 onChange={e => setPrice(e.target.value)}
@@ -593,7 +606,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 style={{
                                     width: '100%',
                                     padding: '10px 34px 10px 12px',
-                                    border: '1px solid #ddd',
+                                    border: `1px solid ${formErrors.price ? 'red' : '#ddd'}`,
                                     borderRadius: 6,
                                     background: user.kycStatus === 'SUCCESS' ? '#fff' : '#f5f5f5',
                                 }}
@@ -601,7 +614,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                             <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
                                 <FaRupeeSign />
                             </span>
-                            <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for $0 and others can download for Free.</p>
+                            {formErrors.price && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.price}</p>}
+                            <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for ₹0 and others can download for Free. Maximum price allowed is ₹500.</p>
                         </div>
 
                         {/* Upload button */}
@@ -610,17 +624,18 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 style={{ 
                                     width: '100%', 
                                     padding: '12px', 
-                                    backgroundColor: '#610bee', 
+                                    backgroundColor: (!termsAccepted || uploading) ? '#a270f2' : '#610bee', 
                                     color: '#ffffff',
                                     border: 'none',
                                     borderRadius: 6,
                                     fontSize: 16,
                                     fontWeight: 600,
-                                    cursor: uploading ? 'not-allowed' : 'pointer',
+                                    cursor: (!termsAccepted || uploading) ? 'not-allowed' : 'pointer',
                                     marginTop: 4
                                 }}
-                                disabled={uploading}
+                                disabled={!termsAccepted || uploading}
                                 onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
+                                title={!termsAccepted ? 'Please agree to the terms and conditions to upload your design.' : ''}
                             >
                                 {uploading ? `${editedDetails ? 'Updating' : 'Uploading'} Design...` : 'Upload Design'}
                             </button>
@@ -646,11 +661,14 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                         )}
 
                         {/* Terms & conditions */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
-                            <input type="checkbox" checked={termsAccepted} onChange={(e)=>setTermsAccepted(e.target.checked)} />
-                            <span style={{ fontSize: 13, color: '#444' }}>
-                                Agree to <a href="#" style={{ color: '#610bee' }}>terms & conditions</a> of Marathon.
-                            </span>
+                        <div style={{ marginTop: 12 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <input type="checkbox" checked={termsAccepted} onChange={(e)=>setTermsAccepted(e.target.checked)} />
+                                <span style={{ fontSize: 13, color: '#444' }}>
+                                    Agree to <a href="#" style={{ color: '#610bee' }}>terms & conditions</a> of Marathon.
+                                </span>
+                            </div>
+                            {formErrors.terms && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.terms}</p>}
                         </div>
                     </div>
                 </div>

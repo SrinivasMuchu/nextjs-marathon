@@ -1,0 +1,9 @@
+/* Custom styles for React Toastify to ensure toasts appear above all elements */
+.customToastContainer {
+  z-index: 2147483647 !important; /* Maximum z-index value */
+}
+
+.customToast {
+  z-index: 2147483647 !important;
+  position: relative !important;
+}

@@ -11,9 +11,10 @@ import SearchIcon from '@mui/icons-material/Search';
 
 function statusBadge(status) {
   const base = styles.badge
-  if (status === 'Approved') return `${base} ${styles.badgeSuccess}`
-  if (status === 'In Review') return `${base} ${styles.badgeInfo}`
-  return `${base} ${styles.badgeWarn}`
+  if (status === 'approved') return `${base} ${styles.badgeSuccess}`
+  if (status === 'pending') return `${base} ${styles.badgeWarn}`
+  if (status === 'rejected') return `${base} ${styles.badgeDanger}`
+  return `${base} ${styles.badgeDanger}`
 }
 
 function DesignTable() {

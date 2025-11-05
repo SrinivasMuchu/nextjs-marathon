@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import PopupWrapper from '../CommonJsx/PopupWrapper';
 import Select from 'react-select'; // Add this import
 
-function Kyc({ onClose }) {
+function Kyc({ onClose,setUser }) {
   const [formData, setFormData] = useState({
     name: '',
     ifsc: '',
@@ -96,7 +96,14 @@ function Kyc({ onClose }) {
       if (response.data.meta.success) {
         toast.success(response.data.meta.message || 'KYC submitted successfully!');
         // setHasExistingData(true);
-         onClose()
+        
+        // Update user's kyc_status to SUCCESS
+        setUser(prevUser => ({
+          ...prevUser,
+          kycStatus: 'SUCCESS'
+        }));
+        
+        onClose()
       } else {
         toast.error(response.data.meta.message || 'Failed to submit KYC. Please try again.');
       }
@@ -140,27 +147,7 @@ function Kyc({ onClose }) {
               </div>
 
               {/* Bank - Placeholder for now */}
-              <div className={styles.inputGroup}>
-                <label htmlFor="bank" className={styles.label}>Select bank</label>
-                <Select
-                  id="bank"
-                  name="bank"
-                  className={styles.selectInput}
-               
-                  
-                  options={[
-                    { value: 'bank1', label: 'Bank 1' },
-                    { value: 'bank2', label: 'Bank 2' },
-                    // Add more banks as needed
-                  ]}
-                  onChange={(selectedOption) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      bank: selectedOption ? selectedOption.value : ''
-                    }));
-                  }}
-                />
-              </div>
+              
             </div>
 
             <div className={styles.formRow}>
