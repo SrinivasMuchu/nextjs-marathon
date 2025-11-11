@@ -246,7 +246,7 @@ function BillingAddress({  onClose, onSave, cadId }) {
       <div className={styles["billing-address-container"]}>
         <div className={styles["billing-header"]}>
           <h2>Billing Address</h2>
-          <button className={styles["close-btn"]} onClick={onClose}>×</button>
+          <button className={styles["close-btn"]} style={{width:'50px'}} onClick={onClose}>×</button>
         </div>
 
         <form className={styles["billing-form"]}>
@@ -263,7 +263,16 @@ function BillingAddress({  onClose, onSave, cadId }) {
                     />
                     <b>{addr.name}</b>
                   </div>
-                  <div style={{ marginTop: 6 }}>
+                  <div style={{ 
+                    marginTop: 6,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 5,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxHeight: '7.2em', // approximately 6 lines
+                    lineHeight: '1.2em'
+                  }}>
                     <div>{addr.street_address}</div>
                     {addr.appartment_address ? <div>{addr.appartment_address}</div> : null}
                     <div>{addr.city}{addr.state ? `, ${addr.state}` : ""} {addr.postal_code}</div>
@@ -429,7 +438,7 @@ function BillingAddress({  onClose, onSave, cadId }) {
                 placeholder="Enter GST number"
               />
             </div>*/}
-            <div className={styles["form-group"]}>
+            {/* <div className={styles["form-group"]}>
               <label htmlFor="currency">Currency </label>
               <Select
                 name="currency"
@@ -447,7 +456,7 @@ function BillingAddress({  onClose, onSave, cadId }) {
                   </div>
                 )}
               />
-            </div>
+            </div> */}
           </div> 
         </form>
 

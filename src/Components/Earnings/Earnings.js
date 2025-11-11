@@ -3,6 +3,7 @@ import axios from 'axios'
 import styles from './Earnings.module.css'
 import { BASE_URL } from '@/config';
 import Pagenation from '../CommonJsx/Pagenation';
+import Loading from '../CommonJsx/Loaders/Loading';
 
 // const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -21,11 +22,11 @@ function fmtDate(iso) {
 }
 function netAmount(amount) {
   const netPrice = amount * 0.9;
-  return `${netPrice}`;
+  return `${netPrice.toFixed(2)}`;
 }
 function commission(amount){
   const commissionAmount = amount * 0.1;
-  return `${commissionAmount}(10%)`
+  return `${commissionAmount.toFixed(2)}(10%)`
 }
 
 function Earnings() {
@@ -54,8 +55,23 @@ function Earnings() {
   });
 
   // date range state (HTML date format: YYYY-MM-DD)
-  const [range, setRange] = useState({
+  const [range, setRange] = useState(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth(); // Current month (0-indexed)
     
+    // First day of current month
+    const startOfMonth = new Date(year, month, 1);
+    const startDate = startOfMonth.toISOString().split('T')[0];
+    
+    // Last day of current month
+    const endOfMonth = new Date(year, month + 1, 0);
+    const endDate = endOfMonth.toISOString().split('T')[0];
+    
+    return {
+      from: startDate,
+      to: endDate
+    };
   });
 
   // Date validation state
@@ -158,11 +174,11 @@ function Earnings() {
 
   const statItems = [
     { label: 'CAD DESIGNS SOLD', value: summary.cadSold },
-    { label: 'TOTAL EARNINGS (A)', value: `$${summary.totalA}` },
-    { label: 'MARATHON COMMISSION (B)', value: `$${summary.commissionB} (${summary.commissionPct}%)` },
-    { label: 'NET EARNING (A-B)', value: `$${summary.net}` },
-    { label: 'AMOUNT TRANSFERRED', value: `$${summary.transferred}`, accent: 'ok' },
-    { label: 'AMOUNT IN PROCESSING', value: `$${summary.processing}` },
+    { label: 'TOTAL EARNINGS (A)', value: `$${summary.totalA.toFixed(2)}` },
+    { label: 'MARATHON COMMISSION (B)', value: `$${summary.commissionB.toFixed(2)} (${summary.commissionPct}%)` },
+    { label: 'NET EARNING (A-B)', value: `$${summary.net.toFixed(2)}` },
+    { label: 'AMOUNT TRANSFERRED', value: `$${summary.transferred.toFixed(2)}`, accent: 'ok' },
+    { label: 'AMOUNT IN PROCESSING', value: `$${summary.processing.toFixed(2)}` },
   ];
 
   return (
@@ -218,9 +234,7 @@ function Earnings() {
 
       {/* table */}
       <div className={styles.tableWrap}>
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : dateError ? (
+        {dateError ? (
           <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
             Please fix the date range to view earnings data.
           </div>
@@ -235,23 +249,31 @@ function Earnings() {
             </thead>
 
             <tbody>
-              {earningRows.map((row, idx) => (
-                <tr key={`${row.cad_file_title}-${row.createdAt}-${idx}`} className={styles.tr}>
-                  <td className={styles.td} data-label="Date">{fmtDate(row.createdAt)}</td>
-                  <td className={styles.td} data-label="File name">{row.cad_file_title || 'N/A'}</td>
-                  <td className={styles.td} data-label="Price">${row.amount}</td>
-                  <td className={styles.td} data-label="Commission">-{commission(row.amount)}</td>
-                  <td className={styles.td} data-label="Net earning">${netAmount(row.amount)}</td>
-                  <td className={styles.td} data-label="Payment State">
-                    <span className={row.transfered_to_publisher ? styles.stateOk : styles.stateInfo}>
-                      {row.transfered_to_publisher ? 'Transferred' : 'Processing'}
-                    </span>
-                  </td>
-                  <td className={styles.td} data-label="Actions">
-                    <a className={styles.seller_invoice_url} href={row.seller_invoice_url}>Invoice</a>
+              {isLoading ? (
+                <tr>
+                  <td className={styles.td} colSpan={headers.length} style={{ textAlign: 'center', padding: '20px', height: '30vh' }}>
+                    <Loading smallScreen="earnings"/>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                earningRows.map((row, idx) => (
+                  <tr key={`${row.cad_file_title}-${row.createdAt}-${idx}`} className={styles.tr}>
+                    <td className={styles.td} data-label="Date">{fmtDate(row.createdAt)}</td>
+                    <td className={styles.td} data-label="File name">{row.cad_file_title || 'N/A'}</td>
+                    <td className={styles.td} data-label="Price">${parseFloat(row.amount).toFixed(2)}</td>
+                    <td className={styles.td} data-label="Commission">-{commission(row.amount)}</td>
+                    <td className={styles.td} data-label="Net earning">${netAmount(row.amount)}</td>
+                    <td className={styles.td} data-label="Payment State">
+                      <span className={row.transfered_to_publisher ? styles.stateOk : styles.stateInfo}>
+                        {row.transfered_to_publisher ? 'Transferred' : 'Processing'}
+                      </span>
+                    </td>
+                    <td className={styles.td} data-label="Actions">
+                      <a className={styles.seller_invoice_url} href={row.seller_invoice_url}>Invoice</a>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         )}

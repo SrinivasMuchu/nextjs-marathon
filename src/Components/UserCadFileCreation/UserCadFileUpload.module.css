@@ -111,10 +111,7 @@
   font-size: 1rem; /* text-base */
   font-weight: 500; /* font-medium */
 }
-.cad-upload-container{
-  height:90vh;
-  /* overflow: auto; */
-}
+
 .photo-upload{
   border: 1px solid #d1d5db; /* gray-300 */
   border-radius: 50%; /* rounded-lg */

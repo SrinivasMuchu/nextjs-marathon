@@ -9,6 +9,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
 }
 .paginationWrapper {
   width: 100%;
@@ -495,7 +497,7 @@
   }
   .publishPopUp{
     width:100%;
-    padding: 12px;
+    /* padding: 12px; */
   }
   .header h2 {
     font-size: 20px;
@@ -543,7 +545,7 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  height: 90vh;
+  /* height: 90vh; */
  
 }
 
@@ -675,7 +677,56 @@
   cursor: not-allowed;
 }
 
-/* Responsive design */
+/* Responsive design for billing address */
+@media (max-width: 860px) {
+  .popUpMain {
+    padding: 5px;
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+  
+  .billing-address-container {
+    max-width: 100%;
+    width: calc(100% - 10px);
+    margin: 0 auto;
+    max-height: calc(100vh - 40px);
+  }
+  
+  .billing-form {
+    height: auto;
+    max-height: calc(60vh - 100px);
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .billing-address-container {
+    max-width: 98%;
+    margin: 5px auto;
+    height: auto;
+    max-height: 95vh;
+  }
+  
+  .billing-form {
+    height: auto;
+    max-height: 55vh;
+    overflow-y: auto;
+  }
+  
+  .addressRow {
+    flex-direction: column;
+    overflow-x: visible;
+    gap: 8px;
+  }
+  
+  .addressCard {
+    flex: none;
+    width: 100%;
+    height: auto;
+    min-height: 120px;
+  }
+}
+
 @media (max-width: 768px) {
   .billing-address-container {
     margin: 10px;

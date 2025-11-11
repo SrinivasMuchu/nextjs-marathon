@@ -12,6 +12,8 @@ import libraryStyles from '../Library/Library.module.css'
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import axios from 'axios';
+import { RiEdit2Fill } from "react-icons/ri";
+import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
 
 
 
@@ -21,6 +23,8 @@ function CadPublishedFiles({loading,userCadFiles,type,searchTerm,
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   const [allFilters, setAllFilters] = useState([]); // Store objects with id and label
   const [loadingFilters, setLoadingFilters] = useState(true);
+  const [editDesignPopup, setEditDesignPopup] = useState(false);
+  const [selectedDesignForEdit, setSelectedDesignForEdit] = useState(null);
   
   const visibleFilters = allFilters.slice(0, 4);
   const moreFilters = allFilters.slice(4);
@@ -74,6 +78,21 @@ const tagsResponse = await axios.get(
   const handleFilterClick = (filter) => {
     setSelectedFilter(filter); // This will now update the parent component's state with the filter object
     setShowMoreDropdown(false);
+  };
+
+  // Handle click on rejected design to open edit popup
+  const handleRejectedDesignClick = (e, file) => {
+    if (file.status?.toLowerCase() === 'rejected' && file.rejected_message) {
+      e.preventDefault(); // Prevent navigation
+      setSelectedDesignForEdit(file);
+      setEditDesignPopup(true);
+    }
+  };
+
+  // Close edit popup
+  const handleCloseEditPopup = () => {
+    setEditDesignPopup(false);
+    setSelectedDesignForEdit(null);
   };
 
 
@@ -315,12 +334,22 @@ const tagsResponse = await axios.get(
             {/* Projects Grid */}
             {userCadFiles.map((file, index) => (
                <div key={index}
-
-                className={styles["library-designs-items-div"]} style={{borderRadius:'8px',boxSizing:'border-box',width:'330px'}}>
+                className={styles["library-designs-items-div"]} 
+                style={{
+                  borderRadius:'8px',
+                  boxSizing:'border-box',
+                  width:'330px',
+                  cursor:  file.rejected_message ? 'pointer' : 'default'
+                }}
+                onClick={(e) => handleRejectedDesignClick(e, file)}
+                title={ file.rejected_message ? 
+                  `Rejected: ${file.rejected_message}. Click to edit.` : ''
+                }
+              >
               <Link  href={`/library/${file.route}`}
               style={{boxShadow:'none',background:'white',border:'none',height:'auto'}}
                className={libraryStyles["library-designs-items-container"]}
-                onClick={e => !file.is_live && e.preventDefault()}
+                onClick={e => (!file.is_live || (file.status?.toLowerCase() === 'rejected' && file.rejected_message)) && e.preventDefault()}
               >
                  {/* <div className={libraryStyles["library-designs-items-container-cost"]}>
                   {file.price ? <span>{file.price} </span> : 'Free'}</div> */}
@@ -333,7 +362,27 @@ const tagsResponse = await axios.get(
                   }  */}
                 
 
-                 <div style={{ position: 'absolute', top: '10px', left: '10px' }}>  <FileStatus status={file.status} />  </div>
+                 <div style={{ position: 'absolute', top: '10px', left: '10px' }}>  
+                   <FileStatus status={file.status} />  
+                  
+                 </div>
+                  <div style={{ position: 'absolute', top: '10px', right: '10px' }}>  
+                  
+                   { file.rejected_message && (
+                     <div style={{
+                      //  marginTop: '4px',
+                       padding: '4px 8px',
+                       backgroundColor: '#fee2e2',
+                       border: '1px solid #fca5a5',
+                       borderRadius: '4px',
+                       fontSize: '20px',
+                       color: '#dc2626',
+                       fontWeight: '500'
+                     }}>
+                       <RiEdit2Fill style={{ marginRight: '4px' }} />
+                     </div>
+                   )}
+                 </div>
                
                 {file.is_live ?
                   <HoverImageSequence design={file} width={315} height={180} />
@@ -359,7 +408,7 @@ const tagsResponse = await axios.get(
                     ratings={{ average: file.average_rating, total: file.rating_count }} />
                 </div>
                   </div>
-                  <span className={libraryStyles["design-title-wrapper-price"]}>{file.price?file.price:'Free'}</span>
+                  <span className={libraryStyles["design-title-wrapper-price"]}>{file.price?`$${file.price}`:'Free'}</span>
                 </div>
               </Link>
                </div>
@@ -386,6 +435,16 @@ const tagsResponse = await axios.get(
           </div>
         )}
       </>}
+
+      {/* Edit Design Popup for Rejected Files */}
+      {editDesignPopup && selectedDesignForEdit && 
+            <PublishCadPopUp
+              editedDetails={selectedDesignForEdit}
+              onClose={handleCloseEditPopup}
+              // type="edit"
+              showHeaderClose={true}
+           
+            />}
     </div>
   )
 }

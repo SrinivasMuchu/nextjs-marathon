@@ -14,6 +14,7 @@ import CreatableSelect from 'react-select/creatable';
 import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
 import { FaRupeeSign } from "react-icons/fa";
 import Kyc from '../KYC/Kyc';
+import Link from 'next/link';
 
 
 function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = false }) {
@@ -50,8 +51,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     const [price, setPrice] = useState(editedDetails?.price || "");
     const [showKyc, setShowKyc] = useState(false);
     const [isKycVerified, setIsKycVerified] = useState(false);
-    // add terms checkbox state
-    const [termsAccepted, setTermsAccepted] = useState(false);
+    // add terms checkbox state - default to true if editing
+    const [termsAccepted, setTermsAccepted] = useState(!!editedDetails);
 
     useEffect(() => {
 
@@ -110,7 +111,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
 
         let isValid = true;
 
-        if (!url) {
+        // Only require file upload for new uploads, not for editing
+        if (!editedDetails && !url) {
             errors.file = 'Upload your CAD file.';
             isValid = false;
         }
@@ -133,7 +135,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
             isValid = false;
         }
         if (price && Number(price) > 500) {
-            errors.price = 'Price cannot be greater than ₹500.';
+            errors.price = 'Price cannot be greater than $500.';
             isValid = false;
         }
 
@@ -238,6 +240,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                         router.refresh();
                     }else{
                         router.push("/dashboard")
+                        router.refresh();
                     }
                     
                       setCadDetailsUpdate(response)
@@ -283,27 +286,44 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         }
     };
     const handleUpdateUserCadFileSubmit = async () => {
-        if (!validateForm()) return;
+        console.log('Starting update submit...');
+        console.log('editedDetails:', editedDetails);
+        console.log('cadFile:', cadFile);
+        console.log('selectedOptions:', selectedOptions);
+        console.log('price:', price);
+        console.log('isChecked:', isChecked);
+        console.log('termsAccepted:', termsAccepted);
+        
+        if (!validateForm()) {
+            console.log('Form validation failed');
+            return;
+        }
+        
+        console.log('Form validation passed, making API call...');
         setUploading(true);
         try {
+            const requestData = {
+                file_id: editedDetails._id,
+                title: cadFile.title,
+                description: cadFile.description,
+                tags: selectedOptions.map(option => option.value),
+                price: Number(price) || 0, // Send price as number
+                is_downloadable: isChecked,
+            };
+            
+            console.log('Request data:', requestData);
+            
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/create-user-cad-file`,
-                {
-                    file_id: editedDetails._id,
-                    title: cadFile.title,
-
-                    description: cadFile.description,
-                    tags: selectedOptions.map(option => option.value),
-                    price: Number(price) || 0, // Send price as number
-                    is_downloadable: isChecked,
-
-                },
+                requestData,
                 {
                     headers: {
                         "user-uuid": localStorage.getItem("uuid"),
                     }
                 }
             );
+
+            console.log('API Response:', response.data);
 
             if (response.data.meta.success) {
                 if (localStorage.getItem('is_verified')) {
@@ -612,10 +632,10 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 }}
                             />
                             <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
-                                <FaRupeeSign />
+                                $
                             </span>
                             {formErrors.price && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.price}</p>}
-                            <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for ₹0 and others can download for Free. Maximum price allowed is ₹500.</p>
+                            <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for $0 and others can download for Free. Maximum price allowed is $500.</p>
                         </div>
 
                         {/* Upload button */}
@@ -665,7 +685,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                 <input type="checkbox" checked={termsAccepted} onChange={(e)=>setTermsAccepted(e.target.checked)} />
                                 <span style={{ fontSize: 13, color: '#444' }}>
-                                    Agree to <a href="#" style={{ color: '#610bee' }}>terms & conditions</a> of Marathon.
+                                    Agree to <Link href="/terms-and-conditions" target='_blank' style={{ color: '#610bee' }}>terms & conditions</Link> and <Link href="/privacy-policy" target='_blank' style={{ color: '#610bee' }}>privacy policy</Link> of Marathon.
                                 </span>
                             </div>
                             {formErrors.terms && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.terms}</p>}

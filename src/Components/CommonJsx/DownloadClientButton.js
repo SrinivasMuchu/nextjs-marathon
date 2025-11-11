@@ -247,7 +247,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
                     width: 'auto'
                   }}
                 >
-                  Download 3-D design
+                  Download 3D design
                 </button>
               </span>
             </Tooltip>
@@ -268,7 +268,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
               className="rounded bg-[#610BEE] h-12"
               onClick={downloadHandler}
             >
-              {isDownLoading ? 'Processing...' : 'Download 3-D design'}
+              {isDownLoading ? 'Processing...' : 'Download 3D design'}
             </button>
           )}
         </>

@@ -62,7 +62,9 @@ export default function DesignViewer({
 
 
         </div>
-      
+       <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
+          {designData.price? <p style={{fontSize:'24px',fontWeight:'500'}}>${designData.price}<span style={{fontSize:'16px',fontWeight:'400',color:'#001325'}}>/download</span></p>:<p style={{fontSize:'24px',fontWeight:'500'}}>Free</p>}
+        </div>
         <div className={styles.statsCont}  style={{display:'flex',alignItems:'center',gap:'10px',justifyContent:'center',width:'100%',flexWrap:'wrap'}}>
             <DownloadClientButton custumDownload={true}
           folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type ? designData.file_type : 'step'} />
@@ -72,7 +74,7 @@ export default function DesignViewer({
                               fontSize: '20px',
                               background: '#610BEE',
                               borderRadius: '4px',
-                              height: '48px',
+                              // height: '48px',
                               padding: '10px 20px',
                               border: 'none',
                               width: 'auto'
