@@ -6,14 +6,16 @@ import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
 import PopupWrapper from '../CommonJsx/PopupWrapper';
 import Select from 'react-select'; // Add this import
+import SignPad from './SignPad';
 
 function Kyc({ onClose,setUser }) {
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
     ifsc: '',
     account_number: '',
     contact: '',
-    
+    signature: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -73,10 +75,32 @@ function Kyc({ onClose,setUser }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleNext = (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
+      return;
+    }
+
+    setCurrentStep(2);
+  };
+
+  const handleBack = () => {
+    setCurrentStep(1);
+  };
+
+  const handleSignatureCapture = (signatureData) => {
+    setFormData(prev => ({
+      ...prev,
+      signature: signatureData
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.signature) {
+      toast.error('Please provide your signature before submitting.');
       return;
     }
 
@@ -88,14 +112,13 @@ function Kyc({ onClose,setUser }) {
         contact: formData.contact.trim(),
         ifsc: formData.ifsc.trim().toUpperCase(),
         account_number: formData.account_number.trim(),
-       
+        signature: formData.signature, // Include signature data
       }, {
         headers: { 'user-uuid': localStorage.getItem('uuid') }
       });
 
       if (response.data.meta.success) {
         toast.success(response.data.meta.message || 'KYC submitted successfully!');
-        // setHasExistingData(true);
         
         // Update user's kyc_status to SUCCESS
         setUser(prevUser => ({
@@ -119,16 +142,34 @@ function Kyc({ onClose,setUser }) {
     <PopupWrapper>
       <div className={styles.popupContainer}>
         <div className={styles.headerRow}>
-          <h2 className={styles.title}>Verify your bank details</h2>
+          <h2 className={styles.title}>
+            {currentStep === 1 ? 'Verify your bank details' : 'Digital Signature'}
+          </h2>
           <button className={styles.closeBtn} onClick={onClose || (() => {})}>&times;</button>
         </div>
         
+        {/* Step Indicator */}
+        <div className={styles.stepIndicator}>
+          <div className={`${styles.step} ${currentStep >= 1 ? styles.active : ''}`}>
+            <span className={styles.stepNumber}>1</span>
+            <span className={styles.stepLabel}>Bank Details</span>
+          </div>
+          <div className={styles.stepLine}></div>
+          <div className={`${styles.step} ${currentStep >= 2 ? styles.active : ''}`}>
+            <span className={styles.stepNumber}>2</span>
+            <span className={styles.stepLabel}>Signature</span>
+          </div>
+        </div>
+        
         <p className={styles.subtitle}>
-          Selling CAD files on Marathon works when you have an Indian bank account. Currently we collect money from buyer and transfer to your bank account (India).
+          {currentStep === 1 
+            ? 'Selling CAD files on Marathon works when you have an Indian bank account. Currently we collect money from buyer and transfer to your bank account (India).'
+            : 'Please provide your digital signature to complete the KYC process.'
+          }
         </p>
 
-        
-          <form onSubmit={handleSubmit} className={styles.form}>
+        {currentStep === 1 ? (
+          <form onSubmit={handleNext} className={styles.form}>
             <div className={styles.formRow}>
               {/* Name */}
               <div className={styles.inputGroup}>
@@ -227,17 +268,39 @@ function Kyc({ onClose,setUser }) {
               {errors.pan && <span className={styles.errorText}>{errors.pan}</span>}
             </div> */}
 
-            {/* Submit Button */}
+            {/* Next Button */}
+            <button
+              type="submit"
+              className={`${styles.submitBtn}`}
+            >
+              Next: Add Signature
+            </button>
+          </form>
+        ) : (
+          <div className={styles.signatureSection}>
+            <SignPad onSignatureCapture={handleSignatureCapture} />
             
+            <div className={styles.signatureActions}>
               <button
-                type="submit"
+                type="button"
+                onClick={handleBack}
+                className={`${styles.backBtn}`}
+              >
+                Back
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleSubmit}
                 disabled={isSubmitting}
                 className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
               >
-                {isSubmitting ? 'Verifying...' : 'Verify now'}
+                {isSubmitting ? 'Submitting...' : 'Complete KYC'}
               </button>
-            
-          </form>
+            </div>
+          </div>
+        )}
+         
        
       </div>
     </PopupWrapper>

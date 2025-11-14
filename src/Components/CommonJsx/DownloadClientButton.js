@@ -9,6 +9,7 @@ import CadFileNotifyPopUp from './CadFileNotifyPopUp';
 import UserLoginPupUp from './UserLoginPupUp';
 import { contextState } from './ContextProvider';
 import BillingAddress from './BillingAddress';
+import { toast } from 'react-toastify';
 
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -116,6 +117,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
             );
 
             if (verifyRes.data.meta.success) {
+              toast.success("✅ Payment successful! Starting download...");
               await downloadFile();
             } else {
               alert("⚠️ Payment verification failed!");

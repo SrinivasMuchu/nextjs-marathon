@@ -677,39 +677,18 @@
   cursor: not-allowed;
 }
 
-/* Responsive design for billing address */
-@media (max-width: 860px) {
-  .popUpMain {
-    padding: 5px;
-    align-items: flex-start;
-    padding-top: 20px;
-  }
-  
+/* Responsive design */
+@media (max-width: 850px) {
   .billing-address-container {
-    max-width: 100%;
-    width: calc(100% - 10px);
-    margin: 0 auto;
-    max-height: calc(100vh - 40px);
+    max-width: 95%;
+    margin: 10px auto;
+    height: auto;
+    max-height: 90vh;
   }
   
   .billing-form {
     height: auto;
-    max-height: calc(60vh - 100px);
-    overflow-y: auto;
-  }
-}
-
-@media (max-width: 820px) {
-  .billing-address-container {
-    max-width: 98%;
-    margin: 5px auto;
-    height: auto;
-    max-height: 95vh;
-  }
-  
-  .billing-form {
-    height: auto;
-    max-height: 55vh;
+    max-height: 50vh;
     overflow-y: auto;
   }
   

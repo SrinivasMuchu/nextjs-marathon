@@ -40,6 +40,7 @@ function IndustryHeaderDetails({designData}) {
         EditableFields={{page_title:designData.response.page_title,
         page_description:designData.response.page_description,
         is_downloadable:designData.response.is_downloadable,
+        price:designData.response.price,
         cad_tags:designData.response.tag_labels,_id:designData.response._id,}}
         type={"design"}
         />}
