@@ -29,6 +29,56 @@ function commission(amount){
   return `${commissionAmount.toFixed(2)}(10%)`
 }
 
+// Transfer status definitions
+const TRANSFER_STATUS_DEFINITIONS = Object.freeze([
+    { code: 'pending_payment', label: 'Pending Payment', meaning: 'Buyer payment not confirmed' },
+    { code: 'payment_received', label: 'Payment Received', meaning: 'Buyer payment confirmed' },
+    { code: 'on_hold', label: 'On Hold / Under Review', meaning: 'Fraud/KYC verification' },
+    { code: 'scheduled', label: 'Scheduled for Payout', meaning: 'Added to upcoming payout' },
+    { code: 'processing_payout', label: 'Processing Payout', meaning: 'Transfer in progress' },
+    { code: 'transferred', label: 'Transferred', meaning: 'Payout successfully sent' },
+    { code: 'failed', label: 'Failed', meaning: 'Payout failed; retry needed' },
+    { code: 'refunded', label: 'Refunded', meaning: 'Buyer refund / reversal' },
+]);
+
+// Helper function to get payment state styling and display text
+function getPaymentStateInfo(transferredStatus) {
+  const statusCode = transferredStatus?.toLowerCase?.() || transferredStatus;
+  
+  switch (statusCode) {
+    case 'transferred':
+      return { className: styles.stateOk, text: 'Transferred' };
+    
+    case 'payment_received':
+    case 'scheduled':
+      return { className: styles.stateOk, text: TRANSFER_STATUS_DEFINITIONS.find(s => s.code === statusCode)?.label || 'Approved' };
+    
+    case 'processing_payout':
+      return { className: styles.stateInfo, text: 'Processing Payout' };
+    
+    case 'pending_payment':
+    case 'on_hold':
+      return { className: styles.stateInfo, text: TRANSFER_STATUS_DEFINITIONS.find(s => s.code === statusCode)?.label || 'Pending' };
+    
+    case 'failed':
+    case 'refunded':
+      return { className: styles.stateReject, text: TRANSFER_STATUS_DEFINITIONS.find(s => s.code === statusCode)?.label || 'Failed' };
+    
+    // Legacy support for boolean/string values
+    case true:
+    case 'true':
+    case 'approved':
+      return { className: styles.stateOk, text: 'Approved' };
+    
+    case 'rejected':
+    case 'reject':
+      return { className: styles.stateReject, text: 'Rejected' };
+    
+    default:
+      return { className: styles.stateInfo, text: 'Pending' };
+  }
+}
+
 function Earnings() {
   const [isLoading, setIsLoading] = useState(false);
   const [summary, setSummary] = useState({
@@ -264,9 +314,14 @@ function Earnings() {
                     <td className={styles.td} data-label="Commission">-{commission(row.amount)}</td>
                     <td className={styles.td} data-label="Net earning">${netAmount(row.amount)}</td>
                     <td className={styles.td} data-label="Payment State">
-                      <span className={row.transfered_to_publisher ? styles.stateOk : styles.stateInfo}>
-                        {row.transfered_to_publisher ? 'Transferred' : 'Processing'}
-                      </span>
+                      {(() => {
+                        const stateInfo = getPaymentStateInfo(row.transfered_to_publisher);
+                        return (
+                          <span className={stateInfo.className}>
+                            {stateInfo.text}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className={styles.td} data-label="Actions">
                       <a className={styles.seller_invoice_url} href={row.seller_invoice_url}>Invoice</a>

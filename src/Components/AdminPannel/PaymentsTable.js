@@ -9,12 +9,89 @@ import Loading from '../CommonJsx/Loaders/Loading'
 import SearchIcon from '@mui/icons-material/Search';
 import { toast } from 'react-toastify'
 
+// Transfer status definitions
+const TRANSFER_STATUS_DEFINITIONS = Object.freeze([
+    { code: 'pending_payment', label: 'Pending Payment', meaning: 'Buyer payment not confirmed' },
+    { code: 'payment_received', label: 'Payment Received', meaning: 'Buyer payment confirmed' },
+    { code: 'on_hold', label: 'On Hold / Under Review', meaning: 'Fraud/KYC verification' },
+    { code: 'scheduled', label: 'Scheduled for Payout', meaning: 'Added to upcoming payout' },
+    { code: 'processing_payout', label: 'Processing Payout', meaning: 'Transfer in progress' },
+    { code: 'transferred', label: 'Transferred', meaning: 'Payout successfully sent' },
+    { code: 'failed', label: 'Failed', meaning: 'Payout failed; retry needed' },
+    { code: 'refunded', label: 'Refunded', meaning: 'Buyer refund / reversal' },
+]);
+
 function statusBadge(status) {
   const base = styles.badge
-  if (status === 'approved') return `${base} ${styles.badgeSuccess}`
-  if (status === 'pending') return `${base} ${styles.badgeWarn}`
-  if (status === 'rejected') return `${base} ${styles.badgeDanger}`
-  return `${base} ${styles.badgeDanger}`
+  const statusCode = status?.toLowerCase?.() || status
+  
+  switch (statusCode) {
+    case 'transferred':
+    case 'payment_received':
+    case 'scheduled':
+    case 'approved':
+    case true:
+    case 'true':
+      return `${base} ${styles.badgeSuccess}`
+    
+    case 'pending_payment':
+    case 'on_hold':
+    case 'processing_payout':
+    case 'pending':
+      return `${base} ${styles.badgeWarn}`
+    
+    case 'failed':
+    case 'refunded':
+    case 'rejected':
+    case 'reject':
+      return `${base} ${styles.badgeDanger}`
+    
+    default:
+      return `${base} ${styles.badgeWarn}`
+  }
+}
+
+// Helper function to get display text for status
+function getStatusDisplayText(status) {
+  const statusCode = status?.toLowerCase?.() || status
+  const statusDef = TRANSFER_STATUS_DEFINITIONS.find(s => s.code === statusCode)
+  
+  if (statusDef) {
+    return statusDef.label
+  }
+  
+  // Legacy status handling
+  if (statusCode === true || statusCode === 'true' || statusCode === 'approved') {
+    return 'Approved'
+  }
+  if (statusCode === 'rejected' || statusCode === 'reject') {
+    return 'Rejected'
+  }
+  if (statusCode === 'pending') {
+    return 'Pending'
+  }
+  
+  return status || 'Pending'
+}
+
+// Helper function to check if actions are allowed for a status
+function canPerformActions(status) {
+  const statusCode = status?.toLowerCase?.() || status
+  
+  // Allow actions for statuses that can be changed
+  const actionableStatuses = [
+    'pending_payment',
+    'payment_received', 
+    'on_hold',
+    'failed',
+    'pending',
+    null,
+    undefined,
+    false,
+    'false'
+  ]
+  
+  return actionableStatuses.includes(statusCode)
 }
 
 function PaymentsTable() {
@@ -167,7 +244,7 @@ function PaymentsTable() {
         {/* Filter buttons */}
         <div className={styles.filterContainer}>
           <div className={styles.filterButtons}>
-            {['all', 'pending', 'approved', 'rejected'].map((filter) => (
+            {['all', 'pending', 'approved', 'rejected', 'transferred', 'failed'].map((filter) => (
               <button
                 key={filter}
                 type="button"
@@ -239,7 +316,7 @@ function PaymentsTable() {
                 payments.map(p => {
                   const id = p._id
                   const isSubmitting = Boolean(submitting[id])
-                  const canAct = p.transfered_to_publisher === 'pending' || !p.transfered_to_publisher
+                  const canAct = canPerformActions(p.transfered_to_publisher)
                   
                   return (
                     <tr key={id} className={styles.row}>
@@ -247,7 +324,7 @@ function PaymentsTable() {
                       <td>{p.razorpay_order_id}</td>
                       <td>${p.amount}</td>
                       <td>{p.razorpay_payment_id}</td>
-                      <td><span className={statusBadge(p.transfered_to_publisher)}>{p.transfered_to_publisher}</span></td>
+                      <td><span className={statusBadge(p.transfered_to_publisher)}>{getStatusDisplayText(p.transfered_to_publisher)}</span></td>
                       <td>{formatDate(p.createdAt)}</td>
                       <td>
                         <div className={styles.actionCell}>
