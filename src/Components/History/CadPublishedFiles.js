@@ -441,6 +441,7 @@ const tagsResponse = await axios.get(
             <PublishCadPopUp
               editedDetails={selectedDesignForEdit}
               onClose={handleCloseEditPopup}
+              rejected={true}
               // type="edit"
               showHeaderClose={true}
            

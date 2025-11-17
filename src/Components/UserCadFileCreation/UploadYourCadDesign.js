@@ -17,7 +17,7 @@ import Kyc from '../KYC/Kyc';
 import Link from 'next/link';
 
 
-function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = false }) {
+function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = false, rejected}) {
     console.log(editedDetails)
     const fileInputRef = useRef(null);
     const uploadAbortControllerRef = useRef(null); // AbortController ref
@@ -410,7 +410,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                 // ✅ Only set selectedOptions if they haven't been set yet
                 if (editedDetails?.cad_tags?.length && selectedOptions.length === 0) {
                     const mappedSelections = editedDetails.cad_tags
-                        .map(id => fetchedOptions.find(opt => opt.label === id))
+                        .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
                         .filter(Boolean);
 
                     setSelectedOptions(mappedSelections);
