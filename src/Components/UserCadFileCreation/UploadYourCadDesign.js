@@ -235,13 +235,10 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
 
             if (response.data.meta.success) {
                 if (localStorage.getItem('is_verified')) {
-                    if(type){
-                        router.push(`/library/${response.data.data.route}`)
-                        router.refresh();
-                    }else{
+                    
                         router.push("/dashboard")
                         router.refresh();
-                    }
+                    
                     
                       setCadDetailsUpdate(response)
                     onClose()
@@ -328,13 +325,9 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
             if (response.data.meta.success) {
                 if (localStorage.getItem('is_verified')) {
 
-                      if(type){
-                        router.push(`/library/${response.data.data.route}`)
-                        
-                        router.refresh();
-                    }else{
+                     
                         router.push("/dashboard")
-                    }
+                    
                     setCadDetailsUpdate(response)
                     onClose()
                 } else {

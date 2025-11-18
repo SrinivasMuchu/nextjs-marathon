@@ -1,4 +1,5 @@
-import React from 'react'
+"use client"
+import React, {useState,useEffect} from 'react'
 import IndustryDesignHeader from './IndustryDesignHeader'
 import IndustryDesignFilesList from './IndustryDesignFilesList'
 import IndustryDesignsSuggestion from './IndustryDesignsSuggestion'
@@ -17,9 +18,31 @@ import IndustryHeaderDetails from './IndustryHeaderDetails'
 import DownloadsRatingAlert from '../CreatorsPage/DownloadsRatingAlert'
 import CadDesignDownload from './CadDesignDownlaod'
 import DesignViewer from './DesignViewer';
+import AdminPannelAuthentication from '../AdminPannel/AdminPannelAuthentication';
 
 function IndustryDesignClone({ design, designData, type }) {
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [showLogin, setShowLogin] = useState(false)
 
+    useEffect(() => {
+      // Check if admin UUID exists in localStorage
+      const adminUuid = localStorage.getItem('admin-uuid')
+      if (adminUuid) {
+        setIsAuthenticated(true)
+      } else {
+        setShowLogin(true)
+      }
+    }, [])
+  
+  
+  
+    if (showLogin) {
+      return <AdminPannelAuthentication setIsAuthenticated={setIsAuthenticated} setShowLogin={setShowLogin} />
+    }
+  
+    if (!isAuthenticated) {
+      return null
+    }
 
   return (
     <>
