@@ -32,14 +32,14 @@ function DesignTable() {
   const [searchInput, setSearchInput] = useState('')
 
   // filter state
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('pending')
 
   useEffect(() => {
     fetchDesignDetails(currentPage, searchTerm, statusFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchTerm, statusFilter]);
 
-  const fetchDesignDetails = async (page = 1, q = '', action = 'all') => {
+  const fetchDesignDetails = async (page = 1, q = '', action = 'pending') => {
     setIsLoading(true);
     try {
       // Prepare params object

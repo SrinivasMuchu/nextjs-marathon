@@ -110,14 +110,14 @@ function PaymentsTable() {
   const [searchInput, setSearchInput] = useState('')
 
   // filter state
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('pending_payment')
 
   useEffect(() => {
     fetchPayments(currentPage, searchTerm, statusFilter)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchTerm, statusFilter]) 
 
-  const fetchPayments = async (page = 1, q = '', status = 'all') => {
+  const fetchPayments = async (page = 1, q = '', status = 'pending_payment') => {
     setLoading(true)
     try {
       // Prepare params object
@@ -241,17 +241,17 @@ function PaymentsTable() {
   return (
     <>
       <div className={styles.searchContainer}>
-        {/* Filter buttons */}
+        {/* Filter buttons */}  
         <div className={styles.filterContainer}>
           <div className={styles.filterButtons}>
-            {['all', 'pending', 'approved', 'rejected', 'transferred', 'failed'].map((filter) => (
+            {['all', 'pending_payment', 'rejected', 'transferred', 'failed'].map((filter) => (
               <button
                 key={filter}
                 type="button"
                 className={`${styles.filterBtn} ${statusFilter === filter ? styles.filterBtnActive : ''}`}
                 onClick={() => handleFilterChange(filter)}
               >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                {filter === 'pending_payment' ? 'Pending Payment' : filter.charAt(0).toUpperCase() + filter.slice(1)}
               </button>
             ))}
           </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import styles from './Earnings.module.css'
-import { BASE_URL } from '@/config';
+import { BASE_URL } from '@/config'; 
 import Pagenation from '../CommonJsx/Pagenation';
 import Loading from '../CommonJsx/Loaders/Loading';
 
@@ -152,6 +152,39 @@ function Earnings() {
     }
   };
 
+  const fetchSummary = async () => {
+    // Don't fetch if there's a date validation error
+    if (dateError) {
+      return;
+    }
+
+    try {
+      const params = new URLSearchParams({
+        start_date: range.from,
+        end_date: range.to
+      });
+
+      const response = await axios.get(`${BASE_URL}/v1/payment/get-seller-earning-summary?${params}`, {
+        headers: { 'user-uuid': localStorage.getItem('uuid') }
+      });
+
+      if (response.data.meta.success && response.data.data) {
+        const data = response.data.data;
+        setSummary({
+          cadSold: data.sold_cad_designs || 0,
+          totalA: data.total_earnings || 0,
+          commissionB: data.commission || 0,
+          commissionPct: 10,
+          net: data.net_earnings || 0,
+          transferred: data.amount_transferred || 0,
+          processing: data.amount_pending_transfer || 0,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching earning summary:', error);
+    }
+  };
+
   const fetchSellerDetails = async (page = 1) => {
     // Don't fetch if there's a date validation error
     if (dateError) {
@@ -173,19 +206,6 @@ function Earnings() {
 
       if (response.data.meta.success && response.data.data) {
         const data = response.data.data;
-        
-        // Update summary
-        if (data.earning_summary) {
-          setSummary({
-            cadSold: data.earning_summary.sold_cad_designs || 0,
-            totalA: data.earning_summary.total_earnings || 0,
-            commissionB: data.earning_summary.commission || 0,
-            commissionPct: 10,
-            net: data.earning_summary.net_earnings || 0,
-            transferred: data.earning_summary.amount_transferred || 0,
-            processing: data.earning_summary.amount_pending_transfer || 0,
-          });
-        }
 
         // Update earning details
         if (data.earning_details && Array.isArray(data.earning_details)) {
@@ -211,9 +231,10 @@ function Earnings() {
     fetchSellerDetails(currentPage);
   }, [currentPage]);
 
-  // Fetch data when date range changes (reset to page 1)
+  // Fetch data when date range changes (reset to page 1 and fetch summary)
   useEffect(() => {
     if (!dateError) {
+      fetchSummary(); // Fetch summary data
       if (currentPage === 1) {
         fetchSellerDetails(1);
       } else {
@@ -221,6 +242,11 @@ function Earnings() {
       }
     }
   }, [range.from, range.to, dateError]);
+
+  // Initial load - fetch summary data
+  useEffect(() => {
+    fetchSummary();
+  }, []);
 
   const statItems = [
     { label: 'CAD DESIGNS SOLD', value: summary.cadSold },

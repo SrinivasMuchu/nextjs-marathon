@@ -51,8 +51,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     const [price, setPrice] = useState(editedDetails?.price || "");
     const [showKyc, setShowKyc] = useState(false);
     const [isKycVerified, setIsKycVerified] = useState(false);
-    // add terms checkbox state - default to true if editing
-    const [termsAccepted, setTermsAccepted] = useState(!!editedDetails);
+    // add terms checkbox state - default to true
+    const [termsAccepted, setTermsAccepted] = useState(true);
 
     useEffect(() => {
 
