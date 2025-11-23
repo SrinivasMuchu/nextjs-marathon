@@ -82,7 +82,7 @@ const tagsResponse = await axios.get(
 
   // Handle click on rejected design to open edit popup
   const handleRejectedDesignClick = (e, file) => {
-    if (file.status?.toLowerCase() === 'rejected' && file.rejected_message) {
+    if (file.status?.toLowerCase() === 'rejected' && file.rejected_message_id) {
       e.preventDefault(); // Prevent navigation
       setSelectedDesignForEdit(file);
       setEditDesignPopup(true);
@@ -339,17 +339,17 @@ const tagsResponse = await axios.get(
                   borderRadius:'8px',
                   boxSizing:'border-box',
                   width:'330px',
-                  cursor:  file.rejected_message ? 'pointer' : 'default'
+                  cursor:  file.rejected_message_id ? 'pointer' : 'default'
                 }}
                 onClick={(e) => handleRejectedDesignClick(e, file)}
-                title={ file.rejected_message ? 
-                  `Rejected: ${file.rejected_message}. Click to edit.` : ''
+                title={ file.rejected_message_id ? 
+                  `Rejected: ${file.rejected_message_id}. Click to edit.` : ''
                 }
               >
               <Link  href={`/library/${file.route}`}
               style={{boxShadow:'none',background:'white',border:'none',height:'auto'}}
                className={libraryStyles["library-designs-items-container"]}
-                onClick={e => (!file.is_live || (file.status?.toLowerCase() === 'rejected' && file.rejected_message)) && e.preventDefault()}
+                onClick={e => (!file.is_live || (file.status?.toLowerCase() === 'rejected' && file.rejected_message_id)) && e.preventDefault()}
               >
                  {/* <div className={libraryStyles["library-designs-items-container-cost"]}>
                   {file.price ? <span>{file.price} </span> : 'Free'}</div> */}
@@ -368,7 +368,7 @@ const tagsResponse = await axios.get(
                  </div>
                   <div style={{ position: 'absolute', top: '10px', right: '10px' }}>  
                   
-                   { file.rejected_message && (
+                   { file.rejected_message_id && (
                      <div style={{
                       //  marginTop: '4px',
                        padding: '4px 8px',
