@@ -112,6 +112,12 @@ function PaymentsTable() {
   // filter state
   const [statusFilter, setStatusFilter] = useState('pending_payment')
 
+  // popup state
+  const [showApprovePopup, setShowApprovePopup] = useState(false)
+  const [selectedTransactionId, setSelectedTransactionId] = useState('')
+  const [payoutId, setPayoutId] = useState('')
+  const [payoutIdError, setPayoutIdError] = useState('')
+
   useEffect(() => {
     fetchPayments(currentPage, searchTerm, statusFilter)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -175,40 +181,56 @@ function PaymentsTable() {
     setCurrentPage(1) // Reset to first page when filtering
   }
 
-  const handleApprove = async (id) => {
+  const handleApproveClick = (transactionId) => {
+    setSelectedTransactionId(transactionId)
+    setShowApprovePopup(true)
+    setPayoutId('')
+    setPayoutIdError('')
+  }
+
+  const handleCloseApprovePopup = () => {
+    setShowApprovePopup(false)
+    setSelectedTransactionId('')
+    setPayoutId('')
+    setPayoutIdError('')
+  }
+
+  const handleApproveWithPayoutId = async () => {
+    // Validate payout ID
+    if (!payoutId.trim()) {
+      setPayoutIdError('Payout ID is required')
+      return
+    }
+
     try {
-      setSubmitting(prev => ({ ...prev, [id]: 'approve' }))
-      // TODO: call approve endpoint
-      // await axios.post(`${BASE_URL}/v1/admin-pannel/approve-transaction`, { id }, { headers: { 'admin-uuid': localStorage.getItem('admin-uuid') } })
-      // optimistic update
-      setPayments(prev => prev.map(p => p._id === id ? { ...p, transfered_to_publisher: true } : p))
-    } catch (e) {
-      console.error('Approve failed:', e)
+      setSubmitting(prev => ({ ...prev, [selectedTransactionId]: 'approve' }))
+      
+      const response = await axios.post(`${BASE_URL}/v1/admin-pannel/approve-transaction`, {
+        action: 'approve',
+        status_code: 'transferred',
+        transactionId: selectedTransactionId,
+        payoutId: payoutId.trim()
+      }, { headers: { 'admin-uuid': localStorage.getItem('admin-uuid') } });
+      
+      if(response.data.meta.success){
+        toast.success(response.data.meta.message)
+        fetchPayments(currentPage, searchTerm, statusFilter)
+        handleCloseApprovePopup()
+      } else {
+        toast.error(response.data.meta.message)
+      }
+     
+    } catch (error) {
+      console.log('Error handling approve action:', error);
+      toast.error('Failed to approve transaction')
     } finally {
       setSubmitting(prev => {
         const next = { ...prev }
-        delete next[id]
+        delete next[selectedTransactionId]
         return next
       })
     }
   }
-
-  const handleReject = async (id) => {
-    try {
-      setSubmitting(prev => ({ ...prev, [id]: 'reject' }))
-      // TODO: call reject endpoint
-      // await axios.post(`${BASE_URL}/v1/admin-pannel/reject-transaction`, { id }, { headers: { 'admin-uuid': localStorage.getItem('admin-uuid') } })
-    } catch (e) {
-      console.error('Reject failed:', e)
-    } finally {
-      setSubmitting(prev => {
-        const next = { ...prev }
-        delete next[id]
-        return next
-      })
-    }
-  }
-
 
   const handleActions = async(action, id) => {
       try {
@@ -240,6 +262,58 @@ function PaymentsTable() {
 
   return (
     <>
+      {/* Approve with Payout ID Popup */}
+      {showApprovePopup && (
+        <div className={styles.loginOverlay}>
+          <div className={styles.loginPopup}>
+            <h2>Approve Transaction</h2>
+            <form onSubmit={(e) => { e.preventDefault(); handleApproveWithPayoutId(); }}>
+              <div className={styles.formGroup}>
+                <label htmlFor="payoutId">Payout ID</label>
+                <input
+                  type="text"
+                  id="payoutId"
+                  value={payoutId}
+                  onChange={(e) => {
+                    setPayoutId(e.target.value)
+                    setPayoutIdError('')
+                  }}
+                  placeholder="Enter payout ID"
+                  required
+                />
+                {payoutIdError && (
+                  <div style={{ color: '#ef4444', fontSize: '14px', marginTop: '4px' }}>
+                    {payoutIdError}
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                <button 
+                  type="submit" 
+                  className={styles.submitBtn}
+                  disabled={submitting[selectedTransactionId] === 'approve'}
+                  style={{ flex: 1 }}
+                >
+                  {submitting[selectedTransactionId] === 'approve' ? 'Approving...' : 'Approve'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={handleCloseApprovePopup}
+                  className={styles.submitBtn}
+                  style={{
+                    flex: 1,
+                    background: '#6b7280',
+                    border: 'none'
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className={styles.searchContainer}>
         {/* Filter buttons */}  
         <div className={styles.filterContainer}>
@@ -331,7 +405,7 @@ function PaymentsTable() {
                           <button
                             type="button"
                             className={`${styles.actionBtn} ${styles.actionApprove}`}
-                            onClick={() => handleActions('approve', p._id)}
+                            onClick={() => handleApproveClick(p._id)}
                             disabled={isSubmitting || !canAct}
                           >
                             {submitting[id] === 'approve' ? 'Approving…' : 'Approve'}

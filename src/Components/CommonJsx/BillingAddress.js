@@ -9,7 +9,7 @@ import { GoPencil } from "react-icons/go";
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
-function BillingAddress({  onClose, onSave, cadId }) {
+function BillingAddress({  onClose, onSave, cadId, designDetails }) {
   const [formData, setFormData] = useState({
     fullName: '',
     company: '',
@@ -29,6 +29,57 @@ function BillingAddress({  onClose, onSave, cadId }) {
   const [addresses, setAddresses] = useState([])
   const [editAddressId, setEditAddressId] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
+  const [errors, setErrors] = useState({})
+  const [showBillingSummary, setShowBillingSummary] = useState(false)
+  const [pricingDetails, setPricingDetails] = useState(null)
+  const [savedBillingData, setSavedBillingData] = useState(null)
+
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {}
+
+    // Full Name validation (mandatory, should contain at least one space for first and last name)
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required'
+    } else if (!formData.fullName.trim().includes(' ')) {
+      newErrors.fullName = 'Please enter both first and last name'
+    }
+
+    // Phone Number validation (mandatory)
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required'
+    } else if (!/^\+?[\d\s\-\(\)]{10,}$/.test(formData.phone.trim())) {
+      newErrors.phone = 'Please enter a valid phone number'
+    }
+
+    // Address Line 1 validation (mandatory)
+    if (!formData.address1.trim()) {
+      newErrors.address1 = 'Address line 1 is required'
+    }
+
+    // City validation (mandatory)
+    if (!formData.city.trim()) {
+      newErrors.city = 'City is required'
+    }
+
+    // Postal Code validation (mandatory)
+    if (!formData.postalCode.trim()) {
+      newErrors.postalCode = 'Postal code is required'
+    }
+
+    // Country validation (mandatory)
+    if (!formData.country || !formData.country.value) {
+      newErrors.country = 'Country is required'
+    }
+
+    // State validation (mandatory)
+    if (!formData.state.trim()) {
+      newErrors.state = 'State/Province is required'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   // Helper: reset form for "add new address"
   const resetForm = () => {
@@ -46,6 +97,7 @@ function BillingAddress({  onClose, onSave, cadId }) {
       gstNumber: '',
       currency: ''
     })
+    setErrors({})
   }
 
   // Map saved address to form fields
@@ -66,12 +118,17 @@ function BillingAddress({  onClose, onSave, cadId }) {
       gstNumber: addr.gstNumber || "",
       currency: addr.currency || ""
     });
+    setErrors({})
   }
+
+  // Fetch pricing details for billing summary
+ 
 
   // Fetch countries on component mount
   useEffect(() => {
     fetchCountries()
   }, [])
+  
   const fetchAddresses = async () => {
     setLoading(true)
     try {
@@ -150,7 +207,26 @@ function BillingAddress({  onClose, onSave, cadId }) {
       console.error('Error fetching currency for country:', error)
       
       // Fallback currency mapping with symbols
+      const fallbackCurrencies = {
+        'US': { code: 'USD', symbol: '$', name: 'US Dollar' },
+        'IN': { code: 'USD', symbol: '$', name: 'US Dollar' }, // Changed from INR to USD
+        'GB': { code: 'USD', symbol: '$', name: 'US Dollar' },
+        'CA': { code: 'USD', symbol: '$', name: 'US Dollar' },
+        'AU': { code: 'USD', symbol: '$', name: 'US Dollar' }
+      }
       
+      const fallbackCurrency = fallbackCurrencies[countryCode]
+      if (fallbackCurrency) {
+        setFormData(prev => ({
+          ...prev,
+          currency: {
+            value: fallbackCurrency.code,
+            label: `${fallbackCurrency.code} - (${fallbackCurrency.symbol})`,
+            symbol: fallbackCurrency.symbol,
+            name: fallbackCurrency.name
+          }
+        }))
+      }
     }
   }
 
@@ -160,6 +236,14 @@ function BillingAddress({  onClose, onSave, cadId }) {
       ...prev,
       [name]: value
     }))
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }))
+    }
   }
 
   const handleSelectChange = (selectedOption, { name }) => {
@@ -167,10 +251,24 @@ function BillingAddress({  onClose, onSave, cadId }) {
       ...prev,
       [name]: selectedOption
     }))
+    
+    // Clear error when user makes selection
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }))
+    }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      return
+    }
+    
     setLoading(true)
     const payload = {
       name: formData.fullName,
@@ -191,14 +289,32 @@ function BillingAddress({  onClose, onSave, cadId }) {
         { headers: { 'user-uuid': localStorage.getItem('uuid') } }
       )
       if (response?.data?.meta?.success) {
-        onSave && onSave(cadId,response.data.data._id,formData.currency?.value) // Pass billing ID back to parent
-        onClose && onClose()
+        // Save billing data for summary
+        setSavedBillingData({
+          billingId: response.data.data._id,
+          currency: formData.currency?.value,
+          cadId: cadId
+        })
+        
+        // Fetch pricing details
+        // await fetchPricingDetails(response.data.data._id, formData.currency?.value)
+        
+        // Show billing summary instead of directly calling onSave
+        setShowBillingSummary(true)
       }
     } catch (error) {
       console.error('Error creating billing address:', error)
       alert(error?.response?.data?.message || 'Failed to save billing address. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Handle proceed to payment from billing summary
+  const handleProceedToPayment = () => {
+    if (savedBillingData && onSave) {
+      onSave(savedBillingData.cadId, savedBillingData.billingId, savedBillingData.currency)
+      onClose && onClose()
     }
   }
 
@@ -222,13 +338,13 @@ function BillingAddress({  onClose, onSave, cadId }) {
   }
 
   const customSelectStyles = {
-    control: (provided) => ({
+    control: (provided, state) => ({
       ...provided,
       minHeight: '40px',
-      border: '1px solid #ddd',
+      border: `1px solid ${errors.country ? '#dc3545' : '#ddd'}`,
       borderRadius: '5px',
       '&:hover': {
-        border: '1px solid #007bff'
+        border: `1px solid ${errors.country ? '#dc3545' : '#007bff'}`
       }
     }),
     option: (provided, state) => ({
@@ -239,7 +355,122 @@ function BillingAddress({  onClose, onSave, cadId }) {
     })
   }
 
+  // Error message component
+  const ErrorMessage = ({ error }) => {
+    return error ? <span style={{ color: '#dc3545', fontSize: '14px', marginTop: '4px', display: 'block' }}>{error}</span> : null
+  }
+
+  // Format currency display
+  const formatCurrency = (amount) => {
+    
+    return `$ ${parseFloat(amount).toFixed(2)}`
+  }
+
+  // Calculate pricing breakdown
+  const calculatePricing = () => {
+    const basePrice = pricingDetails?.basePrice || pricingDetails?.amount || designDetails?.price || 100
+    const gstRate = 18 // 18% GST
+    const gstAmount = (basePrice * gstRate) / 100
+    const totalAmount = basePrice + gstAmount
+    
+    return {
+      basePrice,
+      gstRate,
+      gstAmount,
+      totalAmount,
+      currency: formData.currency?.value || 'INR'
+    }
+  }
+
+  // Billing Summary Modal Component
+  const BillingSummaryModal = () => {
+    const pricing = calculatePricing()
+    
+    return (
+      <PopupWrapper onClose={() => setShowBillingSummary(false)}>
+        <div className={styles["billing-address-container"]}
+        style={{padding:'24px'}}>
+          <div className={styles["billing-header"]}>
+            <h2>Billing Summary</h2>
+            <button 
+              className={styles["close-btn"]} 
+              style={{width:'50px'}} 
+              onClick={() => setShowBillingSummary(false)}
+            >
+              ×
+            </button>
+          </div>
+
+          <div style={{ padding: '20px 0' }}>
+            {/* Design Details */}
+            <div style={{ marginBottom: '20px', padding: '15px', borderRadius: '8px' }}>
+              <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>
+                {designDetails?.title || designDetails?.name || 'CAD Design File'}
+              </h3>
+              <p style={{ margin: '0', color: '#666', fontSize: '14px' }}>
+                {designDetails?.description || 'Professional CAD design file download'}
+              </p>
+            </div>
+
+            {/* Pricing Breakdown */}
+            <div style={{ marginBottom: '20px' }}>
+              <h4 style={{ margin: '0 0 15px 0', color: '#333' }}>Price Breakdown</h4>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span>Base Price:</span>
+                <span>{formatCurrency(pricing.basePrice)}</span>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span>GST ({pricing.gstRate}%):</span>
+                <span>{formatCurrency(pricing.gstAmount)}</span>
+              </div>
+              
+              <hr style={{ margin: '15px 0', border: '1px solid #ddd' }} />
+              
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                fontWeight: 'bold', 
+                fontSize: '16px',
+                color: '#333'
+              }}>
+                <span>Total Amount:</span>
+                <span>{formatCurrency(pricing.totalAmount)}</span>
+              </div>
+            </div>
+
+            {/* Billing Address Summary */}
+           
+          </div>
+
+          <div className={styles["form-actions"]}>
+            <button 
+              type="button" 
+              onClick={() => setShowBillingSummary(false)} 
+              className={styles["cancel-btn"]}
+            >
+              Back
+            </button>
+            <button 
+              onClick={handleProceedToPayment} 
+              className={styles["save-btn"]}
+              style={{ backgroundColor: '#28a745', borderColor: '#28a745' }}
+            >
+              Proceed for Payment
+            </button>
+          </div>
+        </div>
+      </PopupWrapper>
+    )
+  }
+
   // if (!isOpen) return null
+
+  // Show billing summary if flag is set
+  if (showBillingSummary) {
+    return <BillingSummaryModal />
+  }
 
   return (
     <PopupWrapper onClose={onClose}>
@@ -249,7 +480,7 @@ function BillingAddress({  onClose, onSave, cadId }) {
           <button className={styles["close-btn"]} style={{width:'50px'}} onClick={onClose}>×</button>
         </div>
 
-        <form className={styles["billing-form"]}>
+        <form className={styles["billing-form"]} onSubmit={handleSubmit}>
           {addresses?.length > 0 && (
             <div className={styles.addressRow}>
               {addresses.map(addr => (
@@ -298,22 +529,14 @@ function BillingAddress({  onClose, onSave, cadId }) {
                 value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="Enter your full name"
+                style={{
+                  border: errors.fullName ? '1px solid #dc3545' : '1px solid #ddd'
+                }}
                 required
               />
+              <ErrorMessage error={errors.fullName} />
             </div>
           </div>
-
-          {/* <div className={styles["form-group"]}>
-            <label htmlFor="company">Company (Optional)</label>
-            <input
-              type="text"
-              id="company"
-              name="company"
-              value={formData.company}
-              onChange={handleInputChange}
-              placeholder="Enter company name"
-            />
-          </div> */}
 
           <div className={styles["form-group"]}>
             <label htmlFor="address1">Address Line 1 *</label>
@@ -324,8 +547,12 @@ function BillingAddress({  onClose, onSave, cadId }) {
               value={formData.address1}
               onChange={handleInputChange}
               placeholder="Enter street address"
+              style={{
+                border: errors.address1 ? '1px solid #dc3545' : '1px solid #ddd'
+              }}
               required
             />
+            <ErrorMessage error={errors.address1} />
           </div>
 
           <div className={styles["form-group"]}>
@@ -350,11 +577,15 @@ function BillingAddress({  onClose, onSave, cadId }) {
                 value={formData.city}
                 onChange={handleInputChange}
                 placeholder="Enter city"
+                style={{
+                  border: errors.city ? '1px solid #dc3545' : '1px solid #ddd'
+                }}
                 required
               />
+              <ErrorMessage error={errors.city} />
             </div>
             <div className={styles["form-group"]}>
-              <label htmlFor="postalCode">Postal Code</label>
+              <label htmlFor="postalCode">Postal Code *</label>
               <input
                 type="text"
                 id="postalCode"
@@ -362,7 +593,12 @@ function BillingAddress({  onClose, onSave, cadId }) {
                 value={formData.postalCode}
                 onChange={handleInputChange}
                 placeholder="Enter postal code"
+                style={{
+                  border: errors.postalCode ? '1px solid #dc3545' : '1px solid #ddd'
+                }}
+                required
               />
+              <ErrorMessage error={errors.postalCode} />
             </div>
           </div>
 
@@ -379,9 +615,10 @@ function BillingAddress({  onClose, onSave, cadId }) {
                 isSearchable
                 required
               />
+              <ErrorMessage error={errors.country} />
             </div>
             <div className={styles["form-group"]}>
-              <label htmlFor="state">State/Province</label>
+              <label htmlFor="state">State/Province *</label>
               <input
                 type="text"
                 id="state"
@@ -389,13 +626,18 @@ function BillingAddress({  onClose, onSave, cadId }) {
                 value={formData.state}
                 onChange={handleInputChange}
                 placeholder="Enter state/province"
+                style={{
+                  border: errors.state ? '1px solid #dc3545' : '1px solid #ddd'
+                }}
+                required
               />
+              <ErrorMessage error={errors.state} />
             </div>
           </div>
 
           <div className={styles["form-row"]}>
             <div className={styles["form-group"]}>
-              <label htmlFor="phone">Phone Number</label>
+              <label htmlFor="phone">Phone Number *</label>
               <input
                 type="tel"
                 id="phone"
@@ -403,60 +645,17 @@ function BillingAddress({  onClose, onSave, cadId }) {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="Enter phone number"
+                style={{
+                  border: errors.phone ? '1px solid #dc3545' : '1px solid #ddd'
+                }}
+                required
               />
+              <ErrorMessage error={errors.phone} />
             </div>
-            {/* <div className={styles["form-group"]}>
-              <label htmlFor="currency">Currency </label>
-              <Select
-                name="currency"
-                value={formData.currency}
-                onChange={handleSelectChange}
-                options={[formData.currency].filter(Boolean)}
-                styles={customSelectStyles}
-                placeholder="Currency"
-                isSearchable
-                isDisabled={true}
-                formatOptionLabel={(option) => (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>{option.label}</span>
-                    <span style={{ fontWeight: 'bold', marginLeft: '10px' }}>{option.symbol}</span>
-                  </div>
-                )}
-              />
-            </div> */}
           </div>
 
-           <div className={styles["form-row"]}>
-          {/*  <div className={styles["form-group"]}>
-              <label htmlFor="gstNumber">GST Number</label>
-              <input
-                type="text"
-                id="gstNumber"
-                name="gstNumber"
-                value={formData.gstNumber}
-                onChange={handleInputChange}
-                placeholder="Enter GST number"
-              />
-            </div>*/}
-            {/* <div className={styles["form-group"]}>
-              <label htmlFor="currency">Currency </label>
-              <Select
-                name="currency"
-                value={formData.currency}
-                onChange={handleSelectChange}
-                options={[formData.currency].filter(Boolean)}
-                styles={customSelectStyles}
-                placeholder="Currency"
-                isSearchable
-                isDisabled={true}
-                formatOptionLabel={(option) => (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>{option.label}</span>
-                    <span style={{ fontWeight: 'bold', marginLeft: '10px' }}>{option.symbol}</span>
-                  </div>
-                )}
-              />
-            </div> */}
+          <div className={styles["form-row"]}>
+            {/* Optional GST Number field remains commented */}
           </div> 
         </form>
 

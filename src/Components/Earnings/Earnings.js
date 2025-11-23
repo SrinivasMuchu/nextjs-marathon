@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import styles from './Earnings.module.css'
 import { BASE_URL } from '@/config'; 
@@ -104,6 +104,10 @@ function Earnings() {
     has_prev_page: false
   });
 
+  // refs for date inputs
+  const startDateRef = useRef(null);
+  const endDateRef = useRef(null);
+
   // date range state (HTML date format: YYYY-MM-DD)
   const [range, setRange] = useState(() => {
     const now = new Date();
@@ -137,11 +141,32 @@ function Earnings() {
     return true;
   };
 
-  // Handle start date change
+  // Handle start date change with auto-open end date
   const handleStartDateChange = (e) => {
     const newStartDate = e.target.value;
-    setRange(r => ({ ...r, from: newStartDate }));
+    setRange(r => {
+      // Clear end date if it's before the new start date
+      const newEndDate = r.to && new Date(r.to) < new Date(newStartDate) ? '' : r.to;
+      return { ...r, from: newStartDate, to: newEndDate };
+    });
+    
     validateDates(newStartDate, range.to);
+    
+    // Automatically focus and open end date picker
+    setTimeout(() => {
+      if (endDateRef.current) {
+        endDateRef.current.focus();
+        // Try to open the date picker (modern browsers support showPicker())
+        if (endDateRef.current.showPicker) {
+          try {
+            endDateRef.current.showPicker();
+          } catch (e) {
+            // showPicker() might fail in some browsers or contexts
+            console.log('showPicker not supported or failed');
+          }
+        }
+      }
+    }, 100);
   };
 
   // Handle end date change
@@ -266,6 +291,7 @@ function Earnings() {
         <div className={styles.dateRange} role="group" aria-label="Date range">
           <span className={styles.calIcon} aria-hidden>📅</span>
           <input
+            ref={startDateRef}
             type="date"
             className={styles.dateInput}
             value={range.from}
@@ -274,6 +300,7 @@ function Earnings() {
           />
           <span className={styles.dateSep}>–</span>
           <input
+            ref={endDateRef}
             type="date"
             className={styles.dateInput}
             value={range.to}

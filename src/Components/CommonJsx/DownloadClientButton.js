@@ -23,7 +23,7 @@ function loadRazorpayScript() {
 }
 
 function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, 
-  step, filetype, custumDownload, designPrice }) {
+  step, filetype, custumDownload,designDetails }) {
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
   const [openBillingDetails, setOpenBillingDetails] = useState(false);
@@ -316,8 +316,9 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           )}
         </>
       )}
-      {openBillingDetails && <BillingAddress onClose={() => setOpenBillingDetails(false)} 
-      onSave={handleDownload} cadId={folderId}/>}
+      {openBillingDetails && <BillingAddress 
+      onClose={() => setOpenBillingDetails(false)} 
+      onSave={handleDownload} cadId={folderId} designDetails={designDetails}/>}
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
     </>
   );

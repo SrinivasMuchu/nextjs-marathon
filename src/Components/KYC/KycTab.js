@@ -5,6 +5,7 @@ import axios from 'axios';
 import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
 import Loading from '../CommonJsx/Loaders/Loading';
+import Kyc from './Kyc';
 
 function KycTab() {
    const [formData, setFormData] = useState({
@@ -13,13 +14,15 @@ function KycTab() {
     account_number: '',
     contact: '',
     aadhar: '',
-    pan: ''
+    pan: '',
+    gst_number: '' // Added GST number field
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasExistingData, setHasExistingData] = useState(false);
+  const [showKycForm, setShowKycForm] = useState(false);
 
   useEffect(() => {
     fetchSellerDetails();
@@ -39,8 +42,9 @@ function KycTab() {
           ifsc: data.account_details.ifsc || '',
           account_number: data.account_details.account_number || '',
           contact: data.user_data.phone_number || '',
-        //   aadhar: data.user_data.aadhaar || '',
-        //   pan: data.user_data.pan || ''
+          aadhar: data.user_data.aadhaar || '',
+          pan: data.user_data.pan || '',
+          gst_number:  data.user_data.gst || '' // Get GST from API response
         });
         setHasExistingData(true);
       }
@@ -53,97 +57,19 @@ function KycTab() {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+  const handleOpenKycForm = () => {
+    setShowKycForm(true);
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Name validation
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
-    }
-
-    // IFSC validation
-    const ifscPattern = /^[A-Z]{4}0[A-Z0-9]{6}$/;
-    if (!formData.ifsc.trim()) {
-      newErrors.ifsc = 'IFSC code is required';
-    } else if (!ifscPattern.test(formData.ifsc.trim())) {
-      newErrors.ifsc = 'Invalid IFSC code format';
-    }
-
-    // Account number validation
-    if (!formData.account_number.trim()) {
-      newErrors.account_number = 'Account number is required';
-    } else if (!/^\d{9,18}$/.test(formData.account_number.trim())) {
-      newErrors.account_number = 'Account number must be 9-18 digits';
-    }
-
-    // Contact validation
-    if (!formData.contact.trim()) {
-      newErrors.contact = 'Contact number is required';
-    } else if (!/^[6-9]\d{9}$/.test(formData.contact.trim())) {
-      newErrors.contact = 'Invalid mobile number';
-    }
-
-    // Aadhar validation
-  
-
-    // PAN validation
-   
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleCloseKycForm = () => {
+    setShowKycForm(false);
+    // Refresh data after KYC submission
+    fetchSellerDetails();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    
-    try {
-      const response = await axios.post(`${BASE_URL}/v1/payment/verify-seller`, {
-        name: formData.name.trim(),
-        contact: formData.contact.trim(),
-        ifsc: formData.ifsc.trim().toUpperCase(),
-        account_number: formData.account_number.trim(),
-        // aadhaar: formData.aadhar.trim(),
-        // pan: formData.pan.trim().toUpperCase()
-      }, {
-        headers: { 'user-uuid': localStorage.getItem('uuid') }
-      });
-
-      if (response.data.meta.success) {
-        toast.success(response.data.meta.message || 'KYC submitted successfully!');
-        setHasExistingData(true);
-      } else {
-        toast.error(response.data.meta.message || 'Failed to submit KYC. Please try again.');
-      }
-    } catch (error) {
-      console.error('KYC submission error:', error);
-      toast.error(error.response?.data?.meta?.message || 'Failed to submit KYC. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const setUser = (userUpdateFn) => {
+    // Handle user update if needed
+    console.log('User updated:', userUpdateFn);
   };
 
   if (isLoading) {
@@ -152,99 +78,139 @@ function KycTab() {
     );
   }
 
+  // Show button if no existing data
+  if (!hasExistingData) {
+    return (
+      <div className={styles.kycContainer}>
+        <div className={styles.kycForm}>
+          <h2 className={styles.title}>KYC Details</h2>
+          <div className={styles.noDataContainer}>
+            <p className={styles.noDataText}>
+              Complete your KYC verification to start selling CAD files on Marathon.
+            </p>
+            <button 
+              onClick={handleOpenKycForm}
+              className={styles.createKycBtn}
+            >
+              Complete KYC Verification
+            </button>
+          </div>
+        </div>
+        
+        {showKycForm && (
+          <Kyc 
+            onClose={handleCloseKycForm}
+            setUser={setUser}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Show non-editable form when data exists
   return (
     <div className={styles.kycContainer}>
       <div className={styles.kycForm}>
-        <h2 className={styles.title}>
-         KYC Details
-        </h2>
-        {/* {hasExistingData && (
-          <div className={styles.infoMessage}>
-            Your KYC details have been submitted and are under verification.
-          </div>
-        )} */}
-        <form onSubmit={handleSubmit}>
-          
+        <h2 className={styles.title}>KYC Details</h2>
+        {/* <div className={styles.infoMessage}>
+          Your KYC details have been submitted and are verified.
+        </div> */}
+        
+        <form>
           {/* Name */}
           <div className={styles.inputGroup}>
-            <label htmlFor="name" className={styles.label}>Holder Name *</label>
+            <label htmlFor="name" className={styles.label}>Holder Name</label>
             <input
               type="text"
               id="name"
               name="name"
               value={formData.name}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
-              placeholder="Enter your full name"
-              disabled={hasExistingData}
+              className={`${styles.input} ${styles.readonlyInput}`}
+              readOnly
             />
-            {errors.name && <span className={styles.errorText}>{errors.name}</span>}
           </div>
 
           {/* IFSC Code */}
           <div className={styles.inputGroup}>
-            <label htmlFor="ifsc" className={styles.label}>IFSC Code *</label>
+            <label htmlFor="ifsc" className={styles.label}>IFSC Code</label>
             <input
               type="text"
               id="ifsc"
               name="ifsc"
               value={formData.ifsc}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.ifsc ? styles.inputError : ''}`}
-              placeholder="e.g., KKBK0007529"
-              maxLength={11}
-              style={{ textTransform: 'uppercase' }}
-              disabled={hasExistingData}
+              className={`${styles.input} ${styles.readonlyInput}`}
+              readOnly
             />
-            {errors.ifsc && <span className={styles.errorText}>{errors.ifsc}</span>}
           </div>
 
           {/* Account Number */}
           <div className={styles.inputGroup}>
-            <label htmlFor="account_number" className={styles.label}>Account Number *</label>
+            <label htmlFor="account_number" className={styles.label}>Account Number</label>
             <input
               type="text"
               id="account_number"
               name="account_number"
               value={formData.account_number}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.account_number ? styles.inputError : ''}`}
-              placeholder="Enter account number"
-              maxLength={18}
-              disabled={hasExistingData}
+              className={`${styles.input} ${styles.readonlyInput}`}
+              readOnly
             />
-            {errors.account_number && <span className={styles.errorText}>{errors.account_number}</span>}
           </div>
 
           {/* Contact */}
           <div className={styles.inputGroup}>
-            <label htmlFor="contact" className={styles.label}>Mobile Number *</label>
+            <label htmlFor="contact" className={styles.label}>Mobile Number</label>
             <input
               type="tel"
               id="contact"
               name="contact"
               value={formData.contact}
-              onChange={handleInputChange}
-              className={`${styles.input} ${errors.contact ? styles.inputError : ''}`}
-              placeholder="e.g., 9390333636"
-              maxLength={10}
-              disabled={hasExistingData}
+              className={`${styles.input} ${styles.readonlyInput}`}
+              readOnly
             />
-            {errors.contact && <span className={styles.errorText}>{errors.contact}</span>}
           </div>
 
-          {/* Aadhar */}
-          
+          {/* GST Number - Show if exists */}
+          {formData.gst_number && (
+            <div className={styles.inputGroup}>
+              <label htmlFor="gst_number" className={styles.label}>GST Number</label>
+              <input
+                type="text"
+                id="gst_number"
+                name="gst_number"
+                value={formData.gst_number}
+                className={`${styles.input} ${styles.readonlyInput}`}
+                readOnly
+              />
+            </div>
+          )}
 
-          {/* Submit Button */}
-          {!hasExistingData && (
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit KYC'}
-            </button>
+          {/* Show Aadhar and PAN if they exist */}
+          {formData.aadhar && (
+            <div className={styles.inputGroup}>
+              <label htmlFor="aadhar" className={styles.label}>Aadhar Number</label>
+              <input
+                type="text"
+                id="aadhar"
+                name="aadhar"
+                value={formData.aadhar}
+                className={`${styles.input} ${styles.readonlyInput}`}
+                readOnly
+              />
+            </div>
+          )}
+
+          {formData.pan && (
+            <div className={styles.inputGroup}>
+              <label htmlFor="pan" className={styles.label}>PAN Number</label>
+              <input
+                type="text"
+                id="pan"
+                name="pan"
+                value={formData.pan}
+                className={`${styles.input} ${styles.readonlyInput}`}
+                readOnly
+              />
+            </div>
           )}
         </form>
       </div>

@@ -65,6 +65,7 @@ function IndustryDesignClone({ design, designData, type }) {
             </div>
             <div  className={styles['industry-design-header-container-right']} >
               <IndustryHeaderDetails designData={designData}/>
+             {(designData.response.rejected_message && !designData.response.is_live) && <span style={{color:'red'}}>{designData.response.rejected_message}</span>}
               <AdminApprovalButtons design_id={designData.response._id}/>
               <IndustryDesignHeader design={design} type={type} designData={designData.response} />
               <CadDesignDownload designId={designData.response._id} designTitle={designData.response.page_title}/>

@@ -468,6 +468,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                 {/* Header row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Upload CAD file</h2>
+                    
                     {/* Hide our internal close to avoid double X in the modal header */}
                     {showHeaderClose && onClose && (
                         <button onClick={onClose} style={{ background: 'transparent', border: 0, cursor: 'pointer' }}>
@@ -475,7 +476,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                         </button>
                     )}
                 </div>
-
+                    {rejected && <span style={{color:'red',marginBottom:'10px'}}>Rejected due to: {editedDetails.rejected_message}</span>}
                 {/* FULL-WIDTH Dropzone (top center) */}
                 {!editedDetails && (
                     <div style={{ marginBottom: 16 }}>
@@ -606,9 +607,11 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                        
 
                         {/* Price with rupee icon on the right */}
-                        <div style={{ position: 'relative', marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Price</label>
-                            <input
+                        <div style={{ marginBottom: 16,display:'flex',flexDirection:'column',gap:'12px' }}>
+                            
+                            <div style={{position:'relative'}}>
+                                <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Price</label>
+                                <input
                                 type="number"
                                 min={0}
                                 max={500}
@@ -626,9 +629,20 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                             />
                             <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
                                 $
-                            </span>
+                            </span></div>
+                            
                             {formErrors.price && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.price}</p>}
                             <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for $0 and others can download for Free. Maximum price allowed is $500.</p>
+                           {user.kycStatus === 'SUCCESS' &&
+                           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                                <span style={{color:'#848e96'}}>Marathon commision</span>
+                                <span style={{color:'#848e96'}}>${price*0.1}</span>
+                            </div>
+                           } 
+                           {user.kycStatus === 'SUCCESS' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                                <span style={{color:'#848e96'}}>Platform fee</span>
+                                <span style={{color:'#0f9918'}}>Free</span>
+                            </div>} 
                         </div>
 
                         {/* Upload button */}
@@ -637,18 +651,24 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 style={{ 
                                     width: '100%', 
                                     padding: '12px', 
-                                    backgroundColor: (!termsAccepted || uploading) ? '#a270f2' : '#610bee', 
+                                    backgroundColor: (!termsAccepted || uploading || user.kycStatus !== 'SUCCESS') ? '#a270f2' : '#610bee', 
                                     color: '#ffffff',
                                     border: 'none',
                                     borderRadius: 6,
                                     fontSize: 16,
                                     fontWeight: 600,
-                                    cursor: (!termsAccepted || uploading) ? 'not-allowed' : 'pointer',
+                                    cursor: (!termsAccepted || uploading || user.kycStatus !== 'SUCCESS') ? 'not-allowed' : 'pointer',
                                     marginTop: 4
                                 }}
-                                disabled={!termsAccepted || uploading}
+                                disabled={!termsAccepted || uploading || user.kycStatus !== 'SUCCESS'}
                                 onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
-                                title={!termsAccepted ? 'Please agree to the terms and conditions to upload your design.' : ''}
+                                title={
+                                    !termsAccepted 
+                                        ? 'Please agree to the terms and conditions to upload your design.' 
+                                        : user.kycStatus !== 'SUCCESS' 
+                                            ? 'Please verify your bank details to upload your design.' 
+                                            : ''
+                                }
                             >
                                 {uploading ? `${editedDetails ? 'Updating' : 'Uploading'} Design...` : 'Upload Design'}
                             </button>

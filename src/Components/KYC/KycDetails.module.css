@@ -9,20 +9,22 @@
 
 .kycForm {
   background: white;
- 
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   /* max-width: 500px; */
 }
-.kycForm form{
-    display: flex;
+
+/* Keep original form styling - flex wrap layout */
+.kycForm form {
+  display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  gap:16px
+  gap: 16px;
 }
+
 .title {
   text-align: center;
   margin-bottom: 30px;
@@ -31,6 +33,54 @@
   font-weight: 600;
 }
 
+/* No Data Container - Centered Design */
+.noDataContainer {
+  text-align: center;
+  padding: 3rem 2rem;
+  border: 2px dashed #cbd5e0;
+  border-radius: 16px;
+  margin: 1rem 0;
+ 
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+.noDataText {
+  color: #4a5568;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: 500;
+}
+
+.createKycBtn {
+  background: #610bee;
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+  min-width: 200px;
+}
+
+
+
+
+
+
+
+/* Original form input styling */
 .inputGroup {
   margin-bottom: 20px;
 }
@@ -69,6 +119,30 @@
   display: block;
 }
 
+/* Readonly Input Styles */
+.readonlyInput {
+  background-color: #f5f5f5 !important;
+  color: #333 !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+}
+
+.readonlyInput:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Info Message */
+.infoMessage {
+  background: #e8f5e8;
+  color: #2d5a2d;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #c3e6c3;
+  text-align: center;
+}
+
 .submitBtn {
   width: 100%;
   padding: 14px;
@@ -93,4 +167,55 @@
 
 .submitting {
   opacity: 0.7;
+}
+
+/* Icon placeholder for no data state */
+
+/* Animation for smooth transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kycForm {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .kycContainer {
+    padding: 15px;
+    min-height: 40vh;
+  }
+  
+  .kycForm {
+    padding: 30px 20px;
+    border-radius: 12px;
+  }
+  
+  .title {
+    font-size: 20px;
+    margin-bottom: 25px;
+  }
+  
+  .noDataContainer {
+    padding: 2rem 1.5rem;
+  }
+  
+  .noDataText {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .createKycBtn {
+    padding: 14px 28px;
+    font-size: 1rem;
+    min-width: 180px;
+  }
 }

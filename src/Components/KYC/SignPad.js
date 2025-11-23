@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import SignaturePad from 'signature_pad';
 
 function SignPad({ onSignatureCapture }) {
@@ -59,7 +60,7 @@ function SignPad({ onSignatureCapture }) {
         if (!signaturePadRef.current) return;
     
         if (signaturePadRef.current.isEmpty()) {
-          alert('Please provide a signature first.');
+          toast.error('Please provide a signature first.');
           return;
         }
     
@@ -90,18 +91,18 @@ function SignPad({ onSignatureCapture }) {
           
           setIsSigned(true);
           setIsLoading(false);
-          alert('Signature captured successfully!');
+          toast.success('Signature captured successfully!');
     
         } catch (error) {
           console.error('Error saving signature:', error);
-          alert('Error saving signature. Please try again.');
+          toast.error('Error saving signature. Please try again.');
           setIsLoading(false);
         }
       };
     
       const downloadSignature = () => {
         if (!signaturePadRef.current || signaturePadRef.current.isEmpty()) {
-          alert('Please provide a signature first.');
+          toast.error('Please provide a signature first.');
           return;
         }
     

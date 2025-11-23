@@ -20,7 +20,12 @@ export default function IndustryDesignHeader({ design, designData, type }) {
         <div className={styles.statsCont} style={{display:'flex',alignItems:'center',gap:'10px',justifyContent:'center',width:'100%'}}>
             <DownloadClientButton custumDownload={true} 
           folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type ? designData.file_type : 'step'} 
-          designPrice={designData?.price} />
+          designPrice={designData?.price} designDetails={{
+                                        title: designData.page_title, // You can pass actual design title here
+                                        description: designData.page_description, // You can pass actual design description here
+                                        price: designData.price, // Use the designPrice prop
+                                        // Add other design details as needed
+                                    }}/>
  <Link 
           href={`/tools/cad-renderer?fileId=${designData._id}&format=${
             designData.file_type ? designData.file_type : "step"

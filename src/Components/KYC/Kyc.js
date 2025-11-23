@@ -15,6 +15,7 @@ function Kyc({ onClose,setUser }) {
     ifsc: '',
     account_number: '',
     contact: '',
+    gst_number: '', // Added GST number field
     signature: null,
   });
 
@@ -22,10 +23,6 @@ function Kyc({ onClose,setUser }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
- 
-
- 
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -69,7 +66,13 @@ function Kyc({ onClose,setUser }) {
       newErrors.contact = 'Invalid mobile number';
     }
 
-   
+    // GST number validation (optional but must be valid if provided)
+    if (formData.gst_number.trim()) {
+      const gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstPattern.test(formData.gst_number.trim())) {
+        newErrors.gst_number = 'Invalid GST number format';
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -107,13 +110,20 @@ function Kyc({ onClose,setUser }) {
     setIsSubmitting(true);
     
     try {
-      const response = await axios.post(`${BASE_URL}/v1/payment/verify-seller`, {
+      const payload = {
         name: formData.name.trim(),
         contact: formData.contact.trim(),
         ifsc: formData.ifsc.trim().toUpperCase(),
         account_number: formData.account_number.trim(),
-        signature: formData.signature, // Include signature data
-      }, {
+        signature: formData.signature,
+      };
+
+      // Only include GST number if it's provided
+      if (formData.gst_number.trim()) {
+        payload.gst = formData.gst_number.trim().toUpperCase();
+      }
+
+      const response = await axios.post(`${BASE_URL}/v1/payment/verify-seller`, payload, {
         headers: { 'user-uuid': localStorage.getItem('uuid') }
       });
 
@@ -182,7 +192,6 @@ function Kyc({ onClose,setUser }) {
                   onChange={handleInputChange}
                   className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
                   placeholder="Enter your name as per Bank Account"
-                
                 />
                 {errors.name && <span className={styles.errorText}>{errors.name}</span>}
               </div>
@@ -204,7 +213,6 @@ function Kyc({ onClose,setUser }) {
                   className={`${styles.input} ${errors.account_number ? styles.inputError : ''}`}
                   placeholder="Enter your bank account number"
                   maxLength={18}
-                  
                 />
                 {errors.account_number && <span className={styles.errorText}>{errors.account_number}</span>}
               </div>
@@ -221,8 +229,6 @@ function Kyc({ onClose,setUser }) {
                   className={`${styles.input} ${errors.ifsc ? styles.inputError : ''}`}
                   placeholder="Enter your bank IFSC code"
                   maxLength={11}
-                  // style={{ textTransform: 'uppercase' }}
-                  
                 />
                 {errors.ifsc && <span className={styles.errorText}>{errors.ifsc}</span>}
               </div>
@@ -239,34 +245,34 @@ function Kyc({ onClose,setUser }) {
                   value={formData.contact}
                   onChange={handleInputChange}
                   className={`${styles.input} ${errors.contact ? styles.inputError : ''}`}
-                  placeholder="Enter your bank account number"
+                  placeholder="Enter your mobile number"
                   maxLength={10}
-                  
                 />
                 {errors.contact && <span className={styles.errorText}>{errors.contact}</span>}
               </div>
 
-              {/* Aadhar */}
-             
+              {/* GST Number */}
+              <div className={styles.inputGroup}>
+                <label htmlFor="gst_number" className={styles.label}>
+                  GST Number <span className={styles.optional}>(Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="gst_number"
+                  name="gst_number"
+                  value={formData.gst_number}
+                  onChange={handleInputChange}
+                  className={`${styles.input} ${errors.gst_number ? styles.inputError : ''}`}
+                  placeholder="Enter your GST number"
+                  maxLength={15}
+                  style={{ textTransform: 'uppercase' }}
+                />
+                {errors.gst_number && <span className={styles.errorText}>{errors.gst_number}</span>}
+                <small className={styles.helpText}>
+                  Format: 22AAAAA0000A1Z5 (15 characters)
+                </small>
+              </div>
             </div>
-
-            {/* PAN */}
-            {/* <div className={styles.formRow}>
-              <label htmlFor="pan" className={styles.label}>PAN Number</label>
-              <input
-                type="text"
-                id="pan"
-                name="pan"
-                value={formData.pan}
-                onChange={handleInputChange}
-                className={`${styles.input} ${errors.pan ? styles.inputError : ''}`}
-                placeholder="Enter your bank account number"
-                maxLength={10}
-                style={{ textTransform: 'uppercase' }}
-                disabled={hasExistingData}
-              />
-              {errors.pan && <span className={styles.errorText}>{errors.pan}</span>}
-            </div> */}
 
             {/* Next Button */}
             <button
@@ -300,8 +306,6 @@ function Kyc({ onClose,setUser }) {
             </div>
           </div>
         )}
-         
-       
       </div>
     </PopupWrapper>
   );

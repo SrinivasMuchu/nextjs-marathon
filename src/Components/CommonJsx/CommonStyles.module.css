@@ -141,7 +141,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   padding: 32px;
-  /* width: 450px; */
+  width: 80%;
   /* max-width: 90vw; */
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   color: #333;
@@ -555,7 +555,7 @@
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid #eee;
-  background: #f8f9fa;
+  /* background: #f8f9fa; */
   border-radius: 8px 8px 0 0;
 }
 
