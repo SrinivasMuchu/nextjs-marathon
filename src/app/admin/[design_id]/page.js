@@ -1,5 +1,6 @@
 'use client';
 
+import Loading from '@/Components/CommonJsx/Loaders/Loading';
 import IndustryDesignClone from '@/Components/IndustryDesigns/IndustryDesignClone';
 import { BASE_URL } from '@/config';
 import { notFound } from 'next/navigation';
@@ -61,7 +62,7 @@ function Page({ params }) {
     }, [design]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <Loading />;
     }
 
     if (!designData) {
