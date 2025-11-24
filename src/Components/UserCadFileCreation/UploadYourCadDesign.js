@@ -224,7 +224,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                     url,
                     is_downloadable: isChecked,
                     converted_cad_source: uploadedFile,
-                    price: Number(price) || 0, // Send price as number
+                    
                 },
                 {
                     headers: {

@@ -43,6 +43,17 @@ export default function IndustryDesignHeader({ design, designData, type }) {
                               border: 'none',
                               width: 'auto'
                             }}>Open in 3D viewer</button>
+          <button style={{ 
+                              
+                              color: 'white', 
+                              fontSize: '20px',
+                              background: '#610BEE',
+                              borderRadius: '4px',
+                              height: '48px',
+                              padding: '10px 20px',
+                              border: 'none',
+                              width: 'auto'
+                            }}>Open in 3D viewer</button>
         </Link>
        
         </div>
