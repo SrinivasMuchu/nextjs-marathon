@@ -6,6 +6,8 @@ import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
 import Loading from '../CommonJsx/Loaders/Loading';
 import Kyc from './Kyc';
+import Image from 'next/image';
+import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 
 function KycTab() {
    const [formData, setFormData] = useState({
@@ -15,9 +17,10 @@ function KycTab() {
     contact: '',
     aadhar: '',
     pan: '',
-    gst_number: '' // Added GST number field
+    gst_number: '',
+    signature_url: '' // Add this line for signature image
   });
-
+  const [isUserVerified, setIsUserVerified] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,7 +47,8 @@ function KycTab() {
           contact: data.user_data.phone_number || '',
           aadhar: data.user_data.aadhaar || '',
           pan: data.user_data.pan || '',
-          gst_number:  data.user_data.gst || '' // Get GST from API response
+          gst_number:  data.user_data.gst || '',
+          signature_url: data.user_data.signature_s3_url || '' // Add this line
         });
         setHasExistingData(true);
       }
@@ -58,7 +62,12 @@ function KycTab() {
   };
 
   const handleOpenKycForm = () => {
-    setShowKycForm(true);
+     if(!localStorage.getItem('is_verified')){
+      setIsUserVerified(true)
+    }else{
+      setShowKycForm(true);
+    }
+    
   };
 
   const handleCloseKycForm = () => {
@@ -81,6 +90,9 @@ function KycTab() {
   // Show button if no existing data
   if (!hasExistingData) {
     return (
+      <>
+      {isUserVerified && <UserLoginPupUp type='dashboard'
+       onClose={() => setIsUserVerified(false)} />}
       <div className={styles.kycContainer}>
         <div className={styles.kycForm}>
           <h2 className={styles.title}>KYC Details</h2>
@@ -104,6 +116,8 @@ function KycTab() {
           />
         )}
       </div>
+      </>
+      
     );
   }
 
@@ -211,6 +225,45 @@ function KycTab() {
                 readOnly
               />
             </div>
+          )}
+
+          {/* Show Signature Chip if exists */}
+          {formData.signature_url && (
+             <div className={styles.inputGroup}>
+              <label htmlFor="signature" className={styles.label}>Signature</label>
+              <div
+              style={{
+                height:'48px',
+                padding: '0px',
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center'
+                // borderRadius: '16px',
+                // background: '#f0f0f0',
+                // marginBottom: '12px',
+                // marginRight: '8px',
+                // border: '1px solid #ccc',
+                // maxWidth: 'fit-content'
+              }}
+              className={`${styles.input} ${styles.readonlyInput}`}
+            >
+              <Image
+                src={formData.signature_url}
+                alt="Signature"
+                width={100}
+                height={48}
+                style={{
+                  height: '32px',
+                  width: 'auto',
+                  marginRight: '8px',
+                  borderRadius: '4px',
+                  background: '#fff'
+                }}
+              />
+              {/* <span style={{ fontSize: '14px', color: '#333' }}>Signature</span> */}
+            </div>
+             </div>
+            
           )}
         </form>
       </div>

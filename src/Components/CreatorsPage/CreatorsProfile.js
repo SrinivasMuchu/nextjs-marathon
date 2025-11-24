@@ -239,7 +239,11 @@ function CreatorsProfile({ creatorId,setIsVerified }) {
                   onClick={e => e.stopPropagation()}
                 />
                 <div className={styles.editActions}>
-                  <button onClick={() => handleSaveField('name')}>
+                  <button
+                    onClick={() => user.name && handleSaveField('name')}
+                    disabled={!user.name || user.name.trim() === ""}
+                    style={{ opacity: !user.name || user.name.trim() === "" ? 0.5 : 1 }}
+                  >
                     <Image
                       src={`${ASSET_PREFIX_URL}save-details.png`}
                       alt="save"
