@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import PopupWrapper from '../CommonJsx/PopupWrapper';
 import Select from 'react-select'; // Add this import
 import SignPad from './SignPad';
+import ReactPhoneNumber from '../CommonJsx/ReactPhoneNumber';
 
 function Kyc({ onClose,setUser }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -238,15 +239,18 @@ function Kyc({ onClose,setUser }) {
               {/* Contact */}
               <div className={styles.inputGroup}>
                 <label htmlFor="contact" className={styles.label}>Mobile Number</label>
-                <input
-                  type="tel"
+                <ReactPhoneNumber
+                  phoneNumber={formData.contact}
+                  setPhoneNumber={val => {
+                    setFormData(prev => ({ ...prev, contact: val || '' }));
+                    if (errors.contact) {
+                      setErrors(prev => ({ ...prev, contact: '' }));
+                    }
+                  }}
+                  styles={styles}
+                  classname="input"
+                  label="Mobile Number"
                   id="contact"
-                  name="contact"
-                  value={formData.contact}
-                  onChange={handleInputChange}
-                  className={`${styles.input} ${errors.contact ? styles.inputError : ''}`}
-                  placeholder="Enter your mobile number"
-                  maxLength={10}
                 />
                 {errors.contact && <span className={styles.errorText}>{errors.contact}</span>}
               </div>

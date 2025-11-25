@@ -88,3 +88,10 @@ export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 export const GOOGLE_ADSENSE_CLIENT_ID = process.env.NEXT_GOOGLE_ADS_CLIENT_ID
 export const RAZORPAY_SECRET = process.env.NEXT_PUBLIC_RAZORPAY_SECRET_ID
 export const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+
+export const MARATHONDETAILS = {
+  name: "Marathon Technologies",
+  description: "A platform for CAD file management and collaboration.",
+  theme: "#610bee",
+  image: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png"
+};

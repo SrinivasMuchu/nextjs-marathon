@@ -3,7 +3,7 @@ import axios from 'axios';
 import styles from '../IndustryDesigns/IndustryDesign.module.css'
 import { sendGAtagEvent } from '@/common.helper';
 import React, { useState, useContext } from 'react'
-import { BASE_URL, CAD_VIEWER_EVENT, RAZORPAY_KEY_ID } from '@/config';
+import { BASE_URL, CAD_VIEWER_EVENT, RAZORPAY_KEY_ID , MARATHONDETAILS} from '@/config';
 import Tooltip from '@mui/material/Tooltip';
 import CadFileNotifyPopUp from './CadFileNotifyPopUp';
 import UserLoginPupUp from './UserLoginPupUp';
@@ -24,10 +24,12 @@ function loadRazorpayScript() {
 
 function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, 
   step, filetype, custumDownload,designDetails }) {
+    console.log(designDetails)
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
   const [openBillingDetails, setOpenBillingDetails] = useState(false);
-  const { setDownloadedFileUpdate } = useContext(contextState);
+  const [billerDetails,setBillerDetails] = useState({})
+  const { setDownloadedFileUpdate,user } = useContext(contextState);
 
   // Download logic after payment
   const downloadFile = async () => {
@@ -96,8 +98,9 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
         key: RAZORPAY_KEY_ID,
         amount: res.data.data.amount,
         currency: res.data.data.currency,
-        name: "Marathon-OS",
-        description: "CAD Management Tool",
+        name: MARATHONDETAILS.name,
+        image:MARATHONDETAILS.image,
+        description: designDetails.title,
         order_id: res.data.data.orderId,
         handler: async function (response) {
           try {
@@ -130,11 +133,11 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           }
         },
         prefill: {
-          name: "User Name",
-          email: "user@email.com",
-          contact: "9999999999",
+          name: billerDetails.user_name,
+          email: user.email,
+          contact: billerDetails.phone_number,
         },
-        theme: { color: "#3399cc" },
+        theme: { color: MARATHONDETAILS.theme },
         modal: {
           ondismiss: () => setIsDownLoading(false)
         }
@@ -317,7 +320,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
         </>
       )}
       {openBillingDetails && <BillingAddress 
-      onClose={() => setOpenBillingDetails(false)} 
+      onClose={() => setOpenBillingDetails(false)}  setBillerDetails={setBillerDetails}
       onSave={handleDownload} cadId={folderId} designDetails={designDetails}/>}
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
     </>

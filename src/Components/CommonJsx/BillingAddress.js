@@ -6,10 +6,11 @@ import styles from './CommonStyles.module.css'
 import axios from 'axios'
 import { BASE_URL } from '@/config';
 import { GoPencil } from "react-icons/go";
+import ReactPhoneNumber from './ReactPhoneNumber';
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
-function BillingAddress({  onClose, onSave, cadId, designDetails }) {
+function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetails }) {
   const [formData, setFormData] = useState({
     fullName: '',
     company: '',
@@ -295,7 +296,10 @@ function BillingAddress({  onClose, onSave, cadId, designDetails }) {
           currency: formData.currency?.value,
           cadId: cadId
         })
-        
+        setBillerDetails({
+          user_name: formData.fullName,
+          phone_number: formData.phone
+        })
         // Fetch pricing details
         // await fetchPricingDetails(response.data.data._id, formData.currency?.value)
         
@@ -638,17 +642,18 @@ function BillingAddress({  onClose, onSave, cadId, designDetails }) {
           <div className={styles["form-row"]}>
             <div className={styles["form-group"]}>
               <label htmlFor="phone">Phone Number *</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="Enter phone number"
-                style={{
-                  border: errors.phone ? '1px solid #dc3545' : '1px solid #ddd'
+              <ReactPhoneNumber
+                phoneNumber={formData.phone}
+                setPhoneNumber={val => {
+                  setFormData(prev => ({ ...prev, phone: val || '' }));
+                  if (errors.phone) {
+                    setErrors(prev => ({ ...prev, phone: '' }));
+                  }
                 }}
-                required
+                styles={styles}
+                classname="input"
+                label="Phone Number"
+                id="phone"
               />
               <ErrorMessage error={errors.phone} />
             </div>
