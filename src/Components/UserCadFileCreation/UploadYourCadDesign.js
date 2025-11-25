@@ -637,7 +637,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                            {user.kycStatus === 'SUCCESS' &&
                            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                                 <span style={{color:'#848e96'}}>Marathon commision</span>
-                                <span style={{color:'#848e96'}}>${price*0.1}</span>
+                                <span style={{color:'#848e96'}}>${(price * 0.1).toFixed(2)}</span>
                             </div>
                            } 
                            {user.kycStatus === 'SUCCESS' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>

@@ -15,7 +15,7 @@ function Kyc({ onClose,setUser }) {
     name: '',
     ifsc: '',
     account_number: '',
-    contact: '',
+    phone: '',
     gst_number: '', // Added GST number field
     signature: null,
   });
@@ -61,10 +61,10 @@ function Kyc({ onClose,setUser }) {
       newErrors.account_number = 'Account number must be 9-18 digits';
     }
 
-    if (!formData.contact.trim()) {
-      newErrors.contact = 'Contact number is required';
-    } else if (!/^[6-9]\d{9}$/.test(formData.contact.trim())) {
-      newErrors.contact = 'Invalid mobile number';
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'phone number is required';
+    } else if (!/^\+?[\d\s\-\(\)]{10,}$/.test(formData.phone.trim())) {
+      newErrors.phone = 'Invalid mobile number';
     }
 
     // GST number validation (optional but must be valid if provided)
@@ -113,7 +113,7 @@ function Kyc({ onClose,setUser }) {
     try {
       const payload = {
         name: formData.name.trim(),
-        contact: formData.contact.trim(),
+        phone: formData.phone.trim(),
         ifsc: formData.ifsc.trim().toUpperCase(),
         account_number: formData.account_number.trim(),
         signature: formData.signature,
@@ -236,23 +236,24 @@ function Kyc({ onClose,setUser }) {
             </div>
 
             <div className={styles.formRow}>
-              {/* Contact */}
+              {/* phone */}
               <div className={styles.inputGroup}>
-                <label htmlFor="contact" className={styles.label}>Mobile Number</label>
+                <label htmlFor="phone" className={styles.label}>Mobile Number</label>
                 <ReactPhoneNumber
-                  phoneNumber={formData.contact}
+                  phoneNumber={formData.phone}
                   setPhoneNumber={val => {
-                    setFormData(prev => ({ ...prev, contact: val || '' }));
-                    if (errors.contact) {
-                      setErrors(prev => ({ ...prev, contact: '' }));
+                    setFormData(prev => ({ ...prev, phone: val || '' }));
+                    if (errors.phone) {
+                      setErrors(prev => ({ ...prev, phone: '' }));
                     }
                   }}
+                  height={true}
                   styles={styles}
                   classname="input"
                   label="Mobile Number"
-                  id="contact"
+                  id="phone"
                 />
-                {errors.contact && <span className={styles.errorText}>{errors.contact}</span>}
+                {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
               </div>
 
               {/* GST Number */}
