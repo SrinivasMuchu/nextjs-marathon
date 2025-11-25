@@ -218,6 +218,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                 {
                     uuid: localStorage.getItem("uuid"),
                     title: cadFile.title,
+                    price: price ? price : 0,
                     file_type: fileFormat,
                     description: cadFile.description,
                     tags: selectedOptions.map(option => option.value),

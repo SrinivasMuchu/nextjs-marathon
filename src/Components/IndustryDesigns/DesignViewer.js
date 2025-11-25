@@ -75,7 +75,7 @@ export default function DesignViewer({
                               background: '#610BEE',
                               borderRadius: '4px',
                               // height: '48px',
-                              padding: '10px 20px',
+                              // padding: '10px 20px',
                               border: 'none',
                               width: 'auto'
                             }}
@@ -93,7 +93,7 @@ export default function DesignViewer({
                               height: '48px',
                               padding: '10px 20px',
                               border: 'none',
-                              width: 'auto'
+                              width: '236px'
                             }}>Open in 3D viewer</button>
         </Link>
        

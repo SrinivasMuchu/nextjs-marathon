@@ -336,18 +336,27 @@ const tagsResponse = await axios.get(
                <div key={index}
                 className={styles["library-designs-items-div"]} 
                 style={{
-                  borderRadius:'8px',
+                  borderRadius:'12px',
                   boxSizing:'border-box',
-                  width:'330px',
-                  cursor:  file.rejected_message_id ? 'pointer' : 'default'
+                  width:'315px',
+                  background: '#fff',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  margin: '12px 8px',
+                  padding: '0',
+                  transition: 'transform 0.2s cubic-bezier(.4,2,.6,1)',
+                  cursor:  file.rejected_message_id ? 'pointer' : 'default',
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
                 onClick={(e) => handleRejectedDesignClick(e, file)}
                 title={ file.rejected_message_id ? 
                   `Rejected: ${file.rejected_message_id}. Click to edit.` : ''
                 }
+                onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
               >
               <Link  href={`/library/${file.route}`}
-              style={{boxShadow:'none',background:'white',border:'none',height:'auto'}}
+              style={{boxShadow:'none',background:'white',border:'none',height:'auto',overflow:'hidden'}}
                className={libraryStyles["library-designs-items-container"]}
                 onClick={e => (!file.is_live || (file.status?.toLowerCase() === 'rejected' && file.rejected_message_id)) && e.preventDefault()}
               >
