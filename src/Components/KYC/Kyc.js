@@ -9,7 +9,7 @@ import Select from 'react-select'; // Add this import
 import SignPad from './SignPad';
 import ReactPhoneNumber from '../CommonJsx/ReactPhoneNumber';
 
-function Kyc({ onClose,setUser }) {
+function Kyc({ onClose, setUser }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
@@ -23,7 +23,10 @@ function Kyc({ onClose,setUser }) {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [isPolling, setIsPolling] = useState(false);
+  const [pollError, setPollError] = useState('');
+  const [pollMessage, setPollMessage] = useState('Validation is being processed...');
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -100,16 +103,61 @@ function Kyc({ onClose,setUser }) {
     }));
   };
 
+  // Polling function
+  const pollValidationStatus = async (validationId) => {
+    setIsPolling(true);
+    setPollError('');
+    setPollMessage('Validation is being processed...');
+    let intervalId = null;
+
+    const poll = async () => {
+      try {
+        const pollResponse = await axios.get(
+          `${BASE_URL}/v1/payment/poll-seller-validation/${validationId}`,
+          {
+            headers: { 'user-uuid': localStorage.getItem('uuid') }
+          }
+        );
+        const status = pollResponse.data?.data?.status;
+        if (status === 'COMPLETED') {
+          setIsPolling(false);
+          setPollMessage('');
+          toast.success(pollResponse.data.meta.message || 'KYC verification completed!');
+          setUser(prevUser => ({
+            ...prevUser,
+            kycStatus: 'SUCCESS'
+          }));
+          clearInterval(intervalId);
+          onClose();
+        } else if (status === 'FAILED') {
+          setIsPolling(false);
+          setPollError('KYC verification failed. Please try again.');
+          clearInterval(intervalId);
+        }
+        // else keep polling
+      } catch (error) {
+        setIsPolling(false);
+        setPollError('Error while polling validation status.');
+        clearInterval(intervalId);
+      }
+    };
+
+    // Start polling every 3 seconds
+    intervalId = setInterval(poll, 3000);
+    // Call immediately for the first time
+    poll();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.signature) {
       toast.error('Please provide your signature before submitting.');
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const payload = {
         name: formData.name.trim(),
@@ -119,7 +167,6 @@ function Kyc({ onClose,setUser }) {
         signature: formData.signature,
       };
 
-      // Only include GST number if it's provided
       if (formData.gst_number.trim()) {
         payload.gst = formData.gst_number.trim().toUpperCase();
       }
@@ -129,15 +176,8 @@ function Kyc({ onClose,setUser }) {
       });
 
       if (response.data.meta.success) {
-        toast.success(response.data.meta.message || 'KYC submitted successfully!');
-        
-        // Update user's kyc_status to SUCCESS
-        setUser(prevUser => ({
-          ...prevUser,
-          kycStatus: 'SUCCESS'
-        }));
-        
-        onClose()
+        const validationId = response.data.data.validation._id;
+        pollValidationStatus(validationId); // Start polling
       } else {
         toast.error(response.data.meta.message || 'Failed to submit KYC. Please try again.');
       }
@@ -152,6 +192,35 @@ function Kyc({ onClose,setUser }) {
   return (
     <PopupWrapper>
       <div className={styles.popupContainer}>
+        {/* Loading indicator at the top */}
+        {isPolling && (
+          <div style={{
+            width: '100%',
+            padding: '10px',
+            background: '#f3f3f3',
+            color: '#610BEE',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            borderRadius: '8px',
+            marginBottom: '16px'
+          }}>
+            {pollMessage}
+          </div>
+        )}
+        {pollError && (
+          <div style={{
+            width: '100%',
+            padding: '10px',
+            background: '#fee2e2',
+            color: '#dc2626',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            borderRadius: '8px',
+            marginBottom: '16px'
+          }}>
+            {pollError}
+          </div>
+        )}
         <div className={styles.headerRow}>
           <h2 className={styles.title}>
             {currentStep === 1 ? 'Verify your bank details' : 'Digital Signature'}
