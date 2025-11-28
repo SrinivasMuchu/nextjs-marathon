@@ -82,7 +82,7 @@ const tagsResponse = await axios.get(
 
   // Handle click on rejected design to open edit popup
   const handleRejectedDesignClick = (e, file) => {
-    if (file.status?.toLowerCase() === 'rejected' && file.rejected_message_id) {
+    if ( file.rejected_message_id) {
       e.preventDefault(); // Prevent navigation
       setSelectedDesignForEdit(file);
       setEditDesignPopup(true);
@@ -358,7 +358,7 @@ const tagsResponse = await axios.get(
               <Link  href={`/library/${file.route}`}
               style={{boxShadow:'none',background:'white',border:'none',height:'auto',overflow:'hidden'}}
                className={libraryStyles["library-designs-items-container"]}
-                onClick={e => (!file.is_live || (file.status?.toLowerCase() === 'rejected' && file.rejected_message_id)) && e.preventDefault()}
+                onClick={e => (!file.is_live ||  file.rejected_message_id) && e.preventDefault()}
               >
                  {/* <div className={libraryStyles["library-designs-items-container-cost"]}>
                   {file.price ? <span>{file.price} </span> : 'Free'}</div> */}
