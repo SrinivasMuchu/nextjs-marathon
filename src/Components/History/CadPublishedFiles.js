@@ -372,7 +372,7 @@ function CadPublishedFiles({ loading, userCadFiles, type, searchTerm,
 
 
                   <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
-                    {type !== 'USER_DOWNLOADS' && (
+                    {type && (
                       <FileStatus status={file.status} />
                     )}
                   </div>
