@@ -584,7 +584,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                         <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>Pricing details</h3>
 
                         {/* KYC box */}
-                        {user.kycStatus !== 'SUCCESS' &&  <div style={{ background: '#f8f9fa', padding: 16, borderRadius: 8, marginBottom: 16 }}>
+                        {user.kycStatus !== 'completed' &&  <div style={{ background: '#f8f9fa', padding: 16, borderRadius: 8, marginBottom: 16 }}>
                             <p style={{ margin: 0, color: '#666' }}>
                                 To sell and set price for your CAD file, please verify your bank details.
                             </p>
@@ -619,13 +619,13 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 placeholder="Enter price"
                                 value={price}
                                 onChange={e => setPrice(e.target.value)}
-                                disabled={user.kycStatus !== 'SUCCESS'}
+                                disabled={user.kycStatus !== 'completed'}
                                 style={{
                                     width: '100%',
                                     padding: '10px 34px 10px 12px',
                                     border: `1px solid ${formErrors.price ? 'red' : '#ddd'}`,
                                     borderRadius: 6,
-                                    background: user.kycStatus === 'SUCCESS' ? '#fff' : '#f5f5f5',
+                                    background: user.kycStatus === 'completed' ? '#fff' : '#f5f5f5',
                                 }}
                             />
                             <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
@@ -634,13 +634,13 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                             
                             {formErrors.price && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.price}</p>}
                             <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for $0 and others can download for Free. Maximum price allowed is $500.</p>
-                           {user.kycStatus === 'SUCCESS' &&
+                           {user.kycStatus === 'completed' &&
                            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                                 <span style={{color:'#848e96'}}>Marathon commision</span>
                                 <span style={{color:'#848e96'}}>${(price * 0.1).toFixed(2)}</span>
                             </div>
                            } 
-                           {user.kycStatus === 'SUCCESS' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                           {user.kycStatus === 'completed' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                                 <span style={{color:'#848e96'}}>Platform fee</span>
                                 <span style={{color:'#0f9918'}}>Free</span>
                             </div>} 
@@ -652,21 +652,21 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 style={{ 
                                     width: '100%', 
                                     padding: '12px', 
-                                    backgroundColor: (!termsAccepted || uploading || user.kycStatus !== 'SUCCESS') ? '#a270f2' : '#610bee', 
+                                    backgroundColor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? '#a270f2' : '#610bee', 
                                     color: '#ffffff',
                                     border: 'none',
                                     borderRadius: 6,
                                     fontSize: 16,
                                     fontWeight: 600,
-                                    cursor: (!termsAccepted || uploading || user.kycStatus !== 'SUCCESS') ? 'not-allowed' : 'pointer',
+                                    cursor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? 'not-allowed' : 'pointer',
                                     marginTop: 4
                                 }}
-                                disabled={!termsAccepted || uploading || user.kycStatus !== 'SUCCESS'}
+                                disabled={!termsAccepted || uploading || user.kycStatus !== 'completed'}
                                 onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
                                 title={
                                     !termsAccepted 
                                         ? 'Please agree to the terms and conditions to upload your design.' 
-                                        : user.kycStatus !== 'SUCCESS' 
+                                        : user.kycStatus !== 'completed' 
                                             ? 'Please verify your bank details to upload your design.' 
                                             : ''
                                 }

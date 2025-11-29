@@ -34,7 +34,7 @@ function Kyc({ onClose, setUser }) {
       ...prev,
       [name]: value
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -85,7 +85,7 @@ function Kyc({ onClose, setUser }) {
 
   const handleNext = (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -120,21 +120,22 @@ function Kyc({ onClose, setUser }) {
           }
         );
         const status = pollResponse.data?.data?.status;
-        if (status === 'COMPLETED') {
+        if (status === 'completed') {
           setIsPolling(false);
           setPollMessage('');
           toast.success(pollResponse.data.meta.message || 'KYC verification completed!');
           setUser(prevUser => ({
             ...prevUser,
-            kycStatus: 'SUCCESS'
+            kycStatus: 'completed'
           }));
           clearInterval(intervalId);
           onClose();
-        } else if (status === 'FAILED') {
+        } else if (status === 'failed') {
           setIsPolling(false);
           setPollError('KYC verification failed. Please try again.');
+          setCurrentStep(1); // Go to first step on failure
           clearInterval(intervalId);
-        }
+        } 
         // else keep polling
       } catch (error) {
         setIsPolling(false);
@@ -162,7 +163,7 @@ function Kyc({ onClose, setUser }) {
     try {
       const payload = {
         name: formData.name.trim(),
-        phone: formData.phone.trim(),
+        contact: formData.phone.trim(),
         ifsc: formData.ifsc.trim().toUpperCase(),
         account_number: formData.account_number.trim(),
         signature: formData.signature,
@@ -177,9 +178,24 @@ function Kyc({ onClose, setUser }) {
       });
 
       if (response.data.meta.success) {
-        const validationId = response.data.data.validation.id;
-        console.log('Validation ID:', validationId);
-        pollValidationStatus(validationId); // Start polling
+        if (response.data.data.validation.status === 'created') {
+          const validationId = response.data.data.validation.id;
+          console.log('Validation ID:', validationId);
+          pollValidationStatus(validationId); // Start polling
+        } else if(response.data.data.validation.status === 'completed'){
+          setUser(prevUser => ({
+            ...prevUser,
+            kycStatus: 'completed'
+          }));
+          onClose();
+        } else {
+          setUser(prevUser => ({
+            ...prevUser,
+            kycStatus: 'failed'
+          }));
+          setCurrentStep(1); // Go to the first step
+        }
+
       } else {
         toast.error(response.data.meta.message || 'Failed to submit KYC. Please try again.');
       }
@@ -214,7 +230,7 @@ function Kyc({ onClose, setUser }) {
             <h2 className={styles.title}>
               {currentStep === 1 ? 'Verify your bank details' : 'Digital Signature'}
             </h2>
-            <button className={styles.closeBtn} onClick={onClose || (() => {})}>&times;</button>
+            <button className={styles.closeBtn} onClick={onClose || (() => { })}>&times;</button>
           </div>
           {/* Step Indicator */}
           <div className={styles.stepIndicator}>
