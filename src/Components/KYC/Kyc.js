@@ -130,7 +130,7 @@ function Kyc({ onClose, setUser }) {
           }));
           clearInterval(intervalId);
           onClose();
-        } else if (status === 'failed') {
+        } else if (status === 'failed'||status === 'pending') {
           setIsPolling(false);
           setPollError('KYC verification failed. Please try again.');
           setCurrentStep(1); // Go to first step on failure
@@ -178,11 +178,11 @@ function Kyc({ onClose, setUser }) {
       });
 
       if (response.data.meta.success) {
-        if (response.data.data.validation.status === 'created') {
-          const validationId = response.data.data.validation.id;
+        if (response.data.data.status === 'created') {
+          const validationId = response.data.data.validation_id;
           console.log('Validation ID:', validationId);
           pollValidationStatus(validationId); // Start polling
-        } else if(response.data.data.validation.status === 'completed'){
+        } else if(response.data.data.status === 'completed'){
           setUser(prevUser => ({
             ...prevUser,
             kycStatus: 'completed'
