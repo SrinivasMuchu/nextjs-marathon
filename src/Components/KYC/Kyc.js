@@ -5,6 +5,7 @@ import axios from 'axios';
 import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
 import PopupWrapper from '../CommonJsx/PopupWrapper';
+import BankLoader from '../CommonJsx/Loaders/BankLoader';
 import Select from 'react-select'; // Add this import
 import SignPad from './SignPad';
 import ReactPhoneNumber from '../CommonJsx/ReactPhoneNumber';
@@ -176,7 +177,8 @@ function Kyc({ onClose, setUser }) {
       });
 
       if (response.data.meta.success) {
-        const validationId = response.data.data.validation._id;
+        const validationId = response.data.data.validation.id;
+        console.log('Validation ID:', validationId);
         pollValidationStatus(validationId); // Start polling
       } else {
         toast.error(response.data.meta.message || 'Failed to submit KYC. Please try again.');
@@ -190,198 +192,174 @@ function Kyc({ onClose, setUser }) {
   };
 
   return (
-    <PopupWrapper>
-      <div className={styles.popupContainer}>
-        {/* Loading indicator at the top */}
-        {isPolling && (
-          <div style={{
-            width: '100%',
-            padding: '10px',
-            background: '#f3f3f3',
-            color: '#610BEE',
-            textAlign: 'center',
-            fontWeight: 'bold',
-            borderRadius: '8px',
-            marginBottom: '16px'
-          }}>
-            {pollMessage}
-          </div>
-        )}
-        {pollError && (
-          <div style={{
-            width: '100%',
-            padding: '10px',
-            background: '#fee2e2',
-            color: '#dc2626',
-            textAlign: 'center',
-            fontWeight: 'bold',
-            borderRadius: '8px',
-            marginBottom: '16px'
-          }}>
-            {pollError}
-          </div>
-        )}
-        <div className={styles.headerRow}>
-          <h2 className={styles.title}>
-            {currentStep === 1 ? 'Verify your bank details' : 'Digital Signature'}
-          </h2>
-          <button className={styles.closeBtn} onClick={onClose || (() => {})}>&times;</button>
-        </div>
-        
-        {/* Step Indicator */}
-        <div className={styles.stepIndicator}>
-          <div className={`${styles.step} ${currentStep >= 1 ? styles.active : ''}`}>
-            <span className={styles.stepNumber}>1</span>
-            <span className={styles.stepLabel}>Bank Details</span>
-          </div>
-          <div className={styles.stepLine}></div>
-          <div className={`${styles.step} ${currentStep >= 2 ? styles.active : ''}`}>
-            <span className={styles.stepNumber}>2</span>
-            <span className={styles.stepLabel}>Signature</span>
-          </div>
-        </div>
-        
-        <p className={styles.subtitle}>
-          {currentStep === 1 
-            ? 'Selling CAD files on Marathon works when you have an Indian bank account. Currently we collect money from buyer and transfer to your bank account (India).'
-            : 'Please provide your digital signature to complete the KYC process.'
-          }
-        </p>
-
-        {currentStep === 1 ? (
-          <form onSubmit={handleNext} className={styles.form}>
-            <div className={styles.formRow}>
-              {/* Name */}
-              <div className={styles.inputGroup}>
-                <label htmlFor="name" className={styles.label}>Account Holder</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
-                  placeholder="Enter your name as per Bank Account"
-                />
-                {errors.name && <span className={styles.errorText}>{errors.name}</span>}
-              </div>
-
-              {/* Bank - Placeholder for now */}
-              
+    <>
+      {isPolling && <BankLoader />}
+      <PopupWrapper>
+        <div className={styles.popupContainer}>
+          {pollError && (
+            <div style={{
+              width: '100%',
+              padding: '10px',
+              background: '#fee2e2',
+              color: '#dc2626',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              borderRadius: '8px',
+              marginBottom: '16px'
+            }}>
+              {pollError}
             </div>
-
-            <div className={styles.formRow}>
-              {/* Account Number */}
-              <div className={styles.inputGroup}>
-                <label htmlFor="account_number" className={styles.label}>Account number</label>
-                <input
-                  type="text"
-                  id="account_number"
-                  name="account_number"
-                  value={formData.account_number}
-                  onChange={handleInputChange}
-                  className={`${styles.input} ${errors.account_number ? styles.inputError : ''}`}
-                  placeholder="Enter your bank account number"
-                  maxLength={18}
-                />
-                {errors.account_number && <span className={styles.errorText}>{errors.account_number}</span>}
-              </div>
-
-              {/* IFSC Code */}
-              <div className={styles.inputGroup}>
-                <label htmlFor="ifsc" className={styles.label}>IFSC Code</label>
-                <input
-                  type="text"
-                  id="ifsc"
-                  name="ifsc"
-                  value={formData.ifsc}
-                  onChange={handleInputChange}
-                  className={`${styles.input} ${errors.ifsc ? styles.inputError : ''}`}
-                  placeholder="Enter your bank IFSC code"
-                  maxLength={11}
-                />
-                {errors.ifsc && <span className={styles.errorText}>{errors.ifsc}</span>}
-              </div>
+          )}
+          <div className={styles.headerRow}>
+            <h2 className={styles.title}>
+              {currentStep === 1 ? 'Verify your bank details' : 'Digital Signature'}
+            </h2>
+            <button className={styles.closeBtn} onClick={onClose || (() => {})}>&times;</button>
+          </div>
+          {/* Step Indicator */}
+          <div className={styles.stepIndicator}>
+            <div className={`${styles.step} ${currentStep >= 1 ? styles.active : ''}`}>
+              <span className={styles.stepNumber}>1</span>
+              <span className={styles.stepLabel}>Bank Details</span>
             </div>
-
-            <div className={styles.formRow}>
-              {/* phone */}
-              <div className={styles.inputGroup}>
-                <label htmlFor="phone" className={styles.label}>Mobile Number</label>
-                <ReactPhoneNumber
-                  phoneNumber={formData.phone}
-                  setPhoneNumber={val => {
-                    setFormData(prev => ({ ...prev, phone: val || '' }));
-                    if (errors.phone) {
-                      setErrors(prev => ({ ...prev, phone: '' }));
-                    }
-                  }}
-                  height={true}
-                  styles={styles}
-                  classname="input"
-                  label="Mobile Number"
-                  id="phone"
-                />
-                {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
-              </div>
-
-              {/* GST Number */}
-              <div className={styles.inputGroup}>
-                <label htmlFor="gst_number" className={styles.label}>
-                  GST Number <span className={styles.optional}>(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  id="gst_number"
-                  name="gst_number"
-                  value={formData.gst_number}
-                  onChange={handleInputChange}
-                  className={`${styles.input} ${errors.gst_number ? styles.inputError : ''}`}
-                  placeholder="Enter your GST number"
-                  maxLength={15}
-                  style={{ textTransform: 'uppercase' }}
-                />
-                {errors.gst_number && <span className={styles.errorText}>{errors.gst_number}</span>}
-                <small className={styles.helpText}>
-                  Format: 22AAAAA0000A1Z5 (15 characters)
-                </small>
-              </div>
+            <div className={styles.stepLine}></div>
+            <div className={`${styles.step} ${currentStep >= 2 ? styles.active : ''}`}>
+              <span className={styles.stepNumber}>2</span>
+              <span className={styles.stepLabel}>Signature</span>
             </div>
-
-            {/* Next Button */}
-            <button
-              type="submit"
-              className={`${styles.submitBtn}`}
-            >
-              Next: Add Signature
-            </button>
-          </form>
-        ) : (
-          <div className={styles.signatureSection}>
-            <SignPad onSignatureCapture={handleSignatureCapture} />
-            
-            <div className={styles.signatureActions}>
+          </div>
+          <p className={styles.subtitle}>
+            {currentStep === 1
+              ? 'Selling CAD files on Marathon works when you have an Indian bank account. Currently we collect money from buyer and transfer to your bank account (India).'
+              : 'Please provide your digital signature to complete the KYC process.'
+            }
+          </p>
+          {currentStep === 1 ? (
+            <form onSubmit={handleNext} className={styles.form}>
+              <div className={styles.formRow}>
+                {/* Name */}
+                <div className={styles.inputGroup}>
+                  <label htmlFor="name" className={styles.label}>Account Holder</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
+                    placeholder="Enter your name as per Bank Account"
+                  />
+                  {errors.name && <span className={styles.errorText}>{errors.name}</span>}
+                </div>
+                {/* Bank - Placeholder for now */}
+              </div>
+              <div className={styles.formRow}>
+                {/* Account Number */}
+                <div className={styles.inputGroup}>
+                  <label htmlFor="account_number" className={styles.label}>Account number</label>
+                  <input
+                    type="text"
+                    id="account_number"
+                    name="account_number"
+                    value={formData.account_number}
+                    onChange={handleInputChange}
+                    className={`${styles.input} ${errors.account_number ? styles.inputError : ''}`}
+                    placeholder="Enter your bank account number"
+                    maxLength={18}
+                  />
+                  {errors.account_number && <span className={styles.errorText}>{errors.account_number}</span>}
+                </div>
+                {/* IFSC Code */}
+                <div className={styles.inputGroup}>
+                  <label htmlFor="ifsc" className={styles.label}>IFSC Code</label>
+                  <input
+                    type="text"
+                    id="ifsc"
+                    name="ifsc"
+                    value={formData.ifsc}
+                    onChange={handleInputChange}
+                    className={`${styles.input} ${errors.ifsc ? styles.inputError : ''}`}
+                    placeholder="Enter your bank IFSC code"
+                    maxLength={11}
+                  />
+                  {errors.ifsc && <span className={styles.errorText}>{errors.ifsc}</span>}
+                </div>
+              </div>
+              <div className={styles.formRow}>
+                {/* phone */}
+                <div className={styles.inputGroup}>
+                  <label htmlFor="phone" className={styles.label}>Mobile Number</label>
+                  <ReactPhoneNumber
+                    phoneNumber={formData.phone}
+                    setPhoneNumber={val => {
+                      setFormData(prev => ({ ...prev, phone: val || '' }));
+                      if (errors.phone) {
+                        setErrors(prev => ({ ...prev, phone: '' }));
+                      }
+                    }}
+                    height={true}
+                    styles={styles}
+                    classname="input"
+                    label="Mobile Number"
+                    id="phone"
+                  />
+                  {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
+                </div>
+                {/* GST Number */}
+                <div className={styles.inputGroup}>
+                  <label htmlFor="gst_number" className={styles.label}>
+                    GST Number <span className={styles.optional}>(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="gst_number"
+                    name="gst_number"
+                    value={formData.gst_number}
+                    onChange={handleInputChange}
+                    className={`${styles.input} ${errors.gst_number ? styles.inputError : ''}`}
+                    placeholder="Enter your GST number"
+                    maxLength={15}
+                    style={{ textTransform: 'uppercase' }}
+                  />
+                  {errors.gst_number && <span className={styles.errorText}>{errors.gst_number}</span>}
+                  <small className={styles.helpText}>
+                    Format: 22AAAAA0000A1Z5 (15 characters)
+                  </small>
+                </div>
+              </div>
+              {/* Next Button */}
               <button
-                type="button"
-                onClick={handleBack}
-                className={`${styles.backBtn}`}
+                type="submit"
+                className={`${styles.submitBtn}`}
               >
-                Back
+                Next: Add Signature
               </button>
-              
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
-              >
-                {isSubmitting ? 'Submitting...' : 'Complete KYC'}
-              </button>
+            </form>
+          ) : (
+            <div className={styles.signatureSection}>
+              <SignPad onSignatureCapture={handleSignatureCapture} />
+              <div className={styles.signatureActions}>
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className={`${styles.backBtn}`}
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Complete KYC'}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </PopupWrapper>
+          )}
+        </div>
+      </PopupWrapper>
+    </>
   );
 }
 
