@@ -1,16 +1,16 @@
 "use client"
-import React, { useContext, useRef, useState, useEffect } from 'react'
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import { contextState } from '../CommonJsx/ContextProvider';
-import Image from 'next/image'
-import { MARATHON_ASSET_PREFIX_URL, BASE_URL, IMAGEURLS, PHOTO_LINK } from '@/config'
-import styles from './Creators.module.css'
+import Image from 'next/image';
+import { MARATHON_ASSET_PREFIX_URL, BASE_URL, IMAGEURLS, PHOTO_LINK } from '@/config';
+import styles from './Creators.module.css';
 import axios from 'axios';
-import Link from "next/link";
+import ShareYourDesignItems from '../CreatorsLanding/ShareYourDesignItems';
 import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
 
 function CreatorCoverPage({ creatorId, setIsVerified }) {
-
-  const { user, setUser, setUpdatedDetails, viewer } = useContext(contextState);
+  
+  const { user, setUser, setUpdatedDetails,viewer } = useContext(contextState);
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [previewCover, setPreviewCover] = useState(null);
@@ -20,8 +20,8 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
 
   const handleFileUpload = async (e) => {
     if (!localStorage.getItem('is_verified')) {
-      setIsVerified(true)
-      return
+      setIsVerified(true);
+      return;
     }
     const file = e.target.files[0];
     if (!file) return;
@@ -78,6 +78,8 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
     return () => clearInterval(interval);
   }, []);
 
+  // Add carouselIndex state and interval logic
+  
   return (
     <>
       <div>
@@ -134,18 +136,16 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
                       (1440 x 180px)
                     </button>
                   ) : (
-                    <div
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', flexDirection: 'column' }}>
-                      <h1 style={{ color: 'white' }}>Share Your Designs on Marathon-OS</h1>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', flexDirection: 'column' }}>
+                      <h1>Share Your Designs on Marathon-OS</h1>
                       <Image
                         src={MARATHON_ASSET_PREFIX_URL + 'publish-banner.webp'}
                         alt="Cover Image"
                         width={1200}
                         height={300}
                       />
-                      
-                     <Link href="/publish-cad" className={styles.coverPhotoPublishCad}
-                      >Publish CAD</Link>
+                      <button className={styles.coverPhotoPublishCad} 
+                      onClick={()=>setPublishCadPopUp(true)}>Publish CAD</button>
                     </div>
                   )}
                 </div>
@@ -176,15 +176,15 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
                     </button>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', flexDirection: 'column' }}>
-                      <h1 style={{ color: 'white' }}>Share Your Designs on Marathon-OS</h1>
+                      <h1>Share Your Designs on Marathon-OS</h1>
                       <Image
                         src={MARATHON_ASSET_PREFIX_URL + 'publish-banner.webp'}
                         alt="Cover Image"
                         width={1200}
                         height={300}
                       />
-                      <Link href="/publish-cad" className={styles.coverPhotoPublishCad}
-                      >Publish CAD</Link>
+                      <button className={styles.coverPhotoPublishCad}
+                      onClick={()=>setPublishCadPopUp(true)}>Publish CAD</button>
                     </div>
                   )}
                 </div>

@@ -133,7 +133,13 @@ function IndustryDesignsCarousel({ designData, type, design }) {
                             }}>Open in 3D viewer</button>
                     
                 </Link>
-                <DownloadClientButton custumDownload={true} folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type?designData.file_type:'step'}/>
+                <DownloadClientButton custumDownload={true} folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type?designData.file_type:'step'}
+                designDetails={{
+                                        title: designData.page_title, // You can pass actual design title here
+                                        description: designData.page_description, // You can pass actual design description here
+                                        price: designData.price, // Use the designPrice prop
+                                        // Add other design details as needed
+                                    }}/>
             </div>
         </>
     );

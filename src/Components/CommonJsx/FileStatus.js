@@ -11,6 +11,13 @@ function FileStatus({status}) {
           textColor: 'text-white',
           label: 'Completed'
         }
+      case 'approved':
+        return {
+          icon: <FaCheck />,
+          bgColor: 'bg-green-500',
+          textColor: 'text-white',
+          label: 'Approved'
+        }
       case 'processing':
         return {
           icon: <FaSpinner />,
@@ -25,12 +32,26 @@ function FileStatus({status}) {
           textColor: 'text-white',
           label: 'Failed'
         }
+        case 'rejected':
+        return {
+          icon: <FaTimes />,
+          bgColor: 'bg-red-500',
+          textColor: 'text-white',
+          label: 'Rejected'
+        }
       case 'pending':
         return {
           icon: <FaClock />,
           bgColor: 'bg-gray-500',
           textColor: 'text-white',
           label: 'Pending'
+        }
+      case 'pending_approval':
+        return {
+          icon: <FaClock />,
+          bgColor: 'bg-gray-500',
+          textColor: 'text-white',
+          label: 'Pending Approval'
         }
       default:
         return {

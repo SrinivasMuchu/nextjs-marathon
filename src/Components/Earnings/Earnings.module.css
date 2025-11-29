@@ -1,0 +1,140 @@
+.container {
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+/* Date range pill */
+.dateRange {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 14px;
+  cursor: pointer;
+}
+.dateRange:hover { background: #fafafa; }
+.calIcon { font-size: 14px; }
+.caret { color: #6b7280; font-size: 12px; }
+
+/* Stats grid (cards) */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 16px;
+}
+.statCard {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px 6px;
+  display: flex;
+  width: 165px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+}
+.statLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.statValue {
+  margin-top: 4px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+}
+.valueOk { color: #16a34a; }
+
+/* Responsive stats columns */
+@media (max-width: 1024px) {
+  .statsGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .statsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Table (existing) */
+.tableWrap {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+}
+.table { width: 100%; border-collapse: collapse; }
+.thead tr { background: #f9fafb; }
+.th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+.tr:not(:first-child) .td { border-top: 1px solid #e5e7eb; }
+.td { padding: 12px 16px; font-size: 14px; color: #111827; }
+.stateOk { color: #16a34a; font-weight: 600; }
+.stateInfo { color: #6b7280; font-weight: 500; }
+.stateReject { color: #dc2626; font-weight: 600; }
+.stateWarning { color: #ea580c; font-weight: 600; }
+.stateProcessing { color: #2563eb; font-weight: 500; }
+.invLink { color: #7c3aed; text-decoration: none; }
+.invLink:hover { text-decoration: underline; }
+
+/* Responsive table-to-cards */
+@media (max-width: 640px) {
+  .thead { display: none; }
+
+  /* Make sections block, let cells be controlled by the class */
+  .table, .table tbody, .table tr { display: block; width: 100%; }
+
+  .tr {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin: 10px 0;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  /* Force two columns in cells (label + value) */
+  .table td.td {
+    display: grid;
+    grid-template-columns: 44% 56%;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .td:first-child { border-top: none; }
+  .td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6b7280;
+  }
+}
+
+/* Fallback horizontal scroll for ultra-narrow screens */
+@media (max-width: 380px) {
+  .tableWrap { overflow-x: auto; }
+}

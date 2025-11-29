@@ -7,7 +7,7 @@ export const ASSET_PREFIX_URL = "https://marathon-web-assets.s3.ap-south-1.amazo
 export const TITLELIMIT = 100;
 export const DESCRIPTIONLIMIT = 500;
 // export const HEADERS = { "x-auth-token": localStorage.getItem('token')}
-export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj"]
+export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj"];
 export const BUCKET = 'marathon-org-assets';
 export const DESIGN_GLB_PREFIX_URL = 'https://d1d8a3050v4fu6.cloudfront.net/';
 export const IMAGEURLS = {
@@ -83,7 +83,15 @@ export const CAD_CONVERTER_EVENT = 'CONVERTER'
 export const CAD_BROWSER_NOTIFICATION_EVENT = 'BROWSER_NOTIFICATION'
 export const CAD_PUBLISH_EVENT = 'PUBLISH'
 export const CAD_FLOATING_BUTTON_EVENT = 'FLOATING_BUTTON'
+export const CAD_RATING_EVENT = 'CAD_RATING'
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 export const GOOGLE_ADSENSE_CLIENT_ID = process.env.NEXT_GOOGLE_ADS_CLIENT_ID
-export const RAZORPAY_SECRET = process.env.NEXT_RAZORPAY_SECRET_ID
-export const RAZORPAY_KEY_ID = process.env.NEXT_RAZORPAY_KEY_ID
+export const RAZORPAY_SECRET = process.env.NEXT_PUBLIC_RAZORPAY_SECRET_ID
+export const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+
+export const MARATHONDETAILS = {
+  name: "Marathon Technologies",
+  description: "A platform for CAD file management and collaboration.",
+  theme: "#610bee",
+  image: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png"
+};

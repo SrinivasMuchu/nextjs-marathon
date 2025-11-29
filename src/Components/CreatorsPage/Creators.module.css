@@ -50,8 +50,31 @@
     position: relative;
     height: 180px;
     width: 100%;
-}
 
+}
+.coverPhotoCont h1{
+    color: #FFF;
+font-size: 14px;
+font-style: normal;
+font-weight: 700;
+line-height: 20px; /* 142.857% */
+letter-spacing: -0.14px;
+}
+.coverPhotoPublishCad{
+    border-radius: 2.696px;
+background: #FFF;
+color: #610BEE;
+font-size: 9.437px;
+font-style: normal;
+font-weight: 500;
+line-height: 13.481px; /* 142.857% */
+letter-spacing: -0.094px;
+display: inline-flex;
+padding: 4px 13.481px;
+justify-content: center;
+align-items: center;
+gap: 8.089px;
+}
 .coverBtn {
     position: absolute;
     display: flex;
@@ -474,7 +497,7 @@ background: var(--Primary-50, linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%
 @media (max-width: 1000px){
     .coverPhotoPublishCad{
         margin-left:350px;
-    } 
+    }
     .creatorDetails{
         flex-direction:column;
         align-items:center;
@@ -534,3 +557,8 @@ background: var(--Primary-50, linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%
   min-height: unset;
 }
 
+@media (max-width: 450px){
+    .coverPhotoPublishCad{
+        margin-left:200px;
+    }
+}

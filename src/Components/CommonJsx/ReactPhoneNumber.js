@@ -3,7 +3,7 @@ import React from 'react'
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 
-function ReactPhoneNumber({phoneNumber,setPhoneNumber,styles,classname,label,id}) {
+function ReactPhoneNumber({phoneNumber,setPhoneNumber,styles,classname,label,id,height}) {
   return (
     <>
       {label && id && (
@@ -26,7 +26,7 @@ function ReactPhoneNumber({phoneNumber,setPhoneNumber,styles,classname,label,id}
         value={phoneNumber}
         onChange={setPhoneNumber}
         id={id}
-        style={{ backgroundColor: 'white', color: 'black', height: '49.6px', paddingLeft: '5px', outline: 'none', borderRadius: '4px' }}
+        style={{ backgroundColor: 'white', color: 'black', height: height?'42px':'49.6px', paddingLeft: '5px', outline: 'none', borderRadius: '4px' }}
       />
     </>
   )

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 3003",
     "build": "next build",
-    "start": "next start -p 3002",
+    "start": "next start -p 3004",
     "lint": "next lint"
   },
   "dependencies": {
@@ -39,6 +39,7 @@
     "react-select": "^5.10.0",
     "react-toastify": "^11.0.5",
     "sharp": "^0.33.5",
+    "signature_pad": "^5.1.2",
     "swiper": "^11.2.6",
     "tailwind-merge": "^2.5.5",
     "three": "^0.174.0",

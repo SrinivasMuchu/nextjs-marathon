@@ -12,130 +12,97 @@ function PrivacyPolicy() {
         <>
            {/* <HomeTopNav /> */}
             <div className={styles['privacy-policy']}>
-                <h1>Privacy Policy</h1>
+                <h1>Marathon-OS Privacy Policy</h1>
+                <p><strong>Last updated: [Date]</strong></p>
 
-
-                <h2>Introduction</h2>
+                <h2>1. Introduction</h2>
                 <p>
-                    Marathon-OS is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use our services, including our website, SaaS platform, and other related services (collectively referred to as the “Services”). By using Marathon-OS, you agree to the terms of this Privacy Policy.
-                </p>
-                <p>
-                    If you do not agree to this Privacy Policy, please refrain from using the Services.
+                    Marathon‑OS (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and secure your personal and non‑personal data when you access or use our website, mobile applications, marketplace services, and any other associated services (collectively, the &quot;Services&quot;). By accessing or using the Services, you agree to this Privacy Policy. If you do not agree, you must not use the Services.
                 </p>
 
 
-                <h2>1. Information We Collect</h2>
-                <div className={styles['privacy-info']}>
-                    <h3>Information You Provide</h3>
-                    <ul>
-                        <li><strong>Account Information:</strong> When you register for an account, we collect your name, email address, organization details, and any other information you provide.</li>
-                        <li><strong>Billing Information:</strong> For payment purposes, we may collect billing details, such as credit card information and billing address.</li>
-                        <li><strong>Files and Data:</strong> If you upload files (e.g., CAD designs, STEP files, technical documents), we collect and store those files to provide the core functionalities of Marathon-OS.</li>
-                    </ul>
-
-
-                    <h3>Information We Automatically Collect</h3>
-                    <ul>
-                        <li><strong>Usage Data:</strong> Information about how you interact with our Services, such as pages viewed, features used, and session durations.</li>
-                        <li><strong>Device Information:</strong> Information about the device you use to access Marathon-OS, including IP address, browser type, operating system, and device identifiers.</li>
-                        <li><strong>Cookies and Tracking:</strong> We use cookies and similar technologies to track your activity and preferences for a better user experience.</li>
-                    </ul>
-
-
-                    <h3>Information from Third Parties</h3>
-                    <ul>
-                        <li><strong>Google Drive Integration:</strong> If you connect your Google Drive account, we collect file data, metadata, and folder structure based on the permissions you grant. This data is only accessed for user-specified tasks such as STEP file mapping, folder-specific file organization, and part traceability.</li>
-                    </ul>
-                </div>
-
-
-
-
-                <h2>2. How We Use Your Information</h2>
+                <h2>2. Information We Collect</h2>
+                
+                <h3>2.1 Information You Provide</h3>
+                <p>We collect information you voluntarily provide to us, including:</p>
                 <ul>
-                    <li>Provide, maintain, and improve our Services.</li>
-                    <li>Enable seamless file management, including linking CAD files to parts and managing BOMs.</li>
-                    <li>Ensure secure file access and version control for projects.</li>
-                    <li>Communicate with you regarding updates, support, or changes to the Services.</li>
-                    <li>Process payments and manage billing.</li>
-                    <li>Monitor usage patterns and enhance user experience.</li>
-                    <li>Comply with legal obligations and enforce our terms of service.</li>
+                    <li><strong>Account information:</strong> name, email address, organization details, username, and password.</li>
+                    <li><strong>Billing and payment information:</strong> billing address, payment method details, invoicing information.</li>
+                    <li><strong>Bank account and payout information (Sellers only):</strong> When you add or update your payout or banking details, these are collected through our payment-processing partner Razorpay. Marathon‑OS does not store, process, or have access to your complete bank-account or card details. Such information is securely handled and stored by Razorpay in accordance with PCI-DSS and applicable data-protection regulations. Marathon‑OS only receives a masked or tokenized reference to facilitate payouts.</li>
+                    <li><strong>Uploaded content:</strong> CAD files, models, assets, drawings, or other design or technical documents uploaded to the Platform.</li>
+                    <li><strong>Communications:</strong> correspondence, support requests, feedback, or survey responses.</li>
+                </ul>
+
+                <h3>2.2 Information We Automatically Collect</h3>
+                <p>We collect <strong>usage data</strong> (pages viewed, downloads made), <strong>device data</strong> (IP address, browser, OS), and <strong>tracking data</strong> (cookies, beacons) to analyze and improve our Services.</p>
+
+                <h3>2.3 Information from Third Parties</h3>
+                <p>We may receive data from <strong>integrations</strong>, <strong>payment processors</strong>, or <strong>public databases</strong> where permitted.</p>
+
+
+
+
+                <h2>3. How We Use Your Information</h2>
+                <p>We process your data to:</p>
+                <ul>
+                    <li>Provide and improve the Services, including CAD file marketplace functionality.</li>
+                    <li>Manage accounts, verify identities, process transactions, and remit payouts.</li>
+                    <li>Issue invoices to Buyers and Sellers.</li>
+                    <li>Communicate updates, provide support, and enforce Terms &amp; Conditions.</li>
+                    <li>Prevent fraud, resolve disputes, and comply with law.</li>
                 </ul>
 
 
-                <h2>3. How We Share Your Information</h2>
-                <div className={styles['privacy-info']}>
-                    <p>We do not sell your personal information. We may share your information in the following ways:</p>
-                    <ul>
-                        <li><strong>Service Providers:</strong> We work with third-party providers to facilitate our Services (e.g., cloud storage, payment processing, and analytics). These providers are bound by strict confidentiality agreements.</li>
-                        <li><strong>Legal Compliance:</strong> We may disclose information if required to comply with applicable laws, regulations, or legal proceedings.</li>
-                        <li><strong>Business Transfers:</strong> In the event of a merger, acquisition, or sale of assets, your data may be transferred as part of the transaction. We will notify you of any such changes.</li>
-                    </ul>
+                <h2>4. How We Share Your Information</h2>
+                <p>We do not sell personal data. We may share information with:</p>
+                <ul>
+                    <li><strong>Service providers</strong> (payment processors like Razorpay, hosting, analytics, or customer support partners).</li>
+                    <li><strong>Legal authorities</strong> when required by law.</li>
+                    <li><strong>In the event of a merger or acquisition.</strong></li>
+                </ul>
+                <p>All service providers are bound by confidentiality and data-protection obligations.</p>
 
 
+                <h2>5. Data Storage, Security and Retention</h2>
+                
+                <h3>5.1 Data Storage</h3>
+                <p>Data, including uploaded CAD files and metadata, is stored on <strong>secure cloud servers</strong>. We apply <strong>encryption</strong> for data in transit and at rest.</p>
+
+                <h3>5.2 Payment Data Security</h3>
+                <p>All payment transactions, including storage of bank-account or card details, are managed by <strong>Razorpay</strong>, a <strong>PCI-DSS Level 1 compliant gateway</strong>. Marathon‑OS does not retain or store any payment-instrument details. All such data is securely encrypted and controlled by Razorpay.</p>
+
+                <h3>5.3 Security Measures</h3>
+                <p>We implement <strong>TLS encryption</strong>, <strong>access controls</strong>, <strong>regular audits</strong>, and <strong>backups</strong> to protect your data.</p>
+
+                <h3>5.4 Retention</h3>
+                <p>We retain personal data only as long as needed for <strong>business or legal purposes</strong>. Upon account closure, we may retain limited data for audit or legal obligations.</p>
 
 
-                </div>
-
-
-                <h2>4. Data Storage and Security</h2>
-                <div className={styles['privacy-info']}>
-                    <h3>Data Storage</h3>
-                    <p>
-                        Your data is securely stored on trusted cloud servers. Files and metadata uploaded to Marathon-OS are encrypted and accessible only to authorized users with the appropriate permissions.
-                    </p>
-
-
-                    <h3>Data Security</h3>
-                    <p>We implement robust security measures to protect your information, including:</p>
-                    <ul>
-                        <li>Encryption of data in transit and at rest.</li>
-                        <li>Role-based access controls for sensitive files and workflows.</li>
-                        <li>Regular security audits and vulnerability assessments.</li>
-                    </ul>
-                </div>
-
-
-
-
-                <h2>5. Your Rights and Choices</h2>
-                <div className={styles['privacy-info']}>
-                    <h3>Access and Control</h3>
-                    <p>You can view, update, or delete your personal information from your account settings.</p>
-
-
-                    <h3>Data Portability</h3>
-                    <p>Upon request, we will provide you with a copy of your data in a structured format.</p>
-
-
-                    <h3>Data Deletion</h3>
-                    <p>You can request deletion of your account and associated data by contacting us. Please note that certain data may be retained to comply with legal or business obligations.</p>
-
-
-                </div>
 
 
                 <h2>6. Cookies and Tracking Technologies</h2>
-                <p className={styles['privacy-info']}>
-                    We use cookies to enhance your experience and understand user preferences. You can manage your cookie preferences through your browser settings. Note that disabling cookies may impact the functionality of our Services.
-                </p>
+                <p>We use cookies and similar technologies to personalize your experience and analyze usage. You may disable cookies, though this may limit functionality.</p>
 
+                <h2>7. User Rights and Controls</h2>
+                <p>Depending on your jurisdiction, you may request access, correction, deletion, restriction, or portability of your personal data. Contact us to exercise these rights.</p>
 
-                <h2>7. Third-Party Links</h2>
-                <p className={styles['privacy-info']}>
-                    Our platform may contain links to third-party websites or services. We are not responsible for the privacy practices of these external sites. We encourage you to review their privacy policies.
-                </p>
+                <h2>8. Children&apos;s Privacy</h2>
+                <p>Our Services are not intended for persons under 18. We do not knowingly collect data from minors.</p>
 
+                <h2>9. International Transfers</h2>
+                <p>Your data may be transferred to servers outside your country. We implement appropriate safeguards to ensure compliance with applicable laws.</p>
 
-                <h2>8. Updates to This Privacy Policy</h2>
-                <p className={styles['privacy-info']}>
-                    We may update this Privacy Policy from time to time. Changes will be effective upon posting on our website. We encourage you to review this policy periodically to stay informed about how we protect your information.
-                </p>
+                <h2>10. Third‑Party Links and Services</h2>
+                <p>We are not responsible for the privacy practices of third‑party websites or integrations linked through the Platform.</p>
 
+                <h2>11. Changes to this Privacy Policy</h2>
+                <p>We may update this Privacy Policy periodically. Material changes will be notified via email or Platform notice. Continued use constitutes acceptance.</p>
 
-                <h2>9. Contact Us</h2>
-                <p className={styles['privacy-info']}>
-                    If you have questions or concerns about this Privacy Policy or our data practices, please contact us at <a href="mailto:invite@marathon-os.com">invite@marathon-os.com</a>.
+                <h2>12. Contact Information</h2>
+                <p>For privacy inquiries or requests, contact:</p>
+                <p>
+                    📧 <a href="mailto:invite@marathon-os.com">invite@marathon-os.com</a><br/>
+                    📍 <strong>Registered Address:</strong> 4th Floor, BS4F, Malibu Towne, Sector 47, Gurgaon, Haryana – 122018, India
                 </p>
             </div>
             <Footer/>

@@ -3,7 +3,7 @@ import IndustryDesignHeader from './IndustryDesignHeader'
 import IndustryDesignFilesList from './IndustryDesignFilesList'
 import IndustryDesignsSuggestion from './IndustryDesignsSuggestion'
 import { IoMdInformationCircleOutline } from "react-icons/io";
-
+import AdminApprovalButtons from '../CommonJsx/AdminApprovalButtons'
 import AboutCad from './AboutCad'
 import IndustryDesignsCarousel from './IndustryDesignsCarousel'
 import IndustryDesignDropZone from './IndustryDesignDropZone'
@@ -57,6 +57,7 @@ function IndustryDesign({ design, designData, type }) {
             </div>
             <div  className={styles['industry-design-header-container-right']} >
               <IndustryHeaderDetails designData={designData}/>
+              {/* <AdminApprovalButtons design_id={designData.response._id}/> */}
               <IndustryDesignHeader design={design} type={type} designData={designData.response} />
               <CadDesignDownload designId={designData.response._id} designTitle={designData.response.page_title}/>
 

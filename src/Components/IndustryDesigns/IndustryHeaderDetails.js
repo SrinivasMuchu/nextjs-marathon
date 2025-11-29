@@ -1,5 +1,6 @@
 import { IMAGEURLS } from '@/config'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 import styles from './IndustryDesign.module.css'
 import { GoPencil } from "react-icons/go";
@@ -17,13 +18,16 @@ function IndustryHeaderDetails({designData}) {
             <DesignLike designId={designData.response._id}/>
         </div>
         {/* <div className={styles.industryDesignHeaderDetailsOwner}> */}
-        {designData.response.fullname && <div className={styles.industryDesignHeaderDetailsOwner}>
+        {designData.response.fullname && 
+        <Link href={`/creator/${designData.response.username}`}>
+            <div className={styles.industryDesignHeaderDetailsOwner}>
                 <NameProfile userName={designData.response.fullname} width={40} memberPhoto={designData.response.photo}/>
                 {/* <Image src={IMAGEURLS.allInOne} width={40} height={40} alt='icon'/> */}
                 <span>{designData.response.fullname}</span>
                 <div className={styles.industryDesignHeaderDetailsOwnerDivider}></div>
                 <p>{designData.total_files} projects</p>
-            </div>}
+            </div>
+        </Link>}
             
         {/* </div> */}
         <p>{designData.response.page_description}</p>
@@ -40,8 +44,10 @@ function IndustryHeaderDetails({designData}) {
         EditableFields={{page_title:designData.response.page_title,
         page_description:designData.response.page_description,
         is_downloadable:designData.response.is_downloadable,
+        price:designData.response.price,
         cad_tags:designData.response.tag_labels,_id:designData.response._id,}}
-        type={"design"} fileId={designData.response._id}
+        type={"design"}
+        fileId={designData.response._id}
         />}
         
         

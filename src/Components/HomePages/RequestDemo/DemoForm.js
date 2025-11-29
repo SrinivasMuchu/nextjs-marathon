@@ -64,7 +64,7 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
         </div>
         <textarea placeholder='Message*' onChange={(e) => setMessage(e.target.value)} tabIndex={0}/>
         <span style={{ opacity: error ? '1' : '0', color: 'red', fontSize: '14px' }}>{error ? `* ${error}` : 'no text'}</span>
-        <button onClick={requestDemo} className={styles['demo-form-btn']}>
+        <button onClick={requestDemo} style={{background:'#610bee',width:'93px',height:'40px',color:'white',fontSize:'16px'}}className={styles['demo-form-btn']}>
           {loading ? <span className={footerStyles['btn-ring']}></span> : 'Submit'}
         </button>
 

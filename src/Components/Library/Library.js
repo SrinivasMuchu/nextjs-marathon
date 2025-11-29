@@ -55,7 +55,7 @@ async function Library({ searchParams }) {
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
   const allTags = tagsResponse.data?.data || [];
-  // console.log(designs)
+ 
   return (
     <>
       {/* <HomeTopNav /> */}
@@ -98,7 +98,7 @@ async function Library({ searchParams }) {
               
               <Link href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
                 {/* <div className={styles["library-designs-inner"]}> */}
-                <div className={styles["library-designs-items-container-cost"]}>Free</div>
+                <div className={styles["library-designs-items-container-cost"]}>{design.price ? `$${design.price}` : 'Free'}</div>
                   {/* <div className={styles["library-designs-items-container-img"]}>
                       <Image
                     // className={styles["library-designs-items-container-img"]}
@@ -129,7 +129,7 @@ async function Library({ searchParams }) {
                        ratings={{ average: design.average_rating, total: design.rating_count }} />
                   </div>
                     </div>
-                    <span className={styles["design-title-wrapper-price"]}>Free</span>
+                    <span className={styles["design-title-wrapper-price"]}>{design.price ? `$${design.price}` : 'Free'}</span>
                   
                   </div>
                   

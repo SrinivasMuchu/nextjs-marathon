@@ -64,8 +64,7 @@ border: 1px solid  #D1D4D7;
     justify-content: center;
   
 }
-.industry-design-header-viewer-crousal button
- {
+.industry-design-header-viewer-crousal button {
     border-radius: 4px;
     background: #610BEE;
     color: #FFF;
@@ -605,6 +604,7 @@ font-style: normal;
 font-weight: 400;
 opacity:0.8;
 line-height: 24px; /* 150% */
+word-wrap: break-word;
 }
 .industryDesignHeaderDetailsOwner{
     display:flex;

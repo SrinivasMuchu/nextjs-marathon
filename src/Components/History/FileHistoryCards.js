@@ -15,12 +15,13 @@ import CadViewerFiles from './CadViewerFiles';
 import CadConvertorFiles from './CadConvertorFiles';
 import CadPublishedFiles from './CadPublishedFiles';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
+import { toast } from 'react-toastify';
 
 let cachedCadHistory = {};
 
 function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages,creatorId }) {
   
-  const { setUploadedFile } = useContext(contextState);
+  // const { user } = useContext(contextState);
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [downloading, setDownloading] = useState({});
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
@@ -57,7 +58,15 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
     if(!localStorage.getItem('is_verified')){
       setIsUserVerified(true)
     }else{
-      setPublishCadPopUp(true)
+      if(!user.name){
+        toast.info('Please complete your profile to publish CAD files.', {
+          position: "top-right",
+          autoClose: 5000,
+      });
+      }else{
+        setPublishCadPopUp(true)
+      }
+      
     }
   }
   // Reset to page 1 when search term changes

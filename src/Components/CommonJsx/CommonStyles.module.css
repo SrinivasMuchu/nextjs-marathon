@@ -9,6 +9,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
 }
 .paginationWrapper {
   width: 100%;
@@ -139,7 +141,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   padding: 32px;
-  /* width: 450px; */
+  width: 80%;
   /* max-width: 90vw; */
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   color: #333;
@@ -495,7 +497,7 @@
   }
   .publishPopUp{
     width:100%;
-    padding: 12px;
+    /* padding: 12px; */
   }
   .header h2 {
     font-size: 20px;
@@ -525,4 +527,240 @@
   .anchorAds{
     display:none;
   }
+}
+
+
+
+
+
+
+
+
+
+
+/* billing */
+.billing-address-container {
+  max-width: 600px;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  /* height: 90vh; */
+ 
+}
+
+.billing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #eee;
+  /* background: #f8f9fa; */
+  border-radius: 8px 8px 0 0;
+}
+
+.billing-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.billing-form {
+  padding: 24px;
+  height:63vh;
+  overflow-y: auto;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-group input[type="email"],
+.form-group input[type="tel"] {
+  background-color: #f9f9f9;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 20px;
+  border-top: 1px solid #eee;
+}
+
+.cancel-btn,
+.save-btn {
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #5a6268;
+}
+
+.save-btn {
+  background-color: #610bee;
+  color: white;
+  min-width: 120px;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #610bee;
+}
+
+.save-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 850px) {
+  .billing-address-container {
+    max-width: 95%;
+    margin: 10px auto;
+    height: auto;
+    max-height: 90vh;
+  }
+  
+  .billing-form {
+    height: auto;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  
+  .addressRow {
+    flex-direction: column;
+    overflow-x: visible;
+    gap: 8px;
+  }
+  
+  .addressCard {
+    flex: none;
+    width: 100%;
+    height: auto;
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .billing-address-container {
+    margin: 10px;
+    max-width: calc(100% - 20px);
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .billing-header {
+    padding: 16px 20px;
+  }
+  
+  .billing-form {
+    padding: 20px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .cancel-btn,
+  .save-btn {
+    width: 100%;
+  }
+}
+
+/* Select dropdown custom styling */
+.billing-form .css-control {
+  height: 50vh;
+  overflow-y: scroll;
+}
+
+/* GST input styling */
+
+.addressRow {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  
+}
+
+.addressCard {
+  flex: 0 0 200px;
+  width: 200px;
+  height: 200px;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
 }
