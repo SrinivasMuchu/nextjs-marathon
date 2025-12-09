@@ -377,14 +377,18 @@ function Earnings() {
                       })()}
                     </td>
                     <td className={styles.td} data-label="Actions">
-                      <Link
-                        className={styles.seller_invoice_url}
-                        href={row.seller_invoice_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Invoice
-                      </Link>
+                      {row.seller_invoice_url ? (
+                        <Link
+                          className={styles.seller_invoice_url}
+                          href={row.seller_invoice_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Invoice
+                        </Link>
+                      ) : (
+                        <span style={{ color: '#aaa' }}>N/A</span>
+                      )}
                     </td>
                   </tr>
                 ))
