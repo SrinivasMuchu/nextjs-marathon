@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import styles from './Earnings.module.css'
-import { BASE_URL } from '@/config'; 
+import { BASE_URL } from '@/config';
 import Pagenation from '../CommonJsx/Pagenation';
 import Loading from '../CommonJsx/Loaders/Loading';
-
+import Link from 'next/link';
 // const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 const headers = [
@@ -24,56 +24,56 @@ function netAmount(amount) {
   const netPrice = amount * 0.9;
   return `${netPrice.toFixed(2)}`;
 }
-function commission(amount){
+function commission(amount) {
   const commissionAmount = amount * 0.1;
   return `${commissionAmount.toFixed(2)}(10%)`
 }
 
 // Transfer status definitions
 const TRANSFER_STATUS_DEFINITIONS = Object.freeze([
-    { code: 'pending_payment', label: 'Pending Payment', meaning: 'Buyer payment not confirmed' },
-    { code: 'payment_received', label: 'Payment Received', meaning: 'Buyer payment confirmed' },
-    { code: 'on_hold', label: 'On Hold / Under Review', meaning: 'Fraud/KYC verification' },
-    { code: 'scheduled', label: 'Scheduled for Payout', meaning: 'Added to upcoming payout' },
-    { code: 'processing_payout', label: 'Processing Payout', meaning: 'Transfer in progress' },
-    { code: 'transferred', label: 'Transferred', meaning: 'Payout successfully sent' },
-    { code: 'failed', label: 'Failed', meaning: 'Payout failed; retry needed' },
-    { code: 'refunded', label: 'Refunded', meaning: 'Buyer refund / reversal' },
+  { code: 'pending_payment', label: 'Pending Payment', meaning: 'Buyer payment not confirmed' },
+  { code: 'payment_received', label: 'Payment Received', meaning: 'Buyer payment confirmed' },
+  { code: 'on_hold', label: 'On Hold / Under Review', meaning: 'Fraud/KYC verification' },
+  { code: 'scheduled', label: 'Scheduled for Payout', meaning: 'Added to upcoming payout' },
+  { code: 'processing_payout', label: 'Processing Payout', meaning: 'Transfer in progress' },
+  { code: 'transferred', label: 'Transferred', meaning: 'Payout successfully sent' },
+  { code: 'failed', label: 'Failed', meaning: 'Payout failed; retry needed' },
+  { code: 'refunded', label: 'Refunded', meaning: 'Buyer refund / reversal' },
 ]);
 
 // Helper function to get payment state styling and display text
 function getPaymentStateInfo(transferredStatus) {
   const statusCode = transferredStatus?.toLowerCase?.() || transferredStatus;
-  
+
   switch (statusCode) {
     case 'transferred':
       return { className: styles.stateOk, text: 'Transferred' };
-    
+
     case 'payment_received':
     case 'scheduled':
       return { className: styles.stateOk, text: TRANSFER_STATUS_DEFINITIONS.find(s => s.code === statusCode)?.label || 'Approved' };
-    
+
     case 'processing_payout':
       return { className: styles.stateInfo, text: 'Processing Payout' };
-    
+
     case 'pending_payment':
     case 'on_hold':
       return { className: styles.stateInfo, text: TRANSFER_STATUS_DEFINITIONS.find(s => s.code === statusCode)?.label || 'Pending' };
-    
+
     case 'failed':
     case 'refunded':
       return { className: styles.stateReject, text: TRANSFER_STATUS_DEFINITIONS.find(s => s.code === statusCode)?.label || 'Failed' };
-    
+
     // Legacy support for boolean/string values
     case true:
     case 'true':
     case 'approved':
       return { className: styles.stateOk, text: 'Approved' };
-    
+
     case 'rejected':
     case 'reject':
       return { className: styles.stateReject, text: 'Rejected' };
-    
+
     default:
       return { className: styles.stateInfo, text: 'Pending' };
   }
@@ -91,7 +91,7 @@ function Earnings() {
     processing: 0,
   });
   const [earningRows, setEarningRows] = useState([]);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -113,15 +113,15 @@ function Earnings() {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth(); // Current month (0-indexed)
-    
+
     // First day of current month
     const startOfMonth = new Date(year, month, 1);
     const startDate = startOfMonth.toISOString().split('T')[0];
-    
+
     // Last day of current month
     const endOfMonth = new Date(year, month + 1, 0);
     const endDate = endOfMonth.toISOString().split('T')[0];
-    
+
     return {
       from: startDate,
       to: endDate
@@ -149,9 +149,9 @@ function Earnings() {
       const newEndDate = r.to && new Date(r.to) < new Date(newStartDate) ? '' : r.to;
       return { ...r, from: newStartDate, to: newEndDate };
     });
-    
+
     validateDates(newStartDate, range.to);
-    
+
     // Automatically focus and open end date picker
     setTimeout(() => {
       if (endDateRef.current) {
@@ -311,12 +311,12 @@ function Earnings() {
           />
           <span className={styles.caret} aria-hidden>▾</span>
         </div>
-        
+
         {/* Date validation error message */}
         {dateError && (
-          <div style={{ 
-            color: 'red', 
-            fontSize: '14px', 
+          <div style={{
+            color: 'red',
+            fontSize: '14px',
             marginTop: '8px',
             textAlign: 'center'
           }}>
@@ -355,7 +355,7 @@ function Earnings() {
               {isLoading ? (
                 <tr>
                   <td className={styles.td} colSpan={headers.length} style={{ textAlign: 'center', padding: '20px', height: '30vh' }}>
-                    <Loading smallScreen="earnings"/>
+                    <Loading smallScreen="earnings" />
                   </td>
                 </tr>
               ) : (
@@ -377,7 +377,14 @@ function Earnings() {
                       })()}
                     </td>
                     <td className={styles.td} data-label="Actions">
-                      <a className={styles.seller_invoice_url} href={row.seller_invoice_url}>Invoice</a>
+                      <Link
+                        className={styles.seller_invoice_url}
+                        href={row.seller_invoice_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Invoice
+                      </Link>
                     </td>
                   </tr>
                 ))
