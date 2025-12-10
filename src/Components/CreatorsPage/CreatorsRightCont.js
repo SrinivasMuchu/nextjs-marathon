@@ -145,6 +145,7 @@ creatorId}) {
       </TabPanel>
       <TabPanel value={value} index={3} style={{ background: '#F6F6F6',height:'100%' }}>
         <FileHistoryCards 
+          type="USER_DOWNLOADS"
           cad_type="USER_DOWNLOADS"
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}

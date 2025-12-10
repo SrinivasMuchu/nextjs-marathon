@@ -85,19 +85,20 @@ function Kyc({ onClose, setUser }) {
           { headers: { 'user-uuid': localStorage.getItem('uuid') } }
         );
         const status = pollResponse.data?.data?.status;
-        if (status === 'COMPLETED') {
+        if (status === 'completed') {
           setIsPolling(false);
           setPollMessage('');
           toast.success(pollResponse.data.meta.message || 'KYC verification completed!');
           setUser(prevUser => ({
             ...prevUser,
-            kycStatus: 'SUCCESS'
+            kycStatus: 'completed'
           }));
           clearInterval(intervalId);
           onClose();
-        } else if (status === 'FAILED') {
+        } else if (status === 'failed'||status === 'pending') {
           setIsPolling(false);
           setPollError('KYC verification failed. Please try again.');
+          setCurrentStep(1); // Go to first step on failure
           clearInterval(intervalId);
         }
       } catch (error) {
@@ -120,7 +121,7 @@ function Kyc({ onClose, setUser }) {
     try {
       const payload = {
         name: formData.name.trim(),
-        phone: formData.phone.trim(),
+        contact: formData.phone.trim(),
         ifsc: formData.ifsc.trim().toUpperCase(),
         account_number: formData.account_number.trim(),
         signature: formData.signature,
