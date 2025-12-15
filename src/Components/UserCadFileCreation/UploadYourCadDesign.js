@@ -21,8 +21,10 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     console.log(editedDetails)
     const fileInputRef = useRef(null);
     const folderInputRef = useRef(null);
+    const multipleFilesInputRef = useRef(null);
     const uploadAbortControllerRef = useRef(null); // AbortController ref
     const multipleUploadAbortControllersRef = useRef({}); // AbortControllers for multiple files
+    const [isFolderMode, setIsFolderMode] = useState(false); // Toggle between files and folder mode
     const [isChecked, setIsChecked] = useState(editedDetails ? editedDetails.is_downloadable : true);
     const [cadFile, setCadFile] = useState({
         title: editedDetails ? editedDetails.page_title : '',
@@ -94,8 +96,12 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         fileInputRef.current?.click();
     };
 
-    const handleFolderClick = () => {
-        folderInputRef.current?.click();
+    const handleMultipleFilesClick = () => {
+        if (isFolderMode) {
+            folderInputRef.current?.click();
+        } else {
+            multipleFilesInputRef.current?.click();
+        }
     };
 
     const handleCancel = () => {
@@ -165,29 +171,99 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     };
 
 
+    // Validate file type
+    const isValidFileType = (file) => {
+        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        return allowedFilesList.includes(fileExtension);
+    };
+
+    // Get file extension for error messages
+    const getFileExtension = (file) => {
+        return file.name.split('.').pop().toLowerCase() || 'unknown';
+    };
+
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Validate file type before processing
+            if (!isValidFileType(file)) {
+                toast.error(`File type .${getFileExtension(file)} is not supported. Supported formats: ${allowedFilesList.join(', ')}`);
+                e.target.value = ''; // Reset input
+                return;
+            }
             setUploadMode('single');
             handleFile(file);
         }
     };
 
-    // Handle folder/multiple files selection
-    const handleFolderChange = async (e) => {
+    // Handle multiple files selection (non-folder)
+    const handleMultipleFilesChange = async (e) => {
         const allFiles = Array.from(e.target.files);
-        // Filter only supported CAD files
-        const files = allFiles.filter(file => {
-            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-            return allowedFilesList.includes(fileExtension);
+        
+        if (allFiles.length === 0) return;
+        
+        // Validate all files first
+        const invalidFiles = [];
+        const validFiles = [];
+        
+        allFiles.forEach(file => {
+            if (isValidFileType(file)) {
+                validFiles.push(file);
+            } else {
+                invalidFiles.push(file.name);
+            }
         });
         
-        if (files.length > 0) {
-            setUploadMode('multiple');
-            await handleMultipleFiles(files);
-        } else {
-            toast.error('No supported CAD files found in the selected folder.');
+        // Show error for invalid files
+        if (invalidFiles.length > 0) {
+            toast.error(`${invalidFiles.length} file(s) have unsupported formats: ${invalidFiles.slice(0, 3).join(', ')}${invalidFiles.length > 3 ? '...' : ''}. Supported formats: ${allowedFilesList.join(', ')}`);
         }
+        
+        // Process valid files
+        if (validFiles.length > 0) {
+            setUploadMode('multiple');
+            await handleMultipleFiles(validFiles);
+        } else {
+            toast.error('No supported CAD files found. Supported formats: ' + allowedFilesList.join(', '));
+        }
+        
+        // Reset input
+        e.target.value = '';
+    };
+
+    // Handle folder selection
+    const handleFolderChange = async (e) => {
+        const allFiles = Array.from(e.target.files);
+        
+        if (allFiles.length === 0) return;
+        
+        // Validate all files first
+        const invalidFiles = [];
+        const validFiles = [];
+        
+        allFiles.forEach(file => {
+            if (isValidFileType(file)) {
+                validFiles.push(file);
+            } else {
+                invalidFiles.push(file.name);
+            }
+        });
+        
+        // Show error for invalid files
+        if (invalidFiles.length > 0) {
+            toast.error(`${invalidFiles.length} file(s) have unsupported formats: ${invalidFiles.slice(0, 3).join(', ')}${invalidFiles.length > 3 ? '...' : ''}. Supported formats: ${allowedFilesList.join(', ')}`);
+        }
+        
+        // Process valid files
+        if (validFiles.length > 0) {
+            setUploadMode('multiple');
+            await handleMultipleFiles(validFiles);
+        } else {
+            toast.error('No supported CAD files found in folder. Supported formats: ' + allowedFilesList.join(', '));
+        }
+        
+        // Reset input
+        e.target.value = '';
     };
 
     // Recursively process folder entries (handles nested folders)
@@ -197,8 +273,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         if (entry.isFile) {
             return new Promise((resolve) => {
                 entry.file((file) => {
-                    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-                    if (allowedFilesList.includes(fileExtension)) {
+                    // Validate file type before adding
+                    if (isValidFileType(file)) {
                         files.push({
                             file,
                             path: path ? `${path}/${file.name}` : file.name
@@ -233,15 +309,14 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         const files = Array.from(e.dataTransfer.files);
         if (files.length === 1) {
             const file = files[0];
-            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-            if (allowedFilesList.includes(fileExtension)) {
+            if (isValidFileType(file)) {
                 setUploadMode('single');
                 handleFile(file);
             } else {
-                toast.error('File type not supported. Please upload a CAD file.');
+                toast.error(`File type .${getFileExtension(file)} is not supported. Supported formats: ${allowedFilesList.join(', ')}`);
             }
         } else if (files.length > 1) {
-            toast.info('Multiple files detected. Please use the folder upload area below.');
+            toast.info('Multiple files detected. Please use the multiple files upload area below.');
         }
     };
 
@@ -252,6 +327,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         
         const items = Array.from(e.dataTransfer.items);
         const files = [];
+        const invalidFiles = [];
         
         for (const item of items) {
             if (item.kind === 'file') {
@@ -259,9 +335,10 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                 if (entry) {
                     if (entry.isFile) {
                         const file = item.getAsFile();
-                        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-                        if (allowedFilesList.includes(fileExtension)) {
+                        if (isValidFileType(file)) {
                             files.push({ file, path: file.name });
+                        } else {
+                            invalidFiles.push(file.name);
                         }
                     } else if (entry.isDirectory) {
                         const dirFiles = await processDirectoryEntry(entry);
@@ -271,11 +348,16 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
             }
         }
         
+        // Show error for invalid files
+        if (invalidFiles.length > 0) {
+            toast.error(`${invalidFiles.length} file(s) have unsupported formats. Supported formats: ${allowedFilesList.join(', ')}`);
+        }
+        
         if (files.length > 0) {
             setUploadMode('multiple');
             await handleMultipleFiles(files.map(f => f.file));
         } else {
-            toast.error('No supported CAD files found.');
+            toast.error('No supported CAD files found. Supported formats: ' + allowedFilesList.join(', '));
         }
     };
 
@@ -286,6 +368,11 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
 
     // Upload a single file with progress tracking
     const uploadSingleFile = async (file, updateProgress) => {
+        // Validate file type before upload
+        if (!isValidFileType(file)) {
+            throw new Error(`File type .${getFileExtension(file)} is not supported`);
+        }
+        
         const fileSizeMB = file.size / (1024 * 1024);
         const abortController = new AbortController();
         multipleUploadAbortControllersRef.current[file.name] = abortController;
@@ -354,12 +441,40 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
 
     // Process multiple files with concurrency control
     const handleMultipleFiles = async (files) => {
+        if (!files || files.length === 0) {
+            toast.error('No files to upload.');
+            return;
+        }
+        
+        // Validate all files before starting uploads
+        const invalidFiles = [];
+        const validFiles = [];
+        
+        files.forEach(file => {
+            if (isValidFileType(file)) {
+                validFiles.push(file);
+            } else {
+                invalidFiles.push(file.name);
+            }
+        });
+        
+        // Show error for invalid files
+        if (invalidFiles.length > 0) {
+            toast.error(`${invalidFiles.length} file(s) have unsupported formats: ${invalidFiles.slice(0, 3).join(', ')}${invalidFiles.length > 3 ? '...' : ''}. Supported formats: ${allowedFilesList.join(', ')}`);
+        }
+        
+        // If no valid files, stop
+        if (validFiles.length === 0) {
+            toast.error('No supported CAD files to upload. Supported formats: ' + allowedFilesList.join(', '));
+            return;
+        }
+        
         setIsUploadingMultiple(true);
         setMultipleUploadProgress({});
         
-        // Initialize progress for all files
+        // Initialize progress for all valid files
         const initialProgress = {};
-        files.forEach(file => {
+        validFiles.forEach(file => {
             initialProgress[file.name] = { loaded: 0, total: file.size, percent: 0 };
         });
         setMultipleUploadProgress(initialProgress);
@@ -378,9 +493,9 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         const failedFiles = [];
         
         try {
-            // Process files in batches
-            for (let i = 0; i < files.length; i += CONCURRENCY_LIMIT) {
-                const batch = files.slice(i, i + CONCURRENCY_LIMIT);
+            // Process valid files in batches
+            for (let i = 0; i < validFiles.length; i += CONCURRENCY_LIMIT) {
+                const batch = validFiles.slice(i, i + CONCURRENCY_LIMIT);
                 
                 // Upload batch in parallel
                 const batchPromises = batch.map(async (file) => {
@@ -444,6 +559,12 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     };
 
     const handleFile = async (file) => {
+        // Validate file type before upload
+        if (!isValidFileType(file)) {
+            toast.error(`File type .${getFileExtension(file)} is not supported. Supported formats: ${allowedFilesList.join(', ')}`);
+            return;
+        }
+        
         const fileSizeMB = file.size / (1024 * 1024);
         setFileName(file.name);
         setFileSize(fileSizeMB);
@@ -830,23 +951,55 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                         {/* Multiple Files / Folder Upload Dropzone */}
                         <div 
                             className={styles["cad-dropzone"]} 
-                            onClick={handleFolderClick}
+                            onClick={handleMultipleFilesClick}
                             onDrop={handleMultipleDrop}
                             onDragOver={handleDragOver}
                             style={{ 
                                 border: '2px dashed #610bee',
-                                backgroundColor: '#f8f9fa'
+                                backgroundColor: '#f8f9fa',
+                                position: 'relative'
                             }}
                         >
+                            {/* Multiple files input */}
+                            <input
+                                type="file"
+                                multiple
+                                ref={multipleFilesInputRef}
+                                disabled={uploadProgress > 0 || isUploadingMultiple}
+                                style={{ display: "none" }}
+                                onChange={handleMultipleFilesChange}
+                                accept={allowedFilesList.join(',')}
+                            />
+                            {/* Folder input */}
                             <input
                                 type="file"
                                 webkitdirectory=""
-                                multiple
                                 ref={folderInputRef}
                                 disabled={uploadProgress > 0 || isUploadingMultiple}
                                 style={{ display: "none" }}
                                 onChange={handleFolderChange}
                             />
+                            {/* Toggle button */}
+                            <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsFolderMode(!isFolderMode);
+                                    }}
+                                    style={{
+                                        padding: '4px 8px',
+                                        fontSize: 11,
+                                        background: isFolderMode ? '#610bee' : '#fff',
+                                        color: isFolderMode ? '#fff' : '#610bee',
+                                        border: '1px solid #610bee',
+                                        borderRadius: 4,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {isFolderMode ? '📁 Folder' : '📄 Files'}
+                                </button>
+                            </div>
                             {isUploadingMultiple || supportedFiles.length > 0 ? (
                                 <div style={{ marginTop: 10, width: '90%', textAlign: 'center', marginInline: 'auto' }}>
                                     {isUploadingMultiple ? (
@@ -887,9 +1040,14 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                         height={50}
                                     />
                                     Drag multiple files or folder here or{' '}
-                                    <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select folder</span>
+                                    <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>
+                                        {isFolderMode ? 'select folder' : 'select files'}
+                                    </span>
                                     <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
-                                        Supports nested folders. Only CAD files (.step, .stp, .stl, .ply, .off, .igs, .iges, .brp, .brep, .obj) will be uploaded.
+                                        {isFolderMode 
+                                            ? 'Select a folder (supports nested folders). Only CAD files (.step, .stp, .stl, .ply, .off, .igs, .iges, .brp, .brep, .obj) will be uploaded.'
+                                            : 'Select multiple files. Only CAD files (.step, .stp, .stl, .ply, .off, .igs, .iges, .brp, .brep, .obj) will be uploaded.'
+                                        }
                                     </p>
                                 </>
                             )}
