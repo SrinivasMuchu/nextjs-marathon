@@ -526,7 +526,7 @@ function UploadYourCadDesign({
                         <div className={styles["cad-dropzone"]} onClick={handleClick}>
                             <input
                                 type="file"
-                                accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj,.glb"
+                                accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj,.glb,.dxf"
                                 ref={fileInputRef}
                                 disabled={cadFormState.uploadProgress > 0}
                                 style={{ display: "none" }}

@@ -4,7 +4,7 @@ import cadStyles from '../CadHomeDesign/CadHome.module.css'
 import { usePathname } from "next/navigation";
 
 function CadUploadHeadings(type) {
-    const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj"])
+    const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj",".glb",".dxf"]);
      const pathname = usePathname();
     const cadFile = pathname.split("/")[2];
 
