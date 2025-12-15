@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useContext } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
-import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT } from '@/config';
+import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, allowedFilesList } from '@/config';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
@@ -20,7 +20,9 @@ import Link from 'next/link';
 function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = false, rejected}) {
     console.log(editedDetails)
     const fileInputRef = useRef(null);
+    const folderInputRef = useRef(null);
     const uploadAbortControllerRef = useRef(null); // AbortController ref
+    const multipleUploadAbortControllersRef = useRef({}); // AbortControllers for multiple files
     const [isChecked, setIsChecked] = useState(editedDetails ? editedDetails.is_downloadable : true);
     const [cadFile, setCadFile] = useState({
         title: editedDetails ? editedDetails.page_title : '',
@@ -33,6 +35,10 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     const [uploadProgress, setUploadProgress] = useState(0);
     const [fileName, setFileName] = useState('');
     const [fileSize, setFileSize] = useState('');
+    const [supportedFiles, setSupportedFiles] = useState([]); // Array of file objects: {fileName, type, size, url}
+    const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'multiple'
+    const [isUploadingMultiple, setIsUploadingMultiple] = useState(false);
+    const [multipleUploadProgress, setMultipleUploadProgress] = useState({}); // Track progress for each file
     const [formErrors, setFormErrors] = useState({
         file: '',
         title: '',
@@ -88,15 +94,30 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         fileInputRef.current?.click();
     };
 
+    const handleFolderClick = () => {
+        folderInputRef.current?.click();
+    };
+
     const handleCancel = () => {
+        // Cancel single file upload
         if (uploadAbortControllerRef.current) {
-            uploadAbortControllerRef.current.abort(); // cancel the request
+            uploadAbortControllerRef.current.abort();
             uploadAbortControllerRef.current = null;
         }
+        
+        // Cancel all multiple file uploads
+        Object.values(multipleUploadAbortControllersRef.current).forEach(controller => {
+            controller.abort();
+        });
+        multipleUploadAbortControllersRef.current = {};
+        
         setFileName('');
         setFileSize('');
         setUploadProgress(0);
         setUrl('');
+        setSupportedFiles([]);
+        setMultipleUploadProgress({});
+        setIsUploadingMultiple(false);
         toast.info("Upload canceled.");
     };
 
@@ -112,7 +133,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         let isValid = true;
 
         // Only require file upload for new uploads, not for editing
-        if (!editedDetails && !url) {
+        if (!editedDetails && !url && supportedFiles.length === 0) {
             errors.file = 'Upload your CAD file.';
             isValid = false;
         }
@@ -147,7 +168,278 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
+            setUploadMode('single');
             handleFile(file);
+        }
+    };
+
+    // Handle folder/multiple files selection
+    const handleFolderChange = async (e) => {
+        const allFiles = Array.from(e.target.files);
+        // Filter only supported CAD files
+        const files = allFiles.filter(file => {
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            return allowedFilesList.includes(fileExtension);
+        });
+        
+        if (files.length > 0) {
+            setUploadMode('multiple');
+            await handleMultipleFiles(files);
+        } else {
+            toast.error('No supported CAD files found in the selected folder.');
+        }
+    };
+
+    // Recursively process folder entries (handles nested folders)
+    const processDirectoryEntry = async (entry, path = '') => {
+        const files = [];
+        
+        if (entry.isFile) {
+            return new Promise((resolve) => {
+                entry.file((file) => {
+                    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+                    if (allowedFilesList.includes(fileExtension)) {
+                        files.push({
+                            file,
+                            path: path ? `${path}/${file.name}` : file.name
+                        });
+                    }
+                    resolve(files);
+                });
+            });
+        } else if (entry.isDirectory) {
+            const reader = entry.createReader();
+            const entries = await new Promise((resolve) => {
+                reader.readEntries((entries) => {
+                    resolve(entries);
+                });
+            });
+            
+            const newPath = path ? `${path}/${entry.name}` : entry.name;
+            for (const entryItem of entries) {
+                const subFiles = await processDirectoryEntry(entryItem, newPath);
+                files.push(...subFiles);
+            }
+        }
+        
+        return files;
+    };
+
+    // Handle drag and drop for single file
+    const handleSingleDrop = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length === 1) {
+            const file = files[0];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (allowedFilesList.includes(fileExtension)) {
+                setUploadMode('single');
+                handleFile(file);
+            } else {
+                toast.error('File type not supported. Please upload a CAD file.');
+            }
+        } else if (files.length > 1) {
+            toast.info('Multiple files detected. Please use the folder upload area below.');
+        }
+    };
+
+    // Handle drag and drop for folders/multiple files
+    const handleMultipleDrop = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const items = Array.from(e.dataTransfer.items);
+        const files = [];
+        
+        for (const item of items) {
+            if (item.kind === 'file') {
+                const entry = item.webkitGetAsEntry();
+                if (entry) {
+                    if (entry.isFile) {
+                        const file = item.getAsFile();
+                        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+                        if (allowedFilesList.includes(fileExtension)) {
+                            files.push({ file, path: file.name });
+                        }
+                    } else if (entry.isDirectory) {
+                        const dirFiles = await processDirectoryEntry(entry);
+                        files.push(...dirFiles);
+                    }
+                }
+            }
+        }
+        
+        if (files.length > 0) {
+            setUploadMode('multiple');
+            await handleMultipleFiles(files.map(f => f.file));
+        } else {
+            toast.error('No supported CAD files found.');
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    // Upload a single file with progress tracking
+    const uploadSingleFile = async (file, updateProgress) => {
+        const fileSizeMB = file.size / (1024 * 1024);
+        const abortController = new AbortController();
+        multipleUploadAbortControllersRef.current[file.name] = abortController;
+        
+        try {
+            const headers = {
+                "user-uuid": localStorage.getItem("uuid"),
+            };
+            
+            // Initialize progress
+            updateProgress(file.name, { loaded: 0, total: file.size, percent: 0 });
+            
+            // Get presigned URL
+            const { data: presignedRes } = await axios.post(
+                `${BASE_URL}/v1/cad/get-next-presigned-url`,
+                {
+                    bucket_name: BUCKET,
+                    file: file.name,
+                    category: "designs_upload",
+                    filesize: fileSizeMB
+                },
+                { headers }
+            );
+
+            if (
+                presignedRes.meta.code === 200 &&
+                presignedRes.meta.message === "SUCCESS" &&
+                presignedRes.data.url
+            ) {
+                // Upload file
+                await axios.put(
+                    presignedRes.data.url,
+                    file,
+                    {
+                        headers: { 'Content-Type': file.type },
+                        signal: abortController.signal,
+                        onUploadProgress: (progressEvent) => {
+                            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                            updateProgress(file.name, {
+                                loaded: progressEvent.loaded,
+                                total: progressEvent.total,
+                                percent
+                            });
+                        },
+                    }
+                );
+
+                const fileUrl = presignedRes.data.url.split('?')[0];
+                return {
+                    fileName: file.name,
+                    type: file.name.split('.').pop(),
+                    size: file.size,
+                    url: fileUrl
+                };
+            }
+            return null;
+        } catch (error) {
+            if (axios.isCancel(error) || error.name === "CanceledError") {
+                throw new Error('CANCELED');
+            }
+            throw error;
+        } finally {
+            delete multipleUploadAbortControllersRef.current[file.name];
+        }
+    };
+
+    // Process multiple files with concurrency control
+    const handleMultipleFiles = async (files) => {
+        setIsUploadingMultiple(true);
+        setMultipleUploadProgress({});
+        
+        // Initialize progress for all files
+        const initialProgress = {};
+        files.forEach(file => {
+            initialProgress[file.name] = { loaded: 0, total: file.size, percent: 0 };
+        });
+        setMultipleUploadProgress(initialProgress);
+        
+        // Progress update function with batching
+        const updateProgress = (fileName, progress) => {
+            setMultipleUploadProgress(prev => ({
+                ...prev,
+                [fileName]: progress
+            }));
+        };
+        
+        // Concurrency limit (upload 5 files at a time)
+        const CONCURRENCY_LIMIT = 5;
+        const uploadedFiles = [];
+        const failedFiles = [];
+        
+        try {
+            // Process files in batches
+            for (let i = 0; i < files.length; i += CONCURRENCY_LIMIT) {
+                const batch = files.slice(i, i + CONCURRENCY_LIMIT);
+                
+                // Upload batch in parallel
+                const batchPromises = batch.map(async (file) => {
+                    try {
+                        const result = await uploadSingleFile(file, updateProgress);
+                        if (result) {
+                            return { success: true, file: result };
+                        }
+                        return { success: false, fileName: file.name };
+                    } catch (error) {
+                        if (error.message === 'CANCELED') {
+                            return { success: false, fileName: file.name, canceled: true };
+                        }
+                        console.error(`Error uploading ${file.name}:`, error);
+                        return { success: false, fileName: file.name, error: error.message };
+                    }
+                });
+                
+                // Wait for batch to complete
+                const batchResults = await Promise.allSettled(batchPromises);
+                
+                // Process results
+                batchResults.forEach((result, index) => {
+                    if (result.status === 'fulfilled') {
+                        const { success, file, fileName, canceled } = result.value;
+                        if (success && file) {
+                            uploadedFiles.push(file);
+                        } else if (!canceled) {
+                            failedFiles.push(fileName || batch[index].name);
+                        }
+                    } else {
+                        failedFiles.push(batch[index].name);
+                    }
+                });
+            }
+            
+            // Update state with results
+            setSupportedFiles(uploadedFiles);
+            setIsUploadingMultiple(false);
+            
+            // Show results
+            if (uploadedFiles.length > 0) {
+                toast.success(`${uploadedFiles.length} file(s) successfully uploaded!`);
+                // Set primary file info for backward compatibility
+                if (uploadedFiles.length === 1) {
+                    setFileName(uploadedFiles[0].fileName);
+                    setFileFormat(uploadedFiles[0].type);
+                    setUrl(uploadedFiles[0].url);
+                    setFileSize(uploadedFiles[0].size / (1024 * 1024));
+                }
+            }
+            
+            if (failedFiles.length > 0) {
+                toast.error(`${failedFiles.length} file(s) failed to upload.`);
+            }
+        } catch (error) {
+            console.error('Error processing multiple files:', error);
+            setIsUploadingMultiple(false);
+            toast.error('Error processing files. Please try again.');
         }
     };
 
@@ -213,20 +505,30 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         if (!validateForm()) return;
         setUploading(true);
         try {
+            const requestData = {
+                uuid: localStorage.getItem("uuid"),
+                title: cadFile.title,
+                price: price ? price : 0,
+                file_type: fileFormat,
+                description: cadFile.description,
+                tags: selectedOptions.map(option => option.value),
+                is_downloadable: isChecked,
+                converted_cad_source: uploadedFile,
+            };
+
+            // Add single file URL for backward compatibility
+            if (url) {
+                requestData.url = url;
+            }
+
+            // Add supported files array if multiple files were uploaded
+            if (supportedFiles.length > 0) {
+                requestData.supported_files = supportedFiles;
+            }
+
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/create-user-cad-file`,
-                {
-                    uuid: localStorage.getItem("uuid"),
-                    title: cadFile.title,
-                    price: price ? price : 0,
-                    file_type: fileFormat,
-                    description: cadFile.description,
-                    tags: selectedOptions.map(option => option.value),
-                    url,
-                    is_downloadable: isChecked,
-                    converted_cad_source: uploadedFile,
-                    
-                },
+                requestData,
                 {
                     headers: {
                         "user-uuid": localStorage.getItem("uuid"),
@@ -447,6 +749,9 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         setFileSize('');
         setUploadProgress(0);
         setUrl('');
+        setSupportedFiles([]);
+        setMultipleUploadProgress({});
+        setIsUploadingMultiple(false);
         toast.info("CAD file removed.");
     }
 
@@ -478,19 +783,26 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                     )}
                 </div>
                     {rejected && <span style={{color:'red',marginBottom:'10px'}}>Rejected due to: {editedDetails.rejected_message}</span>}
-                {/* FULL-WIDTH Dropzone (top center) */}
+                {/* FULL-WIDTH Dropzones (top center) */}
                 {!editedDetails && (
                     <div style={{ marginBottom: 16 }}>
-                        <div className={styles["cad-dropzone"]} onClick={handleClick}>
+                        {/* Single File Upload Dropzone */}
+                        <div 
+                            className={styles["cad-dropzone"]} 
+                            onClick={handleClick}
+                            onDrop={handleSingleDrop}
+                            onDragOver={handleDragOver}
+                            style={{ marginBottom: 12 }}
+                        >
                             <input
                                 type="file"
                                 accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
                                 ref={fileInputRef}
-                                disabled={uploadProgress > 0}
+                                disabled={uploadProgress > 0 || isUploadingMultiple}
                                 style={{ display: "none" }}
                                 onChange={handleFileChange}
                             />
-                            {uploadProgress > 0 ? (
+                            {uploadProgress > 0 && uploadMode === 'single' ? (
                                 <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
                                     <div><span>{fileName} - {Math.round(fileSize)}mb</span></div>
                                     <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
@@ -509,12 +821,80 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                         width={50}
                                         height={50}
                                     />
-                                    Drag files and folders here or{' '}
-                                    <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select files</span>
+                                    Drag a single file here or{' '}
+                                    <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
                                 </>
                             )}
                         </div>
-                        {(formErrors.file && !url) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
+
+                        {/* Multiple Files / Folder Upload Dropzone */}
+                        <div 
+                            className={styles["cad-dropzone"]} 
+                            onClick={handleFolderClick}
+                            onDrop={handleMultipleDrop}
+                            onDragOver={handleDragOver}
+                            style={{ 
+                                border: '2px dashed #610bee',
+                                backgroundColor: '#f8f9fa'
+                            }}
+                        >
+                            <input
+                                type="file"
+                                webkitdirectory=""
+                                multiple
+                                ref={folderInputRef}
+                                disabled={uploadProgress > 0 || isUploadingMultiple}
+                                style={{ display: "none" }}
+                                onChange={handleFolderChange}
+                            />
+                            {isUploadingMultiple || supportedFiles.length > 0 ? (
+                                <div style={{ marginTop: 10, width: '90%', textAlign: 'center', marginInline: 'auto' }}>
+                                    {isUploadingMultiple ? (
+                                        <>
+                                            <div><span>Uploading {Object.keys(multipleUploadProgress).length} file(s)...</span></div>
+                                            {Object.entries(multipleUploadProgress).map(([name, progress]) => (
+                                                <div key={name} style={{ marginTop: 8 }}>
+                                                    <div style={{ fontSize: 12, marginBottom: 4 }}>{name}</div>
+                                                    <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
+                                                        <div style={{ width: `${progress.percent}%`, backgroundColor: '#610bee', height: 6, transition: 'width 0.3s ease-in-out' }} />
+                                                    </div>
+                                                    <p style={{ textAlign: 'right', fontSize: 11 }}>{progress.percent}%</p>
+                                                </div>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div><span>{supportedFiles.length} file(s) uploaded successfully</span></div>
+                                            <div style={{ maxHeight: '150px', overflowY: 'auto', marginTop: 8, textAlign: 'left' }}>
+                                                {supportedFiles.map((file, idx) => (
+                                                    <div key={idx} style={{ fontSize: 12, padding: '4px 0', borderBottom: '1px solid #eee' }}>
+                                                        {file.fileName} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div style={{ marginTop: 8 }}>
+                                                <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    <Image
+                                        src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
+                                        alt='uploading-icon'
+                                        width={50}
+                                        height={50}
+                                    />
+                                    Drag multiple files or folder here or{' '}
+                                    <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select folder</span>
+                                    <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
+                                        Supports nested folders. Only CAD files (.step, .stp, .stl, .ply, .off, .igs, .iges, .brp, .brep, .obj) will be uploaded.
+                                    </p>
+                                </>
+                            )}
+                        </div>
+                        {(formErrors.file && !url && supportedFiles.length === 0) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
                     </div>
                 )}
 
