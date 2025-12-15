@@ -644,7 +644,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
 
             // Add supported files array if multiple files were uploaded
             if (supportedFiles.length > 0) {
-                requestData.supported_files = supportedFiles;
+                requestData.supporting_files = supportedFiles;
             }
 
             const response = await axios.post(
