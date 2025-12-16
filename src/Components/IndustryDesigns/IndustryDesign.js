@@ -17,6 +17,7 @@ import IndustryHeaderDetails from './IndustryHeaderDetails'
 import DownloadsRatingAlert from '../CreatorsPage/DownloadsRatingAlert'
 import CadDesignDownload from './CadDesignDownlaod'
 import DesignViewer from './DesignViewer';
+import BotChecker from './BotChecker';
 
 function IndustryDesign({ design, designData, type }) {
 
@@ -33,6 +34,7 @@ function IndustryDesign({ design, designData, type }) {
       )}
 
       <div>
+        <BotChecker/>
         {designData && <>
           {/* <HomeTopNav /> */}
           {!type ?
