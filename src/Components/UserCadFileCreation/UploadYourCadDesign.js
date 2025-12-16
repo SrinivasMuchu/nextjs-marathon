@@ -20,11 +20,11 @@ import Link from 'next/link';
 function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = false, rejected}) {
     console.log(editedDetails)
     const fileInputRef = useRef(null);
-    const folderInputRef = useRef(null);
+    // const folderInputRef = useRef(null); // Commented out - folder selection disabled
     const multipleFilesInputRef = useRef(null);
     const uploadAbortControllerRef = useRef(null); // AbortController ref
     const multipleUploadAbortControllersRef = useRef({}); // AbortControllers for multiple files
-    const [isFolderMode, setIsFolderMode] = useState(false); // Toggle between files and folder mode
+    // const [isFolderMode, setIsFolderMode] = useState(false); // Commented out - folder selection disabled
     const [isChecked, setIsChecked] = useState(editedDetails ? editedDetails.is_downloadable : true);
     const [cadFile, setCadFile] = useState({
         title: editedDetails ? editedDetails.page_title : '',
@@ -97,11 +97,13 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     };
 
     const handleMultipleFilesClick = () => {
-        if (isFolderMode) {
-            folderInputRef.current?.click();
-        } else {
-            multipleFilesInputRef.current?.click();
-        }
+        // Folder mode disabled - only multiple files selection
+        multipleFilesInputRef.current?.click();
+        // if (isFolderMode) {
+        //     folderInputRef.current?.click();
+        // } else {
+        //     multipleFilesInputRef.current?.click();
+        // }
     };
 
     const handleCancel = () => {
@@ -213,52 +215,54 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
 
     // Handle folder selection
     // Supporting files can be any file type
-    const handleFolderChange = async (e) => {
-        const allFiles = Array.from(e.target.files);
-        
-        if (allFiles.length === 0) return;
-        
-        // Accept all files for supporting files (no validation needed)
-        setUploadMode('multiple');
-        await handleMultipleFiles(allFiles);
-        
-        // Reset input
-        e.target.value = '';
-    };
+    // COMMENTED OUT - Folder selection disabled
+    // const handleFolderChange = async (e) => {
+    //     const allFiles = Array.from(e.target.files);
+    //     
+    //     if (allFiles.length === 0) return;
+    //     
+    //     // Accept all files for supporting files (no validation needed)
+    //     setUploadMode('multiple');
+    //     await handleMultipleFiles(allFiles);
+    //     
+    //     // Reset input
+    //     e.target.value = '';
+    // };
 
     // Recursively process folder entries (handles nested folders)
     // Supporting files can be any file type
-    const processDirectoryEntry = async (entry, path = '') => {
-        const files = [];
-        
-        if (entry.isFile) {
-            return new Promise((resolve) => {
-                entry.file((file) => {
-                    // Accept all file types for supporting files
-                    files.push({
-                        file,
-                        path: path ? `${path}/${file.name}` : file.name
-                    });
-                    resolve(files);
-                });
-            });
-        } else if (entry.isDirectory) {
-            const reader = entry.createReader();
-            const entries = await new Promise((resolve) => {
-                reader.readEntries((entries) => {
-                    resolve(entries);
-                });
-            });
-            
-            const newPath = path ? `${path}/${entry.name}` : entry.name;
-            for (const entryItem of entries) {
-                const subFiles = await processDirectoryEntry(entryItem, newPath);
-                files.push(...subFiles);
-            }
-        }
-        
-        return files;
-    };
+    // COMMENTED OUT - Folder selection disabled
+    // const processDirectoryEntry = async (entry, path = '') => {
+    //     const files = [];
+    //     
+    //     if (entry.isFile) {
+    //         return new Promise((resolve) => {
+    //             entry.file((file) => {
+    //                 // Accept all file types for supporting files
+    //                 files.push({
+    //                     file,
+    //                     path: path ? `${path}/${file.name}` : file.name
+    //                 });
+    //                 resolve(files);
+    //             });
+    //         });
+    //     } else if (entry.isDirectory) {
+    //         const reader = entry.createReader();
+    //         const entries = await new Promise((resolve) => {
+    //             reader.readEntries((entries) => {
+    //                 resolve(entries);
+    //             });
+    //         });
+    //         
+    //         const newPath = path ? `${path}/${entry.name}` : entry.name;
+    //         for (const entryItem of entries) {
+    //             const subFiles = await processDirectoryEntry(entryItem, newPath);
+    //             files.push(...subFiles);
+    //         }
+    //     }
+    //     
+    //     return files;
+    // };
 
     // Handle drag and drop for single file
     const handleSingleDrop = async (e) => {
@@ -279,37 +283,49 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         }
     };
 
-    // Handle drag and drop for folders/multiple files
+    // Handle drag and drop for multiple files
     // Supporting files can be any file type
+    // Folder drag and drop disabled
     const handleMultipleDrop = async (e) => {
         e.preventDefault();
         e.stopPropagation();
         
-        const items = Array.from(e.dataTransfer.items);
-        const files = [];
+        const files = Array.from(e.dataTransfer.files);
         
-        for (const item of items) {
-            if (item.kind === 'file') {
-                const entry = item.webkitGetAsEntry();
-                if (entry) {
-                    if (entry.isFile) {
-                        const file = item.getAsFile();
-                        // Accept all file types for supporting files
-                        files.push({ file, path: file.name });
-                    } else if (entry.isDirectory) {
-                        const dirFiles = await processDirectoryEntry(entry);
-                        files.push(...dirFiles);
-                    }
-                }
-            }
-        }
-        
+        // Only process individual files, not folders
         if (files.length > 0) {
             setUploadMode('multiple');
-            await handleMultipleFiles(files.map(f => f.file));
+            await handleMultipleFiles(files);
         } else {
             toast.error('No files found.');
         }
+        
+        // COMMENTED OUT - Folder drag and drop disabled
+        // const items = Array.from(e.dataTransfer.items);
+        // const files = [];
+        // 
+        // for (const item of items) {
+        //     if (item.kind === 'file') {
+        //         const entry = item.webkitGetAsEntry();
+        //         if (entry) {
+        //             if (entry.isFile) {
+        //                 const file = item.getAsFile();
+        //                 // Accept all file types for supporting files
+        //                 files.push({ file, path: file.name });
+        //             } else if (entry.isDirectory) {
+        //                 const dirFiles = await processDirectoryEntry(entry);
+        //                 files.push(...dirFiles);
+        //             }
+        //         }
+        //     }
+        // }
+        // 
+        // if (files.length > 0) {
+        //     setUploadMode('multiple');
+        //     await handleMultipleFiles(files.map(f => f.file));
+        // } else {
+        //     toast.error('No files found.');
+        // }
     };
 
     const handleDragOver = (e) => {
@@ -874,7 +890,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                             )}
                         </div>
 
-                        {/* Multiple Files / Folder Upload Dropzone */}
+                        {/* Multiple Files Upload Dropzone */}
                         <div 
                             className={styles["cad-dropzone"]} 
                             onClick={handleMultipleFilesClick}
@@ -896,17 +912,17 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 style={{ display: "none" }}
                                 onChange={handleMultipleFilesChange}
                             />
-                            {/* Folder input */}
-                            <input
+                            {/* Folder input - COMMENTED OUT */}
+                            {/* <input
                                 type="file"
                                 webkitdirectory=""
                                 ref={folderInputRef}
                                 disabled={uploadProgress > 0 || isUploadingMultiple}
                                 style={{ display: "none" }}
                                 onChange={handleFolderChange}
-                            />
-                            {/* Toggle button */}
-                            <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                            /> */}
+                            {/* Toggle button - COMMENTED OUT */}
+                            {/* <div style={{ position: 'absolute', top: 8, right: 8 }}>
                                 <button
                                     type="button"
                                     onClick={(e) => {
@@ -925,7 +941,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 >
                                     {isFolderMode ? '📁 Folder' : '📄 Files'}
                                 </button>
-                            </div>
+                            </div> */}
                             {isUploadingMultiple || supportedFiles.length > 0 ? (
                                 <div style={{ marginTop: 10, width: '90%', textAlign: 'center', marginInline: 'auto' }}>
                                     {isUploadingMultiple ? (
@@ -965,15 +981,12 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                         width={50}
                                         height={50}
                                     />
-                                    Drag multiple files or folder here or{' '}
+                                    Drag multiple files here or{' '}
                                     <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>
-                                        {isFolderMode ? 'select folder' : 'select files'}
+                                        select files
                                     </span>
                                     <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
-                                        {isFolderMode 
-                                            ? 'Select a folder (supports nested folders). All file types are accepted for supporting files.'
-                                            : 'Select multiple files. All file types are accepted for supporting files.'
-                                        }
+                                        Select multiple files. All file types are accepted for supporting files.
                                     </p>
                                 </>
                             )}
