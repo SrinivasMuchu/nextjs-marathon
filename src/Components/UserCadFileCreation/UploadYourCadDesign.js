@@ -197,89 +197,48 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     };
 
     // Handle multiple files selection (non-folder)
+    // Supporting files can be any file type
     const handleMultipleFilesChange = async (e) => {
         const allFiles = Array.from(e.target.files);
         
         if (allFiles.length === 0) return;
         
-        // Validate all files first
-        const invalidFiles = [];
-        const validFiles = [];
-        
-        allFiles.forEach(file => {
-            if (isValidFileType(file)) {
-                validFiles.push(file);
-            } else {
-                invalidFiles.push(file.name);
-            }
-        });
-        
-        // Show error for invalid files
-        if (invalidFiles.length > 0) {
-            toast.error(`${invalidFiles.length} file(s) have unsupported formats: ${invalidFiles.slice(0, 3).join(', ')}${invalidFiles.length > 3 ? '...' : ''}. Supported formats: ${allowedFilesList.join(', ')}`);
-        }
-        
-        // Process valid files
-        if (validFiles.length > 0) {
-            setUploadMode('multiple');
-            await handleMultipleFiles(validFiles);
-        } else {
-            toast.error('No supported CAD files found. Supported formats: ' + allowedFilesList.join(', '));
-        }
+        // Accept all files for supporting files (no validation needed)
+        setUploadMode('multiple');
+        await handleMultipleFiles(allFiles);
         
         // Reset input
         e.target.value = '';
     };
 
     // Handle folder selection
+    // Supporting files can be any file type
     const handleFolderChange = async (e) => {
         const allFiles = Array.from(e.target.files);
         
         if (allFiles.length === 0) return;
         
-        // Validate all files first
-        const invalidFiles = [];
-        const validFiles = [];
-        
-        allFiles.forEach(file => {
-            if (isValidFileType(file)) {
-                validFiles.push(file);
-            } else {
-                invalidFiles.push(file.name);
-            }
-        });
-        
-        // Show error for invalid files
-        if (invalidFiles.length > 0) {
-            toast.error(`${invalidFiles.length} file(s) have unsupported formats: ${invalidFiles.slice(0, 3).join(', ')}${invalidFiles.length > 3 ? '...' : ''}. Supported formats: ${allowedFilesList.join(', ')}`);
-        }
-        
-        // Process valid files
-        if (validFiles.length > 0) {
-            setUploadMode('multiple');
-            await handleMultipleFiles(validFiles);
-        } else {
-            toast.error('No supported CAD files found in folder. Supported formats: ' + allowedFilesList.join(', '));
-        }
+        // Accept all files for supporting files (no validation needed)
+        setUploadMode('multiple');
+        await handleMultipleFiles(allFiles);
         
         // Reset input
         e.target.value = '';
     };
 
     // Recursively process folder entries (handles nested folders)
+    // Supporting files can be any file type
     const processDirectoryEntry = async (entry, path = '') => {
         const files = [];
         
         if (entry.isFile) {
             return new Promise((resolve) => {
                 entry.file((file) => {
-                    // Validate file type before adding
-                    if (isValidFileType(file)) {
-                        files.push({
-                            file,
-                            path: path ? `${path}/${file.name}` : file.name
-                        });
-                    }
+                    // Accept all file types for supporting files
+                    files.push({
+                        file,
+                        path: path ? `${path}/${file.name}` : file.name
+                    });
                     resolve(files);
                 });
             });
@@ -321,13 +280,13 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     };
 
     // Handle drag and drop for folders/multiple files
+    // Supporting files can be any file type
     const handleMultipleDrop = async (e) => {
         e.preventDefault();
         e.stopPropagation();
         
         const items = Array.from(e.dataTransfer.items);
         const files = [];
-        const invalidFiles = [];
         
         for (const item of items) {
             if (item.kind === 'file') {
@@ -335,11 +294,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                 if (entry) {
                     if (entry.isFile) {
                         const file = item.getAsFile();
-                        if (isValidFileType(file)) {
-                            files.push({ file, path: file.name });
-                        } else {
-                            invalidFiles.push(file.name);
-                        }
+                        // Accept all file types for supporting files
+                        files.push({ file, path: file.name });
                     } else if (entry.isDirectory) {
                         const dirFiles = await processDirectoryEntry(entry);
                         files.push(...dirFiles);
@@ -348,16 +304,11 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
             }
         }
         
-        // Show error for invalid files
-        if (invalidFiles.length > 0) {
-            toast.error(`${invalidFiles.length} file(s) have unsupported formats. Supported formats: ${allowedFilesList.join(', ')}`);
-        }
-        
         if (files.length > 0) {
             setUploadMode('multiple');
             await handleMultipleFiles(files.map(f => f.file));
         } else {
-            toast.error('No supported CAD files found. Supported formats: ' + allowedFilesList.join(', '));
+            toast.error('No files found.');
         }
     };
 
@@ -367,12 +318,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     };
 
     // Upload a single file with progress tracking
+    // Note: This function is used for supporting files, so no file type validation needed
     const uploadSingleFile = async (file, updateProgress) => {
-        // Validate file type before upload
-        if (!isValidFileType(file)) {
-            throw new Error(`File type .${getFileExtension(file)} is not supported`);
-        }
-        
         const fileSizeMB = file.size / (1024 * 1024);
         const abortController = new AbortController();
         multipleUploadAbortControllersRef.current[file.name] = abortController;
@@ -440,41 +387,20 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     };
 
     // Process multiple files with concurrency control
+    // Supporting files can be any file type
     const handleMultipleFiles = async (files) => {
         if (!files || files.length === 0) {
             toast.error('No files to upload.');
             return;
         }
         
-        // Validate all files before starting uploads
-        const invalidFiles = [];
-        const validFiles = [];
-        
-        files.forEach(file => {
-            if (isValidFileType(file)) {
-                validFiles.push(file);
-            } else {
-                invalidFiles.push(file.name);
-            }
-        });
-        
-        // Show error for invalid files
-        if (invalidFiles.length > 0) {
-            toast.error(`${invalidFiles.length} file(s) have unsupported formats: ${invalidFiles.slice(0, 3).join(', ')}${invalidFiles.length > 3 ? '...' : ''}. Supported formats: ${allowedFilesList.join(', ')}`);
-        }
-        
-        // If no valid files, stop
-        if (validFiles.length === 0) {
-            toast.error('No supported CAD files to upload. Supported formats: ' + allowedFilesList.join(', '));
-            return;
-        }
-        
+        // Accept all files for supporting files (no validation needed)
         setIsUploadingMultiple(true);
         setMultipleUploadProgress({});
         
-        // Initialize progress for all valid files
+        // Initialize progress for all files
         const initialProgress = {};
-        validFiles.forEach(file => {
+        files.forEach(file => {
             initialProgress[file.name] = { loaded: 0, total: file.size, percent: 0 };
         });
         setMultipleUploadProgress(initialProgress);
@@ -493,9 +419,9 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         const failedFiles = [];
         
         try {
-            // Process valid files in batches
-            for (let i = 0; i < validFiles.length; i += CONCURRENCY_LIMIT) {
-                const batch = validFiles.slice(i, i + CONCURRENCY_LIMIT);
+            // Process files in batches
+            for (let i = 0; i < files.length; i += CONCURRENCY_LIMIT) {
+                const batch = files.slice(i, i + CONCURRENCY_LIMIT);
                 
                 // Upload batch in parallel
                 const batchPromises = batch.map(async (file) => {
@@ -961,6 +887,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                             }}
                         >
                             {/* Multiple files input */}
+                            {/* Supporting files accept any file type - no accept restriction */}
                             <input
                                 type="file"
                                 multiple
@@ -968,7 +895,6 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 disabled={uploadProgress > 0 || isUploadingMultiple}
                                 style={{ display: "none" }}
                                 onChange={handleMultipleFilesChange}
-                                accept={allowedFilesList.join(',')}
                             />
                             {/* Folder input */}
                             <input
@@ -1045,8 +971,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                     </span>
                                     <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
                                         {isFolderMode 
-                                            ? 'Select a folder (supports nested folders). Only CAD files (.step, .stp, .stl, .ply, .off, .igs, .iges, .brp, .brep, .obj) will be uploaded.'
-                                            : 'Select multiple files. Only CAD files (.step, .stp, .stl, .ply, .off, .igs, .iges, .brp, .brep, .obj) will be uploaded.'
+                                            ? 'Select a folder (supports nested folders). All file types are accepted for supporting files.'
+                                            : 'Select multiple files. All file types are accepted for supporting files.'
                                         }
                                     </p>
                                 </>
