@@ -357,7 +357,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       {showCaptcha && (
         <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Turnstile
-            sitekey={TURNSTILE_SITE_KEY}
+            sitekey={TURNSTILE_SITE_KEY} 
             onSuccess={handleCaptchaSuccess}
             onError={handleCaptchaError}
             ref={captchaRef}
