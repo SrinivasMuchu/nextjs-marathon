@@ -2,8 +2,8 @@
   "name": "marathon-frontend",
   "version": "0.1.0",
   "private": true,
-   "scripts": {
-    "dev": "next dev -p 3000",
+  "scripts": {
+    "dev": "next dev -p 3003",
     "build": "next build",
     "start": "next start -p 3002",
     "lint": "next lint"
@@ -38,6 +38,7 @@
     "react-scroll-parallax": "^3.4.5",
     "react-select": "^5.10.0",
     "react-toastify": "^11.0.5",
+    "react-turnstile": "^1.1.4",
     "sharp": "^0.33.5",
     "signature_pad": "^5.1.2",
     "swiper": "^11.2.6",

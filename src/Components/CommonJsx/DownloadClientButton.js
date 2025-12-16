@@ -2,7 +2,10 @@
 import axios from 'axios';
 import styles from '../IndustryDesigns/IndustryDesign.module.css'
 import { sendGAtagEvent } from '@/common.helper';
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useRef } from 'react'
+import dynamic from 'next/dynamic';
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+const Turnstile = dynamic(() => import('react-turnstile'), { ssr: false });
 import { BASE_URL, CAD_VIEWER_EVENT, RAZORPAY_KEY_ID , MARATHONDETAILS} from '@/config';
 import Tooltip from '@mui/material/Tooltip';
 import CadFileNotifyPopUp from './CadFileNotifyPopUp';
@@ -28,35 +31,68 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
   const [openBillingDetails, setOpenBillingDetails] = useState(false);
-  const [billerDetails,setBillerDetails] = useState({})
-  const { setDownloadedFileUpdate,user } = useContext(contextState);
+  const [billerDetails, setBillerDetails] = useState({});
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [captchaError, setCaptchaError] = useState(null);
+  const [pendingDownloadParams, setPendingDownloadParams] = useState(null);
+  const captchaRef = useRef();
+  const { setDownloadedFileUpdate, user } = useContext(contextState);
 
-  // Download logic after payment
-  const downloadFile = async () => {
+  // Download logic with bot/CAPTCHA protection, minimal flow
+  const downloadFile = async (captchaTokenArg = null, params = null) => {
+    setIsDownLoading(true);
+    setCaptchaError(null);
     try {
-      const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-        design_id: folderId, xaxis, yaxis, step, file_type: filetype, action_type: 'DOWNLOAD'
-      }, {
+      const reqBody = {
+        design_id: folderId,
+        xaxis,
+        yaxis,
+        step,
+        file_type: filetype,
+        action_type: 'DOWNLOAD',
+        ...(captchaTokenArg ? { turnstile_token: captchaTokenArg } : {}),
+        ...(params || {})
+      };
+      const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, reqBody, {
         headers: {
           "user-uuid": localStorage.getItem("uuid"),
         }
       });
-
       const data = response.data;
-      if (data.meta.success) {
+      if (data.meta.success && data.data && data.data.download_url) {
         const url = data.data.download_url;
-        setDownloadedFileUpdate(data.data.download_url)
-        // window.open(url, '_blank');
-         const link = document.createElement("a");
+        setDownloadedFileUpdate(url);
+        const link = document.createElement("a");
         link.href = url;
-        link.download = ""; // let browser download the file
+        link.download = "";
         document.body.appendChild(link);
         link.click();
         link.remove();
+        setShowCaptcha(false);
+        setPendingDownloadParams(null);
+      } else if (data.data && data.data.captcha_required) {
+        setShowCaptcha(true);
+        setPendingDownloadParams(reqBody);
       }
       sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
     } catch (err) {
-      console.error('Error downloading file:', err);
+      if (err.response && err.response.data && err.response.data.data && err.response.data.data.captcha_required) {
+        setShowCaptcha(true);
+        setPendingDownloadParams({
+          design_id: folderId,
+          xaxis,
+          yaxis,
+          step,
+          file_type: filetype,
+          action_type: 'DOWNLOAD',
+        });
+      } else {
+        setCaptchaError('Error downloading file.');
+        console.error('Error downloading file:', err);
+      }
+    } finally {
+      setIsDownLoading(false);
     }
   };
 
@@ -159,60 +195,53 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
     }
   };
 
-  // If you want to allow free download for some files, you can add a check here
+  // Free download: call downloadFile directly, backend decides if CAPTCHA is needed
   const handleFreeDownload = async () => {
-    setIsDownLoading(true);
-    try {
-      if (!localStorage.getItem('is_verified')) {
-        setOpenEmailPopUp(true)
-        return
-      }
-      await downloadFile();
-    } finally {
-      setIsDownLoading(false);
-    }
-  };
-  const billingHandler = async() => {
     if (!localStorage.getItem('is_verified')) {
-      setOpenEmailPopUp(true)
-      return
+      setOpenEmailPopUp(true);
+      return;
+    }
+    await downloadFile();
+  };
+  const billingHandler = async () => {
+    if (!localStorage.getItem('is_verified')) {
+      setOpenEmailPopUp(true);
+      return;
     }
     try {
       const downloadCheck = await axios.post(`${BASE_URL}/v1/payment/check-download`, {
-      cad_file_id: folderId, // Include cad_file_id in the request body
-    }, {
-      headers: { 'user-uuid': localStorage.getItem('uuid') }
-    });
-
-      if(downloadCheck.data.meta.success ) {
-        if(!downloadCheck.data.data.can_download ){
-          
-              setOpenBillingDetails(true);
-          
-        }else{
+        cad_file_id: folderId,
+      }, {
+        headers: { 'user-uuid': localStorage.getItem('uuid') }
+      });
+      if (downloadCheck.data.meta.success) {
+        if (!downloadCheck.data.data.can_download) {
+          setOpenBillingDetails(true);
+        } else {
           await handleFreeDownload();
         }
-        // if(!downloadCheck.data.data.sameUser &&
-        //   downloadCheck.data.data.fileType &&
-        //   // !downloadCheck.data.data.subscriptionActive &&
-        //   !downloadCheck.data.data.canDownload
-        // ) {
-        //   setOpenBillingDetails(true);
-        // }else if(downloadCheck.data.data.sameUser &&
-        //   !downloadCheck.data.data.fileType &&
-        //   // downloadCheck.data.data.subscriptionActive &&
-        //   downloadCheck.data.data.canDownload){
-        //   await handleFreeDownload();
-        //   }
-         
-      // }
       }
     } catch (error) {
       console.error("Error checking download permissions:", error);
     }
-    
+  };
+  // Handle CAPTCHA completion: retry download with token and pending params
+  const handleCaptchaSuccess = async (token) => {
+    setCaptchaToken(token);
+    setCaptchaError(null);
+    setShowCaptcha(false);
+    if (pendingDownloadParams) {
+      await downloadFile(token, pendingDownloadParams);
+    }
+    setCaptchaToken(null);
+  };
 
-  }
+  // Handle CAPTCHA error
+  const handleCaptchaError = (err) => {
+    setCaptchaError('CAPTCHA error. Please try again.');
+    setShowCaptcha(false);
+    setCaptchaToken(null);
+  };
   // Decide which handler to use (do NOT call it during render)
   const downloadHandler = isDownladable === false
     ? undefined
@@ -245,10 +274,10 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
                 <button
                   disabled
                   className="rounded bg-[#610BEE] h-12"
-                  style={{  
-                    opacity: 0.6, 
-                    cursor: 'not-allowed', 
-                    color: 'white', 
+                  style={{
+                    opacity: 0.6,
+                    cursor: 'not-allowed',
+                    color: 'white',
                     fontSize: '20px',
                     background: '#610BEE',
                     borderRadius: '4px',
@@ -265,17 +294,16 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           ) : (
             <button
               disabled={isDownLoading}
-          style={{ 
-                              
-                              color: 'white', 
-                              fontSize: '20px',
-                              background: '#610BEE',
-                              borderRadius: '4px',
-                              height: '48px',
-                              padding: '10px 20px',
-                              border: 'none',
-                              width: 'auto'
-                            }}
+              style={{
+                color: 'white',
+                fontSize: '20px',
+                background: '#610BEE',
+                borderRadius: '4px',
+                height: '48px',
+                padding: '10px 20px',
+                border: 'none',
+                width: 'auto'
+              }}
               className="rounded bg-[#610BEE] h-12"
               onClick={downloadHandler}
             >
@@ -325,9 +353,23 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           )}
         </>
       )}
-      {openBillingDetails && <BillingAddress 
-      onClose={() => setOpenBillingDetails(false)}  setBillerDetails={setBillerDetails}
-      onSave={handleDownload} cadId={folderId} designDetails={designDetails}/>}
+      {/* CAPTCHA UI */}
+      {showCaptcha && (
+        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Turnstile
+            sitekey={TURNSTILE_SITE_KEY}
+            onSuccess={handleCaptchaSuccess}
+            onError={handleCaptchaError}
+            ref={captchaRef}
+            style={{ margin: '0 auto' }}
+            theme="light"
+          />
+          {captchaError && <div style={{ color: 'red', marginTop: 8 }}>{captchaError}</div>}
+        </div>
+      )}
+      {openBillingDetails && <BillingAddress
+        onClose={() => setOpenBillingDetails(false)} setBillerDetails={setBillerDetails}
+        onSave={handleDownload} cadId={folderId} designDetails={designDetails} />}
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
     </>
   );
