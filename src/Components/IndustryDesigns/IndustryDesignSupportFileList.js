@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
+import Image from 'next/image'
 import styles from './IndustryDesign.module.css'
 import { FaFile } from 'react-icons/fa'
 
 function IndustryDesignSupportFileList({ designData }) {
-  // Handle both array and undefined/null cases
+
   const supportingFiles = Array.isArray(designData) ? designData : [];
   const [imageErrors, setImageErrors] = useState({});
 
@@ -18,7 +19,7 @@ function IndustryDesignSupportFileList({ designData }) {
   const getFileExtension = (fileName) => {
     if (!fileName) return '';
     const parts = fileName.split('.');
-    return parts.length > 1 ? parts[parts.length - 1].toUpperCase() : '';
+    return parts.length > 1 ? parts[parts.length - 1] : '';
   };
 
   // Helper function to format file size
@@ -64,7 +65,7 @@ function IndustryDesignSupportFileList({ designData }) {
             <tr>
               <th style={{ width: '15%' }}>Preview</th>
               <th style={{ width: '40%' }}>File Name</th>
-              <th style={{ width: '20%' }}>Size</th>
+              {/* <th style={{ width: '20%' }}>Size</th> */}
               <th style={{ width: '15%' }}>Type</th>
             </tr>
           </thead>
@@ -81,8 +82,8 @@ function IndustryDesignSupportFileList({ designData }) {
                 <tr key={index}>
                   <td data-label="Preview">
                     <div style={{
-                      width: '80px',
-                      height: '80px',
+                      width: '40px',
+                      height: '40px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -92,9 +93,11 @@ function IndustryDesignSupportFileList({ designData }) {
                       background: '#F5F5F5'
                     }}>
                       {isImage && fileUrl && !hasImageError ? (
-                        <img
+                        <Image
                           src={fileUrl}
                           alt={fileName}
+                          width={80}
+                          height={80}
                           style={{
                             width: '100%',
                             height: '100%',
@@ -102,6 +105,7 @@ function IndustryDesignSupportFileList({ designData }) {
                             display: 'block'
                           }}
                           onError={() => handleImageError(index)}
+                          unoptimized
                         />
                       ) : (
                         <FaFile
@@ -124,7 +128,7 @@ function IndustryDesignSupportFileList({ designData }) {
                       {fileName}
                     </div>
                   </td>
-                  <td data-label="Size">{formatFileSize(fileSize)}</td>
+                  {/* <td data-label="Size">{formatFileSize(fileSize)}</td> */}
                   <td data-label="Type">{fileExtension || 'N/A'}</td>
                 </tr>
               );
