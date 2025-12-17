@@ -31,8 +31,12 @@ function IndustryDesignSupportFileList({ designData }) {
   };
 
   // Helper function to get file name (handle both name and fileName properties)
-  const getFileName = (file) => {
-    return file?.name || file?.fileName || 'Unknown';
+  const getFileName = (file, maxLength = 50) => {
+    const fileName = file?.name || file?.fileName || 'Unknown';
+    if (fileName.length > maxLength) {
+      return fileName.substring(0, maxLength) + '...';
+    }
+    return fileName;
   };
 
   // Helper function to get file URL (handle both url and fileUrl properties)
