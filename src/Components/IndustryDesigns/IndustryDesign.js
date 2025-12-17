@@ -17,6 +17,7 @@ import IndustryHeaderDetails from './IndustryHeaderDetails'
 import DownloadsRatingAlert from '../CreatorsPage/DownloadsRatingAlert'
 import CadDesignDownload from './CadDesignDownlaod'
 import DesignViewer from './DesignViewer';
+import IndustryDesignSupportFileList from './IndustryDesignSupportFileList';
 
 function IndustryDesign({ design, designData, type }) {
 
@@ -70,6 +71,8 @@ function IndustryDesign({ design, designData, type }) {
                 {/* </div> */}
               </div>
               {designData.response && <IndustryDesignFilesList designData={designData.response} />}
+              {designData.response && <IndustryDesignSupportFileList designData={designData.response.supporting_files} />}
+              
               {designData?.report && (
                 <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
               )}
