@@ -1,12 +1,9 @@
-import React, { useState } from 'react'
-import Image from 'next/image'
+import React from 'react'
 import styles from './IndustryDesign.module.css'
 import { FaFile } from 'react-icons/fa'
 
 function IndustryDesignSupportFileList({ designData }) {
-
   const supportingFiles = Array.isArray(designData) ? designData : [];
-  const [imageErrors, setImageErrors] = useState({});
 
   // Helper function to check if file is an image
   const isImageFile = (fileName) => {
@@ -49,11 +46,6 @@ function IndustryDesignSupportFileList({ designData }) {
     return file?.size || file?.fileSize || null;
   };
 
-  // Handle image load error
-  const handleImageError = (index) => {
-    setImageErrors(prev => ({ ...prev, [index]: true }));
-  };
-
   if (!supportingFiles || supportingFiles.length === 0) {
     return null;
   }
@@ -80,7 +72,6 @@ function IndustryDesignSupportFileList({ designData }) {
               const fileSize = getFileSize(file);
               const isImage = isImageFile(fileName);
               const fileExtension = getFileExtension(fileName);
-              const hasImageError = imageErrors[index];
 
               return (
                 <tr key={index}>
@@ -96,20 +87,16 @@ function IndustryDesignSupportFileList({ designData }) {
                       border: '1px solid #E0E0E0',
                       background: '#F5F5F5'
                     }}>
-                      {isImage && fileUrl && !hasImageError ? (
-                        <Image
+                      {isImage && fileUrl ? (
+                        <img
                           src={fileUrl}
                           alt={fileName}
-                          width={80}
-                          height={80}
                           style={{
                             width: '100%',
                             height: '100%',
                             objectFit: 'cover',
                             display: 'block'
                           }}
-                          onError={() => handleImageError(index)}
-                          unoptimized
                         />
                       ) : (
                         <FaFile
