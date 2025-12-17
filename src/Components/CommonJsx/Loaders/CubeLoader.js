@@ -1,5 +1,5 @@
 "use client";
-import React,{useContext} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Lottie from 'lottie-react';
 import cube from './Cube.json';
 import LeftRightBanner from '../Adsense/AdsBanner';
@@ -19,7 +19,37 @@ const statusMessages = {
 function CubeLoader({ uploadingMessage, totalImages , completedImages,type  }) {
    const { user } = useContext(contextState); 
 
-  const showProgress = uploadingMessage === 'PROCESSED';
+
+  // For random progress bar during UPLOADINGFILE
+  const [fakeProgress, setFakeProgress] = useState(0);
+  const progressInterval = useRef(null);
+
+  useEffect(() => {
+    if (uploadingMessage === 'UPLOADINGFILE') {
+      setFakeProgress(5 + Math.floor(Math.random() * 10)); // Start at 5-15%
+      progressInterval.current = setInterval(() => {
+        setFakeProgress(prev => {
+          if (prev >= 98) return prev;
+          // Increase by 1-5% randomly, but never above 98%
+          const next = prev + Math.floor(Math.random() * 5) + 1;
+          return next > 98 ? 98 : next;
+        });
+      }, 400 + Math.random() * 400);
+    } else {
+      // If we just finished uploading, show 100% for a moment
+      if (fakeProgress > 0 && fakeProgress < 100) {
+        setFakeProgress(100);
+        setTimeout(() => setFakeProgress(0), 600); // Reset after a short delay
+      } else {
+        setFakeProgress(0);
+      }
+      if (progressInterval.current) clearInterval(progressInterval.current);
+    }
+    return () => {
+      if (progressInterval.current) clearInterval(progressInterval.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadingMessage]);
 
   return (
     <div style={{display:'flex',flexDirection:'column',width:'100%'}}>
@@ -32,28 +62,52 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type  }) {
       </div>
       <div style={{ width: '100%',height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',flexDirection: 'column', gap: '10px' }}>
            <Lottie animationData={cube} loop={true} style={{ width: 200, height: 200 }} />
+
       <span>{statusMessages[uploadingMessage] || ''}</span>
-      {(completedImages>0 && completedImages !== totalImages) && (
-       <div style={{ width: '80%', maxWidth: '300px', marginTop: '10px',display:'flex',flexDirection:'column' }}>
-          <div style={{ 
-            width: '100%', 
-            backgroundColor: '#e0e0e0', 
+      {/* Show progress bar during UPLOADINGFILE or when processing */}
+      {(uploadingMessage === 'UPLOADINGFILE' || (fakeProgress === 100 && uploadingMessage !== 'UPLOADINGFILE')) && (
+        <div style={{ width: '80%', maxWidth: '300px', marginTop: '10px', display: 'flex', flexDirection: 'column' }}>
+          <div style={{
+            width: '100%',
+            backgroundColor: '#e0e0e0',
             borderRadius: '5px',
             height: '10px'
           }}>
-            <div style={{ 
-              width: `${Math.round((completedImages / totalImages) * 100)}%`, 
-              backgroundColor: '#610bee', 
+            <div style={{
+              width: `${fakeProgress}%`,
+              backgroundColor: '#610bee',
               borderRadius: '5px',
               height: '100%',
               transition: 'width 0.3s ease'
             }}></div>
           </div>
           <span style={{ fontSize: '14px', marginTop: '5px', display: 'block', textAlign: 'center' }}>
-            {completedImages} of {totalImages} ({Math.round((completedImages / totalImages) * 100)}%)
+            {fakeProgress === 100 ? 'Upload Complete!' : `Uploading... ${fakeProgress}%`}
           </span>
         </div>
-       )} 
+      )}
+      {/* Show real progress bar for other stages if available */}
+      {(uploadingMessage !== 'UPLOADINGFILE' && completedImages > 0 && completedImages !== totalImages) && (
+        <div style={{ width: '80%', maxWidth: '300px', marginTop: '10px', display: 'flex', flexDirection: 'column' }}>
+          <div style={{
+            width: '100%',
+            backgroundColor: '#e0e0e0',
+            borderRadius: '5px',
+            height: '10px'
+          }}>
+            <div style={{
+              width: `${totalImages > 0 ? Math.round((completedImages / totalImages) * 100) : 0}%`,
+              backgroundColor: '#610bee',
+              borderRadius: '5px',
+              height: '100%',
+              transition: 'width 0.3s ease'
+            }}></div>
+          </div>
+          <span style={{ fontSize: '14px', marginTop: '5px', display: 'block', textAlign: 'center' }}>
+            {completedImages} of {totalImages} ({totalImages > 0 ? Math.round((completedImages / totalImages) * 100) : 0}%)
+          </span>
+        </div>
+      )}
        
       {/* Notification Message Section */}
       {(uploadingMessage !== 'COMPLETED' && 
