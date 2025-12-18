@@ -38,6 +38,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     const [fileName, setFileName] = useState('');
     const [fileSize, setFileSize] = useState('');
     const [supportedFiles, setSupportedFiles] = useState([]); // Array of file objects: {fileName, type, size, url}
+    const SUPPORTING_FILES_MAX_SIZE = 1024 * 1024 * 1024; // 1GB in bytes
+    const [supportingFilesTotalSize, setSupportingFilesTotalSize] = useState(0);
     const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'multiple'
     const [isUploadingMultiple, setIsUploadingMultiple] = useState(false);
     const [multipleUploadProgress, setMultipleUploadProgress] = useState({}); // Track progress for each file
@@ -202,14 +204,17 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     // Supporting files can be any file type
     const handleMultipleFilesChange = async (e) => {
         const allFiles = Array.from(e.target.files);
-        
         if (allFiles.length === 0) return;
-        
-        // Accept all files for supporting files (no validation needed)
+        // Calculate current total size
+        let currentTotal = supportedFiles.reduce((acc, file) => acc + file.size, 0);
+        let newFilesTotal = allFiles.reduce((acc, file) => acc + file.size, 0);
+        if (currentTotal + newFilesTotal > SUPPORTING_FILES_MAX_SIZE) {
+            toast.error('Total supporting files size cannot exceed 1GB.');
+            e.target.value = '';
+            return;
+        }
         setUploadMode('multiple');
         await handleMultipleFiles(allFiles);
-        
-        // Reset input
         e.target.value = '';
     };
 
@@ -289,43 +294,19 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     const handleMultipleDrop = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
         const files = Array.from(e.dataTransfer.files);
-        
-        // Only process individual files, not folders
         if (files.length > 0) {
+            let currentTotal = supportedFiles.reduce((acc, file) => acc + file.size, 0);
+            let newFilesTotal = files.reduce((acc, file) => acc + file.size, 0);
+            if (currentTotal + newFilesTotal > SUPPORTING_FILES_MAX_SIZE) {
+                toast.error('Total supporting files size cannot exceed 1GB.');
+                return;
+            }
             setUploadMode('multiple');
             await handleMultipleFiles(files);
         } else {
             toast.error('No files found.');
         }
-        
-        // COMMENTED OUT - Folder drag and drop disabled
-        // const items = Array.from(e.dataTransfer.items);
-        // const files = [];
-        // 
-        // for (const item of items) {
-        //     if (item.kind === 'file') {
-        //         const entry = item.webkitGetAsEntry();
-        //         if (entry) {
-        //             if (entry.isFile) {
-        //                 const file = item.getAsFile();
-        //                 // Accept all file types for supporting files
-        //                 files.push({ file, path: file.name });
-        //             } else if (entry.isDirectory) {
-        //                 const dirFiles = await processDirectoryEntry(entry);
-        //                 files.push(...dirFiles);
-        //             }
-        //         }
-        //     }
-        // }
-        // 
-        // if (files.length > 0) {
-        //     setUploadMode('multiple');
-        //     await handleMultipleFiles(files.map(f => f.file));
-        // } else {
-        //     toast.error('No files found.');
-        // }
     };
 
     const handleDragOver = (e) => {
@@ -409,37 +390,32 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
             toast.error('No files to upload.');
             return;
         }
-        
-        // Accept all files for supporting files (no validation needed)
+        // Check again in case files are added programmatically
+        let currentTotal = supportedFiles.reduce((acc, file) => acc + file.size, 0);
+        let newFilesTotal = files.reduce((acc, file) => acc + file.size, 0);
+        if (currentTotal + newFilesTotal > SUPPORTING_FILES_MAX_SIZE) {
+            toast.error('Total supporting files size cannot exceed 1GB.');
+            return;
+        }
         setIsUploadingMultiple(true);
         setMultipleUploadProgress({});
-        
-        // Initialize progress for all files
         const initialProgress = {};
         files.forEach(file => {
             initialProgress[file.name] = { loaded: 0, total: file.size, percent: 0 };
         });
         setMultipleUploadProgress(initialProgress);
-        
-        // Progress update function with batching
         const updateProgress = (fileName, progress) => {
             setMultipleUploadProgress(prev => ({
                 ...prev,
                 [fileName]: progress
             }));
         };
-        
-        // Concurrency limit (upload 5 files at a time)
         const CONCURRENCY_LIMIT = 5;
-        const uploadedFiles = [];
+        const uploadedFiles = [...supportedFiles];
         const failedFiles = [];
-        
         try {
-            // Process files in batches
             for (let i = 0; i < files.length; i += CONCURRENCY_LIMIT) {
                 const batch = files.slice(i, i + CONCURRENCY_LIMIT);
-                
-                // Upload batch in parallel
                 const batchPromises = batch.map(async (file) => {
                     try {
                         const result = await uploadSingleFile(file, updateProgress);
@@ -455,11 +431,7 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                         return { success: false, fileName: file.name, error: error.message };
                     }
                 });
-                
-                // Wait for batch to complete
                 const batchResults = await Promise.allSettled(batchPromises);
-                
-                // Process results
                 batchResults.forEach((result, index) => {
                     if (result.status === 'fulfilled') {
                         const { success, file, fileName, canceled } = result.value;
@@ -473,23 +445,12 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                     }
                 });
             }
-            
-            // Update state with results
             setSupportedFiles(uploadedFiles);
+            setSupportingFilesTotalSize(uploadedFiles.reduce((acc, file) => acc + file.size, 0));
             setIsUploadingMultiple(false);
-            
-            // Show results
-            if (uploadedFiles.length > 0) {
-                toast.success(`${uploadedFiles.length} file(s) successfully uploaded!`);
-                // Set primary file info for backward compatibility
-                if (uploadedFiles.length === 1) {
-                    setFileName(uploadedFiles[0].fileName);
-                    setFileFormat(uploadedFiles[0].type);
-                    setUrl(uploadedFiles[0].url);
-                    setFileSize(uploadedFiles[0].size / (1024 * 1024));
-                }
+            if (uploadedFiles.length > supportedFiles.length) {
+                toast.success(`${uploadedFiles.length - supportedFiles.length} file(s) successfully uploaded!`);
             }
-            
             if (failedFiles.length > 0) {
                 toast.error(`${failedFiles.length} file(s) failed to upload.`);
             }
@@ -826,26 +787,35 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         setIsKycVerified(true);
     };
 
+    // Remove individual supporting file (must be outside JSX)
+    const handleRemoveSupportingFile = (idx) => {
+        setSupportedFiles(prev => {
+            const updated = prev.filter((_, i) => i !== idx);
+            // update total size after state update
+            setTimeout(() => {
+                setSupportingFilesTotalSize(updated.reduce((acc, file) => acc + file.size, 0));
+            }, 0);
+            return updated;
+        });
+    };
+
     return (
         <>
             {/* Render KYC modal when requested */}
-           
             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp setClosePopUp={setCloseNotifyInfoPopUp} cad_type={'USER_CADS'} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
-             {showKyc ? <Kyc onClose={handleKycClose} setUser={setUser}/>:
+            {showKyc ? <Kyc onClose={handleKycClose} setUser={setUser}/> :
             <div className={styles["cad-upload-container"]}>
                 {/* Header row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Upload CAD file</h2>
-                    
-                    {/* Hide our internal close to avoid double X in the modal header */}
                     {showHeaderClose && onClose && (
                         <button onClick={onClose} style={{ background: 'transparent', border: 0, cursor: 'pointer' }}>
                             <CloseIcon />
                         </button>
                     )}
                 </div>
-                    {rejected && <span style={{color:'red',marginBottom:'10px'}}>Rejected due to: {editedDetails.rejected_message}</span>}
+                {rejected && <span style={{color:'red',marginBottom:'10px'}}>Rejected due to: {editedDetails.rejected_message}</span>}
                 {/* FULL-WIDTH Dropzones (top center) */}
                 {!editedDetails && (
                     <div style={{ marginBottom: 16 }}>
@@ -889,7 +859,6 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 </>
                             )}
                         </div>
-
                         {/* Multiple Files Upload Dropzone */}
                         <div 
                             className={styles["cad-dropzone"]} 
@@ -902,8 +871,6 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 position: 'relative'
                             }}
                         >
-                            {/* Multiple files input */}
-                            {/* Supporting files accept any file type - no accept restriction */}
                             <input
                                 type="file"
                                 multiple
@@ -912,36 +879,6 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                 style={{ display: "none" }}
                                 onChange={handleMultipleFilesChange}
                             />
-                            {/* Folder input - COMMENTED OUT */}
-                            {/* <input
-                                type="file"
-                                webkitdirectory=""
-                                ref={folderInputRef}
-                                disabled={uploadProgress > 0 || isUploadingMultiple}
-                                style={{ display: "none" }}
-                                onChange={handleFolderChange}
-                            /> */}
-                            {/* Toggle button - COMMENTED OUT */}
-                            {/* <div style={{ position: 'absolute', top: 8, right: 8 }}>
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setIsFolderMode(!isFolderMode);
-                                    }}
-                                    style={{
-                                        padding: '4px 8px',
-                                        fontSize: 11,
-                                        background: isFolderMode ? '#610bee' : '#fff',
-                                        color: isFolderMode ? '#fff' : '#610bee',
-                                        border: '1px solid #610bee',
-                                        borderRadius: 4,
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    {isFolderMode ? '📁 Folder' : '📄 Files'}
-                                </button>
-                            </div> */}
                             {isUploadingMultiple || supportedFiles.length > 0 ? (
                                 <div style={{ marginTop: 10, width: '90%', textAlign: 'center', marginInline: 'auto' }}>
                                     {isUploadingMultiple ? (
@@ -962,10 +899,14 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                                             <div><span>{supportedFiles.length} file(s) uploaded successfully</span></div>
                                             <div style={{ maxHeight: '150px', overflowY: 'auto', marginTop: 8, textAlign: 'left' }}>
                                                 {supportedFiles.map((file, idx) => (
-                                                    <div key={idx} style={{ fontSize: 12, padding: '4px 0', borderBottom: '1px solid #eee' }}>
-                                                        {file.fileName} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
+                                                    <div key={idx} style={{ fontSize: 12, padding: '4px 0', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        <span>{file.fileName} ({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                                                        <CloseIcon onClick={e => { e.stopPropagation(); handleRemoveSupportingFile(idx); }} style={{ cursor: 'pointer', color: '#610bee', marginLeft: 8 }} />
                                                     </div>
                                                 ))}
+                                            </div>
+                                            <div style={{ marginTop: 8 }}>
+                                                <span style={{ fontSize: 12, color: '#666' }}>Total: {(supportedFiles.reduce((acc, file) => acc + file.size, 0) / (1024 * 1024)).toFixed(2)} MB / 1024.00 MB</span>
                                             </div>
                                             <div style={{ marginTop: 8 }}>
                                                 <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
@@ -994,7 +935,6 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                         {(formErrors.file && !url && supportedFiles.length === 0) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
                     </div>
                 )}
-
                 {/* Checkbox under dropzone (like figma) */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, gap: 10 }}>
                     <input type="checkbox" checked={isChecked} onChange={handleChange} />
