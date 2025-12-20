@@ -79,10 +79,10 @@ function UploadYourCadDesign({
 
     // Initialize currentStep if not set
     useEffect(() => {
-        if (cadFormState.currentStep === undefined) {
+        if (!cadFormState || cadFormState.currentStep === undefined) {
             setCadFormState(prevState => ({ ...prevState, currentStep: editedDetails ? 2 : 1 }));
         }
-    }, [cadFormState.currentStep, editedDetails, setCadFormState]);
+    }, [cadFormState?.currentStep, editedDetails, setCadFormState]);
 
     // Sync isChecked (downloadable) when editing
     useEffect(() => {
@@ -96,7 +96,7 @@ function UploadYourCadDesign({
 
     // Sync tags when options are loaded
     useEffect(() => {
-        if (editedDetails?.cad_tags?.length && options.length > 0 && (!cadFormState.selectedOptions || cadFormState.selectedOptions.length === 0)) {
+        if (editedDetails?.cad_tags?.length && options.length > 0 && (!cadFormState?.selectedOptions || cadFormState.selectedOptions.length === 0)) {
             const mappedSelections = editedDetails.cad_tags
                 .map(id =>
                     rejected
@@ -110,9 +110,33 @@ function UploadYourCadDesign({
                 selectedOptions: mappedSelections
             }));
         }
-    }, [editedDetails, rejected, options, cadFormState.selectedOptions, setCadFormState]);
+    }, [editedDetails, rejected, options, cadFormState?.selectedOptions, setCadFormState]);
 
     const router = useRouter();
+
+    // Ensure cadFormState is initialized
+    useEffect(() => {
+        if (!cadFormState && setCadFormState) {
+            setCadFormState({
+                title: editedDetails?.page_title || '',
+                description: editedDetails?.page_description || '',
+                selectedOptions: [],
+                isChecked: editedDetails?.is_downloadable ?? true,
+                price: editedDetails?.price || '',
+                termsAccepted: true,
+                fileName: '',
+                fileSize: '',
+                fileFormat: '',
+                url: '',
+                uploadProgress: 0,
+                supportedFiles: [],
+                multipleUploadProgress: {},
+                isUploadingMultiple: false,
+                uploadMode: 'single',
+                currentStep: editedDetails ? 2 : 1
+            });
+        }
+    }, [cadFormState, setCadFormState, editedDetails]);
 
     const handleChange = (e) => {
         setCadFormState(prevState => ({ ...prevState, isChecked: e.target.checked }));
@@ -159,6 +183,8 @@ function UploadYourCadDesign({
     };
 
     const validateForm = () => {
+        if (!cadFormState) return false;
+        
         const errors = {
             file: '',
             title: '',
@@ -230,6 +256,7 @@ function UploadYourCadDesign({
     // Handle multiple files selection (non-folder)
     // Supporting files can be any file type
     const handleMultipleFilesChange = async (e) => {
+        if (!cadFormState) return;
         const allFiles = Array.from(e.target.files);
         if (allFiles.length === 0) return;
         // Calculate current total size
@@ -322,6 +349,7 @@ function UploadYourCadDesign({
     const handleMultipleDrop = async (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!cadFormState) return;
         const files = Array.from(e.dataTransfer.files);
         if (files.length > 0) {
             const currentSupportedFiles = cadFormState.supportedFiles || [];
@@ -415,6 +443,7 @@ function UploadYourCadDesign({
     // Process multiple files with concurrency control
     // Supporting files can be any file type
     const handleMultipleFiles = async (files) => {
+        if (!cadFormState) return;
         if (!files || files.length === 0) {
             toast.error('No files to upload.');
             return;
@@ -838,6 +867,7 @@ function UploadYourCadDesign({
     // Validate step 1 (file upload)
     const validateStep1 = () => {
         if (editedDetails) return true; // Skip validation for editing mode
+        if (!cadFormState) return false;
         const currentSupportedFiles = cadFormState.supportedFiles || [];
         if (!cadFormState.url && currentSupportedFiles.length === 0) {
             setFormErrors(prev => ({ ...prev, file: 'Upload your CAD file.' }));
