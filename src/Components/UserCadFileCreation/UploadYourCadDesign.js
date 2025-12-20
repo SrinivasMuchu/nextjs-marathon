@@ -915,8 +915,8 @@ function UploadYourCadDesign({
                         width: 32, 
                         height: 32, 
                         borderRadius: '50%', 
-                        backgroundColor: (cadFormState.currentStep || 1) >= 1 ? '#610bee' : '#e0e0e0',
-                        color: (cadFormState.currentStep || 1) >= 1 ? '#fff' : '#666',
+                        backgroundColor: (cadFormState?.currentStep || 1) >= 1 ? '#610bee' : '#e0e0e0',
+                        color: (cadFormState?.currentStep || 1) >= 1 ? '#fff' : '#666',
                         fontWeight: 600,
                         fontSize: 14
                     }}>
@@ -925,7 +925,7 @@ function UploadYourCadDesign({
                     <div style={{ 
                         width: 40, 
                         height: 2, 
-                        backgroundColor: (cadFormState.currentStep || 1) >= 2 ? '#610bee' : '#e0e0e0' 
+                        backgroundColor: (cadFormState?.currentStep || 1) >= 2 ? '#610bee' : '#e0e0e0' 
                     }} />
                     <div style={{ 
                         display: 'flex', 
@@ -934,8 +934,8 @@ function UploadYourCadDesign({
                         width: 32, 
                         height: 32, 
                         borderRadius: '50%', 
-                        backgroundColor: (cadFormState.currentStep || 1) >= 2 ? '#610bee' : '#e0e0e0',
-                        color: (cadFormState.currentStep || 1) >= 2 ? '#fff' : '#666',
+                        backgroundColor: (cadFormState?.currentStep || 1) >= 2 ? '#610bee' : '#e0e0e0',
+                        color: (cadFormState?.currentStep || 1) >= 2 ? '#fff' : '#666',
                         fontWeight: 600,
                         fontSize: 14
                     }}>
@@ -944,7 +944,7 @@ function UploadYourCadDesign({
                 </div>
 
                 {/* STEP 1: File Upload */}
-                {(cadFormState.currentStep || 1) === 1 && (
+                {(cadFormState?.currentStep || 1) === 1 && (
                     <div>
                         <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Step 1: Upload Files</h3>
                         <div style={{ marginBottom: 16 }}>
@@ -1087,7 +1087,7 @@ function UploadYourCadDesign({
                 )}
 
                 {/* STEP 2: Form Details */}
-                {(cadFormState.currentStep || 1) === 2 && (
+                {(cadFormState?.currentStep || 1) === 2 && (
                     <div>
                         <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Step 2: Design Details</h3>
                         
