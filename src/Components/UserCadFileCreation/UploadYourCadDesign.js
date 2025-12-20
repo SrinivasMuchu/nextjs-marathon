@@ -960,17 +960,17 @@ function UploadYourCadDesign({
                                     type="file"
                                     accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
                                     ref={fileInputRef}
-                                    disabled={(cadFormState.uploadProgress || 0) > 0 || cadFormState.isUploadingMultiple}
+                                    disabled={(cadFormState?.uploadProgress || 0) > 0 || cadFormState?.isUploadingMultiple}
                                     style={{ display: "none" }}
                                     onChange={handleFileChange}
                                 />
-                                {(cadFormState.uploadProgress || 0) > 0 && cadFormState.uploadMode === 'single' ? (
+                                {(cadFormState?.uploadProgress || 0) > 0 && cadFormState?.uploadMode === 'single' ? (
                                     <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
-                                        <div><span>{cadFormState.fileName} - {Math.round(cadFormState.fileSize || 0)}mb</span></div>
+                                        <div><span>{cadFormState?.fileName || ''} - {Math.round(cadFormState?.fileSize || 0)}mb</span></div>
                                         <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
-                                            <div style={{ width: `${cadFormState.uploadProgress || 0}%`, backgroundColor: '#610bee', height: 8, transition: 'width 0.3s ease-in-out' }} />
+                                            <div style={{ width: `${cadFormState?.uploadProgress || 0}%`, backgroundColor: '#610bee', height: 8, transition: 'width 0.3s ease-in-out' }} />
                                         </div>
-                                        <p style={{ textAlign: 'right', fontSize: 12 }}>{cadFormState.uploadProgress || 0}%</p>
+                                        <p style={{ textAlign: 'right', fontSize: 12 }}>{cadFormState?.uploadProgress || 0}%</p>
                                         <div>
                                             <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
                                         </div>
@@ -1004,16 +1004,16 @@ function UploadYourCadDesign({
                                     type="file"
                                     multiple
                                     ref={multipleFilesInputRef}
-                                    disabled={(cadFormState.uploadProgress || 0) > 0 || cadFormState.isUploadingMultiple}
+                                    disabled={(cadFormState?.uploadProgress || 0) > 0 || cadFormState?.isUploadingMultiple}
                                     style={{ display: "none" }}
                                     onChange={handleMultipleFilesChange}
                                 />
-                                {cadFormState.isUploadingMultiple || (cadFormState.supportedFiles && cadFormState.supportedFiles.length > 0) ? (
+                                {cadFormState?.isUploadingMultiple || (cadFormState?.supportedFiles && cadFormState?.supportedFiles.length > 0) ? (
                                     <div style={{ marginTop: 10, width: '90%', textAlign: 'center', marginInline: 'auto' }}>
-                                        {cadFormState.isUploadingMultiple ? (
+                                        {cadFormState?.isUploadingMultiple ? (
                                             <>
-                                                <div><span>Uploading {Object.keys(cadFormState.multipleUploadProgress || {}).length} file(s)...</span></div>
-                                                {Object.entries(cadFormState.multipleUploadProgress || {}).map(([name, progress]) => (
+                                                <div><span>Uploading {Object.keys(cadFormState?.multipleUploadProgress || {}).length} file(s)...</span></div>
+                                                {Object.entries(cadFormState?.multipleUploadProgress || {}).map(([name, progress]) => (
                                                     <div key={name} style={{ marginTop: 8 }}>
                                                         <div style={{ fontSize: 12, marginBottom: 4 }}>{name}</div>
                                                         <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
@@ -1025,9 +1025,9 @@ function UploadYourCadDesign({
                                             </>
                                         ) : (
                                             <>
-                                                <div><span>{(cadFormState.supportedFiles || []).length} file(s) uploaded successfully</span></div>
+                                                <div><span>{(cadFormState?.supportedFiles || []).length} file(s) uploaded successfully</span></div>
                                                 <div style={{ maxHeight: '150px', overflowY: 'auto', marginTop: 8, textAlign: 'left' }}>
-                                                    {(cadFormState.supportedFiles || []).map((file, idx) => (
+                                                    {(cadFormState?.supportedFiles || []).map((file, idx) => (
                                                         <div key={idx} style={{ fontSize: 12, padding: '4px 0', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                             <span>{file.fileName} ({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
                                                             <CloseIcon onClick={e => { e.stopPropagation(); handleRemoveSupportingFile(idx); }} style={{ cursor: 'pointer', color: '#610bee', marginLeft: 8 }} />
@@ -1035,7 +1035,7 @@ function UploadYourCadDesign({
                                                     ))}
                                                 </div>
                                                 <div style={{ marginTop: 8 }}>
-                                                    <span style={{ fontSize: 12, color: '#666' }}>Total: {((cadFormState.supportedFiles || []).reduce((acc, file) => acc + file.size, 0) / (1024 * 1024)).toFixed(2)} MB / 1024.00 MB</span>
+                                                    <span style={{ fontSize: 12, color: '#666' }}>Total: {((cadFormState?.supportedFiles || []).reduce((acc, file) => acc + file.size, 0) / (1024 * 1024)).toFixed(2)} MB / 1024.00 MB</span>
                                                 </div>
                                                 <div style={{ marginTop: 8 }}>
                                                     <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
@@ -1061,23 +1061,23 @@ function UploadYourCadDesign({
                                     </>
                                 )}
                             </div>
-                            {(formErrors.file && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
+                            {(formErrors.file && !cadFormState?.url && (!cadFormState?.supportedFiles || cadFormState?.supportedFiles.length === 0)) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
                         </div>
                         
                         {/* Next button for step 1 */}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
                             <button
                                 onClick={handleNextStep}
-                                disabled={!cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)}
+                                disabled={!cadFormState?.url && (!cadFormState?.supportedFiles || cadFormState?.supportedFiles.length === 0)}
                                 style={{
                                     padding: '12px 24px',
-                                    backgroundColor: (!cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? '#a270f2' : '#610bee',
+                                    backgroundColor: (!cadFormState?.url && (!cadFormState?.supportedFiles || cadFormState?.supportedFiles.length === 0)) ? '#a270f2' : '#610bee',
                                     color: '#ffffff',
                                     border: 'none',
                                     borderRadius: 6,
                                     fontSize: 16,
                                     fontWeight: 600,
-                                    cursor: (!cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? 'not-allowed' : 'pointer',
+                                    cursor: (!cadFormState?.url && (!cadFormState?.supportedFiles || cadFormState?.supportedFiles.length === 0)) ? 'not-allowed' : 'pointer',
                                 }}
                             >
                                 Next
@@ -1093,7 +1093,7 @@ function UploadYourCadDesign({
                         
                         {/* Checkbox for download permission */}
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, gap: 10 }}>
-                            <input type="checkbox" checked={cadFormState.isChecked} onChange={handleChange} />
+                            <input type="checkbox" checked={cadFormState?.isChecked} onChange={handleChange} />
                             <span>Allow others to download this design.</span>
                         </div>
 
@@ -1110,13 +1110,13 @@ function UploadYourCadDesign({
                                         placeholder="0.5M Spur Gear | High-Quality CAD Model"
                                         type="text"
                                         maxLength={TITLELIMIT}
-                                        value={cadFormState.title || ''}
+                                        value={cadFormState?.title || ''}
                                         style={{ margin: 0, width: '100%' }}
                                         onChange={(e) => setCadFormState(prevState => ({ ...prevState, title: e.target.value }))}
                                     />
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                         <span style={{ color: 'red', visibility: formErrors.title ? 'visible' : 'hidden' }}>{formErrors.title}</span>
-                                        <p style={{ fontSize: 12, color: (cadFormState.title || '').length >= 40 ? 'green' : 'gray' }}>{(cadFormState.title || '').length}/{TITLELIMIT}</p>
+                                        <p style={{ fontSize: 12, color: (cadFormState?.title || '').length >= 40 ? 'green' : 'gray' }}>{(cadFormState?.title || '').length}/{TITLELIMIT}</p>
                                     </div>
                                 </div>
 
@@ -1125,14 +1125,14 @@ function UploadYourCadDesign({
                                     <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Description</label>
                                     <textarea
                                         placeholder="Designed for engineers and designers, 0.5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
-                                        value={cadFormState.description || ''}
+                                        value={cadFormState?.description || ''}
                                         maxLength={DESCRIPTIONLIMIT}
                                         style={{ margin: 0, width: '100%' }}
                                         onChange={(e) => setCadFormState(prevState => ({ ...prevState, description: e.target.value }))}
                                     />
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                         <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>{formErrors.description}</span>
-                                        <p style={{ fontSize: 12, color: (cadFormState.description || '').length >= 100 ? 'green' : 'gray' }}>{(cadFormState.description || '').length}/{DESCRIPTIONLIMIT}</p>
+                                        <p style={{ fontSize: 12, color: (cadFormState?.description || '').length >= 100 ? 'green' : 'gray' }}>{(cadFormState?.description || '').length}/{DESCRIPTIONLIMIT}</p>
                                     </div>
                                 </div>
 
@@ -1143,7 +1143,7 @@ function UploadYourCadDesign({
                                         isMulti
                                         styles={createDropdownCustomStyles}
                                         options={options}
-                                        value={cadFormState.selectedOptions || []}
+                                        value={cadFormState?.selectedOptions || []}
                                         onFocus={getTags}
                                         onChange={handleZoneSelection}
                                         onCreateOption={handleAddZones}
@@ -1190,7 +1190,7 @@ function UploadYourCadDesign({
                                         min={0}
                                         max={500}
                                         placeholder="Enter price"
-                                        value={cadFormState.price || ''}
+                                        value={cadFormState?.price || ''}
                                         onChange={e => setCadFormState(prevState => ({ ...prevState, price: e.target.value }))}
                                         disabled={user.kycStatus !== 'completed'}
                                         style={{
@@ -1210,7 +1210,7 @@ function UploadYourCadDesign({
                                    {user.kycStatus === 'completed' &&
                                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                                         <span style={{color:'#848e96'}}>Marathon commision</span>
-                                        <span style={{color:'#848e96'}}>${((cadFormState.price || 0) * 0.1).toFixed(2)}</span>
+                                        <span style={{color:'#848e96'}}>${((cadFormState?.price || 0) * 0.1).toFixed(2)}</span>
                                     </div>
                                    } 
                                    {user.kycStatus === 'completed' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -1225,19 +1225,19 @@ function UploadYourCadDesign({
                                         style={{ 
                                             width: '100%', 
                                             padding: '12px', 
-                                            backgroundColor: (!cadFormState.termsAccepted || uploading || user.kycStatus !== 'completed') ? '#a270f2' : '#610bee', 
+                                            backgroundColor: (!cadFormState?.termsAccepted || uploading || user.kycStatus !== 'completed') ? '#a270f2' : '#610bee', 
                                             color: '#ffffff',
                                             border: 'none',
                                             borderRadius: 6,
                                             fontSize: 16,
                                             fontWeight: 600,
-                                            cursor: (!cadFormState.termsAccepted || uploading || user.kycStatus !== 'completed') ? 'not-allowed' : 'pointer',
+                                            cursor: (!cadFormState?.termsAccepted || uploading || user.kycStatus !== 'completed') ? 'not-allowed' : 'pointer',
                                             marginTop: 4
                                         }}
-                                        disabled={!cadFormState.termsAccepted || uploading || user.kycStatus !== 'completed'}
+                                        disabled={!cadFormState?.termsAccepted || uploading || user.kycStatus !== 'completed'}
                                         onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
                                         title={
-                                            !cadFormState.termsAccepted 
+                                            !cadFormState?.termsAccepted 
                                                 ? 'Please agree to the terms and conditions to upload your design.' 
                                                 : user.kycStatus !== 'completed' 
                                                     ? 'Please verify your bank details to upload your design.' 
@@ -1270,7 +1270,7 @@ function UploadYourCadDesign({
                                 {/* Terms & conditions */}
                                 <div style={{ marginTop: 12 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <input type="checkbox" checked={cadFormState.termsAccepted} onChange={(e)=>setCadFormState(prevState => ({ ...prevState, termsAccepted: e.target.checked }))} />
+                                        <input type="checkbox" checked={cadFormState?.termsAccepted} onChange={(e)=>setCadFormState(prevState => ({ ...prevState, termsAccepted: e.target.checked }))} />
                                         <span style={{ fontSize: 13, color: '#444' }}>
                                             Agree to <Link href="/terms-and-conditions" target='_blank' style={{ color: '#610bee' }}>terms & conditions</Link> and <Link href="/privacy-policy" target='_blank' style={{ color: '#610bee' }}>privacy policy</Link> of Marathon.
                                         </span>
