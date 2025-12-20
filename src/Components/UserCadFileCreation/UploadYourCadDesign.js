@@ -63,6 +63,8 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
     const [isKycVerified, setIsKycVerified] = useState(false);
     // add terms checkbox state - default to true
     const [termsAccepted, setTermsAccepted] = useState(true);
+    // Step management - start at step 1 for new uploads, step 2 for editing
+    const [currentStep, setCurrentStep] = useState(editedDetails ? 2 : 1);
 
     useEffect(() => {
 
@@ -799,6 +801,29 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
         });
     };
 
+    // Validate step 1 (file upload)
+    const validateStep1 = () => {
+        if (editedDetails) return true; // Skip validation for editing mode
+        if (!url && supportedFiles.length === 0) {
+            setFormErrors(prev => ({ ...prev, file: 'Upload your CAD file.' }));
+            return false;
+        }
+        setFormErrors(prev => ({ ...prev, file: '' }));
+        return true;
+    };
+
+    // Handle next step
+    const handleNextStep = () => {
+        if (validateStep1()) {
+            setCurrentStep(2);
+        }
+    };
+
+    // Handle previous step
+    const handlePreviousStep = () => {
+        setCurrentStep(1);
+    };
+
     return (
         <>
             {/* Render KYC modal when requested */}
@@ -816,320 +841,411 @@ function UploadYourCadDesign({ editedDetails,onClose,type, showHeaderClose = fal
                     )}
                 </div>
                 {rejected && <span style={{color:'red',marginBottom:'10px'}}>Rejected due to: {editedDetails.rejected_message}</span>}
-                {/* FULL-WIDTH Dropzones (top center) */}
-                {!editedDetails && (
-                    <div style={{ marginBottom: 16 }}>
-                        {/* Single File Upload Dropzone */}
-                        <div 
-                            className={styles["cad-dropzone"]} 
-                            onClick={handleClick}
-                            onDrop={handleSingleDrop}
-                            onDragOver={handleDragOver}
-                            style={{ marginBottom: 12 }}
-                        >
-                            <input
-                                type="file"
-                                accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
-                                ref={fileInputRef}
-                                disabled={uploadProgress > 0 || isUploadingMultiple}
-                                style={{ display: "none" }}
-                                onChange={handleFileChange}
-                            />
-                            {uploadProgress > 0 && uploadMode === 'single' ? (
-                                <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
-                                    <div><span>{fileName} - {Math.round(fileSize)}mb</span></div>
-                                    <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
-                                        <div style={{ width: `${uploadProgress}%`, backgroundColor: '#610bee', height: 8, transition: 'width 0.3s ease-in-out' }} />
+                
+                {/* Step indicator */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        width: 32, 
+                        height: 32, 
+                        borderRadius: '50%', 
+                        backgroundColor: currentStep >= 1 ? '#610bee' : '#e0e0e0',
+                        color: currentStep >= 1 ? '#fff' : '#666',
+                        fontWeight: 600,
+                        fontSize: 14
+                    }}>
+                        1
+                    </div>
+                    <div style={{ 
+                        width: 40, 
+                        height: 2, 
+                        backgroundColor: currentStep >= 2 ? '#610bee' : '#e0e0e0' 
+                    }} />
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        width: 32, 
+                        height: 32, 
+                        borderRadius: '50%', 
+                        backgroundColor: currentStep >= 2 ? '#610bee' : '#e0e0e0',
+                        color: currentStep >= 2 ? '#fff' : '#666',
+                        fontWeight: 600,
+                        fontSize: 14
+                    }}>
+                        2
+                    </div>
+                </div>
+
+                {/* STEP 1: File Upload */}
+                {currentStep === 1 && (
+                    <div>
+                        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Step 1: Upload Files</h3>
+                        <div style={{ marginBottom: 16 }}>
+                            {/* Single File Upload Dropzone */}
+                            <div 
+                                className={styles["cad-dropzone"]} 
+                                onClick={handleClick}
+                                onDrop={handleSingleDrop}
+                                onDragOver={handleDragOver}
+                                style={{ marginBottom: 12 }}
+                            >
+                                <input
+                                    type="file"
+                                    accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
+                                    ref={fileInputRef}
+                                    disabled={uploadProgress > 0 || isUploadingMultiple}
+                                    style={{ display: "none" }}
+                                    onChange={handleFileChange}
+                                />
+                                {uploadProgress > 0 && uploadMode === 'single' ? (
+                                    <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
+                                        <div><span>{fileName} - {Math.round(fileSize)}mb</span></div>
+                                        <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
+                                            <div style={{ width: `${uploadProgress}%`, backgroundColor: '#610bee', height: 8, transition: 'width 0.3s ease-in-out' }} />
+                                        </div>
+                                        <p style={{ textAlign: 'right', fontSize: 12 }}>{uploadProgress}%</p>
+                                        <div>
+                                            <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
+                                        </div>
                                     </div>
-                                    <p style={{ textAlign: 'right', fontSize: 12 }}>{uploadProgress}%</p>
-                                    <div>
-                                        <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <Image
-                                        src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
-                                        alt='uploading-icon'
-                                        width={50}
-                                        height={50}
-                                    />
-                                    Drag a single file here or{' '}
-                                    <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
-                                </>
-                            )}
-                        </div>
-                        {/* Multiple Files Upload Dropzone */}
-                        <div 
-                            className={styles["cad-dropzone"]} 
-                            onClick={handleMultipleFilesClick}
-                            onDrop={handleMultipleDrop}
-                            onDragOver={handleDragOver}
-                            style={{ 
-                                border: '2px dashed #610bee',
-                                backgroundColor: '#f8f9fa',
-                                position: 'relative'
-                            }}
-                        >
-                            <input
-                                type="file"
-                                multiple
-                                ref={multipleFilesInputRef}
-                                disabled={uploadProgress > 0 || isUploadingMultiple}
-                                style={{ display: "none" }}
-                                onChange={handleMultipleFilesChange}
-                            />
-                            {isUploadingMultiple || supportedFiles.length > 0 ? (
-                                <div style={{ marginTop: 10, width: '90%', textAlign: 'center', marginInline: 'auto' }}>
-                                    {isUploadingMultiple ? (
-                                        <>
-                                            <div><span>Uploading {Object.keys(multipleUploadProgress).length} file(s)...</span></div>
-                                            {Object.entries(multipleUploadProgress).map(([name, progress]) => (
-                                                <div key={name} style={{ marginTop: 8 }}>
-                                                    <div style={{ fontSize: 12, marginBottom: 4 }}>{name}</div>
-                                                    <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
-                                                        <div style={{ width: `${progress.percent}%`, backgroundColor: '#610bee', height: 6, transition: 'width 0.3s ease-in-out' }} />
-                                                    </div>
-                                                    <p style={{ textAlign: 'right', fontSize: 11 }}>{progress.percent}%</p>
-                                                </div>
-                                            ))}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div><span>{supportedFiles.length} file(s) uploaded successfully</span></div>
-                                            <div style={{ maxHeight: '150px', overflowY: 'auto', marginTop: 8, textAlign: 'left' }}>
-                                                {supportedFiles.map((file, idx) => (
-                                                    <div key={idx} style={{ fontSize: 12, padding: '4px 0', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                        <span>{file.fileName} ({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
-                                                        <CloseIcon onClick={e => { e.stopPropagation(); handleRemoveSupportingFile(idx); }} style={{ cursor: 'pointer', color: '#610bee', marginLeft: 8 }} />
+                                ) : (
+                                    <>
+                                        <Image
+                                            src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
+                                            alt='uploading-icon'
+                                            width={50}
+                                            height={50}
+                                        />
+                                        Drag a single file here or{' '}
+                                        <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
+                                    </>
+                                )}
+                            </div>
+                            {/* Multiple Files Upload Dropzone */}
+                            <div 
+                                className={styles["cad-dropzone"]} 
+                                onClick={handleMultipleFilesClick}
+                                onDrop={handleMultipleDrop}
+                                onDragOver={handleDragOver}
+                                style={{ 
+                                    border: '2px dashed #610bee',
+                                    backgroundColor: '#f8f9fa',
+                                    position: 'relative'
+                                }}
+                            >
+                                <input
+                                    type="file"
+                                    multiple
+                                    ref={multipleFilesInputRef}
+                                    disabled={uploadProgress > 0 || isUploadingMultiple}
+                                    style={{ display: "none" }}
+                                    onChange={handleMultipleFilesChange}
+                                />
+                                {isUploadingMultiple || supportedFiles.length > 0 ? (
+                                    <div style={{ marginTop: 10, width: '90%', textAlign: 'center', marginInline: 'auto' }}>
+                                        {isUploadingMultiple ? (
+                                            <>
+                                                <div><span>Uploading {Object.keys(multipleUploadProgress).length} file(s)...</span></div>
+                                                {Object.entries(multipleUploadProgress).map(([name, progress]) => (
+                                                    <div key={name} style={{ marginTop: 8 }}>
+                                                        <div style={{ fontSize: 12, marginBottom: 4 }}>{name}</div>
+                                                        <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
+                                                            <div style={{ width: `${progress.percent}%`, backgroundColor: '#610bee', height: 6, transition: 'width 0.3s ease-in-out' }} />
+                                                        </div>
+                                                        <p style={{ textAlign: 'right', fontSize: 11 }}>{progress.percent}%</p>
                                                     </div>
                                                 ))}
-                                            </div>
-                                            <div style={{ marginTop: 8 }}>
-                                                <span style={{ fontSize: 12, color: '#666' }}>Total: {(supportedFiles.reduce((acc, file) => acc + file.size, 0) / (1024 * 1024)).toFixed(2)} MB / 1024.00 MB</span>
-                                            </div>
-                                            <div style={{ marginTop: 8 }}>
-                                                <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            ) : (
-                                <>
-                                    <Image
-                                        src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
-                                        alt='uploading-icon'
-                                        width={50}
-                                        height={50}
-                                    />
-                                    Drag multiple files here or{' '}
-                                    <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>
-                                        select files
-                                    </span>
-                                    <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
-                                        Select multiple files. All file types are accepted for supporting files.
-                                    </p>
-                                </>
-                            )}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div><span>{supportedFiles.length} file(s) uploaded successfully</span></div>
+                                                <div style={{ maxHeight: '150px', overflowY: 'auto', marginTop: 8, textAlign: 'left' }}>
+                                                    {supportedFiles.map((file, idx) => (
+                                                        <div key={idx} style={{ fontSize: 12, padding: '4px 0', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                            <span>{file.fileName} ({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                                                            <CloseIcon onClick={e => { e.stopPropagation(); handleRemoveSupportingFile(idx); }} style={{ cursor: 'pointer', color: '#610bee', marginLeft: 8 }} />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div style={{ marginTop: 8 }}>
+                                                    <span style={{ fontSize: 12, color: '#666' }}>Total: {(supportedFiles.reduce((acc, file) => acc + file.size, 0) / (1024 * 1024)).toFixed(2)} MB / 1024.00 MB</span>
+                                                </div>
+                                                <div style={{ marginTop: 8 }}>
+                                                    <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <>
+                                        <Image
+                                            src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
+                                            alt='uploading-icon'
+                                            width={50}
+                                            height={50}
+                                        />
+                                        Drag multiple files here or{' '}
+                                        <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>
+                                            select files
+                                        </span>
+                                        <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
+                                            Select multiple files. All file types are accepted for supporting files.
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                            {(formErrors.file && !url && supportedFiles.length === 0) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
                         </div>
-                        {(formErrors.file && !url && supportedFiles.length === 0) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
+                        
+                        {/* Next button for step 1 */}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
+                            <button
+                                onClick={handleNextStep}
+                                disabled={!url && supportedFiles.length === 0}
+                                style={{
+                                    padding: '12px 24px',
+                                    backgroundColor: (!url && supportedFiles.length === 0) ? '#a270f2' : '#610bee',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: 6,
+                                    fontSize: 16,
+                                    fontWeight: 600,
+                                    cursor: (!url && supportedFiles.length === 0) ? 'not-allowed' : 'pointer',
+                                }}
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
                 )}
-                {/* Checkbox under dropzone (like figma) */}
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, gap: 10 }}>
-                    <input type="checkbox" checked={isChecked} onChange={handleChange} />
-                    <span>Allow others to download this design.</span>
-                </div>
 
-                {/* Two-column layout */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-                    {/* LEFT: File details (with tags) */}
+                {/* STEP 2: Form Details */}
+                {currentStep === 2 && (
                     <div>
-                        <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>File details</h3>
+                        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Step 2: Design Details</h3>
+                        
+                        {/* Checkbox for download permission */}
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, gap: 10 }}>
+                            <input type="checkbox" checked={isChecked} onChange={handleChange} />
+                            <span>Allow others to download this design.</span>
+                        </div>
 
-                        {/* Title */}
-                        <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Model title</label>
-                            <input
-                                placeholder="0.5M Spur Gear | High-Quality CAD Model"
-                                type="text"
-                                maxLength={TITLELIMIT}
-                                value={cadFile.title}
-                                style={{ margin: 0, width: '100%' }}
-                                onChange={(e) => setCadFile({ ...cadFile, title: e.target.value })}
-                            />
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'red', visibility: formErrors.title ? 'visible' : 'hidden' }}>{formErrors.title}</span>
-                                <p style={{ fontSize: 12, color: cadFile.title.length >= 40 ? 'green' : 'gray' }}>{cadFile.title.length}/{TITLELIMIT}</p>
+                        {/* Two-column layout */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                            {/* LEFT: File details (with tags) */}
+                            <div>
+                                <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>File details</h3>
+
+                                {/* Title */}
+                                <div style={{ marginBottom: 16 }}>
+                                    <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Model title</label>
+                                    <input
+                                        placeholder="0.5M Spur Gear | High-Quality CAD Model"
+                                        type="text"
+                                        maxLength={TITLELIMIT}
+                                        value={cadFile.title}
+                                        style={{ margin: 0, width: '100%' }}
+                                        onChange={(e) => setCadFile({ ...cadFile, title: e.target.value })}
+                                    />
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ color: 'red', visibility: formErrors.title ? 'visible' : 'hidden' }}>{formErrors.title}</span>
+                                        <p style={{ fontSize: 12, color: cadFile.title.length >= 40 ? 'green' : 'gray' }}>{cadFile.title.length}/{TITLELIMIT}</p>
+                                    </div>
+                                </div>
+
+                                {/* Description */}
+                                <div style={{ marginBottom: 16 }}>
+                                    <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Description</label>
+                                    <textarea
+                                        placeholder="Designed for engineers and designers, 0.5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
+                                        value={cadFile.description}
+                                        maxLength={DESCRIPTIONLIMIT}
+                                        style={{ margin: 0, width: '100%' }}
+                                        onChange={(e) => setCadFile({ ...cadFile, description: e.target.value })}
+                                    />
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>{formErrors.description}</span>
+                                        <p style={{ fontSize: 12, color: cadFile.description.length >= 100 ? 'green' : 'gray' }}>{cadFile.description.length}/{DESCRIPTIONLIMIT}</p>
+                                    </div>
+                                </div>
+
+                                {/* Tags */}
+                                <div>
+                                    <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select or create tags</label>
+                                    <CreatableSelect
+                                        isMulti
+                                        styles={createDropdownCustomStyles}
+                                        options={options}
+                                        value={selectedOptions}
+                                        onFocus={getTags}
+                                        onChange={handleZoneSelection}
+                                        onCreateOption={handleAddZones}
+                                        placeholder="Select or create Tags"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* RIGHT: Pricing details */}
+                            <div>
+                                <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>Pricing details</h3>
+
+                                {/* KYC box */}
+                                {user.kycStatus !== 'completed' &&  <div style={{ background: '#f8f9fa', padding: 16, borderRadius: 8, marginBottom: 16 }}>
+                                    <p style={{ margin: 0, color: '#666' }}>
+                                        To sell and set price for your CAD file, please verify your bank details.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={handleVerifyBankDetails}
+                                        style={{
+                                            marginTop: 12,
+                                            background: '#fff',
+                                            border: '2px solid #610bee',
+                                            color: '#610bee',
+                                            padding: '10px 16px',
+                                            borderRadius: 6,
+                                            fontWeight: 600,
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Verify bank details
+                                    </button>
+                                </div>}
+                               
+
+                                {/* Price with dollar icon on the right */}
+                                <div style={{ marginBottom: 16,display:'flex',flexDirection:'column',gap:'12px' }}>
+                                    
+                                    <div style={{position:'relative'}}>
+                                        <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Price</label>
+                                        <input
+                                        type="number"
+                                        min={0}
+                                        max={500}
+                                        placeholder="Enter price"
+                                        value={price}
+                                        onChange={e => setPrice(e.target.value)}
+                                        disabled={user.kycStatus !== 'completed'}
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px 34px 10px 12px',
+                                            border: `1px solid ${formErrors.price ? 'red' : '#ddd'}`,
+                                            borderRadius: 6,
+                                            background: user.kycStatus === 'completed' ? '#fff' : '#f5f5f5',
+                                        }}
+                                    />
+                                    <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
+                                        $
+                                    </span></div>
+                                    
+                                    {formErrors.price && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.price}</p>}
+                                    <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for $0 and others can download for Free. Maximum price allowed is $500.</p>
+                                   {user.kycStatus === 'completed' &&
+                                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                                        <span style={{color:'#848e96'}}>Marathon commision</span>
+                                        <span style={{color:'#848e96'}}>${(price * 0.1).toFixed(2)}</span>
+                                    </div>
+                                   } 
+                                   {user.kycStatus === 'completed' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                                        <span style={{color:'#848e96'}}>Platform fee</span>
+                                        <span style={{color:'#0f9918'}}>Free</span>
+                                    </div>} 
+                                </div>
+
+                                {/* Upload button */}
+                                {hasUserEmail ? (
+                                    <button
+                                        style={{ 
+                                            width: '100%', 
+                                            padding: '12px', 
+                                            backgroundColor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? '#a270f2' : '#610bee', 
+                                            color: '#ffffff',
+                                            border: 'none',
+                                            borderRadius: 6,
+                                            fontSize: 16,
+                                            fontWeight: 600,
+                                            cursor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? 'not-allowed' : 'pointer',
+                                            marginTop: 4
+                                        }}
+                                        disabled={!termsAccepted || uploading || user.kycStatus !== 'completed'}
+                                        onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
+                                        title={
+                                            !termsAccepted 
+                                                ? 'Please agree to the terms and conditions to upload your design.' 
+                                                : user.kycStatus !== 'completed' 
+                                                    ? 'Please verify your bank details to upload your design.' 
+                                                    : ''
+                                        }
+                                    >
+                                        {uploading ? `${editedDetails ? 'Updating' : 'Uploading'} Design...` : 'Upload Design'}
+                                    </button>
+                                ) : (
+                                    <button
+                                        style={{ 
+                                            width: '100%', 
+                                            padding: '12px', 
+                                            backgroundColor: '#a270f2', 
+                                            color: '#ffffff',
+                                            border: 'none',
+                                            borderRadius: 6,
+                                            fontSize: 16,
+                                            fontWeight: 600,
+                                            cursor: 'not-allowed',
+                                            marginTop: 4
+                                        }}
+                                        title='Please verify your email to upload your design.'
+                                        disabled
+                                    >
+                                        Upload Design
+                                    </button>
+                                )}
+
+                                {/* Terms & conditions */}
+                                <div style={{ marginTop: 12 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <input type="checkbox" checked={termsAccepted} onChange={(e)=>setTermsAccepted(e.target.checked)} />
+                                        <span style={{ fontSize: 13, color: '#444' }}>
+                                            Agree to <Link href="/terms-and-conditions" target='_blank' style={{ color: '#610bee' }}>terms & conditions</Link> and <Link href="/privacy-policy" target='_blank' style={{ color: '#610bee' }}>privacy policy</Link> of Marathon.
+                                        </span>
+                                    </div>
+                                    {formErrors.terms && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.terms}</p>}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Description */}
-                        <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Description</label>
-                            <textarea
-                                placeholder="Designed for engineers and designers, 0.5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
-                                value={cadFile.description}
-                                maxLength={DESCRIPTIONLIMIT}
-                                style={{ margin: 0, width: '100%' }}
-                                onChange={(e) => setCadFile({ ...cadFile, description: e.target.value })}
-                            />
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>{formErrors.description}</span>
-                                <p style={{ fontSize: 12, color: cadFile.description.length >= 100 ? 'green' : 'gray' }}>{cadFile.description.length}/{DESCRIPTIONLIMIT}</p>
-                            </div>
+                        {/* Navigation buttons for step 2 */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+                            {!editedDetails && (
+                                <button
+                                    onClick={handlePreviousStep}
+                                    style={{
+                                        padding: '12px 24px',
+                                        backgroundColor: '#fff',
+                                        color: '#610bee',
+                                        border: '2px solid #610bee',
+                                        borderRadius: 6,
+                                        fontSize: 16,
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    Back
+                                </button>
+                            )}
+                            <div style={{ flex: 1 }} /> {/* Spacer */}
                         </div>
 
-                        {/* Tags moved to LEFT to match figma */}
-                        <div>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select or create tags</label>
-                            <CreatableSelect
-                                isMulti
-                                styles={createDropdownCustomStyles}
-                                options={options}
-                                value={selectedOptions}
-                                onFocus={getTags}
-                                onChange={handleZoneSelection}
-                                onCreateOption={handleAddZones}
-                                placeholder="Select or create Tags"
-                            />
-                        </div>
-                    </div>
-
-                    {/* RIGHT: Pricing details */}
-                    <div>
-                        <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>Pricing details</h3>
-
-                        {/* KYC box */}
-                        {user.kycStatus !== 'completed' &&  <div style={{ background: '#f8f9fa', padding: 16, borderRadius: 8, marginBottom: 16 }}>
-                            <p style={{ margin: 0, color: '#666' }}>
-                                To sell and set price for your CAD file, please verify your bank details.
+                        {/* Bottom note */}
+                        <div style={{ background: '#f8f9fa', padding: 12, borderRadius: 8, marginTop: 16 }}>
+                            <p className="text-gray-600" style={{ margin: 0 }}>
+                                ⚠️ It might take up to 24 hours for your design to go live. We will email you the link once it is published.
                             </p>
-                            <button
-                                type="button"
-                                onClick={handleVerifyBankDetails}
-                                style={{
-                                    marginTop: 12,
-                                    background: '#fff',
-                                    border: '2px solid #610bee',
-                                    color: '#610bee',
-                                    padding: '10px 16px',
-                                    borderRadius: 6,
-                                    fontWeight: 600,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Verify bank details
-                            </button>
-                        </div>}
-                       
-
-                        {/* Price with rupee icon on the right */}
-                        <div style={{ marginBottom: 16,display:'flex',flexDirection:'column',gap:'12px' }}>
-                            
-                            <div style={{position:'relative'}}>
-                                <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Price</label>
-                                <input
-                                type="number"
-                                min={0}
-                                max={500}
-                                placeholder="Enter price"
-                                value={price}
-                                onChange={e => setPrice(e.target.value)}
-                                disabled={user.kycStatus !== 'completed'}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 34px 10px 12px',
-                                    border: `1px solid ${formErrors.price ? 'red' : '#ddd'}`,
-                                    borderRadius: 6,
-                                    background: user.kycStatus === 'completed' ? '#fff' : '#f5f5f5',
-                                }}
-                            />
-                            <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
-                                $
-                            </span></div>
-                            
-                            {formErrors.price && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.price}</p>}
-                            <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for $0 and others can download for Free. Maximum price allowed is $500.</p>
-                           {user.kycStatus === 'completed' &&
-                           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                                <span style={{color:'#848e96'}}>Marathon commision</span>
-                                <span style={{color:'#848e96'}}>${(price * 0.1).toFixed(2)}</span>
-                            </div>
-                           } 
-                           {user.kycStatus === 'completed' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                                <span style={{color:'#848e96'}}>Platform fee</span>
-                                <span style={{color:'#0f9918'}}>Free</span>
-                            </div>} 
-                        </div>
-
-                        {/* Upload button */}
-                        {hasUserEmail ? (
-                            <button
-                                style={{ 
-                                    width: '100%', 
-                                    padding: '12px', 
-                                    backgroundColor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? '#a270f2' : '#610bee', 
-                                    color: '#ffffff',
-                                    border: 'none',
-                                    borderRadius: 6,
-                                    fontSize: 16,
-                                    fontWeight: 600,
-                                    cursor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? 'not-allowed' : 'pointer',
-                                    marginTop: 4
-                                }}
-                                disabled={!termsAccepted || uploading || user.kycStatus !== 'completed'}
-                                onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
-                                title={
-                                    !termsAccepted 
-                                        ? 'Please agree to the terms and conditions to upload your design.' 
-                                        : user.kycStatus !== 'completed' 
-                                            ? 'Please verify your bank details to upload your design.' 
-                                            : ''
-                                }
-                            >
-                                {uploading ? `${editedDetails ? 'Updating' : 'Uploading'} Design...` : 'Upload Design'}
-                            </button>
-                        ) : (
-                            <button
-                                style={{ 
-                                    width: '100%', 
-                                    padding: '12px', 
-                                    backgroundColor: '#a270f2', 
-                                    color: '#ffffff',
-                                    border: 'none',
-                                    borderRadius: 6,
-                                    fontSize: 16,
-                                    fontWeight: 600,
-                                    cursor: 'not-allowed',
-                                    marginTop: 4
-                                }}
-                                title='Please verify your email to upload your design.'
-                                disabled
-                            >
-                                Upload Design
-                            </button>
-                        )}
-
-                        {/* Terms & conditions */}
-                        <div style={{ marginTop: 12 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <input type="checkbox" checked={termsAccepted} onChange={(e)=>setTermsAccepted(e.target.checked)} />
-                                <span style={{ fontSize: 13, color: '#444' }}>
-                                    Agree to <Link href="/terms-and-conditions" target='_blank' style={{ color: '#610bee' }}>terms & conditions</Link> and <Link href="/privacy-policy" target='_blank' style={{ color: '#610bee' }}>privacy policy</Link> of Marathon.
-                                </span>
-                            </div>
-                            {formErrors.terms && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.terms}</p>}
                         </div>
                     </div>
-                </div>
-
-                {/* Bottom note */}
-                <div style={{ background: '#f8f9fa', padding: 12, borderRadius: 8, marginTop: 16 }}>
-                    <p className="text-gray-600" style={{ margin: 0 }}>
-                        ⚠️ It might take up to 24 hours for your design to go live. We will email you the link once it is published.
-                    </p>
-                </div>
+                )}
             </div>}
         </>
     );
