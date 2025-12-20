@@ -53,7 +53,7 @@ function UploadYourCadDesign({
 
     useEffect(() => {
         if (uploadedFile && Object.keys(uploadedFile).length > 0) {
-            setCadFormState(prevState => ({
+            safeSetCadFormState(prevState => ({
                 ...prevState,
                 fileName: uploadedFile.file_name,
                 fileFormat: uploadedFile.output_format,
@@ -79,15 +79,15 @@ function UploadYourCadDesign({
 
     // Initialize currentStep if not set
     useEffect(() => {
-        if (!cadFormState || cadFormState.currentStep === undefined) {
-            setCadFormState(prevState => ({ ...prevState, currentStep: editedDetails ? 2 : 1 }));
+        if (setCadFormState && typeof setCadFormState === 'function' && (!cadFormState || cadFormState.currentStep === undefined)) {
+            safeSetCadFormState(prevState => ({ ...prevState, currentStep: editedDetails ? 2 : 1 }));
         }
     }, [cadFormState?.currentStep, editedDetails, setCadFormState]);
 
     // Sync isChecked (downloadable) when editing
     useEffect(() => {
-        if (editedDetails && typeof editedDetails.is_downloadable === 'boolean') {
-            setCadFormState(prev => ({
+        if (setCadFormState && typeof setCadFormState === 'function' && editedDetails && typeof editedDetails.is_downloadable === 'boolean') {
+            safeSetCadFormState(prev => ({
                 ...prev,
                 isChecked: editedDetails.is_downloadable
             }));
@@ -96,7 +96,7 @@ function UploadYourCadDesign({
 
     // Sync tags when options are loaded
     useEffect(() => {
-        if (editedDetails?.cad_tags?.length && options.length > 0 && (!cadFormState?.selectedOptions || cadFormState.selectedOptions.length === 0)) {
+        if (setCadFormState && typeof setCadFormState === 'function' && editedDetails?.cad_tags?.length && options.length > 0 && (!cadFormState?.selectedOptions || cadFormState.selectedOptions.length === 0)) {
             const mappedSelections = editedDetails.cad_tags
                 .map(id =>
                     rejected
@@ -105,7 +105,7 @@ function UploadYourCadDesign({
                 )
                 .filter(Boolean);
 
-            setCadFormState(prev => ({
+            safeSetCadFormState(prev => ({
                 ...prev,
                 selectedOptions: mappedSelections
             }));
@@ -114,9 +114,16 @@ function UploadYourCadDesign({
 
     const router = useRouter();
 
+    // Helper function to safely update cadFormState
+    const safeSetCadFormState = (updater) => {
+        if (setCadFormState && typeof setCadFormState === 'function') {
+            setCadFormState(updater);
+        }
+    };
+
     // Ensure cadFormState is initialized
     useEffect(() => {
-        if (!cadFormState && setCadFormState) {
+        if (!cadFormState && setCadFormState && typeof setCadFormState === 'function') {
             setCadFormState({
                 title: editedDetails?.page_title || '',
                 description: editedDetails?.page_description || '',
@@ -139,7 +146,7 @@ function UploadYourCadDesign({
     }, [cadFormState, setCadFormState, editedDetails]);
 
     const handleChange = (e) => {
-        setCadFormState(prevState => ({ ...prevState, isChecked: e.target.checked }));
+        safeSetCadFormState(prevState => ({ ...prevState, isChecked: e.target.checked }));
     };
 
     const handleClick = () => {
@@ -169,7 +176,7 @@ function UploadYourCadDesign({
         });
         multipleUploadAbortControllersRef.current = {};
         
-        setCadFormState(prevState => ({
+        safeSetCadFormState(prevState => ({
             ...prevState,
             fileName: '',
             fileSize: '',
@@ -248,7 +255,7 @@ function UploadYourCadDesign({
                 e.target.value = ''; // Reset input
                 return;
             }
-            setCadFormState(prevState => ({ ...prevState, uploadMode: 'single' }));
+            safeSetCadFormState(prevState => ({ ...prevState, uploadMode: 'single' }));
             handleFile(file);
         }
     };
@@ -268,7 +275,7 @@ function UploadYourCadDesign({
             e.target.value = '';
             return;
         }
-        setCadFormState(prevState => ({ ...prevState, uploadMode: 'multiple' }));
+        safeSetCadFormState(prevState => ({ ...prevState, uploadMode: 'multiple' }));
         await handleMultipleFiles(allFiles);
         e.target.value = '';
     };
@@ -333,7 +340,7 @@ function UploadYourCadDesign({
         if (files.length === 1) {
             const file = files[0];
             if (isValidFileType(file)) {
-                setCadFormState(prevState => ({ ...prevState, uploadMode: 'single' }));
+                safeSetCadFormState(prevState => ({ ...prevState, uploadMode: 'single' }));
                 handleFile(file);
             } else {
                 toast.error(`File type .${getFileExtension(file)} is not supported. Supported formats: ${allowedFilesList.join(', ')}`);
@@ -359,7 +366,7 @@ function UploadYourCadDesign({
                 toast.error('Total supporting files size cannot exceed 1GB.');
                 return;
             }
-            setCadFormState(prevState => ({ ...prevState, uploadMode: 'multiple' }));
+            safeSetCadFormState(prevState => ({ ...prevState, uploadMode: 'multiple' }));
             await handleMultipleFiles(files);
         } else {
             toast.error('No files found.');
@@ -456,14 +463,14 @@ function UploadYourCadDesign({
             toast.error('Total supporting files size cannot exceed 1GB.');
             return;
         }
-        setCadFormState(prevState => ({ ...prevState, isUploadingMultiple: true, multipleUploadProgress: {} }));
+        safeSetCadFormState(prevState => ({ ...prevState, isUploadingMultiple: true, multipleUploadProgress: {} }));
         const initialProgress = {};
         files.forEach(file => {
             initialProgress[file.name] = { loaded: 0, total: file.size, percent: 0 };
         });
-        setCadFormState(prevState => ({ ...prevState, multipleUploadProgress: initialProgress }));
+        safeSetCadFormState(prevState => ({ ...prevState, multipleUploadProgress: initialProgress }));
         const updateProgress = (fileName, progress) => {
-            setCadFormState(prevState => ({
+            safeSetCadFormState(prevState => ({
                 ...prevState,
                 multipleUploadProgress: {
                     ...prevState.multipleUploadProgress,
@@ -506,7 +513,7 @@ function UploadYourCadDesign({
                     }
                 });
             }
-            setCadFormState(prevState => ({
+            safeSetCadFormState(prevState => ({
                 ...prevState,
                 supportedFiles: uploadedFiles,
                 isUploadingMultiple: false
@@ -519,7 +526,7 @@ function UploadYourCadDesign({
             }
         } catch (error) {
             console.error('Error processing multiple files:', error);
-            setCadFormState(prevState => ({ ...prevState, isUploadingMultiple: false }));
+            safeSetCadFormState(prevState => ({ ...prevState, isUploadingMultiple: false }));
             toast.error('Error processing files. Please try again.');
         }
     };
@@ -532,7 +539,7 @@ function UploadYourCadDesign({
         }
         
         const fileSizeMB = file.size / (1024 * 1024);
-        setCadFormState(prevState => ({
+        safeSetCadFormState(prevState => ({
             ...prevState,
             fileName: file.name,
             fileSize: fileSizeMB,
@@ -569,14 +576,14 @@ function UploadYourCadDesign({
                         signal: uploadAbortControllerRef.current.signal,
                         onUploadProgress: (progressEvent) => {
                             const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                            setCadFormState(prevState => ({ ...prevState, uploadProgress: percent }));
+                            safeSetCadFormState(prevState => ({ ...prevState, uploadProgress: percent }));
                         },
                     }
                 );
 
                 if (uploadRes.status === 200) {
                     toast.success('File successfully uploaded!');
-                    setCadFormState(prevState => ({
+                    safeSetCadFormState(prevState => ({
                         ...prevState,
                         url: presignedRes.data.url.split('?')[0] // Remove query params
                     }));
@@ -596,26 +603,27 @@ function UploadYourCadDesign({
 
     const handleUserCadFileSubmit = async () => {
         if (!validateForm()) return;
+        if (!cadFormState) return;
         setUploading(true);
         try {
             const requestData = {
                 uuid: localStorage.getItem("uuid"),
-                title: cadFormState.title,
-                price: cadFormState.price ? cadFormState.price : 0,
-                file_type: cadFormState.fileFormat,
-                description: cadFormState.description,
-                tags: (cadFormState.selectedOptions || []).map(option => option.value),
-                is_downloadable: cadFormState.isChecked,
+                title: cadFormState?.title || '',
+                price: cadFormState?.price ? cadFormState.price : 0,
+                file_type: cadFormState?.fileFormat || '',
+                description: cadFormState?.description || '',
+                tags: (cadFormState?.selectedOptions || []).map(option => option.value),
+                is_downloadable: cadFormState?.isChecked ?? true,
                 converted_cad_source: uploadedFile,
             };
 
             // Add single file URL for backward compatibility
-            if (cadFormState.url) {
+            if (cadFormState?.url) {
                 requestData.url = cadFormState.url;
             }
 
             // Add supported files array if multiple files were uploaded
-            if (cadFormState.supportedFiles && cadFormState.supportedFiles.length > 0) {
+            if (cadFormState?.supportedFiles && cadFormState.supportedFiles.length > 0) {
                 requestData.supporting_files = cadFormState.supportedFiles;
             }
 
@@ -687,17 +695,18 @@ function UploadYourCadDesign({
             console.log('Form validation failed');
             return;
         }
+        if (!cadFormState) return;
         
         console.log('Form validation passed, making API call...');
         setUploading(true);
         try {
             const requestData = {
                 file_id: editedDetails._id,
-                title: cadFormState.title,
-                description: cadFormState.description,
-                tags: (cadFormState.selectedOptions || []).map(option => option.value),
-                price: Number(cadFormState.price) || 0, // Send price as number
-                is_downloadable: cadFormState.isChecked,
+                title: cadFormState?.title || '',
+                description: cadFormState?.description || '',
+                tags: (cadFormState?.selectedOptions || []).map(option => option.value),
+                price: Number(cadFormState?.price) || 0, // Send price as number
+                is_downloadable: cadFormState?.isChecked ?? true,
             };
             
             console.log('Request data:', requestData);
@@ -793,12 +802,12 @@ function UploadYourCadDesign({
                 setOptions(fetchedOptions);
 
                 // ✅ Only set selectedOptions if they haven't been set yet
-                if (editedDetails?.cad_tags?.length && (!cadFormState.selectedOptions || cadFormState.selectedOptions.length === 0)) {
+                if (editedDetails?.cad_tags?.length && (!cadFormState?.selectedOptions || cadFormState.selectedOptions.length === 0)) {
                     const mappedSelections = editedDetails.cad_tags
                         .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
                         .filter(Boolean);
 
-                    setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
+                    safeSetCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
                 }
             }
         } catch (error) {
@@ -820,7 +829,7 @@ function UploadYourCadDesign({
 
 
             setOptions(prevOptions => [...prevOptions, newTags]);
-            setCadFormState(prevState => ({
+            safeSetCadFormState(prevState => ({
                 ...prevState,
                 selectedOptions: prevState.selectedOptions ? [...prevState.selectedOptions, newTags] : [newTags]
             }));
@@ -830,14 +839,14 @@ function UploadYourCadDesign({
     };
 
     const handleZoneSelection = (selected) => {
-        setCadFormState(prevState => ({ ...prevState, selectedOptions: selected || [] }));
+        safeSetCadFormState(prevState => ({ ...prevState, selectedOptions: selected || [] }));
     };
 
 
 
     const handleRemoveCadFile = () => {
         setUploadedFile({});
-        setCadFormState(prevState => ({
+        safeSetCadFormState(prevState => ({
             ...prevState,
             fileName: '',
             fileSize: '',
@@ -855,7 +864,7 @@ function UploadYourCadDesign({
 
     // Remove individual supporting file (must be outside JSX)
     const handleRemoveSupportingFile = (idx) => {
-        setCadFormState(prevState => {
+        safeSetCadFormState(prevState => {
             const updated = (prevState.supportedFiles || []).filter((_, i) => i !== idx);
             return {
                 ...prevState,
@@ -880,13 +889,13 @@ function UploadYourCadDesign({
     // Handle next step
     const handleNextStep = () => {
         if (validateStep1()) {
-            setCadFormState(prevState => ({ ...prevState, currentStep: 2 }));
+            safeSetCadFormState(prevState => ({ ...prevState, currentStep: 2 }));
         }
     };
 
     // Handle previous step
     const handlePreviousStep = () => {
-        setCadFormState(prevState => ({ ...prevState, currentStep: 1 }));
+        safeSetCadFormState(prevState => ({ ...prevState, currentStep: 1 }));
     };
 
     return (
@@ -1112,7 +1121,7 @@ function UploadYourCadDesign({
                                         maxLength={TITLELIMIT}
                                         value={cadFormState?.title || ''}
                                         style={{ margin: 0, width: '100%' }}
-                                        onChange={(e) => setCadFormState(prevState => ({ ...prevState, title: e.target.value }))}
+                                        onChange={(e) => safeSetCadFormState(prevState => ({ ...prevState, title: e.target.value }))}
                                     />
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                         <span style={{ color: 'red', visibility: formErrors.title ? 'visible' : 'hidden' }}>{formErrors.title}</span>
@@ -1128,7 +1137,7 @@ function UploadYourCadDesign({
                                         value={cadFormState?.description || ''}
                                         maxLength={DESCRIPTIONLIMIT}
                                         style={{ margin: 0, width: '100%' }}
-                                        onChange={(e) => setCadFormState(prevState => ({ ...prevState, description: e.target.value }))}
+                                        onChange={(e) => safeSetCadFormState(prevState => ({ ...prevState, description: e.target.value }))}
                                     />
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                         <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>{formErrors.description}</span>
@@ -1191,7 +1200,7 @@ function UploadYourCadDesign({
                                         max={500}
                                         placeholder="Enter price"
                                         value={cadFormState?.price || ''}
-                                        onChange={e => setCadFormState(prevState => ({ ...prevState, price: e.target.value }))}
+                                        onChange={e => safeSetCadFormState(prevState => ({ ...prevState, price: e.target.value }))}
                                         disabled={user.kycStatus !== 'completed'}
                                         style={{
                                             width: '100%',
@@ -1270,7 +1279,7 @@ function UploadYourCadDesign({
                                 {/* Terms & conditions */}
                                 <div style={{ marginTop: 12 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <input type="checkbox" checked={cadFormState?.termsAccepted} onChange={(e)=>setCadFormState(prevState => ({ ...prevState, termsAccepted: e.target.checked }))} />
+                                        <input type="checkbox" checked={cadFormState?.termsAccepted} onChange={(e)=>safeSetCadFormState(prevState => ({ ...prevState, termsAccepted: e.target.checked }))} />
                                         <span style={{ fontSize: 13, color: '#444' }}>
                                             Agree to <Link href="/terms-and-conditions" target='_blank' style={{ color: '#610bee' }}>terms & conditions</Link> and <Link href="/privacy-policy" target='_blank' style={{ color: '#610bee' }}>privacy policy</Link> of Marathon.
                                         </span>
