@@ -28,17 +28,6 @@ function UploadYourCadDesign({
     cadFormState,
     setCadFormState
 }) {
-function UploadYourCadDesign({
-    editedDetails,
-    onClose,
-    type,
-    showHeaderClose = false,
-    rejected,
-    setShowKyc,
-    showKyc,
-    cadFormState,
-    setCadFormState
-}) {
     console.log(editedDetails)
     const fileInputRef = useRef(null);
     const multipleFilesInputRef = useRef(null);
@@ -81,15 +70,7 @@ function UploadYourCadDesign({
                 url: uploadedFile.url,
                 uploadProgress: 100
             }));
-            setCadFormState(prevState => ({
-                ...prevState,
-                fileName: uploadedFile.file_name,
-                fileFormat: uploadedFile.output_format,
-                url: uploadedFile.url,
-                uploadProgress: 100
-            }));
         }
-    }, [uploadedFile, setCadFormState]);
     }, [uploadedFile, setCadFormState]);
 
     useEffect(() => {
@@ -109,7 +90,6 @@ function UploadYourCadDesign({
     const router = useRouter();
 
     const handleChange = (e) => {
-        setCadFormState(prevState => ({ ...prevState, isChecked: e.target.checked }));
         setCadFormState(prevState => ({ ...prevState, isChecked: e.target.checked }));
     };
 
@@ -168,19 +148,15 @@ function UploadYourCadDesign({
             isValid = false;
         }
         if (!cadFormState.title.trim()) {
-        if (!cadFormState.title.trim()) {
             errors.title = 'Title is required.';
             isValid = false;
-        } else if (cadFormState.title.trim().length < 40) {
         } else if (cadFormState.title.trim().length < 40) {
             errors.title = 'Title must be at least 40 characters long.';
             isValid = false;
         }
         if (!cadFormState.description.trim()) {
-        if (!cadFormState.description.trim()) {
             errors.description = 'Description is required.';
             isValid = false;
-        } else if (cadFormState.description.trim().length < 100) {
         } else if (cadFormState.description.trim().length < 100) {
             errors.description = 'Description must be at least 100 characters long.';
             isValid = false;
@@ -443,12 +419,6 @@ function UploadYourCadDesign({
             fileSize: fileSizeMB,
             fileFormat: file.name.split('.').pop()
         }));
-        setCadFormState(prevState => ({
-            ...prevState,
-            fileName: file.name,
-            fileSize: fileSizeMB,
-            fileFormat: file.name.split('.').pop()
-        }));
 
         try {
             const headers = {
@@ -481,17 +451,12 @@ function UploadYourCadDesign({
                         onUploadProgress: (progressEvent) => {
                             const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                             setCadFormState(prevState => ({ ...prevState, uploadProgress: percent }));
-                            setCadFormState(prevState => ({ ...prevState, uploadProgress: percent }));
                         },
                     }
                 );
 
                 if (uploadRes.status === 200) {
                     toast.success('File successfully uploaded!');
-                    setCadFormState(prevState => ({
-                        ...prevState,
-                        url: presignedRes.data.url.split('?')[0] // Remove query params
-                    }));
                     setCadFormState(prevState => ({
                         ...prevState,
                         url: presignedRes.data.url.split('?')[0] // Remove query params
@@ -614,9 +579,6 @@ function UploadYourCadDesign({
                 title: cadFormState.title,
                 description: cadFormState.description,
                 tags: cadFormState.selectedOptions.map(option => option.value),
-                title: cadFormState.title,
-                description: cadFormState.description,
-                tags: cadFormState.selectedOptions.map(option => option.value),
                 price: Number(price) || 0, // Send price as number
                 is_downloadable: cadFormState.isChecked,
             };
@@ -715,14 +677,10 @@ function UploadYourCadDesign({
 
                 // ✅ Only set selectedOptions if they haven't been set yet
                 if (editedDetails?.cad_tags?.length && cadFormState.selectedOptions.length === 0) {
-                if (editedDetails?.cad_tags?.length && cadFormState.selectedOptions.length === 0) {
                     const mappedSelections = editedDetails.cad_tags
-  .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
-  .filter(Boolean);
-  .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
-  .filter(Boolean);
+                        .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
+                        .filter(Boolean);
 
-                    setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
                     setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
                 }
             }
@@ -749,17 +707,12 @@ function UploadYourCadDesign({
                 ...prevState,
                 selectedOptions: prevState.selectedOptions ? [...prevState.selectedOptions, newTags] : [newTags]
             }));
-            setCadFormState(prevState => ({
-                ...prevState,
-                selectedOptions: prevState.selectedOptions ? [...prevState.selectedOptions, newTags] : [newTags]
-            }));
         } catch (error) {
             console.error("An error occurred during the request:", error);
         }
     };
 
     const handleZoneSelection = (selected) => {
-        setCadFormState(prevState => ({ ...prevState, selectedOptions: selected || [] }));
         setCadFormState(prevState => ({ ...prevState, selectedOptions: selected || [] }));
     };
 
@@ -870,42 +823,10 @@ function UploadYourCadDesign({
             }));
         }
     }, [editedDetails, rejected, options, setCadFormState]);
-    const handleKycClose = () => setShowKyc(false);
-
-    // Sync isChecked (downloadable) when editing
-    useEffect(() => {
-        if (editedDetails && typeof editedDetails.is_downloadable === 'boolean') {
-            setCadFormState(prev => ({
-                ...prev,
-                isChecked: editedDetails.is_downloadable
-            }));
-        }
-    }, [editedDetails, setCadFormState]);
-
-    useEffect(() => {
-        if (
-            editedDetails?.cad_tags?.length &&
-            options.length > 0
-        ) {
-            const mappedSelections = editedDetails.cad_tags
-                .map(id =>
-                    rejected
-                        ? options.find(opt => opt.value === id)
-                        : options.find(opt => opt.label === id)
-                )
-                .filter(Boolean);
-
-            setCadFormState(prev => ({
-                ...prev,
-                selectedOptions: mappedSelections
-            }));
-        }
-    }, [editedDetails, rejected, options, setCadFormState]);
 
     return (
         <>
             {/* Render KYC modal when requested */}
-            {showKyc && <Kyc onClose={handleKycClose} />}
             {showKyc && <Kyc onClose={handleKycClose} />}
             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp setClosePopUp={setCloseNotifyInfoPopUp} cad_type={'USER_CADS'} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
@@ -1173,14 +1094,11 @@ function UploadYourCadDesign({
                                 type="text"
                                 maxLength={TITLELIMIT}
                                 value={cadFormState.title}
-                                value={cadFormState.title}
                                 style={{ margin: 0, width: '100%' }}
-                                onChange={(e) => setCadFormState(prevState => ({ ...prevState, title: e.target.value }))}
                                 onChange={(e) => setCadFormState(prevState => ({ ...prevState, title: e.target.value }))}
                             />
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <span style={{ color: 'red', visibility: formErrors.title ? 'visible' : 'hidden' }}>{formErrors.title}</span>
-                                <p style={{ fontSize: 12, color: cadFormState.title.length >= 40 ? 'green' : 'gray' }}>{cadFormState.title.length}/{TITLELIMIT}</p>
                                 <p style={{ fontSize: 12, color: cadFormState.title.length >= 40 ? 'green' : 'gray' }}>{cadFormState.title.length}/{TITLELIMIT}</p>
                             </div>
                         </div>
@@ -1191,15 +1109,12 @@ function UploadYourCadDesign({
                             <textarea
                                 placeholder="Designed for engineers and designers, 0.5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
                                 value={cadFormState.description}
-                                value={cadFormState.description}
                                 maxLength={DESCRIPTIONLIMIT}
                                 style={{ margin: 0, width: '100%' }}
-                                onChange={(e) => setCadFormState(prevState => ({ ...prevState, description: e.target.value }))}
                                 onChange={(e) => setCadFormState(prevState => ({ ...prevState, description: e.target.value }))}
                             />
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>{formErrors.description}</span>
-                                <p style={{ fontSize: 12, color: cadFormState.description.length >= 100 ? 'green' : 'gray' }}>{cadFormState.description.length}/{DESCRIPTIONLIMIT}</p>
                                 <p style={{ fontSize: 12, color: cadFormState.description.length >= 100 ? 'green' : 'gray' }}>{cadFormState.description.length}/{DESCRIPTIONLIMIT}</p>
                             </div>
                         </div>
@@ -1211,7 +1126,6 @@ function UploadYourCadDesign({
                                 isMulti
                                 styles={createDropdownCustomStyles}
                                 options={options}
-                                value={cadFormState.selectedOptions}
                                 value={cadFormState.selectedOptions}
                                 onFocus={getTags}
                                 onChange={handleZoneSelection}
