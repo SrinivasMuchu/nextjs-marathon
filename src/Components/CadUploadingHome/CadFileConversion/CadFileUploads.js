@@ -19,7 +19,7 @@ function CadFileUploads({ convert,allowedFormats }) {
 
                         </p>
                         <p className={styles['cad-dropzone-desc']} >
-                        {convert ? `Supported formats:${allowedFormats.join(", ")}` : "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj)"}
+                        {convert ? `Supported formats:${allowedFormats.join(", ")}` : "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), GLB (.glb)"}
                            
 
                         </p>

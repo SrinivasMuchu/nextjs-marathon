@@ -11,7 +11,7 @@ function CadConverterTypes() {
       <h2>CAD Converter Types</h2>
       <div className={styles['cad-convert-types-list']}>
         {converterTypes.map((type, index) => (
-          <Link href={`/tools/convert/${type.path}`} key={index}>
+          <Link href={`/tools/convert${type.path}`} key={index}>
             <button >
               {type.label}
             </button>

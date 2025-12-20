@@ -46,7 +46,13 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       if (data.meta.success) {
         const url = data.data.download_url;
         setDownloadedFileUpdate(data.data.download_url)
-        window.open(url, '_blank');
+        // window.open(url, '_blank');
+         const link = document.createElement("a");
+        link.href = url;
+        link.download = ""; // let browser download the file
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
       }
       sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
     } catch (err) {
