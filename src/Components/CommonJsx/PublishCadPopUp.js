@@ -16,6 +16,15 @@ function PublishCadPopUp({ onClose, editedDetails, type, rejected }) {
     title: editedDetails ? editedDetails.page_title : '',
     description: editedDetails ? editedDetails.page_description : '',
     tags: '',
+    selectedOptions: [],
+    isChecked: editedDetails ? editedDetails.is_downloadable : true,
+    fileName: '',
+    fileSize: '',
+    fileFormat: '',
+    url: '',
+    uploadProgress: 0,
+    supportedFiles: [], // Array of file objects: {fileName, type, size, url}
+    supportingFilesTotalSize: 0,
     // ...add other fields as needed
   });
 
