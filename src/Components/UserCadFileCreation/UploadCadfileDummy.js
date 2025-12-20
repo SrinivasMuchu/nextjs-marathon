@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useRef, useState, useEffect, useContext } from 'react';
 import styles from './UserCadFileUpload.module.css';
@@ -17,26 +18,32 @@ import Kyc from '../KYC/Kyc';
 import Link from 'next/link';
 
 
-function UploadYourCadDesign({
-    editedDetails,
-    onClose,
-    type,
-    showHeaderClose = false,
-    rejected,
-    setShowKyc,
-    showKyc,
-    cadFormState,
-    setCadFormState
-}) {
+function UploadCadfileDummy({ editedDetails,onClose,type, showHeaderClose = false, rejected}) {
     console.log(editedDetails)
     const fileInputRef = useRef(null);
+    // const folderInputRef = useRef(null); // Commented out - folder selection disabled
     const multipleFilesInputRef = useRef(null);
     const uploadAbortControllerRef = useRef(null); // AbortController ref
     const multipleUploadAbortControllersRef = useRef({}); // AbortControllers for multiple files
+    // const [isFolderMode, setIsFolderMode] = useState(false); // Commented out - folder selection disabled
+    const [isChecked, setIsChecked] = useState(editedDetails ? editedDetails.is_downloadable : true);
+    const [cadFile, setCadFile] = useState({
+        title: editedDetails ? editedDetails.page_title : '',
+        description: editedDetails ? editedDetails.page_description : '', tags: ''
+    });
+   
 
-    const [info, setInfo] = useState(false);
-    const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
-    const [isApiSlow, setIsApiSlow] = useState(false);
+    const [url, setUrl] = useState('');
+    const [fileFormat, setFileFormat] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [fileName, setFileName] = useState('');
+    const [fileSize, setFileSize] = useState('');
+    const [supportedFiles, setSupportedFiles] = useState([]); // Array of file objects: {fileName, type, size, url}
+    const SUPPORTING_FILES_MAX_SIZE = 1024 * 1024 * 1024; // 1GB in bytes
+    const [supportingFilesTotalSize, setSupportingFilesTotalSize] = useState(0);
+    const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'multiple'
+    const [isUploadingMultiple, setIsUploadingMultiple] = useState(false);
+    const [multipleUploadProgress, setMultipleUploadProgress] = useState({}); // Track progress for each file
     const [formErrors, setFormErrors] = useState({
         file: '',
         title: '',
@@ -44,34 +51,31 @@ function UploadYourCadDesign({
         terms: '',
         price: ''
     });
+
     const [uploading, setUploading] = useState(false);
+    const [isApiSlow, setIsApiSlow] = useState(false);
+    const [info, setInfo] = useState(false);
+    const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
     const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate,user,setUser } = useContext(contextState);
     const [options, setOptions] = useState([]);
+    const [selectedOptions, setSelectedOptions] = useState([]);
     const [price, setPrice] = useState(editedDetails?.price || "");
+    const [showKyc, setShowKyc] = useState(false);
     const [isKycVerified, setIsKycVerified] = useState(false);
+    // add terms checkbox state - default to true
     const [termsAccepted, setTermsAccepted] = useState(true);
     // Step management - start at step 1 for new uploads, step 2 for editing
     const [currentStep, setCurrentStep] = useState(editedDetails ? 2 : 1);
-    // Multi-file upload states
-    const [supportedFiles, setSupportedFiles] = useState([]); // Array of file objects: {fileName, type, size, url}
-    const SUPPORTING_FILES_MAX_SIZE = 1024 * 1024 * 1024; // 1GB in bytes
-    const [supportingFilesTotalSize, setSupportingFilesTotalSize] = useState(0);
-    const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'multiple'
-    const [isUploadingMultiple, setIsUploadingMultiple] = useState(false);
-    const [multipleUploadProgress, setMultipleUploadProgress] = useState({}); // Track progress for each file
 
     useEffect(() => {
 
         if (uploadedFile && Object.keys(uploadedFile).length > 0) {
-            setCadFormState(prevState => ({
-                ...prevState,
-                fileName: uploadedFile.file_name,
-                fileFormat: uploadedFile.output_format,
-                url: uploadedFile.url,
-                uploadProgress: 100
-            }));
+            setFileName(uploadedFile.file_name);
+            setFileFormat(uploadedFile.output_format);
+            setUrl(uploadedFile.url);
+            setUploadProgress(100);
         }
-    }, [uploadedFile, setCadFormState]);
+    }, [uploadedFile, setFileName, setFileFormat, setUrl, setUploadProgress]);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -90,7 +94,7 @@ function UploadYourCadDesign({
     const router = useRouter();
 
     const handleChange = (e) => {
-        setCadFormState(prevState => ({ ...prevState, isChecked: e.target.checked }));
+        setIsChecked(e.target.checked);
     };
 
     const handleClick = () => {
@@ -98,37 +102,36 @@ function UploadYourCadDesign({
     };
 
     const handleMultipleFilesClick = () => {
+        // Folder mode disabled - only multiple files selection
         multipleFilesInputRef.current?.click();
+        // if (isFolderMode) {
+        //     folderInputRef.current?.click();
+        // } else {
+        //     multipleFilesInputRef.current?.click();
+        // }
     };
 
     const handleCancel = () => {
-        // Only cancel if actively uploading (not completed)
-        if (cadFormState.uploadProgress > 0 && cadFormState.uploadProgress < 100 && uploadMode === 'single') {
-            // Cancel single file upload only if it's still uploading
-            if (uploadAbortControllerRef.current) {
-                uploadAbortControllerRef.current.abort();
-                uploadAbortControllerRef.current = null;
-            }
-            setCadFormState(prevState => ({
-                ...prevState,
-                fileName: '',
-                fileSize: '',
-                uploadProgress: 0,
-                url: ''
-            }));
-            toast.info("Upload canceled.");
+        // Cancel single file upload
+        if (uploadAbortControllerRef.current) {
+            uploadAbortControllerRef.current.abort();
+            uploadAbortControllerRef.current = null;
         }
         
-        // Cancel all multiple file uploads (supporting files can always be canceled)
-        if (isUploadingMultiple) {
-            Object.values(multipleUploadAbortControllersRef.current).forEach(controller => {
-                controller.abort();
-            });
-            multipleUploadAbortControllersRef.current = {};
-            setMultipleUploadProgress({});
-            setIsUploadingMultiple(false);
-            toast.info("Supporting files upload canceled.");
-        }
+        // Cancel all multiple file uploads
+        Object.values(multipleUploadAbortControllersRef.current).forEach(controller => {
+            controller.abort();
+        });
+        multipleUploadAbortControllersRef.current = {};
+        
+        setFileName('');
+        setFileSize('');
+        setUploadProgress(0);
+        setUrl('');
+        setSupportedFiles([]);
+        setMultipleUploadProgress({});
+        setIsUploadingMultiple(false);
+        toast.info("Upload canceled.");
     };
 
     const validateForm = () => {
@@ -142,22 +145,22 @@ function UploadYourCadDesign({
 
         let isValid = true;
 
-        // Primary file is required for new uploads, not for editing
-        if (!editedDetails && !cadFormState.url) {
-            errors.file = 'Upload your primary CAD file.';
+        // Only require file upload for new uploads, not for editing
+        if (!editedDetails && !url && supportedFiles.length === 0) {
+            errors.file = 'Upload your CAD file.';
             isValid = false;
         }
-        if (!cadFormState.title.trim()) {
+        if (!cadFile.title.trim()) {
             errors.title = 'Title is required.';
             isValid = false;
-        } else if (cadFormState.title.trim().length < 40) {
+        } else if (cadFile.title.trim().length < 40) {
             errors.title = 'Title must be at least 40 characters long.';
             isValid = false;
         }
-        if (!cadFormState.description.trim()) {
+        if (!cadFile.description.trim()) {
             errors.description = 'Description is required.';
             isValid = false;
-        } else if (cadFormState.description.trim().length < 100) {
+        } else if (cadFile.description.trim().length < 100) {
             errors.description = 'Description must be at least 100 characters long.';
             isValid = false;
         }
@@ -200,7 +203,8 @@ function UploadYourCadDesign({
         }
     };
 
-    // Handle multiple files selection
+    // Handle multiple files selection (non-folder)
+    // Supporting files can be any file type
     const handleMultipleFilesChange = async (e) => {
         const allFiles = Array.from(e.target.files);
         if (allFiles.length === 0) return;
@@ -216,6 +220,57 @@ function UploadYourCadDesign({
         await handleMultipleFiles(allFiles);
         e.target.value = '';
     };
+
+    // Handle folder selection
+    // Supporting files can be any file type
+    // COMMENTED OUT - Folder selection disabled
+    // const handleFolderChange = async (e) => {
+    //     const allFiles = Array.from(e.target.files);
+    //     
+    //     if (allFiles.length === 0) return;
+    //     
+    //     // Accept all files for supporting files (no validation needed)
+    //     setUploadMode('multiple');
+    //     await handleMultipleFiles(allFiles);
+    //     
+    //     // Reset input
+    //     e.target.value = '';
+    // };
+
+    // Recursively process folder entries (handles nested folders)
+    // Supporting files can be any file type
+    // COMMENTED OUT - Folder selection disabled
+    // const processDirectoryEntry = async (entry, path = '') => {
+    //     const files = [];
+    //     
+    //     if (entry.isFile) {
+    //         return new Promise((resolve) => {
+    //             entry.file((file) => {
+    //                 // Accept all file types for supporting files
+    //                 files.push({
+    //                     file,
+    //                     path: path ? `${path}/${file.name}` : file.name
+    //                 });
+    //                 resolve(files);
+    //             });
+    //         });
+    //     } else if (entry.isDirectory) {
+    //         const reader = entry.createReader();
+    //         const entries = await new Promise((resolve) => {
+    //             reader.readEntries((entries) => {
+    //                 resolve(entries);
+    //             });
+    //         });
+    //         
+    //         const newPath = path ? `${path}/${entry.name}` : entry.name;
+    //         for (const entryItem of entries) {
+    //             const subFiles = await processDirectoryEntry(entryItem, newPath);
+    //             files.push(...subFiles);
+    //         }
+    //     }
+    //     
+    //     return files;
+    // };
 
     // Handle drag and drop for single file
     const handleSingleDrop = async (e) => {
@@ -237,6 +292,8 @@ function UploadYourCadDesign({
     };
 
     // Handle drag and drop for multiple files
+    // Supporting files can be any file type
+    // Folder drag and drop disabled
     const handleMultipleDrop = async (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -260,7 +317,8 @@ function UploadYourCadDesign({
         e.stopPropagation();
     };
 
-    // Upload a single file with progress tracking (for supporting files)
+    // Upload a single file with progress tracking
+    // Note: This function is used for supporting files, so no file type validation needed
     const uploadSingleFile = async (file, updateProgress) => {
         const fileSizeMB = file.size / (1024 * 1024);
         const abortController = new AbortController();
@@ -329,6 +387,7 @@ function UploadYourCadDesign({
     };
 
     // Process multiple files with concurrency control
+    // Supporting files can be any file type
     const handleMultipleFiles = async (files) => {
         if (!files || files.length === 0) {
             toast.error('No files to upload.');
@@ -413,12 +472,9 @@ function UploadYourCadDesign({
         }
         
         const fileSizeMB = file.size / (1024 * 1024);
-        setCadFormState(prevState => ({
-            ...prevState,
-            fileName: file.name,
-            fileSize: fileSizeMB,
-            fileFormat: file.name.split('.').pop()
-        }));
+        setFileName(file.name);
+        setFileSize(fileSizeMB);
+        setFileFormat(file.name.split('.').pop());
 
         try {
             const headers = {
@@ -450,17 +506,14 @@ function UploadYourCadDesign({
                         signal: uploadAbortControllerRef.current.signal,
                         onUploadProgress: (progressEvent) => {
                             const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                            setCadFormState(prevState => ({ ...prevState, uploadProgress: percent }));
+                            setUploadProgress(percent);
                         },
                     }
                 );
 
                 if (uploadRes.status === 200) {
                     toast.success('File successfully uploaded!');
-                    setCadFormState(prevState => ({
-                        ...prevState,
-                        url: presignedRes.data.url.split('?')[0] // Remove query params
-                    }));
+                    setUrl(presignedRes.data.url.split('?')[0]); // Remove query params
                 }
             } else {
                 alert("Error generating signed URL");
@@ -481,18 +534,18 @@ function UploadYourCadDesign({
         try {
             const requestData = {
                 uuid: localStorage.getItem("uuid"),
-                title: cadFormState.title,
+                title: cadFile.title,
                 price: price ? price : 0,
-                file_type: cadFormState.fileFormat,
-                description: cadFormState.description,
-                tags: cadFormState.selectedOptions.map(option => option.value),
-                is_downloadable: cadFormState.isChecked,
+                file_type: fileFormat,
+                description: cadFile.description,
+                tags: selectedOptions.map(option => option.value),
+                is_downloadable: isChecked,
                 converted_cad_source: uploadedFile,
             };
 
             // Add single file URL for backward compatibility
-            if (cadFormState.url) {
-                requestData.url = cadFormState.url;
+            if (url) {
+                requestData.url = url;
             }
 
             // Add supported files array if multiple files were uploaded
@@ -562,8 +615,10 @@ function UploadYourCadDesign({
     const handleUpdateUserCadFileSubmit = async () => {
         console.log('Starting update submit...');
         console.log('editedDetails:', editedDetails);
-        console.log('cadFormState:', cadFormState);
+        console.log('cadFile:', cadFile);
+        console.log('selectedOptions:', selectedOptions);
         console.log('price:', price);
+        console.log('isChecked:', isChecked);
         console.log('termsAccepted:', termsAccepted);
         
         if (!validateForm()) {
@@ -576,11 +631,11 @@ function UploadYourCadDesign({
         try {
             const requestData = {
                 file_id: editedDetails._id,
-                title: cadFormState.title,
-                description: cadFormState.description,
-                tags: cadFormState.selectedOptions.map(option => option.value),
+                title: cadFile.title,
+                description: cadFile.description,
+                tags: selectedOptions.map(option => option.value),
                 price: Number(price) || 0, // Send price as number
-                is_downloadable: cadFormState.isChecked,
+                is_downloadable: isChecked,
             };
             
             console.log('Request data:', requestData);
@@ -676,12 +731,12 @@ function UploadYourCadDesign({
                 setOptions(fetchedOptions);
 
                 // ✅ Only set selectedOptions if they haven't been set yet
-                if (editedDetails?.cad_tags?.length && cadFormState.selectedOptions.length === 0) {
+                if (editedDetails?.cad_tags?.length && selectedOptions.length === 0) {
                     const mappedSelections = editedDetails.cad_tags
-  .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
-  .filter(Boolean);
+                        .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
+                        .filter(Boolean);
 
-                    setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
+                    setSelectedOptions(mappedSelections);
                 }
             }
         } catch (error) {
@@ -703,50 +758,39 @@ function UploadYourCadDesign({
 
 
             setOptions(prevOptions => [...prevOptions, newTags]);
-            setCadFormState(prevState => ({
-                ...prevState,
-                selectedOptions: prevState.selectedOptions ? [...prevState.selectedOptions, newTags] : [newTags]
-            }));
+            setSelectedOptions(prevSelected => (prevSelected ? [...prevSelected, newTags] : [newTags]));
         } catch (error) {
             console.error("An error occurred during the request:", error);
         }
     };
 
     const handleZoneSelection = (selected) => {
-        setCadFormState(prevState => ({ ...prevState, selectedOptions: selected || [] }));
+        setSelectedOptions(selected || []);
     };
 
 
 
     const handleRemoveCadFile = () => {
         setUploadedFile({});
-        setCadFormState(prevState => ({
-            ...prevState,
-            fileName: '',
-            fileSize: '',
-            uploadProgress: 0,
-            url: ''
-        }));
+        setFileName('');
+        setFileSize('');
+        setUploadProgress(0);
+        setUrl('');
         setSupportedFiles([]);
         setMultipleUploadProgress({});
         setIsUploadingMultiple(false);
         toast.info("CAD file removed.");
     }
 
-    // Remove primary file (always allowed, independent of supporting files)
-    const handleRemovePrimaryFile = () => {
-        setUploadedFile({});
-        setCadFormState(prevState => ({
-            ...prevState,
-            fileName: '',
-            fileSize: '',
-            uploadProgress: 0,
-            url: ''
-        }));
-        toast.info("Primary file removed. You can upload a new one.");
-    }
+    // KYC handlers
+    const handleVerifyBankDetails = () => setShowKyc(true);
+    const handleKycClose = () => {
+        setShowKyc(!showKyc);
+        // TODO: replace with real verification check
+        setIsKycVerified(true);
+    };
 
-    // Remove individual supporting file
+    // Remove individual supporting file (must be outside JSX)
     const handleRemoveSupportingFile = (idx) => {
         setSupportedFiles(prev => {
             const updated = prev.filter((_, i) => i !== idx);
@@ -758,20 +802,11 @@ function UploadYourCadDesign({
         });
     };
 
-    // Remove all supporting files at once
-    const handleRemoveAllSupportingFiles = () => {
-        setSupportedFiles([]);
-        setSupportingFilesTotalSize(0);
-        setMultipleUploadProgress({});
-        toast.info("All supporting files removed.");
-    };
-
     // Validate step 1 (file upload)
     const validateStep1 = () => {
         if (editedDetails) return true; // Skip validation for editing mode
-        // Primary file is required, supporting files are optional
-        if (!cadFormState.url) {
-            setFormErrors(prev => ({ ...prev, file: 'Upload your primary CAD file.' }));
+        if (!url && supportedFiles.length === 0) {
+            setFormErrors(prev => ({ ...prev, file: 'Upload your CAD file.' }));
             return false;
         }
         setFormErrors(prev => ({ ...prev, file: '' }));
@@ -790,47 +825,12 @@ function UploadYourCadDesign({
         setCurrentStep(1);
     };
 
-    // KYC handlers
-    const handleVerifyBankDetails = () => setShowKyc(true);
-    const handleKycClose = () => setShowKyc(false);
-
-    // Sync isChecked (downloadable) when editing
-    useEffect(() => {
-        if (editedDetails && typeof editedDetails.is_downloadable === 'boolean') {
-            setCadFormState(prev => ({
-                ...prev,
-                isChecked: editedDetails.is_downloadable
-            }));
-        }
-    }, [editedDetails, setCadFormState]);
-
-    useEffect(() => {
-        if (
-            editedDetails?.cad_tags?.length &&
-            options.length > 0
-        ) {
-            const mappedSelections = editedDetails.cad_tags
-                .map(id =>
-                    rejected
-                        ? options.find(opt => opt.value === id)
-                        : options.find(opt => opt.label === id)
-                )
-                .filter(Boolean);
-
-            setCadFormState(prev => ({
-                ...prev,
-                selectedOptions: mappedSelections
-            }));
-        }
-    }, [editedDetails, rejected, options, setCadFormState]);
-
     return (
         <>
             {/* Render KYC modal when requested */}
-            {showKyc && <Kyc onClose={handleKycClose} />}
             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp setClosePopUp={setCloseNotifyInfoPopUp} cad_type={'USER_CADS'} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
-            
+            {showKyc ? <Kyc onClose={handleKycClose} setUser={setUser}/> :
             <div className={styles["cad-upload-container"]}>
                 {/* Header row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -885,57 +885,34 @@ function UploadYourCadDesign({
                     <div>
                         <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Step 1: Upload Files</h3>
                         <div style={{ marginBottom: 16 }}>
-                            {/* Primary File Upload Dropzone (Single File - Independent, can always be removed/re-uploaded) */}
+                            {/* Single File Upload Dropzone */}
                             <div 
                                 className={styles["cad-dropzone"]} 
                                 onClick={handleClick}
                                 onDrop={handleSingleDrop}
                                 onDragOver={handleDragOver}
-                                style={{ 
-                                    marginBottom: 12,
-                                    cursor: 'pointer'
-                                }}
+                                style={{ marginBottom: 12 }}
                             >
                                 <input
                                     type="file"
                                     accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
                                     ref={fileInputRef}
-                                    disabled={cadFormState.uploadProgress > 0 && uploadMode === 'single' && cadFormState.uploadProgress < 100}
+                                    disabled={uploadProgress > 0 || isUploadingMultiple}
                                     style={{ display: "none" }}
                                     onChange={handleFileChange}
                                 />
-                                {cadFormState.uploadProgress > 0 && uploadMode === 'single' && cadFormState.uploadProgress < 100 ? (
-                                    // Show progress during upload
+                                {uploadProgress > 0 && uploadMode === 'single' ? (
                                     <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
-                                        <div><span>{cadFormState.fileName} - {Math.round(cadFormState.fileSize)}mb</span></div>
+                                        <div><span>{fileName} - {Math.round(fileSize)}mb</span></div>
                                         <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
-                                            <div style={{ width: `${cadFormState.uploadProgress}%`, backgroundColor: '#610bee', height: 8, transition: 'width 0.3s ease-in-out' }} />
+                                            <div style={{ width: `${uploadProgress}%`, backgroundColor: '#610bee', height: 8, transition: 'width 0.3s ease-in-out' }} />
                                         </div>
-                                        <p style={{ textAlign: 'right', fontSize: 12 }}>{cadFormState.uploadProgress}%</p>
+                                        <p style={{ textAlign: 'right', fontSize: 12 }}>{uploadProgress}%</p>
                                         <div>
                                             <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
                                         </div>
                                     </div>
-                                ) : cadFormState.url ? (
-                                    // Show uploaded file (always removable/re-uploadable)
-                                    <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                                            <span style={{ color: '#0f9918', fontWeight: 600 }}>✓</span>
-                                            <span style={{ fontWeight: 500 }}>{cadFormState.fileName} - {Math.round(cadFormState.fileSize)}mb</span>
-                                            <CloseIcon 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleRemovePrimaryFile();
-                                                }} 
-                                                style={{ cursor: 'pointer', color: '#610bee', marginLeft: 8 }} 
-                                            />
-                                        </div>
-                                        <p style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                                            Primary file uploaded - click to replace or remove
-                                        </p>
-                                    </div>
                                 ) : (
-                                    // Show upload prompt
                                     <>
                                         <Image
                                             src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
@@ -948,7 +925,7 @@ function UploadYourCadDesign({
                                     </>
                                 )}
                             </div>
-                            {/* Supporting Files Upload Dropzone (Multiple Files - Optional, Can be removed) */}
+                            {/* Multiple Files Upload Dropzone */}
                             <div 
                                 className={styles["cad-dropzone"]} 
                                 onClick={handleMultipleFilesClick}
@@ -964,7 +941,7 @@ function UploadYourCadDesign({
                                     type="file"
                                     multiple
                                     ref={multipleFilesInputRef}
-                                    disabled={isUploadingMultiple}
+                                    disabled={uploadProgress > 0 || isUploadingMultiple}
                                     style={{ display: "none" }}
                                     onChange={handleMultipleFilesChange}
                                 />
@@ -985,7 +962,7 @@ function UploadYourCadDesign({
                                             </>
                                         ) : (
                                             <>
-                                                <div><span>{supportedFiles.length} supporting file(s) uploaded</span></div>
+                                                <div><span>{supportedFiles.length} file(s) uploaded successfully</span></div>
                                                 <div style={{ maxHeight: '150px', overflowY: 'auto', marginTop: 8, textAlign: 'left' }}>
                                                     {supportedFiles.map((file, idx) => (
                                                         <div key={idx} style={{ fontSize: 12, padding: '4px 0', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -997,30 +974,8 @@ function UploadYourCadDesign({
                                                 <div style={{ marginTop: 8 }}>
                                                     <span style={{ fontSize: 12, color: '#666' }}>Total: {(supportedFiles.reduce((acc, file) => acc + file.size, 0) / (1024 * 1024)).toFixed(2)} MB / 1024.00 MB</span>
                                                 </div>
-                                                <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                                                    <span style={{ fontSize: 12, color: '#666', fontStyle: 'italic' }}>Optional: You can add more files or remove individual files</span>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleRemoveAllSupportingFiles();
-                                                        }}
-                                                        style={{
-                                                            padding: '6px 12px',
-                                                            backgroundColor: '#fff',
-                                                            border: '1px solid #610bee',
-                                                            color: '#610bee',
-                                                            borderRadius: 4,
-                                                            fontSize: 12,
-                                                            fontWeight: 600,
-                                                            cursor: 'pointer',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: 4
-                                                        }}
-                                                    >
-                                                        <CloseIcon style={{ fontSize: 16 }} />
-                                                        Remove All
-                                                    </button>
+                                                <div style={{ marginTop: 8 }}>
+                                                    <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
                                                 </div>
                                             </>
                                         )}
@@ -1038,28 +993,28 @@ function UploadYourCadDesign({
                                             select files
                                         </span>
                                         <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
-                                            Optional: Select multiple supporting files. All file types are accepted.
+                                            Select multiple files. All file types are accepted for supporting files.
                                         </p>
                                     </>
                                 )}
                             </div>
-                            {(formErrors.file && !cadFormState.url) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
+                            {(formErrors.file && !url && supportedFiles.length === 0) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
                         </div>
                         
                         {/* Next button for step 1 */}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
                             <button
                                 onClick={handleNextStep}
-                                disabled={!cadFormState.url}
+                                disabled={!url && supportedFiles.length === 0}
                                 style={{
                                     padding: '12px 24px',
-                                    backgroundColor: !cadFormState.url ? '#a270f2' : '#610bee',
+                                    backgroundColor: (!url && supportedFiles.length === 0) ? '#a270f2' : '#610bee',
                                     color: '#ffffff',
                                     border: 'none',
                                     borderRadius: 6,
                                     fontSize: 16,
                                     fontWeight: 600,
-                                    cursor: !cadFormState.url ? 'not-allowed' : 'pointer',
+                                    cursor: (!url && supportedFiles.length === 0) ? 'not-allowed' : 'pointer',
                                 }}
                             >
                                 Next
@@ -1075,192 +1030,192 @@ function UploadYourCadDesign({
                         
                         {/* Checkbox for download permission */}
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, gap: 10 }}>
-                            <input type="checkbox" checked={cadFormState.isChecked} onChange={handleChange} />
+                            <input type="checkbox" checked={isChecked} onChange={handleChange} />
                             <span>Allow others to download this design.</span>
                         </div>
 
-                {/* Two-column layout */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-                    {/* LEFT: File details (with tags) */}
-                    <div>
-                        <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>File details</h3>
+                        {/* Two-column layout */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                            {/* LEFT: File details (with tags) */}
+                            <div>
+                                <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>File details</h3>
 
-                        {/* Title */}
-                        <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Model title</label>
-                            <input
-                                placeholder="0.5M Spur Gear | High-Quality CAD Model"
-                                type="text"
-                                maxLength={TITLELIMIT}
-                                value={cadFormState.title}
-                                style={{ margin: 0, width: '100%' }}
-                                onChange={(e) => setCadFormState(prevState => ({ ...prevState, title: e.target.value }))}
-                            />
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'red', visibility: formErrors.title ? 'visible' : 'hidden' }}>{formErrors.title}</span>
-                                <p style={{ fontSize: 12, color: cadFormState.title.length >= 40 ? 'green' : 'gray' }}>{cadFormState.title.length}/{TITLELIMIT}</p>
+                                {/* Title */}
+                                <div style={{ marginBottom: 16 }}>
+                                    <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Model title</label>
+                                    <input
+                                        placeholder="0.5M Spur Gear | High-Quality CAD Model"
+                                        type="text"
+                                        maxLength={TITLELIMIT}
+                                        value={cadFile.title}
+                                        style={{ margin: 0, width: '100%' }}
+                                        onChange={(e) => setCadFile({ ...cadFile, title: e.target.value })}
+                                    />
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ color: 'red', visibility: formErrors.title ? 'visible' : 'hidden' }}>{formErrors.title}</span>
+                                        <p style={{ fontSize: 12, color: cadFile.title.length >= 40 ? 'green' : 'gray' }}>{cadFile.title.length}/{TITLELIMIT}</p>
+                                    </div>
+                                </div>
+
+                                {/* Description */}
+                                <div style={{ marginBottom: 16 }}>
+                                    <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Description</label>
+                                    <textarea
+                                        placeholder="Designed for engineers and designers, 0.5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
+                                        value={cadFile.description}
+                                        maxLength={DESCRIPTIONLIMIT}
+                                        style={{ margin: 0, width: '100%' }}
+                                        onChange={(e) => setCadFile({ ...cadFile, description: e.target.value })}
+                                    />
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>{formErrors.description}</span>
+                                        <p style={{ fontSize: 12, color: cadFile.description.length >= 100 ? 'green' : 'gray' }}>{cadFile.description.length}/{DESCRIPTIONLIMIT}</p>
+                                    </div>
+                                </div>
+
+                                {/* Tags */}
+                                <div>
+                                    <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select or create tags</label>
+                                    <CreatableSelect
+                                        isMulti
+                                        styles={createDropdownCustomStyles}
+                                        options={options}
+                                        value={selectedOptions}
+                                        onFocus={getTags}
+                                        onChange={handleZoneSelection}
+                                        onCreateOption={handleAddZones}
+                                        placeholder="Select or create Tags"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* RIGHT: Pricing details */}
+                            <div>
+                                <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>Pricing details</h3>
+
+                                {/* KYC box */}
+                                {user.kycStatus !== 'completed' &&  <div style={{ background: '#f8f9fa', padding: 16, borderRadius: 8, marginBottom: 16 }}>
+                                    <p style={{ margin: 0, color: '#666' }}>
+                                        To sell and set price for your CAD file, please verify your bank details.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={handleVerifyBankDetails}
+                                        style={{
+                                            marginTop: 12,
+                                            background: '#fff',
+                                            border: '2px solid #610bee',
+                                            color: '#610bee',
+                                            padding: '10px 16px',
+                                            borderRadius: 6,
+                                            fontWeight: 600,
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Verify bank details
+                                    </button>
+                                </div>}
+                               
+
+                                {/* Price with dollar icon on the right */}
+                                <div style={{ marginBottom: 16,display:'flex',flexDirection:'column',gap:'12px' }}>
+                                    
+                                    <div style={{position:'relative'}}>
+                                        <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Price</label>
+                                        <input
+                                        type="number"
+                                        min={0}
+                                        max={500}
+                                        placeholder="Enter price"
+                                        value={price}
+                                        onChange={e => setPrice(e.target.value)}
+                                        disabled={user.kycStatus !== 'completed'}
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px 34px 10px 12px',
+                                            border: `1px solid ${formErrors.price ? 'red' : '#ddd'}`,
+                                            borderRadius: 6,
+                                            background: user.kycStatus === 'completed' ? '#fff' : '#f5f5f5',
+                                        }}
+                                    />
+                                    <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
+                                        $
+                                    </span></div>
+                                    
+                                    {formErrors.price && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.price}</p>}
+                                    <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for $0 and others can download for Free. Maximum price allowed is $500.</p>
+                                   {user.kycStatus === 'completed' &&
+                                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                                        <span style={{color:'#848e96'}}>Marathon commision</span>
+                                        <span style={{color:'#848e96'}}>${(price * 0.1).toFixed(2)}</span>
+                                    </div>
+                                   } 
+                                   {user.kycStatus === 'completed' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                                        <span style={{color:'#848e96'}}>Platform fee</span>
+                                        <span style={{color:'#0f9918'}}>Free</span>
+                                    </div>} 
+                                </div>
+
+                                {/* Upload button */}
+                                {hasUserEmail ? (
+                                    <button
+                                        style={{ 
+                                            width: '100%', 
+                                            padding: '12px', 
+                                            backgroundColor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? '#a270f2' : '#610bee', 
+                                            color: '#ffffff',
+                                            border: 'none',
+                                            borderRadius: 6,
+                                            fontSize: 16,
+                                            fontWeight: 600,
+                                            cursor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? 'not-allowed' : 'pointer',
+                                            marginTop: 4
+                                        }}
+                                        disabled={!termsAccepted || uploading || user.kycStatus !== 'completed'}
+                                        onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
+                                        title={
+                                            !termsAccepted 
+                                                ? 'Please agree to the terms and conditions to upload your design.' 
+                                                : user.kycStatus !== 'completed' 
+                                                    ? 'Please verify your bank details to upload your design.' 
+                                                    : ''
+                                        }
+                                    >
+                                        {uploading ? `${editedDetails ? 'Updating' : 'Uploading'} Design...` : 'Upload Design'}
+                                    </button>
+                                ) : (
+                                    <button
+                                        style={{ 
+                                            width: '100%', 
+                                            padding: '12px', 
+                                            backgroundColor: '#a270f2', 
+                                            color: '#ffffff',
+                                            border: 'none',
+                                            borderRadius: 6,
+                                            fontSize: 16,
+                                            fontWeight: 600,
+                                            cursor: 'not-allowed',
+                                            marginTop: 4
+                                        }}
+                                        title='Please verify your email to upload your design.'
+                                        disabled
+                                    >
+                                        Upload Design
+                                    </button>
+                                )}
+
+                                {/* Terms & conditions */}
+                                <div style={{ marginTop: 12 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <input type="checkbox" checked={termsAccepted} onChange={(e)=>setTermsAccepted(e.target.checked)} />
+                                        <span style={{ fontSize: 13, color: '#444' }}>
+                                            Agree to <Link href="/terms-and-conditions" target='_blank' style={{ color: '#610bee' }}>terms & conditions</Link> and <Link href="/privacy-policy" target='_blank' style={{ color: '#610bee' }}>privacy policy</Link> of Marathon.
+                                        </span>
+                                    </div>
+                                    {formErrors.terms && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.terms}</p>}
+                                </div>
                             </div>
                         </div>
-
-                        {/* Description */}
-                        <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Description</label>
-                            <textarea
-                                placeholder="Designed for engineers and designers, 0.5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
-                                value={cadFormState.description}
-                                maxLength={DESCRIPTIONLIMIT}
-                                style={{ margin: 0, width: '100%' }}
-                                onChange={(e) => setCadFormState(prevState => ({ ...prevState, description: e.target.value }))}
-                            />
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>{formErrors.description}</span>
-                                <p style={{ fontSize: 12, color: cadFormState.description.length >= 100 ? 'green' : 'gray' }}>{cadFormState.description.length}/{DESCRIPTIONLIMIT}</p>
-                            </div>
-                        </div>
-
-                        {/* Tags moved to LEFT to match figma */}
-                        <div>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select or create tags</label>
-                            <CreatableSelect
-                                isMulti
-                                styles={createDropdownCustomStyles}
-                                options={options}
-                                value={cadFormState.selectedOptions}
-                                onFocus={getTags}
-                                onChange={handleZoneSelection}
-                                onCreateOption={handleAddZones}
-                                placeholder="Select or create Tags"
-                            />
-                        </div>
-                    </div>
-
-                    {/* RIGHT: Pricing details */}
-                    <div>
-                        <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>Pricing details</h3>
-
-                        {/* KYC box */}
-                        {user.kycStatus !== 'completed' &&  <div style={{ background: '#f8f9fa', padding: 16, borderRadius: 8, marginBottom: 16 }}>
-                            <p style={{ margin: 0, color: '#666' }}>
-                                To sell and set price for your CAD file, please verify your bank details.
-                            </p>
-                            <button
-                                type="button"
-                                onClick={handleVerifyBankDetails}
-                                style={{
-                                    marginTop: 12,
-                                    background: '#fff',
-                                    border: '2px solid #610bee',
-                                    color: '#610bee',
-                                    padding: '10px 16px',
-                                    borderRadius: 6,
-                                    fontWeight: 600,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Verify bank details
-                            </button>
-                        </div>}
-                       
-
-                        {/* Price with rupee icon on the right */}
-                        <div style={{ marginBottom: 16,display:'flex',flexDirection:'column',gap:'12px' }}>
-                            
-                            <div style={{position:'relative'}}>
-                                <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Price</label>
-                                <input
-                                type="number"
-                                min={0}
-                                max={500}
-                                placeholder="Enter price"
-                                value={price}
-                                onChange={e => setPrice(e.target.value)}
-                                disabled={user.kycStatus !== 'completed'}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 34px 10px 12px',
-                                    border: `1px solid ${formErrors.price ? 'red' : '#ddd'}`,
-                                    borderRadius: 6,
-                                    background: user.kycStatus === 'completed' ? '#fff' : '#f5f5f5',
-                                }}
-                            />
-                            <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
-                                $
-                            </span></div>
-                            
-                            {formErrors.price && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.price}</p>}
-                            <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for $0 and others can download for Free. Maximum price allowed is $500.</p>
-                           {user.kycStatus === 'completed' &&
-                           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                                <span style={{color:'#848e96'}}>Marathon commision</span>
-                                <span style={{color:'#848e96'}}>${(price * 0.1).toFixed(2)}</span>
-                            </div>
-                           } 
-                           {user.kycStatus === 'completed' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                                <span style={{color:'#848e96'}}>Platform fee</span>
-                                <span style={{color:'#0f9918'}}>Free</span>
-                            </div>} 
-                        </div>
-
-                        {/* Upload button */}
-                        {hasUserEmail ? (
-                            <button
-                                style={{ 
-                                    width: '100%', 
-                                    padding: '12px', 
-                                    backgroundColor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? '#a270f2' : '#610bee', 
-                                    color: '#ffffff',
-                                    border: 'none',
-                                    borderRadius: 6,
-                                    fontSize: 16,
-                                    fontWeight: 600,
-                                    cursor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? 'not-allowed' : 'pointer',
-                                    marginTop: 4
-                                }}
-                                disabled={!termsAccepted || uploading || user.kycStatus !== 'completed'}
-                                onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
-                                title={
-                                    !termsAccepted 
-                                        ? 'Please agree to the terms and conditions to upload your design.' 
-                                        : user.kycStatus !== 'completed' 
-                                            ? 'Please verify your bank details to upload your design.' 
-                                            : ''
-                                }
-                            >
-                                {uploading ? `${editedDetails ? 'Updating' : 'Uploading'} Design...` : 'Upload Design'}
-                            </button>
-                        ) : (
-                            <button
-                                style={{ 
-                                    width: '100%', 
-                                    padding: '12px', 
-                                    backgroundColor: '#a270f2', 
-                                    color: '#ffffff',
-                                    border: 'none',
-                                    borderRadius: 6,
-                                    fontSize: 16,
-                                    fontWeight: 600,
-                                    cursor: 'not-allowed',
-                                    marginTop: 4
-                                }}
-                                title='Please verify your email to upload your design.'
-                                disabled
-                            >
-                                Upload Design
-                            </button>
-                        )}
-
-                        {/* Terms & conditions */}
-                        <div style={{ marginTop: 12 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <input type="checkbox" checked={termsAccepted} onChange={(e)=>setTermsAccepted(e.target.checked)} />
-                                <span style={{ fontSize: 13, color: '#444' }}>
-                                    Agree to <Link href="/terms-and-conditions" target='_blank' style={{ color: '#610bee' }}>terms & conditions</Link> and <Link href="/privacy-policy" target='_blank' style={{ color: '#610bee' }}>privacy policy</Link> of Marathon.
-                                </span>
-                            </div>
-                            {formErrors.terms && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.terms}</p>}
-                        </div>
-                    </div>
-                </div>
 
                         {/* Navigation buttons for step 2 */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
@@ -1292,9 +1247,9 @@ function UploadYourCadDesign({
                         </div>
                     </div>
                 )}
-            </div>
+            </div>}
         </>
     );
 }
 
-export default UploadYourCadDesign;
+export default UploadCadfileDummy;
