@@ -52,10 +52,9 @@ function UploadYourCadDesign({
     const [termsAccepted, setTermsAccepted] = useState(true);
     // Step management - start at step 1 for new uploads, step 2 for editing
     const [currentStep, setCurrentStep] = useState(editedDetails ? 2 : 1);
-    // Multi-file upload states
-    const [supportedFiles, setSupportedFiles] = useState([]); // Array of file objects: {fileName, type, size, url}
+    // Multi-file upload states - using cadFormState for persistence
     const SUPPORTING_FILES_MAX_SIZE = 1024 * 1024 * 1024; // 1GB in bytes
-    const [supportingFilesTotalSize, setSupportingFilesTotalSize] = useState(0);
+    const supportedFiles = cadFormState.supportedFiles || []; // Get from cadFormState
     const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'multiple'
     const [isUploadingMultiple, setIsUploadingMultiple] = useState(false);
     const [multipleUploadProgress, setMultipleUploadProgress] = useState({}); // Track progress for each file
@@ -205,7 +204,8 @@ function UploadYourCadDesign({
         const allFiles = Array.from(e.target.files);
         if (allFiles.length === 0) return;
         // Calculate current total size
-        let currentTotal = supportedFiles.reduce((acc, file) => acc + file.size, 0);
+        const currentSupportedFiles = cadFormState.supportedFiles || [];
+        let currentTotal = currentSupportedFiles.reduce((acc, file) => acc + file.size, 0);
         let newFilesTotal = allFiles.reduce((acc, file) => acc + file.size, 0);
         if (currentTotal + newFilesTotal > SUPPORTING_FILES_MAX_SIZE) {
             toast.error('Total supporting files size cannot exceed 1GB.');
@@ -242,7 +242,8 @@ function UploadYourCadDesign({
         e.stopPropagation();
         const files = Array.from(e.dataTransfer.files);
         if (files.length > 0) {
-            let currentTotal = supportedFiles.reduce((acc, file) => acc + file.size, 0);
+            const currentSupportedFiles = cadFormState.supportedFiles || [];
+            let currentTotal = currentSupportedFiles.reduce((acc, file) => acc + file.size, 0);
             let newFilesTotal = files.reduce((acc, file) => acc + file.size, 0);
             if (currentTotal + newFilesTotal > SUPPORTING_FILES_MAX_SIZE) {
                 toast.error('Total supporting files size cannot exceed 1GB.');
@@ -335,7 +336,8 @@ function UploadYourCadDesign({
             return;
         }
         // Check again in case files are added programmatically
-        let currentTotal = supportedFiles.reduce((acc, file) => acc + file.size, 0);
+        const currentSupportedFiles = cadFormState.supportedFiles || [];
+        let currentTotal = currentSupportedFiles.reduce((acc, file) => acc + file.size, 0);
         let newFilesTotal = files.reduce((acc, file) => acc + file.size, 0);
         if (currentTotal + newFilesTotal > SUPPORTING_FILES_MAX_SIZE) {
             toast.error('Total supporting files size cannot exceed 1GB.');
@@ -355,7 +357,7 @@ function UploadYourCadDesign({
             }));
         };
         const CONCURRENCY_LIMIT = 5;
-        const uploadedFiles = [...supportedFiles];
+        const uploadedFiles = [...currentSupportedFiles];
         const failedFiles = [];
         try {
             for (let i = 0; i < files.length; i += CONCURRENCY_LIMIT) {
@@ -389,11 +391,14 @@ function UploadYourCadDesign({
                     }
                 });
             }
-            setSupportedFiles(uploadedFiles);
-            setSupportingFilesTotalSize(uploadedFiles.reduce((acc, file) => acc + file.size, 0));
+            setCadFormState(prevState => ({
+                ...prevState,
+                supportedFiles: uploadedFiles,
+                supportingFilesTotalSize: uploadedFiles.reduce((acc, file) => acc + file.size, 0)
+            }));
             setIsUploadingMultiple(false);
-            if (uploadedFiles.length > supportedFiles.length) {
-                toast.success(`${uploadedFiles.length - supportedFiles.length} file(s) successfully uploaded!`);
+            if (uploadedFiles.length > currentSupportedFiles.length) {
+                toast.success(`${uploadedFiles.length - currentSupportedFiles.length} file(s) successfully uploaded!`);
             }
             if (failedFiles.length > 0) {
                 toast.error(`${failedFiles.length} file(s) failed to upload.`);
@@ -496,8 +501,9 @@ function UploadYourCadDesign({
             }
 
             // Add supported files array if multiple files were uploaded
-            if (supportedFiles.length > 0) {
-                requestData.supporting_files = supportedFiles;
+            const currentSupportedFiles = cadFormState.supportedFiles || [];
+            if (currentSupportedFiles.length > 0) {
+                requestData.supporting_files = currentSupportedFiles;
             }
 
             const response = await axios.post(
@@ -725,9 +731,10 @@ function UploadYourCadDesign({
             fileName: '',
             fileSize: '',
             uploadProgress: 0,
-            url: ''
+            url: '',
+            supportedFiles: [],
+            supportingFilesTotalSize: 0
         }));
-        setSupportedFiles([]);
         setMultipleUploadProgress({});
         setIsUploadingMultiple(false);
         toast.info("CAD file removed.");
@@ -748,20 +755,23 @@ function UploadYourCadDesign({
 
     // Remove individual supporting file
     const handleRemoveSupportingFile = (idx) => {
-        setSupportedFiles(prev => {
-            const updated = prev.filter((_, i) => i !== idx);
-            // update total size after state update
-            setTimeout(() => {
-                setSupportingFilesTotalSize(updated.reduce((acc, file) => acc + file.size, 0));
-            }, 0);
-            return updated;
+        setCadFormState(prevState => {
+            const updated = (prevState.supportedFiles || []).filter((_, i) => i !== idx);
+            return {
+                ...prevState,
+                supportedFiles: updated,
+                supportingFilesTotalSize: updated.reduce((acc, file) => acc + file.size, 0)
+            };
         });
     };
 
     // Remove all supporting files at once
     const handleRemoveAllSupportingFiles = () => {
-        setSupportedFiles([]);
-        setSupportingFilesTotalSize(0);
+        setCadFormState(prevState => ({
+            ...prevState,
+            supportedFiles: [],
+            supportingFilesTotalSize: 0
+        }));
         setMultipleUploadProgress({});
         toast.info("All supporting files removed.");
     };
@@ -770,7 +780,8 @@ function UploadYourCadDesign({
     const validateStep1 = () => {
         if (editedDetails) return true; // Skip validation for editing mode
         // Primary file is required, supporting files are optional
-        if (!cadFormState.url) {
+        const currentSupportedFiles = cadFormState.supportedFiles || [];
+        if (!cadFormState.url && currentSupportedFiles.length === 0) {
             setFormErrors(prev => ({ ...prev, file: 'Upload your primary CAD file.' }));
             return false;
         }
@@ -969,7 +980,7 @@ function UploadYourCadDesign({
                                     style={{ display: "none" }}
                                     onChange={handleMultipleFilesChange}
                                 />
-                                {isUploadingMultiple || supportedFiles.length > 0 ? (
+                                {isUploadingMultiple || (cadFormState.supportedFiles && cadFormState.supportedFiles.length > 0) ? (
                                     <div style={{ marginTop: 10, width: '90%', textAlign: 'center', marginInline: 'auto' }}>
                                         {isUploadingMultiple ? (
                                             <>
@@ -986,9 +997,9 @@ function UploadYourCadDesign({
                                             </>
                                         ) : (
                                             <>
-                                                <div><span>{supportedFiles.length} supporting file(s) uploaded</span></div>
+                                                <div><span>{(cadFormState.supportedFiles || []).length} supporting file(s) uploaded</span></div>
                                                 <div style={{ maxHeight: '150px', overflowY: 'auto', marginTop: 8, textAlign: 'left' }}>
-                                                    {supportedFiles.map((file, idx) => (
+                                                    {(cadFormState.supportedFiles || []).map((file, idx) => (
                                                         <div key={idx} style={{ fontSize: 12, padding: '4px 0', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                             <span>{file.fileName} ({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
                                                             <CloseIcon onClick={e => { e.stopPropagation(); handleRemoveSupportingFile(idx); }} style={{ cursor: 'pointer', color: '#610bee', marginLeft: 8 }} />
@@ -996,7 +1007,7 @@ function UploadYourCadDesign({
                                                     ))}
                                                 </div>
                                                 <div style={{ marginTop: 8 }}>
-                                                    <span style={{ fontSize: 12, color: '#666' }}>Total: {(supportedFiles.reduce((acc, file) => acc + file.size, 0) / (1024 * 1024)).toFixed(2)} MB / 1024.00 MB</span>
+                                                    <span style={{ fontSize: 12, color: '#666' }}>Total: {((cadFormState.supportedFiles || []).reduce((acc, file) => acc + file.size, 0) / (1024 * 1024)).toFixed(2)} MB / 1024.00 MB</span>
                                                 </div>
                                                 <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                                                     <span style={{ fontSize: 12, color: '#666', fontStyle: 'italic' }}>Optional: You can add more files or remove individual files</span>
@@ -1044,23 +1055,23 @@ function UploadYourCadDesign({
                                     </>
                                 )}
                             </div>
-                            {(formErrors.file && !cadFormState.url) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
+                            {(formErrors.file && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
                         </div>
                         
                         {/* Next button for step 1 */}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
                             <button
                                 onClick={handleNextStep}
-                                disabled={!cadFormState.url}
+                                disabled={!cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)}
                                 style={{
                                     padding: '12px 24px',
-                                    backgroundColor: !cadFormState.url ? '#a270f2' : '#610bee',
+                                    backgroundColor: (!cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? '#a270f2' : '#610bee',
                                     color: '#ffffff',
                                     border: 'none',
                                     borderRadius: 6,
                                     fontSize: 16,
                                     fontWeight: 600,
-                                    cursor: !cadFormState.url ? 'not-allowed' : 'pointer',
+                                    cursor: (!cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? 'not-allowed' : 'pointer',
                                 }}
                             >
                                 Next
