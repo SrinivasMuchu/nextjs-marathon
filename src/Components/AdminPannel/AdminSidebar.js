@@ -58,6 +58,24 @@ function AdminSidebar({ collapsed, activeTab, onToggle, onSelect }) {
           <MdOutlinePayments />
           {!collapsed && <span className={styles.label}>Payments</span>}
         </button>
+          <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'viewed-list' ? styles.active : ''}`}
+          onClick={() => onSelect('viewed-list')}
+          title="viewed-list"
+        >
+          <MdOutlinePayments />
+          {!collapsed && <span className={styles.label}>Top Viewed</span>}
+        </button>
+          <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'downloaded-list' ? styles.active : ''}`}
+          onClick={() => onSelect('downloaded-list')}
+          title="downloaded-list"
+        >
+          <MdOutlinePayments />
+          {!collapsed && <span className={styles.label}>Top downloaded</span>}
+        </button>
       </nav>
     </aside>
   )
