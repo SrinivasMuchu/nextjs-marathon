@@ -9,6 +9,8 @@ import CadFileNotifyPopUp from './CadFileNotifyPopUp';
 import UserLoginPupUp from './UserLoginPupUp';
 import { contextState } from './ContextProvider';
 import BillingAddress from './BillingAddress';
+import SupportingFilesPopup from './SupportingFilesPopup';
+import Loading from './Loaders/Loading';
 import { toast } from 'react-toastify';
 
 function loadRazorpayScript() {
@@ -26,13 +28,44 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   step, filetype, custumDownload,designDetails }) {
     console.log(designDetails)
   const [isDownLoading, setIsDownLoading] = useState(false);
+  const [isDownloadingMainFile, setIsDownloadingMainFile] = useState(false);
   const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
   const [openBillingDetails, setOpenBillingDetails] = useState(false);
+  const [openSupportingFiles, setOpenSupportingFiles] = useState(false);
+  const [supportingFiles, setSupportingFiles] = useState([]);
   const [billerDetails,setBillerDetails] = useState({})
   const { setDownloadedFileUpdate,user } = useContext(contextState);
 
+  // Fetch supporting files
+  const fetchSupportingFiles = async () => {
+    try {
+      // Replace this endpoint with your actual supporting files API endpoint
+      const response = await axios.get(
+        `${BASE_URL}/v1/cad/get-supporting-files`,
+        {
+          params: {
+            design_id: folderId,
+          },
+          headers: {
+            "user-uuid": localStorage.getItem("uuid"),
+          }
+        }
+      );
+
+      if (response.data.meta.success && response.data.data.supporting_files && Array.isArray(response.data.data.supporting_files)) {
+        return response.data.data.supporting_files; // Array of {name, type, size, url}
+      }
+      return [];
+    } catch (err) {
+      console.error('Error fetching supporting files:', err);
+      // If API doesn't exist or fails, return empty array
+      return [];
+    }
+  };
+
   // Download logic after payment
   const downloadFile = async () => {
+    setIsDownloadingMainFile(true);
     try {
       const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
         design_id: folderId, xaxis, yaxis, step, file_type: filetype, action_type: 'DOWNLOAD'
@@ -46,17 +79,35 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       if (data.meta.success) {
         const url = data.data.download_url;
         setDownloadedFileUpdate(data.data.download_url)
-        // window.open(url, '_blank');
-         const link = document.createElement("a");
+        
+        // Download main file using anchor tag
+        const link = document.createElement("a");
         link.href = url;
         link.download = ""; // let browser download the file
         document.body.appendChild(link);
         link.click();
         link.remove();
+
+        // Wait a bit for download to start, then fetch supporting files
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Fetch supporting files
+        const supportingFilesData = await fetchSupportingFiles();
+        
+        setIsDownloadingMainFile(false);
+        
+        // If supporting files exist, show popup
+        if (supportingFilesData && supportingFilesData.length > 0) {
+          setSupportingFiles(supportingFilesData);
+          setOpenSupportingFiles(true);
+        }
+      } else {
+        setIsDownloadingMainFile(false);
       }
       sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
     } catch (err) {
       console.error('Error downloading file:', err);
+      setIsDownloadingMainFile(false);
     }
   };
 
@@ -128,13 +179,14 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
             if (verifyRes.data.meta.success) {
               toast.success("✅ Payment successful! Starting download...");
               await downloadFile();
+              setIsDownLoading(false);
             } else {
               alert("⚠️ Payment verification failed!");
+              setIsDownLoading(false);
             }
           } catch (err) {
             console.error("Verification error:", err);
             alert("Server verification failed.");
-          } finally {
             setIsDownLoading(false);
           }
         },
@@ -318,7 +370,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
             <button
               disabled={isDownLoading}
               className={styles['industry-design-files-btn']}
-              onClick={downloadHandler}
+              onClick={handleFreeDownload}
             >
               {isDownLoading ? 'Processing...' : 'Download'}
             </button>
@@ -329,6 +381,16 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       onClose={() => setOpenBillingDetails(false)}  setBillerDetails={setBillerDetails}
       onSave={handleDownload} cadId={folderId} designDetails={designDetails}/>}
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
+      {openSupportingFiles && (
+        <SupportingFilesPopup 
+          files={supportingFiles} 
+          onClose={() => {
+            setOpenSupportingFiles(false);
+            setSupportingFiles([]);
+          }} 
+        />
+      )}
+      {isDownloadingMainFile && <Loading />}
     </>
   );
 }
