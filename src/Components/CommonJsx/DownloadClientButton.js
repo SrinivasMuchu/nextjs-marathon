@@ -370,7 +370,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
             <button
               disabled={isDownLoading}
               className={styles['industry-design-files-btn']}
-              onClick={handleFreeDownload}
+              onClick={downloadHandler}
             >
               {isDownLoading ? 'Processing...' : 'Download'}
             </button>
