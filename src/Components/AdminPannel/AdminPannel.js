@@ -83,7 +83,7 @@ function AdminPannel({ children }) {
         onToggle={() => setCollapsed(v => !v)}
         onSelect={setActiveTab}
       />
-      <div style={{height:'90vh',overFlow:'auto'}} >
+      <div style={{height:'90vh',overFlow:'auto',width:'100%'}} >
 
         {children ?? content}
       </div>

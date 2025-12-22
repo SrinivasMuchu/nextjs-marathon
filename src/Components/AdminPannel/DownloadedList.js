@@ -15,7 +15,7 @@ function DownloadedList() {
 
   // pagination state
   const [currentPage, setCurrentPage] = useState(1)
-  const [limit] = useState(100)
+  const [limit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
 
@@ -115,7 +115,7 @@ function DownloadedList() {
         )}
       </div>
 
-      <div className={styles.tableWrap}>
+      <div className={styles.tableWrap} style={{width:"100%"}}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -141,7 +141,7 @@ function DownloadedList() {
               ) : (
                 downloadedDesigns.map(d => {
                   const route = d.route || d.page_title;
-                  const href = `/admin/${encodeURIComponent(route)}`
+                  const href = `/library/${encodeURIComponent(route)}`
                   return (
                     <tr key={d._id} className={styles.row}>
                      
@@ -155,7 +155,7 @@ function DownloadedList() {
                       </td>
                       <td>
                         <Link href={href} className={styles.rowLink}>
-                          <span>{d.downloads || d.downloadCount || 0}</span>
+                          <span>{d.total_design_downloads || 0}</span>
                         </Link>
                       </td>
                      
@@ -174,6 +174,7 @@ function DownloadedList() {
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
             totalPages={totalPages}
+            noPages={true}
           />
         )}
       </div>

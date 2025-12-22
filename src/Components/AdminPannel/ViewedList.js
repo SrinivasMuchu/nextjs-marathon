@@ -141,7 +141,7 @@ function ViewedList() {
               ) : (
                 viewedDesigns.map(d => {
                   const route = d.route || d.page_title;
-                  const href = `/admin/${encodeURIComponent(route)}`
+                  const href = `/library/${encodeURIComponent(route)}`
                   return (
                     <tr key={d._id} className={styles.row}>
                      
@@ -155,7 +155,7 @@ function ViewedList() {
                       </td>
                       <td>
                         <Link href={href} className={styles.rowLink}>
-                          <span>{d.views || d.viewCount || 0}</span>
+                          <span>{d.total_design_views|| 0}</span>
                         </Link>
                       </td>
                       <td>
@@ -176,6 +176,7 @@ function ViewedList() {
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
             totalPages={totalPages}
+            noPages={true}
           />
         )}
       </div>
