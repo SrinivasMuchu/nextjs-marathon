@@ -19,7 +19,8 @@ import { toast } from 'react-toastify';
 
 let cachedCadHistory = {};
 
-function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, setTotalPages,creatorId }) {
+function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, 
+  setTotalPages,creatorId, profilePage }) {
   
   // const { user } = useContext(contextState);
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
@@ -92,7 +93,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
           username:creatorId&&creatorId,
           page: currentPage, 
           limit,
-          search: debouncedSearchTerm
+          search: debouncedSearchTerm,
+          profile_page:profilePage?true:false
         };
 
         // Add tag parameter only if it's not 'All' and we're dealing with CAD files
@@ -323,6 +325,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, s
             loading={loading} 
             userCadFiles={userDownloadFiles} 
             type='downloads'
+            creatorId={creatorId}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             selectedFilter={selectedFilter}
