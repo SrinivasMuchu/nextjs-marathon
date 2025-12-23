@@ -16,6 +16,15 @@ import DownloadClientButton from "../CommonJsx/DownloadClientButton";
 const wrapDeg = (deg) => ((deg % 360) + 360) % 360;
 const step = 30;
 
+// Define angle views (constant, outside component)
+const ANGLE_VIEWS = [
+  { x: 0,   y: 0, type: 'angle' },
+  { x: 0,   y: 60, type: 'angle' },
+  { x: 0,   y: 120, type: 'angle' },
+  { x: 30,  y: 0, type: 'angle' },
+  { x: 330, y: 0, type: 'angle' },
+];
+
 export default function DesignViewer({
   designId, designData,
   padX = 0,
@@ -28,12 +37,53 @@ export default function DesignViewer({
   const supportedImages = (designData?.supporting_files || []).filter(f =>
     /\.(png|jpg|jpeg)$/i.test(f.name)
   );
-  // State for selected image index (null means show 3D viewer)
-  const [selectedImageIdx, setSelectedImageIdx] = useState(null);
+  
+  // Create unified list: angles first, then images
+  const allViews = useMemo(() => {
+    const views = [...ANGLE_VIEWS];
+    // Add all supported images to the views list
+    supportedImages.forEach((img, idx) => {
+      views.push({ type: 'image', index: idx, url: img.url, name: img.name });
+    });
+    return views;
+  }, [supportedImages]);
+  
+  // State for current view index (0 = first angle, etc.)
+  const [currentViewIdx, setCurrentViewIdx] = useState(0);
   const baseUrl = `${DESIGN_GLB_PREFIX_URL}${designId}`;
   const [xDeg, setXDeg] = useState(initialX);
   const [yDeg, setYDeg] = useState(initialY);
   const [scale, setScale] = useState(0.8);
+  
+  // Sync xDeg/yDeg when currentViewIdx changes to an angle view
+  useEffect(() => {
+    const currentView = allViews[currentViewIdx];
+    if (currentView && currentView.type === 'angle') {
+      setXDeg(currentView.x);
+      setYDeg(currentView.y);
+    }
+  }, [currentViewIdx, allViews]);
+  
+  // Navigation functions
+  const goToPrevious = () => {
+    setCurrentViewIdx((idx) => {
+      const newIdx = (idx - 1 + allViews.length) % allViews.length;
+      return newIdx;
+    });
+  };
+  
+  const goToNext = () => {
+    setCurrentViewIdx((idx) => {
+      const newIdx = (idx + 1) % allViews.length;
+      return newIdx;
+    });
+  };
+  
+  // Determine if we're viewing an image
+  const selectedImageIdx = useMemo(() => {
+    const currentView = allViews[currentViewIdx];
+    return currentView && currentView.type === 'image' ? currentView.index : null;
+  }, [currentViewIdx, allViews]);
 
   // Add this state and effect for screen size
   const [showHeader, setShowHeader] = useState(false);
@@ -42,7 +92,25 @@ export default function DesignViewer({
     const checkScreen = () => setShowHeader(window.innerWidth < 850);
     checkScreen();
     window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
   }, []);
+  
+  // Keyboard navigation support
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (allViews.length <= 1) return;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setCurrentViewIdx((idx) => (idx - 1 + allViews.length) % allViews.length);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setCurrentViewIdx((idx) => (idx + 1) % allViews.length);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [allViews.length]);
 
   const fmt = (n, width) => (width > 0 ? String(n).padStart(width, "0") : String(n));
   const src = useMemo(() => {
@@ -121,6 +189,86 @@ export default function DesignViewer({
 
       {/* Main viewer area: show 3D viewer or selected image, always show gallery below */}
       <div className={styles.viewerRoot}>
+        {/* Left navigation button */}
+        {allViews.length > 1 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              goToPrevious();
+            }}
+            style={{
+              position: 'absolute',
+              left: '16px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              border: '1px solid #D1D4D7',
+              background: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s ease',
+              fontSize: '24px',
+              color: '#610BEE',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#610BEE';
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#fff';
+              e.currentTarget.style.color = '#610BEE';
+            }}
+          >
+            <IoIosArrowBack />
+          </button>
+        )}
+        
+        {/* Right navigation button */}
+        {allViews.length > 1 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              goToNext();
+            }}
+            style={{
+              position: 'absolute',
+              right: '16px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              border: '1px solid #D1D4D7',
+              background: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s ease',
+              fontSize: '24px',
+              color: '#610BEE',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#610BEE';
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#fff';
+              e.currentTarget.style.color = '#610BEE';
+            }}
+          >
+            <IoIosArrowForward />
+          </button>
+        )}
+        
         {selectedImageIdx === null ? (
           <>
             <div className={styles.stage} style={{ transform: `scale(${scale})` }}>
@@ -131,24 +279,72 @@ export default function DesignViewer({
                 draggable={false}
                 style={{ cursor: supportedImages.length > 0 ? 'pointer' : undefined }}
                 onClick={() => {
-                  if (supportedImages.length > 0) setSelectedImageIdx(0);
+                  if (supportedImages.length > 0) {
+                    // Find first image view index
+                    const firstImageIdx = allViews.findIndex(v => v.type === 'image');
+                    if (firstImageIdx !== -1) setCurrentViewIdx(firstImageIdx);
+                  }
                 }}
               />
             </div>
             <div className={styles.controls}>
               <div className={styles.dpad}>
-                <button onClick={() => setXDeg((v) => wrapDeg(v + step))} className={styles.button}>
+                <button onClick={() => {
+                  const newX = wrapDeg(xDeg + step);
+                  setXDeg(newX);
+                  // Try to find matching angle view and update currentViewIdx
+                  const matchingIdx = ANGLE_VIEWS.findIndex(av => 
+                    Math.round(wrapDeg(av.x)) === Math.round(newX) && 
+                    Math.round(wrapDeg(av.y)) === Math.round(yDeg)
+                  );
+                  if (matchingIdx !== -1 && selectedImageIdx === null) {
+                    setCurrentViewIdx(matchingIdx);
+                  }
+                }} className={styles.button}>
                   <IoIosArrowUp />
                 </button>
                 <div className={styles.h}>
-                  <button onClick={() => setYDeg((v) => wrapDeg(v - step))} className={styles.button}>
+                  <button onClick={() => {
+                    const newY = wrapDeg(yDeg - step);
+                    setYDeg(newY);
+                    // Try to find matching angle view and update currentViewIdx
+                    const matchingIdx = ANGLE_VIEWS.findIndex(av => 
+                      Math.round(wrapDeg(av.x)) === Math.round(xDeg) && 
+                      Math.round(wrapDeg(av.y)) === Math.round(newY)
+                    );
+                    if (matchingIdx !== -1 && selectedImageIdx === null) {
+                      setCurrentViewIdx(matchingIdx);
+                    }
+                  }} className={styles.button}>
                     <IoIosArrowBack />
                   </button>
-                  <button onClick={() => setYDeg((v) => wrapDeg(v + step))} className={styles.button}>
+                  <button onClick={() => {
+                    const newY = wrapDeg(yDeg + step);
+                    setYDeg(newY);
+                    // Try to find matching angle view and update currentViewIdx
+                    const matchingIdx = ANGLE_VIEWS.findIndex(av => 
+                      Math.round(wrapDeg(av.x)) === Math.round(xDeg) && 
+                      Math.round(wrapDeg(av.y)) === Math.round(newY)
+                    );
+                    if (matchingIdx !== -1 && selectedImageIdx === null) {
+                      setCurrentViewIdx(matchingIdx);
+                    }
+                  }} className={styles.button}>
                     <IoIosArrowForward />
                   </button>
                 </div>
-                <button onClick={() => setXDeg((v) => wrapDeg(v - step))} className={styles.button}>
+                <button onClick={() => {
+                  const newX = wrapDeg(xDeg - step);
+                  setXDeg(newX);
+                  // Try to find matching angle view and update currentViewIdx
+                  const matchingIdx = ANGLE_VIEWS.findIndex(av => 
+                    Math.round(wrapDeg(av.x)) === Math.round(newX) && 
+                    Math.round(wrapDeg(av.y)) === Math.round(yDeg)
+                  );
+                  if (matchingIdx !== -1 && selectedImageIdx === null) {
+                    setCurrentViewIdx(matchingIdx);
+                  }
+                }} className={styles.button}>
                   <IoIosArrowDown />
                 </button>
               </div>
@@ -165,8 +361,8 @@ export default function DesignViewer({
               </div>
             </div>
           </>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+        ) : selectedImageIdx !== null && supportedImages[selectedImageIdx] ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', position: 'relative' }}>
             <img
               src={supportedImages[selectedImageIdx].url}
               alt={supportedImages[selectedImageIdx].name}
@@ -179,11 +375,14 @@ export default function DesignViewer({
                 marginBottom: 12,
                 cursor: 'pointer',
               }}
-              onClick={() => setSelectedImageIdx(null)}
+              onClick={() => {
+                // Go back to first angle view
+                setCurrentViewIdx(0);
+              }}
             />
             <div style={{ marginBottom: 8, color: '#333', fontSize: 14 }}>{supportedImages[selectedImageIdx].name}</div>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Unified thumbnail carousel for angle picker and supported images - consistent styling */}
@@ -202,14 +401,9 @@ export default function DesignViewer({
         }}
       >
         {/* Angle picker thumbnails: only specific angles as requested */}
-        {[
-          { x: 0,   y: 0 },
-          { x: 0,   y: 60 },
-          { x: 0,   y: 120 },
-          { x: 30,  y: 0 },
-          { x: 330, y: 0 },
-        ].map(({x, y}) => {
+        {ANGLE_VIEWS.map(({x, y}, angleIdx) => {
           const thumbSrc = `${baseUrl}/sprite_${fmt(wrapDeg(x), padX)}_${fmt(wrapDeg(y), padY)}.${ext}`;
+          const isActive = currentViewIdx === angleIdx;
           return (
             <div
               key={`angle-${x}-${y}`}
@@ -219,18 +413,14 @@ export default function DesignViewer({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: (selectedImageIdx === null && Math.round(xDeg) === Math.round(x) && Math.round(yDeg) === Math.round(y)) ? '2px solid #610BEE' : '1px solid #ccc',
+                border: isActive ? '2px solid #610BEE' : '1px solid #ccc',
                 borderRadius: 8,
                 background: '#fff',
-                boxShadow: (selectedImageIdx === null && Math.round(xDeg) === Math.round(x) && Math.round(yDeg) === Math.round(y)) ? '0 0 8px #610BEE55' : undefined,
+                boxShadow: isActive ? '0 0 8px #610BEE55' : undefined,
                 cursor: 'pointer',
                 transition: 'border 0.2s, box-shadow 0.2s',
               }}
-              onClick={() => {
-                setXDeg(x);
-                setYDeg(y);
-                setSelectedImageIdx(null);
-              }}
+              onClick={() => setCurrentViewIdx(angleIdx)}
             >
               <img
                 src={thumbSrc}
@@ -248,38 +438,43 @@ export default function DesignViewer({
           );
         })}
         {/* Supported file thumbnails */}
-        {supportedImages.map((img, idx) => (
-          <div
-            key={`img-${idx}`}
-            style={{
-              width: 80,
-              height: 80,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: (selectedImageIdx === idx) ? '2px solid #610BEE' : '1px solid #ccc',
-              borderRadius: 8,
-              background: '#fff',
-              boxShadow: (selectedImageIdx === idx) ? '0 0 8px #610BEE55' : undefined,
-              cursor: 'pointer',
-              transition: 'border 0.2s, box-shadow 0.2s',
-            }}
-            onClick={() => setSelectedImageIdx(idx)}
-          >
-            <img
-              src={img.url}
-              alt={img.name}
+        {supportedImages.map((img, idx) => {
+          // Find the index in allViews for this image
+          const viewIdx = allViews.findIndex(v => v.type === 'image' && v.index === idx);
+          const isActive = currentViewIdx === viewIdx;
+          return (
+            <div
+              key={`img-${idx}`}
               style={{
-                width: '90%',
-                height: '90%',
-                objectFit: 'contain',
-                borderRadius: 6,
+                width: 80,
+                height: 80,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: isActive ? '2px solid #610BEE' : '1px solid #ccc',
+                borderRadius: 8,
                 background: '#fff',
-                display: 'block',
+                boxShadow: isActive ? '0 0 8px #610BEE55' : undefined,
+                cursor: 'pointer',
+                transition: 'border 0.2s, box-shadow 0.2s',
               }}
-            />
-          </div>
-        ))}
+              onClick={() => setCurrentViewIdx(viewIdx)}
+            >
+              <img
+                src={img.url}
+                alt={img.name}
+                style={{
+                  width: '90%',
+                  height: '90%',
+                  objectFit: 'contain',
+                  borderRadius: 6,
+                  background: '#fff',
+                  display: 'block',
+                }}
+              />
+            </div>
+          );
+        })}
       </div>
     </>
   );
