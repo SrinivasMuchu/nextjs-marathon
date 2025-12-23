@@ -20,7 +20,7 @@ import { toast } from 'react-toastify';
 let cachedCadHistory = {};
 
 function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages, 
-  setTotalPages,creatorId, profilePage }) {
+  setTotalPages,creatorId, profilePageDetails }) {
   
   // const { user } = useContext(contextState);
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
@@ -94,7 +94,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           page: currentPage, 
           limit,
           search: debouncedSearchTerm,
-          profile_page:profilePage?true:false
+          profile_page:profilePageDetails?true:false
         };
 
         // Add tag parameter only if it's not 'All' and we're dealing with CAD files

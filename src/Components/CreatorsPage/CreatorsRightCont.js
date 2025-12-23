@@ -202,7 +202,7 @@ creatorId}) {
           totalPages={totalPages}
           setTotalPages={setTotalPages}
           creatorId={creatorId}
-          profilePage={true}
+          profilePageDetails={true}
         />
       </TabPanel>
       </>
