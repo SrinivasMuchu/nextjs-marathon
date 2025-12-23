@@ -50,8 +50,8 @@ function UploadYourCadDesign({
     const [price, setPrice] = useState(editedDetails?.price || "");
     const [isKycVerified, setIsKycVerified] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(true);
-    // Step management - start at step 1 for new uploads, step 2 for editing
-    const [currentStep, setCurrentStep] = useState(editedDetails ? 2 : 1);
+    // Step management - always start at step 1 to allow managing supporting files even when editing
+    const [currentStep, setCurrentStep] = useState(1);
     // Multi-file upload states - using cadFormState for persistence
     const SUPPORTING_FILES_MAX_SIZE = 1024 * 1024 * 1024; // 1GB in bytes
     const supportedFiles = cadFormState.supportedFiles || []; // Get from cadFormState
@@ -71,6 +71,36 @@ function UploadYourCadDesign({
             }));
         }
     }, [uploadedFile, setCadFormState]);
+
+    // Initialize form state from editedDetails when editing
+    useEffect(() => {
+        if (editedDetails) {
+            // Convert file size from bytes to MB if needed (if > 1000, assume it's in bytes)
+            const rawFileSize = editedDetails.file_size || editedDetails.fileSize || 0;
+            const fileSizeMB = rawFileSize > 1000 ? rawFileSize / (1024 * 1024) : rawFileSize;
+            
+            setCadFormState(prevState => ({
+                ...prevState,
+                fileName: editedDetails.file_name || editedDetails.fileName || prevState.fileName || '',
+                fileSize: fileSizeMB,
+                fileFormat: editedDetails.file_type || editedDetails.fileFormat || editedDetails.fileType || prevState.fileFormat || '',
+                url: editedDetails.url || editedDetails.file_url || editedDetails.fileUrl || prevState.url || '',
+                uploadProgress: (editedDetails.url || editedDetails.file_url || editedDetails.fileUrl) ? 100 : prevState.uploadProgress,
+                supportedFiles: editedDetails.supporting_files && Array.isArray(editedDetails.supporting_files) 
+                    ? editedDetails.supporting_files.map(file => ({
+                        _id: file._id || file.id || null, // Preserve ID if it exists (for existing files)
+                        fileName: file.fileName || file.name || file.file_name || 'Unknown',
+                        type: file.type || file.fileType || (file.fileName || file.name || '').split('.').pop() || 'unknown',
+                        size: file.size || file.fileSize || 0,
+                        url: file.url || file.fileUrl || ''
+                    }))
+                    : prevState.supportedFiles,
+                supportingFilesTotalSize: editedDetails.supporting_files && Array.isArray(editedDetails.supporting_files)
+                    ? editedDetails.supporting_files.reduce((acc, file) => acc + (file.size || file.fileSize || 0), 0)
+                    : prevState.supportingFilesTotalSize
+            }));
+        }
+    }, [editedDetails, setCadFormState]);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -589,6 +619,19 @@ function UploadYourCadDesign({
                 is_downloadable: cadFormState.isChecked,
             };
             
+            // Add supporting files array if they exist
+            const currentSupportedFiles = cadFormState.supportedFiles || [];
+            if (currentSupportedFiles.length > 0) {
+                // Map supporting files to include _id for existing files
+                requestData.supporting_files = currentSupportedFiles.map(file => ({
+                    _id: file._id || null, // Include _id if it exists (for existing files)
+                    fileName: file.fileName,
+                    type: file.type,
+                    size: file.size,
+                    url: file.url
+                }));
+            }
+            
             console.log('Request data:', requestData);
             
             const response = await axios.post(
@@ -897,69 +940,71 @@ function UploadYourCadDesign({
                     <div>
                         <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Step 1: Upload Files</h3>
                         <div style={{ marginBottom: 16 }}>
-                            {/* Primary File Upload Dropzone (Single File - Independent, can always be removed/re-uploaded) */}
-                            <div 
-                                className={styles["cad-dropzone"]} 
-                                onClick={handleClick}
-                                onDrop={handleSingleDrop}
-                                onDragOver={handleDragOver}
-                                style={{ 
-                                    marginBottom: 12,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                <input
-                                    type="file"
-                                    accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
-                                    ref={fileInputRef}
-                                    disabled={cadFormState.uploadProgress > 0 && uploadMode === 'single' && cadFormState.uploadProgress < 100}
-                                    style={{ display: "none" }}
-                                    onChange={handleFileChange}
-                                />
-                                {cadFormState.uploadProgress > 0 && uploadMode === 'single' && cadFormState.uploadProgress < 100 ? (
-                                    // Show progress during upload
-                                    <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
-                                        <div><span>{cadFormState.fileName} - {Math.round(cadFormState.fileSize)}mb</span></div>
-                                        <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
-                                            <div style={{ width: `${cadFormState.uploadProgress}%`, backgroundColor: '#610bee', height: 8, transition: 'width 0.3s ease-in-out' }} />
+                            {/* Primary File Upload Dropzone - Hidden in edit mode */}
+                            {!editedDetails && (
+                                <div 
+                                    className={styles["cad-dropzone"]} 
+                                    onClick={handleClick}
+                                    onDrop={handleSingleDrop}
+                                    onDragOver={handleDragOver}
+                                    style={{ 
+                                        marginBottom: 12,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <input
+                                        type="file"
+                                        accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
+                                        ref={fileInputRef}
+                                        disabled={cadFormState.uploadProgress > 0 && uploadMode === 'single' && cadFormState.uploadProgress < 100}
+                                        style={{ display: "none" }}
+                                        onChange={handleFileChange}
+                                    />
+                                    {cadFormState.uploadProgress > 0 && uploadMode === 'single' && cadFormState.uploadProgress < 100 ? (
+                                        // Show progress during upload
+                                        <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
+                                            <div><span>{cadFormState.fileName} - {Math.round(cadFormState.fileSize)}mb</span></div>
+                                            <div style={{ background: '#e0e0e0', borderRadius: 10, overflow: 'hidden' }}>
+                                                <div style={{ width: `${cadFormState.uploadProgress}%`, backgroundColor: '#610bee', height: 8, transition: 'width 0.3s ease-in-out' }} />
+                                            </div>
+                                            <p style={{ textAlign: 'right', fontSize: 12 }}>{cadFormState.uploadProgress}%</p>
+                                            <div>
+                                                <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
+                                            </div>
                                         </div>
-                                        <p style={{ textAlign: 'right', fontSize: 12 }}>{cadFormState.uploadProgress}%</p>
-                                        <div>
-                                            <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
+                                    ) : cadFormState.url ? (
+                                        // Show uploaded file
+                                        <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                                                <span style={{ color: '#0f9918', fontWeight: 600 }}>✓</span>
+                                                <span style={{ fontWeight: 500 }}>{cadFormState.fileName} - {Math.round(cadFormState.fileSize)}mb</span>
+                                                <CloseIcon 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRemovePrimaryFile();
+                                                    }} 
+                                                    style={{ cursor: 'pointer', color: '#610bee', marginLeft: 8 }} 
+                                                />
+                                            </div>
+                                            <p style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+                                                Primary file uploaded - click to replace or remove
+                                            </p>
                                         </div>
-                                    </div>
-                                ) : cadFormState.url ? (
-                                    // Show uploaded file (always removable/re-uploadable)
-                                    <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                                            <span style={{ color: '#0f9918', fontWeight: 600 }}>✓</span>
-                                            <span style={{ fontWeight: 500 }}>{cadFormState.fileName} - {Math.round(cadFormState.fileSize)}mb</span>
-                                            <CloseIcon 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleRemovePrimaryFile();
-                                                }} 
-                                                style={{ cursor: 'pointer', color: '#610bee', marginLeft: 8 }} 
+                                    ) : (
+                                        // Show upload prompt
+                                        <>
+                                            <Image
+                                                src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
+                                                alt='uploading-icon'
+                                                width={50}
+                                                height={50}
                                             />
-                                        </div>
-                                        <p style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                                            Primary file uploaded - click to replace or remove
-                                        </p>
-                                    </div>
-                                ) : (
-                                    // Show upload prompt
-                                    <>
-                                        <Image
-                                            src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
-                                            alt='uploading-icon'
-                                            width={50}
-                                            height={50}
-                                        />
-                                        Drag a single file here or{' '}
-                                        <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
-                                    </>
-                                )}
-                            </div>
+                                            Drag a single file here or{' '}
+                                            <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                             {/* Supporting Files Upload Dropzone (Multiple Files - Optional, Can be removed) */}
                             <div 
                                 className={styles["cad-dropzone"]} 
@@ -1062,16 +1107,16 @@ function UploadYourCadDesign({
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
                             <button
                                 onClick={handleNextStep}
-                                disabled={!cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)}
+                                disabled={!editedDetails && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)}
                                 style={{
                                     padding: '12px 24px',
-                                    backgroundColor: (!cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? '#a270f2' : '#610bee',
+                                    backgroundColor: (!editedDetails && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? '#a270f2' : '#610bee',
                                     color: '#ffffff',
                                     border: 'none',
                                     borderRadius: 6,
                                     fontSize: 16,
                                     fontWeight: 600,
-                                    cursor: (!cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? 'not-allowed' : 'pointer',
+                                    cursor: (!editedDetails && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? 'not-allowed' : 'pointer',
                                 }}
                             >
                                 Next
