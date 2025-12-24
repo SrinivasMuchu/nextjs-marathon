@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState, useEffect } from "react";
 import styles from "./IndustryDesign.module.css";
-import { DESIGN_GLB_PREFIX_URL } from "@/config";
+import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from "@/config";
 import { IoIosArrowBack,IoIosArrowDown ,IoIosArrowForward ,IoIosArrowUp  } from "react-icons/io";
 import { AiOutlinePlus } from "react-icons/ai";
 import { HiOutlineMinus } from "react-icons/hi";
@@ -12,6 +12,7 @@ import IndustryDesignHeader from "./IndustryDesignHeader";
 import DesignStats from "../CommonJsx/DesignStats";
 import Link from "next/link";// client part
 import DownloadClientButton from "../CommonJsx/DownloadClientButton";
+import Image from "next/image";
 
 const wrapDeg = (deg) => ((deg % 360) + 360) % 360;
 const step = 30;
@@ -271,6 +272,10 @@ export default function DesignViewer({
         
         {selectedImageIdx === null ? (
           <>
+            {/* Logo only in 3D viewer */}
+            <div style={{ position: "absolute", top: 20, left: 20, zIndex: 20 }}>
+              <Image src={IMAGEURLS.logo} alt="Logo" width={100} height={40} />
+            </div>
             <div className={styles.stage} style={{ transform: `scale(${scale})` }}>
               <img
                 className={styles.frame}

@@ -80,7 +80,7 @@ function IndustryDesignClone({ design, designData, type }) {
                 {/* </div> */}
               </div>
               {designData.response && <IndustryDesignFilesList designData={designData.response} />}
-              {designData.response.supporting_files && <IndustryDesignSupportFileList designData={designData.response.supporting_files} />}
+               {designData.response.supporting_files && <IndustryDesignSupportFileList designData={designData.response} />}
               
               {designData?.report && (
                 <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />

@@ -25,7 +25,7 @@ function loadRazorpayScript() {
 }
 
 function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, 
-  step, filetype, custumDownload,designDetails }) {
+  step, filetype, custumDownload,designDetails,supportingFileUrl }) {
     console.log(designDetails)
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [isDownloadingMainFile, setIsDownloadingMainFile] = useState(false);
@@ -67,6 +67,17 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   const downloadFile = async () => {
     setIsDownloadingMainFile(true);
     try {
+      if (supportingFileUrl) {
+      const link = document.createElement("a");
+      link.href = supportingFileUrl;
+      link.download = "";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setIsDownloadingMainFile(false);
+      return; // ⛔ stop execution here
+    }
       const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
         design_id: folderId, xaxis, yaxis, step, file_type: filetype, action_type: 'DOWNLOAD'
       }, {
@@ -357,6 +368,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
               }}
             >
               <span>
+                
                 <button
                   disabled
                   className={styles['industry-design-files-btn']}

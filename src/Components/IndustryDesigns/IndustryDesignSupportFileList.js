@@ -1,9 +1,10 @@
 import React from 'react'
 import styles from './IndustryDesign.module.css'
 import { FaFile } from 'react-icons/fa'
+import DownloadClientButton from '../CommonJsx/DownloadClientButton';
 
 function IndustryDesignSupportFileList({ designData }) {
-  const supportingFiles = Array.isArray(designData) ? designData : [];
+  const supportingFiles = Array.isArray(designData.supporting_files) ? designData.supporting_files : [];
 
   // Helper function to check if file is an image
   const isImageFile = (fileName) => {
@@ -63,6 +64,7 @@ function IndustryDesignSupportFileList({ designData }) {
               <th style={{ width: '40%' }}>File Name</th>
               {/* <th style={{ width: '20%' }}>Size</th> */}
               <th style={{ width: '15%' }}>Type</th>
+               <th style={{ width: '15%' }}>action</th>
             </tr>
           </thead>
           <tbody>
@@ -121,6 +123,7 @@ function IndustryDesignSupportFileList({ designData }) {
                   </td>
                   {/* <td data-label="Size">{formatFileSize(fileSize)}</td> */}
                   <td data-label="Type">{fileExtension || 'N/A'}</td>
+                  <td><DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable} step={false} supportingFileUrl={file.url}/></td>
                 </tr>
               );
             })}
