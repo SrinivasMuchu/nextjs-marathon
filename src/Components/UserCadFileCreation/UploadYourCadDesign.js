@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import CadFileNotifyPopUp from '../CommonJsx/CadFileNotifyPopUp';
 import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
 import CreatableSelect from 'react-select/creatable';
+import Select from 'react-select';
 import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
 import { FaRupeeSign } from "react-icons/fa";
 import Kyc from '../KYC/Kyc';
@@ -42,11 +43,13 @@ function UploadYourCadDesign({
         title: '',
         description: '',
         terms: '',
-        price: ''
+        price: '',
+        category: ''
     });
     const [uploading, setUploading] = useState(false);
     const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate,user,setUser } = useContext(contextState);
     const [options, setOptions] = useState([]);
+    const [categoryOptions, setCategoryOptions] = useState([]);
     const [price, setPrice] = useState(editedDetails?.price || "");
     const [isKycVerified, setIsKycVerified] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(true);
@@ -110,8 +113,13 @@ function UploadYourCadDesign({
         }
     }, [setHasUserEmail]);
     useEffect(() => {
-        if (editedDetails?.cad_tags?.length) {
+        // Fetch tags when editing to populate selected tags
+        if (editedDetails) {
             getTags();
+        }
+        // Fetch categories when editing to populate the selected category
+        if (editedDetails) {
+            getCategories();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [editedDetails]);
@@ -166,7 +174,8 @@ function UploadYourCadDesign({
             title: '',
             description: '',
             terms: '',
-            price: ''
+            price: '',
+            category: ''
         };
 
         let isValid = true;
@@ -188,6 +197,10 @@ function UploadYourCadDesign({
             isValid = false;
         } else if (cadFormState.description.trim().length < 100) {
             errors.description = 'Description must be at least 100 characters long.';
+            isValid = false;
+        }
+        if (!cadFormState.selectedCategory) {
+            errors.category = 'Category is required.';
             isValid = false;
         }
         if (!termsAccepted) {
@@ -521,6 +534,7 @@ function UploadYourCadDesign({
                 file_type: cadFormState.fileFormat,
                 description: cadFormState.description,
                 tags: cadFormState.selectedOptions.map(option => option.value),
+                category_id: cadFormState.selectedCategory?.value || null,
                 is_downloadable: cadFormState.isChecked,
                 converted_cad_source: uploadedFile,
             };
@@ -615,6 +629,7 @@ function UploadYourCadDesign({
                 title: cadFormState.title,
                 description: cadFormState.description,
                 tags: cadFormState.selectedOptions.map(option => option.value),
+                category_id: cadFormState.selectedCategory?.value || null,
                 price: Number(price) || 0, // Send price as number
                 is_downloadable: cadFormState.isChecked,
             };
@@ -724,17 +739,36 @@ function UploadYourCadDesign({
 
                 setOptions(fetchedOptions);
 
-                // ✅ Only set selectedOptions if they haven't been set yet
-                if (editedDetails?.cad_tags?.length && cadFormState.selectedOptions.length === 0) {
+                // Set selectedOptions when editing and tags exist
+                if (editedDetails?.cad_tags?.length) {
                     const mappedSelections = editedDetails.cad_tags
                         .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
                         .filter(Boolean);
 
-                    setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
+                    if (mappedSelections.length > 0) {
+                        setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
+                    }
                 }
             }
         } catch (error) {
             console.error("Error fetching tags:", error);
+        }
+    };
+
+    // Fetch all available categories
+    const getCategories = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/v1/cad/get-categories`);
+            if (response.data.meta.success) {
+                const fetchedCategoryOptions = response.data.data.map(category => ({
+                    value: category._id,
+                    label: category.industry_category_label
+                }));
+
+                setCategoryOptions(fetchedCategoryOptions);
+            }
+        } catch (error) {
+            console.error("Error fetching categories:", error);
         }
     };
 
@@ -763,6 +797,14 @@ function UploadYourCadDesign({
 
     const handleZoneSelection = (selected) => {
         setCadFormState(prevState => ({ ...prevState, selectedOptions: selected || [] }));
+    };
+
+    const handleCategorySelection = (selected) => {
+        setCadFormState(prevState => ({ ...prevState, selectedCategory: selected || null }));
+        // Clear category error when category is selected
+        if (selected) {
+            setFormErrors(prev => ({ ...prev, category: '' }));
+        }
     };
 
 
@@ -877,6 +919,22 @@ function UploadYourCadDesign({
             }));
         }
     }, [editedDetails, rejected, options, setCadFormState]);
+
+    // Sync category when editing
+    useEffect(() => {
+        if (editedDetails && categoryOptions.length > 0) {
+            const categoryId = editedDetails.category_id || editedDetails.industry_category_id || editedDetails.category;
+            if (categoryId && !cadFormState.selectedCategory) {
+                const categoryOption = categoryOptions.find(opt => opt.value === categoryId);
+                if (categoryOption) {
+                    setCadFormState(prev => ({
+                        ...prev,
+                        selectedCategory: categoryOption
+                    }));
+                }
+            }
+        }
+    }, [editedDetails, categoryOptions, cadFormState.selectedCategory, setCadFormState]);
 
     return (
         <>
@@ -1173,6 +1231,21 @@ function UploadYourCadDesign({
                                 <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>{formErrors.description}</span>
                                 <p style={{ fontSize: 12, color: cadFormState.description.length >= 100 ? 'green' : 'gray' }}>{cadFormState.description.length}/{DESCRIPTIONLIMIT}</p>
                             </div>
+                        </div>
+
+                        {/* Category */}
+                        <div style={{ marginBottom: 16 }}>
+                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select category</label>
+                            <Select
+                                styles={createDropdownCustomStyles}
+                                options={categoryOptions}
+                                value={cadFormState.selectedCategory}
+                                onFocus={getCategories}
+                                onChange={handleCategorySelection}
+                                placeholder="Select a category"
+                                isClearable
+                            />
+                            {formErrors.category && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.category}</p>}
                         </div>
 
                         {/* Tags moved to LEFT to match figma */}

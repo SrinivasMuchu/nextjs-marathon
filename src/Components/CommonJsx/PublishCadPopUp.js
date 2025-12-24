@@ -35,6 +35,7 @@ function PublishCadPopUp({ onClose, editedDetails, type, rejected }) {
     description: editedDetails ? editedDetails.page_description : '',
     tags: '',
     selectedOptions: [],
+    selectedCategory: null,
     isChecked: editedDetails ? editedDetails.is_downloadable : true,
     fileName: editedDetails ? (editedDetails.file_name || editedDetails.fileName || '') : '',
     fileSize: editedDetails ? getFileSizeInMB(editedDetails.file_size || editedDetails.fileSize || 0) : '',
