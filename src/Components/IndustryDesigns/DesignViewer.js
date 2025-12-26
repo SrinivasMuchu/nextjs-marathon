@@ -274,7 +274,7 @@ export default function DesignViewer({
           <>
             {/* Logo only in 3D viewer */}
             <div style={{ position: "absolute", top: 20, left: 20, zIndex: 20 }}>
-              <Image src={IMAGEURLS.logo} alt="Logo" width={100} height={40} />
+              <Image src={IMAGEURLS.marathonPreview} alt="Logo" width={100} height={40} />
             </div>
             <div className={styles.stage} style={{ transform: `scale(${scale})` }}>
               <img
