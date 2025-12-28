@@ -539,6 +539,7 @@ function UploadYourCadDesign({
                 category_id: cadFormState.selectedCategory?.value || null,
                 is_downloadable: cadFormState.isChecked,
                 converted_cad_source: uploadedFile,
+                cad_file_name: cadFormState.fileName || '',
             };
 
             // Add single file URL for backward compatibility
@@ -636,6 +637,7 @@ function UploadYourCadDesign({
                 category_id: cadFormState.selectedCategory?.value || null,
                 price: Number(price) || 0, // Send price as number
                 is_downloadable: cadFormState.isChecked,
+                cad_file_name: cadFormState.fileName || '',
             };
             
             // Add supporting files array if they exist

@@ -6,7 +6,7 @@ import styles from './CommonStyles.module.css';
 import { FaFile, FaDownload } from 'react-icons/fa';
 import { IMAGEURLS} from '@/config';
 
-function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isDownloadingMainFile, imageUrls }) {
+function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isDownloadingMainFile, cadFilenName }) {
   // Helper function to get file extension
   const getFileExtension = (fileName) => {
     if (!fileName) return '';
@@ -160,9 +160,9 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
     );
   }
 
-  if (!files || files.length === 0) {
-    return null;
-  }
+  // if (!files || files.length === 0) {
+  //   return null;
+  // }
 
   return (
     <PopupWrapper>
@@ -248,7 +248,7 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap'
               }}>
-                3D Design
+                {cadFilenName ? cadFilenName : '3D Design'}
               </div>
               <div style={{
                 fontSize: '14px',

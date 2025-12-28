@@ -38,6 +38,8 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   const { setDownloadedFileUpdate,user } = useContext(contextState);
 
   // Fetch supporting files
+  // Alias for backward compatibility in payment logic
+  const downloadFile = downloadMainFile;
   const fetchSupportingFiles = async () => {
     try {
       // Replace this endpoint with your actual supporting files API endpoint
@@ -52,9 +54,9 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           }
         }
       );
-
-      if (response.data.meta.success && response.data.data.supporting_files && Array.isArray(response.data.data.supporting_files)) {
-        return response.data.data.supporting_files; // Array of {name, type, size, url}
+// files    supporting_files
+      if (response.data.meta.success ) {
+        return response.data.data.files; // Array of {name, type, size, url}
       }
       return [];
     } catch (err) {
@@ -176,6 +178,19 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
             if (verifyRes.data.meta.success) {
               toast.success("✅ Payment successful! Starting download...");
               await downloadFile();
+              // Only show SupportingFilesPopup if this is the custom 3D design download button
+              if (custumDownload) {
+                setSupportingFiles([]);
+                setSupportingFilesLoading(true);
+                setOpenSupportingFiles(true);
+                fetchSupportingFiles().then(files => {
+                  setSupportingFiles(files);
+                  setSupportingFilesLoading(false);
+                }).catch(() => {
+                  setSupportingFiles([]);
+                  setSupportingFilesLoading(false);
+                });
+              }
               setIsDownLoading(false);
             } else {
               alert("⚠️ Payment verification failed!");
@@ -216,17 +231,22 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
         setOpenEmailPopUp(true)
         return
       }
-      // Instead of downloading, just open the popup and fetch supporting files
-      setSupportingFiles([]);
-      setSupportingFilesLoading(true);
-      setOpenSupportingFiles(true);
-      fetchSupportingFiles().then(files => {
-        setSupportingFiles(files);
-        setSupportingFilesLoading(false);
-      }).catch(() => {
+      if (custumDownload) {
+        // Only open popup for custom 3D design button
         setSupportingFiles([]);
-        setSupportingFilesLoading(false);
-      });
+        setSupportingFilesLoading(true);
+        setOpenSupportingFiles(true);
+        fetchSupportingFiles().then(files => {
+          setSupportingFiles(files);
+          setSupportingFilesLoading(false);
+        }).catch(() => {
+          setSupportingFiles([]);
+          setSupportingFilesLoading(false);
+        });
+      } else {
+        // For normal download, just download the file
+        await downloadMainFile();
+      }
     } finally {
       setIsDownLoading(false);
     }
@@ -391,7 +411,8 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
       {openSupportingFiles && (
         <SupportingFilesPopup 
-          files={supportingFiles}
+          files={supportingFiles.supporting_files}
+          cadFilenName={supportingFiles.cad_file_name}
           loading={supportingFilesLoading}
           onClose={() => {
             setOpenSupportingFiles(false);
