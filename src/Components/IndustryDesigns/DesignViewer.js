@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import styles from "./IndustryDesign.module.css";
 import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from "@/config";
 import { IoIosArrowBack,IoIosArrowDown ,IoIosArrowForward ,IoIosArrowUp  } from "react-icons/io";
@@ -56,17 +56,24 @@ export default function DesignViewer({
   const [yDeg, setYDeg] = useState(initialY);
   const [scale, setScale] = useState(0.8);
   
-  // Sync xDeg/yDeg when currentViewIdx changes to an angle view
+  // Ref to track if we're navigating (should sync) vs manually rotating (shouldn't sync)
+  const isNavigatingRef = useRef(false);
+  
+  // Sync xDeg/yDeg when currentViewIdx changes to an angle view (only when navigating)
   useEffect(() => {
-    const currentView = allViews[currentViewIdx];
-    if (currentView && currentView.type === 'angle') {
-      setXDeg(currentView.x);
-      setYDeg(currentView.y);
+    if (isNavigatingRef.current) {
+      const currentView = allViews[currentViewIdx];
+      if (currentView && currentView.type === 'angle') {
+        setXDeg(currentView.x);
+        setYDeg(currentView.y);
+      }
+      isNavigatingRef.current = false;
     }
   }, [currentViewIdx, allViews]);
   
   // Navigation functions
   const goToPrevious = () => {
+    isNavigatingRef.current = true;
     setCurrentViewIdx((idx) => {
       const newIdx = (idx - 1 + allViews.length) % allViews.length;
       return newIdx;
@@ -74,6 +81,7 @@ export default function DesignViewer({
   };
   
   const goToNext = () => {
+    isNavigatingRef.current = true;
     setCurrentViewIdx((idx) => {
       const newIdx = (idx + 1) % allViews.length;
       return newIdx;
@@ -102,9 +110,11 @@ export default function DesignViewer({
       if (allViews.length <= 1) return;
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
+        isNavigatingRef.current = true;
         setCurrentViewIdx((idx) => (idx - 1 + allViews.length) % allViews.length);
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
+        isNavigatingRef.current = true;
         setCurrentViewIdx((idx) => (idx + 1) % allViews.length);
       }
     };
@@ -290,69 +300,60 @@ export default function DesignViewer({
                   if (supportedImages.length > 0) {
                     // Find first image view index
                     const firstImageIdx = allViews.findIndex(v => v.type === 'image');
-                    if (firstImageIdx !== -1) setCurrentViewIdx(firstImageIdx);
+                    if (firstImageIdx !== -1) {
+                      isNavigatingRef.current = true;
+                      setCurrentViewIdx(firstImageIdx);
+                    }
                   }
                 }}
               />
             </div>
             <div className={styles.controls}>
               <div className={styles.dpad}>
-                <button onClick={() => {
-                  const newX = wrapDeg(xDeg + step);
-                  setXDeg(newX);
-                  // Try to find matching angle view and update currentViewIdx
-                  const matchingIdx = ANGLE_VIEWS.findIndex(av => 
-                    Math.round(wrapDeg(av.x)) === Math.round(newX) && 
-                    Math.round(wrapDeg(av.y)) === Math.round(yDeg)
-                  );
-                  if (matchingIdx !== -1 && selectedImageIdx === null) {
-                    setCurrentViewIdx(matchingIdx);
-                  }
-                }} className={styles.button}>
+                <button 
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setXDeg((prev) => wrapDeg(prev + step));
+                  }} 
+                  className={styles.button}
+                >
                   <IoIosArrowUp />
                 </button>
                 <div className={styles.h}>
-                  <button onClick={() => {
-                    const newY = wrapDeg(yDeg - step);
-                    setYDeg(newY);
-                    // Try to find matching angle view and update currentViewIdx
-                    const matchingIdx = ANGLE_VIEWS.findIndex(av => 
-                      Math.round(wrapDeg(av.x)) === Math.round(xDeg) && 
-                      Math.round(wrapDeg(av.y)) === Math.round(newY)
-                    );
-                    if (matchingIdx !== -1 && selectedImageIdx === null) {
-                      setCurrentViewIdx(matchingIdx);
-                    }
-                  }} className={styles.button}>
+                  <button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setYDeg((prev) => wrapDeg(prev - step));
+                    }} 
+                    className={styles.button}
+                  >
                     <IoIosArrowBack />
                   </button>
-                  <button onClick={() => {
-                    const newY = wrapDeg(yDeg + step);
-                    setYDeg(newY);
-                    // Try to find matching angle view and update currentViewIdx
-                    const matchingIdx = ANGLE_VIEWS.findIndex(av => 
-                      Math.round(wrapDeg(av.x)) === Math.round(xDeg) && 
-                      Math.round(wrapDeg(av.y)) === Math.round(newY)
-                    );
-                    if (matchingIdx !== -1 && selectedImageIdx === null) {
-                      setCurrentViewIdx(matchingIdx);
-                    }
-                  }} className={styles.button}>
+                  <button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setYDeg((prev) => wrapDeg(prev + step));
+                    }} 
+                    className={styles.button}
+                  >
                     <IoIosArrowForward />
                   </button>
                 </div>
-                <button onClick={() => {
-                  const newX = wrapDeg(xDeg - step);
-                  setXDeg(newX);
-                  // Try to find matching angle view and update currentViewIdx
-                  const matchingIdx = ANGLE_VIEWS.findIndex(av => 
-                    Math.round(wrapDeg(av.x)) === Math.round(newX) && 
-                    Math.round(wrapDeg(av.y)) === Math.round(yDeg)
-                  );
-                  if (matchingIdx !== -1 && selectedImageIdx === null) {
-                    setCurrentViewIdx(matchingIdx);
-                  }
-                }} className={styles.button}>
+                <button 
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setXDeg((prev) => wrapDeg(prev - step));
+                  }} 
+                  className={styles.button}
+                >
                   <IoIosArrowDown />
                 </button>
               </div>
@@ -385,6 +386,7 @@ export default function DesignViewer({
               }}
               onClick={() => {
                 // Go back to first angle view
+                isNavigatingRef.current = true;
                 setCurrentViewIdx(0);
               }}
             />
@@ -428,7 +430,10 @@ export default function DesignViewer({
                 cursor: 'pointer',
                 transition: 'border 0.2s, box-shadow 0.2s',
               }}
-              onClick={() => setCurrentViewIdx(angleIdx)}
+              onClick={() => {
+                isNavigatingRef.current = true;
+                setCurrentViewIdx(angleIdx);
+              }}
             >
               <img
                 src={thumbSrc}
@@ -466,7 +471,10 @@ export default function DesignViewer({
                 cursor: 'pointer',
                 transition: 'border 0.2s, box-shadow 0.2s',
               }}
-              onClick={() => setCurrentViewIdx(viewIdx)}
+              onClick={() => {
+                isNavigatingRef.current = true;
+                setCurrentViewIdx(viewIdx);
+              }}
             >
               <img
                 src={img.url}
