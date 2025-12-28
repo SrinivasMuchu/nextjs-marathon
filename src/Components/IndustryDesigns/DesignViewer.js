@@ -273,7 +273,10 @@ export default function DesignViewer({
         {selectedImageIdx === null ? (
           <>
             {/* Logo only in 3D viewer */}
-            <div style={{ position: "absolute", top: 20, left: 20, zIndex: 20 }}>
+            <div 
+              style={{ position: "absolute", top: 20, left: 20, zIndex: 20 }}
+              title="This preview is automatically generated from the uploaded CAD file using Marathon-OS. What you see here matches how the model opens in FreeCAD."
+            >
               <Image src={IMAGEURLS.marathonPreview} alt="Logo" width={100} height={40} />
             </div>
             <div className={styles.stage} style={{ transform: `scale(${scale})` }}>

@@ -1062,9 +1062,18 @@ function UploadYourCadDesign({
                                                 width={50}
                                                 height={50}
                                             />
-                                            Drag a single file here or{' '}
-                                            <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
-                                            Upload Primary 3D CAD File (Required)
+                                            <div style={{ marginTop: 12, textAlign: 'center' }}>
+                                                <p style={{ fontSize: 16, fontWeight: 600, margin: '8px 0' }}>
+                                                    Upload Primary 3D CAD File (Required)
+                                                </p>
+                                                <p style={{ fontSize: 12, color: '#666', margin: '4px 0' }}>
+                                                    Drag a single file here or{' '}
+                                                    <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
+                                                </p>
+                                                <p style={{ fontSize: 12, color: '#666', margin: '8px 0 0 0' }}>
+                                                    Supported formats: STEP, STP, IGES, IGS, STL, OBJ, BREP, BRP, PLY, OFF
+                                                </p>
+                                            </div>
                                         </>
                                     )}
                                 </div>
@@ -1154,13 +1163,20 @@ function UploadYourCadDesign({
                                             width={50}
                                             height={50}
                                         />
-                                        Drag multiple files here or{' '}
-                                        <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>
-                                            select files
-                                        </span>
-                                        <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
-                                            Optional: Select multiple supporting files. All file types are accepted.
-                                        </p>
+                                        <div style={{ marginTop: 12, textAlign: 'center' }}>
+                                            <p style={{ fontSize: 16, fontWeight: 600, margin: '8px 0' }}>
+                                                Design Previews & Supporting Files
+                                            </p>
+                                            <p style={{ fontSize: 12, color: '#666', margin: '4px 0' }}>
+                                                Drag multiple files here or{' '}
+                                                <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>
+                                                    select files
+                                                </span>
+                                            </p>
+                                            <p style={{ fontSize: 12, color: '#666', margin: '8px 0 0 0' }}>
+                                                Supporting files (other parts, drawings, references) are optional.
+                                            </p>
+                                        </div>
                                     </>
                                 )}
                             </div>
