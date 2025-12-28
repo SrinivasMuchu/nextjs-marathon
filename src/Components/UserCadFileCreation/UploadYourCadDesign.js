@@ -533,7 +533,9 @@ function UploadYourCadDesign({
                 price: price ? price : 0,
                 file_type: cadFormState.fileFormat,
                 description: cadFormState.description,
-                tags: cadFormState.selectedOptions.map(option => option.value),
+                tags: cadFormState.selectedOptions && cadFormState.selectedOptions.length > 0
+                    ? cadFormState.selectedOptions.map(option => option.value)
+                    : [],
                 category_id: cadFormState.selectedCategory?.value || null,
                 is_downloadable: cadFormState.isChecked,
                 converted_cad_source: uploadedFile,
@@ -628,7 +630,9 @@ function UploadYourCadDesign({
                 file_id: editedDetails._id,
                 title: cadFormState.title,
                 description: cadFormState.description,
-                tags: cadFormState.selectedOptions.map(option => option.value),
+                tags: cadFormState.selectedOptions && cadFormState.selectedOptions.length > 0
+                    ? cadFormState.selectedOptions.map(option => option.value)
+                    : [],
                 category_id: cadFormState.selectedCategory?.value || null,
                 price: Number(price) || 0, // Send price as number
                 is_downloadable: cadFormState.isChecked,
@@ -923,7 +927,8 @@ function UploadYourCadDesign({
     // Sync category when editing
     useEffect(() => {
         if (editedDetails && categoryOptions.length > 0) {
-            const categoryId = editedDetails.category_id || editedDetails.industry_category_id || editedDetails.category;
+            console.log('editedDetails category IDs:', editedDetails);
+            const categoryId =  editedDetails.category_labels;
             if (categoryId && !cadFormState.selectedCategory) {
                 const categoryOption = categoryOptions.find(opt => opt.value === categoryId);
                 if (categoryOption) {
@@ -1165,16 +1170,30 @@ function UploadYourCadDesign({
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
                             <button
                                 onClick={handleNextStep}
-                                disabled={!editedDetails && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)}
+                                disabled={
+                                    (!editedDetails && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0))
+                                    || uploading
+                                    || isUploadingMultiple
+                                }
                                 style={{
                                     padding: '12px 24px',
-                                    backgroundColor: (!editedDetails && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? '#a270f2' : '#610bee',
+                                    backgroundColor:
+                                        (!editedDetails && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0))
+                                        || uploading
+                                        || isUploadingMultiple
+                                            ? '#a270f2'
+                                            : '#610bee',
                                     color: '#ffffff',
                                     border: 'none',
                                     borderRadius: 6,
                                     fontSize: 16,
                                     fontWeight: 600,
-                                    cursor: (!editedDetails && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) ? 'not-allowed' : 'pointer',
+                                    cursor:
+                                        (!editedDetails && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0))
+                                        || uploading
+                                        || isUploadingMultiple
+                                            ? 'not-allowed'
+                                            : 'pointer',
                                 }}
                             >
                                 Next

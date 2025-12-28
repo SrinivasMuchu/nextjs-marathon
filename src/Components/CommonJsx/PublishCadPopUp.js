@@ -7,6 +7,7 @@ import { contextState } from './ContextProvider';
 import Kyc from '../KYC/Kyc';
 
 function PublishCadPopUp({ onClose, editedDetails, type, rejected }) {
+  console.log('Edited Details in PublishCadPopUp:', editedDetails);
   const [showKyc, setShowKyc] = useState(false);
   const { setUser } = useContext(contextState);
 
