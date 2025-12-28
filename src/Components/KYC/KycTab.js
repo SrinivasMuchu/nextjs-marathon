@@ -38,7 +38,6 @@ function KycTab() {
       const response = await axios.get(`${BASE_URL}/v1/payment/get-seller-details`, {
         headers: { 'user-uuid': localStorage.getItem('uuid') }
       });
-
       if (response.data.meta.success && response.data.data) {
         const data = response.data.data;
         setFormData({

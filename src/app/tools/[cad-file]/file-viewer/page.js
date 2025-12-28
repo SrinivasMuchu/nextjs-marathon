@@ -2,8 +2,8 @@ import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDe
 import CadUpload from '@/Components/CadUploadingHome/CadUpload/CadUpload';
 import { notFound } from 'next/navigation';
 
-const ALLOWED_CAD_FILES = ['step', 'brep', 'stp' ,'off','obj','iges','igs','stl','brp','ply','glb'];
-
+// const ALLOWED_CAD_FILES = ['step', 'brep', 'stp' ,'off','obj','iges','igs','stl','brp','ply','glb'];
+const ALLOWED_CAD_FILES = ['step', 'brep', 'stp' ,'off','obj','iges','igs','stl','brp','ply'];
 export async function generateMetadata({ params }) {
   const cadFile = params['cad-file'];
  
