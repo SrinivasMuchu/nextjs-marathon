@@ -1023,7 +1023,7 @@ function UploadYourCadDesign({
                                         style={{ display: "none" }}
                                         onChange={handleFileChange}
                                     />
-                                    {cadFormState.uploadProgress > 0 && uploadMode === 'single' && cadFormState.uploadProgress < 100 ? (
+                                    {cadFormState.uploadProgress > 0 && cadFormState.uploadProgress < 100 ? (
                                         // Show progress during upload
                                         <div style={{ marginTop: 10, width: '50%', textAlign: 'center', marginInline: 'auto' }}>
                                             <div><span>{cadFormState.fileName} - {Math.round(cadFormState.fileSize)}mb</span></div>
@@ -1032,7 +1032,7 @@ function UploadYourCadDesign({
                                             </div>
                                             <p style={{ textAlign: 'right', fontSize: 12 }}>{cadFormState.uploadProgress}%</p>
                                             <div>
-                                                <CloseIcon onClick={handleCancel} style={{ cursor: 'pointer', color: '#610bee' }} />
+                                                <CloseIcon onClick={e => { e.stopPropagation(); handleCancel(); }} style={{ cursor: 'pointer', color: '#610bee' }} />
                                             </div>
                                         </div>
                                     ) : cadFormState.url ? (
@@ -1064,6 +1064,7 @@ function UploadYourCadDesign({
                                             />
                                             Drag a single file here or{' '}
                                             <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
+                                            Upload Primary 3D CAD File (Required)
                                         </>
                                     )}
                                 </div>
@@ -1221,7 +1222,7 @@ function UploadYourCadDesign({
 
                         {/* Title */}
                         <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Model title</label>
+                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Model title*</label>
                             <input
                                 placeholder="0.5M Spur Gear | High-Quality CAD Model"
                                 type="text"
@@ -1238,7 +1239,7 @@ function UploadYourCadDesign({
 
                         {/* Description */}
                         <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Description</label>
+                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Description *</label>
                             <textarea
                                 placeholder="Designed for engineers and designers, 0.5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
                                 value={cadFormState.description}
@@ -1254,7 +1255,7 @@ function UploadYourCadDesign({
 
                         {/* Category */}
                         <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select category</label>
+                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select category *</label>
                             <Select
                                 styles={createDropdownCustomStyles}
                                 options={categoryOptions}

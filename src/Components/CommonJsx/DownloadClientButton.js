@@ -33,6 +33,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   const [openBillingDetails, setOpenBillingDetails] = useState(false);
   const [openSupportingFiles, setOpenSupportingFiles] = useState(false);
   const [supportingFiles, setSupportingFiles] = useState([]);
+  const [supportingFilesLoading, setSupportingFilesLoading] = useState(false);
   const [billerDetails,setBillerDetails] = useState({})
   const { setDownloadedFileUpdate,user } = useContext(contextState);
 
@@ -63,21 +64,21 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
     }
   };
 
-  // Download logic after payment
-  const downloadFile = async () => {
+  // Download logic for main file (to be called from popup)
+  const downloadMainFile = async () => {
     setIsDownloadingMainFile(true);
     try {
       if (supportingFileUrl) {
-      const link = document.createElement("a");
-      link.href = supportingFileUrl;
-      link.download = "";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-      setIsDownloadingMainFile(false);
-      return; // ⛔ stop execution here
-    }
+        const link = document.createElement("a");
+        link.href = supportingFileUrl;
+        link.download = "";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setIsDownloadingMainFile(false);
+        sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
+        return;
+      }
       const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
         design_id: folderId, xaxis, yaxis, step, file_type: filetype, action_type: 'DOWNLOAD'
       }, {
@@ -85,37 +86,22 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           "user-uuid": localStorage.getItem("uuid"),
         }
       });
-
       const data = response.data;
       if (data.meta.success) {
         const url = data.data.download_url;
         setDownloadedFileUpdate(data.data.download_url)
-        
         // Download main file using anchor tag
         const link = document.createElement("a");
         link.href = url;
-        link.download = ""; // let browser download the file
+        link.download = "";
         document.body.appendChild(link);
         link.click();
         link.remove();
-
-        // Wait a bit for download to start, then fetch supporting files
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Fetch supporting files
-        const supportingFilesData = await fetchSupportingFiles();
-        
         setIsDownloadingMainFile(false);
-        
-        // If supporting files exist, show popup
-        if (supportingFilesData && supportingFilesData.length > 0) {
-          setSupportingFiles(supportingFilesData);
-          setOpenSupportingFiles(true);
-        }
+        sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
       } else {
         setIsDownloadingMainFile(false);
       }
-      sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
     } catch (err) {
       console.error('Error downloading file:', err);
       setIsDownloadingMainFile(false);
@@ -230,7 +216,17 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
         setOpenEmailPopUp(true)
         return
       }
-      await downloadFile();
+      // Instead of downloading, just open the popup and fetch supporting files
+      setSupportingFiles([]);
+      setSupportingFilesLoading(true);
+      setOpenSupportingFiles(true);
+      fetchSupportingFiles().then(files => {
+        setSupportingFiles(files);
+        setSupportingFilesLoading(false);
+      }).catch(() => {
+        setSupportingFiles([]);
+        setSupportingFilesLoading(false);
+      });
     } finally {
       setIsDownLoading(false);
     }
@@ -395,14 +391,18 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
       {openSupportingFiles && (
         <SupportingFilesPopup 
-          files={supportingFiles} 
+          files={supportingFiles}
+          loading={supportingFilesLoading}
           onClose={() => {
             setOpenSupportingFiles(false);
             setSupportingFiles([]);
-          }} 
+            setSupportingFilesLoading(false);
+          }}
+          onDownloadMainFile={downloadMainFile}
+          isDownloadingMainFile={isDownloadingMainFile}
         />
       )}
-      {isDownloadingMainFile && <Loading />}
+      {/* {isDownloadingMainFile && <Loading />} */}
     </>
   );
 }

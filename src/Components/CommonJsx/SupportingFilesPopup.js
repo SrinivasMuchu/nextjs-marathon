@@ -1,10 +1,12 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import PopupWrapper from './PopupWrapper';
 import styles from './CommonStyles.module.css';
 import { FaFile, FaDownload } from 'react-icons/fa';
+import { IMAGEURLS} from '@/config';
 
-function SupportingFilesPopup({ files, onClose }) {
+function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isDownloadingMainFile, imageUrls }) {
   // Helper function to get file extension
   const getFileExtension = (fileName) => {
     if (!fileName) return '';
@@ -110,6 +112,54 @@ function SupportingFilesPopup({ files, onClose }) {
     }
   };
 
+
+  // Show loading indicator if loading is true
+  if (loading) {
+    return (
+      <PopupWrapper>
+        <div style={{
+          background: '#fff',
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          padding: '40px 32px',
+          width: '400px',
+          maxWidth: '95vw',
+          maxHeight: '60vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
+          position: 'relative'
+        }}>
+          <div style={{ fontSize: 22, fontWeight: 600, color: '#2d3748', marginBottom: 24 }}>Fetching Supporting Files...</div>
+          <div style={{ marginBottom: 24 }}>
+            <div className={styles['loader']} style={{ width: 48, height: 48, border: '6px solid #eee', borderTop: '6px solid #610BEE', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '10px 24px',
+              background: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={e => { e.target.style.background = '#5a6268'; }}
+            onMouseLeave={e => { e.target.style.background = '#6c757d'; }}
+          >
+            Close
+          </button>
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        </div>
+      </PopupWrapper>
+    );
+  }
+
   if (!files || files.length === 0) {
     return null;
   }
@@ -142,7 +192,7 @@ function SupportingFilesPopup({ files, onClose }) {
             fontWeight: 600,
             color: '#2d3748'
           }}>
-            Supporting Files ({files.length})
+            Files ({files.length+1})
           </h2>
           <button
             onClick={onClose}
@@ -160,6 +210,83 @@ function SupportingFilesPopup({ files, onClose }) {
           </button>
         </div>
 
+        {/* Main 3D design row with download button */}
+        {onDownloadMainFile && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            padding: '16px',
+            background: '#f8f9fa',
+            borderRadius: '8px',
+            border: '1px solid #e0e0e0',
+            marginBottom: 24
+          }}>
+            {/* Main file thumbnail or indicator */}
+           
+              <div style={{ minWidth: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Image
+                  src={IMAGEURLS.fileformat}
+                  alt="3D Design Thumbnail"
+                  width={60}
+                  height={60}
+                  style={{ objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd', background: '#fff' }}
+                />
+              </div>
+         
+            {/* File Info */}
+            <div style={{
+              flex: 1,
+              minWidth: 0
+            }}>
+              <div style={{
+                fontWeight: 600,
+                fontSize: '16px',
+                color: '#222',
+                marginBottom: '4px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                3D Design
+              </div>
+              <div style={{
+                fontSize: '14px',
+                color: '#666'
+              }}>
+                {/* Optionally, you can show a description or leave blank */}
+              </div>
+            </div>
+            {/* Download Button */}
+            <button
+              onClick={onDownloadMainFile}
+              disabled={isDownloadingMainFile}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                background: '#610BEE',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: isDownloadingMainFile ? 'not-allowed' : 'pointer',
+                transition: 'background 0.2s',
+                minWidth: '120px',
+                justifyContent: 'center',
+                opacity: isDownloadingMainFile ? 0.7 : 1
+              }}
+              onMouseEnter={e => { if (!isDownloadingMainFile) e.target.style.background = '#4c0bc5'; }}
+              onMouseLeave={e => { if (!isDownloadingMainFile) e.target.style.background = '#610BEE'; }}
+            >
+              <FaDownload style={{ fontSize: '14px' }} />
+              {isDownloadingMainFile ? 'Downloading...' : 'Download'}
+            </button>
+          </div>
+        )}
+
         <div style={{
           display: 'flex',
           flexDirection: 'column',
@@ -170,6 +297,11 @@ function SupportingFilesPopup({ files, onClose }) {
             const fileSize = getFileSize(file);
             const fileType = getFileType(file);
             const fileExtension = getFileExtension(fileName);
+            const fileUrl = getFileUrl(file);
+
+            // Check if file is an image
+            const imageExtensions = ['JPG', 'JPEG', 'PNG', 'GIF', 'WEBP', 'BMP', 'SVG'];
+            const isImage = imageExtensions.includes(fileExtension.toUpperCase());
 
             return (
               <div
@@ -184,23 +316,38 @@ function SupportingFilesPopup({ files, onClose }) {
                   border: '1px solid #e0e0e0'
                 }}
               >
-                {/* File Type Indicator */}
-                <div style={{
-                  minWidth: '60px',
-                  height: '60px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '8px',
-                  background: '#14b8a6',
-                  color: 'white',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  textAlign: 'center',
-                  padding: '4px'
-                }}>
-                  .{fileExtension || 'FILE'}
-                </div>
+                {/* File Type Indicator or Image Thumbnail */}
+                {isImage && fileUrl ? (
+                  <img
+                    src={fileUrl}
+                    alt={fileName}
+                    style={{
+                      width: '60px',
+                      height: '60px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      border: '1px solid #ddd',
+                      background: '#fff'
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    minWidth: '60px',
+                    height: '60px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '8px',
+                    background: '#14b8a6',
+                    color: 'white',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    textAlign: 'center',
+                    padding: '4px'
+                  }}>
+                    .{fileExtension || 'FILE'}
+                  </div>
+                )}
 
                 {/* File Info */}
                 <div style={{

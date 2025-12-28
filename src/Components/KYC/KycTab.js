@@ -8,6 +8,7 @@ import Loading from '../CommonJsx/Loaders/Loading';
 import Kyc from './Kyc';
 import Image from 'next/image';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
+import PopupWrapper from '../CommonJsx/PopupWrapper';
 
 function KycTab() {
    const [formData, setFormData] = useState({
@@ -110,10 +111,13 @@ function KycTab() {
         </div>
         
         {showKycForm && (
+          <PopupWrapper>
           <Kyc 
             onClose={handleCloseKycForm}
             setUser={setUser}
+           
           />
+           </PopupWrapper>
         )}
       </div>
       </>

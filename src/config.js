@@ -12,6 +12,7 @@ export const BUCKET = 'marathon-org-assets';
 export const DESIGN_GLB_PREFIX_URL = 'https://d1d8a3050v4fu6.cloudfront.net/';
 export const IMAGEURLS = {
   logo: `${MARATHON_ASSET_PREFIX_URL}marathon-demo-logo.svg`,
+  fileformat:`${MARATHON_ASSET_PREFIX_URL}3d-file-format.webp`,
   marathonPreview: `${MARATHON_ASSET_PREFIX_URL}marathon-preview.webp`,
   hardwareLogo: `${MARATHON_ASSET_PREFIX_URL}hardware_logo.webp`,
   menu: `${MARATHON_ASSET_PREFIX_URL}menu-icon.webp`,
