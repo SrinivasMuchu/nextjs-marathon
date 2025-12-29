@@ -219,21 +219,41 @@ function UploadYourCadDesign({
 
     // Validate file type
     const isValidFileType = (file) => {
-        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        if (!file || !file.name) {
+            return false;
+        }
+        const fileNameParts = file.name.split('.');
+        if (fileNameParts.length < 2) {
+            // File has no extension
+            return false;
+        }
+        const fileExtension = '.' + fileNameParts.pop().toLowerCase();
         return allowedFilesList.includes(fileExtension);
     };
 
     // Get file extension for error messages
     const getFileExtension = (file) => {
-        return file.name.split('.').pop().toLowerCase() || 'unknown';
+        if (!file || !file.name) {
+            return 'unknown';
+        }
+        const fileNameParts = file.name.split('.');
+        if (fileNameParts.length < 2) {
+            return 'no extension';
+        }
+        return fileNameParts.pop().toLowerCase() || 'unknown';
     };
 
+    // Handle primary file selection (validates file format - only CAD formats allowed)
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Validate file type before processing
+            // Validate file type before processing (primary file must be CAD format)
             if (!isValidFileType(file)) {
-                toast.error(`File type .${getFileExtension(file)} is not supported. Supported formats: ${allowedFilesList.join(', ')}`);
+                const extension = getFileExtension(file);
+                const errorMessage = extension === 'no extension' 
+                    ? `File "${file.name}" has no file extension. Supported formats: ${allowedFilesList.join(', ')}`
+                    : `File type .${extension} is not supported. Supported formats: ${allowedFilesList.join(', ')}`;
+                toast.error(errorMessage);
                 e.target.value = ''; // Reset input
                 return;
             }
@@ -242,10 +262,11 @@ function UploadYourCadDesign({
         }
     };
 
-    // Handle multiple files selection
+    // Handle multiple files selection (supporting files - accepts any file format)
     const handleMultipleFilesChange = async (e) => {
         const allFiles = Array.from(e.target.files);
         if (allFiles.length === 0) return;
+        // Note: Supporting files can be any format, no validation needed
         // Calculate current total size
         const currentSupportedFiles = cadFormState.supportedFiles || [];
         let currentTotal = currentSupportedFiles.reduce((acc, file) => acc + file.size, 0);
@@ -260,7 +281,7 @@ function UploadYourCadDesign({
         e.target.value = '';
     };
 
-    // Handle drag and drop for single file
+    // Handle drag and drop for single file (primary file - validates file format, only CAD formats allowed)
     const handleSingleDrop = async (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -268,23 +289,29 @@ function UploadYourCadDesign({
         const files = Array.from(e.dataTransfer.files);
         if (files.length === 1) {
             const file = files[0];
-            if (isValidFileType(file)) {
-                setUploadMode('single');
-                handleFile(file);
-            } else {
-                toast.error(`File type .${getFileExtension(file)} is not supported. Supported formats: ${allowedFilesList.join(', ')}`);
+            // Validate file type before processing (primary file must be CAD format)
+            if (!isValidFileType(file)) {
+                const extension = getFileExtension(file);
+                const errorMessage = extension === 'no extension' 
+                    ? `File "${file.name}" has no file extension. Supported formats: ${allowedFilesList.join(', ')}`
+                    : `File type .${extension} is not supported. Supported formats: ${allowedFilesList.join(', ')}`;
+                toast.error(errorMessage);
+                return;
             }
+            setUploadMode('single');
+            handleFile(file);
         } else if (files.length > 1) {
             toast.info('Multiple files detected. Please use the multiple files upload area below.');
         }
     };
 
-    // Handle drag and drop for multiple files
+    // Handle drag and drop for multiple files (supporting files - accepts any file format)
     const handleMultipleDrop = async (e) => {
         e.preventDefault();
         e.stopPropagation();
         const files = Array.from(e.dataTransfer.files);
         if (files.length > 0) {
+            // Note: Supporting files can be any format, no validation needed
             const currentSupportedFiles = cadFormState.supportedFiles || [];
             let currentTotal = currentSupportedFiles.reduce((acc, file) => acc + file.size, 0);
             let newFilesTotal = files.reduce((acc, file) => acc + file.size, 0);
@@ -456,7 +483,11 @@ function UploadYourCadDesign({
     const handleFile = async (file) => {
         // Validate file type before upload
         if (!isValidFileType(file)) {
-            toast.error(`File type .${getFileExtension(file)} is not supported. Supported formats: ${allowedFilesList.join(', ')}`);
+            const extension = getFileExtension(file);
+            const errorMessage = extension === 'no extension' 
+                ? `File "${file.name}" has no file extension. Supported formats: ${allowedFilesList.join(', ')}`
+                : `File type .${extension} is not supported. Supported formats: ${allowedFilesList.join(', ')}`;
+            toast.error(errorMessage);
             return;
         }
         
