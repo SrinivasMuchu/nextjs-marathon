@@ -20,9 +20,9 @@ export default function IndustryAnglePicker({
     { x: 0,   y: 0 },
     { x: 0,   y: 60 },
     { x: 0,   y: 120 },
-    { x: 0,   y: 180 },
-    { x: 0,   y: 240 },
-    { x: 0,   y: 300 },
+    // { x: 0,   y: 180 },
+    // { x: 0,   y: 240 },
+    // { x: 0,   y: 300 },
     { x: 30,  y: 0 },
     { x: 330, y: 0 },
   ];

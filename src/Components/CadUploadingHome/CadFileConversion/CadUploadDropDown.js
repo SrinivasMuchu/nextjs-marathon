@@ -26,6 +26,7 @@ function CadDropDown({
     { value: 'ply', label: '.ply' },
     { value: 'stl', label: '.stl' },
     { value: 'off', label: '.off' },
+    // { value: 'glb', label: '.glb' },
   ];
 
   // Set initial format when 'to' prop changes

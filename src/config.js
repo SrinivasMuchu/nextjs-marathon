@@ -7,11 +7,14 @@ export const ASSET_PREFIX_URL = "https://marathon-web-assets.s3.ap-south-1.amazo
 export const TITLELIMIT = 100;
 export const DESCRIPTIONLIMIT = 500;
 // export const HEADERS = { "x-auth-token": localStorage.getItem('token')}
+// export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj",".glb"];
 export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj"];
 export const BUCKET = 'marathon-org-assets';
 export const DESIGN_GLB_PREFIX_URL = 'https://d1d8a3050v4fu6.cloudfront.net/';
 export const IMAGEURLS = {
   logo: `${MARATHON_ASSET_PREFIX_URL}marathon-demo-logo.svg`,
+  fileformat:`${MARATHON_ASSET_PREFIX_URL}3d-file-format.webp`,
+  marathonPreview: `${MARATHON_ASSET_PREFIX_URL}marathon-preview.webp`,
   hardwareLogo: `${MARATHON_ASSET_PREFIX_URL}hardware_logo.webp`,
   menu: `${MARATHON_ASSET_PREFIX_URL}menu-icon.webp`,
   easyToUse: `${MARATHON_ASSET_PREFIX_URL}easy-to-use.webp`,

@@ -8,6 +8,7 @@ import Loading from '../CommonJsx/Loaders/Loading';
 import Kyc from './Kyc';
 import Image from 'next/image';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
+import PopupWrapper from '../CommonJsx/PopupWrapper';
 
 function KycTab() {
    const [formData, setFormData] = useState({
@@ -37,7 +38,6 @@ function KycTab() {
       const response = await axios.get(`${BASE_URL}/v1/payment/get-seller-details`, {
         headers: { 'user-uuid': localStorage.getItem('uuid') }
       });
-
       if (response.data.meta.success && response.data.data) {
         const data = response.data.data;
         setFormData({
@@ -110,10 +110,13 @@ function KycTab() {
         </div>
         
         {showKycForm && (
+          <PopupWrapper>
           <Kyc 
             onClose={handleCloseKycForm}
             setUser={setUser}
+           
           />
+           </PopupWrapper>
         )}
       </div>
       </>

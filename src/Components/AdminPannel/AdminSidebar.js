@@ -3,6 +3,8 @@ import React from 'react'
 import styles from './AdminPannel.module.css'
 import { MdOutlineDesignServices } from "react-icons/md";
 import { MdOutlinePayments } from "react-icons/md";
+import { MdVisibility } from "react-icons/md";
+import { MdDownload } from "react-icons/md";
 import { FaChevronLeft } from "react-icons/fa";
 
 
@@ -57,6 +59,24 @@ function AdminSidebar({ collapsed, activeTab, onToggle, onSelect }) {
         >
           <MdOutlinePayments />
           {!collapsed && <span className={styles.label}>Payments</span>}
+        </button>
+          <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'viewed-list' ? styles.active : ''}`}
+          onClick={() => onSelect('viewed-list')}
+          title="Top Viewed"
+        >
+          <MdVisibility />
+          {!collapsed && <span className={styles.label}>Top Viewed</span>}
+        </button>
+          <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'downloaded-list' ? styles.active : ''}`}
+          onClick={() => onSelect('downloaded-list')}
+          title="Top Downloaded"
+        >
+          <MdDownload />
+          {!collapsed && <span className={styles.label}>Top Downloaded</span>}
         </button>
       </nav>
     </aside>

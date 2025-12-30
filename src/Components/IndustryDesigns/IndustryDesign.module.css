@@ -114,7 +114,7 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
 }
 
 .industry-design-files-list th {
-    padding: 12px 20px;
+    padding: 8px;
     border-bottom: 1px solid #F3F3F3;
     background: #F4F4F4;
     color: #001325;
@@ -125,7 +125,7 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
 }
 
 .industry-design-files-list td {
-    padding: 20px;
+    padding: 8px;
     border-bottom: 1px solid #F3F3F3;
     color: #001325;
     font-size: 16px;
@@ -224,6 +224,7 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
     justify-content: center;
     width: 100%;
     padding: clamp(24px, 3vw, 65px);
+    margin-top: 30px;
 }
 
 .industry-design-suggestion-header {
@@ -532,10 +533,10 @@ align-self: stretch;
 }
 @media screen and (max-width:1600px){
     .industry-design-files-list td{
-        font-size: 18px;
+        font-size: 16px;
     }
     .industry-design-files-list th{
-        font-size: 22px;
+        font-size: 18px;
     }
 }
 

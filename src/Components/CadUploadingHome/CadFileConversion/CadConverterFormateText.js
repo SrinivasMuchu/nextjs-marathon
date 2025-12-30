@@ -36,7 +36,11 @@ function CadConverterFormateText({ conversionParams }) {
     {label: 'PLY',
       route: 'ply',
       description:'Polygon File Format is a widely used file format for representing 3D data, particularly polygonal meshes, in the fields of computer graphics, 3D scanning, and point cloud data. It was originally developed to store data from 3D scanners and has since gained popularity in both academic and commercial applications due to its flexibility in handling a variety of data types.'
-    }
+    },
+    // {label: 'GLB',
+    //   route: 'glb',
+    //   description:'Polygon File Format is a widely used file format for representing 3D data, particularly polygonal meshes, in the fields of computer graphics, 3D scanning, and point cloud data. It was originally developed to store data from 3D scanners and has since gained popularity in both academic and commercial applications due to its flexibility in handling a variety of data types.'
+    // }
   ];
 
   const [fromFormat, toFormat] = conversionParams.split('-to-');

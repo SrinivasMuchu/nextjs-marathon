@@ -14,7 +14,7 @@ import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 const features = [
     {
         title: 'Seamless CAD File Conversion',
-        description: 'Convert STEP, IGES, STL, BREP, OBJ, PLY, OFF, and more—instantly and without setup delays.'
+        description: 'Convert STEP, IGES, STL, BREP, OBJ, PLY, OFF and more—instantly and without setup delays.'
     },
     {
         title: 'Handles Large & Complex Models',

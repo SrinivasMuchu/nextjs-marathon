@@ -45,6 +45,9 @@ function IndustryHeaderDetails({designData}) {
         page_description:designData.response.page_description,
         is_downloadable:designData.response.is_downloadable,
         price:designData.response.price,
+        supportfile_id:designData.response.supporting_file_id,
+        supporting_files:designData.response.supporting_files,
+        category_labels:designData.response.source_category_id,
         cad_tags:designData.response.tag_labels,_id:designData.response._id,}}
         type={"design"}
         fileId={designData.response._id}

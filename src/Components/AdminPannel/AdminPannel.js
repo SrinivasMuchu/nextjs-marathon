@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react'
 import AdminSidebar from './AdminSidebar'
 import DesignTable from './DesignTable'
 import PaymentsTable from './PaymentsTable'
+import ViewedList from './ViewedList'
+import DownloadedList from './DownloadedList'
 import styles from './AdminPannel.module.css'
 import AdminPannelAuthentication from './AdminPannelAuthentication'
 
@@ -34,12 +36,42 @@ function AdminPannel({ children }) {
     return null
   }
 
+  const getTitle = () => {
+    switch(activeTab) {
+      case 'designs':
+        return 'Designs'
+      case 'payments':
+        return 'Payments'
+      case 'viewed-list':
+        return 'Top Viewed'
+      case 'downloaded-list':
+        return 'Top Downloaded'
+      default:
+        return 'Admin Panel'
+    }
+  }
+
+  const renderContent = () => {
+    switch(activeTab) {
+      case 'designs':
+        return <DesignTable />
+      case 'payments':
+        return <PaymentsTable />
+      case 'viewed-list':
+        return <ViewedList />
+      case 'downloaded-list':
+        return <DownloadedList />
+      default:
+        return <DesignTable />
+    }
+  }
+
   const content = (
     <div className={styles.content}>
       <div className={styles.header}>
-        <h2 className={styles.title}>{activeTab === 'designs' ? 'Designs' : 'Payments'}</h2>
+        <h2 className={styles.title}>{getTitle()}</h2>
       </div>
-      {activeTab === 'designs' ? <DesignTable /> : <PaymentsTable />}
+      {renderContent()}
     </div>
   )
 
@@ -51,7 +83,7 @@ function AdminPannel({ children }) {
         onToggle={() => setCollapsed(v => !v)}
         onSelect={setActiveTab}
       />
-      <div style={{height:'90vh',overFlow:'auto'}} >
+      <div style={{height:'90vh',overFlow:'auto',width:'100%'}} >
 
         {children ?? content}
       </div>

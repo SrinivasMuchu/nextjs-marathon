@@ -19,6 +19,7 @@ import DownloadsRatingAlert from '../CreatorsPage/DownloadsRatingAlert'
 import CadDesignDownload from './CadDesignDownlaod'
 import DesignViewer from './DesignViewer';
 import AdminPannelAuthentication from '../AdminPannel/AdminPannelAuthentication';
+import IndustryDesignSupportFileList from './IndustryDesignSupportFileList'
 
 function IndustryDesignClone({ design, designData, type }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -79,6 +80,8 @@ function IndustryDesignClone({ design, designData, type }) {
                 {/* </div> */}
               </div>
               {designData.response && <IndustryDesignFilesList designData={designData.response} />}
+               {designData.response.supporting_files && <IndustryDesignSupportFileList designData={designData.response} />}
+              
               {designData?.report && (
                 <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
               )}

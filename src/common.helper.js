@@ -178,6 +178,7 @@ export const converterTypes = [
   { label: 'STEP to PLY', path: '/step-to-ply' },
   { label: 'STEP to STL', path: '/step-to-stl' },
   { label: 'STEP to OFF', path: '/step-to-off' },
+  // { label: 'STEP to GLB', path: '/step-to-glb' },
 
   { label: 'IGES to BREP', path: '/iges-to-brep' },
   { label: 'IGES to STEP', path: '/iges-to-step' },
@@ -185,6 +186,7 @@ export const converterTypes = [
   { label: 'IGES to PLY', path: '/iges-to-ply' },
   { label: 'IGES to STL', path: '/iges-to-stl' },
   { label: 'IGES to OFF', path: '/iges-to-off' },
+  // { label: 'IGES to GLB', path: '/iges-to-glb' },
 
   { label: 'OBJ to BREP', path: '/obj-to-brep' },
   { label: 'OBJ to IGES', path: '/obj-to-iges' },
@@ -192,6 +194,7 @@ export const converterTypes = [
   { label: 'OBJ to PLY', path: '/obj-to-ply' },
   { label: 'OBJ to STL', path: '/obj-to-stl' },
   { label: 'OBJ to OFF', path: '/obj-to-off' },
+  // { label: 'OBJ to GLB', path: '/obj-to-glb' },
 
   { label: 'PLY to BREP', path: '/ply-to-brep' },
   { label: 'PLY to IGES', path: '/ply-to-iges' },
@@ -199,6 +202,7 @@ export const converterTypes = [
   { label: 'PLY to STEP', path: '/ply-to-step' },
   { label: 'PLY to STL', path: '/ply-to-stl' },
   { label: 'PLY to OFF', path: '/ply-to-off' },
+  // { label: 'PLY to GLB', path: '/ply-to-glb' },
 
   { label: 'STL to BREP', path: '/stl-to-brep' },
   { label: 'STL to IGES', path: '/stl-to-iges' },
@@ -206,6 +210,7 @@ export const converterTypes = [
   { label: 'STL to PLY', path: '/stl-to-ply' },
   { label: 'STL to STEP', path: '/stl-to-step' },
   { label: 'STL to OFF', path: '/stl-to-off' },
+  // { label: 'STL to GLB', path: '/stl-to-glb' },
 
   { label: 'OFF to BREP', path: '/off-to-brep' },
   { label: 'OFF to IGES', path: '/off-to-iges' },
@@ -213,6 +218,7 @@ export const converterTypes = [
   { label: 'OFF to PLY', path: '/off-to-ply' },
   { label: 'OFF to STL', path: '/off-to-stl' },
   { label: 'OFF to STEP', path: '/off-to-step' },
+  // { label: 'OFF to GLB', path: '/off-to-glb' },
 
   { label: 'BREP to STEP', path: '/brep-to-step' },
   { label: 'BREP to IGES', path: '/brep-to-iges' },
@@ -220,6 +226,15 @@ export const converterTypes = [
   { label: 'BREP to PLY', path: '/brep-to-ply' },
   { label: 'BREP to STL', path: '/brep-to-stl' },
   { label: 'BREP to OFF', path: '/brep-to-off' },
+  // { label: 'BREP to GLB', path: '/brep-to-glb' },
+
+  // { label: 'GLB to STEP', path: '/glb-to-step' },
+  // { label: 'GLB to IGES', path: '/glb-to-iges' },
+  // { label: 'GLB to OBJ', path: '/glb-to-obj' },
+  // { label: 'GLB to PLY', path: '/glb-to-ply' },
+  // { label: 'GLB to STL', path: '/glb-to-stl' },
+  // { label: 'GLB to OFF', path: '/glb-to-off' },
+  // { label: 'GLB to BREP', path: '/glb-to-brep' },
 
 
 
