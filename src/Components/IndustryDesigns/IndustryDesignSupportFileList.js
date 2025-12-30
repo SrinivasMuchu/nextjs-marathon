@@ -29,7 +29,7 @@ function IndustryDesignSupportFileList({ designData }) {
   };
 
   // Helper function to get file name (handle both name and fileName properties)
-  const getFileName = (file, maxLength = 25) => {
+  const getFileName = (file, maxLength = 40) => {
     const fileName = file?.name || file?.fileName || 'Unknown';
     if (fileName.length > maxLength) {
       return fileName.substring(0, maxLength) + '...';
@@ -61,10 +61,10 @@ function IndustryDesignSupportFileList({ designData }) {
           <thead>
             <tr>
               {/* <th style={{ width: '15%' }}>Preview</th> */}
-              <th style={{ width: '30%' }}>File Name</th>
+              <th style={{ width: '65%' }}>File Name</th>
               {/* <th style={{ width: '20%' }}>Size</th> */}
               {/* <th style={{ width: '15%' }}>Type</th> */}
-               <th style={{ width: '15%' }}>Action</th>
+               <th style={{ width: '30%' }}>Action</th>
             </tr>
           </thead>
           <tbody>

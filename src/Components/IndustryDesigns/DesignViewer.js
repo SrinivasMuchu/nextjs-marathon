@@ -399,11 +399,11 @@ export default function DesignViewer({
       <div
         style={{
           position: 'relative',
-          marginTop: 24,
+          marginTop: 16,
           background: '#fff',
-          padding: '12px 48px',
-          borderRadius: 12,
-          boxShadow: '0 2px 12px #0001',
+          padding: '8px 36px',
+          borderRadius: 8,
+          boxShadow: '0 2px 8px #0001',
         }}
       >
         {/* Left scroll button */}
@@ -417,12 +417,12 @@ export default function DesignViewer({
           }}
           style={{
             position: 'absolute',
-            left: 8,
+            left: 4,
             top: '50%',
             transform: 'translateY(-50%)',
             zIndex: 10,
-            width: '36px',
-            height: '36px',
+            width: '32px',
+            height: '32px',
             borderRadius: '50%',
             border: '1px solid #D1D4D7',
             background: '#fff',
@@ -430,9 +430,9 @@ export default function DesignViewer({
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
             transition: 'all 0.2s ease',
-            fontSize: '20px',
+            fontSize: '18px',
             color: '#610BEE',
           }}
           onMouseEnter={(e) => {
@@ -458,12 +458,12 @@ export default function DesignViewer({
           }}
           style={{
             position: 'absolute',
-            right: 8,
+            right: 4,
             top: '50%',
             transform: 'translateY(-50%)',
             zIndex: 10,
-            width: '36px',
-            height: '36px',
+            width: '32px',
+            height: '32px',
             borderRadius: '50%',
             border: '1px solid #D1D4D7',
             background: '#fff',
@@ -471,9 +471,9 @@ export default function DesignViewer({
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
             transition: 'all 0.2s ease',
-            fontSize: '20px',
+            fontSize: '18px',
             color: '#610BEE',
           }}
           onMouseEnter={(e) => {
@@ -493,13 +493,13 @@ export default function DesignViewer({
           data-carousel
           style={{
             display: 'flex',
-            gap: 12,
+            gap: 10,
             overflowX: 'auto',
             overflowY: 'hidden',
             scrollBehavior: 'smooth',
             scrollbarWidth: 'none', // Firefox - hide scrollbar
             msOverflowStyle: 'none', // IE and Edge - hide scrollbar
-            padding: '4px 0',
+            padding: '2px 0',
           }}
         >
           <style>{`
@@ -517,15 +517,15 @@ export default function DesignViewer({
                 key={`angle-${x}-${y}`}
                 style={{
                   flexShrink: 0,
-                  width: 80,
-                  height: 80,
+                  width: 70,
+                  height: 70,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   border: isActive ? '2px solid #610BEE' : '1px solid #ccc',
-                  borderRadius: 8,
+                  borderRadius: 6,
                   background: '#fff',
-                  boxShadow: isActive ? '0 0 8px #610BEE55' : undefined,
+                  boxShadow: isActive ? '0 0 6px #610BEE55' : undefined,
                   cursor: 'pointer',
                   transition: 'border 0.2s, box-shadow 0.2s',
                 }}
@@ -541,7 +541,7 @@ export default function DesignViewer({
                     width: '90%',
                     height: '90%',
                     objectFit: 'contain',
-                    borderRadius: 6,
+                    borderRadius: 4,
                     background: '#fff',
                     display: 'block',
                   }}
@@ -559,15 +559,15 @@ export default function DesignViewer({
                 key={`img-${idx}`}
                 style={{
                   flexShrink: 0,
-                  width: 80,
-                  height: 80,
+                  width: 70,
+                  height: 70,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   border: isActive ? '2px solid #610BEE' : '1px solid #ccc',
-                  borderRadius: 8,
+                  borderRadius: 6,
                   background: '#fff',
-                  boxShadow: isActive ? '0 0 8px #610BEE55' : undefined,
+                  boxShadow: isActive ? '0 0 6px #610BEE55' : undefined,
                   cursor: 'pointer',
                   transition: 'border 0.2s, box-shadow 0.2s',
                 }}
@@ -583,7 +583,7 @@ export default function DesignViewer({
                     width: '90%',
                     height: '90%',
                     objectFit: 'contain',
-                    borderRadius: 6,
+                    borderRadius: 4,
                     background: '#fff',
                     display: 'block',
                   }}
