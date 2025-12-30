@@ -60,7 +60,7 @@ function IndustryDesignSupportFileList({ designData }) {
         <table className={styles['industry-design-files-list']}>
           <thead>
             <tr>
-              <th style={{ width: '15%' }}>Preview</th>
+              {/* <th style={{ width: '15%' }}>Preview</th> */}
               <th style={{ width: '30%' }}>File Name</th>
               {/* <th style={{ width: '20%' }}>Size</th> */}
               {/* <th style={{ width: '15%' }}>Type</th> */}
@@ -77,7 +77,7 @@ function IndustryDesignSupportFileList({ designData }) {
 
               return (
                 <tr key={index}>
-                  <td data-label="Preview">
+                  {/* <td data-label="Preview">
                     <div style={{
                       width: '40px',
                       height: '40px',
@@ -110,7 +110,7 @@ function IndustryDesignSupportFileList({ designData }) {
                         />
                       )}
                     </div>
-                  </td>
+                  </td> */}
                   <td data-label="File Name">
                     <div style={{
                       maxWidth: '100%',

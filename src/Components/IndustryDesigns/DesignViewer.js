@@ -395,102 +395,203 @@ export default function DesignViewer({
         ) : null}
       </div>
 
-      {/* Unified thumbnail carousel for angle picker and supported images - consistent styling */}
+      {/* Unified thumbnail carousel for angle picker and supported images - horizontal scroll */}
       <div
         style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 12,
-          justifyContent: 'center',
-          alignItems: 'center',
+          position: 'relative',
           marginTop: 24,
           background: '#fff',
-          padding: '12px 0',
+          padding: '12px 48px',
           borderRadius: 12,
           boxShadow: '0 2px 12px #0001',
         }}
       >
-        {/* Angle picker thumbnails: only specific angles as requested */}
-        {ANGLE_VIEWS.map(({x, y}, angleIdx) => {
-          const thumbSrc = `${baseUrl}/sprite_${fmt(wrapDeg(x), padX)}_${fmt(wrapDeg(y), padY)}.${ext}`;
-          const isActive = currentViewIdx === angleIdx;
-          return (
-            <div
-              key={`angle-${x}-${y}`}
-              style={{
-                width: 80,
-                height: 80,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: isActive ? '2px solid #610BEE' : '1px solid #ccc',
-                borderRadius: 8,
-                background: '#fff',
-                boxShadow: isActive ? '0 0 8px #610BEE55' : undefined,
-                cursor: 'pointer',
-                transition: 'border 0.2s, box-shadow 0.2s',
-              }}
-              onClick={() => {
-                isNavigatingRef.current = true;
-                setCurrentViewIdx(angleIdx);
-              }}
-            >
-              <img
-                src={thumbSrc}
-                alt={`Angle x=${x} y=${y}`}
+        {/* Left scroll button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            const carousel = e.currentTarget.parentElement.querySelector('[data-carousel]');
+            if (carousel) {
+              carousel.scrollBy({ left: -320, behavior: 'smooth' });
+            }
+          }}
+          style={{
+            position: 'absolute',
+            left: 8,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 10,
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            border: '1px solid #D1D4D7',
+            background: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            transition: 'all 0.2s ease',
+            fontSize: '20px',
+            color: '#610BEE',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#610BEE';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#fff';
+            e.currentTarget.style.color = '#610BEE';
+          }}
+        >
+          <IoIosArrowBack />
+        </button>
+
+        {/* Right scroll button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            const carousel = e.currentTarget.parentElement.querySelector('[data-carousel]');
+            if (carousel) {
+              carousel.scrollBy({ left: 320, behavior: 'smooth' });
+            }
+          }}
+          style={{
+            position: 'absolute',
+            right: 8,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 10,
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            border: '1px solid #D1D4D7',
+            background: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            transition: 'all 0.2s ease',
+            fontSize: '20px',
+            color: '#610BEE',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#610BEE';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#fff';
+            e.currentTarget.style.color = '#610BEE';
+          }}
+        >
+          <IoIosArrowForward />
+        </button>
+
+        {/* Scrollable carousel container */}
+        <div
+          data-carousel
+          style={{
+            display: 'flex',
+            gap: 12,
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            scrollBehavior: 'smooth',
+            scrollbarWidth: 'none', // Firefox - hide scrollbar
+            msOverflowStyle: 'none', // IE and Edge - hide scrollbar
+            padding: '4px 0',
+          }}
+        >
+          <style>{`
+            div[data-carousel]::-webkit-scrollbar {
+              display: none; /* Chrome, Safari, Opera - hide scrollbar */
+            }
+          `}</style>
+          
+          {/* Angle picker thumbnails: only specific angles as requested */}
+          {ANGLE_VIEWS.map(({x, y}, angleIdx) => {
+            const thumbSrc = `${baseUrl}/sprite_${fmt(wrapDeg(x), padX)}_${fmt(wrapDeg(y), padY)}.${ext}`;
+            const isActive = currentViewIdx === angleIdx;
+            return (
+              <div
+                key={`angle-${x}-${y}`}
                 style={{
-                  width: '90%',
-                  height: '90%',
-                  objectFit: 'contain',
-                  borderRadius: 6,
+                  flexShrink: 0,
+                  width: 80,
+                  height: 80,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: isActive ? '2px solid #610BEE' : '1px solid #ccc',
+                  borderRadius: 8,
                   background: '#fff',
-                  display: 'block',
+                  boxShadow: isActive ? '0 0 8px #610BEE55' : undefined,
+                  cursor: 'pointer',
+                  transition: 'border 0.2s, box-shadow 0.2s',
                 }}
-              />
-            </div>
-          );
-        })}
-        {/* Supported file thumbnails */}
-        {supportedImages.map((img, idx) => {
-          // Find the index in allViews for this image
-          const viewIdx = allViews.findIndex(v => v.type === 'image' && v.index === idx);
-          const isActive = currentViewIdx === viewIdx;
-          return (
-            <div
-              key={`img-${idx}`}
-              style={{
-                width: 80,
-                height: 80,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: isActive ? '2px solid #610BEE' : '1px solid #ccc',
-                borderRadius: 8,
-                background: '#fff',
-                boxShadow: isActive ? '0 0 8px #610BEE55' : undefined,
-                cursor: 'pointer',
-                transition: 'border 0.2s, box-shadow 0.2s',
-              }}
-              onClick={() => {
-                isNavigatingRef.current = true;
-                setCurrentViewIdx(viewIdx);
-              }}
-            >
-              <img
-                src={img.url}
-                alt={img.name}
+                onClick={() => {
+                  isNavigatingRef.current = true;
+                  setCurrentViewIdx(angleIdx);
+                }}
+              >
+                <img
+                  src={thumbSrc}
+                  alt={`Angle x=${x} y=${y}`}
+                  style={{
+                    width: '90%',
+                    height: '90%',
+                    objectFit: 'contain',
+                    borderRadius: 6,
+                    background: '#fff',
+                    display: 'block',
+                  }}
+                />
+              </div>
+            );
+          })}
+          {/* Supported file thumbnails */}
+          {supportedImages.map((img, idx) => {
+            // Find the index in allViews for this image
+            const viewIdx = allViews.findIndex(v => v.type === 'image' && v.index === idx);
+            const isActive = currentViewIdx === viewIdx;
+            return (
+              <div
+                key={`img-${idx}`}
                 style={{
-                  width: '90%',
-                  height: '90%',
-                  objectFit: 'contain',
-                  borderRadius: 6,
+                  flexShrink: 0,
+                  width: 80,
+                  height: 80,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: isActive ? '2px solid #610BEE' : '1px solid #ccc',
+                  borderRadius: 8,
                   background: '#fff',
-                  display: 'block',
+                  boxShadow: isActive ? '0 0 8px #610BEE55' : undefined,
+                  cursor: 'pointer',
+                  transition: 'border 0.2s, box-shadow 0.2s',
                 }}
-              />
-            </div>
-          );
-        })}
+                onClick={() => {
+                  isNavigatingRef.current = true;
+                  setCurrentViewIdx(viewIdx);
+                }}
+              >
+                <img
+                  src={img.url}
+                  alt={img.name}
+                  style={{
+                    width: '90%',
+                    height: '90%',
+                    objectFit: 'contain',
+                    borderRadius: 6,
+                    background: '#fff',
+                    display: 'block',
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );

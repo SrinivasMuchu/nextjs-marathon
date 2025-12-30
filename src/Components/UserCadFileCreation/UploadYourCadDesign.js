@@ -1104,7 +1104,7 @@ function UploadYourCadDesign({
                                                     <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
                                                 </p>
                                                 <p style={{ fontSize: 12, color: '#666', margin: '8px 0 0 0' }}>
-                                                    Supported formats: STEP, STP, IGES, IGS, STL, OBJ, BREP, BRP, PLY, OFF
+                                                    Supported formats:<strong> STEP, STP, IGES, IGS, STL, OBJ, BREP, BRP, PLY, OFF</strong>
                                                 </p>
                                             </div>
                                         </>
