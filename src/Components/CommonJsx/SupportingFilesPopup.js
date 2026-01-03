@@ -192,7 +192,7 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
             fontWeight: 600,
             color: '#2d3748'
           }}>
-            Files ({files.length+1})
+            Files ({files && Array.isArray(files) ? files.length + 1 : 1})
           </h2>
           <button
             onClick={onClose}
@@ -292,7 +292,7 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
           flexDirection: 'column',
           gap: '12px'
         }}>
-          {files.map((file, index) => {
+          {files && Array.isArray(files) && files.map((file, index) => {
             const fileName = getFileName(file);
             const fileSize = getFileSize(file);
             const fileType = getFileType(file);

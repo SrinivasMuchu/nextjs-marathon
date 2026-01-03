@@ -34,10 +34,24 @@ export default function DesignViewer({
   initialX = 0,
   initialY = 0,
 }) {
+  // Check if file type is DXF or DWG
+
+  const isDxf = designData?.file_type?.toLowerCase() === 'dxf' || designData?.file_type?.toLowerCase() === 'dwg';
+  
   // Filter supported image files (png, jpg, jpeg)
-  const supportedImages = (designData?.supporting_files || []).filter(f =>
-    /\.(png|jpg|jpeg)$/i.test(f.name)
-  );
+  // Handle both array format and ensure we check file name and type
+  const supportingFilesArray = Array.isArray(designData?.supporting_files) 
+    ? designData.supporting_files 
+    : [];
+  
+  const supportedImages = supportingFilesArray.filter(f => {
+    if (!f || !f.name) return false;
+    // Check file extension in name
+    const hasImageExtension = /\.(png|jpg|jpeg|gif|webp|bmp)$/i.test(f.name);
+    // Also check if type indicates image
+    const isImageType = f.type && f.type.startsWith('image/');
+    return hasImageExtension || isImageType;
+  });
   
   // Create unified list: angles first, then images
   const allViews = useMemo(() => {
@@ -133,6 +147,423 @@ export default function DesignViewer({
   const zoomIn = () => setScale((s) => Math.min(3, +(s + 0.1).toFixed(2)));
   const zoomOut = () => setScale((s) => Math.max(0.25, +(s - 0.1).toFixed(2)));
   const resetZoom = () => setScale(1);
+
+  // For DXF files, show only the image
+  if (isDxf) {
+    const baseUrl = `${DESIGN_GLB_PREFIX_URL}${designId}`;
+    const dxfImageUrl = `${baseUrl}/${designId}.webp`;
+    
+    // Create unified list for DXF: main image first, then supporting images
+    const dxfViews = useMemo(() => {
+      const views = [{ type: 'dxf-main', url: dxfImageUrl, name: `${designId}.webp` }];
+      supportedImages.forEach((img, idx) => {
+        views.push({ type: 'image', index: idx, url: img.url, name: img.name });
+      });
+      return views;
+    }, [dxfImageUrl, supportedImages, designId]);
+    
+    // State for current view index in DXF viewer
+    const [dxfViewIdx, setDxfViewIdx] = useState(0);
+    
+    // Get current image to display
+    const currentDxfView = dxfViews[dxfViewIdx];
+    const currentImageUrl = currentDxfView?.url || dxfImageUrl;
+    const currentImageName = currentDxfView?.name || `${designId}.webp`;
+    
+    // Navigation functions for DXF
+    const goToPreviousDxf = () => {
+      setDxfViewIdx((idx) => (idx - 1 + dxfViews.length) % dxfViews.length);
+    };
+    
+    const goToNextDxf = () => {
+      setDxfViewIdx((idx) => (idx + 1) % dxfViews.length);
+    };
+    
+    // Keyboard navigation for DXF
+    useEffect(() => {
+      if (!isDxf) return;
+      const handleKeyPress = (e) => {
+        if (dxfViews.length <= 1) return;
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          setDxfViewIdx((idx) => (idx - 1 + dxfViews.length) % dxfViews.length);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          setDxfViewIdx((idx) => (idx + 1) % dxfViews.length);
+        }
+      };
+      
+      window.addEventListener('keydown', handleKeyPress);
+      return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [dxfViews.length, isDxf]);
+    
+    return (
+      <>
+        {showHeader && (
+          <div className={styles["industry-design-header-viewer-top"]}>
+            {/* ...existing code... */}
+            <div style={{ width: "100%", display: "flex", alignItems: "flex-start" }}>
+              <DesignStats
+                views={designData.total_design_views}
+                downloads={designData.total_design_downloads}
+                ratings={{ average: designData.average_rating, total: designData.rating_count }}
+              />
+            </div>
+            <div style={{ width: "100%", display: "flex", alignItems: "flex-start" }}>
+              {designData.price ? (
+                <p style={{ fontSize: "24px", fontWeight: "500" }}>
+                  ${designData.price}
+                  <span style={{ fontSize: "16px", fontWeight: "400", color: "#001325" }}>/download</span>
+                </p>
+              ) : (
+                <p style={{ fontSize: "24px", fontWeight: "500" }}>Free</p>
+              )}
+            </div>
+            <div
+              className={styles.statsCont}
+              style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center", width: "100%", flexWrap: "wrap" }}
+            >
+              <DownloadClientButton
+                custumDownload={true}
+                folderId={designData._id}
+                isDownladable={designData.is_downloadable}
+                step={true}
+                filetype={designData.file_type ? designData.file_type : "step"}
+              />
+              <Link
+                style={{
+                  color: "white",
+                  fontSize: "20px",
+                  background: "#610BEE",
+                  borderRadius: "4px",
+                  border: "none",
+                  width: "auto",
+                }}
+                href={`/tools/cad-renderer?fileId=${designData._id}&format=${designData.file_type ? designData.file_type : "step"}`}
+                rel="nofollow"
+              >
+                <button
+                  style={{
+                    color: "white",
+                    fontSize: "20px",
+                    background: "#610BEE",
+                    borderRadius: "4px",
+                    height: "48px",
+                    padding: "10px 20px",
+                    border: "none",
+                    width: "236px",
+                  }}
+                >
+                  Open in 3D viewer
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Image viewer for DXF files with navigation */}
+        <div className={styles.viewerRoot}>
+          {/* Left navigation button */}
+          {dxfViews.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPreviousDxf();
+              }}
+              style={{
+                position: 'absolute',
+                left: '16px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                border: '1px solid #D1D4D7',
+                background: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease',
+                fontSize: '24px',
+                color: '#610BEE',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#610BEE';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.color = '#610BEE';
+              }}
+            >
+              <IoIosArrowBack />
+            </button>
+          )}
+          
+          {/* Right navigation button */}
+          {dxfViews.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                goToNextDxf();
+              }}
+              style={{
+                position: 'absolute',
+                right: '16px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                border: '1px solid #D1D4D7',
+                background: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease',
+                fontSize: '24px',
+                color: '#610BEE',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#610BEE';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.color = '#610BEE';
+              }}
+            >
+              <IoIosArrowForward />
+            </button>
+          )}
+          
+          <div className={styles.stage} style={{ transform: `scale(${scale})` }}>
+            <img
+              className={styles.frame}
+              src={currentImageUrl}
+              alt={currentImageName}
+              draggable={false}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                display: 'block',
+              }}
+            />
+          </div>
+          <div className={styles.controls}>
+            <div className={styles.zoom}>
+              <button onClick={zoomIn} className={styles.zoomButton}>
+                <AiOutlinePlus />
+              </button>
+              <button onClick={zoomOut} className={styles.zoomButton}>
+                <HiOutlineMinus />
+              </button>
+              <button onClick={resetZoom} className={styles.zoomButton}>
+                <CiUndo />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Thumbnail carousel for DXF files - main image + supporting images */}
+        <div
+          style={{
+            position: 'relative',
+            marginTop: 16,
+            background: '#fff',
+            padding: '8px 36px',
+            borderRadius: 8,
+            boxShadow: '0 2px 8px #0001',
+          }}
+        >
+          {/* Left scroll button */}
+          {dxfViews.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const carousel = e.currentTarget.parentElement.querySelector('[data-carousel]');
+                if (carousel) {
+                  carousel.scrollBy({ left: -320, behavior: 'smooth' });
+                }
+              }}
+              style={{
+                position: 'absolute',
+                left: 4,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                border: '1px solid #D1D4D7',
+                background: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease',
+                fontSize: '18px',
+                color: '#610BEE',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#610BEE';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.color = '#610BEE';
+              }}
+            >
+              <IoIosArrowBack />
+            </button>
+          )}
+
+          {/* Right scroll button */}
+          {dxfViews.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const carousel = e.currentTarget.parentElement.querySelector('[data-carousel]');
+                if (carousel) {
+                  carousel.scrollBy({ left: 320, behavior: 'smooth' });
+                }
+              }}
+              style={{
+                position: 'absolute',
+                right: 4,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                border: '1px solid #D1D4D7',
+                background: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease',
+                fontSize: '18px',
+                color: '#610BEE',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#610BEE';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.color = '#610BEE';
+              }}
+            >
+              <IoIosArrowForward />
+            </button>
+          )}
+
+          {/* Scrollable carousel container */}
+          <div
+            data-carousel
+            style={{
+              display: 'flex',
+              gap: 10,
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              scrollBehavior: 'smooth',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              padding: '2px 0',
+            }}
+          >
+            <style>{`
+              div[data-carousel]::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+            
+            {/* Main DXF image thumbnail */}
+            <div
+              style={{
+                flexShrink: 0,
+                width: 70,
+                height: 70,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: dxfViewIdx === 0 ? '2px solid #610BEE' : '1px solid #ccc',
+                borderRadius: 6,
+                background: '#fff',
+                boxShadow: dxfViewIdx === 0 ? '0 0 6px #610BEE55' : undefined,
+                cursor: 'pointer',
+                transition: 'border 0.2s, box-shadow 0.2s',
+              }}
+              onClick={() => setDxfViewIdx(0)}
+            >
+              <img
+                src={dxfImageUrl}
+                alt={`Design ${designId}`}
+                style={{
+                  width: '90%',
+                  height: '90%',
+                  objectFit: 'contain',
+                  borderRadius: 4,
+                  background: '#fff',
+                  display: 'block',
+                }}
+              />
+            </div>
+            
+            {/* Supporting image thumbnails */}
+            {supportedImages.map((img, idx) => {
+              const viewIdx = idx + 1; // +1 because main DXF image is at index 0
+              const isActive = dxfViewIdx === viewIdx;
+              return (
+                <div
+                  key={`img-${idx}`}
+                  style={{
+                    flexShrink: 0,
+                    width: 70,
+                    height: 70,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: isActive ? '2px solid #610BEE' : '1px solid #ccc',
+                    borderRadius: 6,
+                    background: '#fff',
+                    boxShadow: isActive ? '0 0 6px #610BEE55' : undefined,
+                    cursor: 'pointer',
+                    transition: 'border 0.2s, box-shadow 0.2s',
+                  }}
+                  onClick={() => setDxfViewIdx(viewIdx)}
+                >
+                  <img
+                    src={img.url}
+                    alt={img.name}
+                    style={{
+                      width: '90%',
+                      height: '90%',
+                      objectFit: 'contain',
+                      borderRadius: 4,
+                      background: '#fff',
+                      display: 'block',
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

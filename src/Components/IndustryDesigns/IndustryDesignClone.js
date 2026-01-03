@@ -22,6 +22,8 @@ import AdminPannelAuthentication from '../AdminPannel/AdminPannelAuthentication'
 import IndustryDesignSupportFileList from './IndustryDesignSupportFileList'
 
 function IndustryDesignClone({ design, designData, type }) {
+  console.log(designData.supporting_files);
+
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [showLogin, setShowLogin] = useState(false)
 

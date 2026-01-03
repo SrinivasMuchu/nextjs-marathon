@@ -6,6 +6,8 @@ import { DESIGN_GLB_PREFIX_URL } from '@/config';
 import StaticDesign from './StaticDesign';
 
 const HoverImageSequence = ({ design, width, height, loading }) => {
+  // Check if file type is DXF or DWG
+  const isDxfOrDwg = design?.file_type?.toLowerCase() === 'dxf' || design?.file_type?.toLowerCase() === 'dwg';
   
   const angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
   // const yangles = [0, 330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30];
@@ -59,6 +61,26 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
     hoverRef.current = false;
     stopCycling();
   };
+
+  // For DXF/DWG files, show static image without rotation
+  if (isDxfOrDwg) {
+    return (
+      <div
+        ref={containerRef}
+        style={{ height }}
+        className={styles['library-designs-items-container-img']}
+      >
+        <Image
+          src={`${IMAGE_BASE_URL}/${design._id}.webp`}
+          alt={design.page_title}
+          width={width}
+          height={height}
+          loading={loading}
+          priority={loading !== 'lazy'}
+        />
+      </div>
+    );
+  }
 
   return (
     <div

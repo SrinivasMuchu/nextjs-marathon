@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useContext } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
-import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, allowedFilesList } from '@/config';
+import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList } from '@/config';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
@@ -228,7 +228,7 @@ function UploadYourCadDesign({
             return false;
         }
         const fileExtension = '.' + fileNameParts.pop().toLowerCase();
-        return allowedFilesList.includes(fileExtension);
+        return publishFilesList.includes(fileExtension);
     };
 
     // Get file extension for error messages
@@ -251,8 +251,8 @@ function UploadYourCadDesign({
             if (!isValidFileType(file)) {
                 const extension = getFileExtension(file);
                 const errorMessage = extension === 'no extension' 
-                    ? `File "${file.name}" has no file extension. Supported formats: ${allowedFilesList.join(', ')}`
-                    : `File type .${extension} is not supported. Supported formats: ${allowedFilesList.join(', ')}`;
+                    ? `File "${file.name}" has no file extension. Supported formats: ${publishFilesList.join(', ')}`
+                    : `File type .${extension} is not supported. Supported formats: ${publishFilesList.join(', ')}`;
                 toast.error(errorMessage);
                 e.target.value = ''; // Reset input
                 return;
@@ -293,8 +293,8 @@ function UploadYourCadDesign({
             if (!isValidFileType(file)) {
                 const extension = getFileExtension(file);
                 const errorMessage = extension === 'no extension' 
-                    ? `File "${file.name}" has no file extension. Supported formats: ${allowedFilesList.join(', ')}`
-                    : `File type .${extension} is not supported. Supported formats: ${allowedFilesList.join(', ')}`;
+                    ? `File "${file.name}" has no file extension. Supported formats: ${publishFilesList.join(', ')}`
+                    : `File type .${extension} is not supported. Supported formats: ${publishFilesList.join(', ')}`;
                 toast.error(errorMessage);
                 return;
             }
@@ -485,8 +485,8 @@ function UploadYourCadDesign({
         if (!isValidFileType(file)) {
             const extension = getFileExtension(file);
             const errorMessage = extension === 'no extension' 
-                ? `File "${file.name}" has no file extension. Supported formats: ${allowedFilesList.join(', ')}`
-                : `File type .${extension} is not supported. Supported formats: ${allowedFilesList.join(', ')}`;
+                ? `File "${file.name}" has no file extension. Supported formats: ${publishFilesList.join(', ')}`
+                : `File type .${extension} is not supported. Supported formats: ${publishFilesList.join(', ')}`;
             toast.error(errorMessage);
             return;
         }
@@ -1050,7 +1050,7 @@ function UploadYourCadDesign({
                                 >
                                     <input
                                         type="file"
-                                        accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
+                                        accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj,.dxf,.dwg"
                                         ref={fileInputRef}
                                         disabled={cadFormState.uploadProgress > 0 && uploadMode === 'single' && cadFormState.uploadProgress < 100}
                                         style={{ display: "none" }}
@@ -1104,7 +1104,7 @@ function UploadYourCadDesign({
                                                     <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
                                                 </p>
                                                 <p style={{ fontSize: 12, color: '#666', margin: '8px 0 0 0' }}>
-                                                    Supported formats:<strong> STEP, STP, IGES, IGS, STL, OBJ, BREP, BRP, PLY, OFF</strong>
+                                                    Supported formats:<strong> STEP, STP, IGES, IGS, STL, OBJ, BREP, BRP, PLY, OFF, DXF, DWG</strong>
                                                 </p>
                                             </div>
                                         </>

@@ -38,8 +38,6 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   const { setDownloadedFileUpdate,user } = useContext(contextState);
 
   // Fetch supporting files
-  // Alias for backward compatibility in payment logic
-  const downloadFile = downloadMainFile;
   const fetchSupportingFiles = async () => {
     try {
       // Replace this endpoint with your actual supporting files API endpoint
@@ -109,7 +107,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       setIsDownloadingMainFile(false);
     }
   };
-
+  const downloadFile = downloadMainFile;
   // Razorpay payment + download
   const handleDownload = async (cadId,billingId,currency) => {
     setIsDownLoading(true);
@@ -411,8 +409,8 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
       {openSupportingFiles && (
         <SupportingFilesPopup 
-          files={supportingFiles.supporting_files}
-          cadFilenName={supportingFiles.cad_file_name}
+          files={Array.isArray(supportingFiles) ? supportingFiles : (supportingFiles?.supporting_files || [])}
+          cadFilenName={supportingFiles?.cad_file_name}
           loading={supportingFilesLoading}
           onClose={() => {
             setOpenSupportingFiles(false);
