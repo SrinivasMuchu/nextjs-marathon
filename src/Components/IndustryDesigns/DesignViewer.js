@@ -148,23 +148,43 @@ export default function DesignViewer({
   const zoomOut = () => setScale((s) => Math.max(0.25, +(s - 0.1).toFixed(2)));
   const resetZoom = () => setScale(1);
 
+  // DXF-related hooks - must be called unconditionally at top level
+  const dxfBaseUrl = `${DESIGN_GLB_PREFIX_URL}${designId}`;
+  const dxfImageUrl = `${dxfBaseUrl}/${designId}.webp`;
+  
+  // Create unified list for DXF: main image first, then supporting images
+  const dxfViews = useMemo(() => {
+    if (!isDxf) return [];
+    const views = [{ type: 'dxf-main', url: dxfImageUrl, name: `${designId}.webp` }];
+    supportedImages.forEach((img, idx) => {
+      views.push({ type: 'image', index: idx, url: img.url, name: img.name });
+    });
+    return views;
+  }, [isDxf, dxfImageUrl, supportedImages, designId]);
+  
+  // State for current view index in DXF viewer
+  const [dxfViewIdx, setDxfViewIdx] = useState(0);
+  
+  // Keyboard navigation for DXF
+  useEffect(() => {
+    if (!isDxf) return;
+    const handleKeyPress = (e) => {
+      if (dxfViews.length <= 1) return;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setDxfViewIdx((idx) => (idx - 1 + dxfViews.length) % dxfViews.length);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setDxfViewIdx((idx) => (idx + 1) % dxfViews.length);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [dxfViews.length, isDxf]);
+  
   // For DXF files, show only the image
   if (isDxf) {
-    const baseUrl = `${DESIGN_GLB_PREFIX_URL}${designId}`;
-    const dxfImageUrl = `${baseUrl}/${designId}.webp`;
-    
-    // Create unified list for DXF: main image first, then supporting images
-    const dxfViews = useMemo(() => {
-      const views = [{ type: 'dxf-main', url: dxfImageUrl, name: `${designId}.webp` }];
-      supportedImages.forEach((img, idx) => {
-        views.push({ type: 'image', index: idx, url: img.url, name: img.name });
-      });
-      return views;
-    }, [dxfImageUrl, supportedImages, designId]);
-    
-    // State for current view index in DXF viewer
-    const [dxfViewIdx, setDxfViewIdx] = useState(0);
-    
     // Get current image to display
     const currentDxfView = dxfViews[dxfViewIdx];
     const currentImageUrl = currentDxfView?.url || dxfImageUrl;
@@ -178,24 +198,6 @@ export default function DesignViewer({
     const goToNextDxf = () => {
       setDxfViewIdx((idx) => (idx + 1) % dxfViews.length);
     };
-    
-    // Keyboard navigation for DXF
-    useEffect(() => {
-      if (!isDxf) return;
-      const handleKeyPress = (e) => {
-        if (dxfViews.length <= 1) return;
-        if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          setDxfViewIdx((idx) => (idx - 1 + dxfViews.length) % dxfViews.length);
-        } else if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          setDxfViewIdx((idx) => (idx + 1) % dxfViews.length);
-        }
-      };
-      
-      window.addEventListener('keydown', handleKeyPress);
-      return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [dxfViews.length, isDxf]);
     
     return (
       <>
