@@ -5,6 +5,7 @@ import { MdOutlineDesignServices } from "react-icons/md";
 import { MdOutlinePayments } from "react-icons/md";
 import { MdVisibility } from "react-icons/md";
 import { MdDownload } from "react-icons/md";
+import { MdSearch } from "react-icons/md";
 import { FaChevronLeft } from "react-icons/fa";
 
 
@@ -77,6 +78,15 @@ function AdminSidebar({ collapsed, activeTab, onToggle, onSelect }) {
         >
           <MdDownload />
           {!collapsed && <span className={styles.label}>Top Downloaded</span>}
+        </button>
+          <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'searched-list' ? styles.active : ''}`}
+          onClick={() => onSelect('searched-list')}
+          title="Search Logs"
+        >
+          <MdSearch />
+          {!collapsed && <span className={styles.label}>Search Logs</span>}
         </button>
       </nav>
     </aside>
