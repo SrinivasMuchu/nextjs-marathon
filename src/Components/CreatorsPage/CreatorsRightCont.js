@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import FileHistoryCards from '../History/FileHistoryCards'
 import KycTab from '../KYC/KycTab'
 import Earnings from '../Earnings/Earnings'
+import Analytics from '../History/Analytics'
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -38,6 +39,7 @@ creatorId}) {
     { label: "CAD Viewer", cadType: "CAD_VIEWER" },
     { label: "CAD Convertor", cadType: "CAD_CONVERTER" },
     { label: "Downloads", cadType: "USER_DOWNLOADS" },
+    { label: "Analytics", cadType: "ANALYTICS" },
     { label: "KYC", cadType: "USER_KYC" },
     { label: "Earnings", cadType: "EARNINGS" }
   ]
@@ -54,10 +56,12 @@ creatorId}) {
       setValue(0)
     } else if (cadType === 'USER_DOWNLOADS') {
       setValue(3)
-    } else if (cadType === 'USER_KYC') {
+    } else if (cadType === 'ANALYTICS') {
       setValue(4)
-    } else if (cadType === 'EARNINGS') {
+    } else if (cadType === 'USER_KYC') {
       setValue(5)
+    } else if (cadType === 'EARNINGS') {
+      setValue(6)
     } else {
       setValue(0) // Default to My CAD Files
     }
@@ -154,9 +158,17 @@ creatorId}) {
         />
       </TabPanel>
       <TabPanel value={value} index={4} style={{ background: '#F6F6F6',height:'100%' }}>
+        <Analytics
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+          setTotalPages={setTotalPages}
+        />
+      </TabPanel>
+      <TabPanel value={value} index={5} style={{ background: '#F6F6F6',height:'100%' }}>
        <KycTab/>
       </TabPanel>
-       <TabPanel value={value} index={5} style={{ background: '#F6F6F6',height:'100%' }}>
+       <TabPanel value={value} index={6} style={{ background: '#F6F6F6',height:'100%' }}>
        <Earnings/>
       </TabPanel>
       </>:
