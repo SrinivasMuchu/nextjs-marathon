@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
 import styles from './FileHistory.module.css';
@@ -12,6 +12,9 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('views'); // 'views' | 'downloads'
+  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
+  const [totals, setTotals] = useState({ totalViews: 0, totalDownloads: 0 }); // summary cards (frontend)
   const router = useRouter();
   const limit = 12;
 
@@ -36,9 +39,9 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
 
     const fetchAnalytics = async () => {
       if (!isMounted) return;
-
       try {
         setLoading(true);
+        // Query params control pagination/search/basic flags (backend unchanged)
         const apiParams = {
           type: 'USER_CADS',
           username: creatorId && creatorId,
@@ -49,6 +52,7 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
           search: debouncedSearchTerm,
         };
 
+        // Backend only expects analytics flag + basic params
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
           params: apiParams,
           headers: {
@@ -66,6 +70,17 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
           setAnalyticsData(my_cad_files);
           setCurrentPage(page);
           setTotalPages(totalPages);
+
+          // Compute totals for current page (frontend only)
+          const totalsFromPage = my_cad_files.reduce(
+            (acc, file) => {
+              acc.totalViews += Number(file.total_design_views ?? 0);
+              acc.totalDownloads += Number(file.total_design_downloads ?? 0);
+              return acc;
+            },
+            { totalViews: 0, totalDownloads: 0 }
+          );
+          setTotals(totalsFromPage);
         }
       } catch (err) {
         console.error('Error fetching analytics:', err);
@@ -83,6 +98,26 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
     };
   }, [currentPage, debouncedSearchTerm, creatorId, setCurrentPage, setTotalPages]);
 
+  // Toggle sort order helper
+  const toggleSortOrder = () => {
+    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+  };
+
+  // Client-side sorting based on sortBy/sortOrder
+  const sortedAnalyticsData = useMemo(() => {
+    const data = [...analyticsData];
+    const field = sortBy === 'downloads' ? 'total_design_downloads' : 'total_design_views';
+    data.sort((a, b) => {
+      const aVal = Number(a[field] ?? 0);
+      const bVal = Number(b[field] ?? 0);
+      if (sortOrder === 'asc') {
+        return aVal - bVal;
+      }
+      return bVal - aVal;
+    });
+    return data;
+  }, [analyticsData, sortBy, sortOrder]);
+
   const handleRowClick = (file) => {
     if (file.route) {
       router.push(`/library/${file.route}`);
@@ -91,43 +126,171 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
 
   return (
     <div className={styles.cadViewerContainerContent}>
-      {/* Search Bar */}
-      <div style={{
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        marginBottom: '24px'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '24px',
-          padding: '8px 16px',
-          border: '1px solid #e9ecef',
-          minWidth: '280px',
-          gap: '8px',
+      {/* Top summary + search/sort row */}
+      <div
+        style={{
           width: '100%',
-          maxWidth: '500px'
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="M21 21l-4.35-4.35"></path>
-          </svg>
-          <input
-            type="text"
-            placeholder="Search analytics..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          marginBottom: '24px',
+        }}
+      >
+        {/* Summary cards */}
+       
+
+        {/* Search (left) + Sort (right) */}
+        <div
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '16px',
+            flexWrap: 'wrap',
+          }}
+        >
+          {/* Search Bar (left aligned) */}
+          <div
             style={{
-              border: 'none',
-              background: 'transparent',
-              outline: 'none',
-              flex: 1,
-              fontSize: '14px',
-              color: '#495057'
+              flex: '1 1 260px',
+              maxWidth: '480px',
+              minWidth: '200px',
             }}
-          />
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: '#f8f9fa',
+                borderRadius: '24px',
+                padding: '8px 16px',
+                border: '1px solid #e9ecef',
+                gap: '8px',
+                width: '100%',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="M21 21l-4.35-4.35"></path>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search analytics..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  outline: 'none',
+                  flex: 1,
+                  fontSize: '14px',
+                  color: '#495057',
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Sorting controls (right side) */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              justifyContent: 'flex-end',
+              flex: '0 0 auto',
+            }}
+          >
+            <span style={{ fontSize: '13px', color: '#6c757d', fontWeight: 500 }}>Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: '1px solid #e9ecef',
+                backgroundColor: '#fff',
+                fontSize: '13px',
+                color: '#495057',
+              }}
+            >
+              <option value="views">Views</option>
+              <option value="downloads">Downloads</option>
+            </select>
+
+            <button
+              type="button"
+              onClick={toggleSortOrder}
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: '1px solid #e9ecef',
+                backgroundColor: '#fff',
+                fontSize: '13px',
+                color: '#495057',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              <span>{sortOrder === 'asc' ? 'Asc' : 'Desc'}</span>
+              <span style={{ fontSize: '12px' }}>{sortOrder === 'asc' ? '↑' : '↓'}</span>
+            </button>
+          </div>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}
+        >
+          <div
+            style={{
+              
+              width: '160px',
+              padding: '16px 20px',
+              borderRadius: '12px',
+              backgroundColor: '#f8f9fa',
+              border: '1px solid #e9ecef',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              gap: '4px',
+            }}
+          >
+            <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', color: '#6c757d' }}>
+              TOTAL VIEWS
+            </span>
+            <span style={{ fontSize: '22px', fontWeight: 700, color: '#212529' }}>
+              {totals.totalViews.toLocaleString()}
+            </span>
+          </div>
+
+          <div
+            style={{
+            
+              width: '160px',
+              padding: '16px 20px',
+              borderRadius: '12px',
+              backgroundColor: '#f8f9fa',
+              border: '1px solid #e9ecef',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              gap: '4px',
+            }}
+          >
+            <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', color: '#6c757d' }}>
+              TOTAL DOWNLOADS
+            </span>
+            <span style={{ fontSize: '22px', fontWeight: 700, color: '#212529' }}>
+              {totals.totalDownloads.toLocaleString()}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -146,7 +309,7 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
                   </tr>
                 </thead>
                 <tbody>
-                  {analyticsData.map((file, index) => (
+                  {sortedAnalyticsData.map((file, index) => (
                     <tr
                       key={file._id || index}
                       onClick={() => handleRowClick(file)}
