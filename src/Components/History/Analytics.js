@@ -43,8 +43,8 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
           type: 'USER_CADS',
           username: creatorId && creatorId,
           page: currentPage,
-          profile_page:true,
-          analytics:true,
+          profile_page: true,
+          analytics: true,
           limit,
           search: debouncedSearchTerm,
         };

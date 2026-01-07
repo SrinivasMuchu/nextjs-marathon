@@ -26,7 +26,7 @@ function TabPanel({ children, value, index, ...other }) {
 }
 
 function CreatorsRightCont({
-creatorId}) {
+  creatorId }) {
   const [value, setValue] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -46,7 +46,7 @@ creatorId}) {
 
   useEffect(() => {
     const cadType = searchParams.get('cad_type')
-    
+
     // Set active tab based on URL parameter
     if (cadType === 'CAD_CONVERTER') {
       setValue(2)
@@ -71,7 +71,7 @@ creatorId}) {
     setValue(newValue)
     setCurrentPage(1)
     setTotalPages(1)
-    
+
     // Update URL with corresponding cad_type
     const selectedTab = tabs[newValue]
     router.push(`/dashboard?cad_type=${selectedTab.cadType}`)
@@ -82,148 +82,148 @@ creatorId}) {
   }
 
   return (
-    <Box sx={{ width: '100%',marginTop:'32px' }}>
+    <Box sx={{ width: '100%', marginTop: '32px' }}>
       {!creatorId ?
-      <>
-       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs 
-          value={value} 
-          onChange={handleChange} 
-          aria-label="creators tabs"
-          variant="scrollable"
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          sx={{
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontSize: '1rem',
-              fontWeight: 500,
-              color: '#666',
-              '&.Mui-selected': {
-                color: '#610bee',
+        <>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              aria-label="creators tabs"
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
+              sx={{
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                  color: '#666',
+                  '&.Mui-selected': {
+                    color: '#610bee',
+                  },
+                  '&:hover': {
+                    color: '#610bee',
+                    opacity: 0.8,
+                  }
+                },
+                '& .MuiTabs-indicator': {
+                  backgroundColor: '#610bee',
+                }
+              }}
+            >
+              {tabs.map((tab, index) => (
+                <Tab key={index} label={tab.label} />
+              ))}
+            </Tabs>
+            <Box sx={{ width: '100%', height: '1.5px', background: '#e0e0e0', mt: '-1px' }} />
+          </Box>
+          <TabPanel value={value} index={0} style={{ background: '#F6F6F6', height: '100%' }}>
+            <FileHistoryCards
+              cad_type="USER_CADS"
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              setTotalPages={setTotalPages}
+            />
+          </TabPanel>
+
+          <TabPanel value={value} index={1} style={{ background: '#F6F6F6', height: '100%' }}>
+            <FileHistoryCards
+              cad_type="CAD_VIEWER"
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              setTotalPages={setTotalPages}
+            />
+          </TabPanel>
+
+          <TabPanel value={value} index={2} style={{ background: '#F6F6F6', height: '100%' }}>
+            <FileHistoryCards
+              cad_type="CAD_CONVERTER"
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              setTotalPages={setTotalPages}
+            />
+          </TabPanel>
+          <TabPanel value={value} index={3} style={{ background: '#F6F6F6', height: '100%' }}>
+            <FileHistoryCards
+              type="USER_DOWNLOADS"
+              cad_type="USER_DOWNLOADS"
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              setTotalPages={setTotalPages}
+            />
+          </TabPanel>
+          <TabPanel value={value} index={4} style={{ background: '#F6F6F6', height: '100%' }}>
+            <Analytics
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              setTotalPages={setTotalPages}
+            />
+          </TabPanel>
+          <TabPanel value={value} index={5} style={{ background: '#F6F6F6', height: '100%' }}>
+            <KycTab />
+          </TabPanel>
+          <TabPanel value={value} index={6} style={{ background: '#F6F6F6', height: '100%' }}>
+            <Earnings />
+          </TabPanel>
+        </> :
+        <>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="creators tabs"
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
+            sx={{
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 500,
+                color: '#666',
+                '&.Mui-selected': {
+                  color: '#610bee',
+                },
+                '&:hover': {
+                  color: '#610bee',
+                  opacity: 0.8,
+                }
               },
-              '&:hover': {
-                color: '#610bee',
-                opacity: 0.8,
+              '& .MuiTabs-indicator': {
+                backgroundColor: '#610bee',
               }
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#610bee',
-            }
-          }}
-        >
-          {tabs.map((tab, index) => (
-            <Tab key={index} label={tab.label} />
-          ))}
-        </Tabs>
-        <Box sx={{ width: '100%', height: '1.5px', background: '#e0e0e0', mt: '-1px' }} />
-      </Box>
-      <TabPanel value={value} index={0} style={{ background: '#F6F6F6',height:'100%' }}>
-        <FileHistoryCards 
-          cad_type="USER_CADS"
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-          setTotalPages={setTotalPages}
-        />
-      </TabPanel>
-      
-      <TabPanel value={value} index={1} style={{ background: '#F6F6F6',height:'100%' }}>
-        <FileHistoryCards 
-          cad_type="CAD_VIEWER"
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-          setTotalPages={setTotalPages}
-        />
-      </TabPanel>
-      
-      <TabPanel value={value} index={2} style={{ background: '#F6F6F6',height:'100%' }}>
-        <FileHistoryCards 
-          cad_type="CAD_CONVERTER"
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-          setTotalPages={setTotalPages}
-        />
-      </TabPanel>
-      <TabPanel value={value} index={3} style={{ background: '#F6F6F6',height:'100%' }}>
-        <FileHistoryCards 
-          type="USER_DOWNLOADS"
-          cad_type="USER_DOWNLOADS"
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-          setTotalPages={setTotalPages}
-        />
-      </TabPanel>
-      <TabPanel value={value} index={4} style={{ background: '#F6F6F6',height:'100%' }}>
-        <Analytics
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-          setTotalPages={setTotalPages}
-        />
-      </TabPanel>
-      <TabPanel value={value} index={5} style={{ background: '#F6F6F6',height:'100%' }}>
-       <KycTab/>
-      </TabPanel>
-       <TabPanel value={value} index={6} style={{ background: '#F6F6F6',height:'100%' }}>
-       <Earnings/>
-      </TabPanel>
-      </>:
-      <>
-        <Tabs 
-            value={value} 
-          onChange={handleChange} 
-          aria-label="creators tabs"
-          variant="scrollable"
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          sx={{
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontSize: '1rem',
-              fontWeight: 500,
-              color: '#666',
-              '&.Mui-selected': {
-                color: '#610bee',
-              },
-              '&:hover': {
-                color: '#610bee',
-                opacity: 0.8,
-              }
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#610bee',
-            }
-          }}
-        >
-          {/* {tabs.map((tab, index) => (
+            }}
+          >
+            {/* {tabs.map((tab, index) => (
             <Tab key={index} label={tab.label} />
           ))} */}
-           <Tab label='Projects' />
-        </Tabs>
-         <Box sx={{ width: '100%', height: '1.5px', background: '#e0e0e0', mt: '-1px' }} />
-      <TabPanel value={value} index={0} style={{ background: '#F6F6F6',height:'100%' }}>
-        <FileHistoryCards  
-          
-          cad_type="USER_CADS"
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-          setTotalPages={setTotalPages}
-          creatorId={creatorId}
-          profilePageDetails={true}
-        />
-      </TabPanel>
-      </>
-    
-      
+            <Tab label='Projects' />
+          </Tabs>
+          <Box sx={{ width: '100%', height: '1.5px', background: '#e0e0e0', mt: '-1px' }} />
+          <TabPanel value={value} index={0} style={{ background: '#F6F6F6', height: '100%' }}>
+            <FileHistoryCards
+
+              cad_type="USER_CADS"
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              setTotalPages={setTotalPages}
+              creatorId={creatorId}
+              profilePageDetails={true}
+            />
+          </TabPanel>
+        </>
+
+
       }
-     
-      
-      
+
+
+
     </Box>
   )
 }
