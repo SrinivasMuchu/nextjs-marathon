@@ -19,11 +19,13 @@ function Kyc({ onClose, setUser }) {
     signature: null,
   });
 
+
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [pollError, setPollError] = useState('');
   const [pollMessage, setPollMessage] = useState('Validation is being processed...');
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,6 +40,7 @@ function Kyc({ onClose, setUser }) {
       }));
     }
   };
+
 
   const validateForm = () => {
     const newErrors = {};
@@ -58,13 +61,16 @@ function Kyc({ onClose, setUser }) {
     return Object.keys(newErrors).length === 0;
   };
 
+
   const handleNext = (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     setCurrentStep(2);
   };
 
+
   const handleBack = () => setCurrentStep(1);
+
 
   const handleSignatureCapture = (signatureData) => {
     setFormData(prev => ({
@@ -72,6 +78,7 @@ function Kyc({ onClose, setUser }) {
       signature: signatureData
     }));
   };
+
 
   // Polling function (only uses localStorage for uuid, not for step/signature)
   const pollValidationStatus = async (validationId) => {
@@ -112,6 +119,7 @@ function Kyc({ onClose, setUser }) {
     poll();
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.signature) {
@@ -146,6 +154,7 @@ function Kyc({ onClose, setUser }) {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <>
@@ -323,4 +332,8 @@ function Kyc({ onClose, setUser }) {
   );
 }
 
+
 export default Kyc;
+
+
+
