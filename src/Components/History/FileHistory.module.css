@@ -305,11 +305,25 @@
 .analyticsTopSection {
   width: 100%;
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.analyticsRow1 {
+  width: 100%;
+  display: flex;
   flex-direction: row;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+}
+
+.analyticsRow2 {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
 }
 
 .summaryCard {
@@ -439,6 +453,14 @@
     margin-bottom: 12px;
   }
 
+  .analyticsRow1 {
+    gap: 10px;
+  }
+
+  .analyticsRow2 {
+    gap: 10px;
+  }
+
   .summaryCard {
     flex: 1 1 calc(50% - 5px);
     min-width: 0;
@@ -457,13 +479,11 @@
     flex: 1 1 100%;
     max-width: 100%;
     min-width: 0;
-    order: 3;
   }
 
   .sortControls {
     flex: 1 1 100%;
     justify-content: flex-start;
-    order: 4;
   }
 
   .sortLabel {
@@ -498,12 +518,10 @@
   }
 
   .searchContainer {
-    order: 3;
     width: 100%;
   }
 
   .sortControls {
-    order: 4;
     width: 100%;
     flex-direction: row;
     justify-content: space-between;

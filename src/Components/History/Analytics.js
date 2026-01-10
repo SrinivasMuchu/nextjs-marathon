@@ -59,24 +59,29 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
 
         if (!isMounted) return;
 
-        if (response.data.meta.success) {
-          const analytics_files = response.data.data.analytics_files || [];
-          const page = response.data.data.pagination.page;
-          const totalPages = response.data.data.pagination.cadFilesPages;
+        if (response?.data?.meta?.success) {
+          const analytics_files = response.data.data?.analytics_files || [];
+          const page = response.data.data?.pagination?.page || currentPage;
+          const totalPages = response.data.data?.pagination?.cadFilesPages || 1;
           // Get publisher totals from backend (across all pages)
-          const publisher = response.data.data.publisher_analytics || {};
+          const publisher = response.data.data?.publisher_analytics || {};
 
-          setAnalyticsData(analytics_files);
-          setCurrentPage(page);
-          setTotalPages(totalPages);
-          // Use backend totals (across all pages, not just current page) - ensure numbers
-          setTotals({
-            totalViews: Number(publisher.total_views) || 0,
-            totalDownloads: Number(publisher.total_downloads) || 0,
-          });
+          if (isMounted) {
+            setAnalyticsData(analytics_files);
+            setCurrentPage(page);
+            setTotalPages(totalPages);
+            // Use backend totals (across all pages, not just current page) - ensure numbers
+            setTotals({
+              totalViews: Number(publisher.total_views) || 0,
+              totalDownloads: Number(publisher.total_downloads) || 0,
+            });
+          }
         }
       } catch (err) {
         console.error('Error fetching analytics:', err);
+        if (isMounted) {
+          setLoading(false);
+        }
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -112,65 +117,71 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
 
   return (
     <div className={styles.cadViewerContainerContent}>
-      {/* All controls in one line: Summary cards + Search + Sort */}
+      {/* Two rows: Summary cards on top, Search + Sort on bottom */}
       <div className={styles.analyticsTopSection}>
-        {/* Total Views Card */}
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryCardLabel}>
-            TOTAL VIEWS
-          </span>
-          <span className={styles.summaryCardValue}>
-            {totals.totalViews.toLocaleString()}
-          </span>
-        </div>
+        {/* Row 1: Summary Cards */}
+        <div key="analytics-row-1" className={styles.analyticsRow1}>
+          {/* Total Views Card */}
+          <div className={styles.summaryCard}>
+            <span className={styles.summaryCardLabel}>
+              TOTAL VIEWS
+            </span>
+            <span className={styles.summaryCardValue}>
+              {totals.totalViews.toLocaleString()}
+            </span>
+          </div>
 
-        {/* Total Downloads Card */}
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryCardLabel}>
-            TOTAL DOWNLOADS
-          </span>
-          <span className={styles.summaryCardValue}>
-            {totals.totalDownloads.toLocaleString()}
-          </span>
-        </div>
-
-        {/* Search Bar */}
-        <div className={styles.searchContainer}>
-          <div className={styles.searchInputWrapper}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="M21 21l-4.35-4.35"></path>
-            </svg>
-            <input
-              type="text"
-              placeholder="Search by title..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
+          {/* Total Downloads Card */}
+          <div className={styles.summaryCard}>
+            <span className={styles.summaryCardLabel}>
+              TOTAL DOWNLOADS
+            </span>
+            <span className={styles.summaryCardValue}>
+              {totals.totalDownloads.toLocaleString()}
+            </span>
           </div>
         </div>
 
-        {/* Sorting controls */}
-        <div className={styles.sortControls}>
-          <span className={styles.sortLabel}>Sort by:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className={styles.sortSelect}
-          >
-            <option value="views">Views</option>
-            <option value="downloads">Downloads</option>
-          </select>
+        {/* Row 2: Search + Sort */}
+        <div key="analytics-row-2" className={styles.analyticsRow2}>
+          {/* Search Bar */}
+          <div className={styles.searchContainer}>
+            <div className={styles.searchInputWrapper}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="M21 21l-4.35-4.35"></path>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search by title..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+              />
+            </div>
+          </div>
 
-          <button
-            type="button"
-            onClick={toggleSortOrder}
-            className={styles.sortButton}
-          >
-            <span>{sortOrder === 'asc' ? 'Asc' : 'Desc'}</span>
-            <span className={styles.sortArrow}>{sortOrder === 'asc' ? '↑' : '↓'}</span>
-          </button>
+          {/* Sorting controls */}
+          <div className={styles.sortControls}>
+            <span className={styles.sortLabel}>Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={styles.sortSelect}
+            >
+              <option value="views">Views</option>
+              <option value="downloads">Downloads</option>
+            </select>
+
+            <button
+              type="button"
+              onClick={toggleSortOrder}
+              className={styles.sortButton}
+            >
+              <span>{sortOrder === 'asc' ? 'Asc' : 'Desc'}</span>
+              <span className={styles.sortArrow}>{sortOrder === 'asc' ? '↑' : '↓'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
