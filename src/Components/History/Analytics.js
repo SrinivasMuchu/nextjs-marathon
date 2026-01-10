@@ -43,15 +43,13 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
         setLoading(true);
         // Query params control pagination/search/basic flags (backend unchanged)
         const apiParams = {
-          type: 'USER_CADS',
-          username: creatorId && creatorId,
+          type: 'ANALYTICS',
           page: currentPage,
-          profile_page: true,
-          analytics: true,
           limit,
           search: debouncedSearchTerm,
+          sortBy,
+          sortOrder,
         };
-
         // Backend only expects analytics flag + basic params
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
           params: apiParams,
@@ -63,24 +61,20 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
         if (!isMounted) return;
 
         if (response.data.meta.success) {
-          const my_cad_files = response.data.data.my_cad_files || [];
+          const analytics_files = response.data.data.analytics_files || [];
           const page = response.data.data.pagination.page;
           const totalPages = response.data.data.pagination.cadFilesPages;
+          const publisher_analytics = response.data.data.publisher_analytics || {};
 
-          setAnalyticsData(my_cad_files);
+          setAnalyticsData(analytics_files);
           setCurrentPage(page);
           setTotalPages(totalPages);
 
-          // Compute totals for current page (frontend only)
-          const totalsFromPage = my_cad_files.reduce(
-            (acc, file) => {
-              acc.totalViews += Number(file.total_design_views ?? 0);
-              acc.totalDownloads += Number(file.total_design_downloads ?? 0);
-              return acc;
-            },
-            { totalViews: 0, totalDownloads: 0 }
-          );
-          setTotals(totalsFromPage);
+          // Use totals from publisher_analytics (backend provides aggregated totals)
+          setTotals({
+            totalViews: Number(publisher_analytics.total_views ?? 0),
+            totalDownloads: Number(publisher_analytics.total_downloads ?? 0),
+          });
         }
       } catch (err) {
         console.error('Error fetching analytics:', err);
@@ -96,201 +90,89 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
     return () => {
       isMounted = false;
     };
-  }, [currentPage, debouncedSearchTerm, creatorId, setCurrentPage, setTotalPages]);
+  }, [currentPage, debouncedSearchTerm, sortBy, sortOrder, creatorId, setCurrentPage, setTotalPages]);
 
   // Toggle sort order helper
   const toggleSortOrder = () => {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
-  // Client-side sorting based on sortBy/sortOrder
+  // Backend handles sorting, so we can use the data directly
+  // But keep this for client-side fallback if needed
   const sortedAnalyticsData = useMemo(() => {
-    const data = [...analyticsData];
-    const field = sortBy === 'downloads' ? 'total_design_downloads' : 'total_design_views';
-    data.sort((a, b) => {
-      const aVal = Number(a[field] ?? 0);
-      const bVal = Number(b[field] ?? 0);
-      if (sortOrder === 'asc') {
-        return aVal - bVal;
-      }
-      return bVal - aVal;
-    });
-    return data;
-  }, [analyticsData, sortBy, sortOrder]);
+    // Backend should handle sorting, but if we need client-side sorting as fallback:
+    return analyticsData;
+  }, [analyticsData]);
 
   const handleRowClick = (file) => {
+    // Only navigate if route exists
     if (file.route) {
       router.push(`/library/${file.route}`);
     }
+    // If route doesn't exist, the row won't be clickable (no cursor pointer)
   };
 
   return (
     <div className={styles.cadViewerContainerContent}>
-      {/* Top summary + search/sort row */}
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-          marginBottom: '24px',
-        }}
-      >
-        {/* Summary cards */}
-       
+      {/* All controls in one line: Summary cards + Search + Sort */}
+      <div className={styles.analyticsTopSection}>
+        {/* Total Views Card */}
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryCardLabel}>
+            TOTAL VIEWS
+          </span>
+          <span className={styles.summaryCardValue}>
+            {totals.totalViews.toLocaleString()}
+          </span>
+        </div>
 
-        {/* Search (left) + Sort (right) */}
-        <div
-          style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '16px',
-            flexWrap: 'wrap',
-          }}
-        >
-          {/* Search Bar (left aligned) */}
-          <div
-            style={{
-              flex: '1 1 260px',
-              maxWidth: '480px',
-              minWidth: '200px',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: '#f8f9fa',
-                borderRadius: '24px',
-                padding: '8px 16px',
-                border: '1px solid #e9ecef',
-                gap: '8px',
-                width: '100%',
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="M21 21l-4.35-4.35"></path>
-              </svg>
-              <input
-                type="text"
-                placeholder="Search analytics..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  border: 'none',
-                  background: 'transparent',
-                  outline: 'none',
-                  flex: 1,
-                  fontSize: '14px',
-                  color: '#495057',
-                }}
-              />
-            </div>
-          </div>
+        {/* Total Downloads Card */}
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryCardLabel}>
+            TOTAL DOWNLOADS
+          </span>
+          <span className={styles.summaryCardValue}>
+            {totals.totalDownloads.toLocaleString()}
+          </span>
+        </div>
 
-          {/* Sorting controls (right side) */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              justifyContent: 'flex-end',
-              flex: '0 0 auto',
-            }}
-          >
-            <span style={{ fontSize: '13px', color: '#6c757d', fontWeight: 500 }}>Sort by:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{
-                padding: '6px 10px',
-                borderRadius: '6px',
-                border: '1px solid #e9ecef',
-                backgroundColor: '#fff',
-                fontSize: '13px',
-                color: '#495057',
-              }}
-            >
-              <option value="views">Views</option>
-              <option value="downloads">Downloads</option>
-            </select>
-
-            <button
-              type="button"
-              onClick={toggleSortOrder}
-              style={{
-                padding: '6px 10px',
-                borderRadius: '6px',
-                border: '1px solid #e9ecef',
-                backgroundColor: '#fff',
-                fontSize: '13px',
-                color: '#495057',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                cursor: 'pointer',
-              }}
-            >
-              <span>{sortOrder === 'asc' ? 'Asc' : 'Desc'}</span>
-              <span style={{ fontSize: '12px' }}>{sortOrder === 'asc' ? '↑' : '↓'}</span>
-            </button>
+        {/* Search Bar */}
+        <div className={styles.searchContainer}>
+          <div className={styles.searchInputWrapper}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="M21 21l-4.35-4.35"></path>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by title..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
           </div>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '16px',
-          }}
-        >
-          <div
-            style={{
-              
-              width: '160px',
-              padding: '16px 20px',
-              borderRadius: '12px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #e9ecef',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-              justifyContent: 'center',
-              gap: '4px',
-            }}
-          >
-            <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', color: '#6c757d' }}>
-              TOTAL VIEWS
-            </span>
-            <span style={{ fontSize: '22px', fontWeight: 700, color: '#212529' }}>
-              {totals.totalViews.toLocaleString()}
-            </span>
-          </div>
 
-          <div
-            style={{
-            
-              width: '160px',
-              padding: '16px 20px',
-              borderRadius: '12px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #e9ecef',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-              justifyContent: 'center',
-              gap: '4px',
-            }}
+        {/* Sorting controls */}
+        <div className={styles.sortControls}>
+          <span className={styles.sortLabel}>Sort by:</span>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className={styles.sortSelect}
           >
-            <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', color: '#6c757d' }}>
-              TOTAL DOWNLOADS
-            </span>
-            <span style={{ fontSize: '22px', fontWeight: 700, color: '#212529' }}>
-              {totals.totalDownloads.toLocaleString()}
-            </span>
-          </div>
+            <option value="views">Views</option>
+            <option value="downloads">Downloads</option>
+          </select>
+
+          <button
+            type="button"
+            onClick={toggleSortOrder}
+            className={styles.sortButton}
+          >
+            <span>{sortOrder === 'asc' ? 'Asc' : 'Desc'}</span>
+            <span className={styles.sortArrow}>{sortOrder === 'asc' ? '↑' : '↓'}</span>
+          </button>
         </div>
       </div>
 
@@ -313,7 +195,7 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
                     <tr
                       key={file._id || index}
                       onClick={() => handleRowClick(file)}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: file.route ? 'pointer' : 'default' }}
                     >
                       <td>{file.page_title || 'Untitled'}</td>
                       <td>{file.total_design_views ?? 0}</td>
@@ -324,16 +206,7 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
               </table>
             </div>
           ) : (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexDirection: 'column',
-              width: '100%',
-              textAlign: 'center',
-              gap: '40px',
-              padding: '40px'
-            }}>
+            <div className={styles.emptyState}>
               <span>No analytics data available</span>
             </div>
           )}
@@ -341,7 +214,7 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
       )}
 
       {/* Pagination */}
-      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '20px' }}>
+      <div className={styles.paginationWrapper}>
         {totalPages > 1 && (
           <Pagenation
             currentPage={currentPage}
