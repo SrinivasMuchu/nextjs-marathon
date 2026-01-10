@@ -8,7 +8,6 @@ import SignPad from './SignPad';
 import ReactPhoneNumber from '../CommonJsx/ReactPhoneNumber';
 import BankLoader from '../CommonJsx/Loaders/BankLoader';
 
-
 function Kyc({ onClose, setUser }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
