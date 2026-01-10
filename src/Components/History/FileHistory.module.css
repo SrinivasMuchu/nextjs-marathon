@@ -262,33 +262,42 @@
   .industry-design-files-list tr {
     border: 1px solid #ccc;
     border-radius: 8px;
-    margin-bottom: 10px;
-    padding: 15px;
+    margin-bottom: 12px;
+    padding: 12px;
     background: white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
 
   .industry-design-files-list td {
     border: none;
-    padding: 8px 0;
+    padding: 10px 0;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .industry-design-files-list td:first-child {
+    padding-top: 0;
+    align-items: flex-start;
+  }
+
+  .industry-design-files-list td:last-child {
+    padding-bottom: 0;
+    justify-content: space-between;
   }
 
   .industry-design-files-list td:before {
     content: attr(data-label) ": ";
-    font-weight: bold;
-    width: 40%;
+    font-weight: 600;
+    color: #495057;
+    min-width: 80px;
+    flex-shrink: 0;
     text-align: left;
   }
 
-  .industry-design-files-list td:last-child {
-    justify-content: flex-end;
-  }
-
   .industry-design-files-list td:last-child:before {
-    content: "";
+    content: attr(data-label) ": ";
   }
 }
 

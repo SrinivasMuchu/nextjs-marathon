@@ -6,6 +6,8 @@ import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
 import SignPad from './SignPad';
 import ReactPhoneNumber from '../CommonJsx/ReactPhoneNumber';
+import BankLoader from '../CommonJsx/Loaders/BankLoader';
+
 
 function Kyc({ onClose, setUser }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -18,11 +20,13 @@ function Kyc({ onClose, setUser }) {
     signature: null,
   });
 
+
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [pollError, setPollError] = useState('');
   const [pollMessage, setPollMessage] = useState('Validation is being processed...');
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,6 +41,7 @@ function Kyc({ onClose, setUser }) {
       }));
     }
   };
+
 
   const validateForm = () => {
     const newErrors = {};
@@ -57,13 +62,16 @@ function Kyc({ onClose, setUser }) {
     return Object.keys(newErrors).length === 0;
   };
 
+
   const handleNext = (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     setCurrentStep(2);
   };
 
+
   const handleBack = () => setCurrentStep(1);
+
 
   const handleSignatureCapture = (signatureData) => {
     setFormData(prev => ({
@@ -71,6 +79,7 @@ function Kyc({ onClose, setUser }) {
       signature: signatureData
     }));
   };
+
 
   // Polling function (only uses localStorage for uuid, not for step/signature)
   const pollValidationStatus = async (validationId) => {
@@ -111,6 +120,7 @@ function Kyc({ onClose, setUser }) {
     poll();
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.signature) {
@@ -132,22 +142,25 @@ function Kyc({ onClose, setUser }) {
       const response = await axios.post(`${BASE_URL}/v1/payment/verify-seller`, payload, {
         headers: { 'user-uuid': localStorage.getItem('uuid') }
       });
-      if (response.data.meta.success) {
-        const validationId = response.data.data.validation._id;
+      if (response.data.data.validation_id) {
+        const validationId = response.data.data.validation_id;
         pollValidationStatus(validationId);
       } else {
-        toast.error(response.data.meta.message || 'Failed to submit KYC. Please try again.');
+        toast.error(response.data.meta.message );
       }
     } catch (error) {
       console.error('KYC submission error:', error);
-      toast.error(error.response?.data?.meta?.message || 'Failed to submit KYC. Please try again.');
+      toast.error(error.response?.data?.meta?.message );
     } finally {
       setIsSubmitting(false);
     }
   };
 
+
   return (
-    <div className={styles.popupContainer}>
+    <>
+      {(isSubmitting || isPolling) && <BankLoader />}
+      <div className={styles.popupContainer}>
       {isPolling && (
         <div style={{
           width: '100%',
@@ -307,16 +320,21 @@ function Kyc({ onClose, setUser }) {
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={isSubmitting}
-              className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
+              disabled={isSubmitting || isPolling}
+              className={`${styles.submitBtn} ${(isSubmitting || isPolling) ? styles.submitting : ''}`}
             >
-              {isSubmitting ? 'Submitting...' : 'Complete KYC'}
+              {isSubmitting ? 'Submitting...' : isPolling ? 'Verifying...' : 'Complete KYC'}
             </button>
           </div>
         </div>
       )}
     </div>
+    </>
   );
 }
 
+
 export default Kyc;
+
+
+

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
 import styles from './FileHistory.module.css';
@@ -41,7 +41,7 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
       if (!isMounted) return;
       try {
         setLoading(true);
-        // Query params control pagination/search/basic flags (backend unchanged)
+        // Use ANALYTICS type with sorting params
         const apiParams = {
           type: 'ANALYTICS',
           page: currentPage,
@@ -50,7 +50,6 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
           sortBy,
           sortOrder,
         };
-        // Backend only expects analytics flag + basic params
         const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
           params: apiParams,
           headers: {
@@ -64,16 +63,16 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
           const analytics_files = response.data.data.analytics_files || [];
           const page = response.data.data.pagination.page;
           const totalPages = response.data.data.pagination.cadFilesPages;
-          const publisher_analytics = response.data.data.publisher_analytics || {};
+          // Get publisher totals from backend (across all pages)
+          const publisher = response.data.data.publisher_analytics || {};
 
           setAnalyticsData(analytics_files);
           setCurrentPage(page);
           setTotalPages(totalPages);
-
-          // Use totals from publisher_analytics (backend provides aggregated totals)
+          // Use backend totals (across all pages, not just current page) - ensure numbers
           setTotals({
-            totalViews: Number(publisher_analytics.total_views ?? 0),
-            totalDownloads: Number(publisher_analytics.total_downloads ?? 0),
+            totalViews: Number(publisher.total_views) || 0,
+            totalDownloads: Number(publisher.total_downloads) || 0,
           });
         }
       } catch (err) {
@@ -90,19 +89,18 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
     return () => {
       isMounted = false;
     };
-  }, [currentPage, debouncedSearchTerm, sortBy, sortOrder, creatorId, setCurrentPage, setTotalPages]);
+  }, [currentPage, debouncedSearchTerm, creatorId, sortBy, sortOrder, setCurrentPage, setTotalPages]);
 
-  // Toggle sort order helper
+  // Toggle sort order helper - triggers API refetch
   const toggleSortOrder = () => {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    setCurrentPage(1); // Reset to page 1 when sort changes
   };
 
-  // Backend handles sorting, so we can use the data directly
-  // But keep this for client-side fallback if needed
-  const sortedAnalyticsData = useMemo(() => {
-    // Backend should handle sorting, but if we need client-side sorting as fallback:
-    return analyticsData;
-  }, [analyticsData]);
+  // Reset to page 1 when sortBy changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortBy, setCurrentPage]);
 
   const handleRowClick = (file) => {
     // Only navigate if route exists
@@ -191,15 +189,15 @@ function Analytics({ currentPage, setCurrentPage, totalPages, setTotalPages, cre
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedAnalyticsData.map((file, index) => (
+                  {analyticsData.map((file, index) => (
                     <tr
                       key={file._id || index}
                       onClick={() => handleRowClick(file)}
                       style={{ cursor: file.route ? 'pointer' : 'default' }}
                     >
-                      <td>{file.page_title || 'Untitled'}</td>
-                      <td>{file.total_design_views ?? 0}</td>
-                      <td>{file.total_design_downloads ?? 0}</td>
+                      <td data-label="Title">{file.page_title || 'Untitled'}</td>
+                      <td data-label="Views">{typeof file.total_design_views === 'number' ? file.total_design_views : (Number(file.total_design_views) || 0)}</td>
+                      <td data-label="Downloads">{typeof file.total_design_downloads === 'number' ? file.total_design_downloads : (Number(file.total_design_downloads) || 0)}</td>
                     </tr>
                   ))}
                 </tbody>
