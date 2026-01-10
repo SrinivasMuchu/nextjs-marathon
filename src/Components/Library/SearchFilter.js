@@ -48,7 +48,7 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
       existingParams.set('limit', '20');
 
       router.push(`/library?${existingParams.toString()}`);
-      logSearch(searchQuery);
+      // logSearch(searchQuery);
     }
   };
 
