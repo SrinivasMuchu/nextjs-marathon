@@ -112,8 +112,6 @@ function SearchedList() {
           <thead>
             <tr>
               <th>Search Text</th>
-              <th>User</th>
-              <th>Email</th>
               <th>Date</th>
             </tr>
           </thead>
@@ -125,7 +123,7 @@ function SearchedList() {
             <tbody>
               {searchLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', padding: 20 }}>
+                  <td colSpan={2} style={{ textAlign: 'center', padding: 20 }}>
                     {searchTerm ? 'No search logs found for your search' : 'No search logs found'}
                   </td>
                 </tr>
@@ -134,12 +132,6 @@ function SearchedList() {
                   <tr key={log._id} className={styles.row}>
                     <td>
                       <span>{log.search_text || ''}</span>
-                    </td>
-                    <td>
-                      <span>{log.full_name || ''}</span>
-                    </td>
-                    <td>
-                      <span>{log.user_email || ''}</span>
                     </td>
                     <td>
                       <span>{formatDate(log.createdAt)}</span>
