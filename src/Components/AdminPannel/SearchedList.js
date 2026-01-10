@@ -133,13 +133,13 @@ function SearchedList() {
                 searchLogs.map(log => (
                   <tr key={log._id} className={styles.row}>
                     <td>
-                      <span>{log.search_text || 'N/A'}</span>
+                      <span>{log.search_text || ''}</span>
                     </td>
                     <td>
-                      <span>{log.full_name || log.username || 'Anonymous'}</span>
+                      <span>{log.full_name || ''}</span>
                     </td>
                     <td>
-                      <span>{log.user_email || 'N/A'}</span>
+                      <span>{log.user_email || ''}</span>
                     </td>
                     <td>
                       <span>{formatDate(log.createdAt)}</span>
