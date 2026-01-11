@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import DemoPopUp from '../HomePages/RequestDemo/DemoPopUp';
 import styles from '../HomePages/HomepageTopNav/HomeTopNav.module.css'
 import NameProfile from './NameProfile';
@@ -7,10 +7,15 @@ import { contextState } from './ContextProvider';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
 import Link from 'next/link';
+import UserLoginPupUp from './UserLoginPupUp';
+import { MdDashboard } from 'react-icons/md';
+import { FiLogOut } from 'react-icons/fi';
 
 function TopNavProfileButton() {
   const [openDemoForm, setOpenDemoForm] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
   const { user, setUser, setIsProfileComplete,isProfileComplete,updatedDetails, setUpdatedDetails, } = useContext(contextState);
   
   useEffect(() => {
@@ -18,6 +23,23 @@ function TopNavProfileButton() {
     setIsVerified(localStorage.getItem('is_verified'));
     getUserDetails();
   }, [updatedDetails]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
 
   const getUserDetails = async () => {
     try {
@@ -55,16 +77,136 @@ function TopNavProfileButton() {
     }
   };
 
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem('uuid');
+    localStorage.removeItem('is_verified');
+    localStorage.removeItem('token');
+    
+    // Clear user state
+   
+  
+    
+    
+    // Close dropdown
+    setShowDropdown(false);
+    
+    // Reload the page
+    // window.location.reload();
+  };
+
   return (
     <>
       {isVerified ? (
-        <Link href="/dashboard" className={styles['profile-button']}>
-          <NameProfile userName={user.name?user.name:user.email} memberPhoto={user.photo} width={50} height={50} border={true}/></Link>
+        <div style={{ position: 'relative', display: 'inline-block' }} ref={dropdownRef}>
+          <button
+            onClick={() => setShowDropdown(!showDropdown)}
+            type="button"
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              display: 'inline-block',
+              margin: 0,
+              textAlign: 'initial',
+              justifyContent: 'initial',
+              alignItems: 'initial',
+              fontFamily: 'inherit',
+              outline: 'none'
+            }}
+          >
+            <NameProfile userName={user?.name ? user.name : (user?.email || 'User')} memberPhoto={user?.photo} width={50} height={50} border={true}/>
+          </button>
+          {showDropdown && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                marginTop: '8px',
+                backgroundColor: '#ffffff',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                minWidth: '180px',
+                zIndex: 1000,
+                overflow: 'hidden',
+                border: '1px solid #e0e0e0',
+                fontFamily: 'inherit'
+              }}
+            >
+              <Link
+                href="/dashboard"
+                onClick={() => setShowDropdown(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  padding: '12px 16px',
+                  textDecoration: 'none',
+                  color: '#333333',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'background-color 0.2s',
+                  border: 'none',
+                  width: '100%',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  boxSizing: 'border-box',
+                  margin: 0,
+                  lineHeight: 'normal'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <MdDashboard style={{ marginRight: '12px', fontSize: '18px', color: '#610bee', flexShrink: 0 }} />
+                <span style={{ display: 'inline-block', textAlign: 'left' }}>Dashboard</span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                type="button"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  padding: '12px 16px',
+                  textDecoration: 'none',
+                  color: '#e74c3c',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'background-color 0.2s',
+                  border: 'none',
+                  width: '100%',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  boxSizing: 'border-box',
+                  margin: 0,
+                  lineHeight: 'normal',
+                  fontFamily: 'inherit',
+                  outline: 'none'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef5f5'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <FiLogOut style={{ marginRight: '12px', fontSize: '18px', color: '#e74c3c', flexShrink: 0 }} />
+                <span style={{ display: 'inline-block', textAlign: 'left' }}>Logout</span>
+              </button>
+            </div>
+          )}
+        </div>
         ) : ( 
           <>
             <button className={styles['try-demo']} onClick={() => setOpenDemoForm('demo')}>
               Request demo
             </button>
+            <button className={styles['try-demo']} style={{ backgroundColor: '#fff', color: '#610bee', border: '1px solid #610bee' }} onClick={() => setOpenDemoForm('login')}>
+              Login
+            </button>
+            {openDemoForm === 'login' && (
+              <UserLoginPupUp onClose={() => setOpenDemoForm(null)} type="login" />
+            )}
             {openDemoForm === 'demo' && (
               <DemoPopUp 
                 onclose={() => setOpenDemoForm(null)} 

@@ -717,6 +717,15 @@ letter-spacing: -0.192px;
 }
 }
 
+/* Mobile/Desktop visibility classes */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
 @media screen and (max-width: 850px) {
    .industry-design-header-container{
     flex-direction: column;
@@ -735,6 +744,12 @@ letter-spacing: -0.192px;
    }
    .industry-design-header-viewer{
     display:none;
+   }
+   .mobile-only {
+     display: block;
+   }
+   .desktop-only {
+     display: none;
    }
 }
 

@@ -6,6 +6,8 @@ import { MdOutlinePayments } from "react-icons/md";
 import { MdVisibility } from "react-icons/md";
 import { MdDownload } from "react-icons/md";
 import { MdSearch } from "react-icons/md";
+import { MdStar } from "react-icons/md";
+import { MdFavorite } from "react-icons/md";
 import { FaChevronLeft } from "react-icons/fa";
 
 
@@ -87,6 +89,24 @@ function AdminSidebar({ collapsed, activeTab, onToggle, onSelect }) {
         >
           <MdSearch />
           {!collapsed && <span className={styles.label}>Search Logs</span>}
+        </button>
+          <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'ratings-list' ? styles.active : ''}`}
+          onClick={() => onSelect('ratings-list')}
+          title="Ratings"
+        >
+          <MdStar />
+          {!collapsed && <span className={styles.label}>Ratings</span>}
+        </button>
+          <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'likes-list' ? styles.active : ''}`}
+          onClick={() => onSelect('likes-list')}
+          title="Likes"
+        >
+          <MdFavorite />
+          {!collapsed && <span className={styles.label}>Likes</span>}
         </button>
       </nav>
     </aside>
