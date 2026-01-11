@@ -34,24 +34,10 @@ export default function DesignViewer({
   initialX = 0,
   initialY = 0,
 }) {
-  // Check if file type is DXF or DWG
-
-  const isDxf = designData?.file_type?.toLowerCase() === 'dxf' || designData?.file_type?.toLowerCase() === 'dwg';
-  
   // Filter supported image files (png, jpg, jpeg)
-  // Handle both array format and ensure we check file name and type
-  const supportingFilesArray = Array.isArray(designData?.supporting_files) 
-    ? designData.supporting_files 
-    : [];
-  
-  const supportedImages = supportingFilesArray.filter(f => {
-    if (!f || !f.name) return false;
-    // Check file extension in name
-    const hasImageExtension = /\.(png|jpg|jpeg|gif|webp|bmp)$/i.test(f.name);
-    // Also check if type indicates image
-    const isImageType = f.type && f.type.startsWith('image/');
-    return hasImageExtension || isImageType;
-  });
+  const supportedImages = (designData?.supporting_files || []).filter(f =>
+    /\.(png|jpg|jpeg)$/i.test(f.name)
+  );
   
   // Create unified list: angles first, then images
   const allViews = useMemo(() => {

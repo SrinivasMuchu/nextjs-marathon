@@ -1050,7 +1050,7 @@ function UploadYourCadDesign({
                                 >
                                     <input
                                         type="file"
-                                        accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj,.dxf,.dwg"
+                                        accept=".step,.stp,.stl,.ply,.off,.igs,.iges,.brp,.brep,.obj"
                                         ref={fileInputRef}
                                         disabled={cadFormState.uploadProgress > 0 && uploadMode === 'single' && cadFormState.uploadProgress < 100}
                                         style={{ display: "none" }}
@@ -1104,7 +1104,7 @@ function UploadYourCadDesign({
                                                     <span style={{ textDecoration: 'underline', cursor: 'pointer', color: '#610bee' }}>select file</span>
                                                 </p>
                                                 <p style={{ fontSize: 12, color: '#666', margin: '8px 0 0 0' }}>
-                                                    Supported formats:<strong> STEP, STP, IGES, IGS, STL, OBJ, BREP, BRP, PLY, OFF, DXF, DWG</strong>
+                                                    Supported formats:<strong> STEP, STP, IGES, IGS, STL, OBJ, BREP, BRP, PLY, OFF</strong>
                                                 </p>
                                             </div>
                                         </>
