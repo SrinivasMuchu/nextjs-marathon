@@ -742,9 +742,9 @@ letter-spacing: -0.192px;
    .statsCont button,.statsCont a{
     width:100%
    }
-   .industry-design-header-viewer{
+   /* .industry-design-header-viewer{
     display:none;
-   }
+   } */
    .mobile-only {
      display: block;
    }
