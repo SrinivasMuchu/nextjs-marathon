@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useContext } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
-import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, allowedFilesList } from '@/config';
+import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList } from '@/config';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
@@ -228,7 +228,7 @@ function UploadYourCadDesign({
             return false;
         }
         const fileExtension = '.' + fileNameParts.pop().toLowerCase();
-        return allowedFilesList.includes(fileExtension);
+        return publishFilesList.includes(fileExtension);
     };
 
     // Get file extension for error messages
@@ -251,8 +251,8 @@ function UploadYourCadDesign({
             if (!isValidFileType(file)) {
                 const extension = getFileExtension(file);
                 const errorMessage = extension === 'no extension' 
-                    ? `File "${file.name}" has no file extension. Supported formats: ${allowedFilesList.join(', ')}`
-                    : `File type .${extension} is not supported. Supported formats: ${allowedFilesList.join(', ')}`;
+                    ? `File "${file.name}" has no file extension. Supported formats: ${publishFilesList.join(', ')}`
+                    : `File type .${extension} is not supported. Supported formats: ${publishFilesList.join(', ')}`;
                 toast.error(errorMessage);
                 e.target.value = ''; // Reset input
                 return;
@@ -293,8 +293,8 @@ function UploadYourCadDesign({
             if (!isValidFileType(file)) {
                 const extension = getFileExtension(file);
                 const errorMessage = extension === 'no extension' 
-                    ? `File "${file.name}" has no file extension. Supported formats: ${allowedFilesList.join(', ')}`
-                    : `File type .${extension} is not supported. Supported formats: ${allowedFilesList.join(', ')}`;
+                    ? `File "${file.name}" has no file extension. Supported formats: ${publishFilesList.join(', ')}`
+                    : `File type .${extension} is not supported. Supported formats: ${publishFilesList.join(', ')}`;
                 toast.error(errorMessage);
                 return;
             }
@@ -485,8 +485,8 @@ function UploadYourCadDesign({
         if (!isValidFileType(file)) {
             const extension = getFileExtension(file);
             const errorMessage = extension === 'no extension' 
-                ? `File "${file.name}" has no file extension. Supported formats: ${allowedFilesList.join(', ')}`
-                : `File type .${extension} is not supported. Supported formats: ${allowedFilesList.join(', ')}`;
+                ? `File "${file.name}" has no file extension. Supported formats: ${publishFilesList.join(', ')}`
+                : `File type .${extension} is not supported. Supported formats: ${publishFilesList.join(', ')}`;
             toast.error(errorMessage);
             return;
         }

@@ -443,4 +443,3 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
 }
 
 export default SupportingFilesPopup;
-

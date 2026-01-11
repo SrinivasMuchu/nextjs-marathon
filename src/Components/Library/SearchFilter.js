@@ -3,11 +3,36 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
+import axios from 'axios';
+import { BASE_URL } from '@/config';
 import styles from './Library.module.css';
 
 const SearchBar = ({ initialSearchQuery = '' }) => {
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const router = useRouter();
+
+  const logSearch = async (query) => {
+    try {
+      const trimmed = (query || '').trim();
+      if (!trimmed) return;
+
+      if (typeof window === 'undefined') return;
+      const uuid = localStorage.getItem('uuid');
+      if (!uuid) return;
+
+      await axios.post(
+        `${BASE_URL}/v1/cad/log-search`,
+        { search_text: trimmed },
+        {
+          headers: {
+            'user-uuid': uuid,
+          },
+        }
+      );
+    } catch (error) {
+      console.error('Failed to log search term', error);
+    }
+  };
 
   const handleSearch = () => {
     if (typeof window !== 'undefined') {
@@ -23,6 +48,7 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
       existingParams.set('limit', '20');
 
       router.push(`/library?${existingParams.toString()}`);
+      // logSearch(searchQuery);
     }
   };
 

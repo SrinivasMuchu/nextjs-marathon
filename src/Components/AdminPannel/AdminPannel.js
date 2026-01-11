@@ -5,6 +5,7 @@ import DesignTable from './DesignTable'
 import PaymentsTable from './PaymentsTable'
 import ViewedList from './ViewedList'
 import DownloadedList from './DownloadedList'
+import SearchedList from './SearchedList'
 import styles from './AdminPannel.module.css'
 import AdminPannelAuthentication from './AdminPannelAuthentication'
 
@@ -46,6 +47,8 @@ function AdminPannel({ children }) {
         return 'Top Viewed'
       case 'downloaded-list':
         return 'Top Downloaded'
+      case 'searched-list':
+        return 'Search Logs'
       default:
         return 'Admin Panel'
     }
@@ -61,6 +64,8 @@ function AdminPannel({ children }) {
         return <ViewedList />
       case 'downloaded-list':
         return <DownloadedList />
+      case 'searched-list':
+        return <SearchedList />
       default:
         return <DesignTable />
     }
