@@ -39,7 +39,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
 
   // Fetch supporting files
   // Alias for backward compatibility in payment logic
-  const downloadFile = downloadMainFile;
+
   const fetchSupportingFiles = async () => {
     try {
       // Replace this endpoint with your actual supporting files API endpoint
@@ -137,7 +137,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       );
 
       if (res.data.meta.status === 'active') {
-        await downloadFile();
+        await downloadMainFile();
         setIsDownLoading(false);
         return;
       } else if (res.data.meta.success) {
@@ -177,7 +177,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
 
             if (verifyRes.data.meta.success) {
               toast.success("✅ Payment successful! Starting download...");
-              await downloadFile();
+              await downloadMainFile();
               // Only show SupportingFilesPopup if this is the custom 3D design download button
               if (custumDownload) {
                 setSupportingFiles([]);

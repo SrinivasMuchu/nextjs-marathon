@@ -34,6 +34,7 @@ export default function DesignViewer({
   initialX = 0,
   initialY = 0,
 }) {
+  let isDxf = designData.file_type?.toLowerCase() === 'dxf' || designData.file_type?.toLowerCase() === 'dwg';
   // Filter supported image files (png, jpg, jpeg)
   const supportedImages = (designData?.supporting_files || []).filter(f =>
     /\.(png|jpg|jpeg)$/i.test(f.name)
