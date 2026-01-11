@@ -17,7 +17,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
           {designData.price? <p style={{fontSize:'24px',fontWeight:'500'}}>${designData.price}<span style={{fontSize:'16px',fontWeight:'400',color:'#001325'}}>/download</span></p>:<p style={{fontSize:'24px',fontWeight:'500'}}>Free</p>}
         </div>
       
-        <div className={styles.statsCont} style={{display:'flex',alignItems:'center',gap:'10px',justifyContent:'center',width:'100%'}}>
+        <div className={styles.statsCont}>
             <DownloadClientButton custumDownload={true} 
           folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type ? designData.file_type : 'step'} 
           designPrice={designData?.price} designDetails={{
@@ -31,18 +31,9 @@ export default function IndustryDesignHeader({ design, designData, type }) {
             designData.file_type ? designData.file_type : "step"
           }`}
           rel="nofollow"
+          className={styles.viewerButtonLink}
         >
-          <button style={{ 
-                              
-                              color: 'white', 
-                              fontSize: '20px',
-                              background: '#610BEE',
-                              borderRadius: '4px',
-                              height: '48px',
-                              padding: '10px 20px',
-                              border: 'none',
-                              width: 'auto'
-                            }}>Open in 3D viewer</button>
+          <button className={styles.viewerButton}>Open in 3D viewer</button>
           
         </Link>
        
