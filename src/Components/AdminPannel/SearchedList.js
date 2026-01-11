@@ -3,7 +3,6 @@ import React, {useState, useEffect} from 'react'
 import styles from './AdminPannel.module.css'
 import axios from 'axios'
 import { BASE_URL } from '@/config';
-import { formatDate } from '@/common.helper'
 import Pagenation from '@/Components/CommonJsx/Pagenation'
 import Loading from '../CommonJsx/Loaders/Loading'
 import SearchIcon from '@mui/icons-material/Search';
@@ -74,6 +73,19 @@ function SearchedList() {
     setCurrentPage(1)
   }
 
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const options = { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    return date.toLocaleString('en-GB', options);
+  }
+
   return (
     <>
       <div className={styles.searchContainer}>
@@ -134,7 +146,7 @@ function SearchedList() {
                       <span>{log.search_text || ''}</span>
                     </td>
                     <td>
-                      <span>{formatDate(log.createdAt)}</span>
+                      <span>{formatDateTime(log.createdAt)}</span>
                     </td>
                   </tr>
                 ))
