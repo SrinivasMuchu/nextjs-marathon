@@ -106,7 +106,7 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
                 Uploading...
               </div>
             </div>
-          ) : profileData.cover_image ? (
+          ) : profileData?.cover_image ? (
             <div className={styles.coverPhoto} style={{ background: 'none' }}>
               <Image
                 src={PHOTO_LINK + profileData.cover_image}

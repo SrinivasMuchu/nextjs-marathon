@@ -334,7 +334,9 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
                     height: '48px',
                     padding: '10px 20px',
                     border: 'none',
-                    width: 'auto'
+                    minWidth: 'fit-content',
+                    whiteSpace: 'nowrap',
+                    boxSizing: 'border-box'
                   }}
                 >
                   Download 3D design
@@ -344,17 +346,20 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           ) : (
             <button
               disabled={isDownLoading}
-          style={{ 
-                              
-                              color: 'white', 
-                              fontSize: '20px',
-                              background: '#610BEE',
-                              borderRadius: '4px',
-                              height: '48px',
-                              padding: '10px 20px',
-                              border: 'none',
-                              width: 'auto'
-                            }}
+              style={{ 
+                color: 'white', 
+                fontSize: '20px',
+                background: '#610BEE',
+                borderRadius: '4px',
+                height: '48px',
+                padding: '10px 20px',
+                border: 'none',
+                minWidth: 'fit-content',
+                whiteSpace: 'nowrap',
+                boxSizing: 'border-box',
+                cursor: isDownLoading ? 'not-allowed' : 'pointer',
+                opacity: isDownLoading ? 0.7 : 1
+              }}
               className="rounded bg-[#610BEE] h-12"
               onClick={downloadHandler}
             >

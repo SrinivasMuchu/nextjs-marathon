@@ -53,11 +53,16 @@ function IndustryDesign({ design, designData, type }) {
               ]}
             />}
           <div className={styles['industry-design-header-container']} >
+          <div className={styles['mobile-only']}>
+            <IndustryHeaderDetails designData={designData}/>
+          </div>
             <div  className={styles['industry-design-header-container-left']}  >
               <DesignViewer designId={designData.response._id} designData={designData.response}/>
             </div>
             <div  className={styles['industry-design-header-container-right']} >
-              <IndustryHeaderDetails designData={designData}/>
+              <div className={styles['desktop-only']}>
+                <IndustryHeaderDetails designData={designData}/>
+              </div>
               {/* <AdminApprovalButtons design_id={designData.response._id}/> */}
               <IndustryDesignHeader design={design} type={type} designData={designData.response} />
               <CadDesignDownload designId={designData.response._id} designTitle={designData.response.page_title}/>

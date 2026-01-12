@@ -165,6 +165,18 @@
   color: black;
 }
 
+.rowLink {
+  /* color: #610bee; */
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.rowLink:hover {
+  color: #5a0cd8;
+  text-decoration: underline;
+}
+
 
 
 /* Badges */

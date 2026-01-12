@@ -710,11 +710,89 @@ line-height: 24px; /* 150% */
 letter-spacing: -0.192px;
 }
 
+.statsCont {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.viewerButtonLink {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex: 0 0 auto;
+}
+
+.viewerButton {
+    color: white;
+    font-size: 20px;
+    background: #610BEE;
+    border-radius: 4px;
+    height: 48px;
+    padding: 10px 20px;
+    border: none;
+    min-width: fit-content;
+    white-space: nowrap;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: background 0.2s ease;
+}
+
+.viewerButton:hover {
+    background: #4f0bc7;
+}
+
+.statsCont button {
+    min-width: fit-content;
+    white-space: nowrap;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+}
+
 @media screen and (max-width: 1200px){
     .statsCont{
         flex-wrap: wrap;
+        gap: 10px;
+    }
     
+    .viewerButton {
+        font-size: 18px;
+        padding: 10px 18px;
+    }
+    
+    .statsCont button {
+        font-size: 18px;
+        padding: 10px 18px;
+    }
 }
+
+@media screen and (max-width: 600px) {
+    .viewerButton {
+        font-size: 16px;
+        padding: 12px 16px;
+        height: 48px;
+    }
+    
+    .statsCont button {
+        font-size: 16px;
+        padding: 12px 16px;
+        height: 48px;
+    }
+}
+
+/* Mobile/Desktop visibility classes */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
 }
 
 @media screen and (max-width: 850px) {
@@ -730,11 +808,31 @@ letter-spacing: -0.192px;
    .industry-design-header-container-left{
        width:100%;
    }
-   .statsCont button,.statsCont a{
-    width:100%
+   .statsCont button,
+   .statsCont a,
+   .statsCont .viewerButtonLink {
+    width: 100%;
+    min-width: 100%;
    }
-   .industry-design-header-viewer{
+   
+   .viewerButton {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px 16px;
+   }
+   
+   .statsCont {
+    flex-direction: column;
+    gap: 12px;
+   }
+   /* .industry-design-header-viewer{
     display:none;
+   } */
+   .mobile-only {
+     display: block;
+   }
+   .desktop-only {
+     display: none;
    }
 }
 
