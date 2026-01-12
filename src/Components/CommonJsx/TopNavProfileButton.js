@@ -251,25 +251,12 @@ function TopNavProfileButton({isMobileMenu = false}) {
         )
         ) : ( 
           <>
-            {isMobileMenu ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
-                 <button className={styles['try-demo']} onClick={() => setOpenDemoForm('demo')}>
-                  Request demo
-                </button>
-                <button className={styles['try-demo']} style={{ backgroundColor: '#fff', color: '#610bee', border: '1px solid #610bee' }} onClick={() => setOpenDemoForm('login')}>
-                  Login
-                </button>
-              </div>
-            ) : (
-              <>
-                <button className={styles['try-demo']} onClick={() => setOpenDemoForm('demo')}>
-                  Request demo
-                </button>
-                <button className={styles['try-demo']} style={{ backgroundColor: '#fff', color: '#610bee', border: '1px solid #610bee' }} onClick={() => setOpenDemoForm('login')}>
-                  Login
-                </button>
-              </>
-            )}
+            <button className={styles['try-demo']} onClick={() => setOpenDemoForm('demo')}>
+              Request demo
+            </button>
+            <button className={styles['try-demo']} style={{ backgroundColor: '#fff', color: '#610bee', border: '1px solid #610bee' }} onClick={() => setOpenDemoForm('login')}>
+              Login
+            </button>
             {openDemoForm === 'login' && (
               <UserLoginPupUp onClose={() => setOpenDemoForm(null)} type="login" />
             )}
