@@ -253,37 +253,10 @@ function TopNavProfileButton({isMobileMenu = false}) {
           <>
             {isMobileMenu ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
-                <button 
-                  className={styles['try-demo']} 
-                  onClick={() => setOpenDemoForm('demo')}
-                  style={{ 
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '12px 20px',
-                    fontSize: '14px',
-                    fontWeight: '500'
-                  }}
-                >
+                 <button className={styles['try-demo']} onClick={() => setOpenDemoForm('demo')}>
                   Request demo
                 </button>
-                <button 
-                  className={styles['home-login']} 
-                  onClick={() => setOpenDemoForm('login')}
-                  style={{ 
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '12px 20px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    border: '1px solid #610bee',
-                    borderRadius: '4px',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
+                <button className={styles['try-demo']} style={{ backgroundColor: '#fff', color: '#610bee', border: '1px solid #610bee' }} onClick={() => setOpenDemoForm('login')}>
                   Login
                 </button>
               </div>
