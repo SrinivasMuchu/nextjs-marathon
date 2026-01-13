@@ -227,6 +227,8 @@ export const converterTypes = [
   { label: 'BREP to STL', path: '/brep-to-stl' },
   { label: 'BREP to OFF', path: '/brep-to-off' },
   // { label: 'BREP to GLB', path: '/brep-to-glb' },
+  { label: 'DWG to DXF', path: '/dwg-to-dxf' },
+  { label: 'DXF to DWG', path: '/dxf-to-dwg' },
 
   // { label: 'GLB to STEP', path: '/glb-to-step' },
   // { label: 'GLB to IGES', path: '/glb-to-iges' },
@@ -263,4 +265,8 @@ export const cadViewTypes =[{
   path:'/brp'
 },{label:'IGS viewer',
   path:'/igs'
-}]
+},{label:'DWG viewer',
+  path:'/dwg'
+},{label:'DXF viewer',
+  path:'/dxf'
+},]

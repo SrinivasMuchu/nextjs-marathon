@@ -54,6 +54,12 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
         if (cadFile === 'obj') {
             setAllowedFormats([".obj"])
         }
+        if (cadFile === 'dwg') {
+            setAllowedFormats([".dwg"])
+        }
+        if (cadFile === 'dxf') {
+            setAllowedFormats([".dxf"])
+        }
         // if (cadFile === 'glb') {
         //     setAllowedFormats([".glb"])
         // }
