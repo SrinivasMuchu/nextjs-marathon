@@ -37,6 +37,14 @@ function CadConverterFormateText({ conversionParams }) {
       route: 'ply',
       description:'Polygon File Format is a widely used file format for representing 3D data, particularly polygonal meshes, in the fields of computer graphics, 3D scanning, and point cloud data. It was originally developed to store data from 3D scanners and has since gained popularity in both academic and commercial applications due to its flexibility in handling a variety of data types.'
     },
+    {label: 'DWG',
+      route: 'dwg',
+      description:'DWG is a proprietary file format developed by Autodesk for its AutoCAD software. It is a binary file format that contains the geometric data and metadata of a 3D model. It is widely used in the architecture, engineering, and construction (AEC) industry for representing 2D and 3D designs.'
+    },
+    {label: 'DXF',
+      route: 'dxf',
+      description:'DXF is a widely used file format for representing 2D and 3D CAD (Computer-Aided Design) data. It was originally developed by Autodesk for their AutoCAD software, and has since become a standard file format for the exchange of CAD data between different software applications.'
+    },
     // {label: 'GLB',
     //   route: 'glb',
     //   description:'Polygon File Format is a widely used file format for representing 3D data, particularly polygonal meshes, in the fields of computer graphics, 3D scanning, and point cloud data. It was originally developed to store data from 3D scanners and has since gained popularity in both academic and commercial applications due to its flexibility in handling a variety of data types.'
@@ -47,6 +55,11 @@ function CadConverterFormateText({ conversionParams }) {
 
   const from = formatDetails.find(item => item.route === fromFormat);
   const to = formatDetails.find(item => item.route === toFormat);
+
+  // Return null or a fallback if formats are not found
+  if (!from || !to) {
+    return null;
+  }
 
   return (
     <div className={styles['cad-format-types']}>

@@ -20,6 +20,7 @@ import { sendGAtagEvent } from '@/common.helper';
 import DownloadIcon from '@mui/icons-material/Download';
 import CadFileNotifyInfoPopUp from '../CommonJsx/CadFileNotifyInfoPopUp';
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
+import DxfDwgViewer from './DxfDwgViewer';
 // Constants
 const ANGLE_STEP = 30;
 const BUFFER_SIZE = 0;
@@ -57,6 +58,9 @@ export default function PartDesignView() {
     const [cadViewLink, setCadViewLink] = useState('');
     const [publishCadPopup, setPublishCadPopup] = useState(false);
     const router = useRouter();
+    
+    // Check if file is DXF or DWG
+    const isDxfOrDwg = fileName && (fileName.toLowerCase().endsWith('.dxf') || fileName.toLowerCase().endsWith('.dwg'));
 
     useEffect(() => {
         if (!file && !searchParams.get('fileId')) {
@@ -435,6 +439,11 @@ export default function PartDesignView() {
     const getTextureUrl = useCallback((x, y) => {
         if (!folderId) return "";  // Prevent invalid URL when folderId is empty
 
+        // For DXF/DWG files, use single image with folderId.webp
+        if (isDxfOrDwg) {
+            return `${DESIGN_GLB_PREFIX_URL}${folderId}/${folderId}.webp`;
+        }
+
         // Normalize angles to 0-359
         const xFormatted = ((x % 360 + 360) % 360);
         const yFormatted = ((y % 360 + 360) % 360);
@@ -442,7 +451,7 @@ export default function PartDesignView() {
         const textureUrl = `${DESIGN_GLB_PREFIX_URL}${folderId}/sprite_${xFormatted}_${yFormatted}.webp`;
 
         return textureUrl;
-    }, [folderId]);
+    }, [folderId, isDxfOrDwg]);
 
 
     // Initial texture setup
@@ -452,53 +461,93 @@ export default function PartDesignView() {
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = {};
 
-        for (let x = -BUFFER_SIZE; x <= BUFFER_SIZE; x += ANGLE_STEP) {
-            for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
-                const key = `${x}_${y}`;
-                const textureUrl = getTextureUrl(x, y);
-                if (!textureUrl) continue; // Skip if folderId is missing
+        // For DXF/DWG files, load only the single image with folderId as key
+        if (isDxfOrDwg) {
+            const textureUrl = getTextureUrl(0, 0);
+            if (!textureUrl) return {};
 
-                try {
-                    const texture = await new Promise((resolve, reject) => {
-                        textureLoader.load(
-                            textureUrl,
-                            resolve,
-                            undefined,
-                            (error) => {
-                                console.error(`❌ Failed to load texture: ${textureUrl}`, error);
-                                reject(error);
-                            }
-                        );
-                    });
+            try {
+                const texture = await new Promise((resolve, reject) => {
+                    textureLoader.load(
+                        textureUrl,
+                        resolve,
+                        undefined,
+                        (error) => {
+                            console.error(`❌ Failed to load texture: ${textureUrl}`, error);
+                            reject(error);
+                        }
+                    );
+                });
 
-                    texture.minFilter = THREE.LinearFilter;
-                    texture.magFilter = THREE.LinearFilter;
-                    newMaterials[key] = new THREE.MeshBasicMaterial({
-                        map: texture,
-                        transparent: true,
-                        side: THREE.DoubleSide
-                    });
+                texture.minFilter = THREE.LinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                newMaterials[folderId] = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    transparent: true,
+                    side: THREE.DoubleSide
+                });
+            } catch (error) {
+                console.error(`🚨 Failed to load DXF/DWG texture:`, error);
+                newMaterials[folderId] = new THREE.MeshBasicMaterial({
+                    color: 0x888888,
+                    transparent: true,
+                    opacity: 0.5,
+                    side: THREE.DoubleSide
+                });
+            }
+        } else {
+            // For other files, load sprite images
+            for (let x = -BUFFER_SIZE; x <= BUFFER_SIZE; x += ANGLE_STEP) {
+                for (let y = -BUFFER_SIZE; y <= BUFFER_SIZE; y += ANGLE_STEP) {
+                    const key = `${x}_${y}`;
+                    const textureUrl = getTextureUrl(x, y);
+                    if (!textureUrl) continue; // Skip if folderId is missing
+
+                    try {
+                        const texture = await new Promise((resolve, reject) => {
+                            textureLoader.load(
+                                textureUrl,
+                                resolve,
+                                undefined,
+                                (error) => {
+                                    console.error(`❌ Failed to load texture: ${textureUrl}`, error);
+                                    reject(error);
+                                }
+                            );
+                        });
+
+                        texture.minFilter = THREE.LinearFilter;
+                        texture.magFilter = THREE.LinearFilter;
+                        newMaterials[key] = new THREE.MeshBasicMaterial({
+                            map: texture,
+                            transparent: true,
+                            side: THREE.DoubleSide
+                        });
 
 
-                } catch (error) {
-                    console.error(`🚨 Skipping texture for (${x},${y}) due to error:`, error);
-                    // Fallback: Use a placeholder material if texture fails
-                    newMaterials[key] = new THREE.MeshBasicMaterial({
-                        color: 0x888888,
-                        transparent: true,
-                        opacity: 0.5,
-                        side: THREE.DoubleSide
-                    });
+                    } catch (error) {
+                        console.error(`🚨 Skipping texture for (${x},${y}) due to error:`, error);
+                        // Fallback: Use a placeholder material if texture fails
+                        newMaterials[key] = new THREE.MeshBasicMaterial({
+                            color: 0x888888,
+                            transparent: true,
+                            opacity: 0.5,
+                            side: THREE.DoubleSide
+                        });
+                    }
                 }
             }
         }
 
         setMaterials(newMaterials);
-    }, [folderId, getTextureUrl]);
+    }, [folderId, getTextureUrl, isDxfOrDwg]);
 
     // Progressive texture loading
     const loadTexturesForRange = useCallback((xStart, xEnd, yStart, yEnd) => {
         if (!rendererRef.current || !folderId) return;
+        
+        // Skip progressive loading for DXF/DWG files (single image only)
+        if (isDxfOrDwg) return;
 
         const textureLoader = new THREE.TextureLoader();
         const newMaterials = { ...materials };
@@ -532,7 +581,7 @@ export default function PartDesignView() {
                 );
             }
         }
-    }, [materials, getTextureUrl, folderId]);
+    }, [materials, getTextureUrl, folderId, isDxfOrDwg]);
 
     // Maintain texture buffer
     const maintainTextureBuffer = useCallback(() => {
@@ -611,8 +660,16 @@ export default function PartDesignView() {
                     0.1,
                     1000
                 );
-                camera.position.set(2, 2, 2);
-                camera.lookAt(0, 0, 0);
+                // For DXF/DWG files, position camera perfectly straight (zero rotation)
+                if (isDxfOrDwg) {
+                    camera.position.set(0, 0, 3);
+                    camera.lookAt(0, 0, 0);
+                    camera.rotation.set(0, 0, 0); // Explicitly set rotation to zero
+                    camera.up.set(0, 1, 0); // Ensure up is straight
+                } else {
+                    camera.position.set(2, 2, 2);
+                    camera.lookAt(0, 0, 0);
+                }
                 cameraRef.current = camera;
 
                 // Create plane
@@ -625,6 +682,12 @@ export default function PartDesignView() {
                 });
 
                 const plane = new THREE.Mesh(geometry, tempMaterial);
+                // For DXF/DWG files, ensure plane is perfectly flat with zero rotation
+                if (isDxfOrDwg) {
+                    plane.rotation.set(0, 0, 0);
+                    plane.position.set(0, 0, 0);
+                    plane.scale.set(1, 1, 1);
+                }
                 planeRef.current = plane;
                 scene.add(plane);
 
@@ -665,25 +728,48 @@ export default function PartDesignView() {
             mounted = false;
             if (cleanup) cleanup();
         };
-    }, [setupTextures]);
+    }, [setupTextures, isDxfOrDwg]);
     useEffect(() => {
         if (!folderId) return;
         setIsLoading(true)
+        
+        // Reset rotation to 0 for DXF/DWG files and ensure camera is perfectly straight
+        if (isDxfOrDwg) {
+            setXRotation(0);
+            setYRotation(0);
+            // Reset camera position to perfectly straight front view (zero rotation)
+            if (cameraRef.current) {
+                cameraRef.current.position.set(0, 0, 3);
+                cameraRef.current.lookAt(0, 0, 0);
+                cameraRef.current.rotation.set(0, 0, 0); // Explicitly zero rotation
+                cameraRef.current.up.set(0, 1, 0); // Ensure up vector is straight
+            }
+            // Reset plane rotation and position to ensure image is perfectly straight
+            if (planeRef.current) {
+                planeRef.current.rotation.set(0, 0, 0); // Zero rotation
+                planeRef.current.position.set(0, 0, 0); // Center position
+                planeRef.current.scale.set(1, 1, 1); // No scaling
+            }
+        }
+        
         const timeout = setTimeout(() => {
-
             setupTextures();
-            rotateView('right')
+            // Only rotate for non-DXF/DWG files
+            if (!isDxfOrDwg) {
+                rotateView('right')
+            }
         }, 300); // Adjust delay if needed
         setIsLoading(false)
         return () => clearTimeout(timeout);
-    }, [folderId]);
+    }, [folderId, isDxfOrDwg]);
 
 
     // Material update effect
     useEffect(() => {
         if (!planeRef.current || !materials || Object.keys(materials).length === 0 || !folderId) return;
 
-        const materialKey = `${xRotation}_${yRotation}`;
+        // For DXF/DWG files, always use the single material with folderId as key
+        const materialKey = isDxfOrDwg ? folderId : `${xRotation}_${yRotation}`;
         const newMaterial = materials[materialKey];
 
         if (newMaterial?.map) {
@@ -697,16 +783,34 @@ export default function PartDesignView() {
                 setLastValidMaterial(newMaterial);
             }
         }
+        
+        // For DXF/DWG files, continuously enforce zero rotation (no angle at all)
+        if (isDxfOrDwg) {
+            if (planeRef.current) {
+                planeRef.current.rotation.set(0, 0, 0); // Zero rotation
+                planeRef.current.position.set(0, 0, 0); // Center position
+            }
+            if (cameraRef.current) {
+                cameraRef.current.position.set(0, 0, 3);
+                cameraRef.current.lookAt(0, 0, 0);
+                cameraRef.current.rotation.set(0, 0, 0); // Zero rotation
+                cameraRef.current.up.set(0, 1, 0); // Straight up
+            }
+        }
 
-    }, [xRotation, yRotation, materials, lastValidMaterial, folderId]);
+    }, [xRotation, yRotation, materials, lastValidMaterial, folderId, isDxfOrDwg]);
 
-    // Buffer maintenance effect
+    // Buffer maintenance effect - Skip for DXF/DWG files
     useEffect(() => {
-        maintainTextureBuffer();
-    }, [xRotation, yRotation, maintainTextureBuffer]);
+        if (!isDxfOrDwg) {
+            maintainTextureBuffer();
+        }
+    }, [xRotation, yRotation, maintainTextureBuffer, isDxfOrDwg]);
 
-    // Keyboard controls
+    // Keyboard controls - Disabled for DXF/DWG files
     useEffect(() => {
+        if (isDxfOrDwg) return; // Skip keyboard controls for DXF/DWG files
+        
         const handleKeyDown = (event) => {
             if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
                 event.preventDefault();
@@ -729,7 +833,7 @@ export default function PartDesignView() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [rotateView]);
+    }, [rotateView, isDxfOrDwg]);
 
 
     // Window resize handler
@@ -780,7 +884,16 @@ export default function PartDesignView() {
                 )}
             </div>
 
-            {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} /> :
+            {/* Use simple DXF/DWG viewer for DXF/DWG files, Three.js viewer for others */}
+            {isDxfOrDwg && folderId ? (
+                <DxfDwgViewer 
+                    folderId={folderId}
+                    fileName={fileName}
+                    onBack={handleBackToViewer}
+                />
+            ) : isLoading ? (
+                <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} />
+            ) : (
                 <div style={{
                     position: 'relative',
                     width: '100%',
@@ -829,7 +942,8 @@ export default function PartDesignView() {
                         zIndex: 1
                     }} />
 
-                    {/* Rotation Controls */}
+                    {/* Rotation Controls - Hidden for DXF/DWG files */}
+                    {!isDxfOrDwg && (
                     <div style={{
                         position: 'absolute',
                         top: 0,
@@ -956,6 +1070,7 @@ export default function PartDesignView() {
                             </div>
                         </div>
                     </div>
+                    )}
 
                     {/* Zoom Controls */}
                     <div style={{
@@ -1032,7 +1147,8 @@ export default function PartDesignView() {
                             {error}
                         </div>
                     )}
-                </div>}
+                </div>
+            )}
 
 
 

@@ -103,7 +103,7 @@ function DesignTable() {
         {/* Filter buttons */}
         <div className={styles.filterContainer}>
           <div className={styles.filterButtons}>
-            {['all', 'pending', 'approved', 'rejected'].map((filter) => (
+            {['all', 'pending', 'approved', 'rejected', 'failed'].map((filter) => (
               <button
                 key={filter}
                 type="button"

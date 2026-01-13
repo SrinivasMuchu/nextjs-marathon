@@ -106,7 +106,7 @@ function CadViewerFiles({ loading, cadViewerFileHistory, searchTerm,
                   <div style={{ position: 'absolute', top: '10px' }}>
                     <FileStatus status={file.status} />
                   </div>
-                  {file.status === 'COMPLETED' ? <HoverImageSequence design={{ _id: file._id, page_title: file.file_name }} width={300} height={160} /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
+                  {file.status === 'COMPLETED' ? <HoverImageSequence design={{ _id: file._id, page_title: file.file_name,file_type:file.file_name.split(".").pop().toLowerCase() }} width={300} height={160} /> : <div style={{ width: '100%', height: '160px', background: '#e6e4f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }} />}
                   {/* <div style={{ width: '100%', height: '2px', background: '#e6e4f0', marginBottom: '5px' }}></div> */}
 
                   <div className={styles.historyFileDetails}>
