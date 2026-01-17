@@ -15,6 +15,7 @@ import DesignStats from '../CommonJsx/DesignStats';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
+import { cookies } from 'next/headers';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -33,11 +34,25 @@ async function Library({ searchParams }) {
   const page = parseInt(searchParams?.page) || 1;
   const limit = parseInt(searchParams?.limit) || 20;
   const tags = searchParams?.tags || '';
+  
+  // Read UUID from cookies (server-side)
+  const cookieStore = cookies();
+  const uuid = cookieStore.get('uuid')?.value || null;
+  
+  // Build headers for get-category-design API
+  const headers = {};
+  if (uuid) {
+    headers['user-uuid'] = uuid;
+  }
+  
   let response;
 
     response = await axios.get(
        `${BASE_URL}/v1/cad/get-category-design?category=${category}&limit=${limit}&page=${page}&search=${searchQuery}&tags=${tags}`,
-    { cache: 'no-store' }
+    { 
+      headers,
+      cache: 'no-store' 
+    }
     );
 
   
