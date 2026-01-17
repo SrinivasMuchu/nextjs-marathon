@@ -1,5 +1,6 @@
 "use client"
 import React, {useState, useEffect} from 'react'
+import Link from 'next/link'
 import styles from './AdminPannel.module.css'
 import axios from 'axios'
 import { BASE_URL } from '@/config';
@@ -151,7 +152,22 @@ function SearchedList() {
                       <span>{log.user_email || 'N/A'}</span>
                     </td>
                     <td>
-                      <span>{log.username || 'N/A'}</span>
+                      {log.username && log.username !== 'N/A' ? (
+                        <Link 
+                          href={`/creator/${log.username}`}
+                          style={{ 
+                            color: '#0070f3', 
+                            textDecoration: 'none',
+                            cursor: 'pointer'
+                          }}
+                          onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+                          onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+                        >
+                          {log.username}
+                        </Link>
+                      ) : (
+                        <span>N/A</span>
+                      )}
                     </td>
                     <td>
                       <span>{formatDateTime(log.createdAt)}</span>
