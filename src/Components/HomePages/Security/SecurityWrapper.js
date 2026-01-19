@@ -25,7 +25,7 @@ function SecurityWrapper({ children,styles }) {
              };
          }, []);
     return (
-        <div className={styles["security-page"]} id="security"    >
+        // <div className={styles["security-page"]} id="security"    >
             <div className={styles["security-container"]} ref={ref} style={{
                 backgroundImage: isVisible &&
                     `url('https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/security-bg-comp.svg')`
@@ -33,7 +33,7 @@ function SecurityWrapper({ children,styles }) {
                 {children}
             </div>
 
-        </div>
+        // </div>
     )
 
 }

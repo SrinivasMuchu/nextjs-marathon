@@ -20,6 +20,7 @@ function ContextProvider({children}) {
     const [downloadedFileUpdate, setDownloadedFileUpdate] = useState(false);
     const [designLiked, setDesignLiked] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('automotive');
     const [user, setUser] = useState({ 
         name: '', email: '', photo: '',_id:'',
         user_access_key: '', desc: '', 
@@ -39,7 +40,8 @@ function ContextProvider({children}) {
       uploadedFile, setUploadedFile,user, setUser,isProfileComplete,
        setIsProfileComplete,anchorAds, setAnchorAds,viewer, setViewer,
        cadDetailsUpdate, setCadDetailsUpdate,downloadedFileUpdate, setDownloadedFileUpdate,
-       designLiked, setDesignLiked,isLiked, setIsLiked
+       designLiked, setDesignLiked,isLiked, setIsLiked,
+       selectedCategory, setSelectedCategory
       }}>
     {children}
   </contextState.Provider>

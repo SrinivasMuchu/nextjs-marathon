@@ -49,12 +49,18 @@ function HomeTopNav() {
 
       <div className={styles["home-page-navs"]}>
         <Link href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</Link>
-        <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
+        {/* <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
         <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
-        <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link>
+        <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link> */}
         {/* <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a> */}
 
         {/* Dropdown for Tools */}
+      
+
+        <Link href="/dashboard" rel="nofollow" onClick={handleDashboardClick}>
+          Dashboard
+        </Link>
+        <Link href="/library" >Library</Link>
         <div style={{ position: "relative" }}>
           <span style={{ cursor: "pointer" }} onClick={(e) => toggleDropdown(e,"tools")}>
             Tools ▼
@@ -80,11 +86,6 @@ function HomeTopNav() {
             </div>
           )}
         </div>
-
-        <Link href="/dashboard" rel="nofollow" onClick={handleDashboardClick}>
-          Dashboard
-        </Link>
-        <Link href="/library" >Library</Link>
       </div>
 
       <div className={styles["home-pg-btns"]}>

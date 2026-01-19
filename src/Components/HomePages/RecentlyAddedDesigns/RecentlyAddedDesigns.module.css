@@ -1,0 +1,69 @@
+.recentlyAddedDesignsContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #F2EBFF;
+    padding: clamp(20px, 5vw, 70px);
+    width: 100%;
+   
+}
+
+.recentlyAddedDesignsHead {
+    color: #001325;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+    text-align: center;
+}
+
+.recentlyAddedDesignsDesc {
+    color: #001325;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 26px;
+    opacity: 0.7;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.recentlyAddedDesignsGrid {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 0;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    width: 100%;
+}
+
+.recentlyAddedDesignsGrid::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.recentlyAddedDesignCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    width: 298px;
+}
+
+.recentlyAddedDesignTitle {
+    width: 100%;
+    color: #09090b;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 298px;
+}

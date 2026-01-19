@@ -102,14 +102,33 @@
     /* object-fit: cover;      Ensures the image covers the area */
    
 }
+.library-designs-items-container-img-1{
+  width:298px;
+  height:298px;
+  /* height:250px; */
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  /* background:grey; */
+  /* object-fit: cover;      Ensures the image covers the area */
+ 
+}
 .library-designs-items-container-img img{
     width:100%;
    
     /* background:grey; */
-    object-fit: cover;      /* Ensures the image covers the area */
+    object-fit: cover;   
     
 }
-
+.library-designs-items-container-img-1 img{
+  width:298px;
+  height:298px;
+ 
+  /* background:grey; */
+  /* object-fit: cover;    */
+  
+}
 .library-designs-items-container h6 {
   color: #000;
   font-size: 20px;

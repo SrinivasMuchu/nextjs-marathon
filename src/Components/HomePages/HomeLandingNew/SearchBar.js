@@ -1,0 +1,93 @@
+"use client"
+import React, { useEffect, useState } from "react"
+import axios from "axios"
+import Link from "next/link"
+import { FiSearch } from "react-icons/fi"
+import { BASE_URL, IMAGEURLS } from "../../../config"
+import styles from "./HomeLandingNew.module.css"
+import Image from "next/image"
+
+function SearchBar() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const query = searchQuery.trim()
+
+    if (!query) {
+      setResults([])
+      return
+    }
+
+    const handler = setTimeout(async () => {
+      try {
+        setIsLoading(true)
+        const response = await axios.get(
+          `${BASE_URL}/v1/cad/get-category-design?limit=10&page=1&search=${encodeURIComponent(
+            query
+          )}`,
+          { cache: 'no-store' }
+        )
+
+        const designs = response.data?.data?.designDetails || []
+        setResults(designs)
+      } catch (error) {
+        console.error('Error fetching search results:', error)
+        setResults([])
+      } finally {
+        setIsLoading(false)
+      }
+    }, 400)
+
+    return () => clearTimeout(handler)
+  }, [searchQuery])
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const showDropdown = searchQuery.trim() && (results.length > 0 || isLoading)
+
+  return (
+    <div className={styles.searchContainer}>
+      <div className={styles.searchBar}>
+        <FiSearch className={styles.searchIcon} size={20} />
+        <input
+          type="text"
+          placeholder="Search CAD files 'Engine'"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className={styles.searchInput}
+        />
+      </div>
+
+      {showDropdown && (
+        <div className={styles.searchResults}>
+          {isLoading && (
+            <div className={styles.searchResultItem}>Searching…</div>
+          )}
+          {!isLoading &&
+            results.map((design) => (
+              <Link
+                key={design._id}
+                href={`/library/${design.route}`}
+                className={styles.searchResultItem}
+              >
+                <Image src={IMAGEURLS.cubeFocus} alt="search-icon" width={20} height={20} />
+             
+                <span className={styles.searchResultText}>
+                  {design.page_title}
+                </span>
+              </Link>
+            ))}
+          {!isLoading && results.length === 0 && (
+            <div className={styles.searchResultItem}>No results found</div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default SearchBar

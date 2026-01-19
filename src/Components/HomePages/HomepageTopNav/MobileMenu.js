@@ -44,10 +44,10 @@ function MobileMenu({ onClose, styles }) {
       <div className={styles["menu-navs"]}>
       <Link href="/about-us" onClick={handleCloseMenu}>About us</Link>
         <Link href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</Link>
-        <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
+        {/* <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
         <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
         <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link>
-        <Link href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</Link>
+        <Link href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</Link> */}
         {/* Dropdown for Tools */}
         <div className={styles["menu-dropdown"]}>
           <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("tools")}>

@@ -10,23 +10,36 @@ import Security from "../HomePages/Security/Security";
 import Footer from "../HomePages/Footer/Footer";
 import Tools from "../HomePages/Tools/Tools";
 import LibraryDetails from "../HomePages/LibraryTools/LibraryDetails";
-
+import DesignHub from "../HomePages/DesignHub/DesignHub";
+import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
+import CreatorsContent from "../HomePages/CreatorsContent/CreatorsContent";
+import WhyUsNew from "../HomePages/NewWhyUs/WhyUsNew";
+import FreeTools from "../HomePages/FreeTools/FreeTools";
+import HomeLandingNew from "../HomePages/HomeLandingNew/HomeLandingNew";
+import Faq from "../HomePages/Faq/Faq";
 const HomePage = () => {
   
 
   return (
     <div>
       {/* <HomeTopNav /> */}
-      <WorkFlow />
-      <WhyUs />
-      <Capabilities />
+      {/* <WorkFlow /> */}
+      <HomeLandingNew />
+      <DesignHub />
+      <RecentlyAddedDesigns />
+      <WhyUsNew />
+      <FreeTools />
+      <CreatorsContent />
+      {/* <WhyUs />
+      <Capabilities /> */}
       
-      <SneakPeak />
-      <Subscription />
+      {/* <SneakPeak /> */}
+      {/* <Subscription /> */}
      
-      <Tools/>
-      <LibraryDetails/>
+      {/* <Tools/>
+      <LibraryDetails/> */}
       <Security />
+      <Faq />
       <Footer />
     </div >
   );

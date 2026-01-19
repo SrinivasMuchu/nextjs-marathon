@@ -15,14 +15,14 @@
     /* background-image: url('https://d1d8a3050v4fu6.cloudfront.net/homepage-assets/security-bg-comp.svg'); */
     background-color: #220A48; /* Ensure the fallback color is applied */
     display: flex;
-    padding: 80px 20px;
+    padding: 70px;
     box-sizing: border-box;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 50px;
     height: 100%;
     width: 100%;
-    border-radius: 30px;
+    /* border-radius: 30px; */
     background-size: cover; /* Ensure the background image covers the container */
     background-position: center; /* Position the image to the center */
     background-repeat: no-repeat; /* Prevent repeating the background image */
