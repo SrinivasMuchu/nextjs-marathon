@@ -54,7 +54,7 @@ function CreatorsContent() {
                 />
               </div>
               <div className={styles.creatorsContentStepContent}>
-                <h3 className={styles.creatorsContentStepTitle}>{step.title}</h3>
+                <h2 className={styles.creatorsContentStepTitle}>{step.title}</h2>
                 <p className={styles.creatorsContentStepDescription}>{step.description}</p>
               </div>
             </div>

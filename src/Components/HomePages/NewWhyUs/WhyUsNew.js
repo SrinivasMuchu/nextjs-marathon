@@ -44,7 +44,7 @@ function WhyUsNew() {
             </div>
             <div className={styles.whyUsNewCardContent} style={{ padding: '20px' }}
             >
-              <h3 className={styles.whyUsNewCardTitle}>{feature.title}</h3>
+              <h2 className={styles.whyUsNewCardTitle}>{feature.title}</h2>
               <p className={styles.whyUsNewCardDescription}>{feature.description}</p>
             </div>
           </div>
