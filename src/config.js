@@ -82,7 +82,7 @@ export const IMAGEURLS = {
   freeTools1:`${MARATHON_ASSET_PREFIX_URL}cad-viewer-home.webp`,
   freeTools2:`${MARATHON_ASSET_PREFIX_URL}cad-convertor-home.webp`,
   logoTop:`${MARATHON_ASSET_PREFIX_URL}marathon-logo-top.webp`,
-  newHomeBg:`${MARATHON_ASSET_PREFIX_URL}new-home-bg.webp`,
+  newHomeBg:`${MARATHON_ASSET_PREFIX_URL}new-home-bg-1.webp`,
   cubeFocus:`${MARATHON_ASSET_PREFIX_URL}CubeFocus.webp`,
   // ImageSquare.svg
   // open-answer.webp

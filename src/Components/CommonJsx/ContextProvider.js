@@ -20,7 +20,9 @@ function ContextProvider({children}) {
     const [downloadedFileUpdate, setDownloadedFileUpdate] = useState(false);
     const [designLiked, setDesignLiked] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState('automotive');
+    // Let individual pages (like DesignHub) decide the initial default
+    // by starting with no preselected category here.
+    const [selectedCategory, setSelectedCategory] = useState('');
     const [user, setUser] = useState({ 
         name: '', email: '', photo: '',_id:'',
         user_access_key: '', desc: '', 
