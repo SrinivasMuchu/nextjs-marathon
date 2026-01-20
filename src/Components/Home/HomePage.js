@@ -17,31 +17,34 @@ import WhyUsNew from "../HomePages/NewWhyUs/WhyUsNew";
 import FreeTools from "../HomePages/FreeTools/FreeTools";
 import HomeLandingNew from "../HomePages/HomeLandingNew/HomeLandingNew";
 import Faq from "../HomePages/Faq/Faq";
+import styles from "./HomePage.module.css";
 const HomePage = () => {
   
 
   return (
-    <div>
-      {/* <HomeTopNav /> */}
-      {/* <WorkFlow /> */}
-      <HomeLandingNew />
-      <DesignHub />
-      <RecentlyAddedDesigns />
-      <WhyUsNew />
-      <FreeTools />
-      <CreatorsContent />
-      {/* <WhyUs />
-      <Capabilities /> */}
-      
-      {/* <SneakPeak /> */}
-      {/* <Subscription /> */}
-     
-      {/* <Tools/>
-      <LibraryDetails/> */}
-      <Security />
-      <Faq />
+    <div className={styles.homeRoot}>
+      <div className={styles.mainContent}>
+        {/* <HomeTopNav /> */}
+        {/* <WorkFlow /> */}
+        <HomeLandingNew />
+        <DesignHub />
+        <RecentlyAddedDesigns />
+        <WhyUsNew />
+        <FreeTools />
+        <CreatorsContent />
+        {/* <WhyUs />
+        <Capabilities /> */}
+        
+        {/* <SneakPeak /> */}
+        {/* <Subscription /> */}
+       
+        {/* <Tools/>
+        <LibraryDetails/> */}
+        <Security />
+        <Faq />
+      </div>
       <Footer />
-    </div >
+    </div>
   );
 };
 
