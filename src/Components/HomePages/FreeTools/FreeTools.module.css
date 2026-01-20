@@ -5,6 +5,9 @@
   justify-content: center;
   padding: clamp(40px, 8vw, 70px) ;
   width: 100%;
+}
+
+.freeToolsBgLoaded {
   background-image: url('https://d2o2bcehk92sin.cloudfront.net/free-tools-bg.webp');
   background-size: cover;
   background-position: center -60%;

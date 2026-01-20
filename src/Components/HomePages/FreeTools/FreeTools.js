@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { IMAGEURLS } from '@/config'
 import styles from './FreeTools.module.css'
+import FreeToolsBgWrapper from './FreeToolsBgWrapper'
 
 const fileFormats = [
   { name: 'STEP', extensions: '.step, .stp' },
@@ -33,7 +34,7 @@ const toolsData = [
 
 function FreeTools() {
   return (
-    <div className={styles.freeToolsContainer}>
+    <FreeToolsBgWrapper>
       <div className={styles.freeToolsHeader}>
         <h1 className={styles.freeToolsTitle}>Marathon-OS free to use tools</h1>
         <p className={styles.freeToolsSubtitle}>
@@ -74,7 +75,7 @@ function FreeTools() {
           </Link>
         ))}
       </div>
-    </div>
+    </FreeToolsBgWrapper>
   )
 }
 
