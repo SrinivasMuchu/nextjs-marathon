@@ -4,25 +4,25 @@ import axios from 'axios';
 import styles from './CommonStyles.module.css';
 import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 
 
 
 function EmailOTP({ email, accessKey,
   setIsEmailVerify, setError, type, saveDetails }) {
-  
+
   const inputs = useMemo(() => Array(4).fill().map(() => React.createRef()), []);
   const [otp, setOtp] = useState(['', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const router = useRouter();
   // Safe router usage - handle case where router might not be available
-  const handleNavigateToProfile=()=>{
+  const handleNavigateToProfile = () => {
     router.push('/dashboard');
   }
 
-  
-  
+
+
   const uuid = localStorage.getItem('uuid');
 
   const sendOtp = async () => {
@@ -52,8 +52,8 @@ function EmailOTP({ email, accessKey,
   };
 
   useEffect(() => {
-    if(!email){
-      
+    if (!email) {
+
       router.push('/dashboard');
       toast.info('Please update your profile')
       setIsEmailVerify(false)
@@ -100,16 +100,23 @@ function EmailOTP({ email, accessKey,
       const enteredOtp = otp.join('');
       const res = await axios.post(
         `${BASE_URL}/v1/cad/verify-otp`,
-        { email, otp: enteredOtp,accessKey:accessKey?accessKey:'' },
+        { email, otp: enteredOtp, accessKey: accessKey ? accessKey : '' },
         { headers: { 'user-uuid': uuid } }
       );
 
       if (res.data.meta.success) {
-        localStorage.clear();
+        const newUuid = res.data.data.uuid;
+
+        // Update only relevant keys in localStorage
+        localStorage.setItem('is_verified', 'true');
+        localStorage.setItem('uuid', newUuid);
+
+        // Mirror the same values in cookies
+        document.cookie = `is_verified=true; path=/; SameSite=Lax`;
+        document.cookie = `uuid=${newUuid}; path=/; SameSite=Lax`;
+
         toast.success('OTP verified successfully!');
-        localStorage.setItem('is_verified', true);
         console.log("OTP verified successfully");
-        localStorage.setItem('uuid', res.data.data.uuid);
         saveDetails();
         console.log("saveDetails function called");
       } else {
@@ -134,10 +141,10 @@ function EmailOTP({ email, accessKey,
         {/* Optional SVG Icon */}
         <div style={{ marginBottom: 24 }}>
           {/* ... Insert SVG if needed ... */}
-          Verification code sent to your email <strong>{email}</strong> 
-          <br />Want to change your email? 
-          <span style={{ color: '#610bee', cursor: 'pointer' }} 
-          onClick={handleNavigateToProfile}>
+          Verification code sent to your email <strong>{email}</strong>
+          <br />Want to change your email?
+          <span style={{ color: '#610bee', cursor: 'pointer' }}
+            onClick={handleNavigateToProfile}>
             Click here
           </span>
         </div>
