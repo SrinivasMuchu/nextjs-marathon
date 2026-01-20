@@ -39,18 +39,20 @@ async function Library({ searchParams }) {
   const cookieStore = cookies();
   const uuid = cookieStore.get('uuid')?.value || null;
   
-  // Build headers for get-category-design API
-  const headers = {};
-  if (uuid) {
-    headers['user-uuid'] = uuid;
-  }
+  // Build query parameters for get-category-design API
+  const queryParams = new URLSearchParams();
+  if (category) queryParams.set('category', category);
+  queryParams.set('limit', limit.toString());
+  queryParams.set('page', page.toString());
+  if (searchQuery) queryParams.set('search', searchQuery);
+  if (tags) queryParams.set('tags', tags);
+  if (uuid) queryParams.set('uuid', uuid);
   
   let response;
 
     response = await axios.get(
-       `${BASE_URL}/v1/cad/get-category-design?category=${category}&limit=${limit}&page=${page}&search=${searchQuery}&tags=${tags}`,
+       `${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`,
     { 
-      headers,
       cache: 'no-store' 
     }
     );
