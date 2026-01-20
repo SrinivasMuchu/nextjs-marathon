@@ -4,12 +4,19 @@ import React, { useContext } from 'react'
 import { contextState } from '../../CommonJsx/ContextProvider'
 import DesignHubDesigns from './DesignHubDesigns'
 
-function DesignHubDesignsWrapper() {
+function DesignHubDesignsWrapper({
+  activeCategory,
+  designsByCategory = {},
+  activeDesigns,
+}) {
   const { selectedCategory } = useContext(contextState)
-  // Use category from context, default to 'automotive'
-  const activeCategory = selectedCategory || 'automotive'
+  // Prefer the activeCategory passed from parent, fall back to context or default
+  const resolvedCategory = activeCategory || selectedCategory || 'automotive'
 
-  return <DesignHubDesigns category={activeCategory} />
+  const designs =
+    activeDesigns || designsByCategory[resolvedCategory] || []
+
+  return <DesignHubDesigns designs={designs} />
 }
 
 export default DesignHubDesignsWrapper

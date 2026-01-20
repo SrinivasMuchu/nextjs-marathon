@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { IMAGEURLS } from '../../../config'
 import { FaArrowRight } from 'react-icons/fa6'
 import styles from './CreatorsContent.module.css'
+import StartSellingButton from './StartSellingButton'
 
 function CreatorsContent() {
   const steps = [
@@ -38,10 +39,7 @@ function CreatorsContent() {
           <p className={styles.creatorsContentDescription}>
             Publish your CAD designs, reach engineering teams, and monetize your work on a platform built for real engineering use.
           </p>
-          <Link href="/dashboard" className={styles.creatorsContentButton}>
-            Start selling CAD designs
-            <FaArrowRight className={styles.creatorsContentButtonArrow} />
-          </Link>
+          <StartSellingButton />
         </div>
         <div style={{ background: '#E5E7EB'}} className={styles.creatorsContentStepSeparator}></div>
         <div className={styles.creatorsContentRight}>
