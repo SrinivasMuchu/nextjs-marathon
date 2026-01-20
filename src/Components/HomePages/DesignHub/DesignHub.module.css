@@ -63,10 +63,15 @@
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
     width: 100%;
+    cursor: grab;
 }
 
 .designHubCategoriesList::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
+}
+
+.designHubCategoriesListDragging {
+    cursor: grabbing;
 }
 
 .designHubCategoryButton {

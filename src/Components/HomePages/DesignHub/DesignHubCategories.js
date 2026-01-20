@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import styles from './DesignHub.module.css'
 
 function DesignHubCategories({
@@ -8,9 +8,46 @@ function DesignHubCategories({
   selectedCategory,
   onCategoryChange,
 }) {
+  const listRef = useRef(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
+
+  const handleMouseDown = (e) => {
+    if (!listRef.current) return
+    setIsDragging(true)
+    setStartX(e.pageX - listRef.current.offsetLeft)
+    setScrollLeft(listRef.current.scrollLeft)
+  }
+
+  const handleMouseLeave = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !listRef.current) return
+    e.preventDefault()
+    const x = e.pageX - listRef.current.offsetLeft
+    const walk = (x - startX) * 1 // scroll speed
+    listRef.current.scrollLeft = scrollLeft - walk
+  }
+
   return (
     <div className={styles.designHubCategoriesContainer}>
-      <div className={styles.designHubCategoriesList}>
+      <div
+        ref={listRef}
+        className={`${styles.designHubCategoriesList} ${
+          isDragging ? styles.designHubCategoriesListDragging : ''
+        }`}
+        onMouseDown={handleMouseDown}
+        onMouseLeave={handleMouseLeave}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+      >
         {categories.length > 0 ? (
           categories.map((category) => {
             const categoryName = category.industry_category_name || category.name
