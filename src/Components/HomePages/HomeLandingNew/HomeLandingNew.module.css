@@ -16,12 +16,15 @@
   left: 0;
   width: 100%;
   height: 60%;
-  background-image: url('https://d2o2bcehk92sin.cloudfront.net/new-home-bg-1.webp');
-  background-size: cover;
-  background-position: bottom center;
-  background-repeat: no-repeat;
   transition: filter 0.3s ease, transform 0.3s ease;
   z-index: 1;
+}
+
+.backgroundImageImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: bottom center;
 }
 
 .landingContainer:focus-within .backgroundImage {

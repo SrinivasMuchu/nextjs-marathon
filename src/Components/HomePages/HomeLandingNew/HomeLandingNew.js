@@ -7,7 +7,17 @@ import SearchBar from './SearchBar'
 function HomeLandingNew() {
   return (
     <div className={styles.landingContainer}>
-      <div className={styles.backgroundImage} />
+      <div className={styles.backgroundImage}>
+        <Image
+          src={IMAGEURLS.newHomeBg}
+          alt="Marathon OS background"
+          priority
+          fetchPriority="high"
+          sizes="100vw"
+          fill
+          className={styles.backgroundImageImg}
+        />
+      </div>
       
       <div className={styles.contentCard}>
         <div className={styles.logoContainer}>
