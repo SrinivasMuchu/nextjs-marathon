@@ -6,6 +6,7 @@ import { IMAGEURLS } from "@/config"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import LinkedInIcon from "@mui/icons-material/LinkedIn"
+import FooterForm from "./FooterForm"
 
 function Footer() {
   const pathname = usePathname()
@@ -41,10 +42,14 @@ function Footer() {
                 Home
               </Link>
               <Link href="/about-us">About us</Link>
-              <Link href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>
+              <Link
+                href="#why-us"
+                onClick={(e) => handleAnchorClick(e, "why-us")}
+              >
                 Why us?
               </Link>
-              <Link
+              <Link href="/contact-us">Contact us</Link>
+              {/* <Link
                 href="#product"
                 onClick={(e) => handleAnchorClick(e, "product")}
               >
@@ -55,31 +60,21 @@ function Footer() {
                 onClick={(e) => handleAnchorClick(e, "pricing")}
               >
                 Pricing
-              </Link>
+              </Link> */}
             </div>
 
             <div className={styles["footer-navs"]}>
-              <Link href="/contact-us">Contact us</Link>
+             
               <Link href="/library">Library</Link>
-              <Link href="/tools/cad-viewer">CAD viewer</Link>
-              <Link href="/tools/3d-file-converter">3D file converter</Link>
+              <Link href="/tools/org-hierarchy">Org Hierarchy</Link>
+            
+              <Link href="/tools/cad-viewer">CAD Viewer</Link>
+              <Link href="/tools/3d-file-converter">CAD Converter</Link>
             </div>
           {/* </div> */}
         {/* </div> */}
 
-        <div className={styles["footer-newsletter"]}>
-          <span className={styles["footer-newsletter-title"]}>
-            Subscribe to our newsletter
-          </span>
-          <div className={styles["footer-newsletter-form"]}>
-            <input
-              type="email"
-              placeholder="Enter your Email"
-              aria-label="Email for newsletter subscription"
-            />
-            <button type="button">Submit</button>
-          </div>
-        </div>
+        <FooterForm styles={styles} />
       </div>
 
       <div className={styles["footer-bottom"]}>

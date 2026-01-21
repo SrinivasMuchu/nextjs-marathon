@@ -180,7 +180,8 @@ opacity: 0.5;
     flex-direction: column;
     text-align: left;
     gap: 16px;
-    width: 450px;
+    width: 100%;
+    max-width: 450px;
 
 }
 .footer-getin-touch{
