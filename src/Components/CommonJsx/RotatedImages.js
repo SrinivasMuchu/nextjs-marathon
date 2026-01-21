@@ -7,9 +7,18 @@ import StaticDesign from './StaticDesign';
 
 
 const HoverImageSequence = ({ design, width, height, loading }) => {
+  // Supported preview images coming from supporting_files (only image formats)
+  const supportingImages = (design?.supporting_files || []).filter((f) => {
+    const name = f.name || f.fileName || '';
+    return /\.(png|jpe?g|webp)$/i.test(name);
+  });
+  const hasSupportingImages = supportingImages.length > 0;
+
   // Check if file type is DXF or DWG
-  const isDxfOrDwg = design?.file_type?.toLowerCase() === 'dxf' || design?.file_type?.toLowerCase() === 'dwg';
- 
+  const isDxfOrDwg =
+    design?.file_type?.toLowerCase() === 'dxf' ||
+    design?.file_type?.toLowerCase() === 'dwg';
+
   const angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
   // const yangles = [0, 330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -73,22 +82,30 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
   };
 
 
-  // For DXF/DWG files, show static image without rotation
-  if (isDxfOrDwg) {
+  // For DXF/DWG files, or any design with supporting images, cycle through those images on hover
+  if (isDxfOrDwg || hasSupportingImages) {
+    const imageCount = supportingImages.length;
+    const activeImage =
+      imageCount > 0 ? supportingImages[currentIndex % imageCount] : null;
+
     return (
       <div
         ref={containerRef}
         style={{ height }}
         className={styles['library-designs-items-container-img']}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        <Image
-          src={`${IMAGE_BASE_URL}/${design._id}.webp`}
-          alt={design.page_title}
-          width={width}
-          height={height}
-          loading={loading}
-          priority={loading !== 'lazy'}
-        />
+        {activeImage && (
+          <Image
+            src={activeImage.url}
+            alt={activeImage.name || design.page_title}
+            width={width}
+            height={height}
+            loading={loading}
+            priority={loading !== 'lazy'}
+          />
+        )}
       </div>
     );
   }
