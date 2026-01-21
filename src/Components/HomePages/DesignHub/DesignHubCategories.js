@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from 'react'
 import styles from './DesignHub.module.css'
+import Image from 'next/image'
 
 function DesignHubCategories({
   categories = [],
@@ -61,10 +62,18 @@ function DesignHubCategories({
                 }`}
                 onClick={() => onCategoryChange(categoryName)}
               >
-                {category.icon && (
-                  <span className={styles.designHubCategoryIcon}>
-                    {category.icon}
-                  </span>
+                {category.logo && (
+                  <Image
+                    src={category.logo}
+                    alt={
+                      category.name ||
+                      category.industry_category_label ||
+                      category.title
+                    }
+                    width={32}
+                    height={32}
+                    className={styles.designHubCategoryIcon}
+                  />
                 )}
                 <span className={styles.designHubCategoryName}>
                   {category.name ||
