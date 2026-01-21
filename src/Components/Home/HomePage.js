@@ -1,22 +1,14 @@
 
 import React from "react";
-import HomeTopNav from "../HomePages/HomepageTopNav/HomeTopNav";
-import WorkFlow from "../HomePages/Workflow/WorkFlow";
-import WhyUs from "../HomePages/WhyUs/WhyUs";
-import Capabilities from "../HomePages/Capabilities/Capabilities";
-import SneakPeak from "../HomePages/SneakPeak/SneakPeak";
-import Subscription from "../HomePages/Subscription/Subscription";
-import Security from "../HomePages/Security/Security";
-import Footer from "../HomePages/Footer/Footer";
-import Tools from "../HomePages/Tools/Tools";
-import LibraryDetails from "../HomePages/LibraryTools/LibraryDetails";
+import HomeLandingNew from "../HomePages/HomeLandingNew/HomeLandingNew";
 import DesignHub from "../HomePages/DesignHub/DesignHub";
 import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
-import CreatorsContent from "../HomePages/CreatorsContent/CreatorsContent";
 import WhyUsNew from "../HomePages/NewWhyUs/WhyUsNew";
 import FreeTools from "../HomePages/FreeTools/FreeTools";
-import HomeLandingNew from "../HomePages/HomeLandingNew/HomeLandingNew";
+import CreatorsContent from "../HomePages/CreatorsContent/CreatorsContent";
+import Security from "../HomePages/Security/Security";
 import Faq from "../HomePages/Faq/Faq";
+import Footer from "../HomePages/Footer/Footer";
 import styles from "./HomePage.module.css";
 const HomePage = () => {
   
