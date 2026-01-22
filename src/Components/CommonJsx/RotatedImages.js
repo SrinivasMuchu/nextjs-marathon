@@ -82,8 +82,8 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
   };
 
 
-  // For DXF/DWG files, or any design with supporting images, cycle through those images on hover
-  if (isDxfOrDwg || hasSupportingImages) {
+  // For DXF/DWG files only, cycle through supporting images on hover
+  if (isDxfOrDwg && hasSupportingImages) {
     const imageCount = supportingImages.length;
     const activeImage =
       imageCount > 0 ? supportingImages[currentIndex % imageCount] : null;
