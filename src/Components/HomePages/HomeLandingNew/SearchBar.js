@@ -23,10 +23,18 @@ function SearchBar() {
     const handler = setTimeout(async () => {
       try {
         setIsLoading(true)
+        // Get UUID from localStorage (client-side)
+        const uuid = typeof window !== 'undefined' ? localStorage.getItem('uuid') : null
+
+        // Build query parameters
+        const queryParams = new URLSearchParams()
+        queryParams.set('limit', '20')
+        queryParams.set('page', '1')
+        queryParams.set('search', query)
+        queryParams.set('uuid', uuid)
+
         const response = await axios.get(
-          `${BASE_URL}/v1/cad/get-category-design?limit=10&page=1&search=${encodeURIComponent(
-            query
-          )}`,
+          `${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`,
           { cache: 'no-store' }
         )
 
