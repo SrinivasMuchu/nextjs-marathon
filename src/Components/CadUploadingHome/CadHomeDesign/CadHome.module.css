@@ -59,10 +59,10 @@
 }
 .cad-industries-content h2 {
     color: #000;
-    font-size: 44px;
+    font-size: clamp(24px, 5vw, 48px);
     font-style: normal;
     font-weight: 700;
-    line-height: 52px;
+    /* line-height: 52px; */
     text-align: center;
 }
 
@@ -151,7 +151,7 @@
     font-size: clamp(24px, 5vw, 48px);
     font-style: normal;
     font-weight: 700;
-    line-height: 52px;
+    /* line-height: 52px; */
     text-align: center;
 }
 
@@ -199,7 +199,7 @@
     font-size:clamp(24px, 5vw, 48px);
     font-style: normal;
     font-weight: 700;
-    line-height: 52px;
+    /* line-height: 52px; */
     text-align: center;
 }
 

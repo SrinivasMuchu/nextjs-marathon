@@ -47,7 +47,7 @@
     gap: 24px;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 10px clamp(20px, 5vw, 70px);
+    padding: 10px clamp(16px, 3vw, 40px);
     scroll-behavior: smooth;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
