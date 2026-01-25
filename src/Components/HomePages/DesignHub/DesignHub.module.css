@@ -1,0 +1,261 @@
+.designHubContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding-top: clamp(20px, 5vw, 70px);
+    padding-bottom: clamp(20px, 5vw, 70px);
+    padding-left: 0;
+    padding-right: 0;
+  
+    width: 100%;
+}
+.designHubHead {
+    color: #001325;
+    font-size: clamp(24px, 5vw, 48px);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+    text-align: center;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.designHubDesc {
+    color: #001325;
+    font-size: clamp(14px, 2.5vw, 20px);
+    /* font-size: 16px; */
+    font-style: normal;
+    font-weight: 400;
+    line-height: 26px;
+    opacity: 0.7;
+    margin-top: 10px;
+    text-align: center;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.designHubCategoriesContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.designHubCategoriesHead {
+    color: #001325;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 40px;
+    text-align: center;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.designHubCategoriesDesc {
+    color: #001325;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 26px;
+    opacity: 0.7;
+    text-align: center;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.designHubCategoriesList {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 0;
+    padding-left: 0;
+    padding-right: 0;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    width: 100%;
+    cursor: grab;
+    box-sizing: border-box;
+}
+
+.designHubCategoriesList::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.designHubCategoriesListDragging {
+    cursor: grabbing;
+}
+
+.designHubCategoryButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 100px;
+    border: 1px solid #F1EDF8;
+   
+    color: #001325;
+    font-size: 24px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: #F1EDF8;
+}
+
+.designHubCategoryButton:hover {
+    background: #610BEE;
+    color: #FFFFFF;
+    border-color: #610BEE;
+}
+
+.designHubCategoryButton:hover .designHubCategoryIcon {
+    filter: brightness(0) invert(1);
+}
+
+.designHubCategoryButtonActive {
+    background: #610BEE !important;
+    color: #FFFFFF !important;
+    border-color: #610BEE !important;
+}
+
+.designHubCategoryButtonActive .designHubCategoryIcon {
+    filter: brightness(0) invert(1);
+}
+
+.designHubCategoryIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    transition: filter 0.3s ease;
+}
+
+.designHubCategoryName {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.viewAllDesignsButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 32px;
+    border-radius: 4px;
+    border: none;
+    background: #610BEE;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 500;
+    font-style: normal;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    margin-top: 32px;
+}
+
+.viewAllDesignsButton:hover {
+    background: #4A0ABE;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(97, 11, 238, 0.3);
+}
+
+.viewAllDesignsButton:active {
+    transform: translateY(0);
+}
+
+.viewAllDesignsArrow {
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+.designHubDesignsContainer {
+    width: 100%;
+    margin-top: 40px;
+}
+
+.designHubDesignsGrid {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    grid-auto-columns: 298px;
+    gap: 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px clamp(16px, 3vw, 40px);
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Mobile: Show 1 full card + 50% of 2nd card */
+@media (max-width: 768px) {
+    .designHubDesignsGrid {
+        grid-auto-columns: 240px;
+        column-gap: 16px;
+        row-gap: 24px;
+    }
+}
+
+.designHubDesignsGrid::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.designHubDesignCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 298px;
+    box-sizing: border-box;
+}
+
+/* Mobile: Smaller card size */
+@media (max-width: 768px) {
+    .designHubDesignCard {
+        width: 240px;
+        min-width: 240px;
+        max-width: 240px;
+    }
+    
+    .designHubDesignTitle {
+        width: 100%;
+        max-width: 240px;
+        box-sizing: border-box;
+    }
+}
+
+.designHubDesignTitle {
+    width: 100%;
+    color: #09090b;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 298px;
+    box-sizing: border-box;
+}

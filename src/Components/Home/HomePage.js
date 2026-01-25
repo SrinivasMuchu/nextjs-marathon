@@ -1,34 +1,42 @@
 
 import React from "react";
-import HomeTopNav from "../HomePages/HomepageTopNav/HomeTopNav";
-import WorkFlow from "../HomePages/Workflow/WorkFlow";
-import WhyUs from "../HomePages/WhyUs/WhyUs";
-import Capabilities from "../HomePages/Capabilities/Capabilities";
-import SneakPeak from "../HomePages/SneakPeak/SneakPeak";
-import Subscription from "../HomePages/Subscription/Subscription";
+import HomeLandingNew from "../HomePages/HomeLandingNew/HomeLandingNew";
+import DesignHub from "../HomePages/DesignHub/DesignHub";
+import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
+import WhyUsNew from "../HomePages/NewWhyUs/WhyUsNew";
+import FreeTools from "../HomePages/FreeTools/FreeTools";
+import CreatorsContent from "../HomePages/CreatorsContent/CreatorsContent";
 import Security from "../HomePages/Security/Security";
+import Faq from "../HomePages/Faq/Faq";
 import Footer from "../HomePages/Footer/Footer";
-import Tools from "../HomePages/Tools/Tools";
-import LibraryDetails from "../HomePages/LibraryTools/LibraryDetails";
-
+import styles from "./HomePage.module.css";
 const HomePage = () => {
   
 
   return (
-    <div>
-      {/* <HomeTopNav /> */}
-      <WorkFlow />
-      <WhyUs />
-      <Capabilities />
-      
-      <SneakPeak />
-      <Subscription />
-     
-      <Tools/>
-      <LibraryDetails/>
-      <Security />
+    <div className={styles.homeRoot}>
+      <div className={styles.mainContent}>
+        {/* <HomeTopNav /> */}
+        {/* <WorkFlow /> */}
+        <HomeLandingNew />
+        <DesignHub />
+        <RecentlyAddedDesigns />
+        <WhyUsNew />
+        <FreeTools />
+        <CreatorsContent />
+        {/* <WhyUs />
+        <Capabilities /> */}
+        
+        {/* <SneakPeak /> */}
+        {/* <Subscription /> */}
+       
+        {/* <Tools/>
+        <LibraryDetails/> */}
+        <Security />
+        <Faq />
+      </div>
       <Footer />
-    </div >
+    </div>
   );
 };
 

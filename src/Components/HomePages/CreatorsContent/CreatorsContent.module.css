@@ -1,0 +1,226 @@
+.creatorsContentContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(40px, 8vw, 100px) clamp(20px, 5vw, 80px);
+    width: 100%;
+    background: #FFFFFF;
+}
+
+.creatorsContentWrapper {
+    display: flex;
+    gap: 60px;
+    width: 100%;
+    max-width: 1200px;
+    align-items: flex-start;
+}
+
+.creatorsContentLeft {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.creatorsContentTitle {
+    color: #001325;
+    font-size: clamp(32px, 5vw, 48px);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: left;
+    margin: 0;
+}
+
+.creatorsContentDescription {
+    color: #001325;
+    font-size: clamp(14px, 2vw, 18px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.6;
+    margin: 0;
+    opacity: 0.9;
+    text-align: left;
+    }
+
+.creatorsContentButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 32px;
+    border-radius: 4px;
+    border: none;
+    background: #610BEE;
+    color: #FFFFFF;
+    font-size: clamp(14px, 2vw, 16px);
+    font-weight: 500;
+    font-style: normal;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    text-decoration: none;
+    width: fit-content;
+    margin-top: 8px;
+}
+
+.creatorsContentButton:hover {
+    background: #4A0ABE;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(97, 11, 238, 0.3);
+}
+
+.creatorsContentButton:active {
+    transform: translateY(0);
+}
+
+.creatorsContentButtonArrow {
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+.creatorsContentStepSeparator {
+    /* in mobile it should be horizonal in desktop in vertical */
+    @media (max-width: 768px) {
+        width: 50%;
+        height: 1px;
+        background: grey;
+    }
+    @media (min-width: 769px) {
+        width: 1px;
+        height: 1px;
+        background: grey;
+    }
+   
+}
+
+    .creatorsContentRight {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.creatorsContentStep {
+    display: flex;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid #E5E7EB;
+    align-items: flex-start;
+}
+
+.creatorsContentStep:not(:last-child) {
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.creatorsContentStep:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.creatorsContentStepIcon {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    /* background: #610BEE; */
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+}
+
+.creatorsContentStepIcon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.creatorsContentStepContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.creatorsContentStepTitle {
+    color: #001325;
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.creatorsContentStepDescription {
+    color: #001325;
+    font-size: clamp(14px, 2vw, 16px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.5;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .creatorsContentWrapper {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .creatorsContentLeft {
+        width: 100%;
+    }
+
+    .creatorsContentRight {
+        width: 100%;
+    }
+
+    .creatorsContentButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .creatorsContentStep {
+        padding: 20px 0;
+    }
+
+    .creatorsContentStepIcon {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+@media (max-width: 480px) {
+    .creatorsContentContainer {
+        padding: clamp(30px, 5vw, 50px) clamp(16px, 4vw, 24px);
+    }
+
+    .creatorsContentWrapper {
+        gap: 32px;
+    }
+
+    .creatorsContentStep {
+        gap: 16px;
+        padding: 16px 0;
+    }
+
+    .creatorsContentStepIcon {
+        width: 48px;
+        height: 48px;
+    }
+    .creatorsContentTitle {
+        
+        text-align: center;
+        
+    }
+    
+    .creatorsContentDescription {
+        
+        text-align: center;
+        }
+}

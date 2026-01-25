@@ -59,16 +59,16 @@
 }
 .cad-industries-content h2 {
     color: #000;
-    font-size: 44px;
+    font-size: clamp(24px, 5vw, 48px);
     font-style: normal;
     font-weight: 700;
-    line-height: 52px;
+    /* line-height: 52px; */
     text-align: center;
 }
 
 .cad-industries-content p {
     color: #001325;
-    font-size: 20px;
+    font-size:clamp(14px, 2vw, 20px);
     font-style: normal;
     font-weight: 400;
     line-height: 28px;
@@ -94,7 +94,7 @@
 }
 
 .cad-format-types-desc h3 {
-    font-size: 20px;
+    font-size:clamp(14px, 2vw, 20px);
     font-style: normal;
     font-weight: 500;
     line-height: 28px;
@@ -148,10 +148,10 @@
 
 .cad-convert-types {
     color: #000;
-    font-size: 44px;
+    font-size: clamp(24px, 5vw, 48px);
     font-style: normal;
     font-weight: 700;
-    line-height: 52px;
+    /* line-height: 52px; */
     text-align: center;
 }
 
@@ -166,7 +166,7 @@
 
 .cad-convert-types-list button {
     background: white;
-    font-size: 20px;
+    font-size: clamp(14px, 2vw, 20px);
     font-style: normal;
     font-weight: 500;
     line-height: 28px;
@@ -196,16 +196,16 @@
 
 .cad-landing-heading {
     color: #000;
-    font-size: 44px;
+    font-size:clamp(24px, 5vw, 48px);
     font-style: normal;
     font-weight: 700;
-    line-height: 52px;
+    /* line-height: 52px; */
     text-align: center;
 }
 
 .cad-landing-description {
     color: #001325;
-    font-size: 20px;
+    font-size: clamp(14px, 2vw, 20px);
     font-style: normal;
     font-weight: 500;
     line-height: 28px;

@@ -28,16 +28,34 @@
 }
 .library-designs-items-container {
   width: 400px;
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   background: white;
   flex-shrink: 0;
   overflow: hidden;
   /* padding: 24px; */
   /* display: flex; */
   /* flex-direction: column; */
-  border: 1px solid rgba(217, 183, 253, 0.30);
+  border: 1px solid #f2f2f2;
   border-radius: 12px;
   position: relative;
+}
+.library-designs-items-container-home {
+  width: 298px;
+  background: white;
+  flex-shrink: 0;
+  overflow: hidden;
+  /* padding: 24px; */
+  /* display: flex; */
+  /* flex-direction: column; */
+  border: 1px solid #f2f2f2;
+  border-radius: 12px;
+  position: relative;
+}
+
+/* Mobile: Smaller size to show 1 full + 50% of 2nd design */
+@media (max-width: 768px) {
+  .library-designs-items-container-home {
+    width: 240px;
+  }
 }
 .design-title-wrapper{
   display: flex;
@@ -100,16 +118,59 @@
     justify-content:center;
     /* background:grey; */
     /* object-fit: cover;      Ensures the image covers the area */
-   
+}
+
+/* Mobile: When used inside home container, make it responsive */
+@media (max-width: 768px) {
+  .library-designs-items-container-home .library-designs-items-container-img {
+    width: 240px;
+    height: 240px;
+  }
+  
+  .library-designs-items-container-home .library-designs-items-container-img img {
+    width: 240px;
+    height: 240px;
+  }
+}
+.library-designs-items-container-img-1{
+  width:298px;
+  height:298px;
+  /* height:250px; */
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  /* background:grey; */
+  /* object-fit: cover;      Ensures the image covers the area */
+}
+
+/* Mobile: Smaller size to match container */
+@media (max-width: 768px) {
+  .library-designs-items-container-img-1 {
+    width: 240px;
+    height: 240px;
+  }
+  
+  .library-designs-items-container-img-1 img {
+    width: 240px;
+    height: 240px;
+  }
 }
 .library-designs-items-container-img img{
     width:100%;
    
     /* background:grey; */
-    object-fit: cover;      /* Ensures the image covers the area */
+    object-fit: cover;   
     
 }
-
+.library-designs-items-container-img-1 img{
+  width:298px;
+  height:298px;
+ 
+  /* background:grey; */
+  /* object-fit: cover;    */
+  
+}
 .library-designs-items-container h6 {
   color: #000;
   font-size: 20px;

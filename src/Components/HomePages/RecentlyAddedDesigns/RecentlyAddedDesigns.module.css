@@ -1,0 +1,105 @@
+.recentlyAddedDesignsContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #F2EBFF;
+    padding-top: clamp(20px, 5vw, 70px);
+    padding-bottom: clamp(20px, 5vw, 70px);
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+   
+}
+
+.recentlyAddedDesignsHead {
+    color: #001325;
+    font-size: clamp(24px, 5vw, 48px);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 52px;
+    text-align: center;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.recentlyAddedDesignsDesc {
+    color: #001325;
+    font-size: clamp(14px, 2vw, 18px);
+    /* font-size: 16px; */
+    font-style: normal;
+    margin-top: 10px;
+    font-weight: 400;
+    line-height: 26px;
+    opacity: 0.7;
+    text-align: center;
+    margin-bottom: 40px;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.recentlyAddedDesignsGrid {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px clamp(16px, 3vw, 40px);
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+.recentlyAddedDesignsGrid::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.recentlyAddedDesignCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    width: 298px;
+    box-sizing: border-box;
+}
+
+/* Mobile: Smaller card size */
+@media (max-width: 768px) {
+    .recentlyAddedDesignsGrid {
+        gap: 16px;
+    }
+    
+    .recentlyAddedDesignCard {
+        width: 240px;
+        min-width: 240px;
+        max-width: 240px;
+    }
+    
+    .recentlyAddedDesignTitle {
+        width: 100%;
+        max-width: 240px;
+        box-sizing: border-box;
+    }
+}
+
+.recentlyAddedDesignTitle {
+    width: 100%;
+    color: #09090b;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 298px;
+    box-sizing: border-box;
+}
