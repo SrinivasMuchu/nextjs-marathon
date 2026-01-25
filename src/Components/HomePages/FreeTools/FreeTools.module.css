@@ -158,7 +158,8 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .freeToolsContainer {
-    padding: clamp(32px, 6vw, 60px) clamp(16px, 4vw, 24px);
+    padding-top: 40px;
+    padding-bottom: 40px;
   }
 
   .freeToolsHeader {
