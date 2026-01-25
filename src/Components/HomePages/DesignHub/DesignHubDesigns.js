@@ -15,8 +15,7 @@ function DesignHubDesigns({ designs = [] }) {
             <div key={design._id} className={styles.designHubDesignCard}>
               <Link 
                 href={`/library/${design.route}`} 
-                className={libraryStyles["library-designs-items-container"]}
-                style={{ width: 298, height: 298 }}
+                className={libraryStyles["library-designs-items-container-home"]}
               >
                 <HoverImageSequenceHome design={design} loading="lazy" />
               </Link>

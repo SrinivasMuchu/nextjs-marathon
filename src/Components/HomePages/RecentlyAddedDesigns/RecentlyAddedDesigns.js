@@ -26,8 +26,7 @@ async function RecentlyAddedDesigns() {
               <div key={design._id} className={styles.recentlyAddedDesignCard}>
                 <Link 
                   href={`/library/${design.route}`} 
-                  className={libraryStyles["library-designs-items-container"]}
-                  style={{ width: 298, height: 298 }}
+                  className={libraryStyles["library-designs-items-container-home"]}
                 >
                   <HoverImageSequence design={design} width={298} height={298} />
                 </Link>

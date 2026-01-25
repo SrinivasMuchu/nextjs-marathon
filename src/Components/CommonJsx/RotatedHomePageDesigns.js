@@ -69,7 +69,6 @@ const HoverImageSequenceHome = ({ design, loading }) => {
     return (
       <div
         ref={containerRef}
-        style={{ height:298,width:298 }}
         className={styles['library-designs-items-container-img-1']}
       >
         <Image
@@ -88,7 +87,6 @@ const HoverImageSequenceHome = ({ design, loading }) => {
   return (
     <div
       ref={containerRef}
-      style={{ height:298,width:298 }}
       className={styles['library-designs-items-container-img-1']}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

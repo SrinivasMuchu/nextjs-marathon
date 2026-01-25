@@ -157,7 +157,7 @@
     justify-content: center;
     gap: 8px;
     padding: 16px 32px;
-    border-radius: 18px;
+    border-radius: 4px;
     border: none;
     background: #610BEE;
     color: #FFFFFF;
@@ -208,6 +208,15 @@
     box-sizing: border-box;
 }
 
+/* Mobile: Show 1 full card + 50% of 2nd card */
+@media (max-width: 768px) {
+    .designHubDesignsGrid {
+        grid-auto-columns: 240px;
+        column-gap: 16px;
+        row-gap: 24px;
+    }
+}
+
 .designHubDesignsGrid::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
 }
@@ -218,6 +227,22 @@
     align-items: center;
     gap: 12px;
     width: 298px;
+    box-sizing: border-box;
+}
+
+/* Mobile: Smaller card size */
+@media (max-width: 768px) {
+    .designHubDesignCard {
+        width: 240px;
+        min-width: 240px;
+        max-width: 240px;
+    }
+    
+    .designHubDesignTitle {
+        width: 100%;
+        max-width: 240px;
+        box-sizing: border-box;
+    }
 }
 
 .designHubDesignTitle {
@@ -232,4 +257,5 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 298px;
+    box-sizing: border-box;
 }

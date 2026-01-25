@@ -55,6 +55,7 @@
     box-sizing: border-box;
 }
 
+
 .recentlyAddedDesignsGrid::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
 }
@@ -66,6 +67,26 @@
     gap: 12px;
     flex-shrink: 0;
     width: 298px;
+    box-sizing: border-box;
+}
+
+/* Mobile: Smaller card size */
+@media (max-width: 768px) {
+    .recentlyAddedDesignsGrid {
+        gap: 16px;
+    }
+    
+    .recentlyAddedDesignCard {
+        width: 240px;
+        min-width: 240px;
+        max-width: 240px;
+    }
+    
+    .recentlyAddedDesignTitle {
+        width: 100%;
+        max-width: 240px;
+        box-sizing: border-box;
+    }
 }
 
 .recentlyAddedDesignTitle {
@@ -80,4 +101,5 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 298px;
+    box-sizing: border-box;
 }

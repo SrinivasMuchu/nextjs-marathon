@@ -1,13 +1,14 @@
 .landingContainer {
   position: relative;
   width: 100%;
-  min-height: 120vh;
+  min-height: 850px;
   background: #0C0016;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   overflow: hidden;
   padding-top: clamp(20px, 6vw, 70px);
+  padding-bottom: clamp(40px, 8vw, 100px);
 }
 
 .backgroundImage {
@@ -202,7 +203,7 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .landingContainer {
-    min-height: 80vh;
+    min-height: 600px;
   }
 
   .contentCard {
@@ -232,7 +233,7 @@
 
 @media (max-width: 480px) {
   .landingContainer {
-    min-height: 70vh;
+    min-height: 550px;
   }
 
   .contentCard {
