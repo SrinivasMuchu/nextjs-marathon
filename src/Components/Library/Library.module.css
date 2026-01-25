@@ -28,14 +28,13 @@
 }
 .library-designs-items-container {
   width: 400px;
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   background: white;
   flex-shrink: 0;
   overflow: hidden;
   /* padding: 24px; */
   /* display: flex; */
   /* flex-direction: column; */
-  border: 1px solid rgba(217, 183, 253, 0.30);
+  border: 1px solid #f2f2f2;
   border-radius: 12px;
   position: relative;
 }
