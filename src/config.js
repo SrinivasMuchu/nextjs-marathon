@@ -68,7 +68,22 @@ export const IMAGEURLS = {
   marathonLogo:`${MARATHON_ASSET_PREFIX_URL}m-logo.svg`,
   creatorBg:`${MARATHON_ASSET_PREFIX_URL}creator-bg.webp`,
   uploadCover:`${MARATHON_ASSET_PREFIX_URL}ImageSquare.svg`,
-  nofilesLogo:`${MARATHON_ASSET_PREFIX_URL}nofiles_img.webp`
+  nofilesLogo:`${MARATHON_ASSET_PREFIX_URL}nofiles_img.webp`,
+  creatorMarathon:`${MARATHON_ASSET_PREFIX_URL}creator-marathon.webp`,
+  addDetails:`${MARATHON_ASSET_PREFIX_URL}add-details.webp`,
+  setPrice:`${MARATHON_ASSET_PREFIX_URL}set-price.webp`,
+  uploadCadFile:`${MARATHON_ASSET_PREFIX_URL}upload-cad-file.webp`,
+  createProfileLogo:`${MARATHON_ASSET_PREFIX_URL}create-profile-logo.webp`,
+
+  whyUs1:`${MARATHON_ASSET_PREFIX_URL}why-us-1.webp`,
+  whyUs2:`${MARATHON_ASSET_PREFIX_URL}why-us-2.webp`,
+  whyUs3:`${MARATHON_ASSET_PREFIX_URL}why-us-3.webp`,
+
+  freeTools1:`${MARATHON_ASSET_PREFIX_URL}cad-viewer-home.webp`,
+  freeTools2:`${MARATHON_ASSET_PREFIX_URL}cad-convertor-home.webp`,
+  logoTop:`${MARATHON_ASSET_PREFIX_URL}marathon-logo-top.webp`,
+  newHomeBg:`${MARATHON_ASSET_PREFIX_URL}new-home-bg-1.webp`,
+  cubeFocus:`${MARATHON_ASSET_PREFIX_URL}CubeFocus.webp`,
   // ImageSquare.svg
   // open-answer.webp
   // Add more images as needed

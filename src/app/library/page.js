@@ -9,12 +9,12 @@ export async function generateMetadata({ searchParams }) {
   const categoryName = category ? capitalize(category) : 'Engineering';
 
   // Title logic
-  const title = `${categoryName} CAD Design Library | 3D Models for Product Development${page > 1 ? ` - Page ${page}` : ''} | Marathon OS`;
+  const title = `${categoryName} CAD Design Library - Browse 3D CAD Models${page > 1 ? ` - Page ${page}` : ''} | Marathon OS`;
 
   // Description logic
   const description = (category || page > 1)
     ? `Explore 3D CAD models in the ${categoryName} category. Ideal for engineers and designers looking for high-quality, ready-to-use designs.`
-    : 'Discover a rich library of 3D CAD designs for engineering and product development. Browse models across industries to accelerate design inspiration and collaboration.';
+    : 'Browse Marathon OS’s CAD Design Library. Search and filter by category or tags, preview models and download 3D CAD files for engineering workflows.';
 
   // Canonical URL logic
   let canonicalPath = '/library';

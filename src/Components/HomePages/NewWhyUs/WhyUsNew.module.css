@@ -1,0 +1,143 @@
+.whyUsNewContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.whyUsNewHeader {
+    background: #200944;
+    padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 80px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 16px;
+}
+
+.whyUsNewTitle {
+    color: #FFFFFF;
+    font-size: clamp(24px, 5vw, 48px);
+    /* font-size: clamp(28px, 5vw, 56px); */
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+   
+}
+
+.whyUsNewSubtitle {
+    color: #FFFFFF;
+    font-size: clamp(14px, 2vw, 18px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.6;
+    margin: 0;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.whyUsNewCards {
+    display: flex;
+    gap: 24px;
+   
+  text-align: left;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.whyUsNewCard {
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.whyUsNewCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.whyUsNewCardImage {
+   
+    height: auto;
+    min-height: 200px;
+    border-radius: 8px;
+    overflow: hidden;
+   
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.whyUsNewImage {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    display: block;
+}
+
+.whyUsNewCardTitle {
+    color: #001325;
+    font-size: clamp(20px, 3vw, 24px);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.whyUsNewCardDescription {
+    color: #001325;
+    font-size: clamp(14px, 2vw, 16px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.6;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .whyUsNewHeader {
+        /* padding: clamp(30px, 6vw, 60px) clamp(16px, 4vw, 24px); */
+        gap: 12px;
+    }
+
+    .whyUsNewCards {
+        flex-direction: column;
+        padding: clamp(30px, 6vw, 60px) clamp(16px, 4vw, 24px);
+        gap: 20px;
+    }
+
+    .whyUsNewCard {
+        min-width: 100%;
+        max-width: 100%;
+        
+    }
+}
+
+@media (max-width: 480px) {
+    /* .whyUsNewHeader {
+        padding: clamp(24px, 5vw, 40px) clamp(12px, 3vw, 20px);
+    } */
+
+    .whyUsNewCards {
+        padding: clamp(24px, 5vw, 40px) clamp(12px, 3vw, 20px);
+        gap: 16px;
+    }
+
+    .whyUsNewCard {
+      
+        gap: 16px;
+    }
+}
