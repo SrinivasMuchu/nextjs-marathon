@@ -14,6 +14,8 @@ function FormateSelector() {
         { label: "PLY", extensions: [".ply"] },
         { label: "OFF", extensions: [".off"] },
         { label: "BREP", extensions: [".brp", ".brep"] },
+        { label: "OBJ", extensions: [".obj"] },
+        
         //  { label: "GLB", extensions: [".glb"] },
     ];
     const handleFormatChange = (event) => {

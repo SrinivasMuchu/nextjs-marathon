@@ -51,7 +51,8 @@ function CadFileConversionWrapper({ children, convert }) {
     // Debugging: Log the full pathname
     useEffect(() => {
         if (!convert) {
-            setAllowedFormats(allowedFilesList)
+            // Include DWG and DXF for converter (even on general converter page)
+            setAllowedFormats([...allowedFilesList, ".dwg", ".dxf"])
             return
         }
 

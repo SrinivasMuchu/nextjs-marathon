@@ -262,5 +262,5 @@ export const cadViewTypes =[{
 },{label:'BRP viewer',
   path:'/brp'
 },{label:'IGS viewer',
-  path:'/igs'
-}]
+    path:'/igs'
+},]
