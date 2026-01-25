@@ -31,7 +31,7 @@ function SearchBar() {
         queryParams.set('limit', '20')
         queryParams.set('page', '1')
         queryParams.set('search', query)
-        if (uuid) queryParams.set('uuid', uuid)
+        queryParams.set('uuid', uuid)
 
         const response = await axios.get(
           `${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`,
