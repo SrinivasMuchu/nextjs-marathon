@@ -34,9 +34,14 @@ async function getCategoriesAndDesigns() {
 
           const designsJson = await designsRes.json()
           const designsData = designsJson?.data?.designDetails || []
-          designsByCategory[categoryName] = Array.isArray(designsData)
-            ? designsData
+          // Filter out DWG and DXF files
+          const filteredDesigns = Array.isArray(designsData)
+            ? designsData.filter((design) => {
+                const fileType = design?.file_type?.toLowerCase()
+                return fileType !== 'dxf' && fileType !== 'dwg'
+              })
             : []
+          designsByCategory[categoryName] = filteredDesigns
         } catch {
           designsByCategory[categoryName] = []
         }
