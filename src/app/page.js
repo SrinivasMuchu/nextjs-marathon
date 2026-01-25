@@ -32,18 +32,18 @@ const jsonLdData = {
   url: "https://marathon-os.com",
   image: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
   description:
-    "Marathon OS is a cloud-based PLM, PDM, and BOM management platform designed for engineering teams and manufacturers. It streamlines CAD file management, inventory tracking, procurement, and real-time collaboration.",
+    "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
   applicationCategory: "BusinessApplication",
-  applicationSubCategory: "Product Lifecycle Management Software",
+  applicationSubCategory: "The CAD marketplace for modern teams",
   operatingSystem: "Web-based",
   softwareVersion: "1.0.0",
-  offers: {
-    "@type": "Offer",
-    price: "1500.00",
-    priceCurrency: "INR",
-    category: "Subscription",
-    url: "https://marathon-os.com/#pricing",
-  },
+  // offers: {
+  //   "@type": "Offer",
+  //   price: "1500.00",
+  //   priceCurrency: "INR",
+  //   category: "Subscription",
+  //   url: "https://marathon-os.com/#pricing",
+  // },
   publisher: {
     "@type": "Organization",
     name: "Marathon OS",

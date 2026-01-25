@@ -109,7 +109,7 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .whyUsNewHeader {
-        padding: clamp(30px, 6vw, 60px) clamp(16px, 4vw, 24px);
+        /* padding: clamp(30px, 6vw, 60px) clamp(16px, 4vw, 24px); */
         gap: 12px;
     }
 
@@ -127,9 +127,9 @@
 }
 
 @media (max-width: 480px) {
-    .whyUsNewHeader {
+    /* .whyUsNewHeader {
         padding: clamp(24px, 5vw, 40px) clamp(12px, 3vw, 20px);
-    }
+    } */
 
     .whyUsNewCards {
         padding: clamp(24px, 5vw, 40px) clamp(12px, 3vw, 20px);

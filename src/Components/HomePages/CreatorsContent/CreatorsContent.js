@@ -41,7 +41,7 @@ function CreatorsContent() {
           </p>
           <StartSellingButton />
         </div>
-        <div style={{ background: '#E5E7EB'}} className={styles.creatorsContentStepSeparator}></div>
+        {/* <div style={{ background: '#E5E7EB'}} className={styles.creatorsContentStepSeparator}></div> */}
         <div className={styles.creatorsContentRight}>
           {steps.map((step, index) => (
             <div key={index} className={styles.creatorsContentStep}>
