@@ -4,24 +4,40 @@ import styles from './Faq.module.css'
 
 const faqData = [
   {
+    question: 'What is MarathonOS?',
+    answer: 'MarathonOS is a marketplace where CAD designers sell CAD designs to engineers, agencies, and organizations. Buyers can discover designs, purchase securely, and download instantly.'
+  },
+  {
     question: 'How do I publish a CAD file?',
-    answer: 'To publish a CAD file, navigate to your dashboard and click on "Upload CAD File". Select your file, add a title, description, and set your pricing. Once you\'ve filled in all the required details, click "Publish" to make your design available on the marketplace.'
+    answer: 'Go to your dashboard and click "Upload CAD File." Upload your file, add a title, description, previews, and pricing, then click "Publish" to list it on the marketplace.'
   },
   {
-    question: 'How can I earn money with my designs?',
-    answer: 'You can earn money by setting a price for your CAD designs when publishing them. When other users purchase your designs, you\'ll receive the payment (minus platform fees). You can also offer free designs to build your reputation and portfolio.'
+    question: 'How do I buy and download a design?',
+    answer: 'Open the design page and click "Buy/Download." After checkout, your file will appear in your Purchases/Downloads section, where you can download it anytime based on the license.'
   },
   {
-    question: 'What are the community guidelines?',
-    answer: 'Our community guidelines ensure a respectful and professional environment. Be respectful to other creators, provide accurate descriptions for your designs, and ensure all uploaded files comply with intellectual property laws. Harassment, spam, or inappropriate content is not tolerated.'
+    question: 'How do licensing and usage rights work?',
+    answer: 'All designs come with a Standard Usage License, allowing you to use, modify, remix, and commercially use the asset in your own products, client work, marketing, and team projects—royalty-free. Reselling or redistributing the original CAD file itself is not permitted.'
   },
   {
-    question: 'How do I get support?',
-    answer: 'You can get support by contacting our support team through the "Contact Us" page, or by emailing invite@marathon-os.com. We also have a comprehensive help center with articles and tutorials to help you get started.'
+    question: 'How do creators earn money and get paid?',
+    answer: 'Creators set their own prices when publishing. When a buyer purchases a design, creators earn the sale amount minus a 10% commission, with earnings visible in the dashboard.'
   },
   {
-    question: 'Can I collaborate with other creators?',
-    answer: 'Yes! Collaboration is encouraged on Marathon-OS. You can work with other creators on joint projects, share designs privately with team members, and even create collaborative collections. Use the collaboration features in your dashboard to invite others to work together.'
+    question: 'Can I collaborate with other creators or share with my team?',
+    answer: 'Yes. Collaboration is supported through your dashboard. You can work with other creators on shared projects, and teams can manage access to designs based on the license or plan.'
+  },
+  {
+    question: 'What if there\'s a problem with a file or I need help?',
+    answer: (
+      <>
+        If a file is broken, incorrect, or you need support, contact us via the Contact Us page or email{' '}
+        <a href="mailto:invite@marathon-os.com" style={{ color: 'inherit', textDecoration: 'underline' }}>
+          invite@marathon-os.com
+        </a>
+        {' '}with the listing link or order details, and we&apos;ll help resolve it.
+      </>
+    )
   }
 ]
 

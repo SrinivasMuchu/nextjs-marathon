@@ -33,7 +33,7 @@ function Footer() {
               width={160}
               height={30}
             />
-            <span>Simplifying Cloud PDM &amp; PLM</span>
+            <span>The CAD marketplace for modern teams</span>
           </div>
 
           {/* <div className={styles["footer-navs-group"]}> */}
