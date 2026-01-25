@@ -14,6 +14,9 @@ function IndustryDesignFilesList({ designData }) {
         { name: "Isometric View", x: 60, y: 30 }
     ];
 
+    const isDxfOrDwg = designData?.file_type &&
+        ['dxf', 'dwg'].includes(String(designData.file_type).toLowerCase());
+
     // Get the file ID from designData (assuming designData has at least one file)
 
     return (
@@ -46,21 +49,18 @@ function IndustryDesignFilesList({ designData }) {
 
                             </td>
                         </tr>
-                        {viewDirections.map((view, index) => (
+                        {!isDxfOrDwg && viewDirections.map((view, index) => (
                             <tr key={index}>
                                 <td data-label="View Name">{view.name}</td>
                                 <td data-label="Extension">webp</td>
                                 <td data-label="Action">
-                                    {/* <a 
-                    href={`${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_${view.x}_${view.y}.webp`} 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <button className={styles['industry-design-files-btn']}>
-                        Download
-                    </button>
-                </a> */}
-                                    <DownloadClientButton folderId={designData._id} xaxis={view.x} yaxis={view.y} isDownladable={designData.is_downloadable} step={false} />
+                                    <DownloadClientButton
+                                        folderId={designData._id}
+                                        xaxis={view.x}
+                                        yaxis={view.y}
+                                        isDownladable={designData.is_downloadable}
+                                        step={false}
+                                    />
                                 </td>
                             </tr>
                         ))}

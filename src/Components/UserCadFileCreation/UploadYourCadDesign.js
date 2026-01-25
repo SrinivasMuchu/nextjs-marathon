@@ -243,6 +243,21 @@ function UploadYourCadDesign({
         return fileNameParts.pop().toLowerCase() || 'unknown';
     };
 
+    // Check if a supporting file is an image that can be used as a preview
+    // Only allow common web-preview formats: JPG, JPEG, PNG, WEBP, GIF
+    const isImageSupportingFile = (file) => {
+        if (!file) return false;
+        const type = (file.type || '').toLowerCase();
+        if (type.startsWith('image/')) return true;
+
+        const name = (file.fileName || file.name || '').toLowerCase();
+        const parts = name.split('.');
+        if (parts.length < 2) return false;
+        const ext = parts.pop();
+        const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        return IMAGE_EXTENSIONS.includes(ext);
+    };
+
     // Handle primary file selection (validates file format - only CAD formats allowed)
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
@@ -870,7 +885,8 @@ function UploadYourCadDesign({
             fileName: '',
             fileSize: '',
             uploadProgress: 0,
-            url: ''
+            url: '',
+            fileFormat: ''
         }));
         toast.info("Primary file removed. You can upload a new one.");
     }
@@ -901,10 +917,40 @@ function UploadYourCadDesign({
     // Validate step 1 (file upload)
     const validateStep1 = () => {
         if (editedDetails) return true; // Skip validation for editing mode
-        // Primary file is required, supporting files are optional
+        // Primary file is required, with extra rules for DWG/DXF
         const currentSupportedFiles = cadFormState.supportedFiles || [];
-        if (!cadFormState.url && currentSupportedFiles.length === 0) {
+        const primaryFileExists = !!cadFormState.url;
+        const primaryFormat = (cadFormState.fileFormat || '').toLowerCase();
+        const isPrimaryDwgOrDxf = ['dwg', 'dxf'].includes(primaryFormat);
+
+        if (!primaryFileExists && currentSupportedFiles.length === 0) {
             setFormErrors(prev => ({ ...prev, file: 'Upload your primary CAD file.' }));
+            return false;
+        }
+
+        // If primary is DWG/DXF, supporting files are mandatory and must include at least one image
+        if (primaryFileExists && isPrimaryDwgOrDxf) {
+            if (currentSupportedFiles.length === 0) {
+                setFormErrors(prev => ({
+                    ...prev,
+                    file: 'For DWG/DXF primary files, please upload supporting files including at least one image (JPG, PNG, etc.).'
+                }));
+                return false;
+            }
+
+            const hasImage = currentSupportedFiles.some(isImageSupportingFile);
+            if (!hasImage) {
+                setFormErrors(prev => ({
+                    ...prev,
+                    file: 'For DWG/DXF primary files, supporting files must include at least one image (JPG, PNG, etc.).'
+                }));
+                return false;
+            }
+        }
+
+        if (!primaryFileExists && currentSupportedFiles.length > 0) {
+            // Allow progressing with only supporting files (existing behaviour)
+            setFormErrors(prev => ({ ...prev, file: '' }));
             return false;
         }
         setFormErrors(prev => ({ ...prev, file: '' }));
@@ -1213,7 +1259,9 @@ function UploadYourCadDesign({
                                     </>
                                 )}
                             </div>
-                            {(formErrors.file && !cadFormState.url && (!cadFormState.supportedFiles || cadFormState.supportedFiles.length === 0)) && <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>}
+                            {formErrors.file && (
+                                <p style={{ color: 'red', marginTop: 8 }}>{formErrors.file}</p>
+                            )}
                         </div>
                         
                         {/* Next button for step 1 */}
@@ -1317,7 +1365,7 @@ function UploadYourCadDesign({
                             {formErrors.category && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.category}</p>}
                         </div>
 
-                        {/* Tags moved to LEFT to match figma */}
+                        {/* Tags */}
                         <div>
                             <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select or create tags</label>
                             <CreatableSelect
@@ -1331,6 +1379,7 @@ function UploadYourCadDesign({
                                 placeholder="Select or create Tags"
                             />
                         </div>
+
                     </div>
 
                     {/* RIGHT: Pricing details */}
