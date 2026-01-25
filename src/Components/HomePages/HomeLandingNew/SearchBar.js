@@ -6,6 +6,7 @@ import { FiSearch } from "react-icons/fi"
 import { BASE_URL, IMAGEURLS } from "../../../config"
 import styles from "./HomeLandingNew.module.css"
 import Image from "next/image"
+import { getCookie } from "cookies-next"
 
 function SearchBar() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -23,10 +24,18 @@ function SearchBar() {
     const handler = setTimeout(async () => {
       try {
         setIsLoading(true)
+        // Get UUID from cookies (client-side)
+        const uuid = getCookie('uuid') || null
+
+        // Build query parameters
+        const queryParams = new URLSearchParams()
+        queryParams.set('limit', '20')
+        queryParams.set('page', '1')
+        queryParams.set('search', query)
+        queryParams.set('uuid', uuid)
+
         const response = await axios.get(
-          `${BASE_URL}/v1/cad/get-category-design?limit=10&page=1&search=${encodeURIComponent(
-            query
-          )}`,
+          `${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`,
           { cache: 'no-store' }
         )
 
