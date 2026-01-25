@@ -34,11 +34,11 @@ async function Library({ searchParams }) {
   const page = parseInt(searchParams?.page) || 1;
   const limit = parseInt(searchParams?.limit) || 20;
   const tags = searchParams?.tags || '';
-  
+
   // Read UUID from cookies (server-side)
   const cookieStore = cookies();
   const uuid = cookieStore.get('uuid')?.value || null;
-  
+
   // Build query parameters for get-category-design API
   const queryParams = new URLSearchParams();
   if (category) queryParams.set('category', category);
@@ -47,17 +47,17 @@ async function Library({ searchParams }) {
   if (searchQuery) queryParams.set('search', searchQuery);
   if (tags) queryParams.set('tags', tags);
   if (uuid) queryParams.set('uuid', uuid);
-  
+
   let response;
 
-    response = await axios.get(
-       `${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`,
-    { 
-      cache: 'no-store' 
+  response = await axios.get(
+    `${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`,
+    {
+      cache: 'no-store'
     }
-    );
+  );
 
-  
+
   const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, {
     cache: 'no-store',
   });
@@ -72,7 +72,7 @@ async function Library({ searchParams }) {
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
   const allTags = tagsResponse.data?.data || [];
- 
+
   return (
     <>
       {/* <HomeTopNav /> */}
@@ -105,18 +105,18 @@ async function Library({ searchParams }) {
                   <LeftRightBanner adSlot="2408570633" />
                 </div>
               )}
-              
+
               {/* Insert ad at position 6 (before 6th design) */}
               {index === 6 && (
                 <div className={styles["library-designs-items-container"]} style={{ minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <LeftRightBanner adSlot="4799748492" />
                 </div>
               )}
-              
+
               <Link href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
                 {/* <div className={styles["library-designs-inner"]}> */}
                 <div className={styles["library-designs-items-container-cost"]}>{design.price ? `$${design.price}` : 'Free'}</div>
-                  {/* <div className={styles["library-designs-items-container-img"]}>
+                {/* <div className={styles["library-designs-items-container-img"]}>
                       <Image
                     // className={styles["library-designs-items-container-img"]}
                     src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_0.webp`}
@@ -125,32 +125,32 @@ async function Library({ searchParams }) {
                     height={250}
                   />
                   </div> */}
-                  <HoverImageSequence design={design} width={300} height={250}/>
-                
-                  
-                  <div className={styles["design-title-wrapper"]}>
-                    <h6 title={design.page_title}>{design.page_title}</h6>
-                     {/* <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p> */}
-                    <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center',flexWrap:'wrap' }}>
-                      {/* {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />} */}
-                      {design.category_labels && design.category_labels.map((label, index) => (
-                        <DesignDetailsStats key={index} text={label} />
-                      ))}
-                      {design.tag_labels && design.tag_labels.map((label, index) => (
-                        <DesignDetailsStats key={index} text={label} />
-                      ))}
-                      <DesignDetailsStats fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'} text={design.file_type ? `.${design.file_type.toUpperCase()}`  : '.STEP'} />
-                      <div className={styles["design-stats-wrapper"]}>
-                    <DesignStats views={design.total_design_views ?? 0}
-                      downloads={design.total_design_downloads ?? 0} 
-                       ratings={{ average: design.average_rating, total: design.rating_count }} />
-                  </div>
+                <HoverImageSequence design={design} width={300} height={250} />
+
+
+                <div className={styles["design-title-wrapper"]}>
+                  <h6 title={design.page_title}>{design.page_title}</h6>
+                  {/* <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p> */}
+                  <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    {/* {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />} */}
+                    {design.category_labels && design.category_labels.map((label, index) => (
+                      <DesignDetailsStats key={index} text={label} />
+                    ))}
+                    {design.tag_labels && design.tag_labels.map((label, index) => (
+                      <DesignDetailsStats key={index} text={label} />
+                    ))}
+                    <DesignDetailsStats fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'} text={design.file_type ? `.${design.file_type.toUpperCase()}` : '.STEP'} />
+                    <div className={styles["design-stats-wrapper"]}>
+                      <DesignStats views={design.total_design_views ?? 0}
+                        downloads={design.total_design_downloads ?? 0}
+                        ratings={{ average: design.average_rating, total: design.rating_count }} />
                     </div>
-                    <span className={styles["design-title-wrapper-price"]}>{design.price ? `$${design.price}` : 'Free'}</span>
-                  
                   </div>
-                  
-                  
+                  <span className={styles["design-title-wrapper-price"]}>{design.price ? `$${design.price}` : 'Free'}</span>
+
+                </div>
+
+
                 {/* </div> */}
               </Link>
             </React.Fragment>

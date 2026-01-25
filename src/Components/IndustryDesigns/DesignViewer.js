@@ -139,10 +139,10 @@ export default function DesignViewer({
   const dxfBaseUrl = `${DESIGN_GLB_PREFIX_URL}${designId}`;
   const dxfImageUrl = `${dxfBaseUrl}/${designId}.webp`;
   
-  // Create unified list for DXF: main image first, then supporting images
+  // Create unified list for DXF: only supporting images (no primary image)
   const dxfViews = useMemo(() => {
     if (!isDxf) return [];
-    const views = [{ type: 'dxf-main', url: dxfImageUrl, name: `${designId}.webp` }];
+    const views = [];
     supportedImages.forEach((img, idx) => {
       views.push({ type: 'image', index: idx, url: img.url, name: img.name });
     });
@@ -172,10 +172,10 @@ export default function DesignViewer({
   
   // For DXF files, show only the image
   if (isDxf) {
-    // Get current image to display
+    // Get current image to display (only from supporting files)
     const currentDxfView = dxfViews[dxfViewIdx];
-    const currentImageUrl = currentDxfView?.url || dxfImageUrl;
-    const currentImageName = currentDxfView?.name || `${designId}.webp`;
+    const currentImageUrl = currentDxfView?.url;
+    const currentImageName = currentDxfView?.name;
     
     // Navigation functions for DXF
     const goToPreviousDxf = () => {
@@ -332,20 +332,22 @@ export default function DesignViewer({
             </button>
           )}
           
-          <div className={styles.stage} style={{ transform: `scale(${scale})` }}>
-            <img
-              className={styles.frame}
-              src={currentImageUrl}
-              alt={currentImageName}
-              draggable={false}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-                display: 'block',
-              }}
-            />
-          </div>
+          {currentImageUrl && (
+            <div className={styles.stage} style={{ transform: `scale(${scale})` }}>
+              <img
+                className={styles.frame}
+                src={currentImageUrl}
+                alt={currentImageName || ''}
+                draggable={false}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  display: 'block',
+                }}
+              />
+            </div>
+          )}
           <div className={styles.controls}>
             <div className={styles.zoom}>
               <button onClick={zoomIn} className={styles.zoomButton}>
@@ -361,7 +363,7 @@ export default function DesignViewer({
           </div>
         </div>
 
-        {/* Thumbnail carousel for DXF files - main image + supporting images */}
+        {/* Thumbnail carousel for DXF/DWG files - only supporting images */}
         <div
           style={{
             position: 'relative',
@@ -478,45 +480,12 @@ export default function DesignViewer({
               }
             `}</style>
             
-            {/* Main DXF image thumbnail */}
-            <div
-              style={{
-                flexShrink: 0,
-                width: 70,
-                height: 70,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: dxfViewIdx === 0 ? '2px solid #610BEE' : '1px solid #ccc',
-                borderRadius: 6,
-                background: '#fff',
-                boxShadow: dxfViewIdx === 0 ? '0 0 6px #610BEE55' : undefined,
-                cursor: 'pointer',
-                transition: 'border 0.2s, box-shadow 0.2s',
-              }}
-              onClick={() => setDxfViewIdx(0)}
-            >
-              <img
-                src={dxfImageUrl}
-                alt={`Design ${designId}`}
-                style={{
-                  width: '90%',
-                  height: '90%',
-                  objectFit: 'contain',
-                  borderRadius: 4,
-                  background: '#fff',
-                  display: 'block',
-                }}
-              />
-            </div>
-            
-            {/* Supporting image thumbnails */}
-            {supportedImages.map((img, idx) => {
-              const viewIdx = idx + 1; // +1 because main DXF image is at index 0
-              const isActive = dxfViewIdx === viewIdx;
+            {/* Supporting image thumbnails only */}
+            {dxfViews.map((view, idx) => {
+              const isActive = dxfViewIdx === idx;
               return (
                 <div
-                  key={`img-${idx}`}
+                  key={`dxf-img-${idx}`}
                   style={{
                     flexShrink: 0,
                     width: 70,
@@ -531,11 +500,11 @@ export default function DesignViewer({
                     cursor: 'pointer',
                     transition: 'border 0.2s, box-shadow 0.2s',
                   }}
-                  onClick={() => setDxfViewIdx(viewIdx)}
+                  onClick={() => setDxfViewIdx(idx)}
                 >
                   <img
-                    src={img.url}
-                    alt={img.name}
+                    src={view.url}
+                    alt={view.name}
                     style={{
                       width: '90%',
                       height: '90%',
