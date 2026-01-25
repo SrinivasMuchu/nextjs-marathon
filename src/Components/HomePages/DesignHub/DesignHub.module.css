@@ -4,27 +4,40 @@
     align-items: center;
     justify-content: center;
 
-    padding: clamp(20px, 5vw, 70px);
+    padding-top: clamp(20px, 5vw, 70px);
+    padding-bottom: clamp(20px, 5vw, 70px);
+    padding-left: 0;
+    padding-right: 0;
   
     width: 100%;
 }
 .designHubHead {
     color: #001325;
-    font-size: 48px;
+    font-size: clamp(24px, 5vw, 48px);
     font-style: normal;
     font-weight: 700;
     line-height: 52px;
     text-align: center;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .designHubDesc {
     color: #001325;
-    font-size: 16px;
+    font-size: clamp(14px, 2.5vw, 20px);
+    /* font-size: 16px; */
     font-style: normal;
     font-weight: 400;
     line-height: 26px;
     opacity: 0.7;
+    margin-top: 10px;
     text-align: center;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .designHubCategoriesContainer {
@@ -42,6 +55,10 @@
     font-weight: 700;
     line-height: 40px;
     text-align: center;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .designHubCategoriesDesc {
@@ -52,6 +69,10 @@
     line-height: 26px;
     opacity: 0.7;
     text-align: center;
+    padding-left: clamp(20px, 5vw, 70px);
+    padding-right: clamp(20px, 5vw, 70px);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .designHubCategoriesList {
@@ -60,11 +81,14 @@
     overflow-x: auto;
     overflow-y: hidden;
     padding: 10px 0;
+    padding-left: 0;
+    padding-right: 0;
     scroll-behavior: smooth;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
     width: 100%;
     cursor: grab;
+    box-sizing: border-box;
 }
 
 .designHubCategoriesList::-webkit-scrollbar {
@@ -176,11 +200,12 @@
     gap: 24px;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 10px 0;
+    padding: 10px clamp(16px, 3vw, 40px);
     scroll-behavior: smooth;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
     width: 100%;
+    box-sizing: border-box;
 }
 
 .designHubDesignsGrid::-webkit-scrollbar {

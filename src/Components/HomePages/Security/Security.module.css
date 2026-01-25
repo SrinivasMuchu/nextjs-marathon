@@ -57,7 +57,7 @@
   .security-head {
     color: #fff;
     /* font-family: Syne; */
-    font-size: 52.313px;
+    font-size: clamp(24px, 5vw, 48px);
     font-style: normal;
     font-weight: 600;
     line-height: 63.36px;
@@ -70,7 +70,7 @@
     color: rgba(255, 255, 255, 0.8);
     padding-right: 6.5vw;
    
-    font-size: 20px;
+    font-size: clamp(14px, 2.5vw, 20px);
     font-style: normal;
     font-weight: 400;
     line-height: 32px;
@@ -79,7 +79,7 @@
   }
   .security-desc-points{
     color: rgba(255, 255, 255, 0.8);
-    font-size: 20px;
+    font-size: clamp(14px, 2.5vw, 20px);
     font-style: normal;
     font-weight: 400;
     line-height: 32px;
@@ -124,7 +124,7 @@
   
   .security-internal-points img {
     width: 40px;
-    height: 41px;
+    height: 40px;
   }
   
   
@@ -188,6 +188,10 @@
     }
     .security-internal-points{
         align-items: center;
+    }
+    .security-internal-points img {
+      width: 20px;
+      height: 20px;
     }
   
   
