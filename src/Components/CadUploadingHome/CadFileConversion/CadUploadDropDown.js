@@ -44,6 +44,9 @@ function CadDropDown({
     const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
 
     return formatOptions.filter(option => {
+      if (option.value === "dxf" || option.value === "dwg") {
+        return false;
+      }
       if (fileExt === "step" || fileExt === "stp") {
         return option.value !== "step";
       }

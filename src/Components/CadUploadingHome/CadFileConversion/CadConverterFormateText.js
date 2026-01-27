@@ -33,9 +33,20 @@ function CadConverterFormateText({ conversionParams }) {
       route: 'off',
       description: 'simple text-based file format used to represent 3D geometric data, particularly for storing and sharing polygonal meshes. It is often used in computational geometry, 3D modeling, and research applications, where the focus is primarily on the geometric structure of objects, rather than materials or textures.'
     },
-    {label: 'PLY',
+    {
+      label: 'PLY',
       route: 'ply',
-      description:'Polygon File Format is a widely used file format for representing 3D data, particularly polygonal meshes, in the fields of computer graphics, 3D scanning, and point cloud data. It was originally developed to store data from 3D scanners and has since gained popularity in both academic and commercial applications due to its flexibility in handling a variety of data types.'
+      description: 'Polygon File Format is a widely used file format for representing 3D data, particularly polygonal meshes, in the fields of computer graphics, 3D scanning, and point cloud data. It was originally developed to store data from 3D scanners and has since gained popularity in both academic and commercial applications due to its flexibility in handling a variety of data types.'
+    },
+    {
+      label: 'DWG',
+      route: 'dwg',
+      description: 'DWG is a proprietary file format used by AutoCAD, a popular CAD software application. It is a binary file format that stores 2D and 3D design data, including geometric shapes, layers, and attributes. DWG files are widely used in the architecture, engineering, and construction industries for representing and exchanging design information.'
+    },
+    {
+      label: 'DXF',
+      route: 'dxf',
+      description: 'DXF is a file format used by AutoCAD, a popular CAD software application. It is a text-based file format that stores 2D and 3D design data, including geometric shapes, layers, and attributes. DXF files are widely used in the architecture, engineering, and construction industries for representing and exchanging design information.'
     },
     // {label: 'GLB',
     //   route: 'glb',
@@ -59,13 +70,13 @@ function CadConverterFormateText({ conversionParams }) {
 
       </div>
 
-    
-        <div className={styles['cad-format-types-desc']}>
-          <h3>{to.label}</h3>
-          
-          <p> {to.description}</p>
-        </div>
-     
+
+      <div className={styles['cad-format-types-desc']}>
+        <h3>{to.label}</h3>
+
+        <p> {to.description}</p>
+      </div>
+
     </div>
   );
 }
