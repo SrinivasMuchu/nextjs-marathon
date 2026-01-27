@@ -26,6 +26,8 @@ function CadDropDown({
     { value: 'ply', label: '.ply' },
     { value: 'stl', label: '.stl' },
     { value: 'off', label: '.off' },
+    { value: 'dxf', label: '.dxf' },
+    { value: 'dwg', label: '.dwg' },
     // { value: 'glb', label: '.glb' },
   ];
 
@@ -36,12 +38,33 @@ function CadDropDown({
       setSelectedFileFormate(targetFormat);
     }
   }, [to, selectedFileFormate, setSelectedFileFormate]);
+
+  // Auto-select format for DXF/DWG files when only one option is available
+  useEffect(() => {
+    if (file) {
+      const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
+      if ((fileExt === "dxf" || fileExt === "dwg") && !selectedFileFormate) {
+        // Auto-select the other format (if input is DXF, select DWG and vice versa)
+        const otherFormat = fileExt === "dxf" ? "dwg" : "dxf";
+        setSelectedFileFormate(otherFormat);
+      }
+    }
+  }, [file, selectedFileFormate, setSelectedFileFormate]);
+
   const router = useRouter();
   // Get filtered options based on file extension
   const getFilteredOptions = () => {
     if (!file) return formatOptions;
 
     const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
+
+    // Special handling for DXF and DWG: can only convert to DXF or DWG
+    if (fileExt === "dxf" || fileExt === "dwg") {
+      return formatOptions.filter(option => {
+        // Only show DXF and DWG options, excluding the input format
+        return (option.value === "dxf" || option.value === "dwg") && option.value !== fileExt;
+      });
+    }
 
     return formatOptions.filter(option => {
       if (option.value === "dxf" || option.value === "dwg") {
@@ -90,7 +113,20 @@ function CadDropDown({
   };
 
   const isConvertButtonVisible = !!selectedFileFormate;
-  const isSelectDisabled = uploadingMessage || disableSelect;
+  
+  // Get filtered options once
+  const filteredOptions = getFilteredOptions();
+  
+  // Check if input file is DXF or DWG
+  const fileExt = file?.name?.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
+  const isDxfOrDwg = fileExt === "dxf" || fileExt === "dwg";
+  
+  // Disable dropdown if DXF/DWG input and only one option available (or if already disabled)
+  // When DXF/DWG is input, there's only one output option (the other format), so disable the dropdown
+  const isSelectDisabled = uploadingMessage || disableSelect || (isDxfOrDwg && filteredOptions.length === 1);
+  
+  // Convert button should only be disabled during upload/conversion, not because of DXF/DWG restriction
+  const isConvertButtonDisabled = uploadingMessage || disableSelect;
 
 
 
@@ -117,7 +153,7 @@ function CadDropDown({
               <Select
                 value={getSelectedOption()}
                 onChange={handleSelectFileFormat}
-                options={getFilteredOptions()}
+                options={filteredOptions}
                 className={cadStyles['cad-conversion-select']}
                 isDisabled={isSelectDisabled}
                 isSearchable={false}
@@ -129,7 +165,7 @@ function CadDropDown({
                 <button
                   className={cadStyles['cad-conversion-button']}
                   onClick={handleConvert}
-                  disabled={isSelectDisabled}
+                  disabled={isConvertButtonDisabled}
                 >
                   Convert
                 </button>
