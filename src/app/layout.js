@@ -156,10 +156,11 @@ export default function RootLayout({ children }) {
         <CreateLocalStorage />
         <ContextWrapper>
           <HomeTopNav/>
-          {children}
+          <main role="main">
+            {children}
+          </main>
           <FloatingButton />
         </ContextWrapper>
-
       </body>
     </html>
   );

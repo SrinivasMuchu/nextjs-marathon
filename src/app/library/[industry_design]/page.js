@@ -2,14 +2,15 @@ import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign';
 import { BASE_URL } from '@/config';
 import { notFound } from 'next/navigation'; // 👈
 
+// Cache the HTML for this page for a short time (ISR),
+// so it is still SSR but with much faster TTFB on repeat visits.
+export const revalidate = 60; // seconds
+
 export async function generateMetadata({ params }) {
-    const design = params.industry_design;
+  const design = params.industry_design;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/design-meta-data?route=${design}`, {
-      method: 'GET',
-      cache: 'no-store',
-    });
+    const response = await fetch(`${BASE_URL}/v1/cad/design-meta-data?route=${design}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -51,10 +52,7 @@ export default async function LibraryDesign({ params }) {
   const design = params.industry_design;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?industry_design_route=${design}`, {
-      method: 'GET',
-      cache: 'no-store',
-    });
+    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?industry_design_route=${design}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

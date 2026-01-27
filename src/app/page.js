@@ -1,9 +1,10 @@
 export const metadata = {
-  title: "Marathon OS ᐈ CAD Design Library + Free CAD Viewer & 3D Converter | Marathon OS",
+  title: "CAD Design Library + Free CAD Viewer & 3D Converter | Marathon OS",
   description:
     "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
+  keywords: "CAD model library, CAD models download, free CAD models, online CAD viewer, 3D file converter, STEP viewer online, IGES viewer online, STL viewer online, STEP to STL, IGES to STEP, STL to OBJ, engineering CAD models, mechanical CAD files, 3D CAD designs",
   openGraph: {
-    title: "Marathon OS ᐈ  CAD Design Library + Free CAD Viewer & 3D Converter | Marathon OS",
+    title: "CAD Design Library + Free CAD Viewer & 3D Converter",
     description:
       "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
     url: "https://www.marathon-os.com",
