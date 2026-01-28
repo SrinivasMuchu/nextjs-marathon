@@ -126,11 +126,13 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
   return (
     <>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <label htmlFor="category-select" style={{ display: "block", marginRight: "8px" }}>
+        <label htmlFor="category-select-input" style={{ display: "block", marginRight: "8px" }}>
           Filter by Category:
         </label>
         <Select
           id="category-select"
+          inputId="category-select-input"
+          aria-label="Filter by Category"
           options={options}
           value={selectedOption}
           onChange={handleChange}
@@ -142,11 +144,13 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
         />
       </div>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <label htmlFor="tag-select" style={{ display: "block", marginRight: "8px" }}>
+        <label htmlFor="tag-select-input" style={{ display: "block", marginRight: "8px" }}>
           Filter by Tags:
         </label>
         <Select
           id="tag-select"
+          inputId="tag-select-input"
+          aria-label="Filter by Tags"
           options={tagOptions}
           value={selectedTagOption}
           onChange={handleTagChange}

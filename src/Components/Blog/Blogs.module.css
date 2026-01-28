@@ -16,26 +16,32 @@
     width:100%
 }
 .blog-page h1{
-    font-size: 2.75rem;
+    font-size: clamp(28px, 5vw, 48px);
     line-height: 1.2;
     font-weight: 600;
-    text-align: left;
+    text-align: center;
 }
 .blog-page h2{
-    font-size: 1.5rem;
+    font-size: clamp(20px, 3vw, 32px);
     line-height: 1.4;
     font-weight: 600;
     margin: 16px 0px;
     text-align: left;
 }
 .blog-page p,.blog-page span{
-    font-size: 1rem;
+    font-size: clamp(16px, 2vw, 24px);
     margin-bottom: 18px;
 }
+.blog-page ul{
+    list-style-type: disc;
+    padding-left: 1.5em;
+    margin: 10px 0px;
+}
 .blog-page li{
-    padding-left: 1.5714286em;
-    font-size: 1rem;
+    padding-left: 0.5em;
+    font-size: clamp(16px, 2vw, 24px);
     margin: 5px 0px;
+    list-style-position: outside;
 }
 .blog-page-parts-logo{
     display: flex;
