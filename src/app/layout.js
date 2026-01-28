@@ -10,8 +10,8 @@ import { GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 
 
 
-const inter = Inter({ 
-  subsets: ["latin"], 
+const inter = Inter({
+  subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
   preload: true,
@@ -66,12 +66,12 @@ export default function RootLayout({ children }) {
     <html lang="en" >
       <head>
         {/* DNS prefetch and preconnect for faster resource loading */}
-        <link rel="dns-prefetch" href="https://testing.marathon-os.com" />
-        <link rel="preconnect" href="https://testing.marathon-os.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://marathon-os.com" />
+        <link rel="preconnect" href="https://marathon-os.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
+
         {/* Intercept and modify Google Fonts loading to add font-display=swap */}
         <Script
           strategy="beforeInteractive"
@@ -111,7 +111,7 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
-        
+
         <link rel="icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
 
         <link rel="apple-touch-icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
@@ -201,12 +201,9 @@ export default function RootLayout({ children }) {
             `,
           }}
         /> */}
-        <Script
-          id="google-adsense"
-          strategy="afterInteractive"
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${GOOGLE_ADSENSE_CLIENT_ID}`}
-          crossOrigin="anonymous"
-        />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+          data-ad-client={GOOGLE_ADSENSE_CLIENT_ID}></script>
+
 
         <Script
           id="json-ld"
@@ -221,7 +218,7 @@ export default function RootLayout({ children }) {
         <ToastProvider />
         <CreateLocalStorage />
         <ContextWrapper>
-          <HomeTopNav/>
+          <HomeTopNav />
           <main role="main">
             {children}
           </main>
