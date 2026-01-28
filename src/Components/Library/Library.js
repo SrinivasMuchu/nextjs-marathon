@@ -48,16 +48,15 @@ async function Library({ searchParams }) {
   if (tags) queryParams.set('tags', tags);
   if (uuid) queryParams.set('uuid', uuid);
 
-  let response;
-
-  response = await axios.get(
+  // Fetch designs first
+  const response = await axios.get(
     `${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`,
     {
-      cache: 'no-store'
+      cache: 'no-store',
     }
   );
 
-
+  // Then fetch categories and tags
   const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, {
     cache: 'no-store',
   });
@@ -115,7 +114,7 @@ async function Library({ searchParams }) {
 
               <Link href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
                 {/* <div className={styles["library-designs-inner"]}> */}
-                <div className={styles["library-designs-items-container-cost"]}>{design.price ? `$${design.price}` : 'Free'}</div>
+                {/* <div className={styles["library-designs-items-container-cost"]}>{design.price ? `$${design.price}` : 'Free'}</div> */}
                 {/* <div className={styles["library-designs-items-container-img"]}>
                       <Image
                     // className={styles["library-designs-items-container-img"]}

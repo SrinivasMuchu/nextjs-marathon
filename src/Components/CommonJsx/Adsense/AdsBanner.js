@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 
 export default function LeftRightBanner({ adSlot }) {
+  console.log('GOOGLE_ADSENSE_CLIENT_ID', adSlot);
   useEffect(() => {
   const observer = new ResizeObserver(entries => {
     const width = entries[0].contentRect.width;

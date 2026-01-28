@@ -255,6 +255,8 @@ export default function DesignViewer({
           {/* Left navigation button */}
           {dxfViews.length > 1 && (
             <button
+              type="button"
+              aria-label="Previous DXF view"
               onClick={(e) => {
                 e.stopPropagation();
                 goToPreviousDxf();
@@ -295,6 +297,8 @@ export default function DesignViewer({
           {/* Right navigation button */}
           {dxfViews.length > 1 && (
             <button
+              type="button"
+              aria-label="Next DXF view"
               onClick={(e) => {
                 e.stopPropagation();
                 goToNextDxf();
@@ -338,6 +342,9 @@ export default function DesignViewer({
                 className={styles.frame}
                 src={currentImageUrl}
                 alt={currentImageName || ''}
+                width={1200}
+                height={650}
+                loading="lazy"
                 draggable={false}
                 style={{
                   width: '100%',
@@ -377,6 +384,8 @@ export default function DesignViewer({
           {/* Left scroll button */}
           {dxfViews.length > 1 && (
             <button
+              type="button"
+              aria-label="Scroll thumbnails left"
               onClick={(e) => {
                 e.stopPropagation();
                 const carousel = e.currentTarget.parentElement.querySelector('[data-carousel]');
@@ -420,6 +429,8 @@ export default function DesignViewer({
           {/* Right scroll button */}
           {dxfViews.length > 1 && (
             <button
+              type="button"
+              aria-label="Scroll thumbnails right"
               onClick={(e) => {
                 e.stopPropagation();
                 const carousel = e.currentTarget.parentElement.querySelector('[data-carousel]');
@@ -505,6 +516,8 @@ export default function DesignViewer({
                   <img
                     src={view.url}
                     alt={view.name}
+                    width={70}
+                    height={70}
                     style={{
                       width: '90%',
                       height: '90%',
@@ -532,6 +545,8 @@ export default function DesignViewer({
         {/* Left navigation button */}
         {allViews.length > 1 && (
           <button
+            type="button"
+            aria-label="Previous view"
             onClick={(e) => {
               e.stopPropagation();
               goToPrevious();
@@ -572,6 +587,8 @@ export default function DesignViewer({
         {/* Right navigation button */}
         {allViews.length > 1 && (
           <button
+            type="button"
+            aria-label="Next view"
             onClick={(e) => {
               e.stopPropagation();
               goToNext();
@@ -619,12 +636,15 @@ export default function DesignViewer({
               <Image src={IMAGEURLS.marathonPreview} alt="Logo" width={100} height={40} />
             </div>
             <div className={styles.stage} style={{ transform: `scale(${scale})` }}>
-              <img
+              <Image
                 className={styles.frame}
                 src={src}
                 alt={`sprite x=${xDeg} y=${yDeg}`}
+                width={1200}
+                height={650}
                 draggable={false}
                 style={{ cursor: supportedImages.length > 0 ? 'pointer' : undefined }}
+                sizes="(max-width: 768px) 100vw, 1200px"
                 onClick={() => {
                   if (supportedImages.length > 0) {
                     // Find first image view index
@@ -641,6 +661,7 @@ export default function DesignViewer({
               <div className={styles.dpad}>
                 <button 
                   type="button"
+                  aria-label="Rotate view up"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -653,6 +674,7 @@ export default function DesignViewer({
                 <div className={styles.h}>
                   <button 
                     type="button"
+                    aria-label="Rotate view left"
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -664,6 +686,7 @@ export default function DesignViewer({
                   </button>
                   <button 
                     type="button"
+                    aria-label="Rotate view right"
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -676,6 +699,7 @@ export default function DesignViewer({
                 </div>
                 <button 
                   type="button"
+                  aria-label="Rotate view down"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -687,13 +711,28 @@ export default function DesignViewer({
                 </button>
               </div>
               <div className={styles.zoom}>
-                <button onClick={zoomIn} className={styles.zoomButton}>
+                <button
+                  type="button"
+                  aria-label="Zoom in"
+                  onClick={zoomIn}
+                  className={styles.zoomButton}
+                >
                   <AiOutlinePlus />
                 </button>
-                <button onClick={zoomOut} className={styles.zoomButton}>
+                <button
+                  type="button"
+                  aria-label="Zoom out"
+                  onClick={zoomOut}
+                  className={styles.zoomButton}
+                >
                   <HiOutlineMinus />
                 </button>
-                <button onClick={resetZoom} className={styles.zoomButton}>
+                <button
+                  type="button"
+                  aria-label="Reset zoom"
+                  onClick={resetZoom}
+                  className={styles.zoomButton}
+                >
                   <CiUndo />
                 </button>
               </div>
@@ -704,6 +743,8 @@ export default function DesignViewer({
             <img
               src={supportedImages[selectedImageIdx].url}
               alt={supportedImages[selectedImageIdx].name}
+              width={1200}
+              height={650}
               style={{
                 maxWidth: '100%',
                 maxHeight: 400,
@@ -737,6 +778,8 @@ export default function DesignViewer({
       >
         {/* Left scroll button */}
         <button
+          type="button"
+          aria-label="Scroll thumbnails left"
           onClick={(e) => {
             e.stopPropagation();
             const carousel = e.currentTarget.parentElement.querySelector('[data-carousel]');
@@ -778,6 +821,8 @@ export default function DesignViewer({
 
         {/* Right scroll button */}
         <button
+          type="button"
+          aria-label="Scroll thumbnails right"
           onClick={(e) => {
             e.stopPropagation();
             const carousel = e.currentTarget.parentElement.querySelector('[data-carousel]');
@@ -866,6 +911,8 @@ export default function DesignViewer({
                 <img
                   src={thumbSrc}
                   alt={`Angle x=${x} y=${y}`}
+                  width={70}
+                  height={70}
                   style={{
                     width: '90%',
                     height: '90%',
@@ -908,6 +955,8 @@ export default function DesignViewer({
                 <img
                   src={img.url}
                   alt={img.name}
+                  width={70}
+                  height={70}
                   style={{
                     width: '90%',
                     height: '90%',

@@ -2,11 +2,9 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
 import { contextState } from '../CommonJsx/ContextProvider';
 import Image from 'next/image';
-import { MARATHON_ASSET_PREFIX_URL, BASE_URL, IMAGEURLS, PHOTO_LINK } from '@/config';
+import { BASE_URL, IMAGEURLS, PHOTO_LINK } from '@/config';
 import styles from './Creators.module.css';
 import axios from 'axios';
-import ShareYourDesignItems from '../CreatorsLanding/ShareYourDesignItems';
-import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
 
 function CreatorCoverPage({ creatorId, setIsVerified }) {
   
@@ -14,7 +12,6 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [previewCover, setPreviewCover] = useState(null);
-  const [publishCadPopUp,setPublishCadPopUp]=useState(false);
   const profileData = !creatorId ? user : viewer;
 
 
@@ -68,18 +65,6 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
     fileInputRef.current?.click();
   };
 
-  // Add carouselIndex state and interval logic
-  const [carouselIndex, setCarouselIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCarouselIndex((prev) => (prev === 0 ? 1 : 0));
-    }, 2000); // Change every 2 seconds
-    return () => clearInterval(interval);
-  }, []);
-
-  // Add carouselIndex state and interval logic
-  
   return (
     <>
       <div>
@@ -107,7 +92,7 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
               </div>
             </div>
           ) : profileData?.cover_image ? (
-            <div className={styles.coverPhoto} style={{ background: 'none' }}>
+            <div className={styles.coverPhoto} style={{ background: 'none', position: 'relative' }}>
               <Image
                 src={PHOTO_LINK + profileData.cover_image}
                 alt="Cover Image"
@@ -115,87 +100,37 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
                 objectFit="cover"
               />
               {!creatorId && (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    flexDirection: 'column',
-                  }}
-                >
-                  {carouselIndex === 0 ? (
-                    <button onClick={handleCoverClick} className={styles.coverBtn}>
-                      <Image
-                        src={IMAGEURLS.uploadCover}
-                        alt="Upload Cover"
-                        width={24}
-                        height={24}
-                      />
-                      Add cover image <br />
-                      (1440 x 180px)
-                    </button>
-                  ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', flexDirection: 'column' }}>
-                      <h1>Share Your Designs on Marathon-OS</h1>
-                      <Image
-                        src={MARATHON_ASSET_PREFIX_URL + 'publish-banner.webp'}
-                        alt="Cover Image"
-                        width={1200}
-                        height={300}
-                      />
-                      <button className={styles.coverPhotoPublishCad} 
-                      onClick={()=>setPublishCadPopUp(true)}>Publish CAD</button>
-                    </div>
-                  )}
-                </div>
+                <button onClick={handleCoverClick} className={styles.coverBtn}>
+                  <Image
+                    src={IMAGEURLS.uploadCover}
+                    alt="Upload Cover"
+                    width={24}
+                    height={24}
+                  />
+                  Change cover image <br />
+                  (1440 x 180px)
+                </button>
               )}
             </div>
           ) : (
             <div className={styles.coverPhoto}>
               {!creatorId && (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    flexDirection: 'column',
-                  }}
-                >
-                  {carouselIndex === 0 ? (
-                    <button onClick={handleCoverClick} className={styles.coverBtn}>
-                      <Image
-                        src={IMAGEURLS.uploadCover}
-                        alt="Upload Cover"
-                        width={24}
-                        height={24}
-                      />
-                      Add cover image <br />
-                      (1440 x 180px)
-                    </button>
-                  ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', flexDirection: 'column' }}>
-                      <h1>Share Your Designs on Marathon-OS</h1>
-                      <Image
-                        src={MARATHON_ASSET_PREFIX_URL + 'publish-banner.webp'}
-                        alt="Cover Image"
-                        width={1200}
-                        height={300}
-                      />
-                      <button className={styles.coverPhotoPublishCad}
-                      onClick={()=>setPublishCadPopUp(true)}>Publish CAD</button>
-                    </div>
-                  )}
-                </div>
+                <button onClick={handleCoverClick} className={styles.coverBtn}>
+                  <Image
+                    src={IMAGEURLS.uploadCover}
+                    alt="Upload Cover"
+                    width={24}
+                    height={24}
+                  />
+                  Add cover image <br />
+                  (1440 x 180px)
+                </button>
               )}
             </div>
           )}
         </div>
       </div>
-   { publishCadPopUp && <PublishCadPopUp onClose={() => setPublishCadPopUp(false)}/>}
     </>
-   
   )
 }
 

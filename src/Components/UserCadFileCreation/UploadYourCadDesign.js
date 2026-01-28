@@ -1030,18 +1030,18 @@ function UploadYourCadDesign({
             
             <div className={styles["cad-upload-container"]}>
                 {/* Header row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                {/* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Upload CAD file</h2>
                     {showHeaderClose && onClose && (
                         <button onClick={onClose} style={{ background: 'transparent', border: 0, cursor: 'pointer' }}>
                             <CloseIcon />
                         </button>
                     )}
-                </div>
+                </div> */}
                 {rejected && <span style={{color:'red',marginBottom:'10px'}}>Rejected due to: {editedDetails.rejected_message}</span>}
                 
                 {/* Step indicator */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
+               {/* <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
                     <div style={{ 
                         display: 'flex', 
                         alignItems: 'center', 
@@ -1075,7 +1075,7 @@ function UploadYourCadDesign({
                     }}>
                         2
                     </div>
-                </div>
+                </div> */}
 
                 {/* STEP 1: File Upload */}
                 {currentStep === 1 && (
@@ -1302,241 +1302,301 @@ function UploadYourCadDesign({
 
                 {/* STEP 2: Form Details */}
                 {currentStep === 2 && (
-                    <div>
-                        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Step 2: Design Details</h3>
-                        
+                    <div className={styles.stepTwoCard}>
+                        <div className={styles.stepTwoHeader}>
+                            <div>
+                                <h3>Step 2: Design details</h3>
+                                <p>Add a clear title, description, category and pricing so buyers quickly understand your CAD file.</p>
+                            </div>
+                        </div>
+
                         {/* Checkbox for download permission */}
-                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, gap: 10 }}>
-                            <input type="checkbox" checked={cadFormState.isChecked} onChange={handleChange} />
-                            <span>Allow others to download this design.</span>
-                        </div>
-
-                {/* Two-column layout */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-                    {/* LEFT: File details (with tags) */}
-                    <div>
-                        <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>File details</h3>
-
-                        {/* Title */}
-                        <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Model title*</label>
-                            <input
-                                placeholder="0.5M Spur Gear | High-Quality CAD Model"
-                                type="text"
-                                maxLength={TITLELIMIT}
-                                value={cadFormState.title}
-                                style={{ margin: 0, width: '100%' }}
-                                onChange={(e) => setCadFormState(prevState => ({ ...prevState, title: e.target.value }))}
-                            />
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'red', visibility: formErrors.title ? 'visible' : 'hidden' }}>{formErrors.title}</span>
-                                <p style={{ fontSize: 12, color: cadFormState.title.length >= 40 ? 'green' : 'gray' }}>{cadFormState.title.length}/{TITLELIMIT}</p>
-                            </div>
-                        </div>
-
-                        {/* Description */}
-                        <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Description *</label>
-                            <textarea
-                                placeholder="Designed for engineers and designers, 0.5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
-                                value={cadFormState.description}
-                                maxLength={DESCRIPTIONLIMIT}
-                                style={{ margin: 0, width: '100%' }}
-                                onChange={(e) => setCadFormState(prevState => ({ ...prevState, description: e.target.value }))}
-                            />
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'red', visibility: formErrors.description ? 'visible' : 'hidden' }}>{formErrors.description}</span>
-                                <p style={{ fontSize: 12, color: cadFormState.description.length >= 100 ? 'green' : 'gray' }}>{cadFormState.description.length}/{DESCRIPTIONLIMIT}</p>
-                            </div>
-                        </div>
-
-                        {/* Category */}
-                        <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select category *</label>
-                            <Select
-                                styles={createDropdownCustomStyles}
-                                options={categoryOptions}
-                                value={cadFormState.selectedCategory}
-                                onFocus={getCategories}
-                                onChange={handleCategorySelection}
-                                placeholder="Select a category"
-                                isClearable
-                            />
-                            {formErrors.category && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.category}</p>}
-                        </div>
-
-                        {/* Tags */}
-                        <div>
-                            <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Select or create tags</label>
-                            <CreatableSelect
-                                isMulti
-                                styles={createDropdownCustomStyles}
-                                options={options}
-                                value={cadFormState.selectedOptions}
-                                onFocus={getTags}
-                                onChange={handleZoneSelection}
-                                onCreateOption={handleAddZones}
-                                placeholder="Select or create Tags"
-                            />
-                        </div>
-
-                    </div>
-
-                    {/* RIGHT: Pricing details */}
-                    <div>
-                        <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>Pricing details</h3>
-
-                        {/* KYC box */}
-                        {user.kycStatus !== 'completed' &&  <div style={{ background: '#f8f9fa', padding: 16, borderRadius: 8, marginBottom: 16 }}>
-                            <p style={{ margin: 0, color: '#666' }}>
-                                To sell and set price for your CAD file, please verify your bank details.
-                            </p>
-                            <button
-                                type="button"
-                                onClick={handleVerifyBankDetails}
-                                style={{
-                                    marginTop: 12,
-                                    background: '#fff',
-                                    border: '2px solid #610bee',
-                                    color: '#610bee',
-                                    padding: '10px 16px',
-                                    borderRadius: 6,
-                                    fontWeight: 600,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Verify bank details
-                            </button>
-                        </div>}
-                       
-
-                        {/* Price with rupee icon on the right */}
-                        <div style={{ marginBottom: 16,display:'flex',flexDirection:'column',gap:'12px' }}>
-                            
-                            <div style={{position:'relative'}}>
-                                <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 6 }}>Price</label>
+                        <div className={styles.stepTwoDownloadRow}>
+                            <label className={styles.checkboxLabel}>
                                 <input
-                                type="number"
-                                min={0}
-                                max={500}
-                                placeholder="Enter price"
-                                value={price}
-                                onChange={e => setPrice(e.target.value)}
-                                disabled={user.kycStatus !== 'completed'}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 34px 10px 12px',
-                                    border: `1px solid ${formErrors.price ? 'red' : '#ddd'}`,
-                                    borderRadius: 6,
-                                    background: user.kycStatus === 'completed' ? '#fff' : '#f5f5f5',
-                                }}
-                            />
-                            <span style={{ position: 'absolute', right: 10, top: '58%', transform: 'translateY(-50%)', color: '#6b7280' }}>
-                                $
-                            </span></div>
-                            
-                            {formErrors.price && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.price}</p>}
-                            <p style={{ fontSize: 12, color: '#888', marginTop: 6 }}>You can upload for $0 and others can download for Free. Maximum price allowed is $500.</p>
-                           {user.kycStatus === 'completed' &&
-                           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                                <span style={{color:'#848e96'}}>Marathon commision</span>
-                                <span style={{color:'#848e96'}}>${(price * 0.1).toFixed(2)}</span>
-                            </div>
-                           } 
-                           {user.kycStatus === 'completed' && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                                <span style={{color:'#848e96'}}>Platform fee</span>
-                                <span style={{color:'#0f9918'}}>Free</span>
-                            </div>} 
+                                    type="checkbox"
+                                    checked={cadFormState.isChecked}
+                                    onChange={handleChange}
+                                />
+                                <span>Allow others to download this design.</span>
+                            </label>
                         </div>
 
-                        {/* Upload button */}
-                        {hasUserEmail ? (
-                            <button
-                                style={{ 
-                                    width: '100%', 
-                                    padding: '12px', 
-                                    backgroundColor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? '#a270f2' : '#610bee', 
-                                    color: '#ffffff',
-                                    border: 'none',
-                                    borderRadius: 6,
-                                    fontSize: 16,
-                                    fontWeight: 600,
-                                    cursor: (!termsAccepted || uploading || user.kycStatus !== 'completed') ? 'not-allowed' : 'pointer',
-                                    marginTop: 4
-                                }}
-                                disabled={!termsAccepted || uploading || user.kycStatus !== 'completed'}
-                                onClick={editedDetails ? handleUpdateUserCadFileSubmit : handleUserCadFileSubmit}
-                                title={
-                                    !termsAccepted 
-                                        ? 'Please agree to the terms and conditions to upload your design.' 
-                                        : user.kycStatus !== 'completed' 
-                                            ? 'Please verify your bank details to upload your design.' 
-                                            : ''
-                                }
-                            >
-                                {uploading ? `${editedDetails ? 'Updating' : 'Uploading'} Design...` : 'Upload Design'}
-                            </button>
-                        ) : (
-                            <button
-                                style={{ 
-                                    width: '100%', 
-                                    padding: '12px', 
-                                    backgroundColor: '#a270f2', 
-                                    color: '#ffffff',
-                                    border: 'none',
-                                    borderRadius: 6,
-                                    fontSize: 16,
-                                    fontWeight: 600,
-                                    cursor: 'not-allowed',
-                                    marginTop: 4
-                                }}
-                                title='Please verify your email to upload your design.'
-                                disabled
-                            >
-                                Upload Design
-                            </button>
-                        )}
+                        {/* Scrollable container so only inner content scrolls */}
+                        <div className={styles.stepTwoScrollable}>
+                        {/* Two-column responsive layout */}
+                        <div className={styles.stepTwoGrid}>
+                            {/* LEFT: File details */}
+                            <div>
+                                <h4 className={styles.sectionTitle}>File details</h4>
 
-                        {/* Terms & conditions */}
-                        <div style={{ marginTop: 12 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <input type="checkbox" checked={termsAccepted} onChange={(e)=>setTermsAccepted(e.target.checked)} />
-                                <span style={{ fontSize: 13, color: '#444' }}>
-                                    Agree to <Link href="/terms-and-conditions" target='_blank' style={{ color: '#610bee' }}>terms & conditions</Link> and <Link href="/privacy-policy" target='_blank' style={{ color: '#610bee' }}>privacy policy</Link> of Marathon.
-                                </span>
+                                {/* Title */}
+                                <div className={styles.field}>
+                                    <label className={styles.fieldLabel}>Model title*</label>
+                                    <input
+                                        className={styles.fieldInput}
+                                        placeholder="0.5M Spur Gear | High-Quality CAD Model"
+                                        type="text"
+                                        maxLength={TITLELIMIT}
+                                        value={cadFormState.title}
+                                        onChange={(e) =>
+                                            setCadFormState((prevState) => ({
+                                                ...prevState,
+                                                title: e.target.value,
+                                            }))
+                                        }
+                                    />
+                                    <div className={styles.fieldMeta}>
+                                        <span className={styles.errorText}>
+                                            {formErrors.title}
+                                        </span>
+                                        <span
+                                            className={`${styles.charCount} ${
+                                                cadFormState.title.length >= 40
+                                                    ? styles.charCountValid
+                                                    : ''
+                                            }`}
+                                        >
+                                            {cadFormState.title.length}/{TITLELIMIT}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Description */}
+                                <div className={styles.field}>
+                                    <label className={styles.fieldLabel}>Description *</label>
+                                    <textarea
+                                        className={`${styles.fieldInput} ${styles.textarea}`}
+                                        placeholder="Designed for engineers and designers, 0.5M Spur Gear helps visualize, prototype, and integrate into mechanical systems."
+                                        value={cadFormState.description}
+                                        maxLength={DESCRIPTIONLIMIT}
+                                        onChange={(e) =>
+                                            setCadFormState((prevState) => ({
+                                                ...prevState,
+                                                description: e.target.value,
+                                            }))
+                                        }
+                                    />
+                                    <div className={styles.fieldMeta}>
+                                        <span className={styles.errorText}>
+                                            {formErrors.description}
+                                        </span>
+                                        <span
+                                            className={`${styles.charCount} ${
+                                                cadFormState.description.length >= 100
+                                                    ? styles.charCountValid
+                                                    : ''
+                                            }`}
+                                        >
+                                            {cadFormState.description.length}/
+                                            {DESCRIPTIONLIMIT}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Category */}
+                                <div className={styles.field}>
+                                    <label className={styles.fieldLabel}>
+                                        Select category *
+                                    </label>
+                                    <Select
+                                        styles={createDropdownCustomStyles}
+                                        options={categoryOptions}
+                                        value={cadFormState.selectedCategory}
+                                        onFocus={getCategories}
+                                        onChange={handleCategorySelection}
+                                        placeholder="Select a category"
+                                        isClearable
+                                    />
+                                    {formErrors.category && (
+                                        <p className={styles.errorTextSmall}>
+                                            {formErrors.category}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
-                            {formErrors.terms && <p style={{ color: 'red', fontSize: 12, marginTop: 4 }}>{formErrors.terms}</p>}
-                        </div>
-                    </div>
-                </div>
 
-                        {/* Navigation buttons for step 2 */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+                            {/* RIGHT: Pricing & tags */}
+                            <div>
+                                <h4 className={styles.sectionTitle}>Pricing & discoverability</h4>
+
+                                {/* Tags */}
+                                <div className={styles.field}>
+                                    <label className={styles.fieldLabel}>
+                                        Select or create tags
+                                    </label>
+                                    <CreatableSelect
+                                        isMulti
+                                        styles={createDropdownCustomStyles}
+                                        options={options}
+                                        value={cadFormState.selectedOptions}
+                                        onFocus={getTags}
+                                        onChange={handleZoneSelection}
+                                        onCreateOption={handleAddZones}
+                                        placeholder="Search or create tags"
+                                    />
+                                </div>
+
+                                {/* KYC box */}
+                                {user.kycStatus !== 'completed' && (
+                                    <div className={styles.kycCard}>
+                                        <p>
+                                            To sell and set a price for your CAD file, please
+                                            verify your bank details.
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={handleVerifyBankDetails}
+                                            className={styles.kycButton}
+                                        >
+                                            Verify bank details
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Price */}
+                                <div className={styles.field}>
+                                    <label className={styles.fieldLabel}>Price</label>
+                                    <div className={styles.priceInputWrapper}>
+                                        <input
+                                            className={`${styles.fieldInput} ${styles.priceInput}`}
+                                            type="number"
+                                            min={0}
+                                            max={500}
+                                            placeholder="Enter price"
+                                            value={price}
+                                            onChange={(e) => setPrice(e.target.value)}
+                                            disabled={user.kycStatus !== 'completed'}
+                                            style={{
+                                                borderColor: formErrors.price ? 'red' : '#d1d5db',
+                                            }}
+                                        />
+                                        <span className={styles.priceCurrency}>$</span>
+                                    </div>
+                                    {formErrors.price && (
+                                        <p className={styles.errorTextSmall}>
+                                            {formErrors.price}
+                                        </p>
+                                    )}
+                                    <p className={styles.helperText}>
+                                        You can upload for $0 and others can download for
+                                        free. Maximum price allowed is $500.
+                                    </p>
+
+                                    {user.kycStatus === 'completed' && (
+                                        <div className={styles.priceSummaryRow}>
+                                            <span>Marathon commission(10%)</span>
+                                            <span>${(price * 0.1).toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    {user.kycStatus === 'completed' && (
+                                        <div className={styles.priceSummaryRow}>
+                                            <span>Platform fee</span>
+                                            <span className={styles.platformFeeValue}>
+                                                Free
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Upload button */}
+                                <div className={styles.primaryActionWrapper}>
+                                    {hasUserEmail ? (
+                                        <button
+                                            className={styles.primaryButton}
+                                            disabled={
+                                                !termsAccepted ||
+                                                uploading ||
+                                                user.kycStatus !== 'completed'
+                                            }
+                                            onClick={
+                                                editedDetails
+                                                    ? handleUpdateUserCadFileSubmit
+                                                    : handleUserCadFileSubmit
+                                            }
+                                            title={
+                                                !termsAccepted
+                                                    ? 'Please agree to the terms and conditions to upload your design.'
+                                                    : user.kycStatus !== 'completed'
+                                                    ? 'Please verify your bank details to upload your design.'
+                                                    : ''
+                                            }
+                                        >
+                                            {uploading
+                                                ? `${
+                                                      editedDetails
+                                                          ? 'Updating'
+                                                          : 'Uploading'
+                                                  } design...`
+                                                : 'Publish design'}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className={`${styles.primaryButton} ${styles.primaryButtonDisabled}`}
+                                            title="Please verify your email to upload your design."
+                                            disabled
+                                        >
+                                            Publish design
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Terms & conditions */}
+                                <div className={styles.termsRow}>
+                                    <label className={styles.checkboxLabel}>
+                                        <input
+                                            type="checkbox"
+                                            checked={termsAccepted}
+                                            onChange={(e) =>
+                                                setTermsAccepted(e.target.checked)
+                                            }
+                                        />
+                                        <span>
+                                            Agree to{' '}
+                                            <Link
+                                                href="/terms-and-conditions"
+                                                target="_blank"
+                                                style={{ color: '#610bee' }}
+                                            >
+                                                terms &amp; conditions
+                                            </Link>{' '}
+                                            and{' '}
+                                            <Link
+                                                href="/privacy-policy"
+                                                target="_blank"
+                                                style={{ color: '#610bee' }}
+                                            >
+                                                privacy policy
+                                            </Link>{' '}
+                                            of Marathon.
+                                        </span>
+                                    </label>
+                                    {formErrors.terms && (
+                                        <p className={styles.errorTextSmall}>
+                                            {formErrors.terms}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+
+                        {/* Navigation & note */}
+                        <div className={styles.stepTwoFooter}>
                             {!editedDetails && (
                                 <button
                                     onClick={handlePreviousStep}
-                                    style={{
-                                        padding: '12px 24px',
-                                        backgroundColor: '#fff',
-                                        color: '#610bee',
-                                        border: '2px solid #610bee',
-                                        borderRadius: 6,
-                                        fontSize: 16,
-                                        fontWeight: 600,
-                                        cursor: 'pointer',
-                                    }}
+                                    className={styles.secondaryButton}
                                 >
                                     Back
                                 </button>
                             )}
-                            <div style={{ flex: 1 }} /> {/* Spacer */}
-                        </div>
-
-                        {/* Bottom note */}
-                        <div style={{ background: '#f8f9fa', padding: 12, borderRadius: 8, marginTop: 16 }}>
-                            <p className="text-gray-600" style={{ margin: 0 }}>
-                                ⚠️ It might take up to 24 hours for your design to go live. We will email you the link once it is published.
-                            </p>
+                            <div className={styles.publishNote}>
+                                <p>
+                                    ⚠️ It might take up to 24 hours for your design to go
+                                    live. We will email you the link once it is published.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 )}
