@@ -9,7 +9,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    padding: 24px 10px;
+    overflow-y: auto;
     box-sizing: border-box;
 }
 .paginationWrapper {
@@ -138,14 +139,17 @@
 }
 .publishPopUp{
   background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  padding: 32px;
-  width: 80%;
-  /* max-width: 90vw; */
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.35);
+  padding: 28px 32px 24px;
+  width: 100%;
+  max-width: 980px;
+  max-height: 90vh;
+  overflow-y: auto;
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   color: #333;
   position: relative;
+  box-sizing: border-box;
 }
 .closeButton {
   position: absolute;
@@ -497,7 +501,8 @@
   }
   .publishPopUp{
     width:100%;
-    /* padding: 12px; */
+    padding:20px 16px 18px;
+    max-height: 92vh;
   }
   .header h2 {
     font-size: 20px;
@@ -545,8 +550,9 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  /* height: 90vh; */
- 
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
 }
 
 .billing-header {
@@ -573,13 +579,16 @@
   cursor: pointer;
   color: #666;
   padding: 0;
-  width: 30px;
+  width: 30px !important;
+  min-width: 30px;
   height: 30px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   transition: background-color 0.2s;
+  flex: 0 0 30px;
+  box-sizing: border-box;
 }
 
 .close-btn:hover {
@@ -589,7 +598,7 @@
 
 .billing-form {
   padding: 24px;
-  height:63vh;
+  flex: 1;
   overflow-y: auto;
 }
 
@@ -636,10 +645,12 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 0;
   padding: 20px;
   border-top: 1px solid #eee;
+  box-sizing: border-box;
 }
 
 .cancel-btn,
@@ -737,12 +748,11 @@
 
 /* Select dropdown custom styling */
 .billing-form .css-control {
-  height: 50vh;
-  overflow-y: scroll;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
-/* GST input styling */
-
+/* Saved address cards row */
 .addressRow {
   display: flex;
   gap: 12px;
@@ -751,7 +761,6 @@
   padding-bottom: 8px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  
 }
 
 .addressCard {

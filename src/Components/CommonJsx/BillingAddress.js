@@ -396,9 +396,8 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
         style={{padding:'24px'}}>
           <div className={styles["billing-header"]}>
             <h2>Billing Summary</h2>
-            <button 
-              className={styles["close-btn"]} 
-              style={{width:'50px'}} 
+            <button
+              className={styles["close-btn"]}
               onClick={() => setShowBillingSummary(false)}
             >
               ×
