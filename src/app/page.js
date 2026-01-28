@@ -59,16 +59,9 @@ const jsonLdData = {
   sameAs: ["https://www.linkedin.com/company/marathon-os"],
 };
 
-import { Inter } from "next/font/google";
 import HomePage from "@/Components/Home/HomePage";
 import Script from "next/script";
 import styles from "./page.module.css";
-
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export default function Home() {
   
@@ -80,7 +73,7 @@ export default function Home() {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
       />
-      <div className={`${styles["marathon"]} ${inter.className}`}>
+      <div className={styles["marathon"]}>
         <HomePage />
       </div>
     </>

@@ -12,6 +12,14 @@ body {
   font-family: var(--font-inter);
   overflow-x: hidden;
 }
+
+/* Ensure MUI components use Roboto with font-display: swap */
+.MuiTypography-root,
+.MuiButton-root,
+.MuiInputBase-root,
+[class*="Mui"] {
+  font-family: var(--font-roboto, 'Roboto', 'Helvetica', 'Arial', sans-serif) !important;
+}
 /* global.css */
 ::-webkit-scrollbar {
   width: 5px;

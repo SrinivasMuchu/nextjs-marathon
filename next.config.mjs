@@ -21,6 +21,10 @@ const nextConfig = {
     ],
   },
   reactStrictMode: false,
+  // Optimize CSS loading - reduces Material-UI CSS bundle size
+  experimental: {
+    optimizePackageImports: ['@mui/material', '@mui/icons-material'],
+  },
   
   async redirects() {
     return [
@@ -66,7 +70,16 @@ const nextConfig = {
           },
         ],
       },
-      
+      // Optimize CSS loading with proper cache headers
+      {
+        source: '/:path*.css',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
     ];
   },
 };
