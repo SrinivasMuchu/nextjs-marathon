@@ -1136,7 +1136,7 @@ function UploadYourCadDesign({
                                         // Show upload prompt
                                         <>
                                             <Image
-                                                src={`${ASSET_PREFIX_URL}uploading-icon.svg`}
+                                                src={`${(ASSET_PREFIX_URL || '').replace(/\/?$/, '/')}uploading-icon.svg`}
                                                 alt='uploading-icon'
                                                 width={50}
                                                 height={50}
@@ -1237,7 +1237,7 @@ function UploadYourCadDesign({
                                 ) : (
                                     <>
                                         <Image
-                                            src={`${ASSET_PREFIX_URL}uploading-icon.svg`}
+                                            src={`${(ASSET_PREFIX_URL || '').replace(/\/?$/, '/')}uploading-icon.svg`}
                                             alt='uploading-icon'
                                             width={50}
                                             height={50}
