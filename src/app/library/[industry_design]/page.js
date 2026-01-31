@@ -1,5 +1,5 @@
 import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign';
-import { BASE_URL } from '@/config';
+import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import { notFound } from 'next/navigation'; // 👈
 
 // Cache the HTML for this page for a short time (ISR),
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }) {
       openGraph: {
         images: [
           {
-            url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+            url: `${ASSET_PREFIX_URL}logo-1.png`,
             width: 1200,
             height: 630,
             type: "image/png",

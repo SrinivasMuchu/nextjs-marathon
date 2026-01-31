@@ -191,7 +191,7 @@ function TellUsAboutYourself() {
                 justifyContent: 'center',
 
               }}>
-                <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/plus.svg' alt="plus" width={20} height={20} />
+                <Image src={`${ASSET_PREFIX_URL}plus.svg`} alt="plus" width={20} height={20} />
               </div>
               {user.photo ? (
                 !user.photo.startsWith('data') ? (
@@ -205,7 +205,7 @@ function TellUsAboutYourself() {
                   }} />
                 )
               ) : (
-                <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profile-empty.png' alt="User Photo" width={100} height={100} style={{ borderRadius: '50%' }} />
+                <Image src={`${ASSET_PREFIX_URL}profile-empty.png`} alt="User Photo" width={100} height={100} style={{ borderRadius: '50%' }} />
               )}
 
 

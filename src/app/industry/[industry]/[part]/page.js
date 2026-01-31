@@ -1,5 +1,5 @@
 import IndustryParts from '@/Components/IndustryParts/IndustryParts';
-import { BASE_URL } from '@/config';
+import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import { notFound } from 'next/navigation'; // 👈
 
 export async function generateMetadata({ params }) {
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       images: [
         {
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+          url: `${ASSET_PREFIX_URL}logo-1.png`,
           width: 1200,
           height: 630,
           type: "image/png",

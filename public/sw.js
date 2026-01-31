@@ -4,8 +4,8 @@ self.addEventListener('push', function (event) {
     const data = event.data.json();
     const options = {
         body: data.message || 'Your CAD file is ready.',
-        icon: 'https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png',
-        // badge: 'https://marathon-web-assets.s3.ap-south-1.amazonaws.com/badge.png',
+        icon: 'd3kqb7oxkf9gw0.cloudfront.netlogo-1.png',
+        // badge: 'd3kqb7oxkf9gw0.cloudfront.netbadge.png',
         data: {
             url: data.url || '/',
         },

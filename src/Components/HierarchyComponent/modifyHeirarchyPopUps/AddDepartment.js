@@ -174,7 +174,7 @@ function AddDepartment({ activeNode, setAction, setParentId, setUpdatedData,setO
               value={department}
               onChange={(e) => handleDepartmentChange(e)}
             />
-            {loading && <Image width={20} height={20} className={styles["load-img"]} src={`https://marathon-web-assets.s3.ap-south-1.amazonaws.com/load-gif.gif`} />}
+            {loading && <Image width={20} height={20} className={styles["load-img"]} src={`${ASSET_PREFIX_URL}load-gif.gif`} />}
 
           </div>
 

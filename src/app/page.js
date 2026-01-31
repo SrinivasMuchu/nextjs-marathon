@@ -1,3 +1,5 @@
+import { ASSET_PREFIX_URL } from "@/config";
+
 export const metadata = {
   title: "CAD Design Library + Free CAD Viewer & 3D Converter | Marathon OS",
   description:
@@ -11,7 +13,7 @@ export const metadata = {
     siteName: "Marathon OS",
     images: [
       {
-        url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+        url: `${ASSET_PREFIX_URL}logo-1.png`,
         width: 1200,
         height: 630,
         type: "image/png",
@@ -31,7 +33,7 @@ const jsonLdData = {
   "@type": "SoftwareApplication",
   name: "Marathon OS",
   url: "https://marathon-os.com",
-  image: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+  image: `${ASSET_PREFIX_URL}logo-1.png`,
   description:
     "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
   applicationCategory: "BusinessApplication",
@@ -49,7 +51,7 @@ const jsonLdData = {
     "@type": "Organization",
     name: "Marathon OS",
     url: "https://marathon-os.com",
-    logo: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+    logo: `${ASSET_PREFIX_URL}logo-1.png`,
   },
   author: {
     "@type": "Organization",

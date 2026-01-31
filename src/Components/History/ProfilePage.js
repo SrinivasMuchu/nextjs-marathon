@@ -287,7 +287,7 @@ function ProfilePage() {
                     }} />
                   )
                 ) : (
-                  <Image src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profile-empty.png' alt="User Photo" width={150} height={150} style={{ borderRadius: '50%' }} />
+                  <Image src={`${ASSET_PREFIX_URL}profile-empty.png`} alt="User Photo" width={150} height={150} style={{ borderRadius: '50%' }} />
                 )}
 
 

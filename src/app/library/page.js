@@ -1,4 +1,5 @@
 import Library from '@/Components/Library/Library';
+import { ASSET_PREFIX_URL } from '@/config';
 import React from 'react';
 
 // This function sets metadata based on query params
@@ -32,7 +33,7 @@ export async function generateMetadata({ searchParams }) {
     openGraph: {
       images: [
         {
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+          url: `${ASSET_PREFIX_URL}logo-1.png`,
           width: 1200,
           height: 630,
           type: "image/png",

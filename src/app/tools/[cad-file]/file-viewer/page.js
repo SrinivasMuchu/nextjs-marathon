@@ -1,5 +1,6 @@
 import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDesign';
 import CadUpload from '@/Components/CadUploadingHome/CadUpload/CadUpload';
+import { ASSET_PREFIX_URL } from '@/config';
 import { notFound } from 'next/navigation';
 
 // const ALLOWED_CAD_FILES = ['step', 'brep', 'stp' ,'off','obj','iges','igs','stl','brp','ply','glb'];
@@ -17,10 +18,10 @@ export async function generateMetadata({ params }) {
     openGraph: {
       images: [
         {
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+          url: `${ASSET_PREFIX_URL}logo-1.png`,
           width: 1200,
           height: 630,
-          type: "image/png",
+          type: "image/png",  
         },
       ],
     },

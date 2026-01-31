@@ -1,3 +1,4 @@
+import { ASSET_PREFIX_URL } from '@/config';
 
 export const metadata = {
     title: "Refund Policy | Marathon OS",
@@ -6,7 +7,7 @@ export const metadata = {
  
       openGraph: {images: [
         {
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+          url: `${ASSET_PREFIX_URL}logo-1.png`,
           width: 1200,
           height: 630,
           type: "image/png",

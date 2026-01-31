@@ -1,9 +1,9 @@
 export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
-// export const DEFAULT_PHOTO = "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/profilelogodefault.png"
-export const PHOTO_LINK = "https://marathon-org-assets.s3.ap-south-1.amazonaws.com/"
+// export const DEFAULT_PHOTO = "d3kqb7oxkf9gw0.cloudfront.netprofilelogodefault.png"
+export const PHOTO_LINK = "https://d1rawlyg9re39v.cloudfront.net/"
 // export const DEFAULT_COMPANY_LINK = "https://member-images.s3.ap-south-1.amazonaws.com/upload_1695283928.png"
 export const MARATHON_ASSET_PREFIX_URL = "https://d2o2bcehk92sin.cloudfront.net/";
-export const ASSET_PREFIX_URL = "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/";
+export const ASSET_PREFIX_URL = "d3kqb7oxkf9gw0.cloudfront.net";
 export const TITLELIMIT = 100;
 export const DESCRIPTIONLIMIT = 500;
 // export const HEADERS = { "x-auth-token": localStorage.getItem('token')}
@@ -112,5 +112,5 @@ export const MARATHONDETAILS = {
   name: "Marathon Technologies",
   description: "A platform for CAD file management and collaboration.",
   theme: "#610bee",
-  image: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png"
+  image: "d3kqb7oxkf9gw0.cloudfront.netlogo-1.png"
 };
