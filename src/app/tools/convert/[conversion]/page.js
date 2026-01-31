@@ -1,4 +1,6 @@
 // app/tools/[from]-to-[to]/page.js
+import { ASSET_PREFIX_URL } from '@/config';
+
 export async function generateMetadata({ params }) {
   const [from, to] = (params.conversion || '').split('-to-');
 
@@ -8,7 +10,7 @@ export async function generateMetadata({ params }) {
     description: `Convert ${from.toUpperCase()} files to ${to.toUpperCase()} online with Marathon OS. Fast, secure conversion.`,
     openGraph: {
       images: [{
-        url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+        url: `${ASSET_PREFIX_URL}logo-1.png`,
         width: 1200,
         height: 630,
         type: "image/png",

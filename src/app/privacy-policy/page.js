@@ -1,3 +1,4 @@
+import { ASSET_PREFIX_URL } from '@/config';
 
 export const metadata = {
     title: "Privacy Policy | Marathon OS",
@@ -5,11 +6,11 @@ export const metadata = {
       "Learn how Marathon OS collects, uses, and protects your personal data. We value your privacy and are committed to safeguarding your information.",
       openGraph: {images: [
         {
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+          url: `${ASSET_PREFIX_URL}logo-1.png`,
           width: 1200,
           height: 630,
           type: "image/png",
-        },
+        },  
       ],} , metadataBase: new URL("https://marathon-os.com"),
       alternates: {
         canonical: "/privacy-policy",

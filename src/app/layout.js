@@ -6,7 +6,7 @@ import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 import FloatingButton from "@/Components/CommonJsx/FloatingButton";
 import HomeTopNav from "@/Components/HomePages/HomepageTopNav/HomeTopNav";
-import { GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
+import { ASSET_PREFIX_URL, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 
 
 
@@ -32,7 +32,7 @@ const jsonLdData = {
   "@type": "SoftwareApplication",
   "name": "Marathon OS",
   "url": "https://marathon-os.com",
-  "image": "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+  "image": `${ASSET_PREFIX_URL}logo-1.png`,
   "description": "Marathon OS is a cloud-based PLM, PDM, and BOM management platform designed for engineering teams and manufacturers. It streamlines CAD file management, inventory tracking, procurement, and real-time collaboration.",
   "applicationCategory": "BusinessApplication",
   "applicationSubCategory": "Product Lifecycle Management Software",
@@ -49,7 +49,7 @@ const jsonLdData = {
     "@type": "Organization",
     "name": "Marathon OS",
     "url": "https://marathon-os.com",
-    "logo": "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png"
+    "logo": `${ASSET_PREFIX_URL}logo-1.png`
   },
   "author": {
     "@type": "Organization",
@@ -117,7 +117,7 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
         <link rel="shortcut icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" type="image/x-icon"></link>
         <meta property="og:locale" content="en_US" />
-        <meta property="og:image" content="https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png" />
+        <meta property="og:image" content={`${ASSET_PREFIX_URL}logo-1.png`} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/png" />

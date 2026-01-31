@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useContext } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
-import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList } from '@/config';
+import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList, ASSET_PREFIX_URL } from '@/config';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
@@ -1136,7 +1136,7 @@ function UploadYourCadDesign({
                                         // Show upload prompt
                                         <>
                                             <Image
-                                                src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
+                                                src={`${ASSET_PREFIX_URL}uploading-icon.svg`}
                                                 alt='uploading-icon'
                                                 width={50}
                                                 height={50}
@@ -1237,7 +1237,7 @@ function UploadYourCadDesign({
                                 ) : (
                                     <>
                                         <Image
-                                            src='https://marathon-web-assets.s3.ap-south-1.amazonaws.com/uploading-icon.svg'
+                                            src={`${ASSET_PREFIX_URL}uploading-icon.svg`}
                                             alt='uploading-icon'
                                             width={50}
                                             height={50}

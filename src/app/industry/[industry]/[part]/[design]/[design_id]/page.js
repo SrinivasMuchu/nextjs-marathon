@@ -1,4 +1,5 @@
 import IndustryCadViewer from '@/Components/IndustryDesigns/IndustryCadViewer'
+import { ASSET_PREFIX_URL } from '@/config';
 import React from 'react'
 
 export async function generateMetadata({ params }) {
@@ -10,7 +11,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       images: [
         {
-          url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",
+          url: `${ASSET_PREFIX_URL}logo-1.png`,
           width: 1200,
           height: 630,
           type: "image/png",
