@@ -10,6 +10,7 @@ import CadFileConversionHeader from './CadFileConversionHeader'
 import CadConverterTypes from './CadConverterTypes'
 import CadConverterFormateText from './CadConverterFormateText'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
+import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 
 const features = [
     {
@@ -102,13 +103,14 @@ function CadFileConversionHome({ convert, conversionParams }) {
                 { label: '3D CAD File Converter', href: '/tools/3d-file-converter' },
                 { label: `${conversionParams}`, href: `/tools/convert/${conversionParams}` },
             ]} />}
-            <CadFileConversionHeader convert={convert} />
+            <CadFileConversionHeader convert={convert} conversionParams={conversionParams} />
 
             <OrgFeatures type='cad' />
             {conversionParams && <CadConverterFormateText conversionParams={conversionParams} />}
             <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails} />
             <CadConverterTypes />
+            <DesignHub />
             <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />
             <Footer />
         </>
