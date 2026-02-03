@@ -4,7 +4,12 @@ import React, { useRef, useState, useEffect } from "react";
 import styles from '../CadHomeDesign/CadHome.module.css'
 import CadFileConversionWrapper from './CadFileConversionWrapper'
 
-function CadFileUploads({ convert, allowedFormats }) {
+function CadFileUploads({ convert, allowedFormats, initialAllowedFormats = [] }) {
+    // Use initialAllowedFormats on first paint (from server params) to avoid CLS when context hydrates
+    const formats = (allowedFormats?.length ? allowedFormats : initialAllowedFormats) || [];
+    const formatsText = convert
+      ? (formats.length ? `Supported formats: ${formats.join(', ')}` : 'Supported formats: …')
+      : 'Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), DWG (.dwg), DXF (.dxf)';
     return (
         <>
             <CadFileConversionWrapper convert={convert}>
@@ -14,7 +19,7 @@ function CadFileUploads({ convert, allowedFormats }) {
 
                     </p>
                     <p className={styles['cad-dropzone-desc']} >
-                        {convert ? `Supported formats:${allowedFormats.join(", ")}` : "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), DWG (.dwg), DXF (.dxf)"}
+                        {formatsText}
                     </p>
                 </div>
             </CadFileConversionWrapper>

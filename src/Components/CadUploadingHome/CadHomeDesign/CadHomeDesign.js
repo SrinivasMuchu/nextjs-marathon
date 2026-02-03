@@ -10,6 +10,7 @@ import CadUpload from '../CadUpload/CadUpload'
 import CadIndustry from './CadIndustry'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import CadViewrTypes from './CadViewrTypes'
+import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 
 
 
@@ -106,6 +107,7 @@ function CadHomeDesign({type}) {
            
             <OrgFeatures type='cad'/>
             <CadViewrTypes/>
+            <DesignHub />
             <CadIndustry/>
             <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails}/>
