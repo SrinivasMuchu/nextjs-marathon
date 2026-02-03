@@ -113,7 +113,8 @@ function SearchedList() {
         `${BASE_URL}/v1/admin-pannel/update-marathon-search-text`,
         {
           search_id: editingRowId,
-          marathon_search_text: newSearchText
+          marathon_search_text: newSearchText,
+          action: 'update'
         },
         {
           headers: { 'admin-uuid': localStorage.getItem('admin-uuid') }
@@ -121,7 +122,7 @@ function SearchedList() {
       )
 
       if (response.data.meta.success) {
-        toast.success(response.data.meta.message || 'Search text updated successfully')
+        toast.success(response.data.meta.message || 'Marathon search text updated successfully')
         handleClosePopup()
         // Refresh the table data
         fetchSearchLogs(currentPage, searchTerm)
@@ -137,9 +138,35 @@ function SearchedList() {
   }
 
   const handleCrawlClick = async (log) => {
-    // Placeholder for crawl functionality
-    console.log('Crawl clicked for:', log._id)
-    toast.info('Crawl functionality to be implemented')
+    if (!log._id) return
+
+    try {
+      // Use marathon_search_text if present, otherwise use search_text
+      const marathonSearchText = log.marathon_search_text || log.search_text || ''
+
+      const response = await axios.post(
+        `${BASE_URL}/v1/admin-pannel/update-marathon-search-text`,
+        {
+          search_id: log._id,
+          marathon_search_text: marathonSearchText,
+          action: 'crawl'
+        },
+        {
+          headers: { 'admin-uuid': localStorage.getItem('admin-uuid') }
+        }
+      )
+
+      if (response.data.meta.success) {
+        toast.success(response.data.meta.message || 'Marathon search text crawling started')
+        // Refresh the table data to get updated status from backend
+        fetchSearchLogs(currentPage, searchTerm)
+      } else {
+        toast.error(response.data.meta.message || 'Failed to start crawling')
+      }
+    } catch (error) {
+      console.error('Error starting crawl:', error)
+      toast.error(error.response?.data?.meta?.message || 'Failed to start crawling')
+    }
   }
 
   return (
@@ -184,6 +211,7 @@ function SearchedList() {
               <th>User Email</th>
               <th>Username</th>
               <th>Date</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -195,7 +223,7 @@ function SearchedList() {
             <tbody>
               {searchLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: 20 }}>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: 20 }}>
                     {searchTerm ? 'No search logs found for your search' : 'No search logs found'}
                   </td>
                 </tr>
@@ -243,11 +271,24 @@ function SearchedList() {
                       <span>{formatDateTime(log.createdAt)}</span>
                     </td>
                     <td>
+                      <span style={{ 
+                        textTransform: 'capitalize',
+                        color: log.search_crawl_status === 'crawling' ? '#f59e0b' : 
+                               log.search_crawl_status === 'crawled' ? '#22c55e' : '#6b7280'
+                      }}>
+                        {log.search_crawl_status === 'not_crawled' ? 'Not Crawled' :
+                         log.search_crawl_status === 'crawling' ? 'Crawling' :
+                         log.search_crawl_status === 'crawled' ? 'Crawled' :
+                         'Not Crawled'}
+                      </span>
+                    </td>
+                    <td>
                       <div className={styles.actionCell}>
                         <button
                           className={`${styles.actionBtn} ${styles.actionApprove}`}
                           onClick={() => handleCrawlClick(log)}
                           title="Crawl"
+                          disabled={log.search_crawl_status === 'crawling'}
                         >
                           Crawl
                         </button>
