@@ -1,10 +1,11 @@
 .cad-landing-page {
     display: flex;
     /* flex-wrap: wrap; */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 100px 80px;
+    padding: 0px 80px 80px 80px;
     min-height: 320px; /* Reserve space to reduce CLS when heading/description render */
     box-sizing: border-box;
 }

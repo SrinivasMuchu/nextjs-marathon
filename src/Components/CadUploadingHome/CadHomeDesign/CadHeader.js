@@ -4,10 +4,16 @@ import styles from './CadHome.module.css'
 import CadDropZoneContent from './CadDropZoneContent'
 import { IMAGEURLS } from '@/config'
 import FormateSelector from './FormateSelector'
+import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 
 function CadHeader({type}) {
   return (
     <div className={styles['cad-landing-page']}>
+      <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
+        <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
+          <LeftRightBanner adSlot="3755241003"/>
+        </div>
+      </div>
       <div className={styles['cad-landing-left-cont']}>
         <div className={styles['cad-landing-left-content']}> <h1 className={styles['cad-landing-heading']}>
           Free Online CAD Viewer –Secure, Fast & Cloud-Based
