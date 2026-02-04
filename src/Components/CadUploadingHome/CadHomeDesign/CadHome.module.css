@@ -448,7 +448,7 @@
     .cad-landing-page {
         justify-content: center;
         flex-direction: column;
-        gap: 50px;
+        /* gap: 50px; */
     }
 
     .cad-dropzone {
@@ -458,7 +458,8 @@
 
 @media screen and (max-width:750px) {
     .cad-landing-page {
-        padding: 40px;
+
+        padding: 0px 40px 40px 40px;
 
     }
 
