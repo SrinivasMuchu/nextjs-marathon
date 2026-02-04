@@ -18,6 +18,7 @@ import DownloadsRatingAlert from '../CreatorsPage/DownloadsRatingAlert'
 import CadDesignDownload from './CadDesignDownlaod'
 import DesignViewer from './DesignViewer';
 import IndustryDesignSupportFileList from './IndustryDesignSupportFileList';
+import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 
 function IndustryDesign({ design, designData, type }) {
 
@@ -52,7 +53,13 @@ function IndustryDesign({ design, designData, type }) {
 
               ]}
             />}
+            <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
+                <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
+                    <LeftRightBanner adSlot="4923244212"/>
+                </div>
+            </div>
           <div className={styles['industry-design-header-container']} >
+          
           <div className={styles['mobile-only']}>
             <IndustryHeaderDetails designData={designData}/>
           </div>
@@ -93,7 +100,7 @@ function IndustryDesign({ design, designData, type }) {
 
           <IndustryDesignDropZone />
           <Footer />
-          <AnchorAdBanner adSlot='4237862906' />
+          {/* <AnchorAdBanner adSlot='4237862906' /> */}
         </>}
 
       </div>
