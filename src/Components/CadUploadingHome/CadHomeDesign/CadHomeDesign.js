@@ -7,6 +7,11 @@ import OurFeatures from '@/Components/OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadUpload from '../CadUpload/CadUpload'
+import HowItWorks from '../CadUpload/HowItWorks'
+import CoreBenefits from '../CadUpload/CoreBenefits'
+import UseCases from '../CadUpload/UseCases'
+import TrustPrivacy from '../CadUpload/TrustPrivacy'
+import ConvertCrossLink from '../CadUpload/ConvertCrossLink'
 import CadIndustry from './CadIndustry'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import CadViewrTypes from './CadViewrTypes'
@@ -35,28 +40,44 @@ const features = [
 ]
 const faqQuestions = [
     {
-        question: "What is Marathon OS CAD Viewer?",
-        answer: "Marathon OS CAD Viewer is a high-performance, cloud-based tool that allows you to view STEP, IGES, STL, BREP, and more instantly—without any software installation.",
+        question: "What is a CAD viewer?",
+        answer: "A CAD viewer lets you open and preview 2D/3D CAD files without editing them—useful for quick reviews and sharing.",
     },
     {
-        question: "What file formats are supported?",
-        answer: "You can upload and view STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), and BREP (.brp, .brep) files.",
+        question: "Can I open STEP and IGES files online?",
+        answer: "Yes—upload your .step/.stp or .igs/.iges file to preview it directly in your browser.",
     },
     {
-        question: "Is Marathon OS CAD Viewer free to use?",
-        answer: "Yes! Marathon OS offers a free and secure way to view CAD files online, with no downloads required.",
+        question: "Do I need to install any software?",
+        answer: "No. Marathon OS CAD Viewer is browser-based—no downloads required.",
     },
     {
-        question: "How is my data stored and secured?",
-        answer: "All uploaded files are encrypted and automatically deleted after 24 hours, ensuring complete privacy and security.",
+        question: "Which file formats are supported?",
+        answer: "STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP.",
     },
     {
-        question: "Do I need any special software or training?",
-        answer: "Nope! Marathon OS CAD Viewer works directly in your browser, making it easy to use with zero learning curve.",
+        question: "Is this CAD viewer free?",
+        answer: "Yes—this page is presented as a Free Online CAD Viewer, with usage constraints like an upload size limit (up to 300 MB per file).",
     },
     {
-        question: "Can I view large and complex CAD models?",
-        answer: "Absolutely! Our proprietary high-performance rendering engine ensures smooth, lag-free visualization, even for large and intricate designs.",
+        question: "What is the max file size?",
+        answer: "Up to 300 MB per upload.",
+    },
+    {
+        question: "Will my file stay private?",
+        answer: "Files stay private, are encrypted, and are automatically deleted after 24 hours; see the Privacy Policy for details.",
+    },
+    {
+        question: "Why does my model look broken (holes/missing faces)?",
+        answer: "Some CAD exchange formats (especially surface-based files like IGES) may import with gaps. Try converting to STEP or re-exporting with healed/stitched surfaces.",
+    },
+    {
+        question: "Can I convert my file to another format?",
+        answer: "Yes—use the 3D File Converter at /tools/3d-cad-file-converter.",
+    },
+    {
+        question: "Does it work on Mac / Windows?",
+        answer: "Yes—because it runs in your browser (no installation needed), it works on Mac and Windows with a modern browser.",
     },
 ];
 const whyChoose = {
@@ -92,6 +113,59 @@ const featuresArray = [
 
 ]
 
+
+
+const steps = [
+    { text: 'Upload your CAD file (drag & drop)' },
+    { text: 'Preview your model in the browser' },
+    {
+      textPrefix: 'Share or convert if needed—use the ',
+      link: { href: '/tools/3d-cad-file-converter', label: 'converter tool' },
+    },
+  ];
+
+
+  const benefits = [
+    {
+      title: 'Instant preview',
+      description: 'Quickly open and inspect CAD files without installing heavy software.',
+    },
+    {
+      title: 'Anywhere access',
+      description: 'Review models from any device (desktop or mobile).',
+    },
+    {
+      title: 'Format support',
+      description: 'Common exchange formats supported in one viewer.',
+    },
+    {
+      title: 'Faster collaboration',
+      description: 'Share files with teammates for quick review.',
+    },
+  ];
+
+  const items = [
+    {
+      title: 'Private uploads',
+      description: 'Files are processed securely.',
+    },
+    {
+      title: 'Retention',
+      description: 'Files are deleted after 24 hours immediately.',
+    },
+    {
+      title: 'Ownership',
+      description: 'You retain full ownership of your files.',
+    },
+  ];
+
+  const useCases = [
+    'Mechanical engineers reviewing STEP/IGES from vendors',
+    'Manufacturing teams checking files before quoting',
+    'Design teams quickly sharing 3D previews internally',
+    'Students opening CAD files without expensive software',
+    '3D printing workflows inspecting STL/OBJ meshes',
+  ];
 function CadHomeDesign({type}) {
    
     return (
@@ -99,18 +173,24 @@ function CadHomeDesign({type}) {
             {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
                       links={[
-                        { label: 'CAD viewer', href: '/tools/cad-viewer' },       
+                        { label: 'CAD viewer', href: '/tools//3D-cad-viewer' },       
 
                       ]}
                     />
             {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
-           
+            
             <OrgFeatures type='cad'/>
+            <HowItWorks steps={steps} title="How to view CAD files online" />
+            <CoreBenefits benefits={benefits} title="Why use Marathon OS CAD Viewer" />
+           
             <CadViewrTypes/>
             <DesignHub />
+            <UseCases useCases={useCases} title="Who this CAD viewer is for" />
+            <TrustPrivacy items={items} title="Privacy and file handling" />
+            <ConvertCrossLink />
             <CadIndustry/>
-            <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
-            <OurFeatures features={features} essentialDeatails={essentialDeatails}/>
+            {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
+            <OurFeatures features={features} essentialDeatails={essentialDeatails}/> */}
             <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS CAD Viewer. Whether you're getting started or looking for advanced features, we've got you covered."/>
             <Footer />
         </>

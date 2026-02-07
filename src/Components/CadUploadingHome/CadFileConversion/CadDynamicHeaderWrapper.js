@@ -14,10 +14,13 @@ function CadDynamicHeaderWrapper({children}) {
       
         // Split path and get all segments
         const pathSegments = pathname.split("/").filter(Boolean);
-    
-        // Get the last segment dynamically
-        const formatsSegment = pathSegments.at(-1) ?? "";
-     
+        // Get the last segment (e.g. "convert-obj-to-stl")
+        let formatsSegment = pathSegments.at(-1) ?? "";
+        // New URL shape: /tools/convert-obj-to-stl → use "obj-to-stl" for from/to
+        if (formatsSegment.startsWith("convert-")) {
+          formatsSegment = formatsSegment.slice(8);
+        }
+
         // Extract 'from' and 'to' dynamically
         let from = "dwg", to = "stl";
         if (formatsSegment) {

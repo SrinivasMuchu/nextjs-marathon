@@ -13,6 +13,12 @@ import { useRouter } from "next/navigation";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 
+function parseFormatFromPath(segment) {
+  if (!segment || typeof segment !== 'string') return '';
+  const match = segment.match(/^(.+)-file-viewer$/);
+  return match ? match[1].toLowerCase() : segment.toLowerCase();
+}
+
 function CadDropZoneWrapper({ children, isStyled, type }) {
     const fileInputRef = useRef(null);
     const [checkLimit, setCheckLimit] = useState(false);
@@ -23,7 +29,8 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
     const { setFile } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
     const router = useRouter();
-    const cadFile = pathname.split("/")[2];
+    const segment = pathname.split("/")[2] || '';
+    const cadFile = parseFormatFromPath(segment);
   
     useEffect(() => {
         if (type && cadFile) {
@@ -32,31 +39,28 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
             setAllowedFormats(allowedFilesList)
         }
     }, [type, cadFile]);
-    const formateAcceptor = (cadFile) => {
-        if (cadFile === 'step' || cadFile === 'stp') {
+    const formateAcceptor = (format) => {
+        if (format === 'step' || format === 'stp') {
             setAllowedFormats([".step", ".stp"])
         }
-        if (cadFile === 'iges' || cadFile === 'igs') {
+        if (format === 'iges' || format === 'igs') {
             setAllowedFormats([".igs", ".iges"])
         }
-        if (cadFile === 'stl') {
+        if (format === 'stl') {
             setAllowedFormats([".stl"])
         }
-        if (cadFile === 'ply') {
+        if (format === 'ply') {
             setAllowedFormats([".ply"])
         }
-        if (cadFile === 'off') {
+        if (format === 'off') {
             setAllowedFormats([".off"])
         }
-        if (cadFile === 'brep' || cadFile === 'brp') {
+        if (format === 'brep' || format === 'brp') {
             setAllowedFormats([".brp", ".brep"])
         }
-        if (cadFile === 'obj') {
+        if (format === 'obj') {
             setAllowedFormats([".obj"])
         }
-        // if (cadFile === 'glb') {
-        //     setAllowedFormats([".glb"])
-        // }
     }
 
 

@@ -1,0 +1,88 @@
+.section {
+  width: 100%;
+  padding: 64px 24px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(240, 245, 255, 0.98) 0%, rgba(248, 246, 255, 0.98) 100%);
+}
+
+.wrapper {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.title {
+  color: #001325;
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  text-align: center;
+  margin: 0;
+}
+
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid rgba(97, 11, 238, 0.1);
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #610BEE;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 36px;
+  text-align: center;
+}
+
+.stepText {
+  color: #001325;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+  margin: 0;
+  padding-top: 6px;
+}
+
+.stepText a {
+  color: #610BEE;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.stepText a:hover {
+  text-decoration: none;
+}
+
+@media screen and (max-width: 600px) {
+  .section {
+    padding: 48px 20px;
+  }
+  .wrapper {
+    gap: 32px;
+  }
+  .stepItem {
+    padding: 16px 18px;
+  }
+}

@@ -239,31 +239,29 @@ export const converterTypes = [
   // { label: 'GLB to OFF', path: '/glb-to-off' },
   // { label: 'GLB to BREP', path: '/glb-to-brep' },
 
-
-
-
- 
 ];
+
+/** Featured conversion cards for topical authority and internal linking (each links to /tools/convert{path}) */
+export const featuredConversions = [
+  { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'Convert STEP to STL for 3D printing and slicing.' },
+  { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'Convert IGES to STEP for manufacturing handoff.' },
+  { label: 'OBJ to STL', path: '/obj-to-stl', oneLiner: 'Convert OBJ to STL for mesh workflows and 3D printing.' },
+  { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'Convert STL to STEP for CAD compatibility and import.' },
+  { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for mesh export and 3D printing.' },
+  { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 2D CAD exchange.' },
+  { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 2D CAD exchange.' },
+];
+
 // export const allowedFilesList = [ ".stp",  ,  ".igs", , ".brp", ]
-export const cadViewTypes =[{
-  label:'OBJ viewer',
-  path:'/obj'
-},{  label:'STL viewer',
-  path:'/stl'
-},{  label:'PLY viewer',
-  path:'/ply'
-},{  label:'OFF viewer',
-  path:'/off'
-},{  label:'IGES viewer',
-  path:'/iges'
-},{  label:'BREP viewer',
-  path:'/brep'
-},{  label:'STEP viewer',
-  path:'/step'
-},{label:'STP viewer',
-  path:'/stp'
-},{label:'BRP viewer',
-  path:'/brp'
-},{label:'IGS viewer',
-    path:'/igs'
-},]
+export const cadViewTypes = [
+  { label: 'OBJ viewer', path: '/obj', oneLiner: 'View OBJ mesh models and 3D assets in your browser.' },
+  { label: 'STL viewer', path: '/stl', oneLiner: 'Inspect STL meshes for 3D printing checks.' },
+  { label: 'PLY viewer', path: '/ply', oneLiner: 'Open PLY point clouds and polygon meshes online.' },
+  { label: 'OFF viewer', path: '/off', oneLiner: 'Preview OFF geometry files without desktop software.' },
+  { label: 'IGES viewer', path: '/iges', oneLiner: 'Preview IGES/IGS surfaces before manufacturing handoff.' },
+  { label: 'BREP viewer', path: '/brep', oneLiner: 'Open BREP boundary representation models in the browser.' },
+  { label: 'STEP viewer', path: '/step', oneLiner: 'Open STEP/STP assemblies and 3D geometry online.' },
+  { label: 'STP viewer', path: '/stp', oneLiner: 'View STP (STEP) CAD files instantly—no install needed.' },
+  { label: 'BRP viewer', path: '/brp', oneLiner: 'Inspect BRP (BREP) solid models for design review.' },
+  { label: 'IGS viewer', path: '/igs', oneLiner: 'Check IGS/IGES exchange files for collaboration.' },
+]

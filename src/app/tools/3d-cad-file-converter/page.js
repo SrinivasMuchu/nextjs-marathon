@@ -15,7 +15,7 @@ const jsonLdData = {
       '@id': `${pageUrl}#webapp`,
       name: 'Marathon OS 3D File Converter',
       alternateName: 'Free Online 3D File Converter',
-      description: 'Convert CAD & 3D model files online in seconds on Marathon OS. Upload STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP. Fast, secure, cloud-based conversion. No software required. ',
+      description: 'Convert CAD & 3D model files online in seconds on Marathon OS. Upload STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP. Fast, secure, cloud-based conversion. No software required.',
       url: pageUrl,
       applicationCategory: 'DesignApplication',
       operatingSystem: 'Any',
@@ -30,21 +30,20 @@ const jsonLdData = {
       image: imageUrl,
       author: { '@type': 'Organization', name: 'Marathon OS', url: BASE_URL },
       publisher: { '@type': 'Organization', name: 'Marathon OS', url: BASE_URL, logo: imageUrl },
-      sameAs: ["https://www.linkedin.com/company/marathon-os"],
+      sameAs: ['https://www.linkedin.com/company/marathon-os'],
     },
-    
   ],
 };
 
 export const metadata = {
-  title: " Free Online 3D CAD File Converter (STEP, IGES, STL, OBJ) | Marathon OS",
+  title: ' Free Online 3D CAD File Converter (STEP, IGES, STL, OBJ) | Marathon OS',
   description:
-    "Convert CAD & 3D model files online in seconds on Marathon OS. Upload STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP. Fast, secure, cloud-based conversion. No software required. ",
+    'Convert CAD & 3D model files online in seconds on Marathon OS. Upload STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP. Fast, secure, cloud-based conversion. No software required.',
   openGraph: {
-    images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
+    images: [{ url: imageUrl, width: 1200, height: 630, type: 'image/png' }],
   },
-  metadataBase: new URL('https://marathon-os.com'),
-  alternates: { canonical: '/tools/3d-cad-file-converter' },
+  metadataBase: new URL(BASE_URL),
+  alternates: { canonical: CANONICAL_PATH },
 };
 
 function page() {

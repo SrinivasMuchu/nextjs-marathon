@@ -60,7 +60,7 @@ export default function PartDesignView() {
 
     useEffect(() => {
         if (!file && !searchParams.get('fileId')) {
-            router.push("/tools/cad-viewer");
+            router.push("/tools//3D-cad-viewer");
             return;
         }
         // const sampleFileKey = localStorage.getItem('sample_view_cad_key');
@@ -69,8 +69,8 @@ export default function PartDesignView() {
             setIsLoading(false);
             return;
         }
-        // if(!searchParams.get('fileId')) router.push("/tools/cad-viewer");
-        // if (!file && !searchParams.get('fileId')) router.push("/tools/cad-viewer");
+        // if(!searchParams.get('fileId')) router.push("/tools//3D-cad-viewer");
+        // if (!file && !searchParams.get('fileId')) router.push("/tools//3D-cad-viewer");
         try {
             // Only handle file if it exists and we don't already have a fileId from URL
             if (file && !searchParams.get('fileId')) {
@@ -99,7 +99,7 @@ export default function PartDesignView() {
         setFolderId(''); // Clear folder ID
         setError(null); // Clear any errors
         setIsLoading(false); // Reset loading state
-        router.push("/tools/cad-viewer");
+        router.push("/tools//3D-cad-viewer");
     };
 
 

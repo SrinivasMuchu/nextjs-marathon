@@ -37,6 +37,26 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/tools/cad-viewer',
+        destination: '/tools/3D-cad-viewer',
+        permanent: true,
+      },
+      {
+        source: '/tools/3d-file-converter',
+        destination: '/tools/3d-cad-file-converter',
+        permanent: true,
+      },
+      {
+        source: '/tools/:cadFile/file-viewer',
+        destination: '/tools/:cadFile-file-viewer',
+        permanent: true,
+      },
+      {
+        source: '/tools/convert/:conversion',
+        destination: '/tools/convert-:conversion',
+        permanent: true,
+      },
+      {
         source: '/industry/aerospace-and-defence/:slug*',
         destination: '/industry/aerospace-and-aviation/:slug*',
         permanent: true,

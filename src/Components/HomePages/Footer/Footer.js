@@ -68,8 +68,8 @@ function Footer() {
               <Link href="/library">Library</Link>
               <Link href="/tools/org-hierarchy">Org Hierarchy</Link>
             
-              <Link href="/tools/cad-viewer">CAD Viewer</Link>
-              <Link href="/tools/3d-file-converter">CAD Converter</Link>
+              <Link href="/tools//3D-cad-viewer">CAD Viewer</Link>
+              <Link href="/tools/3d-cad-file-converter">CAD Converter</Link>
             </div>
           {/* </div> */}
         {/* </div> */}

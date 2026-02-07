@@ -24,7 +24,7 @@ function FormateSelector() {
 
         // Navigate dynamically to /tools/[cad_file]
         if (format) {
-            router.push(`/tools/${format}/file-viewer`);
+            router.push(`/tools/${format}-file-viewer`);
         }
     };
     return (

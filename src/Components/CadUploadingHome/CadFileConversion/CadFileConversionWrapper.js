@@ -58,14 +58,16 @@ function CadFileConversionWrapper({ children, convert }) {
 
 
         const pathSegments = pathname.split('/').filter(Boolean);
-        const formatsSegment = pathSegments.at(-1) ?? '';
-      
+        let formatsSegment = pathSegments.at(-1) ?? '';
+        // New URL shape: /tools/convert-step-to-stl → use "step-to-stl" for from/to
+        if (formatsSegment.startsWith('convert-')) {
+            formatsSegment = formatsSegment.slice(8);
+        }
 
         let from = "", to = "";
 
         if (formatsSegment) {
             const extracted = formatsSegment.split(/-to-|_to_|_/i);
-           
 
             if (extracted.length === 2) {
                 [from, to] = extracted;

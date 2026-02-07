@@ -20,14 +20,14 @@ const toolsData = [
     image: IMAGEURLS.freeTools1,
     title: 'CAD Viewer',
     description: 'Preview 3D CAD files online to inspect geometry and structure (powered by the Marathon-OS proprietary CAD viewer)',
-    route: '/tools/cad-viewer',
+    route: '/tools//3D-cad-viewer',
     linkText: 'Preview CAD files'
   },
   {
     image: IMAGEURLS.freeTools2,
     title: 'CAD Converter',
     description: 'Drag, drop, and convert directly in your browser (with no local CAD tools needed)',
-    route: '/tools/3d-file-converter',
+    route: '/tools/3d-cad-file-converter',
     linkText: 'Convert CAD files'
   }
 ]

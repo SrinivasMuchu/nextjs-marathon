@@ -40,13 +40,6 @@ const jsonLdData = {
   applicationSubCategory: "The CAD marketplace for modern teams",
   operatingSystem: "Web-based",
   softwareVersion: "1.0.0",
-  // offers: {
-  //   "@type": "Offer",
-  //   price: "1500.00",
-  //   priceCurrency: "INR",
-  //   category: "Subscription",
-  //   url: "https://marathon-os.com/#pricing",
-  // },
   publisher: {
     "@type": "Organization",
     name: "Marathon OS",

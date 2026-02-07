@@ -15,11 +15,11 @@ function CadFileConversionHeader({ convert, conversionParams }) {
             </div>
             <div className={styles['cad-landing-left-cont']}>
                 {convert ? <>  <CadDynamicContent conversionParams={conversionParams}/></> : <>  <div className={styles['cad-landing-left-content']}> <h1 className={styles['cad-landing-heading']}>
-                        Free Online 3D File Converter – Secure, Fast & Cloud-Based
+                Free Online 3D CAD File Converter
                     </h1>
                         <p className={styles['cad-landing-description']}>
-                            A lightweight, online tool to convert 3D file formats—anytime, anywhere, without installing any software.
-                        </p></div></>}
+                        Secure, lightweight online converter to change CAD & 3D file 
+                        formats instantly. Anytime, anywhere.  </p></div></>}
 
 
 
