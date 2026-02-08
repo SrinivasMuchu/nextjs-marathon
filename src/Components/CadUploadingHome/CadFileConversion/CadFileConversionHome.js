@@ -16,11 +16,13 @@ import CadConverterFormateText from './CadConverterFormateText'
 import ConversionQualityNotes from '../CadUpload/ConversionQualityNotes'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
+import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
+import { IMAGEURLS } from '@/config'
 
 const converterSteps = [
-    { text: 'Upload your CAD file (drag & drop)' },
-    { text: 'Choose the output format (STEP / IGES / STL / OBJ / PLY / OFF / BREP)' },
-    { text: 'Convert and download instantly' },
+    { text: 'Upload your CAD file (drag & drop)',image: IMAGEURLS.cadFileUpload },
+    { text: 'Choose the output format (STEP / IGES / STL / OBJ / PLY / OFF / BREP)',image: IMAGEURLS.cadFileFormat },
+    { text: 'Convert and download instantly',image: IMAGEURLS.cadFileDownload },
 ];
 
 const converterBenefits = [
@@ -122,6 +124,7 @@ function CadFileConversionHome({ convert, conversionParams }) {
 
     return (
         <>
+            <FaqPageJsonLd faqSchemaData={faqQuestions} />
             {/* <HomeTopNav /> */}
             {!convert && <ActiveLastBreadcrumb links={[
 
@@ -136,14 +139,14 @@ function CadFileConversionHome({ convert, conversionParams }) {
             <OrgFeatures type='cad' />
             <ConversionQualityNotes />
             <InterlinkingBlocks />
-            <HowItWorks title="How to view CAD files online" steps={converterSteps} />
+            <HowItWorks title="How to convert CAD files online" steps={converterSteps} />
             <CoreBenefits title="Why use Marathon OS 3D CAD File Converter" benefits={converterBenefits} />
           
             <TrustPrivacy title="Privacy and file handling" items={converterTrustItems} />
             {conversionParams && <CadConverterFormateText conversionParams={conversionParams} />}
             {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails} /> */}
-            <FeaturedConversions />
+            {/* <FeaturedConversions /> */}
             <CadConverterTypes />
             <DesignHub />
             <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />

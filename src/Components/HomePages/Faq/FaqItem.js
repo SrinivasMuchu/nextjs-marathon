@@ -3,8 +3,8 @@ import React, { useState } from 'react'
 import { FiChevronDown } from 'react-icons/fi'
 import styles from './Faq.module.css'
 
-function FaqItem({ question, answer }) {
-  const [isOpen, setIsOpen] = useState(false)
+function FaqItem({ question, answer, defaultOpen = false }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen)
 
   const toggleOpen = () => {
     setIsOpen(!isOpen)

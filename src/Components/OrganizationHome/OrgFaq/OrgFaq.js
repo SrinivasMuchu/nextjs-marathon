@@ -8,7 +8,7 @@ import { IMAGEURLS } from "@/config";
 function OrgFaq({faqQuestions,description}) {
     
 
-    const [openIndex, setOpenIndex] = useState(null);
+    const [openIndex, setOpenIndex] = useState(0);
 
     const handleToggle = (index) => {
         setOpenIndex((prevIndex) => (prevIndex === index ? null : index));

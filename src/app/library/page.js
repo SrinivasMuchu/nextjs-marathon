@@ -15,7 +15,7 @@ export async function generateMetadata({ searchParams }) {
   // Description logic
   const description = (category || page > 1)
     ? `Explore 3D CAD models in the ${categoryName} category. Ideal for engineers and designers looking for high-quality, ready-to-use designs.`
-    : 'Browse Marathon OS’s CAD Design Library. Search and filter by category or tags, preview models and download 3D CAD files for engineering workflows.';
+    : 'Browse Marathon OS\'s CAD Design Library. Search and filter by category or tags, preview models and download 3D CAD files for engineering workflows.';
 
   // Canonical URL logic
   let canonicalPath = '/library';
@@ -46,10 +46,6 @@ export async function generateMetadata({ searchParams }) {
     },
   };
 }
-
-
-// Capitalizes first letter
-
 
 
 // Capitalizes the first letter

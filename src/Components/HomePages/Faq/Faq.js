@@ -51,10 +51,11 @@ function Faq() {
         
         <div className={styles.faqList}>
           {faqData.map((faq, index) => (
-            <FaqItem 
+            <FaqItem
               key={index}
               question={faq.question}
               answer={faq.answer}
+              defaultOpen={index === 0}
             />
           ))}
         </div>

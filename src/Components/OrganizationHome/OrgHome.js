@@ -7,6 +7,7 @@ import ChartBuilder from './ChartBuilder/ChartBuilder'
 import OurFeatures from './OurFeatures/OurFeatures'
 import OrgFaq from './OrgFaq/OrgFaq'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
+import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 
 
 
@@ -93,6 +94,7 @@ const essentialDeatails = {
 function OrgHome() {
     return (
         <div>
+            <FaqPageJsonLd faqSchemaData={faqQuestions} />
             {/* <HomeTopNav /> */}
             <ActiveLastBreadcrumb
                       links={[

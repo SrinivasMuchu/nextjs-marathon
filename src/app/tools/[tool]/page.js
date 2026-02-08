@@ -13,60 +13,6 @@ function parseCadFileFromSegment(segment) {
   return match ? match[1].toLowerCase() : segment.toLowerCase();
 }
 
-function buildViewerJsonLdData(cadFile) {
-  const pageUrl = `${BASE_URL}/tools/${cadFile}-file-viewer`;
-  const imageUrl = `${ASSET_PREFIX_URL}logo-1.png`;
-  const formatUpper = cadFile.toUpperCase();
-  const pageName = `${formatUpper} File Viewer – Instantly Open & Explore ${formatUpper} Files`;
-  const pageDescription = `View ${formatUpper} (${cadFile}) files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds. Our proprietary rendering engine ensures smooth performance with zero lag and no glitches, even for large assemblies.`;
-
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'Marathon OS',
-    url: pageUrl,
-    image: imageUrl,
-    description: pageDescription,
-    applicationCategory: 'BusinessApplication',
-    applicationSubCategory: 'The CAD marketplace for modern teams',
-    operatingSystem: 'Web-based',
-    softwareVersion: '1.0.0',
-    publisher: { '@type': 'Organization', name: 'Marathon OS', url: BASE_URL, logo: imageUrl },
-    author: { '@type': 'Organization', name: 'Marathon OS', url: BASE_URL },
-    sameAs: ['https://www.linkedin.com/company/marathon-os'],
-  };
-}
-
-function buildConverterJsonLdData(conversion) {
-  const pageUrl = `${BASE_URL}/tools/convert-${conversion}`;
-  const imageUrl = `${ASSET_PREFIX_URL}logo-1.png`;
-  const [from, to] = (conversion || '').split('-to-');
-  const fromUpper = (from || '').toUpperCase();
-  const toUpper = (to || '').toUpperCase();
-
-  return {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'SoftwareApplication',
-        '@id': pageUrl,
-        name: 'Marathon OS 3D File Converter',
-        alternateName: 'Free Online 3D File Converter',
-        description: 'Fast and secure cloud-based 3D file converter. Convert between STEP, IGES, STL, OBJ, PLY, OFF, BREP formats instantly—no software required.',
-        url: pageUrl,
-        applicationCategory: 'DesignApplication',
-        operatingSystem: 'Any',
-        browserRequirements: 'Requires JavaScript. Requires HTML5.',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-        image: imageUrl,
-        author: { '@type': 'Organization', name: 'Marathon OS', url: BASE_URL },
-        publisher: { '@type': 'Organization', name: 'Marathon OS', url: BASE_URL, logo: imageUrl },
-        sameAs: ['https://www.linkedin.com/company/marathon-os'],
-      },
-    ],
-  };
-}
-
 export async function generateMetadata({ params }) {
   const segment = params?.tool ?? '';
   const isViewer = /^.+-file-viewer$/.test(segment);
@@ -108,24 +54,12 @@ export default function ToolPage({ params }) {
   if (isViewer) {
     const cadFile = parseCadFileFromSegment(segment);
     if (!cadFile || !ALLOWED_CAD_FILES.includes(cadFile)) return notFound();
-    const jsonLdData = buildViewerJsonLdData(cadFile);
-    return (
-      <>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
-        <CadHomeDesign type={true} />
-      </>
-    );
+    return <CadHomeDesign type={true} />;
   }
 
   if (isConvert) {
     if (!converterTypes.some((type) => type.path === `/${conversion}`)) return notFound();
-    const jsonLdData = buildConverterJsonLdData(conversion);
-    return (
-      <>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
-        <CadFileConversionHome convert={true} conversionParams={conversion} />
-      </>
-    );
+    return <CadFileConversionHome convert={true} conversionParams={conversion} />;
   }
 
   return notFound();

@@ -16,6 +16,8 @@ import CadIndustry from './CadIndustry'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import CadViewrTypes from './CadViewrTypes'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
+import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
+import { IMAGEURLS } from '@/config'
 
 
 
@@ -116,11 +118,24 @@ const featuresArray = [
 
 
 const steps = [
-    { text: 'Upload your CAD file (drag & drop)' },
-    { text: 'Preview your model in the browser' },
     {
+      title: 'Upload your CAD file',
+      description: 'Drag & drop or browse to upload',
+      text: 'Upload your CAD file (drag & drop)',
+      image: IMAGEURLS.cadFileUpload,
+    },
+    {
+      title: 'Preview in browser',
+      description: 'View, zoom, pan and inspect',
+      text: 'Preview your model in the browser',
+      image: IMAGEURLS.cadFilePreview,
+    },
+    {
+      title: 'Share or convert',
+      description: 'Download or convert to another format',
       textPrefix: 'Share or convert if needed—use the ',
       link: { href: '/tools/3d-cad-file-converter', label: 'converter tool' },
+      image: IMAGEURLS.cadFileShareConversion,
     },
   ];
 
@@ -160,16 +175,17 @@ const steps = [
   ];
 
   const useCases = [
-    'Mechanical engineers reviewing STEP/IGES from vendors',
-    'Manufacturing teams checking files before quoting',
-    'Design teams quickly sharing 3D previews internally',
-    'Students opening CAD files without expensive software',
-    '3D printing workflows inspecting STL/OBJ meshes',
+    { title: 'Mechanical engineers reviewing STEP/IGES from vendors', description: 'reviewing STEP/IGES from vendors' },
+    { title: 'Manufacturing teams checking files before quoting', description: 'checking files before quoting' },
+    { title: 'Design teams quickly sharing 3D previews internally', description: 'quickly sharing 3D previews internally' },
+    { title: 'Students opening CAD files without expensive software', description: 'opening CAD files without expensive software' },
+    { title: '3D printing workflows inspecting STL/OBJ meshes', description: 'inspecting STL/OBJ meshes' },
   ];
 function CadHomeDesign({type}) {
    
     return (
         <>
+            <FaqPageJsonLd faqSchemaData={faqQuestions} />
             {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
                       links={[
@@ -180,7 +196,14 @@ function CadHomeDesign({type}) {
             {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
             
             <OrgFeatures type='cad'/>
-            <HowItWorks steps={steps} title="How to view CAD files online" />
+            <HowItWorks
+            label="HOW IT WORKS"
+            mainHeading="No downloads. No plugins. Works right from your browser."
+            title="How to view CAD files online"
+            steps={steps}
+            primaryCta={{ label: 'Upload CAD File', href: '/tools/3D-cad-viewer' }}
+            secondaryCta={{ label: 'Open converter tool', href: '/tools/3d-cad-file-converter' }}
+          />
             <CoreBenefits benefits={benefits} title="Why use Marathon OS CAD Viewer" />
            
             <CadViewrTypes/>

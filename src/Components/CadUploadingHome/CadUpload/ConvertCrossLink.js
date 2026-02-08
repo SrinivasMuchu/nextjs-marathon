@@ -4,7 +4,7 @@ import cadStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.modul
 
 function ConvertCrossLink() {
   return (
-    <div className={cadStyles['cad-industries']}>
+    <div className={cadStyles['cad-industries']} style={{ backgroundColor: '#ffffff' }}>
       <div className={cadStyles['cad-industries-content']}>
         <h2>Need to convert a CAD file?</h2>
         <p>

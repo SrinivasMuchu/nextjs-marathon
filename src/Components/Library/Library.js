@@ -16,6 +16,7 @@ import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 import { cookies } from 'next/headers';
+import LibraryPageJsonLd from '../JsonLdSchemas/LibraryPageJsonLd';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -48,21 +49,11 @@ async function Library({ searchParams }) {
   if (tags) queryParams.set('tags', tags);
   if (uuid) queryParams.set('uuid', uuid);
 
-  // Fetch designs first
-  const response = await axios.get(
-    `${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`,
-    {
-      cache: 'no-store',
-    }
-  );
-
-  // Then fetch categories and tags
-  const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, {
-    cache: 'no-store',
-  });
-  const tagsResponse = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`, {
-    cache: 'no-store',
-  });
+  const [response, categoriesRes, tagsResponse] = await Promise.all([
+    axios.get(`${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`, { cache: 'no-store' }),
+    axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
+    axios.get(`${BASE_URL}/v1/cad/get-cad-tags`, { cache: 'no-store' }),
+  ]);
 
 
   const allCategories = categoriesRes.data?.data || [];
@@ -75,6 +66,12 @@ async function Library({ searchParams }) {
   return (
     <>
       {/* <HomeTopNav /> */}
+      <LibraryPageJsonLd
+        designs={designs}
+        pagination={pagination}
+        page={page}
+        limit={limit}
+      />
       <ActiveLastBreadcrumb links={[
         { label: 'Library', href: '/library' },
         // { label: `${industryData.industry}`, href: `/industry/${industry}` },

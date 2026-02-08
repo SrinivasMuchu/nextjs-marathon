@@ -27,13 +27,27 @@ const roboto = Roboto({
   adjustFontFallback: true,
 });
 const GA_TRACKING_ID = "G-6P47TN4FMC";
+const BASE_URL = "https://marathon-os.com";
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${BASE_URL}/#organization`,
+  name: "Marathon OS",
+  url: `${BASE_URL}/`,
+  logo: `${ASSET_PREFIX_URL}logo-1.png`,
+  image: `${ASSET_PREFIX_URL}logo-1.png`,
+    description: "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
+    sameAs: ["https://www.linkedin.com/company/marathon-os"],
+};
+
 const jsonLdData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Marathon OS",
   "url": "https://marathon-os.com",
   "image": `${ASSET_PREFIX_URL}logo-1.png`,
-  "description": "Marathon OS is a cloud-based PLM, PDM, and BOM management platform designed for engineering teams and manufacturers. It streamlines CAD file management, inventory tracking, procurement, and real-time collaboration.",
+  "description": "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
   "applicationCategory": "BusinessApplication",
   "applicationSubCategory": "Product Lifecycle Management Software",
   "operatingSystem": "Web-based",
@@ -60,6 +74,18 @@ const jsonLdData = {
     "https://www.linkedin.com/company/marathon-os"
   ]
 };
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${BASE_URL}/`,
+  name: "Marathon OS",
+  url: `${BASE_URL}/`,
+  description: "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
+  publisher: { "@id": `${BASE_URL}` },
+  inLanguage: "en-US",
+};
+
 export default function RootLayout({ children }) {
 
   return (
@@ -209,10 +235,22 @@ export default function RootLayout({ children }) {
         />
 
         <Script
+          id="json-ld-organization"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <Script
           id="json-ld"
           type="application/ld+json"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
+        />
+        <Script
+          id="json-ld-website"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
 
       </head>

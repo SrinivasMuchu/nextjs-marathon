@@ -7,29 +7,7 @@ const CANONICAL_PATH = '/tools/org-hierarchy';
 const pageUrl = `${BASE_URL}${CANONICAL_PATH}`;
 const imageUrl = `${ASSET_PREFIX_URL}logo-1.png`;
 
-const jsonLdData = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'SoftwareApplication',
-      '@id': `${pageUrl}#webapp`,
-      name: 'Marathon OS Org Chart Creator',
-      alternateName: 'Free Online Organizational Chart Maker',
-      description: 'Create professional organizational charts effortlessly with our free Org Chart Creator. Customize and visualize team structures with an easy-to-use online chart maker.',
-      url: pageUrl,
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Any',
-      browserRequirements: 'Requires JavaScript. Requires HTML5.',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-      
-      image: imageUrl,
-      publisher: { '@type': 'Organization', name: 'Marathon OS', url: BASE_URL, logo: imageUrl },
-      author: { '@type': 'Organization', name: 'Marathon OS', url: BASE_URL },
-      sameAs: ["https://www.linkedin.com/company/marathon-os"],
-    },
-      
-  ],
-};
+
 
 export const metadata = {
   title: "Free Org Chart Creator | Best Online Organizational Chart Maker | Marathon OS",
@@ -45,10 +23,7 @@ export const metadata = {
 function Org() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
-      />
+     
       <OrgHome />
     </>
   );
