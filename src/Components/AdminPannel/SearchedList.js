@@ -7,6 +7,8 @@ import { BASE_URL } from '@/config';
 import Pagenation from '@/Components/CommonJsx/Pagenation'
 import Loading from '../CommonJsx/Loaders/Loading'
 import SearchIcon from '@mui/icons-material/Search';
+import UpdateSearchTextPopup from './UpdateSearchTextPopup';
+import { toast } from 'react-toastify';
 
 function SearchedList() {
   const [searchLogs, setSearchLogs] = useState([]);
@@ -21,6 +23,11 @@ function SearchedList() {
   // search state
   const [searchTerm, setSearchTerm] = useState('')
   const [searchInput, setSearchInput] = useState('')
+
+  // popup state
+  const [editingRowId, setEditingRowId] = useState(null)
+  const [updatedSearchText, setUpdatedSearchText] = useState('')
+  const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
     fetchSearchLogs(currentPage, searchTerm);
@@ -87,6 +94,81 @@ function SearchedList() {
     return date.toLocaleString('en-GB', options);
   }
 
+  const handleUpdateSearchTextClick = (log) => {
+    setEditingRowId(log._id)
+    setUpdatedSearchText(log.marathon_search_text || log.search_text || '')
+  }
+
+  const handleClosePopup = () => {
+    setEditingRowId(null)
+    setUpdatedSearchText('')
+  }
+
+  const handleUpdateSearchText = async (newSearchText) => {
+    if (!editingRowId) return
+
+    setIsUpdating(true)
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/v1/admin-pannel/update-marathon-search-text`,
+        {
+          search_id: editingRowId,
+          marathon_search_text: newSearchText,
+          action: 'update'
+        },
+        {
+          headers: { 'admin-uuid': localStorage.getItem('admin-uuid') }
+        }
+      )
+
+      if (response.data.meta.success) {
+        toast.success(response.data.meta.message || 'Marathon search text updated successfully')
+        handleClosePopup()
+        // Refresh the table data
+        fetchSearchLogs(currentPage, searchTerm)
+      } else {
+        toast.error(response.data.meta.message || 'Failed to update search text')
+      }
+    } catch (error) {
+      console.error('Error updating search text:', error)
+      toast.error(error.response?.data?.meta?.message || 'Failed to update search text')
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleCrawlClick = async (log) => {
+    if (!log._id) return
+
+    try {
+      // Use marathon_search_text if present, otherwise use search_text
+      const marathonSearchText = log.marathon_search_text || log.search_text || ''
+
+      const response = await axios.post(
+        `${BASE_URL}/v1/admin-pannel/update-marathon-search-text`,
+        {
+          search_id: log._id,
+          marathon_search_text: marathonSearchText,
+          action: 'crawl'
+        },
+        {
+          headers: { 'admin-uuid': localStorage.getItem('admin-uuid') }
+        }
+      )
+
+      if (response.data.meta.success) {
+        toast.success(response.data.meta.message || 'Marathon search text crawling started')
+        // Refresh the table data to get updated status from backend
+        fetchSearchLogs(currentPage, searchTerm)
+      } else {
+        toast.error(response.data.meta.message || 'Failed to start crawling')
+      }
+    } catch (error) {
+      console.error('Error starting crawl:', error)
+      toast.error(error.response?.data?.meta?.message || 'Failed to start crawling')
+    }
+  }
+
   return (
     <>
       <div className={styles.searchContainer}>
@@ -125,9 +207,12 @@ function SearchedList() {
           <thead>
             <tr>
               <th>Search Text</th>
+              <th>Marathon Search Term</th>
               <th>User Email</th>
               <th>Username</th>
               <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           {isLoading ? (
@@ -138,7 +223,7 @@ function SearchedList() {
             <tbody>
               {searchLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', padding: 20 }}>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: 20 }}>
                     {searchTerm ? 'No search logs found for your search' : 'No search logs found'}
                   </td>
                 </tr>
@@ -147,6 +232,19 @@ function SearchedList() {
                   <tr key={log._id} className={styles.row}>
                     <td>
                       <span>{log.search_text || ''}</span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>{log.marathon_search_text || 'N/A'}</span>
+                        {log.is_marathon_search_text_crawled && (
+                          <span style={{ 
+                            color: '#22c55e', 
+                            fontSize: '18px',
+                            display: 'inline-flex',
+                            alignItems: 'center'
+                          }}>✓</span>
+                        )}
+                      </div>
                     </td>
                     <td>
                       <span>{log.user_email || 'N/A'}</span>
@@ -172,6 +270,42 @@ function SearchedList() {
                     <td>
                       <span>{formatDateTime(log.createdAt)}</span>
                     </td>
+                    <td>
+                      <span style={{ 
+                        textTransform: 'capitalize',
+                        color: log.search_crawl_status === 'crawling' ? '#f59e0b' : 
+                               log.search_crawl_status === 'crawled' ? '#22c55e' : '#6b7280'
+                      }}>
+                        {log.search_crawl_status === 'not_crawled' ? 'Not Crawled' :
+                         log.search_crawl_status === 'crawling' ? 'Crawling' :
+                         log.search_crawl_status === 'crawled' ? 'Crawled' :
+                         'Not Crawled'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.actionCell}>
+                        <button
+                          className={`${styles.actionBtn} ${styles.actionApprove}`}
+                          onClick={() => handleCrawlClick(log)}
+                          title="Crawl"
+                          disabled={log.search_crawl_status === 'crawling'}
+                        >
+                          Crawl
+                        </button>
+                        <button
+                          className={`${styles.actionBtn}`}
+                          onClick={() => handleUpdateSearchTextClick(log)}
+                          title="Update Search Text"
+                          style={{
+                            background: 'rgba(59, 130, 246, .12)',
+                            color: '#3b82f6',
+                            borderColor: 'rgba(59, 130, 246, .35)'
+                          }}
+                        >
+                          Update Search Text
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -190,6 +324,15 @@ function SearchedList() {
           />
         )}
       </div>
+
+      {editingRowId && (
+        <UpdateSearchTextPopup
+          onClose={handleClosePopup}
+          currentSearchText={updatedSearchText}
+          onUpdate={handleUpdateSearchText}
+          isLoading={isUpdating}
+        />
+      )}
     </>
   )
 }
