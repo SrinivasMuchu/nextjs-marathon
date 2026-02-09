@@ -61,7 +61,7 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                       />
                     </div>
                     <Link
-                    href='/tools/3d-file-converter' 
+                    href='/tools/3d-cad-file-converter' 
                       className={styles.cadUploadingButton}
                       style={{
                         borderRadius: '8px',
@@ -173,7 +173,7 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                 }}>
                   <Image src={IMAGEURLS.nofilesLogo} alt="No files" width={135} height={135} />
                   <span>You don&apos;t have any projects yet.<br />
-                    <Link href='/tools/3d-file-converter' style={{ color: 'blue' }}>Upload</Link> your project files
+                    <Link href='/tools/3d-cad-file-converter' style={{ color: 'blue' }}>Upload</Link> your project files
                   </span>
                 </div>
 

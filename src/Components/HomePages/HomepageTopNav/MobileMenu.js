@@ -58,8 +58,8 @@ function MobileMenu({ onClose, styles }) {
               <Link href="/tools/org-hierarchy" onClick={handleCloseMenu}>
                 Org Hierarchy
               </Link>
-              <Link href="/tools/cad-viewer" onClick={handleCloseMenu}>CAD Viewer</Link>
-              <Link href="/tools/3d-file-converter" onClick={handleCloseMenu}>CAD File Convert</Link>
+              <Link href="/tools//3D-cad-viewer" onClick={handleCloseMenu}>CAD Viewer</Link>
+              <Link href="/tools/3d-cad-file-converter" onClick={handleCloseMenu}>CAD File Convert</Link>
               {/* <Link href="/tools/upload-cad-file" onClick={handleCloseMenu}>upload cad file</Link> */}
             </div>
           )}

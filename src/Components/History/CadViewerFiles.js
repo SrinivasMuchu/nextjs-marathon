@@ -47,7 +47,7 @@ function CadViewerFiles({ loading, cadViewerFileHistory, searchTerm,
         </div>
         {/* <button className={styles.cadUploadingButton}  */}
         {/* > */}
-        <Link href='/tools/cad-viewer'
+        <Link href='/tools//3D-cad-viewer'
           // style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
           style={{
             borderRadius: '8px',
@@ -152,7 +152,7 @@ function CadViewerFiles({ loading, cadViewerFileHistory, searchTerm,
           }}>
             <Image src={IMAGEURLS.nofilesLogo} alt="No files" width={135} height={135} />
             <span>You don’t have any projects yet.<br />
-              <Link href='/tools/cad-viewer' style={{ color: 'blue' }}>Upload</Link> your project files
+              <Link href='/tools//3D-cad-viewer' style={{ color: 'blue' }}>Upload</Link> your project files
             </span>
             {/* <Link href='/publish-cad' style={{ color: 'blue' }}>Click here</Link> */}
           </div>

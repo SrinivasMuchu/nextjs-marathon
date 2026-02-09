@@ -10,7 +10,7 @@ import IndustryDesignDropZone from './IndustryDesignDropZone'
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav'
 import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
-import ProductStructuredData from '../CommonJsx/DesignPageJsonLd'
+import ProductStructuredData from '../JsonLdSchemas/DesignPageJsonLd'
 import styles from './IndustryDesign.module.css'
 import AnchorAdBanner from '../CommonJsx/Adsense/AnchorAdBanner'
 import IndustryHeaderDetails from './IndustryHeaderDetails'
@@ -40,7 +40,7 @@ function IndustryDesign({ design, designData, type }) {
           {!type ?
             <ActiveLastBreadcrumb
               links={[
-                { label: 'CAD viewer', href: '/tools/cad-viewer' },
+                { label: 'CAD viewer', href: '/tools//3D-cad-viewer' },
                 { label: `${design.industry}`, href: `/industry/${design.industry}` },
                 { label: `${designData.response.part_name}`, href: `/industry/${design.industry}/${design.part}` },
                 { label: `${designData.response.page_title}`, href: `/industry/${design.industry}/${design.part}/${design.design_id}` },

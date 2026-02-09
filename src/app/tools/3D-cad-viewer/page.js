@@ -11,7 +11,9 @@ export const metadata = {
   description:
     "Preview CAD & 3D model files online in seconds only on Marathon OS. Upload STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP. Fast, secure, cloud-based viewer. No software required.",
   openGraph: {
-    images: [{ url: imageUrl, width: 1200, height: 630, type: 'image/png' }],
+    images: [
+      { url: imageUrl, width: 1200, height: 630, type: "image/png" },
+    ],
   },
   metadataBase: new URL(BASE_URL),
   alternates: { canonical: CANONICAL_PATH },

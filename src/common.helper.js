@@ -171,62 +171,62 @@ export const createDropdownCustomStyles = {
 
 
 export const converterTypes = [
-  { label: 'STEP to BREP', path: '/step-to-brep' },
-  { label: 'STEP to IGES', path: '/step-to-iges' },
-  { label: 'STEP to OBJ', path: '/step-to-obj' },
-  { label: 'STEP to PLY', path: '/step-to-ply' },
-  { label: 'STEP to STL', path: '/step-to-stl' },
-  { label: 'STEP to OFF', path: '/step-to-off' },
+  { label: 'STEP to BREP', path: '/step-to-brep', oneLiner: 'Convert STEP to BREP for 3D printing and slicing.' },
+  { label: 'STEP to IGES', path: '/step-to-iges', oneLiner: 'Convert STEP to IGES for 3D printing and slicing.' },
+  { label: 'STEP to OBJ', path: '/step-to-obj', oneLiner: 'Convert STEP to OBJ for 3D printing and slicing.' },
+  { label: 'STEP to PLY', path: '/step-to-ply', oneLiner: 'Convert STEP to PLY for 3D printing and slicing.' },
+  { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'Convert STEP to STL for 3D printing and slicing.' },
+  { label: 'STEP to OFF', path: '/step-to-off', oneLiner: 'Convert STEP to OFF for 3D printing and slicing.' },
   // { label: 'STEP to GLB', path: '/step-to-glb' },
 
-  { label: 'IGES to BREP', path: '/iges-to-brep' },
-  { label: 'IGES to STEP', path: '/iges-to-step' },
-  { label: 'IGES to OBJ', path: '/iges-to-obj' },
-  { label: 'IGES to PLY', path: '/iges-to-ply' },
-  { label: 'IGES to STL', path: '/iges-to-stl' },
-  { label: 'IGES to OFF', path: '/iges-to-off' },
+  { label: 'IGES to BREP', path: '/iges-to-brep', oneLiner: 'Convert IGES to BREP for 3D printing and slicing.' },
+  { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'Convert IGES to STEP for 3D printing and slicing.' },
+  { label: 'IGES to OBJ', path: '/iges-to-obj', oneLiner: 'Convert IGES to OBJ for 3D printing and slicing.' },
+  { label: 'IGES to PLY', path: '/iges-to-ply', oneLiner: 'Convert IGES to PLY for 3D printing and slicing.' },
+  { label: 'IGES to STL', path: '/iges-to-stl', oneLiner: 'Convert IGES to STL for 3D printing and slicing.' },
+  { label: 'IGES to OFF', path: '/iges-to-off', oneLiner: 'Convert IGES to OFF for 3D printing and slicing.' },
   // { label: 'IGES to GLB', path: '/iges-to-glb' },
 
-  { label: 'OBJ to BREP', path: '/obj-to-brep' },
-  { label: 'OBJ to IGES', path: '/obj-to-iges' },
-  { label: 'OBJ to STEP', path: '/obj-to-step' },
-  { label: 'OBJ to PLY', path: '/obj-to-ply' },
-  { label: 'OBJ to STL', path: '/obj-to-stl' },
-  { label: 'OBJ to OFF', path: '/obj-to-off' },
+  { label: 'OBJ to BREP', path: '/obj-to-brep', oneLiner: 'Convert OBJ to BREP for 3D printing and slicing.' },
+  { label: 'OBJ to IGES', path: '/obj-to-iges', oneLiner: 'Convert OBJ to IGES for 3D printing and slicing.'     },
+  { label: 'OBJ to STEP', path: '/obj-to-step', oneLiner: 'Convert OBJ to STEP for 3D printing and slicing.' },
+  { label: 'OBJ to PLY', path: '/obj-to-ply', oneLiner: 'Convert OBJ to PLY for 3D printing and slicing.' },
+  { label: 'OBJ to STL', path: '/obj-to-stl', oneLiner: 'Convert OBJ to STL for 3D printing and slicing.' },
+  { label: 'OBJ to OFF', path: '/obj-to-off', oneLiner: 'Convert OBJ to OFF for 3D printing and slicing.' },
   // { label: 'OBJ to GLB', path: '/obj-to-glb' },
 
-  { label: 'PLY to BREP', path: '/ply-to-brep' },
-  { label: 'PLY to IGES', path: '/ply-to-iges' },
-  { label: 'PLY to OBJ', path: '/ply-to-obj' },
-  { label: 'PLY to STEP', path: '/ply-to-step' },
-  { label: 'PLY to STL', path: '/ply-to-stl' },
-  { label: 'PLY to OFF', path: '/ply-to-off' },
+  { label: 'PLY to BREP', path: '/ply-to-brep', oneLiner: 'Convert PLY to BREP for 3D printing and slicing.' },
+  { label: 'PLY to IGES', path: '/ply-to-iges', oneLiner: 'Convert PLY to IGES for 3D printing and slicing.' },
+  { label: 'PLY to OBJ', path: '/ply-to-obj', oneLiner: 'Convert PLY to OBJ for 3D printing and slicing.' },
+  { label: 'PLY to STEP', path: '/ply-to-step', oneLiner: 'Convert PLY to STEP for 3D printing and slicing.' },
+  { label: 'PLY to STL', path: '/ply-to-stl', oneLiner: 'Convert PLY to STL for 3D printing and slicing.' },
+  { label: 'PLY to OFF', path: '/ply-to-off', oneLiner: 'Convert PLY to OFF for 3D printing and slicing.' },
   // { label: 'PLY to GLB', path: '/ply-to-glb' },
 
-  { label: 'STL to BREP', path: '/stl-to-brep' },
-  { label: 'STL to IGES', path: '/stl-to-iges' },
-  { label: 'STL to OBJ', path: '/stl-to-obj' },
-  { label: 'STL to PLY', path: '/stl-to-ply' },
-  { label: 'STL to STEP', path: '/stl-to-step' },
-  { label: 'STL to OFF', path: '/stl-to-off' },
+  { label: 'STL to BREP', path: '/stl-to-brep', oneLiner: 'Convert STL to BREP for 3D printing and slicing.' },
+  { label: 'STL to IGES', path: '/stl-to-iges', oneLiner: 'Convert STL to IGES for 3D printing and slicing.' },
+  { label: 'STL to OBJ', path: '/stl-to-obj', oneLiner: 'Convert STL to OBJ for 3D printing and slicing.' },
+  { label: 'STL to PLY', path: '/stl-to-ply', oneLiner: 'Convert STL to PLY for 3D printing and slicing.' },
+  { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'Convert STL to STEP for 3D printing and slicing.' },
+  { label: 'STL to OFF', path: '/stl-to-off', oneLiner: 'Convert STL to OFF for 3D printing and slicing.' },
   // { label: 'STL to GLB', path: '/stl-to-glb' },
 
-  { label: 'OFF to BREP', path: '/off-to-brep' },
-  { label: 'OFF to IGES', path: '/off-to-iges' },
-  { label: 'OFF to OBJ', path: '/off-to-obj' },
-  { label: 'OFF to PLY', path: '/off-to-ply' },
-  { label: 'OFF to STL', path: '/off-to-stl' },
-  { label: 'OFF to STEP', path: '/off-to-step' },
+  { label: 'OFF to BREP', path: '/off-to-brep', oneLiner: 'Convert OFF to BREP for 3D printing and slicing.' },
+  { label: 'OFF to IGES', path: '/off-to-iges', oneLiner: 'Convert OFF to IGES for 3D printing and slicing.' },
+  { label: 'OFF to OBJ', path: '/off-to-obj', oneLiner: 'Convert OFF to OBJ for 3D printing and slicing.'  },
+  { label: 'OFF to PLY', path: '/off-to-ply', oneLiner: 'Convert OFF to PLY for 3D printing and slicing.' },
+  { label: 'OFF to STL', path: '/off-to-stl', oneLiner: 'Convert OFF to STL for 3D printing and slicing.' },
+  { label: 'OFF to STEP', path: '/off-to-step', oneLiner: 'Convert OFF to STEP for 3D printing and slicing.' },
   // { label: 'OFF to GLB', path: '/off-to-glb' },
 
-  { label: 'BREP to STEP', path: '/brep-to-step' },
-  { label: 'BREP to IGES', path: '/brep-to-iges' },
-  { label: 'BREP to OBJ', path: '/brep-to-obj' },
-  { label: 'BREP to PLY', path: '/brep-to-ply' },
-  { label: 'BREP to STL', path: '/brep-to-stl' },
-  { label: 'BREP to OFF', path: '/brep-to-off' },
-  { label: 'DWG to DXF', path: '/dwg-to-dxf' },
-  { label: 'DXF to DWG', path: '/dxf-to-dwg' },
+  { label: 'BREP to STEP', path: '/brep-to-step', oneLiner: 'Convert BREP to STEP for 3D printing and slicing.' },
+  { label: 'BREP to IGES', path: '/brep-to-iges', oneLiner: 'Convert BREP to IGES for 3D printing and slicing.' },
+  { label: 'BREP to OBJ', path: '/brep-to-obj', oneLiner: 'Convert BREP to OBJ for 3D printing and slicing.' },
+  { label: 'BREP to PLY', path: '/brep-to-ply', oneLiner: 'Convert BREP to PLY for 3D printing and slicing.' },
+  { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for 3D printing and slicing.' },
+  { label: 'BREP to OFF', path: '/brep-to-off', oneLiner: 'Convert BREP to OFF for 3D printing and slicing.' },
+  { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 3D printing and slicing.' },
+  { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 3D printing and slicing.' },
 
 
   // { label: 'BREP to GLB', path: '/brep-to-glb' },
@@ -239,31 +239,29 @@ export const converterTypes = [
   // { label: 'GLB to OFF', path: '/glb-to-off' },
   // { label: 'GLB to BREP', path: '/glb-to-brep' },
 
-
-
-
- 
 ];
+
+/** Featured conversion cards for topical authority and internal linking (each links to /tools/convert{path}) */
+export const featuredConversions = [
+  { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'Convert STEP to STL for 3D printing and slicing.' },
+  { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'Convert IGES to STEP for manufacturing handoff.' },
+  { label: 'OBJ to STL', path: '/obj-to-stl', oneLiner: 'Convert OBJ to STL for mesh workflows and 3D printing.' },
+  { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'Convert STL to STEP for CAD compatibility and import.' },
+  { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for mesh export and 3D printing.' },
+  { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 2D CAD exchange.' },
+  { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 2D CAD exchange.' },
+];
+
 // export const allowedFilesList = [ ".stp",  ,  ".igs", , ".brp", ]
-export const cadViewTypes =[{
-  label:'OBJ viewer',
-  path:'/obj'
-},{  label:'STL viewer',
-  path:'/stl'
-},{  label:'PLY viewer',
-  path:'/ply'
-},{  label:'OFF viewer',
-  path:'/off'
-},{  label:'IGES viewer',
-  path:'/iges'
-},{  label:'BREP viewer',
-  path:'/brep'
-},{  label:'STEP viewer',
-  path:'/step'
-},{label:'STP viewer',
-  path:'/stp'
-},{label:'BRP viewer',
-  path:'/brp'
-},{label:'IGS viewer',
-    path:'/igs'
-},]
+export const cadViewTypes = [
+  { label: 'OBJ viewer', path: '/obj', oneLiner: 'View OBJ mesh models and 3D assets in your browser.' },
+  { label: 'STL viewer', path: '/stl', oneLiner: 'Inspect STL meshes for 3D printing checks.' },
+  { label: 'PLY viewer', path: '/ply', oneLiner: 'Open PLY point clouds and polygon meshes online.' },
+  { label: 'OFF viewer', path: '/off', oneLiner: 'Preview OFF geometry files without desktop software.' },
+  { label: 'IGES viewer', path: '/iges', oneLiner: 'Preview IGES/IGS surfaces before manufacturing handoff.' },
+  { label: 'BREP viewer', path: '/brep', oneLiner: 'Open BREP boundary representation models in the browser.' },
+  { label: 'STEP viewer', path: '/step', oneLiner: 'Open STEP/STP assemblies and 3D geometry online.' },
+  { label: 'STP viewer', path: '/stp', oneLiner: 'View STP (STEP) CAD files instantly—no install needed.' },
+  { label: 'BRP viewer', path: '/brp', oneLiner: 'Inspect BRP (BREP) solid models for design review.' },
+  { label: 'IGS viewer', path: '/igs', oneLiner: 'Check IGS/IGES exchange files for collaboration.' },
+]

@@ -19,7 +19,7 @@ function FloatingButton() {
         >
 
           <Link
-            href="/tools/cad-viewer"
+            href="/tools//3D-cad-viewer"
               onClick={() => {
                 sendGAtagEvent({ event_name: 'floating_button_view_click', event_category: CAD_FLOATING_BUTTON_EVENT });
                 setShowOptions(false);
@@ -29,7 +29,7 @@ function FloatingButton() {
             View CAD
           </Link>
           <Link
-            href="/tools/3d-file-converter"
+            href="/tools/3d-cad-file-converter"
               onClick={() => {
                 sendGAtagEvent({ event_name: 'floating_button_convert_click', event_category: CAD_FLOATING_BUTTON_EVENT });
                 setShowOptions(false);

@@ -1,0 +1,173 @@
+.section {
+  width: 100%;
+  padding: clamp(64px, 10vw, 96px) 24px;
+  box-sizing: border-box;
+  background: #F8F8FA;
+}
+
+.wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.label {
+  color: #6B7280;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0;
+}
+
+.mainHeading {
+  color: #1F2937;
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 0;
+  max-width: 720px;
+}
+
+.subHeading {
+  color: #374151;
+  font-size: clamp(16px, 2vw, 18px);
+  font-weight: 400;
+  text-align: center;
+  margin: 0 0 8px 0;
+}
+
+.stepsList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.stepCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 28px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.stepBadge {
+  display: inline-block;
+  background: #E5E7EB;
+  color: #4B5563;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.stepTitle {
+  color: #1F2937;
+  font-size: clamp(17px, 2vw, 19px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 8px 0;
+}
+
+.stepDescription {
+  color: #6B7280;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.stepIcon {
+  margin: 20px 0 0 0;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fixed display size so icons stay small; 240px source keeps them sharp on retina */
+.stepIconImg {
+  width: 120px !important;
+  height: 120px !important;
+  object-fit: contain;
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.primaryCta {
+  display: inline-block;
+  background: #3B82F6;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px 28px;
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.primaryCta:hover {
+  background: #2563EB;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.secondaryCta {
+  display: inline-block;
+  color: #3B82F6;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s, text-decoration 0.2s;
+}
+
+.secondaryCta:hover {
+  color: #2563EB;
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 900px) {
+  .stepsList {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .section {
+    padding: 48px 20px;
+  }
+  .wrapper {
+    gap: 20px;
+  }
+  .stepCard {
+    padding: 24px 20px;
+  }
+  .ctaRow {
+    flex-direction: column;
+    margin-top: 32px;
+  }
+}

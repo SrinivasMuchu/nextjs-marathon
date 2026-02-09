@@ -82,7 +82,15 @@
     font-size: clamp(14px, 2.5vw, 20px);
     font-style: normal;
     font-weight: 400;
-    line-height: 32px;
+    /* line-height: 32px; */
+    letter-spacing: -0.5px;
+  }
+  .security-desc-questions{
+    color: #fff;
+    font-size: clamp(16px, 2.5vw, 24px);
+    font-style: normal;
+    font-weight: 500;
+    /* line-height: 32px; */
     letter-spacing: -0.5px;
   }
   .security-btn {
