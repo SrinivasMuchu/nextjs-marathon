@@ -18,31 +18,31 @@ function OrgFeatures({type}) {
                   <span>No software needed.</span>
                 </div>
                 <div className={styles['features-text']}>
-                  <Image src={IMAGEURLS.safetyIcon} alt="CAD Viewer feature" width={24} height={24} />
+                <Image src={IMAGEURLS.check} alt="CAD Viewer feature" width={24} height={24} />
                   <span>Private uploads.</span>
                 </div>
                 <div className={styles['features-text']}>
-                  <Image src={IMAGEURLS.autoDelete} alt="CAD Viewer feature" width={24} height={24} />
+                <Image src={IMAGEURLS.check} alt="CAD Viewer feature" width={24} height={24} />
                   <span>Automatically deleted after 24hrs.</span>
                 </div>
                 <div className={styles['features-text']}>
-                  <Image src={IMAGEURLS.uploadLimit} alt="CAD Viewer feature" width={24} height={24} />
+                <Image src={IMAGEURLS.check} alt="CAD Viewer feature" width={24} height={24} />
                   <span>Upload files up to 300 MB</span>
                 </div>
               </>
             ) : (
               <>
                 <div className={styles['features-text']}>
-                  <Image src={IMAGEURLS.safetyIcon} alt="Organization Features" width={24} height={24} />
+                  <Image src={IMAGEURLS.check} alt="Organization Features" width={24} height={24} />
                   <span>File stay private</span>
                 </div>
                 <div className={styles['features-text']}>
-                  <Image src={IMAGEURLS.autoDelete} alt="Organization Features" width={24} height={24} />
+                  <Image src={IMAGEURLS.check} alt="Organization Features" width={24} height={24} />
                   <span>Automatically deleted after 24hrs</span>
                 </div>
                 {type === 'org' && (
                   <div className={styles['features-text']}>
-                    <Image src={IMAGEURLS.importExport} alt="Organization Features" width={24} height={24} />
+                    <Image src={IMAGEURLS.check} alt="Organization Features" width={24} height={24} />
                     <span>Import / export anytime</span>
                   </div>
                 )}
