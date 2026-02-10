@@ -2,8 +2,24 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from '../Library/Library.module.css';
-import { DESIGN_GLB_PREFIX_URL } from '@/config';
+import { DESIGN_GLB_PREFIX_URL, PHOTO_LINK } from '@/config';
 import StaticDesign from './StaticDesign';
+
+// Normalize supporting file URL:
+// - If it is an S3 URL, convert to CloudFront using PHOTO_LINK
+// - Otherwise return as-is
+const mapSupportingUrlToPhotoLink = (file) => {
+  const raw = file?.url || '';
+  if (!raw) return '';
+
+  // Already non-S3 (likely already CloudFront or other CDN) – use as-is
+  if (!raw.includes('.s3.')) return raw;
+
+  const s3UrlWithoutQuery = raw.split('?')[0];
+  const [, key = ''] = s3UrlWithoutQuery.split('.com/');
+
+  return key ? `${PHOTO_LINK}${key}` : raw;
+};
 
 const HoverImageSequenceHome = ({ design, loading }) => {
   // Fixed height for home page preview (keep width responsive)
@@ -87,7 +103,7 @@ const HoverImageSequenceHome = ({ design, loading }) => {
       >
         {activeImage && (
           <Image
-            src={activeImage.url}
+            src={mapSupportingUrlToPhotoLink(activeImage)}
             alt={activeImage.name || design.page_title}
             width={298}
             height={298}
