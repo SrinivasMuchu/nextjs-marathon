@@ -49,10 +49,13 @@ async function Library({ searchParams }) {
   if (tags) queryParams.set('tags', tags);
   if (uuid) queryParams.set('uuid', uuid);
 
+  const tagsParams = new URLSearchParams({ offset: '0', limit: '10' });
+  if (tags) tagsParams.set('ensureTag', tags);
+
   const [response, categoriesRes, tagsResponse] = await Promise.all([
     axios.get(`${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`, { cache: 'no-store' }),
     axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
-    axios.get(`${BASE_URL}/v1/cad/get-cad-tags`, { cache: 'no-store' }),
+    axios.get(`${BASE_URL}/v1/cad/get-cad-tags?${tagsParams.toString()}`, { cache: 'no-store' }),
   ]);
 
 
@@ -62,6 +65,7 @@ async function Library({ searchParams }) {
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
   const allTags = tagsResponse.data?.data || [];
+  const totalTagCount = tagsResponse.data?.total ?? allTags.length;
 
   return (
     <>
@@ -80,7 +84,9 @@ async function Library({ searchParams }) {
       <div className={styles["library-designs-filters"]}>
         <SearchBar initialSearchQuery={searchQuery} />
         <CategoryFilter
-          allCategories={allCategories} allTags={allTags}
+          allCategories={allCategories}
+          allTags={allTags}
+          totalTagCount={totalTagCount}
           initialSelectedCategories={category.split(",")}
           initialTagSelectedOption={tags}
         />
