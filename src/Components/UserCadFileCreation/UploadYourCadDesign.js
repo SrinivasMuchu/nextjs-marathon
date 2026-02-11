@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import React, { useRef, useState, useEffect, useContext, useCallback } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
@@ -16,6 +16,9 @@ import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
 import { FaRupeeSign } from "react-icons/fa";
 import Kyc from '../KYC/Kyc';
 import Link from 'next/link';
+
+const TAGS_PAGE_SIZE = 10;
+const TAGS_SEARCH_DEBOUNCE_MS = 300;
 
 
 function UploadYourCadDesign({
@@ -50,6 +53,12 @@ function UploadYourCadDesign({
     const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate,user,setUser } = useContext(contextState);
     const [options, setOptions] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
+    const [tagsHasMore, setTagsHasMore] = useState(false);
+    const [tagsLoadingMore, setTagsLoadingMore] = useState(false);
+    const [tagsSearching, setTagsSearching] = useState(false);
+    const [tagSearchTerm, setTagSearchTerm] = useState('');
+    const tagsOffsetRef = useRef(0);
+    const tagSearchDebounceRef = useRef(null);
     const [price, setPrice] = useState(editedDetails?.price || "");
     const [isKycVerified, setIsKycVerified] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(true);
@@ -779,33 +788,120 @@ function UploadYourCadDesign({
 
 
 
-    // Fetch all available tags
-    const getTags = async () => {
+    const mapTagsToOptions = (data) =>
+        (data || []).map((zone) => ({
+            value: zone._id,
+            label: zone.cad_tag_label,
+        }));
+
+    const getTags = useCallback(async () => {
         try {
-            const response = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`);
+            const params = new URLSearchParams({ offset: '0', limit: String(TAGS_PAGE_SIZE) });
+            if (editedDetails?.cad_tags?.length && !rejected) {
+                const first = editedDetails.cad_tags[0];
+                if (typeof first === 'string') params.set('search', first);
+            }
+            const response = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`);
             if (response.data.meta.success) {
-                const fetchedOptions = response.data.data.map(zone => ({
-                    value: zone._id,
-                    label: zone.cad_tag_label
-                }));
-
+                const data = response.data.data || [];
+                const fetchedOptions = mapTagsToOptions(data);
                 setOptions(fetchedOptions);
+                tagsOffsetRef.current = data.length;
+                setTagsHasMore(data.length >= TAGS_PAGE_SIZE);
 
-                // Set selectedOptions when editing and tags exist
                 if (editedDetails?.cad_tags?.length) {
                     const mappedSelections = editedDetails.cad_tags
-                        .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
+                        .map((id) => fetchedOptions.find((opt) => (rejected ? opt.value === id : opt.label === id)))
                         .filter(Boolean);
-
                     if (mappedSelections.length > 0) {
-                        setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
+                        setCadFormState((prevState) => ({ ...prevState, selectedOptions: mappedSelections }));
                     }
                 }
             }
         } catch (error) {
             console.error("Error fetching tags:", error);
         }
-    };
+    }, [editedDetails?.cad_tags, rejected, setCadFormState]);
+
+    const loadMoreTags = useCallback(async () => {
+        if (tagsLoadingMore || !tagsHasMore) return;
+        setTagsLoadingMore(true);
+        try {
+            const offset = tagsOffsetRef.current;
+            const params = new URLSearchParams({
+                offset: String(offset),
+                limit: String(TAGS_PAGE_SIZE),
+            });
+            if ((tagSearchTerm || '').trim()) params.set('search', (tagSearchTerm || '').trim());
+            const response = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`);
+            if (response.data.meta.success) {
+                const data = response.data.data || [];
+                const nextOptions = mapTagsToOptions(data);
+                tagsOffsetRef.current = offset + data.length;
+                setTagsHasMore(data.length >= TAGS_PAGE_SIZE);
+                if (nextOptions.length > 0) {
+                    setOptions((prev) => {
+                        const seen = new Set(prev.map((o) => o.value));
+                        const added = nextOptions.filter((o) => !seen.has(o.value));
+                        return prev.concat(added);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Error loading more tags:", error);
+        } finally {
+            setTagsLoadingMore(false);
+        }
+    }, [tagsLoadingMore, tagsHasMore, tagSearchTerm]);
+
+    const onTagInputChange = useCallback((newValue) => {
+        if (tagSearchDebounceRef.current) clearTimeout(tagSearchDebounceRef.current);
+        tagSearchDebounceRef.current = setTimeout(() => {
+            setTagSearchTerm(newValue || '');
+            tagSearchDebounceRef.current = null;
+        }, TAGS_SEARCH_DEBOUNCE_MS);
+    }, []);
+
+    useEffect(() => {
+        const term = (tagSearchTerm || '').trim();
+        const abort = axios.CancelToken.source();
+        if (!term) {
+            setTagsSearching(true);
+            const params = new URLSearchParams({ offset: '0', limit: String(TAGS_PAGE_SIZE) });
+            axios
+                .get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`, { cancelToken: abort.token })
+                .then((response) => {
+                    if (response.data.meta.success) {
+                        const data = response.data.data || [];
+                        setOptions(mapTagsToOptions(data));
+                        tagsOffsetRef.current = data.length;
+                        setTagsHasMore(data.length >= TAGS_PAGE_SIZE);
+                    }
+                })
+                .catch((err) => {
+                    if (!axios.isCancel(err)) console.error("Error fetching tags:", err);
+                })
+                .finally(() => setTagsSearching(false));
+            return () => abort.cancel();
+        }
+        setTagsSearching(true);
+        const params = new URLSearchParams({ offset: '0', limit: String(TAGS_PAGE_SIZE), search: term });
+        axios
+            .get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`, { cancelToken: abort.token })
+            .then((response) => {
+                if (response.data.meta.success) {
+                    const data = response.data.data || [];
+                    setOptions(mapTagsToOptions(data));
+                    tagsOffsetRef.current = data.length;
+                    setTagsHasMore(data.length >= TAGS_PAGE_SIZE);
+                }
+            })
+            .catch((err) => {
+                if (!axios.isCancel(err)) console.error("Tag search failed", err);
+            })
+            .finally(() => setTagsSearching(false));
+        return () => abort.cancel();
+    }, [tagSearchTerm]);
 
     // Fetch all available categories
     const getCategories = async () => {
@@ -1433,6 +1529,11 @@ function UploadYourCadDesign({
                                         onFocus={getTags}
                                         onChange={handleZoneSelection}
                                         onCreateOption={handleAddZones}
+                                        onInputChange={onTagInputChange}
+                                        onMenuScrollToBottom={loadMoreTags}
+                                        onMenuClose={() => setTagSearchTerm('')}
+                                        filterOption={() => true}
+                                        isLoading={tagsLoadingMore || tagsSearching}
                                         placeholder="Search or create tags"
                                     />
                                 </div>
