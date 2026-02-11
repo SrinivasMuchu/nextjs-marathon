@@ -65,7 +65,6 @@ async function Library({ searchParams }) {
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
   const allTags = tagsResponse.data?.data || [];
-  const totalTagCount = tagsResponse.data?.total ?? allTags.length;
 
   return (
     <>
@@ -86,7 +85,6 @@ async function Library({ searchParams }) {
         <CategoryFilter
           allCategories={allCategories}
           allTags={allTags}
-          totalTagCount={totalTagCount}
           initialSelectedCategories={category.split(",")}
           initialTagSelectedOption={tags}
         />

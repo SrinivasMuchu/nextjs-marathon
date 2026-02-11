@@ -8,7 +8,7 @@ import { BASE_URL } from "@/config";
 const TAGS_PAGE_SIZE = 10;
 const TAGS_SEARCH_DEBOUNCE_MS = 300;
 
-const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, totalTagCount = 0, initialTagSelectedOption }) => {
+const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, initialTagSelectedOption }) => {
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -33,10 +33,7 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, tot
   const [tagOptions, setTagOptions] = useState(() =>
     allTags.map((t) => ({ value: t.cad_tag_name, label: t.cad_tag_label }))
   );
-  const [tagsHasMore, setTagsHasMore] = useState(() => {
-    const total = totalTagCount ?? 0;
-    return total > 0 && allTags.length < total;
-  });
+  const [tagsHasMore, setTagsHasMore] = useState(() => allTags.length >= TAGS_PAGE_SIZE);
   const [tagsLoadingMore, setTagsLoadingMore] = useState(false);
   const [tagSearchTerm, setTagSearchTerm] = useState('');
   const [tagsSearching, setTagsSearching] = useState(false);
@@ -46,9 +43,8 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, tot
   useEffect(() => {
     setTagOptions(allTags.map((t) => ({ value: t.cad_tag_name, label: t.cad_tag_label })));
     tagsOffsetRef.current = allTags.length;
-    const total = totalTagCount ?? 0;
-    setTagsHasMore(total > 0 && allTags.length < total);
-  }, [allTags, totalTagCount]);
+    setTagsHasMore(allTags.length >= TAGS_PAGE_SIZE);
+  }, [allTags]);
 
   // Server-side search: when tagSearchTerm changes, fetch from API (or reset to browse mode)
   useEffect(() => {
@@ -56,8 +52,7 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, tot
     if (!term) {
       setTagOptions(allTags.map((t) => ({ value: t.cad_tag_name, label: t.cad_tag_label })));
       tagsOffsetRef.current = allTags.length;
-      const total = totalTagCount ?? 0;
-      setTagsHasMore(total > 0 && allTags.length < total);
+      setTagsHasMore(allTags.length >= TAGS_PAGE_SIZE);
       return;
     }
     const abort = new AbortController();
@@ -71,18 +66,17 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, tot
       .then((res) => res.json())
       .then((json) => {
         const nextTags = json?.data || [];
-        const total = json?.total ?? 0;
         const options = nextTags.map((t) => ({ value: t.cad_tag_name, label: t.cad_tag_label }));
         setTagOptions(options);
         tagsOffsetRef.current = nextTags.length;
-        setTagsHasMore(nextTags.length < total);
+        setTagsHasMore(nextTags.length >= TAGS_PAGE_SIZE);
       })
       .catch((err) => {
         if (err.name !== 'AbortError') console.error('Tag search failed', err);
       })
       .finally(() => setTagsSearching(false));
     return () => abort.abort();
-  }, [tagSearchTerm, allTags, totalTagCount]);
+  }, [tagSearchTerm, allTags]);
 
   const onTagInputChange = useCallback((newValue) => {
     if (tagSearchDebounceRef.current) clearTimeout(tagSearchDebounceRef.current);
@@ -106,10 +100,9 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, tot
       const res = await fetch(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`);
       const json = await res.json();
       const nextTags = json?.data || [];
-      const total = json?.total ?? 0;
       const newOffset = offset + nextTags.length;
       tagsOffsetRef.current = newOffset;
-      setTagsHasMore(newOffset < total);
+      setTagsHasMore(nextTags.length >= TAGS_PAGE_SIZE);
       if (nextTags.length > 0) {
         const nextOptions = nextTags.map((t) => ({
           value: t.cad_tag_name,
