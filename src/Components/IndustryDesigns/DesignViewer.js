@@ -1,7 +1,7 @@
-"use client";
-import { useMemo, useState, useEffect, useRef } from "react";
+"use client"
+import { useMemo, useState, useEffect, useRef } from  "react";
 import styles from "./IndustryDesign.module.css";
-import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from "@/config";
+import { DESIGN_GLB_PREFIX_URL, IMAGEURLS, PHOTO_LINK } from "@/config";
 import { IoIosArrowBack,IoIosArrowDown ,IoIosArrowForward ,IoIosArrowUp  } from "react-icons/io";
 import { AiOutlinePlus } from "react-icons/ai";
 import { HiOutlineMinus } from "react-icons/hi";
@@ -26,6 +26,22 @@ const ANGLE_VIEWS = [
   { x: 330, y: 0, type: 'angle' },
 ];
 
+// Normalize supporting file URL:
+// - If it is an S3 URL, convert to CloudFront using PHOTO_LINK
+// - Otherwise return as-is
+const mapSupportingUrlToPhotoLink = (file) => {
+  const raw = file?.url || '';
+  if (!raw) return '';
+
+  // Already non-S3 (likely already CloudFront or other CDN) – use as-is
+  if (!raw.includes('.s3.')) return raw;
+
+  const s3UrlWithoutQuery = raw.split('?')[0];
+  const [, key = ''] = s3UrlWithoutQuery.split('.com/');
+
+  return key ? `${PHOTO_LINK}${key}` : raw;
+};
+
 export default function DesignViewer({
   designId, designData,
   padX = 0,
@@ -45,7 +61,12 @@ export default function DesignViewer({
     const views = [...ANGLE_VIEWS];
     // Add all supported images to the views list
     supportedImages.forEach((img, idx) => {
-      views.push({ type: 'image', index: idx, url: img.url, name: img.name });
+      views.push({
+        type: 'image',
+        index: idx,
+        url: mapSupportingUrlToPhotoLink(img),
+        name: img.name
+      });
     });
     return views;
   }, [supportedImages]);
@@ -144,7 +165,12 @@ export default function DesignViewer({
     if (!isDxf) return [];
     const views = [];
     supportedImages.forEach((img, idx) => {
-      views.push({ type: 'image', index: idx, url: img.url, name: img.name });
+      views.push({
+        type: 'image',
+        index: idx,
+        url: mapSupportingUrlToPhotoLink(img),
+        name: img.name
+      });
     });
     return views;
   }, [isDxf, dxfImageUrl, supportedImages, designId]);
@@ -741,7 +767,7 @@ export default function DesignViewer({
         ) : selectedImageIdx !== null && supportedImages[selectedImageIdx] ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', position: 'relative' }}>
             <img
-              src={supportedImages[selectedImageIdx].url}
+              src={mapSupportingUrlToPhotoLink(supportedImages[selectedImageIdx])}
               alt={supportedImages[selectedImageIdx].name}
               width={1200}
               height={650}
@@ -953,7 +979,7 @@ export default function DesignViewer({
                 }}
               >
                 <img
-                  src={img.url}
+                  src={mapSupportingUrlToPhotoLink(img)}
                   alt={img.name}
                   width={70}
                   height={70}

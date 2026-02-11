@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useContext, useCallback } from 'rea
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
-import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList, ASSET_PREFIX_URL } from '@/config';
+import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList, ASSET_PREFIX_URL, PHOTO_LINK } from '@/config';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
@@ -371,7 +371,7 @@ function UploadYourCadDesign({
             
             // Get presigned URL
             const { data: presignedRes } = await axios.post(
-                `${BASE_URL}/v1/cad/get-next-presigned-url`,
+                `${BASE_URL}/v1/cad/get-next-presigned-url`, 
                 {
                     bucket_name: BUCKET,
                     file: file.name,
@@ -403,13 +403,15 @@ function UploadYourCadDesign({
                         },
                     }
                 );
-
-                const fileUrl = presignedRes.data.url.split('?')[0];
+                
+                const s3UrlWithoutQuery = presignedRes.data.url.split('?')[0];
+                const [, filePath = ''] = s3UrlWithoutQuery.split('.com/');
+                const fileUrl = `${PHOTO_LINK}${filePath}`;
                 return {
                     fileName: file.name,
                     type: file.name.split('.').pop(),
                     size: file.size,
-                    url: fileUrl
+                    url: presignedRes.data.key
                 };
             }
             return null;
