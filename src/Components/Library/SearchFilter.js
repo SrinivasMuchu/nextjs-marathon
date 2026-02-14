@@ -88,7 +88,7 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
           onClick={handleSearch}
           className={styles["search-button"]}
           style={{
-            marginLeft: '8px',
+            // marginLeft: '8px',
             padding: '8px 12px',
             backgroundColor: '#610bee',
             color: '#fff',

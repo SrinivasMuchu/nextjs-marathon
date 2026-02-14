@@ -8,8 +8,8 @@ import Link from 'next/link';
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import Footer from '../HomePages/Footer/Footer';
-import CategoryFilter from './CategoryFilter';
-import SearchBar from './SearchFilter';
+import LibraryFilters from './LibraryFilters';
+import SortBySelect from './SortBySelect';
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import DesignStats from '../CommonJsx/DesignStats';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
@@ -26,6 +26,10 @@ const buildQueryString = (params) => {
   if (params.limit) query.set('limit', params.limit);
   if (params.page) query.set('page', params.page);
   if (params.tags) query.set('tags', params.tags);
+  if (params.sort) query.set('sort', params.sort);
+  if (params.recency) query.set('recency', params.recency);
+  if (params.free_paid) query.set('free_paid', params.free_paid);
+  if (params.file_format) query.set('file_format', params.file_format);
   return `?${query.toString()}`;
 };
 
@@ -35,6 +39,10 @@ async function Library({ searchParams }) {
   const page = parseInt(searchParams?.page) || 1;
   const limit = parseInt(searchParams?.limit) || 20;
   const tags = searchParams?.tags || '';
+  const sort = searchParams?.sort || '';
+  const recency = searchParams?.recency || '';
+  const freePaid = searchParams?.free_paid || '';
+  const fileFormat = searchParams?.file_format || '';
 
   // Read UUID from cookies (server-side)
   const cookieStore = cookies();
@@ -47,6 +55,10 @@ async function Library({ searchParams }) {
   queryParams.set('page', page.toString());
   if (searchQuery) queryParams.set('search', searchQuery);
   if (tags) queryParams.set('tags', tags);
+  if (sort) queryParams.set('sort', sort);
+  if (recency) queryParams.set('recency', recency);
+  if (freePaid) queryParams.set('free_paid', freePaid);
+  if (fileFormat) queryParams.set('file_format', fileFormat);
   if (uuid) queryParams.set('uuid', uuid);
 
   const [response, categoriesRes, tagsResponse] = await Promise.all([
@@ -73,26 +85,66 @@ async function Library({ searchParams }) {
         limit={limit}
       />
       <ActiveLastBreadcrumb links={[
+        { label: 'Marathon OS', href: '/' },
         { label: 'Library', href: '/library' },
-        // { label: `${industryData.industry}`, href: `/industry/${industry}` },
-
       ]} />
-      <div className={styles["library-designs-filters"]}>
-        <SearchBar initialSearchQuery={searchQuery} />
-        <CategoryFilter
-          allCategories={allCategories} allTags={allTags}
-          initialSelectedCategories={category.split(",")}
-          initialTagSelectedOption={tags}
-        />
-        {Object.keys(searchParams || {}).length > 0 && (
-          <Link href='/library' style={{ background: '#610bee', padding: '5px 10px', borderRadius: '4px', color: 'white' }}>
-            <button>Reset filters</button>
-          </Link>
-        )}
-      </div>
 
-      <div className={styles["library-designs"]}>
-        <div className={styles["library-designs-items"]}>
+      <div className={styles["library-page"]}>
+        <header className={styles["library-header"]}>
+          <h1 className={styles["library-title"]}>Engineering CAD Design Library</h1>
+          <p className={styles["library-description"]}>
+            Browse quality-checked 3D CAD models. Preview online and download STEP/STP, IGES, STL and more—filter by category, tags, file type, price and popularity.
+          </p>
+          {/* <div className={styles["library-category-tags"]}>
+            <Link
+              href="/library"
+              className={styles["library-category-tag"] + (!category ? ` ${styles.active}` : '')}
+            >
+              All
+            </Link>
+            {(allCategories || []).slice(0, 4).map((cat) => (
+              <Link
+                key={cat.industry_category_name}
+                href={`/library?category=${encodeURIComponent(cat.industry_category_name)}`}
+                className={styles["library-category-tag"] + (category === cat.industry_category_name ? ` ${styles.active}` : '')}
+              >
+                {cat.industry_category_label}
+              </Link>
+            ))}
+          </div> */}
+        </header>
+
+        <div className={styles["library-layout"]}>
+          <aside className={styles["library-filters"]}>
+            <LibraryFilters
+              initialSearchQuery={searchQuery}
+              category={category}
+              tags={tags}
+              allCategories={allCategories}
+              allTags={allTags}
+              initialSort={searchParams?.sort}
+              initialRecency={searchParams?.recency}
+              initialFreePaid={searchParams?.free_paid}
+              initialFileFormat={searchParams?.file_format}
+              hasActiveFilters={Object.keys(searchParams || {}).length > 0}
+            />
+          </aside>
+
+          <main className={styles["library-content"]}>
+            <div className={styles["library-content-head"]}>
+              <h2 className={styles["library-content-title"]}>
+                {category
+                  ? (allCategories.find((c) => c.industry_category_name === category)?.industry_category_label || category)
+                  : 'All designs'}
+              </h2>
+              <div className={styles["library-content-sort"]}>
+                <span>Sort: </span>
+                <SortBySelect initialSort={searchParams?.sort} className={styles["library-content-sort-select"]} />
+              </div>
+            </div>
+
+            <div className={styles["library-designs"]}>
+              <div className={styles["library-designs-items"]}>
           {designs.map((design, index) => (
             <React.Fragment key={`design-${design._id}`}>
               {/* Insert ad at position 1 (before first design) */}
@@ -156,7 +208,7 @@ async function Library({ searchParams }) {
         {/* Pagination */}
         <div className={styles["library-pagination"]} style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
           {page > 1 && (
-            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page - 1, tags })}>
+            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page - 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}>
               <button><KeyboardBackspaceIcon /> prev</button>
             </Link>
           )}
@@ -176,7 +228,7 @@ async function Library({ searchParams }) {
             pageLinks.push(
               <Link
                 key={1}
-                href={buildQueryString({ category, search: searchQuery, limit, page: 1, tags })}
+                href={buildQueryString({ category, search: searchQuery, limit, page: 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}
                 className={`${styles['pagination-button']} ${page === 1 ? styles.active : ''}`}
               >
                 1
@@ -193,7 +245,7 @@ async function Library({ searchParams }) {
               pageLinks.push(
                 <Link
                   key={p}
-                  href={buildQueryString({ category, search: searchQuery, limit, page: p, tags })}
+                  href={buildQueryString({ category, search: searchQuery, limit, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}
                   className={`${styles['pagination-button']} ${page === p ? styles.active : ''}`}
                 >
                   {p}
@@ -211,7 +263,7 @@ async function Library({ searchParams }) {
               pageLinks.push(
                 <Link
                   key={totalPages}
-                  href={buildQueryString({ category, search: searchQuery, limit, page: totalPages, tags })}
+                  href={buildQueryString({ category, search: searchQuery, limit, page: totalPages, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}
                   className={`${styles['pagination-button']} ${page === totalPages ? styles.active : ''}`}
                 >
                   {totalPages}
@@ -223,10 +275,13 @@ async function Library({ searchParams }) {
           })()}
 
           {page < totalPages && (
-            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page + 1, tags })}>
+            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page + 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}>
               <button>next <KeyboardBackspaceIcon style={{ transform: "rotate(180deg)" }} /></button>
             </Link>
           )}
+        </div>
+            </div>
+          </main>
         </div>
       </div>
 

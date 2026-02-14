@@ -4,7 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
 
-const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, initialTagSelectedOption }) => {
+const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, initialTagSelectedOption, showOnly }) => {
+  const showTags = showOnly === undefined || showOnly === 'tags';
+  const showCategory = showOnly === undefined || showOnly === 'category';
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -123,44 +125,43 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
     label: tags.cad_tag_label,
   }));
 
+  const selectStyle = {
+    control: (base) => ({ ...base, width: '100%', minHeight: 40 }),
+    container: (base) => ({ ...base, width: '100%' }),
+  };
+
   return (
     <>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <label htmlFor="category-select-input" style={{ display: "block", marginRight: "8px" }}>
-          Filter by Category:
-        </label>
-        <Select
-          id="category-select"
-          inputId="category-select-input"
-          aria-label="Filter by Category"
-          options={options}
-          value={selectedOption}
-          onChange={handleChange}
-          placeholder="Select a category..."
-          isClearable
-          styles={{
-            control: (base) => ({ ...base, minWidth: 240 }),
-          }}
-        />
-      </div>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <label htmlFor="tag-select-input" style={{ display: "block", marginRight: "8px" }}>
-          Filter by Tags:
-        </label>
-        <Select
-          id="tag-select"
-          inputId="tag-select-input"
-          aria-label="Filter by Tags"
-          options={tagOptions}
-          value={selectedTagOption}
-          onChange={handleTagChange}
-          placeholder="Select a tag..."
-          isClearable
-          styles={{
-            control: (base) => ({ ...base, minWidth: 240 }),
-          }}
-        />
-      </div>
+      {showTags && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
+          <Select
+            id="tag-select"
+            inputId="tag-select-input"
+            aria-label="Filter by Tags"
+            options={tagOptions}
+            value={selectedTagOption}
+            onChange={handleTagChange}
+            placeholder="Select a tag..."
+            isClearable
+            styles={selectStyle}
+          />
+        </div>
+      )}
+      {showCategory && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
+          <Select
+            id="category-select"
+            inputId="category-select-input"
+            aria-label="Filter by Category"
+            options={options}
+            value={selectedOption}
+            onChange={handleChange}
+            placeholder="Select a category..."
+            isClearable
+            styles={selectStyle}
+          />
+        </div>
+      )}
     </>
   );
 };
