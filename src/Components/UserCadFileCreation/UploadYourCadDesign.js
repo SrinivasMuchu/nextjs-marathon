@@ -411,7 +411,7 @@ function UploadYourCadDesign({
                     fileName: file.name,
                     type: file.name.split('.').pop(),
                     size: file.size,
-                    url: presignedRes.data.key
+                    url: presignedRes.data.url
                 };
             }
             return null;
