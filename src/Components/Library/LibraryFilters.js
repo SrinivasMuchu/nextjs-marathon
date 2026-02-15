@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Select from 'react-select';
@@ -11,9 +11,9 @@ import styles from './Library.module.css';
 
 const RECENCY_OPTIONS = [
   { value: '', label: 'Any time' },
-  { value: 'week', label: 'Past week' },
-  { value: 'month', label: 'Past month' },
-  { value: 'year', label: 'Past year' },
+  { value: 'newest', label: 'Newest' },
+  { value: 'oldest', label: 'Oldest' },
+ 
 ];
 
 const FREE_PAID_OPTIONS = [
@@ -22,10 +22,20 @@ const FREE_PAID_OPTIONS = [
   { value: 'paid', label: 'Paid' },
 ];
 
-const FILE_FORMATS = [
-  { value: 'STEP', label: 'STEP/STP' },
-  { value: 'IGES', label: 'IGES' },
-  { value: 'STL', label: 'STL' },
+const FILE_FORMAT_OPTIONS = [
+  { value: '', label: 'All' },
+  { value: 'step', label: 'STEP/STP' },
+  { value: 'iges', label: 'IGES' },
+  { value: 'stl', label: 'STL' },
+  { value: 'ply', label: 'PLY' },
+  { value: 'off', label: 'OFF' },
+  { value: 'obj', label: 'OBJ' },
+  { value: 'stp', label: 'STP' },
+  { value: 'brep', label: 'BREP' },
+  { value: 'igs', label: 'IGS' },
+  { value: 'dxf', label: 'DXF' },
+  { value: 'dwg', label: 'DWG' },
+
 ];
 
 const selectStyles = {
@@ -46,7 +56,7 @@ export default function LibraryFilters({
   hasActiveFilters,
 }) {
   const router = useRouter();
-  const selectedFormats = (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+  const selectedFormat = (initialFileFormat || '').trim().toUpperCase();
 
   const updateParam = (key, value) => {
     const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
@@ -56,27 +66,21 @@ export default function LibraryFilters({
     router.push(`/library?${params.toString()}`);
   };
 
-  const toggleFileFormat = useCallback((formatValue, checked) => {
-    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-    const current = (params.get('file_format') || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
-    let next;
-    if (checked) {
-      next = current.includes(formatValue) ? current : [...current, formatValue];
-    } else {
-      next = current.filter((f) => f !== formatValue);
-    }
-    if (next.length) params.set('file_format', next.join(','));
-    else params.delete('file_format');
-    params.set('page', '1');
-    router.push(`/library?${params.toString()}`);
-  }, [router]);
-
   const recencyOption = RECENCY_OPTIONS.find((o) => o.value === initialRecency) || RECENCY_OPTIONS[0];
   const freePaidOption = FREE_PAID_OPTIONS.find((o) => o.value === initialFreePaid) || FREE_PAID_OPTIONS[0];
+  const fileFormatOption =
+    FILE_FORMAT_OPTIONS.find((o) => o.value && o.value.toUpperCase() === selectedFormat) || FILE_FORMAT_OPTIONS[0];
 
   return (
     <>
-      <h2 className={styles['library-filters-title']}>FILTERS</h2>
+      <div className={styles['library-filters-head']}>
+        <h2 className={styles['library-filters-title']}>FILTERS</h2>
+        {hasActiveFilters && (
+          <Link href="/library" className={styles['library-filters-reset']}>
+            Reset filters
+          </Link>
+        )}
+      </div>
       <div className={styles['library-filters-search']}>
         <SearchBar initialSearchQuery={initialSearchQuery} />
       </div>
@@ -130,28 +134,20 @@ export default function LibraryFilters({
       </div>
       <div className={styles['library-filters-group']}>
         <span className={styles['library-filters-label']}>File format</span>
-        <div className={styles['library-filters-options']}>
-          {FILE_FORMATS.map(({ value, label }) => (
-            <label key={value}>
-              <input
-                type="checkbox"
-                checked={selectedFormats.includes(value)}
-                onChange={(e) => toggleFileFormat(value, e.target.checked)}
-              />
-              {label}
-            </label>
-          ))}
-        </div>
+        <Select
+          options={FILE_FORMAT_OPTIONS}
+          value={fileFormatOption}
+          onChange={(o) => updateParam('file_format', o?.value)}
+          isClearable
+          placeholder="All"
+          aria-label="File format"
+          styles={selectStyles}
+        />
       </div>
       <div className={styles['library-filters-group']}>
         <span className={styles['library-filters-label']}>Sort By</span>
         <SortBySelect initialSort={initialSort} />
       </div>
-      {hasActiveFilters && (
-        <Link href="/library" className={styles['library-filters-reset']}>
-          Reset filters
-        </Link>
-      )}
     </>
   );
 }

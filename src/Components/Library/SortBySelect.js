@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Select from 'react-select';
 
 const SORT_OPTIONS = [
+  { value: 'relevance', label: 'Sort by Relevance' },
   { value: 'views', label: 'Sort by Views' },
   { value: 'downloads', label: 'Sort by Downloads' },
 ];
