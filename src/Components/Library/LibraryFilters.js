@@ -1,153 +1,283 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Select from 'react-select';
+import SearchIcon from '@mui/icons-material/Search';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchBar from './SearchFilter';
-import CategoryFilter from './CategoryFilter';
-import SortBySelect from './SortBySelect';
 import styles from './Library.module.css';
 
-const RECENCY_OPTIONS = [
-  { value: '', label: 'Any time' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'oldest', label: 'Oldest' },
- 
+const RECENCY_RADIO = [
+  { value: '', label: 'All Time' },
+  { value: '24h', label: 'Last 24h' },
+  { value: 'week', label: 'Last Week' },
+  { value: 'month', label: 'Last Month' },
+  { value: 'year', label: 'Last Year' },
 ];
 
-const FREE_PAID_OPTIONS = [
+const FREE_PAID_RADIO = [
   { value: '', label: 'All' },
   { value: 'free', label: 'Free' },
   { value: 'paid', label: 'Paid' },
 ];
 
-const FILE_FORMAT_OPTIONS = [
-  { value: '', label: 'All' },
-  { value: 'step', label: 'STEP/STP' },
-  { value: 'iges', label: 'IGES' },
-  { value: 'stl', label: 'STL' },
-  { value: 'ply', label: 'PLY' },
-  { value: 'off', label: 'OFF' },
-  { value: 'obj', label: 'OBJ' },
-  { value: 'stp', label: 'STP' },
-  { value: 'brep', label: 'BREP' },
-  { value: 'igs', label: 'IGS' },
-  { value: 'dxf', label: 'DXF' },
-  { value: 'dwg', label: 'DWG' },
-
+const FILE_FORMAT_CHECKBOXES = [
+  { value: 'STEP', label: '.STEP' },
+  { value: 'STP', label: '.STP' },
+  { value: 'STL', label: '.STL' },
+  { value: 'PLY', label: '.PLY' },
+  { value: 'OFF', label: '.OFF' },
+  { value: 'IGS', label: '.IGS' },
+  { value: 'IGES', label: '.IGES' },
+  { value: 'BRP', label: '.BRP' },
+  { value: 'BREP', label: '.BREP' },
+  { value: 'OBJ', label: '.OBJ' },
+  { value: 'DXF', label: '.DXF' },
+  { value: 'DWG', label: '.DWG' },
 ];
 
-const selectStyles = {
-  control: (base) => ({ ...base, minHeight: 40, width: '100%' }),
-  container: (base) => ({ ...base, width: '100%' }),
-};
+const SORT_RADIO = [
+  { value: 'views', label: 'Most Views' },
+  { value: 'downloads', label: 'Most Downloads' },
+  { value: 'newest', label: 'Newest First' },
+  { value: 'oldest', label: 'Oldest First' },
+];
+
+const TAGS_PAGE_SIZE = 10;
 
 export default function LibraryFilters({
-  initialSearchQuery,
   category,
   tags,
-  allCategories,
-  allTags,
+  allCategories = [],
+  allTags = [],
+  initialSearchQuery = '',
   initialSort,
   initialRecency,
   initialFreePaid,
   initialFileFormat,
   hasActiveFilters,
+  tagsHasMore,
+  onLoadMoreTags,
+  loadingTags = false,
+  tagSearch: tagSearchProp,
+  onTagSearchChange,
 }) {
   const router = useRouter();
-  const selectedFormat = (initialFileFormat || '').trim().toUpperCase();
+  const [tagSearchLocal, setTagSearchLocal] = useState('');
+  const [tagsVisibleCount, setTagsVisibleCount] = useState(TAGS_PAGE_SIZE);
+
+  const tagSearch = typeof onTagSearchChange === 'function' ? (tagSearchProp ?? '') : tagSearchLocal;
+  const setTagSearch = typeof onTagSearchChange === 'function' ? onTagSearchChange : setTagSearchLocal;
+
+  const useTagsApiPagination = typeof onLoadMoreTags === 'function';
+
+  const selectedFormats = (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
 
   const updateParam = (key, value) => {
     const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-    if (value) params.set(key, value);
-    else params.delete(key);
+    if (value) params.set(key, value); else params.delete(key);
     params.set('page', '1');
     router.push(`/library?${params.toString()}`);
   };
 
-  const recencyOption = RECENCY_OPTIONS.find((o) => o.value === initialRecency) || RECENCY_OPTIONS[0];
-  const freePaidOption = FREE_PAID_OPTIONS.find((o) => o.value === initialFreePaid) || FREE_PAID_OPTIONS[0];
-  const fileFormatOption =
-    FILE_FORMAT_OPTIONS.find((o) => o.value && o.value.toUpperCase() === selectedFormat) || FILE_FORMAT_OPTIONS[0];
+  /* Normalize tags array (backend may not return count; we only need the list) */
+  const tagsList = useMemo(() => (Array.isArray(allTags) ? allTags : []), [allTags]);
+
+  const filteredTags = useMemo(() => {
+    if (typeof onTagSearchChange === 'function') return tagsList;
+    const q = (tagSearch || '').trim().toLowerCase();
+    if (!q) return tagsList;
+    return tagsList.filter((t) => {
+      const label = t?.cad_tag_label ?? t?.cad_tag_name ?? t?.label ?? t?.name ?? '';
+      return String(label).toLowerCase().includes(q);
+    });
+  }, [tagsList, tagSearch, onTagSearchChange]);
+
+  const tagsToShow = useMemo(
+    () => (useTagsApiPagination ? filteredTags : filteredTags.slice(0, tagsVisibleCount)),
+    [filteredTags, tagsVisibleCount, useTagsApiPagination]
+  );
+  const hasMoreTags = useTagsApiPagination
+    ? !!tagsHasMore
+    : tagsVisibleCount < filteredTags.length ||
+      (filteredTags.length >= TAGS_PAGE_SIZE && tagsVisibleCount === TAGS_PAGE_SIZE);
+
+  const loadMoreTags = useTagsApiPagination
+    ? () => onLoadMoreTags()
+    : () => setTagsVisibleCount((prev) => prev + TAGS_PAGE_SIZE);
+
+  useEffect(() => {
+    setTagsVisibleCount(TAGS_PAGE_SIZE);
+  }, [tagSearch]);
+
+  const toggleFileFormat = (formatValue, checked) => {
+    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const current = (params.get('file_format') || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+    const next = checked ? [...current, formatValue] : current.filter((f) => f !== formatValue);
+    if (next.length) params.set('file_format', next.join(','));
+    else params.delete('file_format');
+    params.set('page', '1');
+    router.push(`/library?${params.toString()}`);
+  };
+
+  const toggleCategory = (catValue) => {
+    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    if (category === catValue) params.delete('category');
+    else params.set('category', catValue);
+    params.set('page', '1');
+    router.push(`/library?${params.toString()}`);
+  };
 
   return (
-    <>
+    <div className={styles['library-filters-inner']}>
       <div className={styles['library-filters-head']}>
-        <h2 className={styles['library-filters-title']}>FILTERS</h2>
+        <h2 className={styles['library-filters-title']}>Filters</h2>
         {hasActiveFilters && (
           <Link href="/library" className={styles['library-filters-reset']}>
             Reset filters
           </Link>
         )}
       </div>
-      <div className={styles['library-filters-search']}>
-        <SearchBar initialSearchQuery={initialSearchQuery} />
+
+      <div className={styles['library-filters-section']}>
+        <span className={styles['library-filters-label']}>Search</span>
+        <div className={styles['library-filters-search']}>
+          <SearchBar initialSearchQuery={initialSearchQuery} placeholder="Search designs..." />
+        </div>
       </div>
-      <div className={styles['library-filters-group']}>
+
+      <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>Recency</span>
-        <Select
-          options={RECENCY_OPTIONS}
-          value={recencyOption}
-          onChange={(o) => updateParam('recency', o?.value)}
-          isClearable
-          placeholder="Any time"
-          aria-label="Recency"
-          styles={selectStyles}
-        />
+        <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Recency">
+          {RECENCY_RADIO.map(({ value, label }) => (
+            <label key={value || 'all'} className={styles['library-filters-radio-label']}>
+              <input
+                type="radio"
+                name="recency"
+                checked={(initialRecency || '') === value}
+                onChange={() => updateParam('recency', value)}
+                className={styles['library-filters-radio']}
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+        </div>
       </div>
-      <div className={styles['library-filters-group']}>
-        <span className={styles['library-filters-label']}>Free/Paid</span>
-        <Select
-          options={FREE_PAID_OPTIONS}
-          value={freePaidOption}
-          onChange={(o) => updateParam('free_paid', o?.value)}
-          isClearable
-          placeholder="All"
-          aria-label="Free or Paid"
-          styles={selectStyles}
-        />
+
+      <div className={styles['library-filters-section']}>
+        <span className={styles['library-filters-label']}>Free / Paid</span>
+        <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Free or Paid">
+          {FREE_PAID_RADIO.map(({ value, label }) => (
+            <label key={value || 'all'} className={styles['library-filters-radio-label']}>
+              <input
+                type="radio"
+                name="free_paid"
+                checked={(initialFreePaid || '') === value}
+                onChange={() => updateParam('free_paid', value)}
+                className={styles['library-filters-radio']}
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+        </div>
       </div>
-      <div className={styles['library-filters-group']}>
+
+      <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>Tags</span>
-        <div className={styles['library-filters-category-tags']}>
-          <CategoryFilter
-            allCategories={allCategories}
-            allTags={allTags}
-            initialSelectedCategories={category.split(',')}
-            initialTagSelectedOption={tags}
-            showOnly="tags"
+        <div className={styles['library-filters-tag-search']}>
+          <SearchIcon className={styles['library-filters-tag-search-icon']} />
+          <input
+            type="text"
+            placeholder="Search tags..."
+            value={tagSearch}
+            onChange={(e) => setTagSearch(e.target.value)}
+            className={styles['library-filters-tag-search-input']}
+            aria-label="Search tags"
           />
         </div>
+        <div className={styles['library-filters-tag-pills']}>
+          {tagsToShow.map((tag) => {
+            const tagValue = tag?.cad_tag_name ?? tag?.name ?? tag?._id ?? '';
+            const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
+            return (
+              <button
+                key={tagValue}
+                type="button"
+                className={styles['library-filters-tag-pill'] + (tags === tagValue ? ` ${styles['library-filters-tag-pill-active']}` : '')}
+                onClick={() => updateParam('tags', tags === tagValue ? '' : tagValue)}
+              >
+                {tagLabel}
+              </button>
+            );
+          })}
+        </div>
+        {hasMoreTags && (
+          <button
+            type="button"
+            className={styles['library-filters-show-more']}
+            onClick={loadMoreTags}
+            disabled={loadingTags}
+          >
+            {loadingTags ? 'Loading...' : 'Show more'}
+            <ExpandMoreIcon fontSize="small" />
+          </button>
+        )}
       </div>
-      <div className={styles['library-filters-group']}>
+
+      {/* Category filter - commented out (categories are at top of page)
+      <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>Category</span>
-        <div className={styles['library-filters-category-tags']}>
-          <CategoryFilter
-            allCategories={allCategories}
-            allTags={allTags}
-            initialSelectedCategories={category.split(',')}
-            initialTagSelectedOption={tags}
-            showOnly="category"
-          />
+        <div className={styles['library-filters-checkbox-group']}>
+          {allCategories.map((cat) => (
+            <label key={cat.industry_category_name} className={styles['library-filters-checkbox-label']}>
+              <input
+                type="checkbox"
+                checked={category === cat.industry_category_name}
+                onChange={() => toggleCategory(cat.industry_category_name)}
+                className={styles['library-filters-checkbox']}
+              />
+              <span>{cat.industry_category_label}</span>
+            </label>
+          ))}
         </div>
       </div>
-      <div className={styles['library-filters-group']}>
-        <span className={styles['library-filters-label']}>File format</span>
-        <Select
-          options={FILE_FORMAT_OPTIONS}
-          value={fileFormatOption}
-          onChange={(o) => updateParam('file_format', o?.value)}
-          isClearable
-          placeholder="All"
-          aria-label="File format"
-          styles={selectStyles}
-        />
+      */}
+
+      <div className={styles['library-filters-section']}>
+        <span className={styles['library-filters-label']}>File Format</span>
+        <div className={styles['library-filters-checkbox-group']}>
+          {FILE_FORMAT_CHECKBOXES.map(({ value, label }) => (
+            <label key={value} className={styles['library-filters-checkbox-label']}>
+              <input
+                type="checkbox"
+                checked={selectedFormats.includes(value)}
+                onChange={(e) => toggleFileFormat(value, e.target.checked)}
+                className={styles['library-filters-checkbox']}
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+        </div>
       </div>
-      <div className={styles['library-filters-group']}>
+
+      <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>Sort By</span>
-        <SortBySelect initialSort={initialSort} />
+        <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Sort by">
+          {SORT_RADIO.map(({ value, label }) => (
+            <label key={value} className={styles['library-filters-radio-label']}>
+              <input
+                type="radio"
+                name="sort"
+                checked={(initialSort || 'views') === value}
+                onChange={() => updateParam('sort', value)}
+                className={styles['library-filters-radio']}
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+        </div>
       </div>
-    </>
+    </div>
   );
 }

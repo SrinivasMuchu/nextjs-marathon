@@ -1,22 +1,23 @@
 import React from 'react';
 import axios from 'axios';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
+import { fetchCadTagsPage } from '@/api/cadTagsApi';
 import Image from 'next/image';
 import styles from './Library.module.css';
 import { textLettersLimit } from '@/common.helper';
 import Link from 'next/link';
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import Footer from '../HomePages/Footer/Footer';
-import LibraryFilters from './LibraryFilters';
+import LibraryFiltersWrapper from './LibraryFiltersWrapper';
 import SortBySelect from './SortBySelect';
-import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
+import ServerBreadCrumbs from '../CommonJsx/ServerBreadCrumbs';
 import DesignStats from '../CommonJsx/DesignStats';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 import { cookies } from 'next/headers';
 import LibraryPageJsonLd from '../JsonLdSchemas/LibraryPageJsonLd';
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 
 // Utility function to build the query string
 const buildQueryString = (params) => {
@@ -61,67 +62,77 @@ async function Library({ searchParams }) {
   if (fileFormat) queryParams.set('file_format', fileFormat);
   if (uuid) queryParams.set('uuid', uuid);
 
-  const [response, categoriesRes, tagsResponse] = await Promise.all([
+  const [response, categoriesRes, tagsFirstPage] = await Promise.all([
     axios.get(`${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`, { cache: 'no-store' }),
     axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
-    axios.get(`${BASE_URL}/v1/cad/get-cad-tags`, { cache: 'no-store' }),
+    fetchCadTagsPage(0, 10),
   ]);
-
 
   const allCategories = categoriesRes.data?.data || [];
   const data = response.data;
   const designs = data?.data?.designDetails || [];
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
-  const allTags = tagsResponse.data?.data || [];
+  const initialTags = Array.isArray(tagsFirstPage?.data) ? tagsFirstPage.data : [];
+  const initialTagsHasMore = tagsFirstPage?.hasMore === true;
+
+  const totalItems = pagination?.totalItems ?? designs?.length ?? 0;
 
   return (
     <>
-      {/* <HomeTopNav /> */}
       <LibraryPageJsonLd
         designs={designs}
         pagination={pagination}
         page={page}
         limit={limit}
       />
-      <ActiveLastBreadcrumb links={[
-        { label: 'Marathon OS', href: '/' },
-        { label: 'Library', href: '/library' },
-      ]} />
+      <ServerBreadCrumbs links={[{ label: 'Library', href: '/library' }]} />
 
       <div className={styles["library-page"]}>
-        <header className={styles["library-header"]}>
-          <h1 className={styles["library-title"]}>Engineering CAD Design Library</h1>
-          <p className={styles["library-description"]}>
+        {/* Dark purple header: breadcrumb, title, description only */}
+        <header className={styles["library-hero"]}>
+          <nav className={styles["library-hero-breadcrumb"]} aria-label="Breadcrumb">
+            <Link href="/" className={styles["library-hero-breadcrumb-link"]}>Home</Link>
+            <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+            <span className={styles["library-hero-breadcrumb-current"]}>Library</span>
+          </nav>
+          <h1 className={styles["library-hero-title"]}>Engineering CAD Design Library</h1>
+          <p className={styles["library-hero-description"]}>
             Browse quality-checked 3D CAD models. Preview online and download STEP/STP, IGES, STL and more—filter by category, tags, file type, price and popularity.
           </p>
-          {/* <div className={styles["library-category-tags"]}>
+        </header>
+
+        <div className={styles["library-below-hero"]}>
+        {/* Categories row - outside header, below hero */}
+        <div className={styles["library-category-tags-wrap"]}>
+          <div className={styles["library-category-tags"]}>
             <Link
               href="/library"
-              className={styles["library-category-tag"] + (!category ? ` ${styles.active}` : '')}
+              className={styles["library-category-tag"] + (!category ? ` ${styles["library-category-tag-active"]}` : '')}
             >
               All
             </Link>
-            {(allCategories || []).slice(0, 4).map((cat) => (
+            {(allCategories || []).map((cat) => (
               <Link
                 key={cat.industry_category_name}
                 href={`/library?category=${encodeURIComponent(cat.industry_category_name)}`}
-                className={styles["library-category-tag"] + (category === cat.industry_category_name ? ` ${styles.active}` : '')}
+                className={styles["library-category-tag"] + (category === cat.industry_category_name ? ` ${styles["library-category-tag-active"]}` : '')}
               >
                 {cat.industry_category_label}
               </Link>
             ))}
-          </div> */}
-        </header>
+          </div>
+        </div>
 
         <div className={styles["library-layout"]}>
           <aside className={styles["library-filters"]}>
-            <LibraryFilters
+            <LibraryFiltersWrapper
+              initialTags={initialTags}
+              initialHasMore={initialTagsHasMore}
               initialSearchQuery={searchQuery}
               category={category}
               tags={tags}
               allCategories={allCategories}
-              allTags={allTags}
               initialSort={searchParams?.sort}
               initialRecency={searchParams?.recency}
               initialFreePaid={searchParams?.free_paid}
@@ -132,13 +143,11 @@ async function Library({ searchParams }) {
 
           <main className={styles["library-content"]}>
             <div className={styles["library-content-head"]}>
-              <h2 className={styles["library-content-title"]}>
-                {category
-                  ? (allCategories.find((c) => c.industry_category_name === category)?.industry_category_label || category)
-                  : 'All designs'}
-              </h2>
+              <span className={styles["library-resources-count"]}>
+                All Designs ({(pagination?.totalItems ?? designs?.length ?? 0)} results)
+              </span>
               <div className={styles["library-content-sort"]}>
-                <span>Sort: </span>
+                <span className={styles["library-content-sort-label"]}>Sort:</span>
                 <SortBySelect initialSort={searchParams?.sort} className={styles["library-content-sort-select"]} />
               </div>
             </div>
@@ -205,7 +214,6 @@ async function Library({ searchParams }) {
           ))}
         </div>
 
-        {/* Pagination */}
         <div className={styles["library-pagination"]} style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
           {page > 1 && (
             <Link href={buildQueryString({ category, search: searchQuery, limit, page: page - 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}>
@@ -224,28 +232,27 @@ async function Library({ searchParams }) {
             const startPage = showLeftDots ? Math.max(2, page - siblingCount) : 2;
             const endPage = showRightDots ? Math.min(totalPages - 1, page + siblingCount) : totalPages - 1;
 
-            // First page
+            const q = (p) => buildQueryString({ category, search: searchQuery, limit, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat });
+
             pageLinks.push(
               <Link
                 key={1}
-                href={buildQueryString({ category, search: searchQuery, limit, page: 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}
+                href={q(1)}
                 className={`${styles['pagination-button']} ${page === 1 ? styles.active : ''}`}
               >
                 1
               </Link>
             );
 
-            // Dots on the left
             if (showLeftDots) {
               pageLinks.push(<span key="dots-left" className={styles.dots}>...</span>);
             }
 
-            // Middle pages
             for (let p = startPage; p <= endPage; p++) {
               pageLinks.push(
                 <Link
                   key={p}
-                  href={buildQueryString({ category, search: searchQuery, limit, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}
+                  href={q(p)}
                   className={`${styles['pagination-button']} ${page === p ? styles.active : ''}`}
                 >
                   {p}
@@ -253,17 +260,15 @@ async function Library({ searchParams }) {
               );
             }
 
-            // Dots on the right
             if (showRightDots) {
               pageLinks.push(<span key="dots-right" className={styles.dots}>...</span>);
             }
 
-            // Last page
             if (totalPages > 1) {
               pageLinks.push(
                 <Link
                   key={totalPages}
-                  href={buildQueryString({ category, search: searchQuery, limit, page: totalPages, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}
+                  href={q(totalPages)}
                   className={`${styles['pagination-button']} ${page === totalPages ? styles.active : ''}`}
                 >
                   {totalPages}
@@ -282,6 +287,7 @@ async function Library({ searchParams }) {
         </div>
             </div>
           </main>
+        </div>
         </div>
       </div>
 

@@ -1,9 +1,10 @@
 'use client';
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import React, { useRef, useState, useEffect, useContext, useCallback } from 'react';
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
 import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList, ASSET_PREFIX_URL } from '@/config';
+import { fetchCadTagsPage, TAGS_PAGE_SIZE } from '@/api/cadTagsApi';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
@@ -49,6 +50,13 @@ function UploadYourCadDesign({
     const [uploading, setUploading] = useState(false);
     const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate,user,setUser } = useContext(contextState);
     const [options, setOptions] = useState([]);
+    const [tagHasMore, setTagHasMore] = useState(false);
+    const [tagLoading, setTagLoading] = useState(false);
+    const [tagSearchInput, setTagSearchInput] = useState('');
+    const tagOptionsRef = useRef([]);
+    const tagSearchInputRef = useRef('');
+    tagOptionsRef.current = options;
+    tagSearchInputRef.current = tagSearchInput;
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [price, setPrice] = useState(editedDetails?.price || "");
     const [isKycVerified, setIsKycVerified] = useState(false);
@@ -779,33 +787,75 @@ function UploadYourCadDesign({
 
 
 
-    // Fetch all available tags
-    const getTags = async () => {
+    const mapTagToOption = (t) => ({
+        value: t._id,
+        label: t.cad_tag_label ?? t.cad_tag_name ?? t.label ?? ''
+    });
+
+    const getTags = useCallback(async () => {
+        if (tagLoading) return;
+        setTagLoading(true);
         try {
-            const response = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`);
-            if (response.data.meta.success) {
-                const fetchedOptions = response.data.data.map(zone => ({
-                    value: zone._id,
-                    label: zone.cad_tag_label
-                }));
+            const search = tagSearchInputRef.current.trim() || null;
+            const { data, hasMore } = await fetchCadTagsPage(0, TAGS_PAGE_SIZE, search);
+            const fetchedOptions = (data || []).map(mapTagToOption).filter(opt => opt.label);
+            setOptions(fetchedOptions);
+            setTagHasMore(!!hasMore);
 
-                setOptions(fetchedOptions);
-
-                // Set selectedOptions when editing and tags exist
-                if (editedDetails?.cad_tags?.length) {
-                    const mappedSelections = editedDetails.cad_tags
-                        .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
-                        .filter(Boolean);
-
-                    if (mappedSelections.length > 0) {
-                        setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
-                    }
+            if (editedDetails?.cad_tags?.length && fetchedOptions.length > 0) {
+                const mappedSelections = editedDetails.cad_tags
+                    .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
+                    .filter(Boolean);
+                if (mappedSelections.length > 0) {
+                    setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
                 }
             }
         } catch (error) {
             console.error("Error fetching tags:", error);
+        } finally {
+            setTagLoading(false);
         }
-    };
+    }, [tagLoading, editedDetails?.cad_tags, rejected]);
+
+    const loadMoreTags = useCallback(async () => {
+        if (tagLoading || !tagHasMore) return;
+        setTagLoading(true);
+        try {
+            const offset = tagOptionsRef.current.length;
+            const search = tagSearchInputRef.current.trim() || null;
+            const { data, hasMore } = await fetchCadTagsPage(offset, TAGS_PAGE_SIZE, search);
+            const nextOptions = (data || []).map(mapTagToOption).filter(opt => opt.label);
+            setOptions(prev => [...prev, ...nextOptions]);
+            setTagHasMore(!!hasMore);
+        } catch (error) {
+            setTagHasMore(false);
+        } finally {
+            setTagLoading(false);
+        }
+    }, [tagLoading, tagHasMore]);
+
+    const tagSearchEffectRan = useRef(false);
+    useEffect(() => {
+        if (!tagSearchEffectRan.current) {
+            tagSearchEffectRan.current = true;
+            return;
+        }
+        const t = setTimeout(() => {
+            setTagLoading(true);
+            fetchCadTagsPage(0, TAGS_PAGE_SIZE, tagSearchInput.trim() || null)
+                .then(({ data, hasMore }) => {
+                    const fetchedOptions = (data || []).map(mapTagToOption).filter(opt => opt.label);
+                    setOptions(fetchedOptions);
+                    setTagHasMore(!!hasMore);
+                })
+                .catch(() => {
+                    setOptions([]);
+                    setTagHasMore(false);
+                })
+                .finally(() => setTagLoading(false));
+        }, 300);
+        return () => clearTimeout(t);
+    }, [tagSearchInput]);
 
     // Fetch all available categories
     const getCategories = async () => {
@@ -1431,8 +1481,12 @@ function UploadYourCadDesign({
                                         options={options}
                                         value={cadFormState.selectedOptions}
                                         onFocus={getTags}
+                                        onInputChange={(value) => setTagSearchInput(value || '')}
                                         onChange={handleZoneSelection}
                                         onCreateOption={handleAddZones}
+                                        onMenuScrollToBottom={loadMoreTags}
+                                        isLoading={tagLoading}
+                                        filterOption={() => true}
                                         placeholder="Search or create tags"
                                     />
                                 </div>

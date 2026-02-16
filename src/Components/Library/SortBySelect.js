@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import Select from 'react-select';
 
 const SORT_OPTIONS = [
-  { value: 'relevance', label: 'Sort by Relevance' },
-  { value: 'views', label: 'Sort by Views' },
-  { value: 'downloads', label: 'Sort by Downloads' },
+  { value: 'views', label: 'Most Views' },
+  { value: 'downloads', label: 'Most Downloads' },
+  { value: 'newest', label: 'Newest First' },
+  { value: 'oldest', label: 'Oldest First' },
 ];
 
 export default function SortBySelect({ initialSort = 'views', className }) {

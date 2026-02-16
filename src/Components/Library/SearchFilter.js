@@ -7,7 +7,7 @@ import axios from 'axios';
 import { BASE_URL } from '@/config';
 import styles from './Library.module.css';
 
-const SearchBar = ({ initialSearchQuery = '' }) => {
+const SearchBar = ({ initialSearchQuery = '', placeholder = 'Search designs...' }) => {
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const router = useRouter();
 
@@ -60,7 +60,7 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
           <SearchIcon className={styles["search-icon"]} />
           <input
             type="text"
-            placeholder="Search designs..."
+            placeholder={placeholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
