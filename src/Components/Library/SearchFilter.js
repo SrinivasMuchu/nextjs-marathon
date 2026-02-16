@@ -36,6 +36,7 @@ const SearchBar = ({ initialSearchQuery = '', placeholder = 'Search designs...' 
 
   const handleSearch = () => {
     if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
       const existingParams = new URLSearchParams(window.location.search);
 
       if (searchQuery.trim()) {
@@ -47,8 +48,7 @@ const SearchBar = ({ initialSearchQuery = '', placeholder = 'Search designs...' 
       existingParams.set('page', '1');
       existingParams.set('limit', '20');
 
-      router.push(`/library?${existingParams.toString()}`);
-      // logSearch(searchQuery);
+      router.push(`${pathname}?${existingParams.toString()}`);
     }
   };
 
@@ -72,10 +72,10 @@ const SearchBar = ({ initialSearchQuery = '', placeholder = 'Search designs...' 
             <button
               onClick={() => {
                 setSearchQuery('');
+                const pathname = window.location.pathname;
                 const existingParams = new URLSearchParams(window.location.search);
                 existingParams.delete('search');
-               
-                router.push(`/library?${existingParams.toString()}`);
+                router.push(`${pathname}?${existingParams.toString()}`);
               }}
             >
               <ClearIcon />

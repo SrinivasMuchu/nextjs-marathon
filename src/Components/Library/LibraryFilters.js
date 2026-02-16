@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchBar from './SearchFilter';
 import styles from './Library.module.css';
+import { getLibraryPathWithQuery } from '@/common.helper';
 
 const RECENCY_RADIO = [
   { value: '', label: 'All Time' },
@@ -74,11 +75,24 @@ export default function LibraryFilters({
 
   const selectedFormats = (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
 
+  const buildLibraryUrl = useCallback(
+    (overrides = {}) =>
+      getLibraryPathWithQuery({
+        categoryName: category || null,
+        tagName: tags || null,
+        search: initialSearchQuery,
+        sort: initialSort,
+        recency: initialRecency,
+        free_paid: initialFreePaid,
+        file_format: initialFileFormat,
+        page: 1,
+        ...overrides,
+      }),
+    [category, tags, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat]
+  );
+
   const updateParam = (key, value) => {
-    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-    if (value) params.set(key, value); else params.delete(key);
-    params.set('page', '1');
-    router.push(`/library?${params.toString()}`);
+    router.push(buildLibraryUrl({ [key]: value || undefined }));
   };
 
   /* Normalize tags array (backend may not return count; we only need the list) */
@@ -112,21 +126,17 @@ export default function LibraryFilters({
   }, [tagSearch]);
 
   const toggleFileFormat = (formatValue, checked) => {
-    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-    const current = (params.get('file_format') || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+    const current = selectedFormats;
     const next = checked ? [...current, formatValue] : current.filter((f) => f !== formatValue);
-    if (next.length) params.set('file_format', next.join(','));
-    else params.delete('file_format');
-    params.set('page', '1');
-    router.push(`/library?${params.toString()}`);
+    router.push(buildLibraryUrl({ file_format: next.length ? next.join(',') : undefined }));
   };
 
   const toggleCategory = (catValue) => {
-    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-    if (category === catValue) params.delete('category');
-    else params.set('category', catValue);
-    params.set('page', '1');
-    router.push(`/library?${params.toString()}`);
+    if (category === catValue) {
+      router.push(buildLibraryUrl({ categoryName: null, tagName: null }));
+    } else {
+      router.push(buildLibraryUrl({ categoryName: catValue, tagName: null }));
+    }
   };
 
   return (
@@ -185,32 +195,34 @@ export default function LibraryFilters({
 
       <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>Tags</span>
-        <div className={styles['library-filters-tag-search']}>
-          <SearchIcon className={styles['library-filters-tag-search-icon']} />
-          <input
-            type="text"
-            placeholder="Search tags..."
-            value={tagSearch}
-            onChange={(e) => setTagSearch(e.target.value)}
-            className={styles['library-filters-tag-search-input']}
-            aria-label="Search tags"
-          />
-        </div>
-        <div className={styles['library-filters-tag-pills']}>
-          {tagsToShow.map((tag) => {
-            const tagValue = tag?.cad_tag_name ?? tag?.name ?? tag?._id ?? '';
-            const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
-            return (
-              <button
-                key={tagValue}
-                type="button"
-                className={styles['library-filters-tag-pill'] + (tags === tagValue ? ` ${styles['library-filters-tag-pill-active']}` : '')}
-                onClick={() => updateParam('tags', tags === tagValue ? '' : tagValue)}
-              >
-                {tagLabel}
-              </button>
-            );
-          })}
+        <div className={styles['library-filters-tags-scroll']}>
+          <div className={styles['library-filters-tag-search']}>
+            <SearchIcon className={styles['library-filters-tag-search-icon']} />
+            <input
+              type="text"
+              placeholder="Search tags..."
+              value={tagSearch}
+              onChange={(e) => setTagSearch(e.target.value)}
+              className={styles['library-filters-tag-search-input']}
+              aria-label="Search tags"
+            />
+          </div>
+          <div className={styles['library-filters-tag-pills']}>
+            {tagsToShow.map((tag) => {
+              const tagValue = tag?.cad_tag_name ?? tag?.name ?? tag?._id ?? '';
+              const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
+              return (
+                <button
+                  key={tagValue}
+                  type="button"
+                  className={styles['library-filters-tag-pill'] + (tags === tagValue ? ` ${styles['library-filters-tag-pill-active']}` : '')}
+                  onClick={() => router.push(buildLibraryUrl({ tagName: tags === tagValue ? '' : tagValue }))}
+                >
+                  {tagLabel}
+                </button>
+              );
+            })}
+          </div>
         </div>
         {hasMoreTags && (
           <button

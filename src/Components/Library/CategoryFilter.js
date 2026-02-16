@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
+import { getLibraryPathWithQuery } from "@/common.helper";
 
 const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, initialTagSelectedOption, showOnly }) => {
   const showTags = showOnly === undefined || showOnly === 'tags';
@@ -69,49 +70,45 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
 
   const handleChange = (selected) => {
     setSelectedOption(selected);
-    setSelectedTagOption(null); // Reset tags when category is selected
+    setSelectedTagOption(null);
     const selectedValue = selected?.value;
 
     if (typeof window !== 'undefined') {
-      const existingParams = new URLSearchParams(window.location.search);
-
-      // Remove tags when category is selected
-      existingParams.delete('tags');
-
-      if (selectedValue) {
-        existingParams.set('category', selectedValue);
-      } else {
-        existingParams.delete('category');
-      }
-
-      existingParams.set('page', '1');
-      existingParams.set('limit', '20');
-
-      router.push(`/library?${existingParams.toString()}`);
+      const sp = searchParams;
+      const url = getLibraryPathWithQuery({
+        categoryName: selectedValue || null,
+        tagName: null,
+        search: sp.get('search'),
+        page: 1,
+        limit: sp.get('limit') || '20',
+        sort: sp.get('sort'),
+        recency: sp.get('recency'),
+        free_paid: sp.get('free_paid'),
+        file_format: sp.get('file_format'),
+      });
+      router.push(url);
     }
   };
 
   const handleTagChange = (selected) => {
     setSelectedTagOption(selected);
-    setSelectedOption(null); // Reset category when tags is selected
+    setSelectedOption(null);
     const selectedValue = selected?.value;
 
     if (typeof window !== 'undefined') {
-      const existingParams = new URLSearchParams(window.location.search);
-
-      // Remove category when tags is selected
-      existingParams.delete('category');
-
-      if (selectedValue) {
-        existingParams.set('tags', selectedValue);
-      } else {
-        existingParams.delete('tags');
-      }
-
-      existingParams.set('page', '1');
-      existingParams.set('limit', '20');
-
-      router.push(`/library?${existingParams.toString()}`);
+      const sp = searchParams;
+      const url = getLibraryPathWithQuery({
+        categoryName: null,
+        tagName: selectedValue || null,
+        search: sp.get('search'),
+        page: 1,
+        limit: sp.get('limit') || '20',
+        sort: sp.get('sort'),
+        recency: sp.get('recency'),
+        free_paid: sp.get('free_paid'),
+        file_format: sp.get('file_format'),
+      });
+      router.push(url);
     }
   };
 

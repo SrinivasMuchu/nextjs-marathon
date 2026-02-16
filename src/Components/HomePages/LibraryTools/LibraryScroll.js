@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { IMAGEURLS } from '@/config';
 import HoverImageSequence from '@/Components/CommonJsx/RotatedImages';
 import Link from 'next/link';
+import { getLibraryPath } from '@/common.helper';
 function LibraryScroll({categories}) {
     const carouselRef = useRef(null);
     const itemWidth = 320; // width including margin/padding
@@ -32,7 +33,7 @@ function LibraryScroll({categories}) {
 
             <div className={styles['industry-category-page-items']}  ref={carouselRef}>
                 {categories.map((category, index) => (
-                    <Link href={`/library?category=${category.route}`} key={index}>
+                    <Link href={getLibraryPath({ categoryName: category.route })} key={index}>
                         <div className={styles['tools-page-items-cont']}>
 
                             {/* <Image

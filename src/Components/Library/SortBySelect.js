@@ -17,14 +17,12 @@ export default function SortBySelect({ initialSort = 'views', className }) {
 
   const handleChange = (option) => {
     if (typeof window === 'undefined') return;
+    const pathname = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
-    if (option?.value) {
-      params.set('sort', option.value);
-    } else {
-      params.delete('sort');
-    }
+    if (option?.value) params.set('sort', option.value);
+    else params.delete('sort');
     params.set('page', '1');
-    router.push(`/library?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (

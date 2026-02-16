@@ -1,77 +1,78 @@
 import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign';
+import Library from '@/Components/Library/Library';
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
-import { notFound } from 'next/navigation'; // 👈
+import { notFound } from 'next/navigation';
+import { resolveCategorySlugToName, getLibraryPath } from '@/common.helper';
+import axios from 'axios';
 
-// Cache the HTML for this page for a short time (ISR),
-// so it is still SSR but with much faster TTFB on repeat visits.
-export const revalidate = 60; // seconds
+export const revalidate = 60;
 
-export async function generateMetadata({ params }) {
-  const design = params.industry_design;
+export async function generateMetadata({ params, searchParams }) {
+  const segment = params?.industry_design;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/design-meta-data?route=${design}`);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    const designData = data.data;
-
-    if (!designData) {
-      notFound(); // 👈 If design not found, 404
-    }
-
-    return {
-      title: `${designData.meta_title} | Marathon OS`,
-      description: designData.meta_description,
-      openGraph: {
-        images: [
-          {
-            url: `${ASSET_PREFIX_URL}logo-1.png`,
-            width: 1200,
-            height: 630,
-            type: "image/png",
+    const response = await fetch(`${BASE_URL}/v1/cad/design-meta-data?route=${segment}`, { cache: 'no-store' });
+    if (response.ok) {
+      const data = await response.json();
+      const designData = data?.data;
+      if (designData) {
+        return {
+          title: `${designData.meta_title} | Marathon OS`,
+          description: designData.meta_description,
+          openGraph: {
+            images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
           },
-        ],
-      },
-      metadataBase: new URL("https://marathon-os.com"),
-      alternates: {
-        canonical: `/library/${design}`,
-      },
-    };
-  } catch (error) {
-    console.error("Failed to fetch metadata:", error);
-    notFound(); // 👈 Error fetching? 404
-  }
+          metadataBase: new URL('https://marathon-os.com'),
+          alternates: { canonical: `/library/${segment}` },
+        };
+      }
+    }
+  } catch (_) {}
+
+  const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }).catch(() => ({ data: {} }));
+  const categories = categoriesRes.data?.data || [];
+  const categoryName = resolveCategorySlugToName(segment, categories);
+  if (!categoryName) notFound();
+
+  const page = parseInt(searchParams?.page) || 1;
+  const title = `${categoryName} CAD Design Library - Browse 3D CAD Models${page > 1 ? ` - Page ${page}` : ''} | Marathon OS`;
+  const description = `Explore 3D CAD models in the ${categoryName} category. Ideal for engineers and designers looking for high-quality, ready-to-use designs.`;
+  const canonicalPath = getLibraryPath({ categoryName });
+
+  return {
+    title,
+    description,
+    openGraph: {
+      images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
+    },
+    metadataBase: new URL('https://marathon-os.com'),
+    alternates: { canonical: canonicalPath },
+  };
 }
 
-export default async function LibraryDesign({ params }) {
-  const design = params.industry_design;
+export default async function LibrarySegmentPage({ params, searchParams }) {
+  const segment = params?.industry_design;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?industry_design_route=${design}`);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?industry_design_route=${segment}`, { cache: 'no-store' });
+    if (response.ok) {
+      const data = await response.json();
+      if (data?.data) {
+        const normalizedData = { ...data.data, report: data.data.report };
+        return <IndustryDesign design={segment} designData={normalizedData} type="library" />;
+      }
     }
+  } catch (_) {}
 
-    const data = await response.json();
+  const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }).catch(() => ({ data: {} }));
+  const categories = categoriesRes.data?.data || [];
+  const categoryName = resolveCategorySlugToName(segment, categories);
+  if (!categoryName) notFound();
 
-    if (!data.data) {
-      notFound(); // 👈 If design data missing, 404
-    }
-
-    const normalizedData = {
-      ...data.data,
-      report: data.data.report ,
-    };
-
-    return <IndustryDesign design={design} designData={normalizedData} type='library'/>;
-  } catch (error) {
-    console.error("Failed to fetch design data:", error);
-    notFound(); // 👈 Error = 404
-  }
+  const merged = { ...searchParams, category: categoryName };
+  return (
+    <div>
+      <Library searchParams={merged} />
+    </div>
+  );
 }

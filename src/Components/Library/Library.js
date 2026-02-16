@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
 import { fetchCadTagsPage } from '@/api/cadTagsApi';
+import { buildLibraryDesignsParams } from '@/api/libraryDesignsApi';
 import Image from 'next/image';
 import styles from './Library.module.css';
 import { textLettersLimit } from '@/common.helper';
@@ -18,21 +19,22 @@ import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 import { cookies } from 'next/headers';
 import LibraryPageJsonLd from '../JsonLdSchemas/LibraryPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
 
-// Utility function to build the query string
-const buildQueryString = (params) => {
-  const query = new URLSearchParams();
-  if (params.category) query.set('category', params.category);
-  if (params.search) query.set('search', params.search);
-  if (params.limit) query.set('limit', params.limit);
-  if (params.page) query.set('page', params.page);
-  if (params.tags) query.set('tags', params.tags);
-  if (params.sort) query.set('sort', params.sort);
-  if (params.recency) query.set('recency', params.recency);
-  if (params.free_paid) query.set('free_paid', params.free_paid);
-  if (params.file_format) query.set('file_format', params.file_format);
-  return `?${query.toString()}`;
-};
+/** Build library URL (path for category/tag + query for search, page, sort, etc.) */
+function buildLibraryHref(params) {
+  return getLibraryPathWithQuery({
+    categoryName: params.category || null,
+    tagName: params.tags || null,
+    search: params.search,
+    page: params.page,
+    limit: params.limit,
+    sort: params.sort,
+    recency: params.recency,
+    free_paid: params.free_paid,
+    file_format: params.file_format,
+  });
+}
 
 async function Library({ searchParams }) {
   const searchQuery = searchParams?.search || '';
@@ -49,21 +51,23 @@ async function Library({ searchParams }) {
   const cookieStore = cookies();
   const uuid = cookieStore.get('uuid')?.value || null;
 
-  // Build query parameters for get-category-design API
-  const queryParams = new URLSearchParams();
-  if (category) queryParams.set('category', category);
-  queryParams.set('limit', limit.toString());
-  queryParams.set('page', page.toString());
-  if (searchQuery) queryParams.set('search', searchQuery);
-  if (tags) queryParams.set('tags', tags);
-  if (sort) queryParams.set('sort', sort);
-  if (recency) queryParams.set('recency', recency);
-  if (freePaid) queryParams.set('free_paid', freePaid);
-  if (fileFormat) queryParams.set('file_format', fileFormat);
-  if (uuid) queryParams.set('uuid', uuid);
+  // Build query parameters for get-category-design API (see docs/BACKEND_LIBRARY_API_SPEC.md)
+  const apiParams = buildLibraryDesignsParams({
+    category,
+    tags,
+    search: searchQuery,
+    sort: sort || 'views',
+    recency: recency,
+    free_paid: freePaid,
+    file_format: fileFormat,
+    page,
+    limit,
+    uuid,
+  });
+  const queryString = new URLSearchParams(apiParams).toString();
 
   const [response, categoriesRes, tagsFirstPage] = await Promise.all([
-    axios.get(`${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`, { cache: 'no-store' }),
+    axios.get(`${BASE_URL}/v1/cad/get-category-design?${queryString}`, { cache: 'no-store' }),
     axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
     fetchCadTagsPage(0, 10),
   ]);
@@ -115,7 +119,7 @@ async function Library({ searchParams }) {
             {(allCategories || []).map((cat) => (
               <Link
                 key={cat.industry_category_name}
-                href={`/library?category=${encodeURIComponent(cat.industry_category_name)}`}
+                href={getLibraryPath({ categoryName: cat.industry_category_name })}
                 className={styles["library-category-tag"] + (category === cat.industry_category_name ? ` ${styles["library-category-tag-active"]}` : '')}
               >
                 {cat.industry_category_label}
@@ -182,7 +186,7 @@ async function Library({ searchParams }) {
                     height={250}
                   />
                   </div> */}
-                <HoverImageSequence design={design} width={300} height={250} />
+                <HoverImageSequence design={design} width={280} height={233} />
 
 
                 <div className={styles["design-title-wrapper"]}>
@@ -214,9 +218,9 @@ async function Library({ searchParams }) {
           ))}
         </div>
 
-        <div className={styles["library-pagination"]} style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
+        <div className={styles["library-pagination"]}>
           {page > 1 && (
-            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page - 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}>
+            <Link href={buildLibraryHref({ category, search: searchQuery, limit, page: page - 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}>
               <button><KeyboardBackspaceIcon /> prev</button>
             </Link>
           )}
@@ -232,7 +236,7 @@ async function Library({ searchParams }) {
             const startPage = showLeftDots ? Math.max(2, page - siblingCount) : 2;
             const endPage = showRightDots ? Math.min(totalPages - 1, page + siblingCount) : totalPages - 1;
 
-            const q = (p) => buildQueryString({ category, search: searchQuery, limit, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat });
+            const q = (p) => buildLibraryHref({ category, search: searchQuery, limit, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat });
 
             pageLinks.push(
               <Link
@@ -280,7 +284,7 @@ async function Library({ searchParams }) {
           })()}
 
           {page < totalPages && (
-            <Link href={buildQueryString({ category, search: searchQuery, limit, page: page + 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}>
+            <Link href={buildLibraryHref({ category, search: searchQuery, limit, page: page + 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}>
               <button>next <KeyboardBackspaceIcon style={{ transform: "rotate(180deg)" }} /></button>
             </Link>
           )}

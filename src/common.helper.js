@@ -264,4 +264,67 @@ export const cadViewTypes = [
   { label: 'STP viewer', path: '/stp', oneLiner: 'View STP (STEP) CAD files instantly—no install needed.' },
   { label: 'BRP viewer', path: '/brp', oneLiner: 'Inspect BRP (BREP) solid models for design review.' },
   { label: 'IGS viewer', path: '/igs', oneLiner: 'Check IGS/IGES exchange files for collaboration.' },
-]
+];
+
+// --- Library path-based routing (category/tag as path segments) ---
+
+/** Turn a category or tag name into a URL slug (lowercase, spaces to hyphens, safe chars only) */
+export function slugify(str) {
+  if (str == null || str === '') return '';
+  return String(str)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+}
+
+/** Turn a tag slug back into a display/API-friendly name (hyphens to spaces; optional title-case) */
+export function tagSlugToName(slug) {
+  if (slug == null || slug === '') return '';
+  return decodeURIComponent(String(slug))
+    .replace(/-/g, ' ')
+    .trim();
+}
+
+/** Resolve category slug to category name using categories list (from get-categories API) */
+export function resolveCategorySlugToName(slug, categories = []) {
+  if (!slug) return '';
+  const s = decodeURIComponent(String(slug)).trim().toLowerCase();
+  const found = (categories || []).find(
+    (c) => slugify(c.industry_category_name) === s || (c.industry_category_name || '').toLowerCase() === s
+  );
+  return found ? found.industry_category_name : '';
+}
+
+/**
+ * Build library path (no query). Use for links.
+ * - No category, no tag → /library
+ * - Category only → /library/{categorySlug}
+ * - Tag only → /library/tag/{tagSlug}
+ * - Category + tag → /library/{categorySlug}/{tagSlug}
+ * categoryName/tagName are the raw names (e.g. from API); they are slugified for the path.
+ */
+export function getLibraryPath({ categoryName = null, tagName = null }) {
+  const base = '/library';
+  if (!categoryName && !tagName) return base;
+  if (categoryName && !tagName) return `${base}/${slugify(categoryName)}`;
+  if (!categoryName && tagName) return `${base}/tag/${slugify(tagName)}`;
+  return `${base}/${slugify(categoryName)}/${slugify(tagName)}`;
+}
+
+/**
+ * Append query string for search, page, sort, etc. (everything except category/tag which are in path).
+ */
+export function getLibraryPathWithQuery({ categoryName = null, tagName = null, search, page, limit, sort, recency, free_paid, file_format }) {
+  const path = getLibraryPath({ categoryName, tagName });
+  const params = new URLSearchParams();
+  if (search) params.set('search', search);
+  if (page && page > 1) params.set('page', String(page));
+  if (limit) params.set('limit', String(limit));
+  if (sort) params.set('sort', sort);
+  if (recency) params.set('recency', recency);
+  if (free_paid) params.set('free_paid', free_paid);
+  if (file_format) params.set('file_format', file_format);
+  const q = params.toString();
+  return q ? `${path}?${q}` : path;
+}
