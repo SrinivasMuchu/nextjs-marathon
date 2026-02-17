@@ -5,15 +5,15 @@ import { useRouter } from 'next/navigation';
 import Select from 'react-select';
 
 const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest First' },
   { value: 'views', label: 'Most Views' },
   { value: 'downloads', label: 'Most Downloads' },
-  { value: 'newest', label: 'Newest First' },
   { value: 'oldest', label: 'Oldest First' },
 ];
 
-export default function SortBySelect({ initialSort = 'views', className }) {
+export default function SortBySelect({ initialSort = 'newest', className }) {
   const router = useRouter();
-  const selected = SORT_OPTIONS.find((o) => o.value === (initialSort || 'views')) || SORT_OPTIONS[0];
+  const selected = SORT_OPTIONS.find((o) => o.value === (initialSort || 'newest')) || SORT_OPTIONS[0];
 
   const handleChange = (option) => {
     if (typeof window === 'undefined') return;

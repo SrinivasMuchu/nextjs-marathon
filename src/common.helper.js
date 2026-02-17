@@ -278,12 +278,14 @@ export function slugify(str) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-/** Turn a tag slug back into a display/API-friendly name (hyphens to spaces; optional title-case) */
+/**
+ * Turn a tag slug back into the raw tag value used in the DB/API.
+ * - We keep hyphens so the value matches `cad_tag_name` exactly (e.g. "103-linear-bearing").
+ * - For nice display labels, format this value separately in the UI (e.g. replace '-' with ' ').
+ */
 export function tagSlugToName(slug) {
   if (slug == null || slug === '') return '';
-  return decodeURIComponent(String(slug))
-    .replace(/-/g, ' ')
-    .trim();
+  return decodeURIComponent(String(slug)).trim();
 }
 
 /** Resolve category slug to category name using categories list (from get-categories API) */
@@ -320,11 +322,84 @@ export function getLibraryPathWithQuery({ categoryName = null, tagName = null, s
   const params = new URLSearchParams();
   if (search) params.set('search', search);
   if (page && page > 1) params.set('page', String(page));
-  if (limit) params.set('limit', String(limit));
+  /* limit intentionally omitted from URL; backend uses default */
   if (sort) params.set('sort', sort);
   if (recency) params.set('recency', recency);
   if (free_paid) params.set('free_paid', free_paid);
   if (file_format) params.set('file_format', file_format);
   const q = params.toString();
   return q ? `${path}?${q}` : path;
+}
+
+/** Default sort when none specified (used for canonical / “unsorted” version) */
+export const LIBRARY_DEFAULT_SORT = 'newest';
+
+/** Query keys that are tracking/non-canonical (canonical URL should omit these) */
+const LIBRARY_TRACKING_PARAMS = [
+  'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+  'fbclid', 'gclid', 'gclsrc', 'ref', 'mc_cid', 'mc_eid', '_ga',
+];
+
+/**
+ * Canonical URL query for library pages:
+ * - We only keep `page` so pagination is self-canonical:
+ *   - /library        (page 1)
+ *   - /library?page=N (page N)
+ *   - /library/<category>[/<tag>]?page=N
+ * - Filter params (search, recency, free_paid, sort, file_format, etc.) are
+ *   NOT reflected in the canonical; sort/file_format/tracking variants get noindex.
+ */
+const LIBRARY_CANONICAL_QUERY_KEYS = ['page'];
+
+function buildLibraryCanonicalQuery(params) {
+  const q = new URLSearchParams();
+  for (const key of LIBRARY_CANONICAL_QUERY_KEYS) {
+    const value = params[key];
+    if (value != null && String(value).trim() !== '') q.set(key, String(value).trim());
+  }
+  return q;
+}
+
+/**
+ * Build canonical path + query for library pages, robots, and prev/next for pagination.
+ * - Canonical = path (+ ?page=N when N > 1). Filters are not encoded in canonical.
+ * - Sort / file_format / tracking variants: noindex,follow + canonical to clean URL (no sort/file_format; page kept).
+ * - Returns prevPath and nextPath for rel="prev" / rel="next" (same structure as current, page-1 / page+1).
+ * @param {{ path: string, searchParams?: Record<string, string | undefined> }} opts
+ * @returns {{ canonicalPath: string, robots?: string, prevPath?: string, nextPath?: string }}
+ */
+export function getLibraryCanonicalAndRobots({ path, searchParams = {} }) {
+  const params = searchParams || {};
+  const currentPage = Math.max(1, parseInt(params.page, 10) || 1);
+  const sort = (params.sort || '').trim();
+  const hasSortVariant = sort && sort !== LIBRARY_DEFAULT_SORT;
+  const hasFreePaidVariant = (params.free_paid || '').trim() !== ''; // treat free/paid like a sort toggle
+  const hasFileFormatVariant = (params.file_format || '').trim() !== '';
+  const hasTrackingParams = Object.keys(params).some((k) =>
+    LIBRARY_TRACKING_PARAMS.some((t) => k.toLowerCase() === t.toLowerCase())
+  );
+
+  const canonicalQuery = buildLibraryCanonicalQuery(params);
+  const queryString = canonicalQuery.toString();
+  const canonicalPath = queryString ? `${path}?${queryString}` : path;
+
+  let robots;
+  if (hasSortVariant || hasFreePaidVariant || hasFileFormatVariant || hasTrackingParams) {
+    robots = 'noindex, follow';
+  }
+
+  const prevPath = currentPage > 1
+    ? (() => {
+        const q = buildLibraryCanonicalQuery({ ...params, page: String(currentPage - 1) });
+        const s = q.toString();
+        return s ? `${path}?${s}` : path;
+      })()
+    : undefined;
+  const nextPath = (() => {
+    const q = buildLibraryCanonicalQuery({ ...params, page: String(currentPage + 1) });
+    const s = q.toString();
+    return s ? `${path}?${s}` : `${path}?page=2`;
+  })();
+
+  return { canonicalPath, robots, prevPath, nextPath };
 }

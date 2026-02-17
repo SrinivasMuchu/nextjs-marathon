@@ -1,6 +1,7 @@
 import Library from '@/Components/Library/Library';
 import { ASSET_PREFIX_URL } from '@/config';
 import React from 'react';
+import { getLibraryCanonicalAndRobots } from '@/common.helper';
 
 // This function sets metadata based on query params
 export async function generateMetadata({ searchParams }) {
@@ -17,19 +18,20 @@ export async function generateMetadata({ searchParams }) {
     ? `Explore 3D CAD models in the ${categoryName} category. Ideal for engineers and designers looking for high-quality, ready-to-use designs.`
     : 'Browse Marathon OS\'s CAD Design Library. Search and filter by category or tags, preview models and download 3D CAD files for engineering workflows.';
 
-  // Canonical URL logic
-  let canonicalPath = '/library';
-  const canonicalParams = new URLSearchParams();
+  const { canonicalPath, robots, prevPath, nextPath } = getLibraryCanonicalAndRobots({
+    path: '/library',
+    searchParams: searchParams ?? {},
+  });
 
-  if (category) canonicalParams.set('category', category);
-  if (searchParams?.page) canonicalParams.set('page', '1'); // force page=1 if page is present in query
-
-  const queryString = canonicalParams.toString();
-  if (queryString) canonicalPath += `?${queryString}`;
+  const base = 'https://marathon-os.com';
+  const linkOther = [];
+  if (prevPath) linkOther.push({ rel: 'prev', url: `${base}${prevPath}` });
+  linkOther.push({ rel: 'next', url: `${base}${nextPath}` });
 
   return {
     title,
     description,
+    ...(robots && { robots: { index: false, follow: true } }),
     openGraph: {
       images: [
         {
@@ -40,10 +42,11 @@ export async function generateMetadata({ searchParams }) {
         },
       ],
     },
-    metadataBase: new URL("https://marathon-os.com"),
+    metadataBase: new URL(base),
     alternates: {
       canonical: canonicalPath,
     },
+    ...(linkOther.length > 0 && { icons: { other: linkOther } }),
   };
 }
 

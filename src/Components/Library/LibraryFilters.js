@@ -39,9 +39,9 @@ const FILE_FORMAT_CHECKBOXES = [
 ];
 
 const SORT_RADIO = [
+  { value: 'newest', label: 'Newest First' },
   { value: 'views', label: 'Most Views' },
   { value: 'downloads', label: 'Most Downloads' },
-  { value: 'newest', label: 'Newest First' },
   { value: 'oldest', label: 'Oldest First' },
 ];
 
@@ -63,17 +63,47 @@ export default function LibraryFilters({
   loadingTags = false,
   tagSearch: tagSearchProp,
   onTagSearchChange,
+  inSheet,
+  sheetOpen,
+  onCloseSheet,
 }) {
   const router = useRouter();
   const [tagSearchLocal, setTagSearchLocal] = useState('');
   const [tagsVisibleCount, setTagsVisibleCount] = useState(TAGS_PAGE_SIZE);
+
+  /* When sheet is open, hold selections in local state until Apply is clicked */
+  const [localSearch, setLocalSearch] = useState(initialSearchQuery || '');
+  const [localSort, setLocalSort] = useState(initialSort || 'newest');
+  const [localRecency, setLocalRecency] = useState(initialRecency || '');
+  const [localFreePaid, setLocalFreePaid] = useState(initialFreePaid || '');
+  const [localFormats, setLocalFormats] = useState(() =>
+    (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean)
+  );
+  const [localCategory, setLocalCategory] = useState(category || '');
+  const [localTag, setLocalTag] = useState(tags || '');
+  const prevSheetOpenRef = React.useRef(false);
+
+  /* Sync local state from URL when sheet opens */
+  useEffect(() => {
+    if (inSheet && sheetOpen && !prevSheetOpenRef.current) {
+      setLocalSearch(initialSearchQuery || '');
+      setLocalSort(initialSort || 'newest');
+      setLocalRecency(initialRecency || '');
+      setLocalFreePaid(initialFreePaid || '');
+      setLocalFormats((initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean));
+      setLocalCategory(category || '');
+      setLocalTag(tags || '');
+    }
+    prevSheetOpenRef.current = !!sheetOpen;
+  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, tags]);
 
   const tagSearch = typeof onTagSearchChange === 'function' ? (tagSearchProp ?? '') : tagSearchLocal;
   const setTagSearch = typeof onTagSearchChange === 'function' ? onTagSearchChange : setTagSearchLocal;
 
   const useTagsApiPagination = typeof onLoadMoreTags === 'function';
 
-  const selectedFormats = (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+  const selectedFormats = inSheet ? localFormats : (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+  const displayTag = inSheet ? localTag : tags;
 
   const buildLibraryUrl = useCallback(
     (overrides = {}) =>
@@ -91,9 +121,30 @@ export default function LibraryFilters({
     [category, tags, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat]
   );
 
-  const updateParam = (key, value) => {
-    router.push(buildLibraryUrl({ [key]: value || undefined }));
+  const navigateAndMaybeCloseSheet = (url) => {
+    router.push(url);
+    if (inSheet && typeof onCloseSheet === 'function') onCloseSheet();
   };
+
+  const updateParam = (key, value) => {
+    if (inSheet) return; /* in sheet we use local state; apply on Apply button */
+    navigateAndMaybeCloseSheet(buildLibraryUrl({ [key]: value || undefined }));
+  };
+
+  const applySheetFilters = useCallback(() => {
+    const url = getLibraryPathWithQuery({
+      categoryName: (localCategory || category) || null,
+      tagName: localTag || null,
+      search: (localSearch || '').trim() || undefined,
+      sort: localSort || undefined,
+      recency: localRecency || undefined,
+      free_paid: localFreePaid || undefined,
+      file_format: localFormats.length ? localFormats.join(',') : undefined,
+      page: 1,
+    });
+    router.push(url);
+    if (typeof onCloseSheet === 'function') onCloseSheet();
+  }, [category, localTag, localSearch, localSort, localRecency, localFreePaid, localFormats, onCloseSheet, router]);
 
   /* Normalize tags array (backend may not return count; we only need the list) */
   const tagsList = useMemo(() => (Array.isArray(allTags) ? allTags : []), [allTags]);
@@ -128,32 +179,51 @@ export default function LibraryFilters({
   const toggleFileFormat = (formatValue, checked) => {
     const current = selectedFormats;
     const next = checked ? [...current, formatValue] : current.filter((f) => f !== formatValue);
-    router.push(buildLibraryUrl({ file_format: next.length ? next.join(',') : undefined }));
+    if (inSheet) {
+      setLocalFormats(next);
+      return;
+    }
+    navigateAndMaybeCloseSheet(buildLibraryUrl({ file_format: next.length ? next.join(',') : undefined }));
   };
 
   const toggleCategory = (catValue) => {
     if (category === catValue) {
-      router.push(buildLibraryUrl({ categoryName: null, tagName: null }));
+      navigateAndMaybeCloseSheet(buildLibraryUrl({ categoryName: null, tagName: null }));
     } else {
-      router.push(buildLibraryUrl({ categoryName: catValue, tagName: null }));
+      navigateAndMaybeCloseSheet(buildLibraryUrl({ categoryName: catValue, tagName: null }));
     }
   };
 
   return (
     <div className={styles['library-filters-inner']}>
-      <div className={styles['library-filters-head']}>
-        <h2 className={styles['library-filters-title']}>Filters</h2>
-        {hasActiveFilters && (
-          <Link href="/library" className={styles['library-filters-reset']}>
-            Reset filters
-          </Link>
-        )}
-      </div>
-
+      {!inSheet && (
+        <div className={styles['library-filters-head']}>
+          <h2 className={styles['library-filters-title']}>Filters</h2>
+          {hasActiveFilters && (
+            <Link href="/library" className={styles['library-filters-reset']}>
+              Reset filters
+            </Link>
+          )}
+        </div>
+      )}
       <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>Search</span>
         <div className={styles['library-filters-search']}>
-          <SearchBar initialSearchQuery={initialSearchQuery} placeholder="Search designs..." />
+          {inSheet ? (
+            <div className={styles['library-filters-tag-search']}>
+              <SearchIcon className={styles['library-filters-tag-search-icon']} />
+              <input
+                type="text"
+                placeholder="Search designs..."
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                className={styles['library-filters-tag-search-input']}
+                aria-label="Search designs"
+              />
+            </div>
+          ) : (
+            <SearchBar initialSearchQuery={initialSearchQuery} placeholder="Search designs..." />
+          )}
         </div>
       </div>
 
@@ -165,8 +235,8 @@ export default function LibraryFilters({
               <input
                 type="radio"
                 name="recency"
-                checked={(initialRecency || '') === value}
-                onChange={() => updateParam('recency', value)}
+                checked={(inSheet ? localRecency : initialRecency || '') === value}
+                onChange={() => inSheet ? setLocalRecency(value) : updateParam('recency', value)}
                 className={styles['library-filters-radio']}
               />
               <span>{label}</span>
@@ -183,8 +253,8 @@ export default function LibraryFilters({
               <input
                 type="radio"
                 name="free_paid"
-                checked={(initialFreePaid || '') === value}
-                onChange={() => updateParam('free_paid', value)}
+                checked={(inSheet ? localFreePaid : initialFreePaid || '') === value}
+                onChange={() => inSheet ? setLocalFreePaid(value) : updateParam('free_paid', value)}
                 className={styles['library-filters-radio']}
               />
               <span>{label}</span>
@@ -195,28 +265,35 @@ export default function LibraryFilters({
 
       <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>Tags</span>
+        <div className={styles['library-filters-tag-search']}>
+          <SearchIcon className={styles['library-filters-tag-search-icon']} />
+          <input
+            type="text"
+            placeholder="Search tags..."
+            value={tagSearch}
+            onChange={(e) => setTagSearch(e.target.value)}
+            className={styles['library-filters-tag-search-input']}
+            aria-label="Search tags"
+          />
+        </div>
         <div className={styles['library-filters-tags-scroll']}>
-          <div className={styles['library-filters-tag-search']}>
-            <SearchIcon className={styles['library-filters-tag-search-icon']} />
-            <input
-              type="text"
-              placeholder="Search tags..."
-              value={tagSearch}
-              onChange={(e) => setTagSearch(e.target.value)}
-              className={styles['library-filters-tag-search-input']}
-              aria-label="Search tags"
-            />
-          </div>
           <div className={styles['library-filters-tag-pills']}>
             {tagsToShow.map((tag) => {
               const tagValue = tag?.cad_tag_name ?? tag?.name ?? tag?._id ?? '';
               const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
+              const isActive = displayTag === tagValue;
               return (
                 <button
                   key={tagValue}
                   type="button"
-                  className={styles['library-filters-tag-pill'] + (tags === tagValue ? ` ${styles['library-filters-tag-pill-active']}` : '')}
-                  onClick={() => router.push(buildLibraryUrl({ tagName: tags === tagValue ? '' : tagValue }))}
+                  className={styles['library-filters-tag-pill'] + (isActive ? ` ${styles['library-filters-tag-pill-active']}` : '')}
+                  onClick={() => {
+                    if (inSheet) {
+                      setLocalTag(isActive ? '' : tagValue);
+                      return;
+                    }
+                    navigateAndMaybeCloseSheet(buildLibraryUrl({ tagName: isActive ? '' : tagValue }));
+                  }}
                 >
                   {tagLabel}
                 </button>
@@ -237,16 +314,41 @@ export default function LibraryFilters({
         )}
       </div>
 
-      {/* Category filter - commented out (categories are at top of page)
-      <div className={styles['library-filters-section']}>
+      {/* Category filter – mobile sheet: radio, applied on \"Apply Filters\" */}
+      <div className={styles['library-filters-section-category']}>
         <span className={styles['library-filters-label']}>Category</span>
         <div className={styles['library-filters-checkbox-group']}>
+          {/* All categories option */}
+          <label className={styles['library-filters-checkbox-label']}>
+            <input
+              type="radio"
+              name="category-filter"
+              checked={(inSheet ? localCategory : category || '') === ''}
+              onChange={() => {
+                if (inSheet) {
+                  setLocalCategory('');
+                } else {
+                  toggleCategory(null);
+                }
+              }}
+              className={styles['library-filters-checkbox']}
+            />
+            <span>All categories</span>
+          </label>
+
           {allCategories.map((cat) => (
             <label key={cat.industry_category_name} className={styles['library-filters-checkbox-label']}>
               <input
-                type="checkbox"
-                checked={category === cat.industry_category_name}
-                onChange={() => toggleCategory(cat.industry_category_name)}
+                type="radio"
+                name="category-filter"
+                checked={(inSheet ? localCategory : category) === cat.industry_category_name}
+                onChange={() => {
+                  if (inSheet) {
+                    setLocalCategory(cat.industry_category_name);
+                  } else {
+                    toggleCategory(cat.industry_category_name);
+                  }
+                }}
                 className={styles['library-filters-checkbox']}
               />
               <span>{cat.industry_category_label}</span>
@@ -254,7 +356,6 @@ export default function LibraryFilters({
           ))}
         </div>
       </div>
-      */}
 
       <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>File Format</span>
@@ -273,23 +374,17 @@ export default function LibraryFilters({
         </div>
       </div>
 
-      <div className={styles['library-filters-section']}>
-        <span className={styles['library-filters-label']}>Sort By</span>
-        <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Sort by">
-          {SORT_RADIO.map(({ value, label }) => (
-            <label key={value} className={styles['library-filters-radio-label']}>
-              <input
-                type="radio"
-                name="sort"
-                checked={(initialSort || 'views') === value}
-                onChange={() => updateParam('sort', value)}
-                className={styles['library-filters-radio']}
-              />
-              <span>{label}</span>
-            </label>
-          ))}
+      {inSheet && (
+        <div className={styles['library-filters-sheet-footer']}>
+          <button
+            type="button"
+            className={styles['library-filters-sheet-apply']}
+            onClick={applySheetFilters}
+          >
+            Apply Filters
+          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

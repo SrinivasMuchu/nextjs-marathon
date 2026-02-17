@@ -39,7 +39,7 @@ export function buildLibraryDesignsParams(filters) {
     category = '',
     tags = '',
     search = '',
-    sort = 'views',
+    sort = 'newest',
     recency = '',
     free_paid = '',
     file_format = '',

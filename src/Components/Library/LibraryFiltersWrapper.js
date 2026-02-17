@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { fetchCadTagsPage, TAGS_PAGE_SIZE } from '@/api/cadTagsApi';
 import LibraryFilters from './LibraryFilters';
 
@@ -8,11 +8,16 @@ import LibraryFilters from './LibraryFilters';
  * Client wrapper that fetches tags from the API. Supports:
  * - Tag search: when user types, fetches with search param (debounced).
  * - Show more: fetches next page (with current search if any).
+ * - Ensures the currently selected tag is always in the list so its pill can show as active.
  */
 export default function LibraryFiltersWrapper({
   initialTags = [],
   initialHasMore = false,
   initialSearchQuery = '',
+  tags: selectedTag,
+  inSheet,
+  sheetOpen,
+  onCloseSheet,
   ...libraryFiltersProps
 }) {
   const [allTags, setAllTags] = useState(Array.isArray(initialTags) ? initialTags : []);
@@ -23,6 +28,19 @@ export default function LibraryFiltersWrapper({
   const isFirstTagSearchEffect = useRef(true);
 
   tagSearchRef.current = tagSearch;
+
+  /* Ensure selected tag is in the list so its pill is visible and can show active state */
+  const allTagsWithSelected = useMemo(() => {
+    if (!selectedTag || typeof selectedTag !== 'string') return allTags;
+    const exists = allTags.some(
+      (t) => (t?.cad_tag_name ?? t?.name ?? '') === selectedTag
+    );
+    if (exists) return allTags;
+    return [
+      { cad_tag_name: selectedTag, cad_tag_label: selectedTag },
+      ...allTags,
+    ];
+  }, [allTags, selectedTag]);
 
   useEffect(() => {
     if (isFirstTagSearchEffect.current) {
@@ -62,13 +80,17 @@ export default function LibraryFiltersWrapper({
   return (
     <LibraryFilters
       {...libraryFiltersProps}
+      tags={selectedTag}
       initialSearchQuery={initialSearchQuery}
-      allTags={allTags}
+      allTags={allTagsWithSelected}
       tagsHasMore={hasMoreTags}
       onLoadMoreTags={onLoadMoreTags}
       loadingTags={loadingTags}
       tagSearch={tagSearch}
       onTagSearchChange={setTagSearch}
+      inSheet={inSheet}
+      sheetOpen={sheetOpen}
+      onCloseSheet={onCloseSheet}
     />
   );
 }

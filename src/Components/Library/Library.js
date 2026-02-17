@@ -1,3 +1,4 @@
+
 import React from 'react';
 import axios from 'axios';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
@@ -9,7 +10,7 @@ import { textLettersLimit } from '@/common.helper';
 import Link from 'next/link';
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import Footer from '../HomePages/Footer/Footer';
-import LibraryFiltersWrapper from './LibraryFiltersWrapper';
+import LibraryLayoutWithFilters from './LibraryLayoutWithFilters';
 import SortBySelect from './SortBySelect';
 import ServerBreadCrumbs from '../CommonJsx/ServerBreadCrumbs';
 import DesignStats from '../CommonJsx/DesignStats';
@@ -21,14 +22,13 @@ import LibraryPageJsonLd from '../JsonLdSchemas/LibraryPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
 
-/** Build library URL (path for category/tag + query for search, page, sort, etc.) */
+/** Build library URL (path for category/tag + query for search, page, sort, etc.). Limit is not included in URL. */
 function buildLibraryHref(params) {
   return getLibraryPathWithQuery({
     categoryName: params.category || null,
     tagName: params.tags || null,
     search: params.search,
     page: params.page,
-    limit: params.limit,
     sort: params.sort,
     recency: params.recency,
     free_paid: params.free_paid,
@@ -37,11 +37,13 @@ function buildLibraryHref(params) {
 }
 
 async function Library({ searchParams }) {
+  console.log('searchParams', searchParams);
   const searchQuery = searchParams?.search || '';
   const category = searchParams?.category || '';
   const page = parseInt(searchParams?.page) || 1;
-  const limit = parseInt(searchParams?.limit) || 20;
-  const tags = searchParams?.tags || '';
+  const limit =  22;
+  const tags = searchParams?.tags || ''; // raw cad_tag_name (e.g. "103-linear-bearing")
+  const tagLabel = tags ? tags.replace(/-/g, ' ') : ''; // nicer display in H1/description
   const sort = searchParams?.sort || '';
   const recency = searchParams?.recency || '';
   const freePaid = searchParams?.free_paid || '';
@@ -56,7 +58,8 @@ async function Library({ searchParams }) {
     category,
     tags,
     search: searchQuery,
-    sort: sort || 'views',
+    // Default sort should match UI: "Newest First"
+    sort: sort || 'newest',
     recency: recency,
     free_paid: freePaid,
     file_format: fileFormat,
@@ -82,6 +85,30 @@ async function Library({ searchParams }) {
 
   const totalItems = pagination?.totalItems ?? designs?.length ?? 0;
 
+  const activeCategory =
+    allCategories.find(
+      (cat) =>
+        cat?.industry_category_name === category ||
+        cat?.industry_category_label === category
+    ) || null;
+  const categoryLabel = activeCategory?.industry_category_label || category;
+
+  const heroTitle = categoryLabel && tagLabel
+    ? `${tagLabel} CAD Models in ${categoryLabel}`
+    : categoryLabel
+      ? `${categoryLabel} CAD Models`
+      : tagLabel
+        ? `${tagLabel} CAD Models`
+        : 'Engineering CAD Design Library';
+
+  const heroDescription = categoryLabel && tagLabel
+    ? `Browse ${tagLabel} CAD models within ${categoryLabel}. Preview online and download STEP/STP, IGES, STL and more. Filter by file type, price and popularity.`
+    : categoryLabel
+      ? `Explore ${categoryLabel} CAD models for engineering workflows. Preview online and download STEP/STP, IGES, STL and more. Filter by tags, file type, price and popularity.`
+      : tagLabel
+        ? `Browse ${tagLabel} CAD models used in real projects. Preview online and download STEP/STP, IGES, STL and more. Filter by category, file type, price and popularity.`
+        : 'Browse quality-checked 3D CAD models. Preview online and download STEP/STP, IGES, STL and more—filter by category, tags, file type, price and popularity.';
+
   return (
     <>
       <LibraryPageJsonLd
@@ -100,9 +127,9 @@ async function Library({ searchParams }) {
             <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
             <span className={styles["library-hero-breadcrumb-current"]}>Library</span>
           </nav>
-          <h1 className={styles["library-hero-title"]}>Engineering CAD Design Library</h1>
+          <h1 className={styles["library-hero-title"]}>{heroTitle}</h1>
           <p className={styles["library-hero-description"]}>
-            Browse quality-checked 3D CAD models. Preview online and download STEP/STP, IGES, STL and more—filter by category, tags, file type, price and popularity.
+            {heroDescription}
           </p>
         </header>
 
@@ -128,25 +155,22 @@ async function Library({ searchParams }) {
           </div>
         </div>
 
-        <div className={styles["library-layout"]}>
-          <aside className={styles["library-filters"]}>
-            <LibraryFiltersWrapper
-              initialTags={initialTags}
-              initialHasMore={initialTagsHasMore}
-              initialSearchQuery={searchQuery}
-              category={category}
-              tags={tags}
-              allCategories={allCategories}
-              initialSort={searchParams?.sort}
-              initialRecency={searchParams?.recency}
-              initialFreePaid={searchParams?.free_paid}
-              initialFileFormat={searchParams?.file_format}
-              hasActiveFilters={Object.keys(searchParams || {}).length > 0}
-            />
-          </aside>
-
-          <main className={styles["library-content"]}>
-            <div className={styles["library-content-head"]}>
+        <LibraryLayoutWithFilters
+          filterProps={{
+            initialTags,
+            initialHasMore: initialTagsHasMore,
+            initialSearchQuery: searchQuery,
+            category,
+            tags,
+            allCategories,
+            initialSort: searchParams?.sort,
+            initialRecency: searchParams?.recency,
+            initialFreePaid: searchParams?.free_paid,
+            initialFileFormat: searchParams?.file_format,
+            hasActiveFilters: Object.keys(searchParams || {}).length > 0,
+          }}
+          contentHead={
+            <>
               <span className={styles["library-resources-count"]}>
                 All Designs ({(pagination?.totalItems ?? designs?.length ?? 0)} results)
               </span>
@@ -154,74 +178,74 @@ async function Library({ searchParams }) {
                 <span className={styles["library-content-sort-label"]}>Sort:</span>
                 <SortBySelect initialSort={searchParams?.sort} className={styles["library-content-sort-select"]} />
               </div>
-            </div>
-
+            </>
+          }
+        >
             <div className={styles["library-designs"]}>
               <div className={styles["library-designs-items"]}>
           {designs.map((design, index) => (
             <React.Fragment key={`design-${design._id}`}>
               {/* Insert ad at position 1 (before first design) */}
               {index === 0 && (
-                <div className={styles["library-designs-items-container"]} style={{ minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div
+                  className={styles["library-designs-items-container"]}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
                   <LeftRightBanner adSlot="2408570633" />
                 </div>
               )}
 
               {/* Insert ad at position 6 (before 6th design) */}
               {index === 6 && (
-                <div className={styles["library-designs-items-container"]} style={{ minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div
+                  className={styles["library-designs-items-container"]}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
                   <LeftRightBanner adSlot="4799748492" />
                 </div>
               )}
 
-              <Link href={`/library/${design.route}`} className={styles["library-designs-items-container"]}>
-                {/* <div className={styles["library-designs-inner"]}> */}
-                {/* <div className={styles["library-designs-items-container-cost"]}>{design.price ? `$${design.price}` : 'Free'}</div> */}
-                {/* <div className={styles["library-designs-items-container-img"]}>
-                      <Image
-                    // className={styles["library-designs-items-container-img"]}
-                    src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_0.webp`}
-                    alt={design.page_title}
-                    width={300}
-                    height={250}
-                  />
-                  </div> */}
-                <HoverImageSequence design={design} width={280} height={233} />
-
+              <div className={styles["library-designs-items-container"]}>
+                <Link
+                  href={`/library/${design.route}`}
+                  className={styles["library-designs-primary-link"]}
+                  aria-label={design.page_title}
+                >
+                  <HoverImageSequence design={design} width={280} height={233} />
+                  <h6 title={design.page_title}>{design.page_title}</h6>
+                </Link>
 
                 <div className={styles["design-title-wrapper"]}>
-                  <h6 title={design.page_title}>{design.page_title}</h6>
                   {/* <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p> */}
                   <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                     {/* {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />} */}
                     {design.category_labels && design.category_labels.map((label, index) => (
-                      <DesignDetailsStats key={index} text={label} />
+                      <DesignDetailsStats key={index} text={label} type="category"/>
                     ))}
-                    {design.tag_labels && design.tag_labels.map((label, index) => (
-                      <DesignDetailsStats key={index} text={label} />
+                    {/* send only 2 tags */}
+                    {design.tag_labels && design.tag_labels.slice(0, 2).map((label, index) => (
+                      <DesignDetailsStats key={index} text={label} type="tag"/>
                     ))}
                     <DesignDetailsStats fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'} text={design.file_type ? `.${design.file_type.toUpperCase()}` : '.STEP'} />
                     <div className={styles["design-stats-wrapper"]}>
-                      <DesignStats views={design.total_design_views ?? 0}
+                      <DesignStats
+                        views={design.total_design_views ?? 0}
                         downloads={design.total_design_downloads ?? 0}
-                        ratings={{ average: design.average_rating, total: design.rating_count }} />
+                        ratings={{ average: design.average_rating, total: design.rating_count }}
+                      />
                     </div>
                   </div>
                   <span className={styles["design-title-wrapper-price"]}>{design.price ? `$${design.price}` : 'Free'}</span>
-
                 </div>
-
-
-                {/* </div> */}
-              </Link>
+              </div>
             </React.Fragment>
           ))}
         </div>
 
         <div className={styles["library-pagination"]}>
           {page > 1 && (
-            <Link href={buildLibraryHref({ category, search: searchQuery, limit, page: page - 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}>
-              <button><KeyboardBackspaceIcon /> prev</button>
+            <Link href={buildLibraryHref({ category, search: searchQuery, page: page - 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })} className={styles['pagination-button']}>
+              <KeyboardBackspaceIcon /> prev
             </Link>
           )}
 
@@ -236,7 +260,7 @@ async function Library({ searchParams }) {
             const startPage = showLeftDots ? Math.max(2, page - siblingCount) : 2;
             const endPage = showRightDots ? Math.min(totalPages - 1, page + siblingCount) : totalPages - 1;
 
-            const q = (p) => buildLibraryHref({ category, search: searchQuery, limit, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat });
+            const q = (p) => buildLibraryHref({ category, search: searchQuery, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat });
 
             pageLinks.push(
               <Link
@@ -284,14 +308,13 @@ async function Library({ searchParams }) {
           })()}
 
           {page < totalPages && (
-            <Link href={buildLibraryHref({ category, search: searchQuery, limit, page: page + 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })}>
-              <button>next <KeyboardBackspaceIcon style={{ transform: "rotate(180deg)" }} /></button>
+            <Link href={buildLibraryHref({ category, search: searchQuery, page: page + 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })} className={styles['pagination-button']}>
+              next <KeyboardBackspaceIcon style={{ transform: "rotate(180deg)" }} />
             </Link>
           )}
         </div>
             </div>
-          </main>
-        </div>
+        </LibraryLayoutWithFilters>
         </div>
       </div>
 
