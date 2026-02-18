@@ -242,6 +242,14 @@
   font-size: 14px;
   color: #374151;
   cursor: pointer;
+  text-decoration: none;
+}
+.library-filters-radio-label:hover {
+  color: #610bee;
+}
+.library-filters-radio-active {
+  font-weight: 600;
+  color: #610bee;
 }
 
 .library-filters-radio {
@@ -318,6 +326,7 @@
 }
 
 .library-filters-tag-pill {
+  display: inline-block;
   padding: 6px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 9999px;
@@ -325,6 +334,7 @@
   font-size: 13px;
   color: #374151;
   cursor: pointer;
+  text-decoration: none;
   transition: border-color 0.2s, background 0.2s;
 }
 
@@ -1067,7 +1077,11 @@
 .library-filters-inner .library-filters-sheet-footer {
   margin-top: 16px;
 }
+.library-filters-apply-wrap {
+  margin-top: 16px;
+}
 .library-filters-sheet-apply {
+  display: block;
   width: 100%;
   padding: 12px 20px;
   background: #610bee;
@@ -1077,7 +1091,10 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
+  text-align: center;
+  text-decoration: none;
   transition: background 0.2s, opacity 0.2s;
+  box-sizing: border-box;
 }
 .library-filters-sheet-apply:hover {
   background: #5011b8;

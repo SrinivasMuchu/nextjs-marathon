@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import SearchIcon from '@mui/icons-material/Search';
@@ -83,7 +83,7 @@ export default function LibraryFilters({
   const [localTag, setLocalTag] = useState(tags || '');
   const prevSheetOpenRef = React.useRef(false);
 
-  /* Sync local state from URL when sheet opens */
+  /* Sync local state from URL when sheet opens (mobile) */
   useEffect(() => {
     if (inSheet && sheetOpen && !prevSheetOpenRef.current) {
       setLocalSearch(initialSearchQuery || '');
@@ -95,18 +95,16 @@ export default function LibraryFilters({
       setLocalTag(tags || '');
     }
     prevSheetOpenRef.current = !!sheetOpen;
-  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, tags]);
+  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, category, tags]);
 
   const tagSearch = typeof onTagSearchChange === 'function' ? (tagSearchProp ?? '') : tagSearchLocal;
   const setTagSearch = typeof onTagSearchChange === 'function' ? onTagSearchChange : setTagSearchLocal;
 
   const useTagsApiPagination = typeof onLoadMoreTags === 'function';
 
-  const selectedFormats = inSheet ? localFormats : (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
-  const displayTag = inSheet ? localTag : tags;
-
-  const buildLibraryUrl = useCallback(
-    (overrides = {}) =>
+  /* Desktop: build URL from current URL state (props). Sheet: use local state. */
+  const buildLibraryUrl = useMemo(
+    () => (overrides = {}) =>
       getLibraryPathWithQuery({
         categoryName: category || null,
         tagName: tags || null,
@@ -121,30 +119,26 @@ export default function LibraryFilters({
     [category, tags, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat]
   );
 
-  const navigateAndMaybeCloseSheet = (url) => {
-    router.push(url);
-    if (inSheet && typeof onCloseSheet === 'function') onCloseSheet();
-  };
+  const selectedFormats = inSheet ? localFormats : (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+  const displayTag = inSheet ? localTag : tags;
+  const displayRecency = inSheet ? localRecency : initialRecency;
+  const displayFreePaid = inSheet ? localFreePaid : initialFreePaid;
 
-  const updateParam = (key, value) => {
-    if (inSheet) return; /* in sheet we use local state; apply on Apply button */
-    navigateAndMaybeCloseSheet(buildLibraryUrl({ [key]: value || undefined }));
-  };
-
-  const applySheetFilters = useCallback(() => {
-    const url = getLibraryPathWithQuery({
-      categoryName: (localCategory || category) || null,
-      tagName: localTag || null,
-      search: (localSearch || '').trim() || undefined,
-      sort: localSort || undefined,
-      recency: localRecency || undefined,
-      free_paid: localFreePaid || undefined,
-      file_format: localFormats.length ? localFormats.join(',') : undefined,
-      page: 1,
-    });
-    router.push(url);
-    if (typeof onCloseSheet === 'function') onCloseSheet();
-  }, [category, localTag, localSearch, localSort, localRecency, localFreePaid, localFormats, onCloseSheet, router]);
+  /* URL for Apply Filters – used as Link href on mobile so navigation is a real link */
+  const applyFiltersUrl = useMemo(
+    () =>
+      getLibraryPathWithQuery({
+        categoryName: (localCategory || category) || null,
+        tagName: localTag || null,
+        search: (localSearch || '').trim() || undefined,
+        sort: localSort || undefined,
+        recency: localRecency || undefined,
+        free_paid: localFreePaid || undefined,
+        file_format: localFormats.length ? localFormats.join(',') : undefined,
+        page: 1,
+      }),
+    [category, localCategory, localTag, localSearch, localSort, localRecency, localFreePaid, localFormats]
+  );
 
   /* Normalize tags array (backend may not return count; we only need the list) */
   const tagsList = useMemo(() => (Array.isArray(allTags) ? allTags : []), [allTags]);
@@ -183,15 +177,7 @@ export default function LibraryFilters({
       setLocalFormats(next);
       return;
     }
-    navigateAndMaybeCloseSheet(buildLibraryUrl({ file_format: next.length ? next.join(',') : undefined }));
-  };
-
-  const toggleCategory = (catValue) => {
-    if (category === catValue) {
-      navigateAndMaybeCloseSheet(buildLibraryUrl({ categoryName: null, tagName: null }));
-    } else {
-      navigateAndMaybeCloseSheet(buildLibraryUrl({ categoryName: catValue, tagName: null }));
-    }
+    router.push(buildLibraryUrl({ file_format: next.length ? next.join(',') : undefined }));
   };
 
   return (
@@ -230,36 +216,64 @@ export default function LibraryFilters({
       <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>Recency</span>
         <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Recency">
-          {RECENCY_RADIO.map(({ value, label }) => (
-            <label key={value || 'all'} className={styles['library-filters-radio-label']}>
-              <input
-                type="radio"
-                name="recency"
-                checked={(inSheet ? localRecency : initialRecency || '') === value}
-                onChange={() => inSheet ? setLocalRecency(value) : updateParam('recency', value)}
-                className={styles['library-filters-radio']}
-              />
-              <span>{label}</span>
-            </label>
-          ))}
+          {RECENCY_RADIO.map(({ value, label }) => {
+            const isActive = (displayRecency || '') === value;
+            const url = buildLibraryUrl({ recency: value || undefined });
+            return inSheet ? (
+              <label key={value || 'all'} className={styles['library-filters-radio-label']}>
+                <input
+                  type="radio"
+                  name="recency"
+                  checked={isActive}
+                  onChange={() => setLocalRecency(value)}
+                  className={styles['library-filters-radio']}
+                />
+                <span>{label}</span>
+              </label>
+            ) : (
+              <Link
+                key={value || 'all'}
+                href={url}
+                className={styles['library-filters-radio-label'] + (isActive ? ` ${styles['library-filters-radio-active']}` : '')}
+                aria-checked={isActive}
+                role="radio"
+              >
+                <span>{label}</span>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
       <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>Free / Paid</span>
         <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Free or Paid">
-          {FREE_PAID_RADIO.map(({ value, label }) => (
-            <label key={value || 'all'} className={styles['library-filters-radio-label']}>
-              <input
-                type="radio"
-                name="free_paid"
-                checked={(inSheet ? localFreePaid : initialFreePaid || '') === value}
-                onChange={() => inSheet ? setLocalFreePaid(value) : updateParam('free_paid', value)}
-                className={styles['library-filters-radio']}
-              />
-              <span>{label}</span>
-            </label>
-          ))}
+          {FREE_PAID_RADIO.map(({ value, label }) => {
+            const isActive = (displayFreePaid || '') === value;
+            const url = buildLibraryUrl({ free_paid: value || undefined });
+            return inSheet ? (
+              <label key={value || 'all'} className={styles['library-filters-radio-label']}>
+                <input
+                  type="radio"
+                  name="free_paid"
+                  checked={isActive}
+                  onChange={() => setLocalFreePaid(value)}
+                  className={styles['library-filters-radio']}
+                />
+                <span>{label}</span>
+              </label>
+            ) : (
+              <Link
+                key={value || 'all'}
+                href={url}
+                className={styles['library-filters-radio-label'] + (isActive ? ` ${styles['library-filters-radio-active']}` : '')}
+                aria-checked={isActive}
+                role="radio"
+              >
+                <span>{label}</span>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
@@ -282,21 +296,24 @@ export default function LibraryFilters({
               const tagValue = tag?.cad_tag_name ?? tag?.name ?? tag?._id ?? '';
               const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
               const isActive = displayTag === tagValue;
-              return (
+              const tagUrl = buildLibraryUrl({ tagName: isActive ? null : tagValue });
+              return inSheet ? (
                 <button
                   key={tagValue}
                   type="button"
                   className={styles['library-filters-tag-pill'] + (isActive ? ` ${styles['library-filters-tag-pill-active']}` : '')}
-                  onClick={() => {
-                    if (inSheet) {
-                      setLocalTag(isActive ? '' : tagValue);
-                      return;
-                    }
-                    navigateAndMaybeCloseSheet(buildLibraryUrl({ tagName: isActive ? '' : tagValue }));
-                  }}
+                  onClick={() => setLocalTag(isActive ? '' : tagValue)}
                 >
                   {tagLabel}
                 </button>
+              ) : (
+                <Link
+                  key={tagValue}
+                  href={tagUrl}
+                  className={styles['library-filters-tag-pill'] + (isActive ? ` ${styles['library-filters-tag-pill-active']}` : '')}
+                >
+                  {tagLabel}
+                </Link>
               );
             })}
           </div>
@@ -323,14 +340,8 @@ export default function LibraryFilters({
             <input
               type="radio"
               name="category-filter"
-              checked={(inSheet ? localCategory : category || '') === ''}
-              onChange={() => {
-                if (inSheet) {
-                  setLocalCategory('');
-                } else {
-                  toggleCategory(null);
-                }
-              }}
+              checked={(localCategory || '') === ''}
+              onChange={() => setLocalCategory('')}
               className={styles['library-filters-checkbox']}
             />
             <span>All categories</span>
@@ -341,14 +352,8 @@ export default function LibraryFilters({
               <input
                 type="radio"
                 name="category-filter"
-                checked={(inSheet ? localCategory : category) === cat.industry_category_name}
-                onChange={() => {
-                  if (inSheet) {
-                    setLocalCategory(cat.industry_category_name);
-                  } else {
-                    toggleCategory(cat.industry_category_name);
-                  }
-                }}
+                checked={localCategory === cat.industry_category_name}
+                onChange={() => setLocalCategory(cat.industry_category_name)}
                 className={styles['library-filters-checkbox']}
               />
               <span>{cat.industry_category_label}</span>
@@ -376,13 +381,13 @@ export default function LibraryFilters({
 
       {inSheet && (
         <div className={styles['library-filters-sheet-footer']}>
-          <button
-            type="button"
+          <Link
+            href={applyFiltersUrl}
             className={styles['library-filters-sheet-apply']}
-            onClick={applySheetFilters}
+            onClick={() => typeof onCloseSheet === 'function' && onCloseSheet()}
           >
             Apply Filters
-          </button>
+          </Link>
         </div>
       )}
     </div>

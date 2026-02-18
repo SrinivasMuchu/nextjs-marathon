@@ -33,6 +33,7 @@ export default function SortBySelect({ initialSort = 'newest', className }) {
       isClearable={false}
       aria-label="Sort by"
       className={className}
+      menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
       styles={{
         control: (base) => ({
           ...base,
@@ -42,6 +43,10 @@ export default function SortBySelect({ initialSort = 'newest', className }) {
         container: (base) => ({
           ...base,
           width: '100%',
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 1100,
         }),
       }}
     />
