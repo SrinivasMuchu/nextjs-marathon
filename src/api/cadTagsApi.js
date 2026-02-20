@@ -17,11 +17,13 @@ export const TAGS_PAGE_SIZE = 10;
  * @param {number} offset - Number of tags to skip (0-based)
  * @param {number} [limit=10] - Page size
  * @param {string} [search] - Optional search filter
+ * @param {string} [category] - Optional category name; when set, returns tags for that category
  * @returns {Promise<{ data: Array, total: number, hasMore: boolean }>}
  */
-export async function fetchCadTagsPage(offset = 0, limit = TAGS_PAGE_SIZE, search = null) {
+export async function fetchCadTagsPage(offset = 0, limit = TAGS_PAGE_SIZE, search = null, category = null) {
   const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
   if (search && search.trim()) params.set('search', search.trim());
+  if (category && String(category).trim()) params.set('category', String(category).trim());
   const { data } = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`, {
     cache: 'no-store',
   });

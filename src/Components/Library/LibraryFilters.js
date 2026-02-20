@@ -296,7 +296,8 @@ export default function LibraryFilters({
               const tagValue = tag?.cad_tag_name ?? tag?.name ?? tag?._id ?? '';
               const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
               const isActive = displayTag === tagValue;
-              const tagUrl = buildLibraryUrl({ tagName: isActive ? null : tagValue });
+              /* With category: /library/categoryname/tagname; without: /library/tag/tagname */
+              const tagUrl = buildLibraryUrl({ categoryName: category || null, tagName: isActive ? null : tagValue });
               return inSheet ? (
                 <button
                   key={tagValue}

@@ -72,7 +72,7 @@ async function Library({ searchParams }) {
   const [response, categoriesRes, tagsFirstPage] = await Promise.all([
     axios.get(`${BASE_URL}/v1/cad/get-category-design?${queryString}`, { cache: 'no-store' }),
     axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
-    fetchCadTagsPage(0, 10),
+    fetchCadTagsPage(0, 10, null, category || null),
   ]);
 
   const allCategories = categoriesRes.data?.data || [];

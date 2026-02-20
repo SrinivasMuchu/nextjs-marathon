@@ -14,6 +14,7 @@ export default function LibraryFiltersWrapper({
   initialTags = [],
   initialHasMore = false,
   initialSearchQuery = '',
+  category = '',
   tags: selectedTag,
   inSheet,
   sheetOpen,
@@ -25,9 +26,11 @@ export default function LibraryFiltersWrapper({
   const [loadingTags, setLoadingTags] = useState(false);
   const [tagSearch, setTagSearch] = useState('');
   const tagSearchRef = useRef(tagSearch);
+  const categoryRef = useRef(category);
   const isFirstTagSearchEffect = useRef(true);
 
   tagSearchRef.current = tagSearch;
+  categoryRef.current = category;
 
   /* Ensure selected tag is in the list so its pill is visible and can show active state */
   const allTagsWithSelected = useMemo(() => {
@@ -48,7 +51,9 @@ export default function LibraryFiltersWrapper({
       return;
     }
     const t = setTimeout(() => {
-      fetchCadTagsPage(0, TAGS_PAGE_SIZE, tagSearchRef.current.trim() || null)
+      const search = tagSearchRef.current.trim() || null;
+      const cat = categoryRef.current?.trim() || null;
+      fetchCadTagsPage(0, TAGS_PAGE_SIZE, search, cat)
         .then(({ data, hasMore }) => {
           setAllTags(data);
           setHasMoreTags(hasMore);
@@ -61,13 +66,28 @@ export default function LibraryFiltersWrapper({
     return () => clearTimeout(t);
   }, [tagSearch]);
 
+  /* When category changes, refetch first page of tags for the new category */
+  useEffect(() => {
+    const cat = (category || '').trim() || null;
+    fetchCadTagsPage(0, TAGS_PAGE_SIZE, tagSearchRef.current.trim() || null, cat)
+      .then(({ data, hasMore }) => {
+        setAllTags(data);
+        setHasMoreTags(hasMore);
+      })
+      .catch(() => {
+        setAllTags([]);
+        setHasMoreTags(false);
+      });
+  }, [category]);
+
   const onLoadMoreTags = useCallback(async () => {
     if (loadingTags || !hasMoreTags) return;
     setLoadingTags(true);
     try {
       const offset = allTags.length;
       const search = tagSearchRef.current.trim() || null;
-      const { data: next, hasMore } = await fetchCadTagsPage(offset, TAGS_PAGE_SIZE, search);
+      const cat = categoryRef.current?.trim() || null;
+      const { data: next, hasMore } = await fetchCadTagsPage(offset, TAGS_PAGE_SIZE, search, cat);
       setAllTags((prev) => [...prev, ...next]);
       setHasMoreTags(hasMore);
     } catch (err) {
@@ -80,6 +100,7 @@ export default function LibraryFiltersWrapper({
   return (
     <LibraryFilters
       {...libraryFiltersProps}
+      category={category}
       tags={selectedTag}
       initialSearchQuery={initialSearchQuery}
       allTags={allTagsWithSelected}
