@@ -37,7 +37,7 @@ function buildLibraryHref(params) {
 }
 
 async function Library({ searchParams }) {
-  console.log('searchParams', searchParams);
+  
   const searchQuery = searchParams?.search || '';
   const category = searchParams?.category || '';
   const page = parseInt(searchParams?.page) || 1;
@@ -175,7 +175,6 @@ async function Library({ searchParams }) {
                 All Designs ({(pagination?.totalItems ?? designs?.length ?? 0)} results)
               </span>
               <div className={styles["library-content-sort"]}>
-                <span className={styles["library-content-sort-label"]}>Sort:</span>
                 <SortBySelect initialSort={searchParams?.sort} className={styles["library-content-sort-select"]} />
               </div>
             </>

@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Select from 'react-select';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import styles from './Library.module.css';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest First' },
@@ -13,9 +14,23 @@ const SORT_OPTIONS = [
 
 export default function SortBySelect({ initialSort = 'newest', className }) {
   const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const containerRef = useRef(null);
   const selected = SORT_OPTIONS.find((o) => o.value === (initialSort || 'newest')) || SORT_OPTIONS[0];
 
-  const handleChange = (option) => {
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
+
+  const handleSelect = (option) => {
+    setMenuOpen(false);
     if (typeof window === 'undefined') return;
     const pathname = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
@@ -26,29 +41,39 @@ export default function SortBySelect({ initialSort = 'newest', className }) {
   };
 
   return (
-    <Select
-      options={SORT_OPTIONS}
-      value={selected}
-      onChange={handleChange}
-      isClearable={false}
-      aria-label="Sort by"
-      className={className}
-      menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
-      styles={{
-        control: (base) => ({
-          ...base,
-          minHeight: 40,
-          width: '100%',
-        }),
-        container: (base) => ({
-          ...base,
-          width: '100%',
-        }),
-        menuPortal: (base) => ({
-          ...base,
-          zIndex: 1100,
-        }),
-      }}
-    />
+    <div ref={containerRef} className={`${styles['library-sort-dropdown']} ${className || ''}`}>
+      <button
+        type="button"
+        onClick={() => setMenuOpen((prev) => !prev)}
+        className={styles['library-sort-trigger']}
+        aria-expanded={menuOpen}
+        aria-haspopup="listbox"
+        aria-label="Sort by"
+      >
+        Sort by: {selected.label}
+        <ExpandMoreIcon sx={{ fontSize: 18 }} />
+      </button>
+      {menuOpen && (
+        <ul
+          className={styles['library-sort-menu']}
+          role="listbox"
+          aria-label="Sort options"
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <li key={opt.value}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={selected.value === opt.value}
+                className={styles['library-sort-option']}
+                onClick={() => handleSelect(opt)}
+              >
+                {opt.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
