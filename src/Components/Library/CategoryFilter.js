@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
 import { getLibraryPathWithQuery } from "@/common.helper";
@@ -29,6 +29,101 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
   } : null);
   const [selectedOption, setSelectedOption] = useState(initialSelectedOption);
 
+  const [tagOptions, setTagOptions] = useState(() =>
+    allTags.map((t) => ({ value: t.cad_tag_name, label: t.cad_tag_label }))
+  );
+  const [tagsHasMore, setTagsHasMore] = useState(() => allTags.length >= TAGS_PAGE_SIZE);
+  const [tagsLoadingMore, setTagsLoadingMore] = useState(false);
+  const [tagSearchTerm, setTagSearchTerm] = useState('');
+  const [tagsSearching, setTagsSearching] = useState(false);
+  const tagsOffsetRef = useRef(allTags.length);
+  const tagSearchDebounceRef = useRef(null);
+
+  useEffect(() => {
+    setTagOptions(allTags.map((t) => ({ value: t.cad_tag_name, label: t.cad_tag_label })));
+    tagsOffsetRef.current = allTags.length;
+    setTagsHasMore(allTags.length >= TAGS_PAGE_SIZE);
+  }, [allTags]);
+
+  // Server-side search: when tagSearchTerm changes, fetch from API (or reset to browse mode)
+  useEffect(() => {
+    const term = (tagSearchTerm || '').trim();
+    if (!term) {
+      setTagOptions(allTags.map((t) => ({ value: t.cad_tag_name, label: t.cad_tag_label })));
+      tagsOffsetRef.current = allTags.length;
+      setTagsHasMore(allTags.length >= TAGS_PAGE_SIZE);
+      return;
+    }
+    const abort = new AbortController();
+    setTagsSearching(true);
+    const params = new URLSearchParams({
+      offset: '0',
+      limit: String(TAGS_PAGE_SIZE),
+      search: term,
+    });
+    fetch(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`, { signal: abort.signal })
+      .then((res) => res.json())
+      .then((json) => {
+        const nextTags = json?.data || [];
+        const options = nextTags.map((t) => ({ value: t.cad_tag_name, label: t.cad_tag_label }));
+        setTagOptions(options);
+        tagsOffsetRef.current = nextTags.length;
+        setTagsHasMore(nextTags.length >= TAGS_PAGE_SIZE);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') console.error('Tag search failed', err);
+      })
+      .finally(() => setTagsSearching(false));
+    return () => abort.abort();
+  }, [tagSearchTerm, allTags]);
+
+  const onTagInputChange = useCallback((newValue) => {
+    if (tagSearchDebounceRef.current) clearTimeout(tagSearchDebounceRef.current);
+    tagSearchDebounceRef.current = setTimeout(() => {
+      setTagSearchTerm(newValue || '');
+      tagSearchDebounceRef.current = null;
+    }, TAGS_SEARCH_DEBOUNCE_MS);
+  }, []);
+
+  const loadMoreTags = useCallback(async () => {
+    if (tagsLoadingMore || !tagsHasMore) return;
+    setTagsLoadingMore(true);
+    try {
+      const offset = tagsOffsetRef.current;
+      const term = (tagSearchTerm || '').trim();
+      const params = new URLSearchParams({
+        offset: String(offset),
+        limit: String(TAGS_PAGE_SIZE),
+      });
+      if (term) params.set('search', term);
+      const res = await fetch(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`);
+      const json = await res.json();
+      const nextTags = json?.data || [];
+      const newOffset = offset + nextTags.length;
+      tagsOffsetRef.current = newOffset;
+      setTagsHasMore(nextTags.length >= TAGS_PAGE_SIZE);
+      if (nextTags.length > 0) {
+        const nextOptions = nextTags.map((t) => ({
+          value: t.cad_tag_name,
+          label: t.cad_tag_label,
+        }));
+        setTagOptions((prev) => {
+          const seen = new Set(prev.map((o) => o.value));
+          const added = nextOptions.filter((o) => !seen.has(o.value));
+          return prev.concat(added);
+        });
+      }
+    } catch (err) {
+      console.error('Failed to load more tags', err);
+    } finally {
+      setTagsLoadingMore(false);
+    }
+  }, [tagsLoadingMore, tagsHasMore, tagSearchTerm]);
+
+  const onTagMenuScrollToBottom = useCallback(() => {
+    loadMoreTags();
+  }, [loadMoreTags]);
+
   // Reset filters when URL parameters change
   useEffect(() => {
     const hasCategory = searchParams.has('category');
@@ -56,17 +151,17 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
       }
       
       if (currentTags) {
-        const tagOption = allTags.find(tag => tag.cad_tag_name === currentTags);
-        setSelectedTagOption(tagOption ? {
-          value: tagOption.cad_tag_name,
-          label: tagOption.cad_tag_label,
-        } : null);
+        const tagFromAll = allTags.find(tag => tag.cad_tag_name === currentTags);
+        const option = tagFromAll
+          ? { value: tagFromAll.cad_tag_name, label: tagFromAll.cad_tag_label }
+          : tagOptions.find(o => o.value === currentTags) || null;
+        setSelectedTagOption(option);
         setSelectedOption(null);
       } else {
         setSelectedTagOption(null);
       }
     }
-  }, [searchParams, allCategories, allTags]);
+  }, [searchParams, allCategories, allTags, tagOptions]);
 
   const handleChange = (selected) => {
     setSelectedOption(selected);
@@ -115,11 +210,6 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
   const options = allCategories.map((category) => ({
     value: category.industry_category_name,
     label: category.industry_category_label,
-  }));
-
-  const tagOptions = allTags.map((tags) => ({
-    value: tags.cad_tag_name,
-    label: tags.cad_tag_label,
   }));
 
   const selectStyle = {

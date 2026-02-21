@@ -1,5 +1,6 @@
 'use client';
 import React, { useRef, useState, useEffect, useContext, useCallback } from 'react';
+
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
@@ -17,6 +18,9 @@ import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
 import { FaRupeeSign } from "react-icons/fa";
 import Kyc from '../KYC/Kyc';
 import Link from 'next/link';
+
+
+
 
 
 function UploadYourCadDesign({
@@ -58,6 +62,12 @@ function UploadYourCadDesign({
     tagOptionsRef.current = options;
     tagSearchInputRef.current = tagSearchInput;
     const [categoryOptions, setCategoryOptions] = useState([]);
+    const [tagsHasMore, setTagsHasMore] = useState(false);
+    const [tagsLoadingMore, setTagsLoadingMore] = useState(false);
+    const [tagsSearching, setTagsSearching] = useState(false);
+    const [tagSearchTerm, setTagSearchTerm] = useState('');
+    const tagsOffsetRef = useRef(0);
+    const tagSearchDebounceRef = useRef(null);
     const [price, setPrice] = useState(editedDetails?.price || "");
     const [isKycVerified, setIsKycVerified] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(true);
