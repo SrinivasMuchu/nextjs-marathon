@@ -21,7 +21,8 @@
     font-weight: 600;
     text-align: center;
 }
-.blog-page h2{
+.blog-page h2,
+.blog-page h3{
     font-size: clamp(20px, 3vw, 32px);
     line-height: 1.4;
     font-weight: 600;

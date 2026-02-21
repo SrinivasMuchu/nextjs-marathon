@@ -33,7 +33,7 @@ async function SampleParts({ industry, part_name }) {
         return (
             <>
             {data.length ? <div className={styles['sample-parts']}>
-                <h2>Sample Parts (CAD Viewable in Marathon-OS)</h2>
+                <h3>Sample Parts (CAD Viewable in Marathon-OS)</h3>
 
                 <div className={styles['sample-parts-container']}>
                     {

@@ -6,6 +6,7 @@ import { IMAGEURLS } from '@/config'
 import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 
+// Page heading structure: 1 h1, 2 h2s (Introduction, Importances), rest h3 (sections from "Most common approaches" through Sources).
 function Blogs() {
     return (
         <>
@@ -70,7 +71,7 @@ function Blogs() {
                         </p>
                     </div>
                     <div className={styles["blog-page-container"]}>
-                        <h2>Most common approaches and strategies of Part Number Format:</h2>
+                        <h3>Most common approaches and strategies of Part Number Format:</h3>
                         <span>The Common Approaches to Part Number Format or Nomenclature are as follows:
                         </span>
                         <ul>
@@ -89,7 +90,7 @@ function Blogs() {
                         </p>
                     </div>
                     <div className={styles["blog-page-container"]}>
-                        <h2>Challenges of Poor Part Numbering Practices</h2>
+                        <h3>Challenges of Poor Part Numbering Practices</h3>
                         <p>The poor numbering practices deteriorate efficiency, traceability and scalability. Here are the most common challenges, the company faces when the number format fails:
                         </p>
                         <ul>
@@ -112,8 +113,8 @@ function Blogs() {
                         </p>
                     </div>
                     <div className={styles["blog-page-container"]}>
-                        <h2>Best Practices for Setting Up a Part Numbering System
-                        </h2>
+                        <h3>Best Practices for Setting Up a Part Numbering System
+                        </h3>
                         <p>A well-defined and structured part numbering system is very essential for efficient manufacturing, inventory management, procurement and engineering processes.  The main goal is to create a part number format that is unique, informative, adaptable, efficient eliminating the ambiguity, time and cost. So here are the best practices to be followed:
                         </p>
                         <ul>
@@ -143,7 +144,7 @@ function Blogs() {
                         </ul>
                     </div>
                     <div className={styles["blog-page-container"]}>
-                        <h2>Real-World Example of Part Number Format  </h2>
+                        <h3>Real-World Example of Part Number Format  </h3>
                         <div style={{ display: 'flex', alignItems: 'center' }} className={styles["blog-page-bmw-logo"]}>
                             <p>BMW (Bayerische Motoren Werke AG) is the multinational manufacturer of luxury vehicles and motorcycles, based in Munich, Germany. It follows the eleven digit number part nomenclature.
                             </p>
@@ -183,8 +184,8 @@ function Blogs() {
                         </p>
                     </div>
                     <div className={styles["blog-page-container"]}>
-                        <h2>Conclusion:
-                        </h2>
+                        <h3>Conclusion:
+                        </h3>
                         <p>A well-structured part number format is critical for businesses in manufacturing, engineering , inventory and supply chain as it directly impacts the efficiency, reliability, scalability, profitability, compliance and traceability.
                         </p>
                         <p>It might be the right time to review whether the numbering system is holding the business back. Better take action today. It’s crucial to review the numbering system so as to:
@@ -221,8 +222,8 @@ function Blogs() {
                         </ul>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }} className={styles["blog-page-container"]}>
-                        <h2>Sources:
-                        </h2>
+                        <h3>Sources:
+                        </h3>
                         <a target='_blank' href='https://www.propelsoftware.com/glossary/part-numbering' rel='nofollow'>https://www.propelsoftware.com/glossary/part-numbering</a>
                         <a target='_blank' href='https://www.bestcarmods.com/how-to-read-bmw-part-numbers/' rel='nofollow'>https://www.bestcarmods.com/how-to-read-bmw-part-numbers/</a>
                         <a target='_blank' href='https://www.slkworld.com/threads/mercedes-part-numbers-explained.592668/' rel='nofollow'>https://www.slkworld.com/threads/mercedes-part-numbers-explained.592668/

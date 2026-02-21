@@ -10,7 +10,7 @@ function TrustPrivacy({ items, title, description }) {
   return (
     <SecurityWrapper styles={securityStyles}>
       <div className={securityStyles['security-content']}>
-        <h2 className={securityStyles['security-head']}>{title}</h2>
+        <h3 className={securityStyles['security-head']}>{title}</h3>
         {description && (
           <p className={securityStyles['security-desc']}>{description}</p>
         )}

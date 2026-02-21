@@ -60,7 +60,8 @@
     
     gap: 12px;
 }
-.startShareDesignContainer h1{
+.startShareDesignContainer h1,
+.startShareDesignContainer h3{
     font-size: clamp(24px, 5vw, 48px) ;
     font-weight: 800;
 }
@@ -123,7 +124,8 @@
   box-sizing: border-box;
 }
 
-.shareYourDesignsContainer h1 {
+.shareYourDesignsContainer h1,
+.shareYourDesignsContainer h2 {
   color: #001325;
   font-size: 36px;
   font-style: normal;
@@ -163,7 +165,9 @@
 }
 
 .shareYourDesignsItem h2,
-.faqItem h2 {
+.shareYourDesignsItem h3,
+.faqItem h2,
+.faqItem h3 {
   font-weight: 700;
   font-size: 18px;
 }

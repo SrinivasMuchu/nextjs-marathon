@@ -46,7 +46,7 @@ function Faq() {
     <div className={styles.faqContainer}>
       <div className={styles.faqContent}>
         <div className={styles.faqHeader}>
-          <h2 className={styles.faqTitle}>Frequently Asked Questions</h2>
+          <h3 className={styles.faqTitle}>Frequently Asked Questions</h3>
         </div>
         
         <div className={styles.faqList}>

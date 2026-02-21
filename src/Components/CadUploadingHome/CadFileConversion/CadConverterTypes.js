@@ -8,7 +8,7 @@ function CadConverterTypes() {
     <section className={styles.section}>
       <div className={styles.wrapper}>
         <p className={styles.label}>POPULAR CONVERSIONS</p>
-        <h2 className={styles.mainHeading}>CAD Converter Types</h2>
+        <h3 className={styles.mainHeading}>CAD Converter Types</h3>
 
         <div className={styles.grid}>
           {converterTypes.map((type, index) => (

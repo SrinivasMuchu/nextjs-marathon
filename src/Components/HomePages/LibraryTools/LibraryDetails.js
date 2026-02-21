@@ -89,7 +89,7 @@ function LibraryDetails() {
   return (
     <div className={styles['library-tools-page']} style={{ position: 'relative' }}>
       <div className={styles['tools-page-header']}>
-        <h2>CAD Design Library</h2>
+        <h3>CAD Design Library</h3>
         <p>3D CAD designs for engineering and product development. Browse models across industries to accelerate design inspiration and collaboration.</p>
       </div>
       <LibraryScroll categories={categories}/>

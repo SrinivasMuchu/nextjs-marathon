@@ -6,7 +6,7 @@ function ConvertCrossLink() {
   return (
     <div className={cadStyles['cad-industries']} style={{ backgroundColor: '#ffffff' }}>
       <div className={cadStyles['cad-industries-content']}>
-        <h2>Need to convert a CAD file?</h2>
+        <h3>Need to convert a CAD file?</h3>
         <p>
           Sometimes you need a different format for manufacturing, printing, or sharing. Use our 3D File
           Converter to convert between STEP, IGES, STL, OBJ and more.

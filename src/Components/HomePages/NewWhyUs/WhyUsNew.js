@@ -25,7 +25,7 @@ function WhyUsNew() {
   return (
     <div className={styles.whyUsNewContainer} id="why-us">
       <div className={styles.whyUsNewHeader}>
-        <h1 className={styles.whyUsNewTitle}>Why Marathon-OS?</h1>
+        <h3 className={styles.whyUsNewTitle}>Why Marathon-OS?</h3>
         <p className={styles.whyUsNewSubtitle}>
           For people who need CAD files they can actually trust and use.
         </p>
@@ -44,7 +44,7 @@ function WhyUsNew() {
             </div>
             <div className={styles.whyUsNewCardContent} style={{ padding: '20px' }}
             >
-              <h2 className={styles.whyUsNewCardTitle}>{feature.title}</h2>
+              <h3 className={styles.whyUsNewCardTitle}>{feature.title}</h3>
               <p className={styles.whyUsNewCardDescription}>{feature.description}</p>
             </div>
           </div>

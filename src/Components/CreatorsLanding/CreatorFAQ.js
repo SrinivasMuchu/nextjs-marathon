@@ -29,11 +29,11 @@ const faqQuestions = [
 function CreatorFAQ() {
   return (
     <div className={styles.shareYourDesignsContainer} style={{background:'linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF'}}>
-        <h1>Frequently Asked Questions</h1>
+        <h3>Frequently Asked Questions</h3>
         <div style={{display:'flex', flexDirection:'column',gap:'20px',width:'100%', alignItems:'center', justifyContent:'center'}}>
             {faqQuestions.map((item, index) => (
                 <div className={styles.faqItem} key={index} style={{background:'white', padding:'10px', borderRadius:'5px'}}>
-                    <h2>{item.question}</h2>
+                    <h3>{item.question}</h3>
                     <p>{item.answer}</p>
                 </div>
             ))}

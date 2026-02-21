@@ -37,7 +37,7 @@ export default async function IndustryDesignsCrousel({ industry }) {
   return (
     <div className={styles["industry-designs"]} style={{ position: 'relative' }}>
       <div className={styles["industry-designs-header"]}>
-        <h2>{industryName} Design Library</h2>
+        <h3>{industryName} Design Library</h3>
         <p style={{ color: 'rgba(135, 134, 134, 0.7)' }}>
           Explore high-quality design inspirations curated for the {industryName}.
           <Link style={{

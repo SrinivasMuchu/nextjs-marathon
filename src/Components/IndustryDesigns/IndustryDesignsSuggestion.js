@@ -4,7 +4,7 @@ import styles from './IndustryDesign.module.css';
 import IndustrySuggestionsHead from './IndustrySuggestionsHead';
 import IndustryDesignSuggestedImages from './IndustryDesignSuggestedImages';
 
-function IndustryDesignsSuggestion({ type, designData = [],design,design_type,industryName }) {
+function IndustryDesignsSuggestion({ type, designData = [], design, design_type, industryName, headingLevel = 3 }) {
 
  const style = type
         ? {
@@ -15,7 +15,7 @@ function IndustryDesignsSuggestion({ type, designData = [],design,design_type,in
   return (
     <div className={styles['industry-design-suggestion']} style={style}>
       <div className={styles['industry-design-suggestion-header']}>
-        <IndustrySuggestionsHead type={type} design={design}  industryName={industryName}/>
+        <IndustrySuggestionsHead type={type} design={design} industryName={industryName} headingLevel={headingLevel} />
       </div>
       <IndustryDesignSuggestedImages type={type} designData={designData} design={design} design_type={design_type}/>
      

@@ -36,7 +36,7 @@ function FreeTools() {
   return (
     <FreeToolsBgWrapper>
       <div className={styles.freeToolsHeader}>
-        <h1 className={styles.freeToolsTitle}>Marathon-OS free to use tools</h1>
+        <h3 className={styles.freeToolsTitle}>Marathon-OS free to use tools</h3>
         <p className={styles.freeToolsSubtitle}>
           Use powerful engineering tools without installing any software
         </p>
@@ -56,7 +56,7 @@ function FreeTools() {
             </div>
             
             <div className={styles.freeToolsCardContent}>
-              <h2 className={styles.cardTitle}>{tool.title}</h2>
+              <h3 className={styles.cardTitle}>{tool.title}</h3>
               <p className={styles.cardDescription}>{tool.description}</p>
               
               <div className={styles.fileFormats}>

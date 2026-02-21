@@ -19,6 +19,7 @@ import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { IMAGEURLS } from '@/config'
 
+// Page heading structure: 1 h1 (CadFileConversionHeader), 2 h2s (HowItWorks, CoreBenefits), rest h3 (ConversionQualityNotes, InterlinkingBlocks, TrustPrivacy, CadConverterTypes, DesignHub, OrgFaq).
 const converterSteps = [
     { text: 'Upload your CAD file (drag & drop)',image: IMAGEURLS.cadFileUpload },
     { text: 'Choose the output format (STEP / IGES / STL / OBJ / PLY / OFF / BREP)',image: IMAGEURLS.cadFileFormat },
@@ -148,7 +149,7 @@ function CadFileConversionHome({ convert, conversionParams }) {
             <OurFeatures features={features} essentialDeatails={essentialDeatails} /> */}
             {/* <FeaturedConversions /> */}
             <CadConverterTypes />
-            <DesignHub />
+            <DesignHub headingLevel={3} />
             <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />
             <Footer />
         </>

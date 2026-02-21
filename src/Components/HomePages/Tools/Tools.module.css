@@ -69,7 +69,8 @@
     text-align: center;
 }
 
-.tools-page-header h2{
+.tools-page-header h2,
+.tools-page-header h3{
     color: #001325;
     font-size: 36px;
     font-style: normal;

@@ -29,7 +29,7 @@ function HowItWorks() {
   return (
     <div className={styles.shareYourDesignsContainer} style={{background:'linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF'}}>
         <div style={{textAlign:'center',}}>
-             <h1>How It Works</h1>
+             <h2>How It Works</h2>
         <p>Start sharing your designs in just a few simple steps</p>
         </div>
        
@@ -39,7 +39,7 @@ function HowItWorks() {
                 <div key={item.step} className={styles.shareYourDesignsItem}
                 style={{width:'300px',background:'white',borderRadius:'8px'}}>
                     <div className={styles.itemStep}>{item.step}</div>
-                    <h2>{item.title}</h2>
+                    <h3>{item.title}</h3>
                     <p>{item.description}</p>
                 </div>
             ))}

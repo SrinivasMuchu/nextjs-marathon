@@ -11,7 +11,7 @@ function ConversionQualityNotes() {
   return (
     <section className={styles.section}>
       <div className={styles.wrapper}>
-        <h2 className={styles.title}>Conversion quality notes (read before converting)</h2>
+        <h3 className={styles.title}>Conversion quality notes (read before converting)</h3>
         <div className={styles.notesList}>
           {notes.map((content, index) => (
             <div key={index} className={styles.noteCard}>

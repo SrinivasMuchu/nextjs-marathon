@@ -49,12 +49,13 @@ async function getCategoriesAndDesigns() {
   }
 }
 
-const DesignHub = async () => {
+const DesignHub = async ({ headingLevel = 2 }) => {
   const { categories, designsByCategory } = await getCategoriesAndDesigns()
+  const HeadingTag = headingLevel === 3 ? 'h3' : 'h2'
 
   return (
     <div className={styles.designHubContainer}>
-      <h1 className={styles.designHubHead}>Marathon-OS Design Hub</h1>
+      <HeadingTag className={styles.designHubHead}>Marathon-OS Design Hub</HeadingTag>
       <p className={styles.designHubDesc}>
         Everything you need to design faster, smarter, and with more impact.
       </p>

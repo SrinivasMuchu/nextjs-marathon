@@ -17,7 +17,7 @@ function SolutionCad({ industryData = {} }) {
     return (
         <div className={styles['solution-cad']}>
             <div className={styles['solution-cad-content']}>
-                <h2>The Solution: Marathon-OS CAD Viewer</h2>
+                <h3>The Solution: Marathon-OS CAD Viewer</h3>
 
                 {solutionPoints.map((point, index) => (
                     <li key={index}>
