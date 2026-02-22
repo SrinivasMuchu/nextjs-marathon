@@ -743,12 +743,26 @@
   font-weight: 600;
 }
 
-.library-designs-items{
-    display:flex;
-    flex-wrap: wrap;
-    gap: clamp(16px, 2.5vw, 24px);
+.library-designs-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(16px, 2.5vw, 24px);
+  width: 100%;
+  justify-content: center;
+}
+
+/* Desktop: 3 columns in a row; from 1200px use grid, below that flex wrap */
+@media (min-width: 1450px) {
+  .library-designs-items {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: stretch;
+  }
+  .library-designs-items-container {
     width: 100%;
-    justify-content: center;
+    max-width: 100%;
+    flex: none;
+  }
 }
 .library-designs-filters{
   display: flex;

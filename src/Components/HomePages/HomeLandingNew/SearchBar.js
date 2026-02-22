@@ -2,12 +2,15 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { FiSearch } from "react-icons/fi"
 import { BASE_URL, IMAGEURLS } from "../../../config"
+import { getLibraryPathWithQuery } from "@/common.helper"
 import styles from "./HomeLandingNew.module.css"
 import Image from "next/image"
 
 function SearchBar() {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [results, setResults] = useState([])
   const [isLoading, setIsLoading] = useState(false)
@@ -55,6 +58,16 @@ function SearchBar() {
     setSearchQuery(e.target.value)
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      const term = searchQuery.trim()
+      if (term) {
+        const href = getLibraryPathWithQuery({ search: term })
+        router.push(href)
+      }
+    }
+  }
+
   const showDropdown = searchQuery.trim() && (results.length > 0 || isLoading)
 
   return (
@@ -66,7 +79,9 @@ function SearchBar() {
           placeholder="Search CAD files 'Engine'"
           value={searchQuery}
           onChange={handleSearchChange}
+          onKeyDown={handleKeyDown}
           className={styles.searchInput}
+          aria-label="Search CAD files"
         />
       </div>
 
