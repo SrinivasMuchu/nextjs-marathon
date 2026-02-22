@@ -38,13 +38,6 @@ const FILE_FORMAT_CHECKBOXES = [
   { value: 'DWG', label: '.DWG' },
 ];
 
-const SORT_RADIO = [
-  { value: 'newest', label: 'Newest First' },
-  { value: 'views', label: 'Most Views' },
-  { value: 'downloads', label: 'Most Downloads' },
-  { value: 'oldest', label: 'Oldest First' },
-];
-
 const TAGS_PAGE_SIZE = 10;
 
 export default function LibraryFilters({

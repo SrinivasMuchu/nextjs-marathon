@@ -62,12 +62,6 @@ function UploadYourCadDesign({
     tagOptionsRef.current = options;
     tagSearchInputRef.current = tagSearchInput;
     const [categoryOptions, setCategoryOptions] = useState([]);
-    const [tagsHasMore, setTagsHasMore] = useState(false);
-    const [tagsLoadingMore, setTagsLoadingMore] = useState(false);
-    const [tagsSearching, setTagsSearching] = useState(false);
-    const [tagSearchTerm, setTagSearchTerm] = useState('');
-    const tagsOffsetRef = useRef(0);
-    const tagSearchDebounceRef = useRef(null);
     const [price, setPrice] = useState(editedDetails?.price || "");
     const [isKycVerified, setIsKycVerified] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(true);

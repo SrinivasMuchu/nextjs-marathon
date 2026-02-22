@@ -125,7 +125,8 @@
 }
 
 .shareYourDesignsContainer h1,
-.shareYourDesignsContainer h2 {
+.shareYourDesignsContainer h2,
+.shareYourDesignsContainer h3 {
   color: #001325;
   font-size: 36px;
   font-style: normal;
