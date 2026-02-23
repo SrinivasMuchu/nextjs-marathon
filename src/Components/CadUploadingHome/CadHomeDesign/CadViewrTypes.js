@@ -8,7 +8,7 @@ function CadViewrTypes() {
     <section className={styles.section}>
       <div className={styles.wrapper}>
         <p className={styles.label}>VIEW POPULAR CAD FORMATS</p>
-        <h2 className={styles.mainHeading}>View popular CAD formats</h2>
+        <h3 className={styles.mainHeading}>View popular CAD formats</h3>
 
         <div className={styles.grid}>
           {cadViewTypes.map((type, index) => (

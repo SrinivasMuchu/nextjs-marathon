@@ -18,7 +18,7 @@ async function RecentlyAddedDesigns() {
     
     return (
       <div className={styles.recentlyAddedDesignsContainer}>
-        <h1 className={styles.recentlyAddedDesignsHead}>Recently added / Trending</h1>
+        <h2 className={styles.recentlyAddedDesignsHead}>Recently added / Trending</h2>
         <p className={styles.recentlyAddedDesignsDesc}>Everything you need to design faster, smarter, and with more impact.</p>
         <div className={styles.recentlyAddedDesignsGrid}>
           {designs.length > 0 ? (
@@ -46,7 +46,7 @@ async function RecentlyAddedDesigns() {
   } catch (error) {
     return (
       <div className={styles.recentlyAddedDesignsContainer}>
-        <h1 className={styles.recentlyAddedDesignsHead}>Recently added / Trending</h1>
+        <h2 className={styles.recentlyAddedDesignsHead}>Recently added / Trending</h2>
         <p className={styles.recentlyAddedDesignsDesc}>Everything you need to design faster, smarter, and with more impact.</p>
         <div className={styles.recentlyAddedDesignsGrid}>
           <p>Unable to load designs. Please try again later.</p>

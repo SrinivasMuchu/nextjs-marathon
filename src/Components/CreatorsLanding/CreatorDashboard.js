@@ -8,6 +8,7 @@ import CreaterNotification from './CreaterNotification'
 import StartShareDesign from './StartShareDesign'
 import Footer from '../HomePages/Footer/Footer'
 
+// Page heading structure: 1 h1 (CreatorDashboardHeader), 2 h2s (ShareYourDesigns, HowItWorks), rest h3 (LibraryDetails, CreatorFAQ, CreaterNotification, StartShareDesign; item titles are h3).
 function CreatorDashboard() {
   return (
     <div>

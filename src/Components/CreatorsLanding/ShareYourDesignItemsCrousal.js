@@ -19,7 +19,7 @@ function ShareYourDesignItemsCrousal() {
     <div className={styles.shareYourDesignsItem} style={{height:'100px',width:'375px'}}>
        <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
              <div style={{ fontSize: 32, marginBottom: 8 }}>{item.icon}</div>
-      <h2 style={{ margin: '8px 0' }}>{item.title}</h2>
+      <h3 style={{ margin: '8px 0' }}>{item.title}</h3>
             </div>
       
       <p style={{ margin: 0 }}>{item.description}</p>

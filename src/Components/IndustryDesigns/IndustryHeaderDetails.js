@@ -33,10 +33,10 @@ function IndustryHeaderDetails({designData}) {
         <p>{designData.response.page_description}</p>
         <div className={styles.industryDesignHeaderDesignStats} style={{ display: 'flex', gap: '10px', alignItems: 'center',flexWrap:'wrap' }}>
             {designData.response.category_labels && designData.response.category_labels.map((label, index) => (
-                        <DesignDetailsStats key={index} text={label} />
+                        <DesignDetailsStats key={index} text={label} type="category"/>
                       ))}
                       {designData.response.tag_labels && designData.response.tag_labels.map((label, index) => (
-                        <DesignDetailsStats key={index} text={label} />
+                        <DesignDetailsStats key={index} text={label} type="tag"/>
                       ))}
             {/* <DesignDetailsStats designData={designData} /> */}
         </div>

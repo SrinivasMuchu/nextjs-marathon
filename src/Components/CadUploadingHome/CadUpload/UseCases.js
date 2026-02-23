@@ -8,7 +8,7 @@ function UseCases({ useCases, title, label = 'USE CASES' }) {
     <section className={styles.section}>
       <div className={styles.wrapper}>
         {label && <p className={styles.label}>{label}</p>}
-        {title && <h2 className={styles.mainHeading}>{title}</h2>}
+        {title && <h3 className={styles.mainHeading}>{title}</h3>}
 
         <div className={styles.list}>
           {useCases.map((item, index) => {

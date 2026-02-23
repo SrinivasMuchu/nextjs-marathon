@@ -8,7 +8,7 @@ function ShareYourDesignItems() {
       {listOfShare.map((item, index) => (
         <div key={index} className={styles.shareYourDesignsItem}>
           {item.icon}
-          <h2>{item.title}</h2>
+          <h3>{item.title}</h3>
           <p>{item.description}</p>
         </div>
       ))}

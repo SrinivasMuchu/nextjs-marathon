@@ -13,7 +13,7 @@ import ShareYourDesignItems from './ShareYourDesignItems';
 function ShareYourDesigns() {
   return (
     <div className={styles.shareYourDesignsContainer}>
-        <h1 style={{textAlign:'center'}}>Why Share Your Designs on Marathon-OS?</h1>
+        <h2 style={{textAlign:'center'}}>Why Share Your Designs on Marathon-OS?</h2>
         <div className={styles.shareYourDesignsList}>
            <ShareYourDesignItems/>
         </div>

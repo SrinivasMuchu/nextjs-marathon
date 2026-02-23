@@ -14,11 +14,11 @@ function DesignStats({ views, downloads,ratings }) {
         <FiDownload style={{fontSize:'18px'}}/>
         <span style={{fontSize:'16px'}}> {downloads}</span>
       </div>
-      {ratings.average ?
+      {/* {ratings.average ?
       <div style={{ display: 'flex', alignItems: 'center',gap:'8px' }}>
         <FaStar style={{fontSize:'18px'}}/>
         <span style={{fontSize:'16px'}}> {ratings.average} ({ratings.total})</span>
-      </div>:null}
+      </div>:null} */}
     </div>
    
   

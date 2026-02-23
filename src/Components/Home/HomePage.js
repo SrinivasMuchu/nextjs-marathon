@@ -10,9 +10,9 @@ import Security from "../HomePages/Security/Security";
 import Faq from "../HomePages/Faq/Faq";
 import Footer from "../HomePages/Footer/Footer";
 import styles from "./HomePage.module.css";
-const HomePage = () => {
-  
 
+// Page heading structure: 1 h1 (HomeLandingNew), 2 h2s (DesignHub, RecentlyAddedDesigns), rest h3 (WhyUsNew, FreeTools, CreatorsContent, Security, Faq).
+const HomePage = () => {
   return (
     <div className={styles.homeRoot}>
       <div className={styles.mainContent}>

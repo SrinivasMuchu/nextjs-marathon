@@ -20,6 +20,7 @@ import DesignViewer from './DesignViewer';
 import IndustryDesignSupportFileList from './IndustryDesignSupportFileList';
 import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 
+// Page heading structure: 1 h1 (IndustryHeaderDetails), 2 h2s (AboutCad, first IndustryDesignsSuggestion), rest h3 (second IndustryDesignsSuggestion if present).
 function IndustryDesign({ design, designData, type }) {
 
 
@@ -94,8 +95,8 @@ function IndustryDesign({ design, designData, type }) {
 
 
           {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
-            industryName={designData.industryName.industry} />}
-          {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} />}
+            industryName={designData.industryName.industry} headingLevel={2} />}
+          {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} headingLevel={3} />}
           <div style={{ width: '100%', height: '15px', background: '#F4F4F4' }}></div>
 
           <IndustryDesignDropZone />

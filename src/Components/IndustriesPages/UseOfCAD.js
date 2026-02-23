@@ -17,7 +17,7 @@ function UseOfCAD({ industryData = {} }) {
     <div className={styles['use-of-cad']}>
       <div className={styles['use-of-cad-top']}>
         <div className={styles['use-of-cad-top-head']}>
-          <h2>Who uses CAD files?</h2>
+          <h3>Who uses CAD files?</h3>
           <div>
             {rolesWithAccess.length > 0 ? (
               rolesWithAccess.map((role, index) => (
@@ -43,7 +43,7 @@ function UseOfCAD({ industryData = {} }) {
         <div className={styles['use-of-cad-top-line']}></div>
         
         <div className={styles['use-of-cad-top-head']}>
-          <h2>Need CAD access</h2>
+          <h3>Need CAD access</h3>
           <div className={styles['use-of-cad-top-content']}>
             {rolesWithoutAccess.length > 0 ? (
               rolesWithoutAccess.map((role, index) => (

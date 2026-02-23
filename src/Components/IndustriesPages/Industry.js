@@ -13,6 +13,7 @@ import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 import IndustryDesignsCrousel from './IndustryDesignsCrousel'
 
+// Page heading structure: 1 h1 (IndustryDetails/IndustryHeading), 1 h2 (RoleOfCAD), rest h3 (UseOfCAD, SolutionCad, IndustryDesignsCrousel, SampleParts, ChartBuilder, OurFeatures, OrgFaq).
 function Industry({ industry, industryData }) {
    
     const features = [
@@ -110,8 +111,8 @@ function Industry({ industry, industryData }) {
                 <SolutionCad industryData={industryData} />
                 <IndustryDesignsCrousel industry={industry}/>
                 <SampleParts industry={industry} />
-                <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
-                <OurFeatures features={features} essentialDeatails={essentialDeatails} />
+                <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} />
+                <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} />
                 <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS CAD Viewer. Whether you're getting started or looking for advanced features, we've got you covered." />
                 <Footer />
             </>}

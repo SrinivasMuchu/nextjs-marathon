@@ -7,7 +7,7 @@ import axios from 'axios';
 import { BASE_URL } from '@/config';
 import styles from './Library.module.css';
 
-const SearchBar = ({ initialSearchQuery = '' }) => {
+const SearchBar = ({ initialSearchQuery = '', placeholder = 'Search designs...' }) => {
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const router = useRouter();
 
@@ -36,6 +36,7 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
 
   const handleSearch = () => {
     if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
       const existingParams = new URLSearchParams(window.location.search);
 
       if (searchQuery.trim()) {
@@ -47,8 +48,7 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
       existingParams.set('page', '1');
       existingParams.set('limit', '20');
 
-      router.push(`/library?${existingParams.toString()}`);
-      // logSearch(searchQuery);
+      router.push(`${pathname}?${existingParams.toString()}`);
     }
   };
 
@@ -60,7 +60,7 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
           <SearchIcon className={styles["search-icon"]} />
           <input
             type="text"
-            placeholder="Search designs..."
+            placeholder={placeholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -72,10 +72,10 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
             <button
               onClick={() => {
                 setSearchQuery('');
+                const pathname = window.location.pathname;
                 const existingParams = new URLSearchParams(window.location.search);
                 existingParams.delete('search');
-               
-                router.push(`/library?${existingParams.toString()}`);
+                router.push(`${pathname}?${existingParams.toString()}`);
               }}
             >
               <ClearIcon />
@@ -88,7 +88,7 @@ const SearchBar = ({ initialSearchQuery = '' }) => {
           onClick={handleSearch}
           className={styles["search-button"]}
           style={{
-            marginLeft: '8px',
+            // marginLeft: '8px',
             padding: '8px 12px',
             backgroundColor: '#610bee',
             color: '#fff',

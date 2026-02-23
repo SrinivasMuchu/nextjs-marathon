@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import styles from './Industry.module.css';
 import Image from 'next/image';
-import { textLettersLimit } from '@/common.helper';
+import { textLettersLimit, getLibraryPath } from '@/common.helper';
 import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from '@/config';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 import libraryStyles from '../Library/Library.module.css';
@@ -59,7 +59,7 @@ export default function IndustryCarouselClient({ designs, category }) {
         }].map((design, index) => (
           <Link
             key={design._id || index}
-            href={design.isExploreMore ? `/library?category=${category.map(item => item.industry_category_name).join(',')}` : `/library/${design.route}`}
+            href={design.isExploreMore ? getLibraryPath({ categoryName: category[0]?.industry_category_name }) : `/library/${design.route}`}
             className={libraryStyles["library-designs-items-container"]}
 
           >

@@ -60,7 +60,8 @@
     align-items: center;
     justify-content: center;
 }
-.cad-industries-content h2 {
+.cad-industries-content h2,
+.cad-industries-content h3 {
     color: #000;
     font-size: clamp(24px, 5vw, 48px);
     font-style: normal;

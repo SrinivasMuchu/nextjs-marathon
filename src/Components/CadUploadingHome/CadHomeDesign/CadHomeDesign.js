@@ -19,6 +19,8 @@ import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { IMAGEURLS } from '@/config'
 
+// Page heading structure: 1 h1 (CadHeader), 2 h2s (HowItWorks, CoreBenefits), rest h3 (CadViewrTypes, DesignHub, UseCases, TrustPrivacy, ConvertCrossLink, CadIndustry, OrgFaq).
+
 
 
 const features = [
@@ -207,7 +209,7 @@ function CadHomeDesign({type}) {
             <CoreBenefits benefits={benefits} title="Why use Marathon OS CAD Viewer" />
            
             <CadViewrTypes/>
-            <DesignHub />
+            <DesignHub headingLevel={3} />
             <UseCases useCases={useCases} title="Who this CAD viewer is for" />
             <TrustPrivacy items={items} title="Privacy and file handling" />
             <ConvertCrossLink />

@@ -9,8 +9,7 @@ import OrgFaq from './OrgFaq/OrgFaq'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 
-
-
+// Page heading structure: 1 h1 (OrgLandPage), 2 h2s (ChartBuilder, OurFeatures), rest h3 (OrgFaq).
 const features = [
     {
         title: 'Seamless Data Import & Export',

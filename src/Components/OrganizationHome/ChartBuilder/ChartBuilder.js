@@ -3,14 +3,14 @@ import Image from 'next/image'
 import React from 'react'
 import styles from './ChartBuilder.module.css'
 
-function ChartBuilder({whyChoose,featuresArray}) {
-   
+function ChartBuilder({ whyChoose, featuresArray, headingLevel = 2 }) {
+    const HeadingTag = headingLevel === 3 ? 'h3' : 'h2'
     return (
         <div className={styles['chart-builder-page']}>
             <div className={styles['chart-builder-text']}>
-                <h2 className={styles['chart-builder-text-heading']}>
-                  {whyChoose.title}  
-                </h2>
+                <HeadingTag className={styles['chart-builder-text-heading']}>
+                  {whyChoose.title}
+                </HeadingTag>
                 <p className={styles['chart-builder-text-description']}>
                     {whyChoose.description}
                 </p>

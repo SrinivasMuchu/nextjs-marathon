@@ -1,9 +1,11 @@
 'use client';
 import React, { useRef, useState, useEffect, useContext, useCallback } from 'react';
+
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
 import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList, ASSET_PREFIX_URL } from '@/config';
+import { fetchCadTagsPage, TAGS_PAGE_SIZE } from '@/api/cadTagsApi';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
 import CloseIcon from "@mui/icons-material/Close";
@@ -17,8 +19,8 @@ import { FaRupeeSign } from "react-icons/fa";
 import Kyc from '../KYC/Kyc';
 import Link from 'next/link';
 
-const TAGS_PAGE_SIZE = 10;
-const TAGS_SEARCH_DEBOUNCE_MS = 300;
+
+
 
 
 function UploadYourCadDesign({
@@ -52,13 +54,14 @@ function UploadYourCadDesign({
     const [uploading, setUploading] = useState(false);
     const { hasUserEmail, setHasUserEmail, setUploadedFile, uploadedFile,setCadDetailsUpdate,user,setUser } = useContext(contextState);
     const [options, setOptions] = useState([]);
+    const [tagHasMore, setTagHasMore] = useState(false);
+    const [tagLoading, setTagLoading] = useState(false);
+    const [tagSearchInput, setTagSearchInput] = useState('');
+    const tagOptionsRef = useRef([]);
+    const tagSearchInputRef = useRef('');
+    tagOptionsRef.current = options;
+    tagSearchInputRef.current = tagSearchInput;
     const [categoryOptions, setCategoryOptions] = useState([]);
-    const [tagsHasMore, setTagsHasMore] = useState(false);
-    const [tagsLoadingMore, setTagsLoadingMore] = useState(false);
-    const [tagsSearching, setTagsSearching] = useState(false);
-    const [tagSearchTerm, setTagSearchTerm] = useState('');
-    const tagsOffsetRef = useRef(0);
-    const tagSearchDebounceRef = useRef(null);
     const [price, setPrice] = useState(editedDetails?.price || "");
     const [isKycVerified, setIsKycVerified] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(true);
@@ -788,120 +791,75 @@ function UploadYourCadDesign({
 
 
 
-    const mapTagsToOptions = (data) =>
-        (data || []).map((zone) => ({
-            value: zone._id,
-            label: zone.cad_tag_label,
-        }));
+    const mapTagToOption = (t) => ({
+        value: t._id,
+        label: t.cad_tag_label ?? t.cad_tag_name ?? t.label ?? ''
+    });
 
     const getTags = useCallback(async () => {
+        if (tagLoading) return;
+        setTagLoading(true);
         try {
-            const params = new URLSearchParams({ offset: '0', limit: String(TAGS_PAGE_SIZE) });
-            if (editedDetails?.cad_tags?.length && !rejected) {
-                const first = editedDetails.cad_tags[0];
-                if (typeof first === 'string') params.set('search', first);
-            }
-            const response = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`);
-            if (response.data.meta.success) {
-                const data = response.data.data || [];
-                const fetchedOptions = mapTagsToOptions(data);
-                setOptions(fetchedOptions);
-                tagsOffsetRef.current = data.length;
-                setTagsHasMore(data.length >= TAGS_PAGE_SIZE);
+            const search = tagSearchInputRef.current.trim() || null;
+            const { data, hasMore } = await fetchCadTagsPage(0, TAGS_PAGE_SIZE, search);
+            const fetchedOptions = (data || []).map(mapTagToOption).filter(opt => opt.label);
+            setOptions(fetchedOptions);
+            setTagHasMore(!!hasMore);
 
-                if (editedDetails?.cad_tags?.length) {
-                    const mappedSelections = editedDetails.cad_tags
-                        .map((id) => fetchedOptions.find((opt) => (rejected ? opt.value === id : opt.label === id)))
-                        .filter(Boolean);
-                    if (mappedSelections.length > 0) {
-                        setCadFormState((prevState) => ({ ...prevState, selectedOptions: mappedSelections }));
-                    }
+            if (editedDetails?.cad_tags?.length && fetchedOptions.length > 0) {
+                const mappedSelections = editedDetails.cad_tags
+                    .map(id => fetchedOptions.find(opt => rejected ? opt.value === id : opt.label === id))
+                    .filter(Boolean);
+                if (mappedSelections.length > 0) {
+                    setCadFormState(prevState => ({ ...prevState, selectedOptions: mappedSelections }));
                 }
             }
         } catch (error) {
             console.error("Error fetching tags:", error);
+        } finally {
+            setTagLoading(false);
         }
-    }, [editedDetails?.cad_tags, rejected, setCadFormState]);
+    }, [tagLoading, editedDetails?.cad_tags, rejected]);
 
     const loadMoreTags = useCallback(async () => {
-        if (tagsLoadingMore || !tagsHasMore) return;
-        setTagsLoadingMore(true);
+        if (tagLoading || !tagHasMore) return;
+        setTagLoading(true);
         try {
-            const offset = tagsOffsetRef.current;
-            const params = new URLSearchParams({
-                offset: String(offset),
-                limit: String(TAGS_PAGE_SIZE),
-            });
-            if ((tagSearchTerm || '').trim()) params.set('search', (tagSearchTerm || '').trim());
-            const response = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`);
-            if (response.data.meta.success) {
-                const data = response.data.data || [];
-                const nextOptions = mapTagsToOptions(data);
-                tagsOffsetRef.current = offset + data.length;
-                setTagsHasMore(data.length >= TAGS_PAGE_SIZE);
-                if (nextOptions.length > 0) {
-                    setOptions((prev) => {
-                        const seen = new Set(prev.map((o) => o.value));
-                        const added = nextOptions.filter((o) => !seen.has(o.value));
-                        return prev.concat(added);
-                    });
-                }
-            }
+            const offset = tagOptionsRef.current.length;
+            const search = tagSearchInputRef.current.trim() || null;
+            const { data, hasMore } = await fetchCadTagsPage(offset, TAGS_PAGE_SIZE, search);
+            const nextOptions = (data || []).map(mapTagToOption).filter(opt => opt.label);
+            setOptions(prev => [...prev, ...nextOptions]);
+            setTagHasMore(!!hasMore);
         } catch (error) {
-            console.error("Error loading more tags:", error);
+            setTagHasMore(false);
         } finally {
-            setTagsLoadingMore(false);
+            setTagLoading(false);
         }
-    }, [tagsLoadingMore, tagsHasMore, tagSearchTerm]);
+    }, [tagLoading, tagHasMore]);
 
-    const onTagInputChange = useCallback((newValue) => {
-        if (tagSearchDebounceRef.current) clearTimeout(tagSearchDebounceRef.current);
-        tagSearchDebounceRef.current = setTimeout(() => {
-            setTagSearchTerm(newValue || '');
-            tagSearchDebounceRef.current = null;
-        }, TAGS_SEARCH_DEBOUNCE_MS);
-    }, []);
-
+    const tagSearchEffectRan = useRef(false);
     useEffect(() => {
-        const term = (tagSearchTerm || '').trim();
-        const abort = axios.CancelToken.source();
-        if (!term) {
-            setTagsSearching(true);
-            const params = new URLSearchParams({ offset: '0', limit: String(TAGS_PAGE_SIZE) });
-            axios
-                .get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`, { cancelToken: abort.token })
-                .then((response) => {
-                    if (response.data.meta.success) {
-                        const data = response.data.data || [];
-                        setOptions(mapTagsToOptions(data));
-                        tagsOffsetRef.current = data.length;
-                        setTagsHasMore(data.length >= TAGS_PAGE_SIZE);
-                    }
-                })
-                .catch((err) => {
-                    if (!axios.isCancel(err)) console.error("Error fetching tags:", err);
-                })
-                .finally(() => setTagsSearching(false));
-            return () => abort.cancel();
+        if (!tagSearchEffectRan.current) {
+            tagSearchEffectRan.current = true;
+            return;
         }
-        setTagsSearching(true);
-        const params = new URLSearchParams({ offset: '0', limit: String(TAGS_PAGE_SIZE), search: term });
-        axios
-            .get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`, { cancelToken: abort.token })
-            .then((response) => {
-                if (response.data.meta.success) {
-                    const data = response.data.data || [];
-                    setOptions(mapTagsToOptions(data));
-                    tagsOffsetRef.current = data.length;
-                    setTagsHasMore(data.length >= TAGS_PAGE_SIZE);
-                }
-            })
-            .catch((err) => {
-                if (!axios.isCancel(err)) console.error("Tag search failed", err);
-            })
-            .finally(() => setTagsSearching(false));
-        return () => abort.cancel();
-    }, [tagSearchTerm]);
+        const t = setTimeout(() => {
+            setTagLoading(true);
+            fetchCadTagsPage(0, TAGS_PAGE_SIZE, tagSearchInput.trim() || null)
+                .then(({ data, hasMore }) => {
+                    const fetchedOptions = (data || []).map(mapTagToOption).filter(opt => opt.label);
+                    setOptions(fetchedOptions);
+                    setTagHasMore(!!hasMore);
+                })
+                .catch(() => {
+                    setOptions([]);
+                    setTagHasMore(false);
+                })
+                .finally(() => setTagLoading(false));
+        }, 300);
+        return () => clearTimeout(t);
+    }, [tagSearchInput]);
 
     // Fetch all available categories
     const getCategories = async () => {
@@ -1527,13 +1485,12 @@ function UploadYourCadDesign({
                                         options={options}
                                         value={cadFormState.selectedOptions}
                                         onFocus={getTags}
+                                        onInputChange={(value) => setTagSearchInput(value || '')}
                                         onChange={handleZoneSelection}
                                         onCreateOption={handleAddZones}
-                                        onInputChange={onTagInputChange}
                                         onMenuScrollToBottom={loadMoreTags}
-                                        onMenuClose={() => setTagSearchTerm('')}
+                                        isLoading={tagLoading}
                                         filterOption={() => true}
-                                        isLoading={tagsLoadingMore || tagsSearching}
                                         placeholder="Search or create tags"
                                     />
                                 </div>

@@ -3,12 +3,11 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Select from "react-select";
-import { BASE_URL } from "@/config";
+import { getLibraryPathWithQuery } from "@/common.helper";
 
-const TAGS_PAGE_SIZE = 10;
-const TAGS_SEARCH_DEBOUNCE_MS = 300;
-
-const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, initialTagSelectedOption }) => {
+const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, initialTagSelectedOption, showOnly }) => {
+  const showTags = showOnly === undefined || showOnly === 'tags';
+  const showCategory = showOnly === undefined || showOnly === 'category';
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -166,49 +165,45 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
 
   const handleChange = (selected) => {
     setSelectedOption(selected);
-    setSelectedTagOption(null); // Reset tags when category is selected
+    setSelectedTagOption(null);
     const selectedValue = selected?.value;
 
     if (typeof window !== 'undefined') {
-      const existingParams = new URLSearchParams(window.location.search);
-
-      // Remove tags when category is selected
-      existingParams.delete('tags');
-
-      if (selectedValue) {
-        existingParams.set('category', selectedValue);
-      } else {
-        existingParams.delete('category');
-      }
-
-      existingParams.set('page', '1');
-      existingParams.set('limit', '20');
-
-      router.push(`/library?${existingParams.toString()}`);
+      const sp = searchParams;
+      const url = getLibraryPathWithQuery({
+        categoryName: selectedValue || null,
+        tagName: null,
+        search: sp.get('search'),
+        page: 1,
+        limit: sp.get('limit') || '20',
+        sort: sp.get('sort'),
+        recency: sp.get('recency'),
+        free_paid: sp.get('free_paid'),
+        file_format: sp.get('file_format'),
+      });
+      router.push(url);
     }
   };
 
   const handleTagChange = (selected) => {
     setSelectedTagOption(selected);
-    setSelectedOption(null); // Reset category when tags is selected
+    setSelectedOption(null);
     const selectedValue = selected?.value;
 
     if (typeof window !== 'undefined') {
-      const existingParams = new URLSearchParams(window.location.search);
-
-      // Remove category when tags is selected
-      existingParams.delete('category');
-
-      if (selectedValue) {
-        existingParams.set('tags', selectedValue);
-      } else {
-        existingParams.delete('tags');
-      }
-
-      existingParams.set('page', '1');
-      existingParams.set('limit', '20');
-
-      router.push(`/library?${existingParams.toString()}`);
+      const sp = searchParams;
+      const url = getLibraryPathWithQuery({
+        categoryName: null,
+        tagName: selectedValue || null,
+        search: sp.get('search'),
+        page: 1,
+        limit: sp.get('limit') || '20',
+        sort: sp.get('sort'),
+        recency: sp.get('recency'),
+        free_paid: sp.get('free_paid'),
+        file_format: sp.get('file_format'),
+      });
+      router.push(url);
     }
   };
 
@@ -217,49 +212,43 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
     label: category.industry_category_label,
   }));
 
+  const selectStyle = {
+    control: (base) => ({ ...base, width: '100%', minHeight: 40 }),
+    container: (base) => ({ ...base, width: '100%' }),
+  };
+
   return (
     <>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <label htmlFor="category-select-input" style={{ display: "block", marginRight: "8px" }}>
-          Filter by Category:
-        </label>
-        <Select
-          id="category-select"
-          inputId="category-select-input"
-          aria-label="Filter by Category"
-          options={options}
-          value={selectedOption}
-          onChange={handleChange}
-          placeholder="Select a category..."
-          isClearable
-          styles={{
-            control: (base) => ({ ...base, minWidth: 240 }),
-          }}
-        />
-      </div>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <label htmlFor="tag-select-input" style={{ display: "block", marginRight: "8px" }}>
-          Filter by Tags:
-        </label>
-        <Select
-          id="tag-select"
-          inputId="tag-select-input"
-          aria-label="Filter by Tags"
-          options={tagOptions}
-          value={selectedTagOption}
-          onChange={handleTagChange}
-          onInputChange={onTagInputChange}
-          onMenuScrollToBottom={onTagMenuScrollToBottom}
-          onMenuClose={() => setTagSearchTerm('')}
-          filterOption={() => true}
-          placeholder="Select a tag..."
-          isClearable
-          isLoading={tagsLoadingMore || tagsSearching}
-          styles={{
-            control: (base) => ({ ...base, minWidth: 240 }),
-          }}
-        />
-      </div>
+      {showTags && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
+          <Select
+            id="tag-select"
+            inputId="tag-select-input"
+            aria-label="Filter by Tags"
+            options={tagOptions}
+            value={selectedTagOption}
+            onChange={handleTagChange}
+            placeholder="Select a tag..."
+            isClearable
+            styles={selectStyle}
+          />
+        </div>
+      )}
+      {showCategory && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
+          <Select
+            id="category-select"
+            inputId="category-select-input"
+            aria-label="Filter by Category"
+            options={options}
+            value={selectedOption}
+            onChange={handleChange}
+            placeholder="Select a category..."
+            isClearable
+            styles={selectStyle}
+          />
+        </div>
+      )}
     </>
   );
 };

@@ -25,7 +25,8 @@
     justify-content: center;
     align-items: center;
 }
-.industry-designs-header h2{
+.industry-designs-header h2,
+.industry-designs-header h3{
     color: #000;
     font-size: 44px;
     font-style: normal;
@@ -189,7 +190,8 @@
     gap: 32px;
 }
 
-.use-of-cad-top-head h2 {
+.use-of-cad-top-head h2,
+.use-of-cad-top-head h3 {
     color: #000;
     text-align: center;
     font-size: 32px;
@@ -241,7 +243,8 @@
     width: 50%;
 }
 
-.solution-cad-content h2 {
+.solution-cad-content h2,
+.solution-cad-content h3 {
     color: #000;
     font-size: 44px;
     font-style: normal;
@@ -273,7 +276,8 @@
     background: linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #FF7A7A;
 }
 
-.sample-parts h2 {
+.sample-parts h2,
+.sample-parts h3 {
     color: #000;
     text-align: center;
     font-size: 44px;

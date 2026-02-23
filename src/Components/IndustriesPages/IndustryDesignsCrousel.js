@@ -4,7 +4,7 @@ import React from 'react';
 import styles from './Industry.module.css';
 import { BASE_URL } from '@/config';
 import Image from 'next/image';
-import { textLettersLimit } from '@/common.helper';
+import { textLettersLimit, getLibraryPath } from '@/common.helper';
 import IndustryCarouselClient from './IndustryDesignsCrouselButtons';
 import Link from 'next/link';
 export default async function IndustryDesignsCrousel({ industry }) {
@@ -37,14 +37,14 @@ export default async function IndustryDesignsCrousel({ industry }) {
   return (
     <div className={styles["industry-designs"]} style={{ position: 'relative' }}>
       <div className={styles["industry-designs-header"]}>
-        <h2>{industryName} Design Library</h2>
+        <h3>{industryName} Design Library</h3>
         <p style={{ color: 'rgba(135, 134, 134, 0.7)' }}>
           Explore high-quality design inspirations curated for the {industryName}.
           <Link style={{
             color: 'white', opacity: '1', padding: '5px 10px',
             background: '#610bee', borderRadius: '8px', marginLeft: '10px'
           }}
-            href={`/library?category=${category[0]?.industry_category_name}`}>
+            href={category[0]?.industry_category_name ? getLibraryPath({ categoryName: category[0].industry_category_name }) : '/library'}>
             View all →
           </Link>
         </p>

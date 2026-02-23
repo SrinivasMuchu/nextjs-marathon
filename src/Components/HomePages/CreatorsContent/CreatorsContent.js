@@ -35,7 +35,7 @@ function CreatorsContent() {
       <div className={styles.creatorsContentWrapper}>
         <div className={styles.creatorsContentLeft}>
           <Image src={IMAGEURLS.creatorMarathon} alt="creator-marathon" width={500} height={500} />
-          <h1 className={styles.creatorsContentTitle}>Become a creator on Marathon-OS</h1>
+          <h3 className={styles.creatorsContentTitle}>Become a creator on Marathon-OS</h3>
           <p className={styles.creatorsContentDescription}>
             Publish your CAD designs, reach engineering teams, and monetize your work on a platform built for real engineering use.
           </p>
@@ -54,7 +54,7 @@ function CreatorsContent() {
                 />
               </div>
               <div className={styles.creatorsContentStepContent}>
-                <h2 className={styles.creatorsContentStepTitle}>{step.title}</h2>
+                <h3 className={styles.creatorsContentStepTitle}>{step.title}</h3>
                 <p className={styles.creatorsContentStepDescription}>{step.description}</p>
               </div>
             </div>

@@ -23,9 +23,9 @@ function InterlinkingBlocks() {
   return (
     <div className={styles['cad-industries']} style={{ background: 'linear-gradient(0deg, hsla(0, 0%, 100%, .9), hsla(0, 0%, 100%, .9)), #ff7a7a' }}>
       <div className={styles['cad-industries-content']}>
-        <h2 style={{ color: '#000', fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 700, margin: 0, textAlign: 'center' }}>
+        <h3 style={{ color: '#000', fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 700, margin: 0, textAlign: 'center' }}>
           Explore more
-        </h2>
+        </h3>
       </div>
       <div className={styles['cad-industries-items']} style={{ maxWidth: 900, gap: 24 }}>
         {blocks.map((block, index) => (
