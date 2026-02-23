@@ -230,7 +230,7 @@ async function Library({ searchParams }) {
                       <DesignStats
                         views={design.total_design_views ?? 0}
                         downloads={design.total_design_downloads ?? 0}
-                        ratings={{ average: design.average_rating, total: design.rating_count }}
+                        // ratings={{ average: design.average_rating, total: design.rating_count }}
                       />
                     </div>
                   </div>
