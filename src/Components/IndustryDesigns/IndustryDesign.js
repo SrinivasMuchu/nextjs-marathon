@@ -35,7 +35,7 @@ function IndustryDesign({ design, designData, type }) {
         />
       )}
 
-      <div>
+      <div style={{padding:'0 45px'}}>
         {designData && <>
           {/* <HomeTopNav /> */}
           {!type ?
@@ -54,23 +54,25 @@ function IndustryDesign({ design, designData, type }) {
 
               ]}
             />}
+            
             <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
                 <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
                     <LeftRightBanner adSlot="4923244212"/>
                 </div>
             </div>
+            <IndustryHeaderDetails designData={designData}/>
           <div className={styles['industry-design-header-container']} >
           
-          <div className={styles['mobile-only']}>
+          {/* <div className={styles['mobile-only']}>
             <IndustryHeaderDetails designData={designData}/>
-          </div>
+          </div> */}
             <div  className={styles['industry-design-header-container-left']}  >
               <DesignViewer designId={designData.response._id} designData={designData.response}/>
             </div>
             <div  className={styles['industry-design-header-container-right']} >
-              <div className={styles['desktop-only']}>
+              {/* <div className={styles['desktop-only']}>
                 <IndustryHeaderDetails designData={designData}/>
-              </div>
+              </div> */}
               {/* <AdminApprovalButtons design_id={designData.response._id}/> */}
               <IndustryDesignHeader design={design} type={type} designData={designData.response} />
               <CadDesignDownload designId={designData.response._id} designTitle={designData.response.page_title}/>
@@ -86,26 +88,29 @@ function IndustryDesign({ design, designData, type }) {
               {designData.response && <IndustryDesignFilesList designData={designData.response} />}
               {designData.response.supporting_files && <IndustryDesignSupportFileList designData={designData.response} />}
               
-              {designData?.report && (
+              {/* {designData?.report && (
                 <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
-              )}
+              )} */}
             </div>
 
           </div>
 
-
+          {designData?.report && (
+                <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
+              )}
+          
           {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
             industryName={designData.industryName.industry} headingLevel={2} />}
           {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} headingLevel={3} />}
           <div style={{ width: '100%', height: '15px', background: '#F4F4F4' }}></div>
 
           <IndustryDesignDropZone />
-          <Footer />
+         
           {/* <AnchorAdBanner adSlot='4237862906' /> */}
         </>}
 
       </div>
-
+      <Footer />
     </>
 
   )

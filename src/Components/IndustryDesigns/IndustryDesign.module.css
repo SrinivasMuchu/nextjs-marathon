@@ -338,10 +338,11 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
 .industry-design-about-cad {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 16px;
-    /* background: linear-gradient(0deg, hsla(0, 0%, 100%, .96), hsla(0, 0%, 100%, .96)), #610bee; */
+    width: 100%;
+    box-sizing: border-box;
 }
 .edit-input,.edit-textarea{
     width:100%;
@@ -371,18 +372,94 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
     opacity: 0.8;
     /* opacity: 0.5; */
 }
-.industry-design-about-cad-intro p{
-align-self: stretch;
+.industry-design-about-cad-intro {
+    width: 100%;
+    text-align: left;
 }
-.industry-design-about-cad-details {
+.industry-design-about-cad-intro p {
+    align-self: stretch;
+}
+
+/* About CAD – card grid (target design) */
+.industry-design-about-cad-cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 24px;
+    width: 100%;
+    margin-top: 24px;
+}
+
+.industry-design-about-cad-card {
+    flex: 1;
+    min-width: 200px;
+    max-width: 280px;
+    background: #FFF;
+    border-radius: 12px;
+    border: 1px solid #E8EAED;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    box-sizing: border-box;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    /* flex-wrap: wrap; */
+}
+
+.industry-design-about-cad-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #F3F3F3;
+}
+
+.industry-design-about-cad-card-icon {
+    color: #610BEE;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 32px;
-    width: 100%;
-    /* padding:  16px; */
-}.industry-design-about-cad-sub-head::marker { content: ''; }
+}
+
+.industry-design-about-cad-card-title {
+    color: #001325;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    letter-spacing: -0.2px;
+}
+
+.industry-design-about-cad-card-body {
+    padding: 12px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.industry-design-about-cad-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    color: #001325;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.15px;
+}
+
+.industry-design-about-cad-card-row .industry-design-about-cad-key {
+    font-weight: 400;
+    flex-shrink: 0;
+}
+
+.industry-design-about-cad-card-row .industry-design-about-cad-value {
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+}
+
+/* Legacy accordion styles (kept for any other use) */
+.industry-design-about-cad-sub-head::marker { content: ''; }
 .industry-design-about-cad-sub-head::-webkit-details-marker { display: none; }
 .industry-design-about-cad-sub-head {
     padding: 16px 0px;
@@ -406,9 +483,6 @@ align-self: stretch;
     box-sizing: border-box;
     border-radius: 8px;
     background: #FFF;
-    
-    /* box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.12); */
-
 }
 
 .industry-design-about-cad-sub-details {
@@ -423,7 +497,6 @@ align-self: stretch;
     font-style: normal;
     font-weight: 500;
     line-height: 24px;
-    /* opacity: 0.5; */
     letter-spacing: -0.192px;
 }
 
@@ -554,8 +627,13 @@ align-self: stretch;
         width: 100%;
     }
 
-    .industry-design-about-cad-details {
+    .industry-design-about-cad-cards {
         justify-content: center;
+    }
+
+    .industry-design-about-cad-card {
+        max-width: 100%;
+        min-width: 260px;
     }
 
     .thumbnailGrid {
@@ -578,64 +656,178 @@ align-self: stretch;
 
 
 
-/* new design styling */
-.industryDesignHeaderDetails{
-    /* width:40%; */
-    display:flex;
-    flex-direction:column;
-    gap:16px
+/* new design styling – header matches second image */
+.industryDesignHeaderDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    padding: 0px 10px;
 }
 
-.industryDesignHeaderDetails h1{
+.industryDesignHeaderDetailsTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.industryDesignHeaderDetails h1 {
     color: #000;
     font-size: 32px;
     font-style: normal;
     font-weight: 700;
-    /* line-height: 52px; */
-      /* display: -webkit-box;
-  -webkit-line-clamp: 2;  
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis; */
-  /* height:70px; 162.5% */
+    line-height: 1.25;
+    margin: 0;
 }
-.industryDesignHeaderDetails p{
-    color:  #001325;
-font-size: 16px;
-font-style: normal;
-font-weight: 400;
-opacity:0.8;
-line-height: 24px; /* 150% */
-word-wrap: break-word;
+
+.industryDesignHeaderDetailsMetaRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    row-gap: 12px;
 }
-.industryDesignHeaderDetailsOwner{
-    display:flex;
-    align-items:center;
-    gap:12px;
+
+.industryDesignHeaderDetailsAuthorLink {
+    text-decoration: none;
+    color: inherit;
+}
+
+.industryDesignHeaderDetailsAuthor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.industryDesignHeaderDetailsAvatar {
+    flex-shrink: 0;
+}
+
+.industryDesignHeaderDetailsAuthorText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.industryDesignHeaderDetailsAuthorName {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 22px;
+    color: #000;
+}
+
+.industryDesignHeaderDetailsAuthorProjects {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #6c757d;
+}
+
+.industryDesignHeaderDetailsDivider {
+    width: 1px;
+    height: 32px;
+    background: #D1D4D7;
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+.industryDesignHeaderDetailsRating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.industryDesignHeaderDetailsStars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.industryDesignHeaderDetailsStarFilled {
+    color: #FFD700;
+    font-size: 16px;
+}
+
+.industryDesignHeaderDetailsStarOutline {
+    color: #dee2e6;
+    font-size: 16px;
+}
+
+.industryDesignHeaderDetailsRatingValue {
+    font-size: 16px;
+    font-weight: 500;
+    color: #000;
+}
+
+.industryDesignHeaderDetailsRatingReviews {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6c757d;
+}
+
+.industryDesignHeaderDetailsTags {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.industryDesignHeaderDetailsTags > div {
+    background: #e9ecef !important;
+    border: none !important;
+    padding: 8px 14px !important;
+    border-radius: 24px;
+    font-size: 14px;
+    color: #000;
+}
+
+.industryDesignHeaderDetailsDescription {
+    margin: 0;
+}
+
+.industryDesignHeaderDetails p,
+.industryDesignHeaderDetailsDescription {
+    color: #001325;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    opacity: 0.8;
+    line-height: 24px;
+    word-wrap: break-word;
+}
+
+/* Legacy (kept for any other use) */
+.industryDesignHeaderDetailsOwner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     text-align: justify;
-   
 }
-.industryDesignHeaderDetailsOwner span{
+
+.industryDesignHeaderDetailsOwner span {
     font-size: 20px;
     font-style: normal;
     font-weight: 500;
-    line-height: 28px; /* 140% */
+    line-height: 28px;
     letter-spacing: -0.3px;
 }
-.industryDesignHeaderDetailsOwner p{
-    font-size: 16px;
-font-style: normal;
-font-weight: 400;
-line-height: 24px;
-}
-.industryDesignHeaderDetailsOwnerDivider{
-    opacity: 0.5;
-background:  #D1D4D7;
-width:1px;
-height:32px;
-}
-.industryDesignHeaderDesignStats{
 
+.industryDesignHeaderDetailsOwner p {
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.industryDesignHeaderDetailsOwnerDivider {
+    opacity: 0.5;
+    background: #D1D4D7;
+    width: 1px;
+    height: 32px;
+}
+
+.industryDesignHeaderDesignStats {
 }
 .cadDesignDownload{
     display:flex;
