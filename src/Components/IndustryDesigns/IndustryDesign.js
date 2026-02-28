@@ -99,17 +99,18 @@ function IndustryDesign({ design, designData, type }) {
                 <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
               )}
           
-          {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
-            industryName={designData.industryName.industry} headingLevel={2} />}
-          {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} headingLevel={3} />}
-          <div style={{ width: '100%', height: '15px', background: '#F4F4F4' }}></div>
-
-          <IndustryDesignDropZone />
+          
          
           {/* <AnchorAdBanner adSlot='4237862906' /> */}
         </>}
 
       </div>
+      {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
+            industryName={designData.industryName.industry} headingLevel={2} />}
+          {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} headingLevel={3} />}
+          <div style={{ width: '100%', height: '15px', background: '#F4F4F4' }}></div>
+
+          <IndustryDesignDropZone />
       <Footer />
     </>
 
