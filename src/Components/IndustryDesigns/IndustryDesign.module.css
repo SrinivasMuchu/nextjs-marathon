@@ -994,6 +994,9 @@ letter-spacing: -0.192px;
 }
 
 @media screen and (max-width: 850px) {
+   .industry-design-page-root {
+    padding: 0 20px;
+   }
    .industry-design-header-container{
     flex-direction: column;
     padding: 20px;
