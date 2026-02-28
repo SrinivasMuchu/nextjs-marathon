@@ -35,7 +35,7 @@ function IndustryDesign({ design, designData, type }) {
         />
       )}
 
-      <div style={{padding:'0 45px'}}>
+      <div className={styles['industry-design-page-root']}>
         {designData && <>
           {/* <HomeTopNav /> */}
           {!type ?

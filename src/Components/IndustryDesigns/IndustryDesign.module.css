@@ -651,6 +651,9 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
     .industry-design-suggestion-designs-cont,.industry-design-suggestion-bottom {
         height: auto;
     }
+    .industry-design-page-root{
+        padding: 0 16px;
+    }
 }
 
 
@@ -884,6 +887,11 @@ line-height: 20px; /* 142.857% */
 .industry-design-header-container-left{
     width:65%;
 
+}
+.industry-design-page-root{
+    padding: 0 45px;
+    width: 100%;
+    box-sizing: border-box;
 }
 .industryDesignHeaderEdit{
     display: flex;
