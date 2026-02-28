@@ -874,12 +874,9 @@ line-height: 20px; /* 142.857% */
     gap: 32px;
     width: 100%;
     box-sizing: border-box;
-    height:800px;
 }
 .industry-design-header-container-right{
     width: 548px;
-    height:750px;
-    overflow: scroll;
     display: flex;
     flex-direction: column;
     gap:32px;
