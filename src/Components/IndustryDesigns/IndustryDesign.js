@@ -19,6 +19,8 @@ import CadDesignDownload from './CadDesignDownlaod'
 import DesignViewer from './DesignViewer';
 import IndustryDesignSupportFileList from './IndustryDesignSupportFileList';
 import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
+import DesignHub from '../HomePages/DesignHub/DesignHub';
+import RecentlyAddedDesigns from '../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns';
 
 // Page heading structure: 1 h1 (IndustryHeaderDetails), 2 h2s (AboutCad, first IndustryDesignsSuggestion), rest h3 (second IndustryDesignsSuggestion if present).
 function IndustryDesign({ design, designData, type }) {
@@ -99,17 +101,19 @@ function IndustryDesign({ design, designData, type }) {
                 <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
               )}
           
-          {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
+          {/* {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
             industryName={designData.industryName.industry} headingLevel={2} />}
           {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} headingLevel={3} />}
-          <div style={{ width: '100%', height: '15px', background: '#F4F4F4' }}></div>
-
-          <IndustryDesignDropZone />
+          <div style={{ width: '100%', height: '15px', background: '#F4F4F4' }}></div> */}
+         
          
           {/* <AnchorAdBanner adSlot='4237862906' /> */}
         </>}
 
       </div>
+      <DesignHub headingLevel={3} />
+          <RecentlyAddedDesigns />
+          <IndustryDesignDropZone />
       <Footer />
     </>
 
