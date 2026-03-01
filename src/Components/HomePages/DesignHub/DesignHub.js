@@ -28,7 +28,7 @@ async function getCategoriesAndDesigns() {
           const designsRes = await fetch(
             `${BASE_URL}/v1/cad/get-category-design?category=${encodeURIComponent(
               categoryName
-            )}&limit=16&page=1`,
+            )}&limit=16&page=1&random=true`,
             { cache: 'no-store' }
           )
 
