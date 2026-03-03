@@ -61,10 +61,8 @@ function IndustryDesignSupportFileList({ designData }) {
           <thead>
             <tr>
               {/* <th style={{ width: '15%' }}>Preview</th> */}
-              <th style={{ width: '65%' }}>File Name</th>
-              {/* <th style={{ width: '20%' }}>Size</th> */}
-              {/* <th style={{ width: '15%' }}>Type</th> */}
-               <th style={{ width: '30%' }}>Action</th>
+              <th style={{ width: '70%' }}>File Name</th>
+              <th style={{ width: '30%' }}>Action</th>
             </tr>
           </thead>
           <tbody>

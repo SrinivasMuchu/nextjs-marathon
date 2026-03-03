@@ -142,17 +142,22 @@ border: 1px solid  #D1D4D7;
     width: 100%;
     border-collapse: collapse;
     background: #FFF;
+    table-layout: fixed;
+}
+
+.industry-design-files-list thead {
+    background: #FFF;
 }
 
 .industry-design-files-list th {
     padding: 10px 20px;
     border-bottom: 1px solid #E9ECEF;
-    background: #F9F9FA;
-    color: #495057;
-    font-size: 12px;
-    font-weight: 400;
+    background: #FFF;
+    color: #6c757d;
+    font-size: 11px;
+    font-weight: 600;
     line-height: 16px;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
 }
 
@@ -163,11 +168,11 @@ border: 1px solid  #D1D4D7;
 .industry-design-files-list td {
     padding: 10px 20px;
     border-bottom: 1px solid #E9ECEF;
-    color: #001325;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 24px;
-    letter-spacing: -0.2px;
+    color: #212529;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: -0.1px;
 }
 
 .industry-design-files-list td:nth-child(1) { text-align: left; }

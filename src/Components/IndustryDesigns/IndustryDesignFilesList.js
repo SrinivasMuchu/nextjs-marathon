@@ -27,10 +27,9 @@ function IndustryDesignFilesList({ designData }) {
                 <table className={styles['industry-design-files-list']}>
                     <thead>
                         <tr>
-                            <th style={{ width: '40%' }}>View Name</th>
-
-                            <th style={{ width: '20%' }}>Extension</th>
-                            <th style={{ width: '20%' }}>Action</th>
+                            <th style={{ width: '50%' }}>View Name</th>
+                            <th style={{ width: '25%' }}>Extension</th>
+                            <th style={{ width: '25%' }}>Action</th>
                         </tr>
                     </thead>
                     <tbody>
