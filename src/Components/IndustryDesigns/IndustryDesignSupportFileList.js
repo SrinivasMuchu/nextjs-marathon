@@ -52,11 +52,11 @@ function IndustryDesignSupportFileList({ designData }) {
   }
 
   return (
-    <div className={styles['industry-design-files']}>
+    <>
+      <div className={styles['industry-design-files-supporting-head']}>
+        Supporting Files ({supportingFiles.length})
+      </div>
       <div className={styles['industry-design-files-bottom']}>
-        <span className={styles['industry-design-files-count']}>
-          Supporting Files {supportingFiles.length}
-        </span>
         <table className={styles['industry-design-files-list']}>
           <thead>
             <tr>
@@ -130,7 +130,7 @@ function IndustryDesignSupportFileList({ designData }) {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -86,67 +86,121 @@ border: 1px solid  #D1D4D7;
     box-sizing: border-box;
 }
 
+.industry-design-files-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #FFF;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #E8EAED;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
 .industry-design-files-head {
     display: flex;
     align-items: center;
-    color:  #487BFD;
-    gap: 12px;
-font-size: 16px;
-font-style: normal;
-align-self: stretch;
-font-weight: 400;
-line-height: 24px; /* 150% */
-    padding: 16px;
-    border-radius: 8px;
-background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF;
+    gap: 16px;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px;
+    padding: 20px 24px 24px;
+    background: #f3f2ff;
+    border-bottom: 1px solid #E8EAED;
+    border-radius: 12px 12px 0 0;
+    margin: 0;
+    color: #343a40;
+}
+
+.industry-design-files-head svg {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    color: #610BEE;
+    background: #FFF;
+    border: 1px solid #E2D5FC;
+    border-radius: 50%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.industry-design-files-head p {
+    margin: 0;
+    color: #343a40;
+    flex: 1;
 }
 
 .industry-design-files-bottom {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 0;
 }
 
 .industry-design-files-list {
     text-align: left;
     width: 100%;
     border-collapse: collapse;
+    background: #FFF;
 }
 
 .industry-design-files-list th {
-    padding: 8px;
-    border-bottom: 1px solid #F3F3F3;
-    background: #F4F4F4;
-    color: #001325;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 28px;
-    letter-spacing: -0.288px;
+    padding: 10px 20px;
+    border-bottom: 1px solid #E9ECEF;
+    background: #F9F9FA;
+    color: #495057;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
 }
 
+.industry-design-files-list th:nth-child(1) { text-align: left; }
+.industry-design-files-list th:nth-child(2) { text-align: center; }
+.industry-design-files-list th:nth-child(3) { text-align: right; }
+
 .industry-design-files-list td {
-    padding: 8px;
-    border-bottom: 1px solid #F3F3F3;
+    padding: 10px 20px;
+    border-bottom: 1px solid #E9ECEF;
     color: #001325;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 28px;
-    letter-spacing: -0.3px;
-    /* opacity: 0.8; */
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: -0.2px;
+}
+
+.industry-design-files-list td:nth-child(1) { text-align: left; }
+.industry-design-files-list td:nth-child(2) { text-align: center; }
+.industry-design-files-list td:nth-child(3) { text-align: right; }
+
+.industry-design-files-list tbody tr:last-child td {
+    border-bottom: none;
 }
 
 .industry-design-files-btn {
     border-radius: 8px;
-    border: 1px solid #610BEE;
-    color: #610BEE;
-    font-size: 16px;
+    border: 1px solid #dee2e6;
+    color: #343a40;
+    font-size: 14px;
     font-weight: 500;
-    line-height: 28px;
-    letter-spacing: -0.3px;
-    width: 134px;
-    height: 44px;
-    background-color: transparent;
+    line-height: 22px;
+    padding: 10px 18px;
+    min-width: 100px;
+    background: #FFF;
     cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.industry-design-files-btn:hover:not(:disabled) {
+    background: #610BEE;
+    color: #FFF;
+    border-color: #610BEE;
+}
+
+.industry-design-files-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .industry-design-files-count {
@@ -157,11 +211,37 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
     letter-spacing: -0.288px;
 }
 
+.industry-design-files-supporting-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: #f3f2ff;
+    border-bottom: 1px solid #E8EAED;
+    border-radius: 12px 12px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #343a40;
+}
+
 /* -------------------- */
 /* ✅ Mobile Responsive */
 /* -------------------- */
 
 @media (max-width: 1070px) {
+    .industry-design-files-head {
+        padding: 16px 20px;
+        gap: 12px;
+    }
+    .industry-design-files-head svg {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+    }
+    .industry-design-files-list th,
+    .industry-design-files-list td {
+        padding: 10px 16px;
+    }
     .industry-design-files-list,
     .industry-design-files-list thead,
     .industry-design-files-list tbody,
@@ -340,7 +420,7 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    padding: 16px;
+    padding: 0;
     width: 100%;
     box-sizing: border-box;
 }
@@ -355,22 +435,22 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
 .industry-design-about-cad h2 {
     color: #000;
     text-align: left;
-    font-size: clamp(14px, 2.5vw, 20px);
+    font-size: clamp(20px, 3vw, 28px);
     font-style: normal;
     font-weight: 700;
-    line-height: 52px;
+    line-height: 1.3;
+    margin: 0 0 12px 0;
 }
 
 .industry-design-about-cad p {
-    color: #001325;
-    text-align: justify;
-    font-size: clamp(14px, 2.5vw, 20px);
+    color: #4a4a4a;
+    text-align: left;
+    font-size: clamp(15px, 2vw, 17px);
     font-style: normal;
     font-weight: 400;
-    line-height: 24px;
-    letter-spacing: -0.3px;
-    opacity: 0.8;
-    /* opacity: 0.5; */
+    line-height: 1.6;
+    margin: 0;
+    letter-spacing: -0.2px;
 }
 .industry-design-about-cad-intro {
     width: 100%;
@@ -378,6 +458,10 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
 }
 .industry-design-about-cad-intro p {
     align-self: stretch;
+}
+.industry-design-about-cad-intro p strong {
+    color: #333;
+    font-weight: 700;
 }
 
 /* About CAD – card grid (target design) */
@@ -388,7 +472,7 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
     justify-content: flex-start;
     gap: 24px;
     width: 100%;
-    margin-top: 24px;
+    margin-top: 28px;
 }
 
 .industry-design-about-cad-card {
@@ -609,8 +693,8 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
     .industry-design-files-list td{
         font-size: 16px;
     }
-    .industry-design-files-list th{
-        font-size: 18px;
+    .industry-design-files-list th {
+        font-size: 12px;
     }
 }
 
@@ -996,6 +1080,14 @@ letter-spacing: -0.192px;
 @media screen and (max-width: 850px) {
    .industry-design-page-root {
     padding: 0 16px;
+   }
+   .industry-design-files-head {
+    padding: 14px 18px;
+    font-size: 15px;
+   }
+   .industry-design-files-head svg {
+    width: 36px;
+    height: 36px;
    }
    .industry-design-header-container{
     flex-direction: column;

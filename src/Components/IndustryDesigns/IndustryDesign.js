@@ -81,16 +81,19 @@ function IndustryDesign({ design, designData, type }) {
               <IndustryDesignHeader design={design} type={type} designData={designData.response} />
               <CadDesignDownload designId={designData.response._id} designTitle={designData.response.page_title}/>
 
-              {/* <div className={styles['industry-design-files']}> */}
-
-              <div className={styles['industry-design-files-head']}>
-                <IoMdInformationCircleOutline style={{width:'65px',height:'65px'}}/>
-                <p> The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.</p>
-
-                {/* </div> */}
+              <div className={styles['industry-design-files-container']}>
+                <div className={styles['industry-design-files-head']}>
+                  <IoMdInformationCircleOutline />
+                  <p>The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.</p>
+                </div>
+              
               </div>
               {designData.response && <IndustryDesignFilesList designData={designData.response} />}
-              {designData.response.supporting_files && <IndustryDesignSupportFileList designData={designData.response} />}
+              {designData.response.supporting_files && (
+                <div className={styles['industry-design-files-container']}>
+                  <IndustryDesignSupportFileList designData={designData.response} />
+                </div>
+              )}
               
               {/* {designData?.report && (
                 <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />

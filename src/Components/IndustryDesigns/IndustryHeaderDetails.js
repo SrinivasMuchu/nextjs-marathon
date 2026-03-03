@@ -87,7 +87,7 @@ function IndustryHeaderDetails({ designData }) {
         )}
       </div>
 
-      {res.page_description && <p className={styles.industryDesignHeaderDetailsDescription}>{res.page_description}</p>}
+      {/* {res.page_description && <p className={styles.industryDesignHeaderDetailsDescription}>{res.page_description}</p>} */}
 
       {res.organization_id && (
         <IndustryDetailsEditButton
