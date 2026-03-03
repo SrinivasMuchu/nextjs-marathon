@@ -70,6 +70,8 @@ function IndustryDesign({ design, designData, type }) {
           </div> */}
             <div  className={styles['industry-design-header-container-left']}  >
               <DesignViewer designId={designData.response._id} designData={designData.response}/>
+              <h3 style={{fontSize:'20px',fontWeight:'600',lineHeight:'28px',color:'#001325',marginTop:'24px'}}>About this design</h3>
+              <p>{designData.response.page_description}</p>
             </div>
             <div  className={styles['industry-design-header-container-right']} >
               {/* <div className={styles['desktop-only']}>
