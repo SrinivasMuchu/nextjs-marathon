@@ -52,19 +52,17 @@ function IndustryDesignSupportFileList({ designData }) {
   }
 
   return (
-    <div className={styles['industry-design-files']}>
+    <>
+      <div className={styles['industry-design-files-supporting-head']}>
+        Supporting Files ({supportingFiles.length})
+      </div>
       <div className={styles['industry-design-files-bottom']}>
-        <span className={styles['industry-design-files-count']}>
-          Supporting Files {supportingFiles.length}
-        </span>
         <table className={styles['industry-design-files-list']}>
           <thead>
             <tr>
               {/* <th style={{ width: '15%' }}>Preview</th> */}
-              <th style={{ width: '65%' }}>File Name</th>
-              {/* <th style={{ width: '20%' }}>Size</th> */}
-              {/* <th style={{ width: '15%' }}>Type</th> */}
-               <th style={{ width: '30%' }}>Action</th>
+              <th style={{ width: '70%' }}>File Name</th>
+              <th style={{ width: '30%' }}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -130,7 +128,7 @@ function IndustryDesignSupportFileList({ designData }) {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }
 

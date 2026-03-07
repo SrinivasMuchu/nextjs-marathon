@@ -86,67 +86,126 @@ border: 1px solid  #D1D4D7;
     box-sizing: border-box;
 }
 
+.industry-design-files-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #FFF;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #E8EAED;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
 .industry-design-files-head {
     display: flex;
     align-items: center;
-    color:  #487BFD;
-    gap: 12px;
-font-size: 16px;
-font-style: normal;
-align-self: stretch;
-font-weight: 400;
-line-height: 24px; /* 150% */
-    padding: 16px;
-    border-radius: 8px;
-background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF;
+    gap: 16px;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px;
+    padding: 20px 24px 24px;
+    background: #f3f2ff;
+    border-bottom: 1px solid #E8EAED;
+    border-radius: 12px 12px 0 0;
+    margin: 0;
+    color: #343a40;
+}
+
+.industry-design-files-head svg {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    color: #610BEE;
+    background: #FFF;
+    border: 1px solid #E2D5FC;
+    border-radius: 50%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.industry-design-files-head p {
+    margin: 0;
+    color: #343a40;
+    flex: 1;
 }
 
 .industry-design-files-bottom {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 0;
 }
 
 .industry-design-files-list {
     text-align: left;
     width: 100%;
     border-collapse: collapse;
+    background: #FFF;
+    table-layout: fixed;
+}
+
+.industry-design-files-list thead {
+    background: #FFF;
 }
 
 .industry-design-files-list th {
-    padding: 8px;
-    border-bottom: 1px solid #F3F3F3;
-    background: #F4F4F4;
-    color: #001325;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 28px;
-    letter-spacing: -0.288px;
+    padding: 10px 20px;
+    border-bottom: 1px solid #E9ECEF;
+    background: #FFF;
+    color: #6c757d;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
 }
 
+.industry-design-files-list th:nth-child(1) { text-align: left; }
+.industry-design-files-list th:nth-child(2) { text-align: center; }
+.industry-design-files-list th:nth-child(3) { text-align: right; }
+
 .industry-design-files-list td {
-    padding: 8px;
-    border-bottom: 1px solid #F3F3F3;
-    color: #001325;
-    font-size: 16px;
+    padding: 10px 20px;
+    border-bottom: 1px solid #E9ECEF;
+    color: #212529;
+    font-size: 15px;
     font-weight: 400;
-    line-height: 28px;
-    letter-spacing: -0.3px;
-    /* opacity: 0.8; */
+    line-height: 22px;
+    letter-spacing: -0.1px;
+}
+
+.industry-design-files-list td:nth-child(1) { text-align: left; }
+.industry-design-files-list td:nth-child(2) { text-align: center; }
+.industry-design-files-list td:nth-child(3) { text-align: right; }
+
+.industry-design-files-list tbody tr:last-child td {
+    border-bottom: none;
 }
 
 .industry-design-files-btn {
     border-radius: 8px;
-    border: 1px solid #610BEE;
-    color: #610BEE;
-    font-size: 16px;
+    border: 1px solid #dee2e6;
+    color: #343a40;
+    font-size: 14px;
     font-weight: 500;
-    line-height: 28px;
-    letter-spacing: -0.3px;
-    width: 134px;
-    height: 44px;
-    background-color: transparent;
+    line-height: 22px;
+    padding: 10px 18px;
+    min-width: 100px;
+    background: #FFF;
     cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.industry-design-files-btn:hover:not(:disabled) {
+    background: #610BEE;
+    color: #FFF;
+    border-color: #610BEE;
+}
+
+.industry-design-files-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .industry-design-files-count {
@@ -157,11 +216,37 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
     letter-spacing: -0.288px;
 }
 
+.industry-design-files-supporting-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: #f3f2ff;
+    border-bottom: 1px solid #E8EAED;
+    border-radius: 12px 12px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #343a40;
+}
+
 /* -------------------- */
 /* ✅ Mobile Responsive */
 /* -------------------- */
 
 @media (max-width: 1070px) {
+    .industry-design-files-head {
+        padding: 16px 20px;
+        gap: 12px;
+    }
+    .industry-design-files-head svg {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+    }
+    .industry-design-files-list th,
+    .industry-design-files-list td {
+        padding: 10px 16px;
+    }
     .industry-design-files-list,
     .industry-design-files-list thead,
     .industry-design-files-list tbody,
@@ -338,10 +423,11 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
 .industry-design-about-cad {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 16px;
-    /* background: linear-gradient(0deg, hsla(0, 0%, 100%, .96), hsla(0, 0%, 100%, .96)), #610bee; */
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 .edit-input,.edit-textarea{
     width:100%;
@@ -354,35 +440,115 @@ background:  linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 
 .industry-design-about-cad h2 {
     color: #000;
     text-align: left;
-    font-size: clamp(14px, 2.5vw, 20px);
+    font-size: clamp(20px, 3vw, 28px);
     font-style: normal;
     font-weight: 700;
-    line-height: 52px;
+    line-height: 1.3;
+    margin: 0 0 12px 0;
 }
 
 .industry-design-about-cad p {
-    color: #001325;
-    text-align: justify;
-    font-size: clamp(14px, 2.5vw, 20px);
+    color: #4a4a4a;
+    text-align: left;
+    font-size: clamp(15px, 2vw, 17px);
     font-style: normal;
     font-weight: 400;
-    line-height: 24px;
-    letter-spacing: -0.3px;
-    opacity: 0.8;
-    /* opacity: 0.5; */
+    line-height: 1.6;
+    margin: 0;
+    letter-spacing: -0.2px;
 }
-.industry-design-about-cad-intro p{
-align-self: stretch;
+.industry-design-about-cad-intro {
+    width: 100%;
+    text-align: left;
 }
-.industry-design-about-cad-details {
+.industry-design-about-cad-intro p {
+    align-self: stretch;
+}
+.industry-design-about-cad-intro p strong {
+    color: #333;
+    font-weight: 700;
+}
+
+/* About CAD – card grid (target design) */
+.industry-design-about-cad-cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 24px;
+    width: 100%;
+    margin-top: 28px;
+}
+
+.industry-design-about-cad-card {
+    flex: 1;
+    min-width: 200px;
+    max-width: 280px;
+    background: #FFF;
+    border-radius: 12px;
+    border: 1px solid #E8EAED;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    box-sizing: border-box;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    /* flex-wrap: wrap; */
+}
+
+.industry-design-about-cad-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #F3F3F3;
+}
+
+.industry-design-about-cad-card-icon {
+    color: #610BEE;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 32px;
-    width: 100%;
-    /* padding:  16px; */
-}.industry-design-about-cad-sub-head::marker { content: ''; }
+}
+
+.industry-design-about-cad-card-title {
+    color: #001325;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    letter-spacing: -0.2px;
+}
+
+.industry-design-about-cad-card-body {
+    padding: 12px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.industry-design-about-cad-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    color: #001325;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.15px;
+}
+
+.industry-design-about-cad-card-row .industry-design-about-cad-key {
+    font-weight: 400;
+    flex-shrink: 0;
+}
+
+.industry-design-about-cad-card-row .industry-design-about-cad-value {
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+}
+
+/* Legacy accordion styles (kept for any other use) */
+.industry-design-about-cad-sub-head::marker { content: ''; }
 .industry-design-about-cad-sub-head::-webkit-details-marker { display: none; }
 .industry-design-about-cad-sub-head {
     padding: 16px 0px;
@@ -406,9 +572,6 @@ align-self: stretch;
     box-sizing: border-box;
     border-radius: 8px;
     background: #FFF;
-    
-    /* box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.12); */
-
 }
 
 .industry-design-about-cad-sub-details {
@@ -423,7 +586,6 @@ align-self: stretch;
     font-style: normal;
     font-weight: 500;
     line-height: 24px;
-    /* opacity: 0.5; */
     letter-spacing: -0.192px;
 }
 
@@ -536,8 +698,8 @@ align-self: stretch;
     .industry-design-files-list td{
         font-size: 16px;
     }
-    .industry-design-files-list th{
-        font-size: 18px;
+    .industry-design-files-list th {
+        font-size: 12px;
     }
 }
 
@@ -554,8 +716,13 @@ align-self: stretch;
         width: 100%;
     }
 
-    .industry-design-about-cad-details {
+    .industry-design-about-cad-cards {
         justify-content: center;
+    }
+
+    .industry-design-about-cad-card {
+        max-width: 100%;
+        min-width: 260px;
     }
 
     .thumbnailGrid {
@@ -573,69 +740,186 @@ align-self: stretch;
     .industry-design-suggestion-designs-cont,.industry-design-suggestion-bottom {
         height: auto;
     }
+    .industry-design-page-root{
+        padding: 0 16px;
+    }
 }
 
 
 
 
-/* new design styling */
-.industryDesignHeaderDetails{
-    /* width:40%; */
-    display:flex;
-    flex-direction:column;
-    gap:16px
+/* new design styling – header matches second image */
+.industryDesignHeaderDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    padding: 0px 10px;
 }
 
-.industryDesignHeaderDetails h1{
+.industryDesignHeaderDetailsTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.industryDesignHeaderDetails h1 {
     color: #000;
     font-size: 32px;
     font-style: normal;
     font-weight: 700;
-    /* line-height: 52px; */
-      /* display: -webkit-box;
-  -webkit-line-clamp: 2;  
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis; */
-  /* height:70px; 162.5% */
+    line-height: 1.25;
+    margin: 0;
 }
-.industryDesignHeaderDetails p{
-    color:  #001325;
-font-size: 16px;
-font-style: normal;
-font-weight: 400;
-opacity:0.8;
-line-height: 24px; /* 150% */
-word-wrap: break-word;
+
+.industryDesignHeaderDetailsMetaRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    row-gap: 12px;
 }
-.industryDesignHeaderDetailsOwner{
-    display:flex;
-    align-items:center;
-    gap:12px;
+
+.industryDesignHeaderDetailsAuthorLink {
+    text-decoration: none;
+    color: inherit;
+}
+
+.industryDesignHeaderDetailsAuthor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.industryDesignHeaderDetailsAvatar {
+    flex-shrink: 0;
+}
+
+.industryDesignHeaderDetailsAuthorText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.industryDesignHeaderDetailsAuthorName {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 22px;
+    color: #000;
+}
+
+.industryDesignHeaderDetailsAuthorProjects {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #6c757d;
+}
+
+.industryDesignHeaderDetailsDivider {
+    width: 1px;
+    height: 32px;
+    background: #D1D4D7;
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+.industryDesignHeaderDetailsRating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.industryDesignHeaderDetailsStars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.industryDesignHeaderDetailsStarFilled {
+    color: #FFD700;
+    font-size: 16px;
+}
+
+.industryDesignHeaderDetailsStarOutline {
+    color: #dee2e6;
+    font-size: 16px;
+}
+
+.industryDesignHeaderDetailsRatingValue {
+    font-size: 16px;
+    font-weight: 500;
+    color: #000;
+}
+
+.industryDesignHeaderDetailsRatingReviews {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6c757d;
+}
+
+.industryDesignHeaderDetailsTags {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.industryDesignHeaderDetailsTags > div {
+    background: #e9ecef !important;
+    border: none !important;
+    padding: 8px 14px !important;
+    border-radius: 24px;
+    font-size: 14px;
+    color: #000;
+}
+
+.industryDesignHeaderDetailsDescription {
+    margin: 0;
+}
+
+.industryDesignHeaderDetails p,
+.industryDesignHeaderDetailsDescription {
+    color: #001325;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    opacity: 0.8;
+    line-height: 24px;
+    word-wrap: break-word;
+}
+
+/* Legacy (kept for any other use) */
+.industryDesignHeaderDetailsOwner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     text-align: justify;
-   
 }
-.industryDesignHeaderDetailsOwner span{
+
+.industryDesignHeaderDetailsOwner span {
     font-size: 20px;
     font-style: normal;
     font-weight: 500;
-    line-height: 28px; /* 140% */
+    line-height: 28px;
     letter-spacing: -0.3px;
 }
-.industryDesignHeaderDetailsOwner p{
-    font-size: 16px;
-font-style: normal;
-font-weight: 400;
-line-height: 24px;
-}
-.industryDesignHeaderDetailsOwnerDivider{
-    opacity: 0.5;
-background:  #D1D4D7;
-width:1px;
-height:32px;
-}
-.industryDesignHeaderDesignStats{
 
+.industryDesignHeaderDetailsOwner p {
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.industryDesignHeaderDetailsOwnerDivider {
+    opacity: 0.5;
+    background: #D1D4D7;
+    width: 1px;
+    height: 32px;
+}
+
+.industryDesignHeaderDesignStats {
 }
 .cadDesignDownload{
     display:flex;
@@ -682,12 +966,9 @@ line-height: 20px; /* 142.857% */
     gap: 32px;
     width: 100%;
     box-sizing: border-box;
-    height:800px;
 }
 .industry-design-header-container-right{
     width: 548px;
-    height:750px;
-    overflow: scroll;
     display: flex;
     flex-direction: column;
     gap:32px;
@@ -695,6 +976,11 @@ line-height: 20px; /* 142.857% */
 .industry-design-header-container-left{
     width:65%;
 
+}
+.industry-design-page-root{
+    padding: 0 45px;
+    width: 100%;
+    box-sizing: border-box;
 }
 .industryDesignHeaderEdit{
     display: flex;
@@ -797,6 +1083,17 @@ letter-spacing: -0.192px;
 }
 
 @media screen and (max-width: 850px) {
+   .industry-design-page-root {
+    padding: 0 16px;
+   }
+   .industry-design-files-head {
+    padding: 14px 18px;
+    font-size: 15px;
+   }
+   .industry-design-files-head svg {
+    width: 36px;
+    height: 36px;
+   }
    .industry-design-header-container{
     flex-direction: column;
     padding: 20px;
