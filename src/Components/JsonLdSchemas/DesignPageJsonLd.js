@@ -58,7 +58,11 @@ function ProductStructuredData({
   const volume = totalVolume != null ? `${totalVolume.toFixed(2)} mm³` : "Variable";
 
   // Get file information
-  const fileType = safeGet(cadReport, ['file_info', 'file_type']) || designData.file_type || 'step';
+  const rawFileType =
+    safeGet(cadReport, ['file_info', 'file_type']) ||
+    designData.file_type ||
+    'step';
+  const normalizedFileType = rawFileType.toString().toLowerCase().replace(/^\./, '');
   const units = safeGet(cadReport, ['file_info', 'units']) || 'mm';
   const fileName = safeGet(cadReport, ['file_info', 'file_name']) || designData.page_title;
 
@@ -116,7 +120,7 @@ function ProductStructuredData({
   additionalProperties.push({
     "@type": "PropertyValue",
     "name": "File Type",
-    "value": fileType.toUpperCase()
+    "value": normalizedFileType.toUpperCase()
   });
 
   if (units) {
@@ -132,6 +136,7 @@ function ProductStructuredData({
     "@graph": [
       {
         "@type": "Product",
+        "additionalType": "https://schema.org/3DModel",
         "@id": "#product",
         "name": productName,
         "description": description,
@@ -145,28 +150,36 @@ function ProductStructuredData({
         "subjectOf": { "@id": "#cadModel" },
         "offers": {
           "@type": "Offer",
-          "price": "0.00",
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock",
+          "price": designData?.is_downloadable === false
+            ? undefined
+            : (Number(designData?.price) > 0
+              ? Number(designData.price).toFixed(2)
+              : "0.00"),
+          "priceCurrency": designData?.currency || "USD",
+          "availability": designData?.is_downloadable === false
+            ? "https://schema.org/PreOrder"
+            : "https://schema.org/InStock",
           "url": downloadUrl
         }
       },
       {
         "@type": "3DModel",
         "@id": "#cadModel",
-        "name": `${productName} – ${fileType.toUpperCase()} file`,
+        "name": `${productName} – ${normalizedFileType.toUpperCase()} file`,
+        "thumbnailUrl": imageUrls[0],
         "encoding": {
           "@type": "MediaObject",
           "contentUrl": stepFileUrl,
-          "encodingFormat": `model/${fileType.toLowerCase()}`
+          "encodingFormat": `model/${normalizedFileType}`
         },
+        "additionalProperty": additionalProperties,
         "license": "https://creativecommons.org/licenses/by/4.0/",
         "creator": { "@id": "#product" }
       },
       {
         "@type": "WebPage",
         "@id": pageUrl,
-        "name": `${productName} – free ${fileType.toUpperCase()} download`,
+        "name": `${productName} – free ${normalizedFileType.toUpperCase()} download`,
         "image": imageUrls[0],
         "about": { "@id": "#product" }
       }
