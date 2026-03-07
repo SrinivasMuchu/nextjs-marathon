@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
 import { MdOutlineChatBubbleOutline } from "react-icons/md";
-import { HiOutlineThumbUp, HiOutlineEye } from "react-icons/hi";
 import { MdOutlineReply } from "react-icons/md";
 import NameProfile from "../CommonJsx/NameProfile";
 import { contextState } from "../CommonJsx/ContextProvider";
@@ -52,12 +51,6 @@ function CommentItem({ comment, onReply, replyingToId, replyText, onReplyTextCha
         <p className={styles.commentText}>{comment.comment}</p>
         {isLoggedIn && (
           <div className={styles.commentActions}>
-            <span className={styles.engagementItem}>
-              <HiOutlineThumbUp /> {comment.likes ?? 0}
-            </span>
-            <span className={styles.engagementItem}>
-              <HiOutlineEye /> {comment.views ?? 0}
-            </span>
             <button
               type="button"
               className={styles.replyButton}
@@ -90,16 +83,6 @@ function CommentItem({ comment, onReply, replyingToId, replyText, onReplyTextCha
                 </span>
               </div>
               <p className={styles.commentText}>{comment.reply.comment}</p>
-              {isLoggedIn && (
-                <div className={styles.commentActions}>
-                  <span className={styles.engagementItem}>
-                    <HiOutlineThumbUp /> {comment.reply?.likes ?? 0}
-                  </span>
-                  <span className={styles.engagementItem}>
-                    <HiOutlineEye /> {comment.reply?.views ?? 0}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         )}
