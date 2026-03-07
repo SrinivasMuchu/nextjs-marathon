@@ -128,6 +128,9 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  max-height: min(400px, 60vh);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .commentItem {

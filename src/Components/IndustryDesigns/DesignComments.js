@@ -149,13 +149,8 @@ export default function DesignComments({ designId }) {
   const [replyingToId, setReplyingToId] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [replyPosting, setReplyPosting] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
-    const isVerified = typeof window !== "undefined" ? localStorage.getItem("is_verified") : null;
-    setIsLoggedIn(!!(uuid && isVerified));
-  }, []);
+  const isLoggedIn = !!(user?.name && String(user.name).trim());
 
   useEffect(() => {
     const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
