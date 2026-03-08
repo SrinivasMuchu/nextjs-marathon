@@ -324,7 +324,7 @@ export default function DesignComments({ designId }) {
         </div>
       </div>
 
-      {showLogin && <UserLoginPupUp onClose={() => setShowLogin(false)} type="login" />}
+      {showLogin && <UserLoginPupUp onClose={() => setShowLogin(false)} type="comments" />}
 
       {loading ? (
         <div className={styles.loading}>Loading comments...</div>

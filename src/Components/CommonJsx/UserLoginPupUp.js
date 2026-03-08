@@ -144,7 +144,10 @@ function UserLoginPupUp({ onClose, type }) {
                 // Register for push notifications after login
                 await handleRegisterNotifications(googleEmail);
 
-                if (type === "profile") {
+                if (type === "comments") {
+                    setUpdatedDetails(user)
+                    onClose()
+                } else if (type === "profile") {
                     setUpdatedDetails(user)
                     onClose()
                     route.push('/dashboard')
@@ -241,8 +244,12 @@ function UserLoginPupUp({ onClose, type }) {
             // Register for push notifications after login
             await handleRegisterNotifications(email);
 
-            if (type === "profile") {
+            if (type === "comments") {
                 setUpdatedDetails(user)
+                onClose()
+            } else if (type === "profile") {
+                setUpdatedDetails(user)
+                onClose()
                 route.push('/dashboard')
             } else if (type === 'creator' || type === 'dashboard') {
               window.location.reload()
