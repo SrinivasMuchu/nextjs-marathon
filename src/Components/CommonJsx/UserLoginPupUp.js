@@ -481,7 +481,11 @@ function UserLoginPupUp({ onClose, type }) {
                         )}
 
                         {errorMessage && (
-                            <div className={errorMessage.includes('Welcome') || errorMessage.includes('Successfully') ? styles.successMessage : styles.errorMessage}>
+                            <div className={
+                                errorMessage.includes('Welcome') || errorMessage.includes('Successfully') ? styles.successMessage
+                                : (needsFullname && errorMessage.includes('full name')) ? styles.infoMessage
+                                : styles.errorMessage
+                            }>
                                 {errorMessage}
                             </div>
                         )}
