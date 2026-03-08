@@ -144,7 +144,7 @@ border: 1px solid  #D1D4D7;
     min-width: 280px;
     border-collapse: collapse;
     background: #FFF;
-    table-layout: auto;
+    table-layout: fixed;
 }
 
 .industry-design-files-list thead {
@@ -175,6 +175,10 @@ border: 1px solid  #D1D4D7;
     font-weight: 400;
     line-height: 22px;
     letter-spacing: -0.1px;
+}
+
+.industry-design-files-list td:nth-child(1),
+.industry-design-files-list td:nth-child(2) {
     word-break: break-word;
 }
 
@@ -201,6 +205,7 @@ border: 1px solid  #D1D4D7;
     line-height: 22px;
     padding: 10px 18px;
     min-width: 100px;
+    white-space: nowrap;
     background: #FFF;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
