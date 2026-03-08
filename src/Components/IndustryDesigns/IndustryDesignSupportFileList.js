@@ -47,10 +47,6 @@ function IndustryDesignSupportFileList({ designData }) {
     return file?.size || file?.fileSize || null;
   };
 
-  if (!supportingFiles || supportingFiles.length === 0) {
-    return null;
-  }
-
   return (
     <>
       <div className={styles['industry-design-files-supporting-head']}>
@@ -66,7 +62,13 @@ function IndustryDesignSupportFileList({ designData }) {
             </tr>
           </thead>
           <tbody>
-            {supportingFiles.map((file, index) => {
+            {supportingFiles.length === 0 ? (
+              <tr>
+                <td colSpan={2} data-label="File Name" className={styles['industry-design-files-empty-row']}>
+                  No supporting files
+                </td>
+              </tr>
+            ) : supportingFiles.map((file, index) => {
               const fileName = getFileName(file);
               const fileUrl = getFileUrl(file);
               const fileSize = getFileSize(file);

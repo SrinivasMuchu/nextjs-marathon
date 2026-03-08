@@ -79,7 +79,7 @@ function IndustryDesign({ design, designData, type }) {
                 <IndustryHeaderDetails designData={designData}/>
               </div> */}
               {/* <AdminApprovalButtons design_id={designData.response._id}/> */}
-              <IndustryDesignHeader design={design} type={type} designData={designData.response} />
+              {/* <IndustryDesignHeader design={design} type={type} designData={designData.response} /> */}
               <CadDesignDownload designId={designData.response._id} designTitle={designData.response.page_title}/>
 
               <div className={styles['industry-design-files-container']}>
@@ -90,7 +90,7 @@ function IndustryDesign({ design, designData, type }) {
               
               </div>
               {designData.response && <IndustryDesignFilesList designData={designData.response} />}
-              {designData.response.supporting_files && (
+              {designData.response && (
                 <div className={`${styles['industry-design-files-container']} ${styles['industry-design-files-supporting-wrapper']}`}>
                   <IndustryDesignSupportFileList designData={designData.response} />
                 </div>

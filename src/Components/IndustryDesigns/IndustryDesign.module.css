@@ -234,6 +234,13 @@ border: 1px solid  #D1D4D7;
     overflow-y: auto;
 }
 
+.industry-design-files-empty-row {
+    text-align: center;
+    color: #6c757d;
+    padding: 24px;
+    font-style: italic;
+}
+
 .industry-design-files-supporting-head {
     display: flex;
     align-items: center;
