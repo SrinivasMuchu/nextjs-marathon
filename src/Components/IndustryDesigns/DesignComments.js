@@ -5,6 +5,7 @@ import axios from "axios";
 import { MdOutlineChatBubbleOutline } from "react-icons/md";
 import { MdOutlineReply } from "react-icons/md";
 import NameProfile from "../CommonJsx/NameProfile";
+import UserLoginPupUp from "../CommonJsx/UserLoginPupUp";
 import { contextState } from "../CommonJsx/ContextProvider";
 import { BASE_URL } from "@/config";
 import styles from "./DesignComments.module.css";
@@ -120,7 +121,7 @@ function CommentItem({ comment, onReply, replyingToId, replyText, onReplyTextCha
 }
 
 export default function DesignComments({ designId }) {
-  const { user, setUser } = useContext(contextState);
+  const { user, setUser, updatedDetails } = useContext(contextState);
   const [comments, setComments] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [hasMore, setHasMore] = useState(false);
@@ -132,8 +133,14 @@ export default function DesignComments({ designId }) {
   const [replyingToId, setReplyingToId] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [replyPosting, setReplyPosting] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
-  const isLoggedIn = !!(user?.name && String(user.name).trim());
+  useEffect(() => {
+    const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
+    const isVerified = typeof window !== "undefined" ? localStorage.getItem("is_verified") : null;
+    setIsLoggedIn(!!(uuid && isVerified));
+  }, [updatedDetails]);
 
   useEffect(() => {
     const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
@@ -210,8 +217,9 @@ export default function DesignComments({ designId }) {
     if (!trimmed || posting) return;
 
     const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
-    if (!uuid) {
-      alert("Please sign in to post a comment.");
+    const isVerified = typeof window !== "undefined" ? localStorage.getItem("is_verified") : null;
+    if (!uuid || !isVerified) {
+      setShowLogin(true);
       return;
     }
 
@@ -242,8 +250,9 @@ export default function DesignComments({ designId }) {
     if (!trimmed || replyPosting) return;
 
     const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
-    if (!uuid) {
-      alert("Please sign in to reply.");
+    const isVerified = typeof window !== "undefined" ? localStorage.getItem("is_verified") : null;
+    if (!uuid || !isVerified) {
+      setShowLogin(true);
       return;
     }
 
@@ -285,7 +294,6 @@ export default function DesignComments({ designId }) {
         <span className={styles.commentsCount}>{totalCount}</span>
       </div>
 
-      {isLoggedIn && (
       <div className={styles.addCommentRow}>
         <div className={styles.addCommentAvatar}>
           <NameProfile
@@ -315,7 +323,8 @@ export default function DesignComments({ designId }) {
           </button>
         </div>
       </div>
-      )}
+
+      {showLogin && <UserLoginPupUp onClose={() => setShowLogin(false)} type="profile" />}
 
       {loading ? (
         <div className={styles.loading}>Loading comments...</div>
