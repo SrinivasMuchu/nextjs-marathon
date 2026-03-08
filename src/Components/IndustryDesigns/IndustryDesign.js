@@ -91,7 +91,7 @@ function IndustryDesign({ design, designData, type }) {
               </div>
               {designData.response && <IndustryDesignFilesList designData={designData.response} />}
               {designData.response.supporting_files && (
-                <div className={styles['industry-design-files-container']}>
+                <div className={`${styles['industry-design-files-container']} ${styles['industry-design-files-supporting-wrapper']}`}>
                   <IndustryDesignSupportFileList designData={designData.response} />
                 </div>
               )}

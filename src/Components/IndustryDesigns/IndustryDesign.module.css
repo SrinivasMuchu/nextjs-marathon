@@ -229,6 +229,11 @@ border: 1px solid  #D1D4D7;
     letter-spacing: -0.288px;
 }
 
+.industry-design-files-supporting-wrapper .industry-design-files-bottom {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
 .industry-design-files-supporting-head {
     display: flex;
     align-items: center;
