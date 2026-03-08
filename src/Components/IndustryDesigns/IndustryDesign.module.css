@@ -135,14 +135,16 @@ border: 1px solid  #D1D4D7;
     display: flex;
     flex-direction: column;
     gap: 0;
+    overflow-x: auto;
 }
 
 .industry-design-files-list {
     text-align: left;
     width: 100%;
+    min-width: 280px;
     border-collapse: collapse;
     background: #FFF;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 .industry-design-files-list thead {
@@ -173,6 +175,7 @@ border: 1px solid  #D1D4D7;
     font-weight: 400;
     line-height: 22px;
     letter-spacing: -0.1px;
+    word-break: break-word;
 }
 
 .industry-design-files-list td:nth-child(1) { text-align: left; }
@@ -181,6 +184,12 @@ border: 1px solid  #D1D4D7;
 
 .industry-design-files-list tbody tr:last-child td {
     border-bottom: none;
+}
+
+.industry-design-files-cell-content {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .industry-design-files-btn {
@@ -277,22 +286,31 @@ border: 1px solid  #D1D4D7;
         padding: 10px 0;
         border-bottom: none;
         font-size: 18px;
+        gap: 12px;
+        min-width: 0;
     }
 
     .industry-design-files-list td::before {
         content: attr(data-label);
         font-weight: 600;
-        flex: 1;
-        /* color: #333; */
+        flex: 0 0 auto;
+        min-width: 0;
+        max-width: 45%;
     }
 
     .industry-design-files-list td > *:not(button) {
         flex: 1;
+        min-width: 0;
         text-align: right;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .industry-design-files-btn {
+    .industry-design-files-list td .industry-design-files-btn {
+        flex-shrink: 0;
+        white-space: nowrap;
         width: auto;
+        min-width: 90px;
         height: auto;
         padding: 8px 16px;
         font-size: 16px;

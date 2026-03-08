@@ -34,8 +34,8 @@ function IndustryDesignFilesList({ designData }) {
                     </thead>
                     <tbody>
                         <tr>
-                            <td data-label="View Name">Design file</td>
-                            <td data-label="Extension">{designData.file_type ? designData.file_type : 'step'}</td>
+                            <td data-label="View Name"><span className={styles['industry-design-files-cell-content']}>Design file</span></td>
+                            <td data-label="Extension"><span className={styles['industry-design-files-cell-content']}>{designData.file_type ? designData.file_type : 'step'}</span></td>
                             <td data-label="Action">
 
                                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable} step={true}
@@ -50,8 +50,8 @@ function IndustryDesignFilesList({ designData }) {
                         </tr>
                         {!isDxfOrDwg && viewDirections.map((view, index) => (
                             <tr key={index}>
-                                <td data-label="View Name">{view.name}</td>
-                                <td data-label="Extension">webp</td>
+                                <td data-label="View Name"><span className={styles['industry-design-files-cell-content']}>{view.name}</span></td>
+                                <td data-label="Extension"><span className={styles['industry-design-files-cell-content']}>webp</span></td>
                                 <td data-label="Action">
                                     <DownloadClientButton
                                         folderId={designData._id}
