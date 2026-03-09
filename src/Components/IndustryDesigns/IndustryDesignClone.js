@@ -20,6 +20,7 @@ import CadDesignDownload from './CadDesignDownlaod'
 import DesignViewer from './DesignViewer';
 import AdminPannelAuthentication from '../AdminPannel/AdminPannelAuthentication';
 import IndustryDesignSupportFileList from './IndustryDesignSupportFileList'
+import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner'
 
 function IndustryDesignClone({ design, designData, type }) {
   console.log(designData.supporting_files);
@@ -58,57 +59,73 @@ function IndustryDesignClone({ design, designData, type }) {
         />
       )}
 
-      <div>
+      
+<div className={styles['industry-design-page-root']}>
         {designData && <>
           {/* <HomeTopNav /> */}
          
-          <div className={styles['industry-design-header-container']} >
-          <div className={styles['mobile-only']}>
+            
+            <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
+                <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
+                    <LeftRightBanner adSlot="4923244212"/>
+                </div>
+            </div>
             <IndustryHeaderDetails designData={designData}/>
-          </div>
+          <div className={styles['industry-design-header-container']} >
+          
+          {/* <div className={styles['mobile-only']}>
+            <IndustryHeaderDetails designData={designData}/>
+          </div> */}
             <div  className={styles['industry-design-header-container-left']}  >
               <DesignViewer designId={designData.response._id} designData={designData.response}/>
+              <h3 style={{fontSize:'20px',fontWeight:'600',lineHeight:'28px',color:'#001325',marginTop:'24px'}}>About this design</h3>
+              <p>{designData.response.page_description}</p>
             </div>
             <div  className={styles['industry-design-header-container-right']} >
-            <div className={styles['desktop-only']}>
+              {/* <div className={styles['desktop-only']}>
                 <IndustryHeaderDetails designData={designData}/>
-              </div>
-             {(designData.response.rejected_message && !designData.response.is_live) && <span style={{color:'red'}}>{designData.response.rejected_message}</span>}
-              <AdminApprovalButtons design_id={designData.response._id}/>
+              </div> */}
+              {/* <AdminApprovalButtons design_id={designData.response._id}/> */}
               <IndustryDesignHeader design={design} type={type} designData={designData.response} />
+              <AdminApprovalButtons design_id={designData.response._id}/>
               <CadDesignDownload designId={designData.response._id} designTitle={designData.response.page_title}/>
 
-              {/* <div className={styles['industry-design-files']}> */}
-
-              <div className={styles['industry-design-files-head']}>
-                <IoMdInformationCircleOutline style={{width:'65px',height:'65px'}}/>
-                <p> The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.</p>
-
-                {/* </div> */}
+              <div className={styles['industry-design-files-container']}>
+                <div className={styles['industry-design-files-head']}>
+                  <IoMdInformationCircleOutline />
+                  <p>The files are shared to help you get inspired and speed up your workflow. They may not be fully accurate or production-ready, so review carefully before use.</p>
+                </div>
+              
               </div>
               {designData.response && <IndustryDesignFilesList designData={designData.response} />}
-               {designData.response.supporting_files && <IndustryDesignSupportFileList designData={designData.response} />}
-              
-              {designData?.report && (
-                <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
+              {designData.response.supporting_files && (
+                <div className={styles['industry-design-files-container']}>
+                  <IndustryDesignSupportFileList designData={designData.response} />
+                </div>
               )}
+              
+              {/* {designData?.report && (
+                <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
+              )} */}
             </div>
 
           </div>
 
-
-          {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
-            industryName={designData.industryName.industry} />}
-          {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} />}
-          <div style={{ width: '100%', height: '15px', background: '#F4F4F4' }}></div>
-
-          <IndustryDesignDropZone />
-          <Footer />
-          <AnchorAdBanner adSlot='4237862906' />
+          {designData?.report && (
+                <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
+              )}
+          
+          {/* {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}
+            industryName={designData.industryName.industry} headingLevel={2} />}
+          {designData.filteredResults && <IndustryDesignsSuggestion designData={designData.filteredResults} design={design} design_type={type} headingLevel={3} />}
+          <div style={{ width: '100%', height: '15px', background: '#F4F4F4' }}></div> */}
+         
+         
+          {/* <AnchorAdBanner adSlot='4237862906' /> */}
         </>}
 
       </div>
-
+  <Footer />
     </>
 
   )
