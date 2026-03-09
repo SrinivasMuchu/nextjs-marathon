@@ -322,14 +322,16 @@ export default function DesignComments({ designId }) {
             onChange={(e) => setCommentText(e.target.value)}
             rows={2}
           />
-          <button
-            type="button"
-            className={styles.postButton}
-            onClick={postComment}
-            disabled={posting || !commentText.trim()}
-          >
-            Post Comment
-          </button>
+          <div className={styles.postButtonWrap}>
+            <button
+              type="button"
+              className={styles.postButton}
+              onClick={postComment}
+              disabled={posting || !commentText.trim()}
+            >
+              Post Comment
+            </button>
+          </div>
         </div>
       </div>
 

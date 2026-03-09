@@ -76,7 +76,7 @@
 .addCommentInput {
   width: 100%;
   min-height: 64px;
-  padding: 12px 16px 44px;
+  padding: 12px 16px;
   font-size: 15px;
   line-height: 1.5;
   border: 1px solid #D1D4D7;
@@ -96,10 +96,13 @@
   box-shadow: 0 0 0 2px rgba(97, 11, 238, 0.15);
 }
 
+.postButtonWrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
 .postButton {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
   padding: 8px 16px;
   font-size: 13px;
   font-weight: 600;
