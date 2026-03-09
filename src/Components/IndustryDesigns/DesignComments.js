@@ -284,10 +284,19 @@ export default function DesignComments({ designId }) {
     setReplyText("");
   };
 
+  // Scroll to comments section when URL hash is #comments (e.g. from email notification links)
+  useEffect(() => {
+    if (typeof window === "undefined" || !designId) return;
+    if (window.location.hash === "#comments") {
+      const el = document.getElementById("comments");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [designId]);
+
   if (!designId) return null;
 
   return (
-    <section className={styles.commentsSection}>
+    <section id="comments" className={styles.commentsSection}>
       <div className={styles.commentsHeader}>
         <h3 className={styles.commentsTitle}>Comments</h3>
         <MdOutlineChatBubbleOutline className={styles.commentsIcon} />
