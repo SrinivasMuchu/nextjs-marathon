@@ -10,6 +10,7 @@ function AboutCadPara({cadReport}) {
     )
   }
 
+  
   const safeGet = (obj, path, defaultVal = null) => {
     return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : defaultVal), obj)
   }
