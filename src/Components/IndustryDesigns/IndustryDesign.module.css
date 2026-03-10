@@ -140,6 +140,7 @@ border: 1px solid  #D1D4D7;
 .industry-design-files-list {
     text-align: left;
     width: 100%;
+    min-width: 280px;
     border-collapse: collapse;
     background: #FFF;
     table-layout: fixed;
@@ -175,12 +176,23 @@ border: 1px solid  #D1D4D7;
     letter-spacing: -0.1px;
 }
 
+.industry-design-files-list td:nth-child(1),
+.industry-design-files-list td:nth-child(2) {
+    word-break: break-word;
+}
+
 .industry-design-files-list td:nth-child(1) { text-align: left; }
 .industry-design-files-list td:nth-child(2) { text-align: center; }
 .industry-design-files-list td:nth-child(3) { text-align: right; }
 
 .industry-design-files-list tbody tr:last-child td {
     border-bottom: none;
+}
+
+.industry-design-files-cell-content {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .industry-design-files-btn {
@@ -192,6 +204,7 @@ border: 1px solid  #D1D4D7;
     line-height: 22px;
     padding: 10px 18px;
     min-width: 100px;
+    white-space: nowrap;
     background: #FFF;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
@@ -214,6 +227,18 @@ border: 1px solid  #D1D4D7;
     font-weight: 600;
     line-height: 28px;
     letter-spacing: -0.288px;
+}
+
+.industry-design-files-supporting-wrapper .industry-design-files-bottom {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.industry-design-files-empty-row {
+    text-align: center;
+    color: #6c757d;
+    padding: 24px;
+    font-style: italic;
 }
 
 .industry-design-files-supporting-head {
@@ -277,22 +302,31 @@ border: 1px solid  #D1D4D7;
         padding: 10px 0;
         border-bottom: none;
         font-size: 18px;
+        gap: 12px;
+        min-width: 0;
     }
 
     .industry-design-files-list td::before {
         content: attr(data-label);
         font-weight: 600;
-        flex: 1;
-        /* color: #333; */
+        flex: 0 0 auto;
+        min-width: 0;
+        max-width: 45%;
     }
 
     .industry-design-files-list td > *:not(button) {
         flex: 1;
+        min-width: 0;
         text-align: right;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .industry-design-files-btn {
+    .industry-design-files-list td .industry-design-files-btn {
+        flex-shrink: 0;
+        white-space: nowrap;
         width: auto;
+        min-width: 90px;
         height: auto;
         padding: 8px 16px;
         font-size: 16px;

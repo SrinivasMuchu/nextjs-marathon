@@ -17,6 +17,7 @@ import IndustryHeaderDetails from './IndustryHeaderDetails'
 import DownloadsRatingAlert from '../CreatorsPage/DownloadsRatingAlert'
 import CadDesignDownload from './CadDesignDownlaod'
 import DesignViewer from './DesignViewer';
+import DesignComments from './DesignComments';
 import IndustryDesignSupportFileList from './IndustryDesignSupportFileList';
 import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 import DesignHub from '../HomePages/DesignHub/DesignHub';
@@ -89,8 +90,8 @@ function IndustryDesign({ design, designData, type }) {
               
               </div>
               {designData.response && <IndustryDesignFilesList designData={designData.response} />}
-              {designData.response.supporting_files && (
-                <div className={styles['industry-design-files-container']}>
+              {designData.response && (
+                <div className={`${styles['industry-design-files-container']} ${styles['industry-design-files-supporting-wrapper']}`}>
                   <IndustryDesignSupportFileList designData={designData.response} />
                 </div>
               )}
@@ -104,6 +105,10 @@ function IndustryDesign({ design, designData, type }) {
 
           {designData?.report && (
                 <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
+              )}
+
+          {designData?.response?._id && (
+                <DesignComments designId={designData.response._id} />
               )}
           
           {/* {(designData.designs.length && designData.industryName) && <IndustryDesignsSuggestion type='design' design_type={type} designData={designData.designs} design={design}

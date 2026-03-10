@@ -66,6 +66,9 @@ function UserLoginPupUp({ onClose, type }) {
     const [isSSO, setIsSSO] = useState(false); // Track if user used SSO login
     const [loginMethod, setLoginMethod] = useState(null); // Track login method: 'google' or 'email'
     const [verifyEmail, setVerifyEmail] = useState(false);
+    const [needsFullname, setNeedsFullname] = useState(false);
+    const [fullname, setFullname] = useState('');
+    const [otpAlreadySent, setOtpAlreadySent] = useState(false);
     const registerPush = usePushNotifications();
 
     
@@ -144,7 +147,10 @@ function UserLoginPupUp({ onClose, type }) {
                 // Register for push notifications after login
                 await handleRegisterNotifications(googleEmail);
 
-                if (type === "profile") {
+                if (type === "comments") {
+                    setUpdatedDetails(user)
+                    onClose()
+                } else if (type === "profile") {
                     setUpdatedDetails(user)
                     onClose()
                     route.push('/dashboard')
@@ -210,9 +216,33 @@ function UserLoginPupUp({ onClose, type }) {
         setErrorMessage('Please enter your email address.');
         return;
     }
+    if (needsFullname && !fullname.trim()) {
+        setErrorMessage('Please enter your full name to continue.');
+        return;
+    }
     try {
         if (!localStorage.getItem('is_verified')) {
-            setVerifyEmail(true);
+            // Call request-otp first to check if fullname is required (new signup)
+            setIsSSO(false);
+            setLoginMethod('email');
+            const result = await axios.post(`${BASE_URL}/v1/cad/request-otp`, 
+                { email, ...(fullname.trim() && { full_name: fullname.trim() }) },
+                { headers: { 'user-uuid': localStorage.getItem('uuid') } }
+            );
+
+            if (result.data.meta.fullname_required) {
+                setNeedsFullname(true);
+                setErrorMessage(result.data.meta.message || 'Please enter your full name to continue.');
+                return;
+            }
+
+            if (result.data.meta.success) {
+                setOtpAlreadySent(true);
+                setVerifyEmail(true);
+                setNeedsFullname(false);
+            } else {
+                setErrorMessage(result.data.meta.message || 'Failed to send OTP.');
+            }
             return;
         }
         setIsSSO(false);
@@ -241,8 +271,12 @@ function UserLoginPupUp({ onClose, type }) {
             // Register for push notifications after login
             await handleRegisterNotifications(email);
 
-            if (type === "profile") {
+            if (type === "comments") {
                 setUpdatedDetails(user)
+                onClose()
+            } else if (type === "profile") {
+                setUpdatedDetails(user)
+                onClose()
                 route.push('/dashboard')
             } else if (type === 'creator' || type === 'dashboard') {
               window.location.reload()
@@ -386,9 +420,13 @@ function UserLoginPupUp({ onClose, type }) {
             {verifyEmail ? 
                 <EmailOTP 
                     email={email} 
+                    fullname={fullname}
                     setIsEmailVerify={setVerifyEmail} 
+                    setError={setErrorMessage}
+                    setNeedsFullname={setNeedsFullname}
                     saveDetails={handleSendOTP}
-                    accessKey={accessKey} // <-- Pass as prop
+                    accessKey={accessKey}
+                    skipInitialSend={otpAlreadySent}
                 /> 
                 :
                 <div className={styles.loginPopup}>
@@ -427,8 +465,27 @@ function UserLoginPupUp({ onClose, type }) {
                             />
                         </div>
 
+                        {needsFullname && (
+                            <div className={styles.inputGroup}>
+                                <label htmlFor="fullname">Full Name</label>
+                                <input
+                                    type="text"
+                                    id="fullname"
+                                    placeholder="Enter your full name"
+                                    value={fullname}
+                                    onChange={(e) => setFullname(e.target.value)}
+                                    className={styles.emailInput}
+                                    disabled={isSSO}
+                                />
+                            </div>
+                        )}
+
                         {errorMessage && (
-                            <div className={errorMessage.includes('Welcome') || errorMessage.includes('Successfully') ? styles.successMessage : styles.errorMessage}>
+                            <div className={
+                                errorMessage.includes('Welcome') || errorMessage.includes('Successfully') ? styles.successMessage
+                                : (needsFullname && errorMessage.includes('full name')) ? styles.infoMessage
+                                : styles.errorMessage
+                            }>
                                 {errorMessage}
                             </div>
                         )}

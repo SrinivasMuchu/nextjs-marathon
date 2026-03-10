@@ -6,12 +6,6 @@ import { IoIosArrowBack,IoIosArrowDown ,IoIosArrowForward ,IoIosArrowUp  } from 
 import { AiOutlinePlus } from "react-icons/ai";
 import { HiOutlineMinus } from "react-icons/hi";
 import { CiUndo } from "react-icons/ci";
-import IndustryAnglePicker from "./IndustryAnglePicker";
-import IndustryImageGallery from "./IndustryImageGallery";
-import IndustryDesignHeader from "./IndustryDesignHeader";
-import DesignStats from "../CommonJsx/DesignStats";
-import Link from "next/link";// client part
-import DownloadClientButton from "../CommonJsx/DownloadClientButton";
 import Image from "next/image";
 
 const wrapDeg = (deg) => ((deg % 360) + 360) % 360;
@@ -34,18 +28,25 @@ export default function DesignViewer({
   initialX = 0,
   initialY = 0,
 }) {
-  let isDxf = designData.file_type?.toLowerCase() === 'dxf' || designData.file_type?.toLowerCase() === 'dwg';
-  // Filter supported image files (png, jpg, jpeg)
-  const supportedImages = (designData?.supporting_files || []).filter(f =>
-    /\.(png|jpg|jpeg)$/i.test(f.name)
-  );
-  
+  let isDxf = designData?.file_type?.toLowerCase() === 'dxf' || designData?.file_type?.toLowerCase() === 'dwg';
+  // Filter supported image files (png, jpg, jpeg, webp - match IndustryDesignSupportFileList)
+  const supportedImages = useMemo(() => {
+    const files = designData?.supporting_files || [];
+    return Array.isArray(files)
+      ? files.filter(f => /\.(png|jpg|jpeg|webp)$/i.test(f?.name || f?.fileName || ''))
+      : [];
+  }, [designData?.supporting_files]);
+
   // Create unified list: angles first, then images
   const allViews = useMemo(() => {
     const views = [...ANGLE_VIEWS];
-    // Add all supported images to the views list
     supportedImages.forEach((img, idx) => {
-      views.push({ type: 'image', index: idx, url: img.url, name: img.name });
+      views.push({
+        type: 'image',
+        index: idx,
+        url: img?.url || img?.fileUrl || '',
+        name: img?.name || img?.fileName || '',
+      });
     });
     return views;
   }, [supportedImages]);
@@ -95,16 +96,6 @@ export default function DesignViewer({
     return currentView && currentView.type === 'image' ? currentView.index : null;
   }, [currentViewIdx, allViews]);
 
-  // Add this state and effect for screen size
-  const [showHeader, setShowHeader] = useState(false);
-
-  useEffect(() => {
-    const checkScreen = () => setShowHeader(window.innerWidth < 850);
-    checkScreen();
-    window.addEventListener("resize", checkScreen);
-    return () => window.removeEventListener("resize", checkScreen);
-  }, []);
-  
   // Keyboard navigation support
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -135,19 +126,16 @@ export default function DesignViewer({
   const zoomOut = () => setScale((s) => Math.max(0.25, +(s - 0.1).toFixed(2)));
   const resetZoom = () => setScale(1);
 
-  // DXF-related hooks - must be called unconditionally at top level
-  const dxfBaseUrl = `${DESIGN_GLB_PREFIX_URL}${designId}`;
-  const dxfImageUrl = `${dxfBaseUrl}/${designId}.webp`;
-  
   // Create unified list for DXF: only supporting images (no primary image)
   const dxfViews = useMemo(() => {
     if (!isDxf) return [];
-    const views = [];
-    supportedImages.forEach((img, idx) => {
-      views.push({ type: 'image', index: idx, url: img.url, name: img.name });
-    });
-    return views;
-  }, [isDxf, dxfImageUrl, supportedImages, designId]);
+    return supportedImages.map((img, idx) => ({
+      type: 'image',
+      index: idx,
+      url: img?.url || img?.fileUrl || '',
+      name: img?.name || img?.fileName || '',
+    }));
+  }, [isDxf, supportedImages]);
   
   // State for current view index in DXF viewer
   const [dxfViewIdx, setDxfViewIdx] = useState(0);
@@ -188,67 +176,7 @@ export default function DesignViewer({
     
     return (
       <>
-        {showHeader && (
-          <div className={styles["industry-design-header-viewer-top"]}>
-            {/* ...existing code... */}
-            <div style={{ width: "100%", display: "flex", alignItems: "flex-start" }}>
-              <DesignStats
-                views={designData.total_design_views}
-                downloads={designData.total_design_downloads}
-                ratings={{ average: designData.average_rating, total: designData.rating_count }}
-              />
-            </div>
-            <div style={{ width: "100%", display: "flex", alignItems: "flex-start" }}>
-              {designData.price ? (
-                <p style={{ fontSize: "24px", fontWeight: "500" }}>
-                  ${designData.price}
-                  <span style={{ fontSize: "16px", fontWeight: "400", color: "#001325" }}>/download</span>
-                </p>
-              ) : (
-                <p style={{ fontSize: "24px", fontWeight: "500" }}>Free</p>
-              )}
-            </div>
-            <div
-              className={styles.statsCont}
-              style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center", width: "100%", flexWrap: "wrap" }}
-            >
-              <DownloadClientButton
-                custumDownload={true}
-                folderId={designData._id}
-                isDownladable={designData.is_downloadable}
-                step={true}
-                filetype={designData.file_type ? designData.file_type : "step"}
-              />
-              <Link
-                style={{
-                  color: "white",
-                  fontSize: "20px",
-                  background: "#610BEE",
-                  borderRadius: "4px",
-                  border: "none",
-                  width: "auto",
-                }}
-                href={`/tools/cad-renderer?fileId=${designData._id}&format=${designData.file_type ? designData.file_type : "step"}`}
-                rel="nofollow"
-              >
-                <button
-                  style={{
-                    color: "white",
-                    fontSize: "20px",
-                    background: "#610BEE",
-                    borderRadius: "4px",
-                    height: "48px",
-                    padding: "10px 20px",
-                    border: "none",
-                    width: "236px",
-                  }}
-                >
-                  Open in 3D viewer
-                </button>
-              </Link>
-            </div>
-          </div>
-        )}
+      
 
         {/* Image viewer for DXF files with navigation */}
         <div className={styles.viewerRoot}>
@@ -336,7 +264,7 @@ export default function DesignViewer({
             </button>
           )}
           
-          {currentImageUrl && (
+          {currentImageUrl ? (
             <div className={styles.stage} style={{ transform: `scale(${scale})` }}>
               <img
                 className={styles.frame}
@@ -353,6 +281,10 @@ export default function DesignViewer({
                   display: 'block',
                 }}
               />
+            </div>
+          ) : (
+            <div className={styles.stage} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>
+              <p style={{ color: '#6c757d', fontSize: 14 }}>No preview available</p>
             </div>
           )}
           <div className={styles.controls}>
@@ -494,6 +426,8 @@ export default function DesignViewer({
             {/* Supporting image thumbnails only */}
             {dxfViews.map((view, idx) => {
               const isActive = dxfViewIdx === idx;
+              const viewUrl = view?.url;
+              const viewName = view?.name || '';
               return (
                 <div
                   key={`dxf-img-${idx}`}
@@ -514,8 +448,8 @@ export default function DesignViewer({
                   onClick={() => setDxfViewIdx(idx)}
                 >
                   <img
-                    src={view.url}
-                    alt={view.name}
+                    src={viewUrl}
+                    alt={viewName}
                     width={70}
                     height={70}
                     style={{
@@ -741,8 +675,8 @@ export default function DesignViewer({
         ) : selectedImageIdx !== null && supportedImages[selectedImageIdx] ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', position: 'relative' }}>
             <img
-              src={supportedImages[selectedImageIdx].url}
-              alt={supportedImages[selectedImageIdx].name}
+              src={supportedImages[selectedImageIdx]?.url || supportedImages[selectedImageIdx]?.fileUrl}
+              alt={supportedImages[selectedImageIdx]?.name || supportedImages[selectedImageIdx]?.fileName || ''}
               width={1200}
               height={650}
               style={{
@@ -760,7 +694,7 @@ export default function DesignViewer({
                 setCurrentViewIdx(0);
               }}
             />
-            <div style={{ marginBottom: 8, color: '#333', fontSize: 14 }}>{supportedImages[selectedImageIdx].name}</div>
+            <div style={{ marginBottom: 8, color: '#333', fontSize: 14 }}>{supportedImages[selectedImageIdx]?.name || supportedImages[selectedImageIdx]?.fileName || ''}</div>
           </div>
         ) : null}
       </div>
@@ -927,9 +861,10 @@ export default function DesignViewer({
           })}
           {/* Supported file thumbnails */}
           {supportedImages.map((img, idx) => {
-            // Find the index in allViews for this image
             const viewIdx = allViews.findIndex(v => v.type === 'image' && v.index === idx);
             const isActive = currentViewIdx === viewIdx;
+            const imgUrl = img?.url || img?.fileUrl || '';
+            const imgName = img?.name || img?.fileName || '';
             return (
               <div
                 key={`img-${idx}`}
@@ -953,8 +888,8 @@ export default function DesignViewer({
                 }}
               >
                 <img
-                  src={img.url}
-                  alt={img.name}
+                  src={imgUrl}
+                  alt={imgName}
                   width={70}
                   height={70}
                   style={{

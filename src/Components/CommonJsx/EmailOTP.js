@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation';
 
 
 
-function EmailOTP({ email, accessKey,
-  setIsEmailVerify, setError, type, saveDetails }) {
+function EmailOTP({ email, fullname, accessKey,
+  setIsEmailVerify, setError, setNeedsFullname, type, saveDetails, skipInitialSend }) {
 
   const inputs = useMemo(() => Array(4).fill().map(() => React.createRef()), []);
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -29,21 +29,24 @@ function EmailOTP({ email, accessKey,
     setLoading(true);
     setMessage('');
     try {
+      const payload = { email };
+      if (fullname?.trim()) payload.full_name = fullname.trim();
       const response = await axios.post(
         `${BASE_URL}/v1/cad/request-otp`,
-        { email },
+        payload,
         { headers: { 'user-uuid': uuid } }
       );
 
       if (response.data.meta.success) {
         toast.success('OTP sent to your email.');
       } else {
-        if (type) {
-          setError({ email: response.data.meta.message });
-        } else {
-          setError(response.data.meta.message);
+        if (response.data.meta.fullname_required) {
+          if (setIsEmailVerify) setIsEmailVerify(false);
+          if (setNeedsFullname) setNeedsFullname(true);
         }
-        setIsEmailVerify(false);
+        if (setError) {
+          setError(type ? { email: response.data.meta.message } : response.data.meta.message);
+        }
       }
     } catch (err) {
       toast.error('Failed to send OTP.');
@@ -53,13 +56,14 @@ function EmailOTP({ email, accessKey,
 
   useEffect(() => {
     if (!email) {
-
       router.push('/dashboard');
-      toast.info('Please update your profile')
-      setIsEmailVerify(false)
+      toast.info('Please update your profile');
+      setIsEmailVerify(false);
       return;
     }
-    sendOtp();
+    if (!skipInitialSend) {
+      sendOtp();
+    }
   }, [email]);
 
   const handleChange = (e, idx) => {
@@ -98,9 +102,11 @@ function EmailOTP({ email, accessKey,
     setMessage('');
     try {
       const enteredOtp = otp.join('');
+      const payload = { email, otp: enteredOtp, accessKey: accessKey ? accessKey : '' };
+      if (fullname?.trim()) payload.fullname = fullname.trim();
       const res = await axios.post(
         `${BASE_URL}/v1/cad/verify-otp`,
-        { email, otp: enteredOtp, accessKey: accessKey ? accessKey : '' },
+        payload,
         { headers: { 'user-uuid': uuid } }
       );
 

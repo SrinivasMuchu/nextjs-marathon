@@ -345,6 +345,11 @@
 
 }
 
+.infoMessage {
+  color: #2563eb;
+  font-size: 14px;
+}
+
 .anchorAds{
   display:flex;
 }
