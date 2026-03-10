@@ -7,7 +7,7 @@ import OrgFeatures from '../OrganizationHome/OrgFeatures/OrgFeatures'
 
 function IndustryDesignDropZone() {
     return (
-        <div className={styles['industry-design']}>
+        <div className={styles['industry-design']} style={{ backgroundColor: 'white' }}>
             <div className={styles['cad-landing-left-cont']}>
                 <IndustryDesignHead />
                 <IndustryDesignUpload/>

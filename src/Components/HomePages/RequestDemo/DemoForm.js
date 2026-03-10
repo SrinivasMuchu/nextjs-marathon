@@ -10,6 +10,7 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
   const [openDemoForm, setopenThanks] = useState(openPopUp);
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
@@ -27,21 +28,28 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
 
       } else if (!isValidPhoneNumber(phoneNumber)) {
         setError("Please enter a valid phone number for your selected country.");
-      }  else if (!message) {
+      } else if (!email) {
+        setError("Please enter your email.");
+      } else if (!email.includes('@') || !email.includes('.')) {
+        setError("Please enter a valid email.");
+      } else if (!message) {
         setError("Please enter your message.");
 
       } else {
         setLoading(true)
         const response = await axios.post(
           BASE_URL + "/v1/member/demo",
-          { phoneNumber, name, message },
+          { phoneNumber, name, message, email },
 
         );
 
         if (!response.data.meta.success) {
           setError(response.data.meta.message);
         } else {
-
+          setName('');
+          setPhoneNumber('');
+          setEmail('');
+          setMessage('');
           setopenThanks('thanks');
 
         }
@@ -58,11 +66,12 @@ function DemoForm({ styles, footerStyles, onclose, setOpenDemoForm, openPopUp })
       <div style={{ width: '100%' }} className={styles['demo-form']}>
         {/* <span>Ask a question</span> */}
         <div className={styles['demo-inputs']}>
-          <input placeholder='Name*' onChange={(e) => setName(e.target.value)} tabIndex={0}/>
+          <input placeholder='Name*' value={name} onChange={(e) => setName(e.target.value)} tabIndex={0}/>
           
            <ReactPhoneNumber phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} tabIndex={0} styles={styles} classname='demo-phonenumber'/>
         </div>
-        <textarea placeholder='Message*' onChange={(e) => setMessage(e.target.value)} tabIndex={0}/>
+        <input placeholder='Email*' value={email} onChange={(e) => setEmail(e.target.value)} tabIndex={0} className={styles['demo-email-input']}/>
+        <textarea placeholder='Message*' value={message} onChange={(e) => setMessage(e.target.value)} tabIndex={0}/>
         <span style={{ opacity: error ? '1' : '0', color: 'red', fontSize: '14px' }}>{error ? `* ${error}` : 'no text'}</span>
         <button onClick={requestDemo} style={{background:'#610bee',width:'93px',height:'40px',color:'white',fontSize:'16px'}}className={styles['demo-form-btn']}>
           {loading ? <span className={footerStyles['btn-ring']}></span> : 'Submit'}
