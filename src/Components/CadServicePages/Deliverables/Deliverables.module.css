@@ -1,0 +1,150 @@
+/* Marathon design tokens from index.html */
+.section {
+  background: #0d0b1a;
+  padding: clamp(48px, 8vw, 96px) clamp(16px, 5%, 48px);
+  font-family: inherit;
+  overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+}
+
+.label {
+  display: inline-block;
+  font-size: clamp(10px, 1.5vw, 11px);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #c4a8ff;
+  margin-bottom: 12px;
+  font-family: inherit;
+}
+
+.title {
+  font-size: clamp(22px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  color: white;
+  margin-bottom: 14px;
+  font-family: inherit;
+}
+
+.sub {
+  font-size: clamp(14px, 2vw, 16px);
+  color: rgba(255, 255, 255, 0.45);
+  max-width: 540px;
+  margin: 0 auto;
+  line-height: 1.65;
+  padding: 0 8px;
+  font-family: inherit;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: clamp(32px, 5vw, 48px);
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: all 0.2s;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.item:hover {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.3);
+}
+
+.itemBanner {
+  grid-column: 1 / -1;
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.3);
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: rgba(124, 58, 237, 0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text {
+  font-size: 14.5px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.45;
+  font-family: inherit;
+}
+
+.text strong {
+  color: white;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 1px;
+  font-family: inherit;
+}
+
+/* Responsive */
+@media screen and (max-width: 700px) {
+  .grid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .section {
+    padding: 48px 16px;
+  }
+
+  .grid {
+    margin-top: 32px;
+    gap: 12px;
+  }
+
+  .item {
+    padding: 16px 18px;
+    gap: 14px;
+  }
+
+  .icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .section {
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .sub {
+    font-size: 14px;
+  }
+
+  .text {
+    font-size: 14px;
+  }
+}

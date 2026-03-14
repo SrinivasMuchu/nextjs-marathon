@@ -1,0 +1,112 @@
+/* Marathon design tokens from index.html */
+.section {
+  background: #0d0b1a;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(64px, 10vw, 100px) clamp(16px, 5%, 48px);
+  font-family: inherit;
+}
+
+.section::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(124, 58, 237, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.title {
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  margin-bottom: 16px;
+  color: white;
+  position: relative;
+  z-index: 1;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.sub {
+  font-size: clamp(15px, 2vw, 17px);
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+  font-family: inherit;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.ctaBtnPrimary {
+  background: #7c3aed;
+  color: white;
+  padding: 16px 32px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ctaBtnPrimary:hover {
+  background: #9b5cf6;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.35);
+}
+
+.ctaBtnOutline {
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  padding: 16px 32px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ctaBtnOutline:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+  .section {
+    padding: 64px 16px;
+  }
+
+  .ctaButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ctaBtnPrimary,
+  .ctaBtnOutline {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+}

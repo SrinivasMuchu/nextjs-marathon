@@ -1,0 +1,210 @@
+.formCard {
+  background: white;
+  border-radius: 20px;
+  padding: clamp(20px, 4vw, 40px);
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.formTitle {
+  font-size: clamp(20px, 4vw, 24px);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  font-family: inherit;
+}
+
+.formSubtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #6b7280;
+  margin: 0 0 28px 0;
+  font-family: inherit;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 3vw, 20px);
+  margin-bottom: 20px;
+  align-items: start;
+}
+
+.formGridFull {
+  grid-column: 1 / -1;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.formLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #374151;
+  font-family: inherit;
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+  width: 100%;
+  padding: clamp(12px, 2.5vw, 14px) 14px;
+  min-height: 44px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: inherit;
+  background: #fff;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.formInput::placeholder,
+.formTextarea::placeholder {
+  color: #9ca3af;
+}
+
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: #610bee;
+}
+
+/* React Phone Number input - match form input styling */
+.formPhoneInput {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.formPhoneInput:focus-within {
+  outline: none;
+  border-color: #610bee;
+}
+
+.formTextarea {
+  min-height: 100px;
+  resize: vertical;
+  padding: 14px;
+}
+
+.formSelect {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.uploadSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 28px 0;
+  padding: clamp(12px, 2.5vw, 16px);
+  min-height: 44px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  font-family: inherit;
+}
+
+.uploadSection:hover {
+  border-color: #610bee;
+  background: #faf5ff;
+}
+
+.uploadInput {
+  display: none;
+}
+
+.uploadIcon {
+  flex-shrink: 0;
+  color: #6b7280;
+}
+
+.uploadText {
+  font-size: clamp(12px, 2.5vw, 14px);
+  font-weight: 400;
+  color: #6b7280;
+  font-family: inherit;
+  word-break: break-word;
+}
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: clamp(14px, 2.5vw, 16px) 24px;
+  min-height: 48px;
+  background: #610bee;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: clamp(14px, 2.5vw, 16px);
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.submitBtn:hover {
+  background: #4f0bc9;
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media screen and (max-width: 600px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .formCard {
+    padding: 20px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .formCard {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  .formTitle {
+    font-size: 18px;
+  }
+  .formSubtitle {
+    font-size: 13px;
+  }
+  .formInput,
+  .formSelect,
+  .formTextarea {
+    font-size: 16px;
+  }
+  .submitBtn {
+    font-size: 14px;
+    min-height: 44px;
+  }
+}

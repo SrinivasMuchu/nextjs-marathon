@@ -1,0 +1,128 @@
+/* Marathon design tokens from index.html */
+.section {
+  background: #f7f7fc;
+  padding: clamp(48px, 8vw, 96px) clamp(16px, 5%, 48px);
+  font-family: inherit;
+  overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+}
+
+.label {
+  display: inline-block;
+  font-size: clamp(10px, 1.5vw, 11px);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #7c3aed;
+  margin-bottom: 12px;
+  font-family: inherit;
+}
+
+.title {
+  font-size: clamp(22px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  color: #1a1635;
+  margin-bottom: 14px;
+  font-family: inherit;
+}
+
+.sub {
+  font-size: clamp(14px, 2vw, 16px);
+  color: #6b6785;
+  max-width: 540px;
+  margin: 0 auto;
+  line-height: 1.65;
+  padding: 0 8px;
+  font-family: inherit;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(12px, 2vw, 16px);
+  margin-top: clamp(32px, 5vw, 48px);
+}
+
+.card {
+  padding: clamp(20px, 2.5vw, 28px) clamp(18px, 2vw, 22px);
+  border-radius: 14px;
+  background: white;
+  border: 1.5px solid #e8e4f8;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.card:hover {
+  border-color: #7c3aed;
+  background: #efecff;
+  transform: translateY(-3px);
+}
+
+.icon {
+  width: clamp(44px, 10vw, 52px);
+  height: clamp(44px, 10vw, 52px);
+  margin: 0 auto clamp(12px, 2vw, 14px);
+  background: #efecff;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1a1635;
+  margin: 0;
+  font-family: inherit;
+}
+
+/* Responsive */
+@media screen and (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .section {
+    padding: 48px 16px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    margin-top: 32px;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 24px 20px;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .section {
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .sub {
+    font-size: 14px;
+  }
+}
