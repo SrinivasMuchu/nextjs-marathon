@@ -1,0 +1,36 @@
+.btnLight,
+.btnDark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btnLight {
+  background: #7c3aed;
+  color: white;
+}
+
+.btnLight:hover {
+  background: #9b5cf6;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.3);
+}
+
+.btnDark {
+  background: #7c3aed;
+  color: white;
+}
+
+.btnDark:hover {
+  background: #9b5cf6;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.35);
+}

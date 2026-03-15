@@ -1,5 +1,6 @@
 import React from 'react'
 import { Briefcase, Package, Truck, Cpu, Archive, Home, Layers, Printer } from 'lucide-react'
+import RequestQuoteButton from '../RequestQuoteButton/RequestQuoteButton'
 import styles from './Industries.module.css'
 
 const INDUSTRIES = [
@@ -35,6 +36,9 @@ function Industries() {
             </div>
           )
         })}
+      </div>
+      <div className={styles.ctaWrap}>
+        <RequestQuoteButton variant="light" />
       </div>
     </section>
   )

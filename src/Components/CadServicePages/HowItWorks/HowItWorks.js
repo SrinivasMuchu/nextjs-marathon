@@ -1,6 +1,7 @@
 import React from 'react'
 import { FileText, Phone, Search, CheckSquare, Clock } from 'lucide-react'
 import EngagementModels from '../EngagementModels/EngagementModels'
+import RequestQuoteButton from '../RequestQuoteButton/RequestQuoteButton'
 import styles from './HowItWorks.module.css'
 
 const STEPS = [
@@ -60,6 +61,9 @@ function HowItWorks() {
         <span>Typical kickoff within 24–72 hours of submission</span>
       </div>
       <EngagementModels embedded />
+      <div className={styles.ctaWrap}>
+        <RequestQuoteButton variant="light" />
+      </div>
     </section>
   )
 }

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Users, TrendingUp, FileText } from 'lucide-react'
+import RequestQuoteButton from '../RequestQuoteButton/RequestQuoteButton'
 import styles from './WhyMarathon.module.css'
 
 const FEATURES = [
@@ -46,6 +47,9 @@ function WhyMarathon() {
             </div>
           )
         })}
+      </div>
+      <div className={styles.ctaWrap}>
+        <RequestQuoteButton variant="light" />
       </div>
     </section>
   )

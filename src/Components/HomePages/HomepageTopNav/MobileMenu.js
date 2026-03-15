@@ -82,7 +82,7 @@ function MobileMenu({ onClose, styles }) {
            Dashboard
          </Link>
         <Link href="/library" onClick={handleCloseMenu}>Library</Link>
-        
+        <Link href="/cad-services" onClick={handleCloseMenu}>CAD Services</Link>
          
       </div>
     </>

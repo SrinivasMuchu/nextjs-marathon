@@ -41,6 +41,12 @@
   font-family: inherit;
 }
 
+.ctaWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
 .faqList {
   max-width: 720px;
   margin: clamp(32px, 5vw, 48px) auto 0;
@@ -48,60 +54,22 @@
 
 .faqItem {
   border-bottom: 1px solid #e8e4f8;
-  overflow: hidden;
+  padding: 20px 0;
 }
 
 .faqQ {
-  width: 100%;
-  background: none;
-  border: none;
-  padding: 20px 0;
-  text-align: left;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
   font-family: inherit;
   font-size: 15.5px;
   font-weight: 600;
   color: #1a1635;
-  transition: color 0.2s;
-}
-
-.faqQ:hover {
-  color: #7c3aed;
-}
-
-.faqQOpen {
-  color: #7c3aed;
-}
-
-.faqChevron {
-  transition: transform 0.3s;
-  color: #6b6785;
-  flex-shrink: 0;
-  margin-left: 12px;
-}
-
-.faqQOpen .faqChevron {
-  transform: rotate(180deg);
-  color: #7c3aed;
+  margin-bottom: 8px;
 }
 
 .faqA {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease, padding 0.3s;
   font-size: 14.5px;
   color: #6b6785;
   line-height: 1.7;
-  padding: 0;
   font-family: inherit;
-}
-
-.faqAOpen {
-  max-height: 500px;
-  padding-bottom: 20px;
 }
 
 /* Responsive */
@@ -112,11 +80,14 @@
 
   .faqQ {
     font-size: 15px;
-    padding: 16px 0;
   }
 
   .faqA {
     font-size: 14px;
+  }
+
+  .faqItem {
+    padding: 16px 0;
   }
 }
 

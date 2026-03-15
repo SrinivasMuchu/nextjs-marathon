@@ -41,6 +41,12 @@
   font-family: inherit;
 }
 
+.ctaWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

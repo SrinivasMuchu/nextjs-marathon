@@ -1,5 +1,6 @@
 import React from 'react'
 import FaqAccordion from './FaqAccordion'
+import RequestQuoteButton from '../RequestQuoteButton/RequestQuoteButton'
 import styles from './Faq.module.css'
 
 const FAQ_ITEMS = [
@@ -61,6 +62,9 @@ function Faq() {
         </p>
       </div>
       <FaqAccordion items={FAQ_ITEMS} />
+      <div className={styles.ctaWrap}>
+        <RequestQuoteButton variant="light" />
+      </div>
     </section>
   )
 }

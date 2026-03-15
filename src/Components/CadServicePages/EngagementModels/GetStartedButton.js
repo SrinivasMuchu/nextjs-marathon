@@ -1,19 +1,17 @@
 "use client"
 
 import React from 'react'
+import { useCadForm } from '../CadFormContext'
 import styles from './EngagementModels.module.css'
 
 function GetStartedButton({ primary = false }) {
-  const handleClick = () => {
-    const formSection = document.querySelector('[data-cad-form]')
-    formSection?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const { openFormPopup } = useCadForm()
 
   return (
     <button
       type="button"
       className={`${styles.cta} ${primary ? styles.ctaSolid : styles.ctaOutline}`}
-      onClick={handleClick}
+      onClick={openFormPopup}
     >
       Get Started →
     </button>

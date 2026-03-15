@@ -20,6 +20,7 @@ function TrustedByBanner() {
           </span>
         ))}
       </div>
+    
     </section>
   )
 }

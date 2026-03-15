@@ -61,6 +61,7 @@ function HomeTopNav() {
           Dashboard
         </Link>
         <Link href="/library" >Library</Link>
+        <Link href="/cad-services" >CAD Services</Link>
         <div style={{ position: "relative" }}>
           <span style={{ cursor: "pointer" }} onClick={(e) => toggleDropdown(e,"tools")}>
             Tools ▼

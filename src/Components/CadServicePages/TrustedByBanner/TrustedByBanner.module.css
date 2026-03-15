@@ -35,6 +35,12 @@
   white-space: nowrap;
 }
 
+.ctaWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
 @media screen and (max-width: 600px) {
   .banner {
     flex-direction: column;

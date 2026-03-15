@@ -1,5 +1,6 @@
 import React from 'react'
 import { FileText, Archive, Pencil, RefreshCw, Shield } from 'lucide-react'
+import RequestQuoteButton from '../RequestQuoteButton/RequestQuoteButton'
 import styles from './Deliverables.module.css'
 
 const ITEMS = [
@@ -59,6 +60,9 @@ function Deliverables() {
             Your designs, your data, your intellectual property — always.
           </div>
         </div>
+      </div>
+      <div className={styles.ctaWrap}>
+        <RequestQuoteButton variant="light" />
       </div>
     </section>
   )
