@@ -39,7 +39,7 @@ function Testimonials() {
         {TESTIMONIALS.map((t) => (
           <div key={t.initials} className={styles.card}>
             <div className={styles.stars}>★★★★★</div>
-            <p className={styles.quote}>"{t.quote}"</p>
+            <p className={styles.quote}>&ldquo;{t.quote}&rdquo;</p>
             <div className={styles.author}>
               <div className={styles.avatar} style={{ background: t.avatarColor }}>
                 {t.initials}
