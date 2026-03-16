@@ -1,14 +1,17 @@
 "use client";
 import { sendGAtagEvent } from '@/common.helper';
 import { CAD_FLOATING_BUTTON_EVENT } from '@/config';
-import { useState, useEffect,useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { contextState } from './ContextProvider';
 
 function FloatingButton() {
-  const {anchorAds} = useContext(contextState);
+  const pathname = usePathname();
+  const { anchorAds } = useContext(contextState);
   const [showOptions, setShowOptions] = useState(false);
-  
+
+  if (pathname === '/cad-services') return null;
 
   return (
     <div>
