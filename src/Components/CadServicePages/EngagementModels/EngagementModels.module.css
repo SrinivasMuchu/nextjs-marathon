@@ -1,0 +1,216 @@
+/* Load design fonts - matches index.html */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* Marathon design tokens from index.html - how-section uses var(--surface) #F7F7FC */
+.section {
+  background: #f7f7fc;
+  padding: clamp(48px, 8vw, 96px) clamp(16px, 5%, 48px);
+  font-family: inherit;
+  overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+}
+
+.label {
+  display: inline-block;
+  font-size: clamp(10px, 1.5vw, 11px);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #7c3aed;
+  margin-bottom: 12px;
+  font-family: inherit;
+}
+
+.title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  color: #1a1635;
+  margin-bottom: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(16px, 3vw, 24px);
+  margin-top: clamp(32px, 6vw, 56px);
+}
+
+.card {
+  padding: 32px;
+  border: 1.5px solid #e8e4f8;
+  border-radius: 20px;
+  transition: all 0.25s;
+  background: white;
+  position: relative;
+  overflow: visible;
+  font-family: inherit;
+  min-width: 0;
+}
+
+/* HTML has no .price-card:hover - cards are static; only .price-cta has hover */
+
+/* Featured card (Most Popular) - matches .price-card.featured in index.html */
+.card.featured {
+  border-color: #7c3aed;
+  background: linear-gradient(160deg, rgba(124, 58, 237, 0.04) 0%, white 60%);
+  box-shadow: 0 24px 64px rgba(124, 58, 237, 0.15);
+}
+
+.badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #7c3aed;
+  color: white;
+  padding: 4px 16px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  z-index: 2;
+  font-family: inherit;
+  pointer-events: none;
+}
+
+.cardTitle {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(18px, 2.5vw, 20px);
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: #1a1635;
+}
+
+.cardDesc {
+  font-size: 13px;
+  color: #6b6785;
+  margin-bottom: 24px;
+  font-family: inherit;
+}
+
+.featureList {
+  list-style: none;
+  margin: 0 0 28px 0;
+  padding: 0;
+  font-family: inherit;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  color: #1a1635;
+  font-family: inherit;
+}
+
+.featureItem:last-child {
+  border-bottom: none;
+}
+
+.check {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 50%;
+  background: #efecff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cta {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+}
+
+.ctaOutline {
+  background: white;
+  border: 1.5px solid #e8e4f8;
+  color: #1a1635;
+}
+
+.ctaOutline:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+}
+
+.ctaSolid {
+  background: #7c3aed;
+  color: white;
+}
+
+.ctaSolid:hover {
+  background: #9b5cf6;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+}
+
+/* When embedded in HowItWorks - matches HTML margin-top: 80px */
+.embeddedWrap {
+  margin-top: 80px;
+}
+
+/* Responsive */
+@media screen and (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .section {
+    padding: 48px 16px;
+  }
+
+  .grid {
+    margin-top: 40px;
+    gap: 20px;
+  }
+
+  .card {
+    padding: 24px 20px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .section {
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+}

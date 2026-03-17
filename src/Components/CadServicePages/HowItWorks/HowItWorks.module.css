@@ -1,0 +1,229 @@
+/* Marathon design tokens from index.html */
+.section {
+  background: #f7f7fc;
+  padding: clamp(48px, 8vw, 96px) clamp(16px, 5%, 48px);
+  font-family: inherit;
+  overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+}
+
+.label {
+  display: inline-block;
+  font-size: clamp(10px, 1.5vw, 11px);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #7c3aed;
+  margin-bottom: 12px;
+  font-family: inherit;
+}
+
+.title {
+  font-size: clamp(22px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  color: #1a1635;
+  margin-bottom: 14px;
+  font-family: inherit;
+}
+
+.sub {
+  font-size: clamp(14px, 2vw, 16px);
+  color: #6b6785;
+  max-width: 540px;
+  margin: 0 auto;
+  line-height: 1.65;
+  padding: 0 8px;
+  font-family: inherit;
+}
+
+.ctaWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
+.stepsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: clamp(32px, 6vw, 56px);
+  position: relative;
+}
+
+.stepsRow::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  background: linear-gradient(to right, #7c3aed, #9b5cf6, #7c3aed);
+  opacity: 0.3;
+}
+
+.step {
+  text-align: center;
+  padding: 0 clamp(12px, 2vw, 20px);
+  position: relative;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.stepNum {
+  width: clamp(44px, 10vw, 56px);
+  height: clamp(44px, 10vw, 56px);
+  border-radius: 50%;
+  background: #7c3aed;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(16px, 2vw, 18px);
+  font-weight: 800;
+  margin: 0 auto clamp(16px, 2.5vw, 20px);
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 0 clamp(6px, 1.5vw, 8px) #f7f7fc, 0 0 0 clamp(7px, 1.6vw, 9px) rgba(124, 58, 237, 0.2);
+}
+
+.stepIcon {
+  width: clamp(36px, 8vw, 40px);
+  height: clamp(36px, 8vw, 40px);
+  margin: 0 auto clamp(12px, 2vw, 14px);
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #e8e4f8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.stepIcon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.stepIcon:hover {
+  border-color: #7c3aed;
+  transform: translateY(-4px);
+  background: linear-gradient(160deg, rgba(124, 58, 237, 0.04) 0%, white 60%);
+  box-shadow: 0 24px 64px rgba(124, 58, 237, 0.15);
+}
+
+.stepIcon:hover::before {
+  opacity: 1;
+}
+
+.stepTitle {
+  font-size: clamp(14px, 2vw, 15px);
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1a1635;
+  font-family: inherit;
+}
+
+.stepDesc {
+  font-size: clamp(12px, 1.8vw, 13.5px);
+  color: #6b6785;
+  line-height: 1.55;
+  font-family: inherit;
+  word-break: break-word;
+}
+
+.kickoff {
+  text-align: center;
+  margin-top: clamp(32px, 5vw, 44px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #7c3aed;
+  font-weight: 600;
+  font-size: clamp(13px, 2vw, 14px);
+  font-family: inherit;
+}
+
+/* Responsive */
+@media screen and (max-width: 960px) {
+  .stepsRow {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(20px, 4vw, 36px);
+  }
+
+  .stepsRow::before {
+    display: none;
+  }
+
+  .step {
+    padding: 0 12px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .section {
+    padding: 48px 16px;
+  }
+
+  .stepsRow {
+    grid-template-columns: 1fr;
+    margin-top: 40px;
+    gap: 36px;
+  }
+
+  .step {
+    padding: 0 12px;
+  }
+
+  .stepNum {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+  }
+
+  .stepIcon:hover {
+    transform: translateY(-2px);
+  }
+
+  .kickoff {
+    margin-top: 36px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 8px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .section {
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .sub {
+    font-size: 14px;
+  }
+
+  .stepsRow {
+    gap: 28px;
+  }
+
+  .kickoff {
+    font-size: 12px;
+  }
+}

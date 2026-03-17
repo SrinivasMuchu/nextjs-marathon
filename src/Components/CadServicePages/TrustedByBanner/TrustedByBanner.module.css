@@ -1,0 +1,52 @@
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2vw, 24px);
+  padding: 22px 5%;
+  background: #211b3b;
+  font-family: inherit;
+}
+
+.intro {
+  font-size: clamp(11px, 1.5vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+.companies {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2vw, 24px);
+}
+
+.companyName {
+  font-size: clamp(11px, 1.5vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(196, 168, 255, 0.9);
+  white-space: nowrap;
+}
+
+.ctaWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+@media screen and (max-width: 600px) {
+  .banner {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .companies {
+    flex-direction: column;
+  }
+}
