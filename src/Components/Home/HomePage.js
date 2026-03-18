@@ -10,33 +10,38 @@ import Security from "../HomePages/Security/Security";
 import Faq from "../HomePages/Faq/Faq";
 import Footer from "../HomePages/Footer/Footer";
 import styles from "./HomePage.module.css";
+import CadOutsourcingBanner from "../CadServicesBanners/CadOutsourcingBanner";
+import { CadFormProvider } from "../CadServicePages/CadFormContext";
 
 // Page heading structure: 1 h1 (HomeLandingNew), 2 h2s (DesignHub, RecentlyAddedDesigns), rest h3 (WhyUsNew, FreeTools, CreatorsContent, Security, Faq).
 const HomePage = () => {
   return (
-    <div className={styles.homeRoot}>
-      <div className={styles.mainContent}>
-        {/* <HomeTopNav /> */}
-        {/* <WorkFlow /> */}
-        <HomeLandingNew />
-        <DesignHub />
-        <RecentlyAddedDesigns />
-        <WhyUsNew />
-        <FreeTools />
-        <CreatorsContent />
-        {/* <WhyUs />
-        <Capabilities /> */}
+    <CadFormProvider>
+      <div className={styles.homeRoot}>
+        <div className={styles.mainContent}>
+          {/* <HomeTopNav /> */}
+          {/* <WorkFlow /> */}
+          <HomeLandingNew />
+          <CadOutsourcingBanner />
+          <DesignHub />
+          <RecentlyAddedDesigns />
+          <WhyUsNew />
+          <FreeTools />
+          <CreatorsContent />
+          {/* <WhyUs />
+          <Capabilities /> */}
+          
+          {/* <SneakPeak /> */}
+          {/* <Subscription /> */}
         
-        {/* <SneakPeak /> */}
-        {/* <Subscription /> */}
-       
-        {/* <Tools/>
-        <LibraryDetails/> */}
-        <Security />
-        <Faq />
+          {/* <Tools/>
+          <LibraryDetails/> */}
+          <Security />
+          <Faq />
+        </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    </CadFormProvider>
   );
 };
 

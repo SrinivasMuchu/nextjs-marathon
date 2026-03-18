@@ -219,7 +219,6 @@ function CadHomeDesign({type}) {
             <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS CAD Viewer. Whether you're getting started or looking for advanced features, we've got you covered."/>
             <Footer />
         </>
-
     )
 }
 

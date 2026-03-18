@@ -66,7 +66,16 @@ function Footer() {
             <div className={styles["footer-navs"]}>
              
               <Link href="/library">Library</Link>
-              <Link href="/cad-services">CAD Services</Link>
+              <Link href="/cad-services" className={styles.footerCadCard}>
+                <div>
+                  <div className={styles.footerCadTitle}>Hire CAD Designers</div>
+                  <div className={styles.footerCadBody}>Production-ready in 24 hrs</div>
+                </div>
+                <div className={styles.footerCadBottomRow}>
+                  <div className={styles.footerCadIcon}>👤</div>
+                  <span className={styles.footerCadArrow}>→</span>
+                </div>
+              </Link>
               <Link href="/tools/org-hierarchy">Org Hierarchy</Link>
             
               <Link href="/tools//3D-cad-viewer">CAD Viewer</Link>

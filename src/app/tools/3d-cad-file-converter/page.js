@@ -1,5 +1,6 @@
 import { ASSET_PREFIX_URL } from '@/config';
 import CadFileConversionHome from '@/Components/CadUploadingHome/CadFileConversion/CadFileConversionHome';
+import StickyCadStrip from '@/Components/CadServicesBanners/StickyCadStrip';
 import React from 'react';
 
 const BASE_URL = 'https://marathon-os.com';
@@ -18,7 +19,12 @@ export const metadata = {
 };
 
 function page() {
-  return <CadFileConversionHome />;
+  return (
+    <>
+      <CadFileConversionHome />
+      <StickyCadStrip />
+    </>
+  );
 }
 
 export default page;

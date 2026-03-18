@@ -12,6 +12,8 @@ import OrgFaq from '../OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '../HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 import IndustryDesignsCrousel from './IndustryDesignsCrousel'
+import ToolsPageBanner from '../CadServicesBanners/ToolsPageBanner'
+import IndustryPageBanner from '../CadServicesBanners/IndustryPageBanner'
 
 // Page heading structure: 1 h1 (IndustryDetails/IndustryHeading), 1 h2 (RoleOfCAD), rest h3 (UseOfCAD, SolutionCad, IndustryDesignsCrousel, SampleParts, ChartBuilder, OurFeatures, OrgFaq).
 function Industry({ industry, industryData }) {
@@ -105,6 +107,7 @@ function Industry({ industry, industryData }) {
                   
                   ]}/>
                 <IndustryDetails industryData={industryData} />
+                <ToolsPageBanner />
                 <OrgFeatures type='cad' />
                 <RoleOfCAD industryData={industryData} industry={industry}/>
                 <UseOfCAD industryData={industryData} />
@@ -114,6 +117,7 @@ function Industry({ industry, industryData }) {
                 <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} />
                 <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} />
                 <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS CAD Viewer. Whether you're getting started or looking for advanced features, we've got you covered." />
+                <IndustryPageBanner />
                 <Footer />
             </>}
 

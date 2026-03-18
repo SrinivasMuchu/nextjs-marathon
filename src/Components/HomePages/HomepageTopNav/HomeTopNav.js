@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import styles from "./HomeTopNav.module.css";
 import TopNavProfileButton from "../../CommonJsx/TopNavProfileButton";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
@@ -61,7 +62,10 @@ function HomeTopNav() {
           Dashboard
         </Link>
         <Link href="/library" >Library</Link>
-        <Link href="/cad-services" >CAD Services</Link>
+        <Link href="/cad-services" className={styles.topCta} aria-label="Hire Designers (CAD Services)">
+          <span className={styles.topCtaDot} />
+          Hire Designers <ArrowRight size={16} strokeWidth={2.5} />
+        </Link>
         <div style={{ position: "relative" }}>
           <span style={{ cursor: "pointer" }} onClick={(e) => toggleDropdown(e,"tools")}>
             Tools ▼

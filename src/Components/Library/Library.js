@@ -21,6 +21,7 @@ import { cookies } from 'next/headers';
 import LibraryPageJsonLd from '../JsonLdSchemas/LibraryPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
+import LibraryDesignPageBanner from '../CadServicesBanners/LibraryDesignPageBanner';
 
 /** Build library URL (path for category/tag + query for search, page, sort, etc.). Limit is not included in URL. */
 function buildLibraryHref(params) {
@@ -316,7 +317,8 @@ async function Library({ searchParams }) {
         </LibraryLayoutWithFilters>
         </div>
       </div>
-
+    
+      <LibraryDesignPageBanner />
       <Footer />
     </>
   );
