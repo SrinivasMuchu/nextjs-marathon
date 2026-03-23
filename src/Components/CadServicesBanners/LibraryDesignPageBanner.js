@@ -1,6 +1,7 @@
 import React from "react"
 import { Clock } from "lucide-react"
 import CadQuoteButton from "./CadQuoteButton"
+import OpenCadFormButton from "./OpenCadFormButton"
 import styles from "./LibraryDesignPageBanner.module.css"
 
 function LibraryDesignPageBanner() {
@@ -23,13 +24,10 @@ function LibraryDesignPageBanner() {
 
         <div className={styles.ctaCol}>
           <CadQuoteButton label="Get it Built" className={styles.primaryCta} />
-          <button
-            type="button"
-            className={styles.secondaryCta}
-          >
+          <OpenCadFormButton className={styles.secondaryCta}>
             <Clock size={14} className={styles.secondaryIcon} />
             Reply within 24 hours
-          </button>
+          </OpenCadFormButton>
         </div>
       </div>
     </section>

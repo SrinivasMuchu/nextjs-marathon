@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import Link from "next/link"
+import { useCadForm } from "../CadServicePages/CadFormContext"
 import styles from "./StickyCadStrip.module.css"
 
 const DISMISS_KEY = "marathon_cad_strip_dismissed_until"
@@ -9,6 +9,7 @@ const DISMISS_HOURS = 24
 
 function StickyCadStrip() {
   const [visible, setVisible] = useState(false)
+  const { openFormPopup } = useCadForm()
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -44,6 +45,24 @@ function StickyCadStrip() {
     }
   }
 
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    window.dispatchEvent(
+      new CustomEvent("sticky-cad-strip-visibility-change", {
+        detail: { visible },
+      })
+    )
+
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent("sticky-cad-strip-visibility-change", {
+          detail: { visible: false },
+        })
+      )
+    }
+  }, [visible])
+
   if (!visible) return null
 
   return (
@@ -60,9 +79,9 @@ function StickyCadStrip() {
         </div>
 
         <div className={styles.right}>
-          <Link href="/cad-services" className={styles.cta}>
+          <button type="button" className={styles.cta} onClick={openFormPopup}>
             Get a Quote in 24 Hours
-          </Link>
+          </button>
           <button
             type="button"
             className={styles.close}

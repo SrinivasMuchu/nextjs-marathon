@@ -62,7 +62,11 @@ function HomeTopNav() {
           Dashboard
         </Link>
         <Link href="/library" >Library</Link>
-        <Link href="/cad-services" className={styles.topCta} aria-label="Hire Designers (CAD Services)">
+        <Link
+          href="/cad-services"
+          className={styles.topCta}
+          aria-label="Hire Designers"
+        >
           <span className={styles.topCtaDot} />
           Hire Designers <ArrowRight size={16} strokeWidth={2.5} />
         </Link>

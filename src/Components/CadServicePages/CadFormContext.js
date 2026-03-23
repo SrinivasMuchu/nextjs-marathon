@@ -12,7 +12,7 @@ export function CadFormProvider({ children }) {
   const closeFormPopup = () => setShowPopup(false)
 
   return (
-    <CadFormContext.Provider value={{ openFormPopup, closeFormPopup }}>
+    <CadFormContext.Provider value={{ openFormPopup, closeFormPopup, showPopup }}>
       {children}
       {showPopup && <CadServiceFormPopup onClose={closeFormPopup} />}
     </CadFormContext.Provider>
@@ -22,7 +22,7 @@ export function CadFormProvider({ children }) {
 export function useCadForm() {
   const ctx = useContext(CadFormContext)
   if (!ctx) {
-    return { openFormPopup: () => {}, closeFormPopup: () => {} }
+    return { openFormPopup: () => {}, closeFormPopup: () => {}, showPopup: false }
   }
   return ctx
 }

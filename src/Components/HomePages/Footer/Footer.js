@@ -66,7 +66,11 @@ function Footer() {
             <div className={styles["footer-navs"]}>
              
               <Link href="/library">Library</Link>
-              <Link href="/cad-services" className={styles.footerCadCard}>
+              <Link
+                href="/cad-services"
+                className={styles.footerCadCard}
+                aria-label="Hire CAD designers"
+              >
                 <div>
                   <div className={styles.footerCadTitle}>Hire CAD Designers</div>
                   <div className={styles.footerCadBody}>Production-ready in 24 hrs</div>

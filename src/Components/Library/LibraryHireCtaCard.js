@@ -1,6 +1,6 @@
 import React from "react"
-import Link from "next/link"
 import { Users, ArrowRight } from "lucide-react"
+import OpenCadFormButton from "@/Components/CadServicesBanners/OpenCadFormButton"
 import styles from "./LibraryHireCtaCard.module.css"
 
 /**
@@ -19,10 +19,10 @@ function LibraryHireCtaCard() {
         hours.
       </p>
 
-      <Link href="/cad-services" className={styles.cta}>
+      <OpenCadFormButton className={styles.cta}>
         Hire a Designer
         <ArrowRight size={18} strokeWidth={2.25} aria-hidden />
-      </Link>
+      </OpenCadFormButton>
 
       <div className={styles.divider} />
 

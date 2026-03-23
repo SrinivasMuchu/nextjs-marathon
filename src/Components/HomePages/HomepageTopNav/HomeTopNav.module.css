@@ -85,10 +85,12 @@
   border-radius: 999px;
   font-size: 14px;
   font-weight: 600;
+  font-family: inherit;
   text-decoration: none;
   color: #7c3aed;
   background: rgba(124, 58, 237, 0.08);
   border: 1px solid rgba(124, 58, 237, 0.35);
+  cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
@@ -134,10 +136,12 @@
   border-radius: 0;
   font-size: 16px;
   font-weight: 500;
+  font-family: inherit;
   text-decoration: none;
   color: white;
   background: transparent;
   border: none;
+  cursor: pointer;
   transition: none;
   margin-top: 0;
 }

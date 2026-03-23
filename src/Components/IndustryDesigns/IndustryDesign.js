@@ -23,7 +23,6 @@ import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 import DesignHub from '../HomePages/DesignHub/DesignHub';
 import RecentlyAddedDesigns from '../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns';
 import LibraryDesignPageBanner from '../CadServicesBanners/LibraryDesignPageBanner';
-import { CadFormProvider } from '../CadServicePages/CadFormContext';
 
 // Page heading structure: 1 h1 (IndustryHeaderDetails), 2 h2s (AboutCad, first IndustryDesignsSuggestion), rest h3 (second IndustryDesignsSuggestion if present).
 function IndustryDesign({ design, designData, type }) {
@@ -130,7 +129,6 @@ function IndustryDesign({ design, designData, type }) {
           <LibraryDesignPageBanner />
       <Footer />
     </>
-    </CadFormProvider>
 
   )
 }

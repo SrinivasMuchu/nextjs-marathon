@@ -87,7 +87,7 @@ function MobileMenu({ onClose, styles }) {
           href="/cad-services"
           onClick={handleCloseMenu}
           className={styles.topCtaMenu}
-          aria-label="Hire Designers (CAD Services)"
+          aria-label="Hire Designers"
         >
           <span className={styles.topCtaMenuDot} />
           Hire Designers <ArrowRight size={16} strokeWidth={2.5} />
