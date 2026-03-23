@@ -5,14 +5,48 @@ import React, {
   useRef,
   useState,
   useEffect,
+  useLayoutEffect,
   Suspense,
 } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
+/** Bust browser + CDN caches (CloudFront often serves an old GLB after S3 overwrite). */
+function withAssetCacheBust(url, cacheBust) {
+  if (!url || cacheBust == null || cacheBust === "") return url;
+  const join = url.includes("?") ? "&" : "?";
+  return `${url}${join}v=${encodeURIComponent(String(cacheBust))}`;
+}
+
 /** Fallback when JSON has no per-part explode */
 const MAX_EXPLODE_SCALE = 3.0;
+
+function forEachMeshMaterial(mesh, fn) {
+  const m = mesh.material;
+  if (!m) return;
+  if (Array.isArray(m)) m.forEach(fn);
+  else fn(m);
+}
+
+const _scratchViewDir = new THREE.Vector3();
+const _scratchExplodeDir = new THREE.Vector3();
+
+/**
+ * Projects motion onto the plane facing the camera — reads as sliding on-screen,
+ * not true 3D dismantling. Prefer world-space JSON explodeDir (default) for assembly explode.
+ */
+function screenPlaneExplodeDirection(base, viewDir, out) {
+  const along = base.dot(viewDir);
+  out.copy(base).addScaledVector(viewDir, -along);
+  if (out.lengthSq() < 1e-16) {
+    if (Math.abs(viewDir.y) < 0.9) out.set(0, 1, 0).cross(viewDir);
+    else out.set(1, 0, 0).cross(viewDir);
+  }
+  out.normalize();
+  if (out.dot(base) < 0) out.negate();
+  return out;
+}
 
 function normalizeName(s) {
   if (!s) return "";
@@ -162,11 +196,39 @@ function resolveExplodeMeta(
   return null;
 }
 
-function ExplodableModel({ url, explode, activePartName, partsMeta }) {
+function ExplodableModel({
+  url,
+  explode,
+  activePartName,
+  partsMeta,
+  /** If true, motion is flattened to the camera plane (slide). If false, uses JSON/CAD radial dirs — real dismantle. */
+  screenPlaneExplode = false,
+  /** Without part metadata there is nothing to align explode to — motion stays off. */
+  explodeEnabled = true,
+}) {
   const { scene } = useGLTF(url);
+  const { camera } = useThree();
+
+  useLayoutEffect(() => {
+    return () => {
+      try {
+        useGLTF.clear(url);
+      } catch {
+        /* ignore */
+      }
+    };
+  }, [url]);
   const partsRef = useRef([]);
   const partsByNameRef = useRef({});
   const radiusRef = useRef(1);
+  const explodeRef = useRef(explode);
+  const activePartRef = useRef(activePartName);
+  const explodeEnabledRef = useRef(explodeEnabled);
+  useLayoutEffect(() => {
+    explodeRef.current = explode;
+    activePartRef.current = activePartName;
+    explodeEnabledRef.current = explodeEnabled;
+  }, [explode, activePartName, explodeEnabled]);
   const { byExact, byNorm } = useMemo(
     () => buildExplodeMetaMap(partsMeta),
     [partsMeta]
@@ -194,7 +256,12 @@ function ExplodableModel({ url, explode, activePartName, partsMeta }) {
 
     const meshNodes = [];
     clone.traverse((node) => {
-      if (node.isMesh && node.geometry) meshNodes.push(node);
+      if (
+        node.geometry &&
+        (node.isMesh || node.isSkinnedMesh || node.isInstancedMesh)
+      ) {
+        meshNodes.push(node);
+      }
     });
 
     meshNodes.forEach((node, index) => {
@@ -211,7 +278,6 @@ function ExplodableModel({ url, explode, activePartName, partsMeta }) {
         partsMeta,
         partLookup
       );
-
       const fallbackDir = offsetFromCenter.clone();
       if (fallbackDir.lengthSq() < 1e-12) fallbackDir.set(0, 0, 1);
       else fallbackDir.normalize();
@@ -219,7 +285,13 @@ function ExplodableModel({ url, explode, activePartName, partsMeta }) {
       const dir = jsonMeta?.dir
         ? jsonMeta.dir.clone()
         : fallbackDir.clone();
-      const baseDistance = jsonMeta?.distance ?? null;
+      const rawDist = jsonMeta?.distance;
+      const baseDistance =
+        rawDist != null &&
+        Number.isFinite(Number(rawDist)) &&
+        Number(rawDist) > 0
+          ? Number(rawDist)
+          : null;
 
       const partGroup = new THREE.Group();
       partGroup.userData = {
@@ -245,46 +317,77 @@ function ExplodableModel({ url, explode, activePartName, partsMeta }) {
         p.explodeDir.length >= 3 &&
         p.explodeDistance != null
     ).length;
-    console.log(
-      "Explode parts:",
-      partsRef.current.length,
-      "| JSON explode entries:",
-      metaCount
-    );
+    if (process.env.NODE_ENV === "development") {
+      const meshN = partsRef.current.length;
+      console.log(
+        "[GlbExplodeViewer] mesh parts:",
+        meshN,
+        "| JSON explode entries:",
+        metaCount
+      );
+      const jsonParts = partsMeta?.length ?? 0;
+      if (jsonParts > 1 && meshN === 1) {
+        console.warn(
+          "[GlbExplodeViewer] 1 mesh in GLB but JSON lists",
+          jsonParts,
+          "parts — almost always a stale file (CloudFront/browser) or wrong URL. " +
+            "Use the S3 object URL, invalidate CDN, or pass cacheBust on GlbExplodeViewer. " +
+            "Loaded:",
+          url
+        );
+      }
+    }
 
     return { rootGroup: root, radius };
   }, [scene, url, partsMeta, byExact, byNorm, partLookup]);
 
   useFrame(() => {
+    const t = explodeEnabledRef.current ? explodeRef.current : 0;
     const R = radiusRef.current;
-    /** Scale JSON distance (often ~10 in file units) so explosion is visible vs model size */
-    const distanceScale = Math.max(0.75, R * 0.12);
+    /** Stronger scale so dismantling reads clearly vs model size (JSON distance ~10). */
+    const distanceScale = Math.max(1.0, R * 0.22);
+
+    if (screenPlaneExplode) {
+      camera.getWorldDirection(_scratchViewDir);
+    }
 
     partsRef.current.forEach((g) => {
       const base = g.userData.basePos;
-      const dir = g.userData.dir;
       let dist;
 
       if (g.userData.baseDistance != null) {
-        dist = explode * g.userData.baseDistance * distanceScale;
+        dist = t * g.userData.baseDistance * distanceScale;
       } else {
-        dist = explode * MAX_EXPLODE_SCALE * R;
+        dist = t * MAX_EXPLODE_SCALE * R;
+      }
+
+      let dir;
+      if (screenPlaneExplode) {
+        screenPlaneExplodeDirection(base, _scratchViewDir, _scratchExplodeDir);
+        dir = _scratchExplodeDir;
+      } else {
+        dir = g.userData.dir;
       }
 
       g.position.copy(base).addScaledVector(dir, dist);
 
+      const ap = activePartRef.current;
       const label = g.userData.jsonLabel || g.name;
       const isActive =
-        activePartName && (activePartName === label || activePartName === g.name);
+        ap && (ap === label || ap === g.name);
       g.traverse((child) => {
-        if (child.isMesh && child.material) {
-          if (!child.userData._origColor) {
-            child.userData._origColor = child.material.color.clone();
+        if (!child.isMesh || !child.material) return;
+        forEachMeshMaterial(child, (mat) => {
+          if (!mat || !mat.color) return;
+          if (!child.userData._origColors) child.userData._origColors = new Map();
+          if (!child.userData._origColors.has(mat.uuid)) {
+            child.userData._origColors.set(mat.uuid, mat.color.clone());
           }
-          child.material.color.copy(
-            isActive ? new THREE.Color("#f97316") : child.userData._origColor
+          const orig = child.userData._origColors.get(mat.uuid);
+          mat.color.copy(
+            isActive ? new THREE.Color("#f97316") : orig
           );
-        }
+        });
       });
     });
   });
@@ -292,10 +395,40 @@ function ExplodableModel({ url, explode, activePartName, partsMeta }) {
   return <primitive object={rootGroup} />;
 }
 
-export function GlbExplodeViewer({ glbUrl, metaUrl }) {
+export function GlbExplodeViewer({
+  glbUrl,
+  metaUrl,
+  /**
+   * false (default) = 3D dismantle using metadata explodeDir (radial from assembly center).
+   * true = flatten motion to the screen plane (looks like sliding, not true explode).
+   */
+  screenPlaneExplode = false,
+  /**
+   * Change after each upload (e.g. timestamp) so CloudFront/browser fetch the new GLB/JSON.
+   * Without this, the same path can keep serving an old merged GLB while JSON updates.
+   */
+  cacheBust,
+}) {
+  const resolvedGlbUrl = useMemo(
+    () => withAssetCacheBust(glbUrl, cacheBust),
+    [glbUrl, cacheBust]
+  );
+  const resolvedMetaUrl = useMemo(
+    () => withAssetCacheBust(metaUrl, cacheBust),
+    [metaUrl, cacheBust]
+  );
   const [explode, setExplode] = useState(0);
   const [partsMeta, setPartsMeta] = useState([]);
   const [activePartName, setActivePartName] = useState(null);
+  const [metaLoadStatus, setMetaLoadStatus] = useState(() =>
+    resolvedMetaUrl ? "loading" : "no_url"
+  );
+
+  const hasPartsMeta = Array.isArray(partsMeta) && partsMeta.length > 0;
+
+  useEffect(() => {
+    if (!hasPartsMeta) setExplode(0);
+  }, [hasPartsMeta]);
 
   const partsForSidebar = useMemo(
     () =>
@@ -306,17 +439,51 @@ export function GlbExplodeViewer({ glbUrl, metaUrl }) {
   );
 
   useEffect(() => {
-    if (!metaUrl) return;
+    if (!resolvedMetaUrl) {
+      setMetaLoadStatus("no_url");
+      setPartsMeta([]);
+      return;
+    }
 
-    fetch(metaUrl)
-      .then((res) => res.json())
+    setMetaLoadStatus("loading");
+    let cancelled = false;
+
+    fetch(resolvedMetaUrl, { mode: "cors" })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} for meta JSON`);
+        }
+        return res.json();
+      })
       .then((data) => {
-        setPartsMeta(data?.parts || []);
+        if (cancelled) return;
+        const parts = data?.parts;
+        if (!Array.isArray(parts)) {
+          console.error(
+            "[GlbExplodeViewer] meta JSON missing top-level array `parts`",
+            data
+          );
+          setPartsMeta([]);
+          setMetaLoadStatus("bad_shape");
+          return;
+        }
+        setPartsMeta(parts);
+        setMetaLoadStatus(parts.length ? "ok" : "empty");
       })
       .catch((err) => {
-        console.error("Failed to load meta JSON", err);
+        if (cancelled) return;
+        console.error(
+          "[GlbExplodeViewer] Failed to load meta JSON (often S3/CloudFront CORS).",
+          err
+        );
+        setPartsMeta([]);
+        setMetaLoadStatus("error");
       });
-  }, [metaUrl]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resolvedMetaUrl]);
 
   return (
     <div style={{ display: "flex", width: "100%", height: "89vh" }}>
@@ -332,12 +499,40 @@ export function GlbExplodeViewer({ glbUrl, metaUrl }) {
         }}
       >
         <div style={{ fontWeight: 600, marginBottom: 8 }}>Parts</div>
-        {partsForSidebar.map((p) => {
+        {metaLoadStatus === "loading" && (
+          <div style={{ color: "#94a3b8", marginBottom: 8 }}>Loading metadata…</div>
+        )}
+        {metaLoadStatus === "error" && (
+          <div style={{ color: "#f87171", marginBottom: 8, lineHeight: 1.45 }}>
+            Could not load JSON. Open DevTools → Network: if the request is
+            blocked, add CORS on your bucket/CloudFront (GET for the JSON URL) or
+            proxy the file through your API.
+          </div>
+        )}
+        {metaLoadStatus === "bad_shape" && (
+          <div style={{ color: "#f87171", marginBottom: 8 }}>
+            JSON must include a <code style={{ color: "#e2e8f0" }}>parts</code>{" "}
+            array (see FreeCAD macro output).
+          </div>
+        )}
+        {metaLoadStatus === "ok" && partsForSidebar.length === 0 && (
+          <div style={{ color: "#fbbf24", marginBottom: 8, lineHeight: 1.45 }}>
+            No parts with valid <code style={{ color: "#e2e8f0" }}>bbox</code> in
+            metadata. Check macro: each entry needs xmin…zmax and explode fields.
+          </div>
+        )}
+        {metaLoadStatus === "empty" && (
+          <div style={{ color: "#fbbf24", marginBottom: 8 }}>
+            Metadata loaded but <code style={{ color: "#e2e8f0" }}>parts</code>{" "}
+            is empty — macro found no meshable solids.
+          </div>
+        )}
+        {partsForSidebar.map((p, idx) => {
           const name = p.name || `Part ${p.id}`;
           const isActive = activePartName === name;
           return (
             <div
-              key={p.id}
+              key={p.id != null ? String(p.id) : `${name}-${idx}`}
               onMouseEnter={() => setActivePartName(name)}
               onMouseLeave={() => setActivePartName(null)}
               style={{
@@ -353,27 +548,14 @@ export function GlbExplodeViewer({ glbUrl, metaUrl }) {
       </div>
 
       {/* Right: viewer */}
-      <div style={{ flex: 1, position: "relative" }}>
+      <div
+        style={{ flex: 1, position: "relative" }}
+        onMouseLeave={() => setActivePartName(null)}
+      >
         <Canvas
           camera={{ position: [0, 0, 570], fov: 45 }}
           dpr={[1, 2]}
           gl={{ antialias: true, powerPreference: "high-performance" }}
-          onPointerMove={(e) => {
-            e.stopPropagation();
-            const mesh = e.object;
-            if (!mesh) return;
-
-            // walk up to the named group created in ExplodableModel
-            let group = mesh;
-            while (group.parent && !group.name) {
-              group = group.parent;
-            }
-
-            if (group && group.name) {
-              setActivePartName(group.name);
-            }
-          }}
-          onPointerMissed={() => setActivePartName(null)}
         >
           <color attach="background" args={["#111827"]} />
           <ambientLight intensity={0.5} />
@@ -387,10 +569,13 @@ export function GlbExplodeViewer({ glbUrl, metaUrl }) {
 
           <Suspense fallback={null}>
             <ExplodableModel
-              url={glbUrl}
+              key={resolvedGlbUrl}
+              url={resolvedGlbUrl}
               explode={explode}
               activePartName={activePartName}
               partsMeta={partsMeta}
+              screenPlaneExplode={screenPlaneExplode}
+              explodeEnabled={hasPartsMeta}
             />
           </Suspense>
         </Canvas>
@@ -410,13 +595,14 @@ export function GlbExplodeViewer({ glbUrl, metaUrl }) {
             color: "#e5e7eb",
           }}
         >
-          <span style={{ fontSize: 12 }}>Explode</span>
+          <span style={{ fontSize: 12 }}>Dismantle</span>
           <input
             type="range"
             min={0}
             max={1}
             step={0.01}
             value={explode}
+            disabled={!hasPartsMeta}
             onChange={(e) => setExplode(Number(e.target.value))}
           />
           <span style={{ fontSize: 12 }}>{Math.round(explode * 100)}%</span>
