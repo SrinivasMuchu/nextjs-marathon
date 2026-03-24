@@ -4,7 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 
-const CAD_SERVICES_QUOTE_HREF = "/cad-services#cad-quote"
+const CAD_SERVICES_QUOTE_HREF = "/cad-services"
 
 function CadQuoteButton({ label = "Hire a Designer", className }) {
   return (

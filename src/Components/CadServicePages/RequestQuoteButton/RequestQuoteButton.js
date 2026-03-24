@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import styles from './RequestQuoteButton.module.css'
 
-const CAD_SERVICES_QUOTE_HREF = '/cad-services#cad-quote'
+const CAD_SERVICES_QUOTE_HREF = '/cad-services'
 
 function RequestQuoteButton({ variant = 'light' }) {
   return (

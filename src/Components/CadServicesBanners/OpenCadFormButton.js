@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 
-const CAD_SERVICES_QUOTE_HREF = "/cad-services#cad-quote"
+const CAD_SERVICES_QUOTE_HREF = "/cad-services"
 
 /**
  * Navigates to the CAD services page quote form (inline section), not the popup.
