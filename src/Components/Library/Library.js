@@ -22,6 +22,7 @@ import LibraryPageJsonLd from '../JsonLdSchemas/LibraryPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
 import LibraryDesignPageBanner from '../CadServicesBanners/LibraryDesignPageBanner';
+import LibraryHireCtaCard from './LibraryHireCtaCard';
 
 /** Build library URL (path for category/tag + query for search, page, sort, etc.). Limit is not included in URL. */
 function buildLibraryHref(params) {
@@ -195,13 +196,22 @@ async function Library({ searchParams }) {
                 </div>
               )}
 
-              {/* Insert ad at position 6 (before 6th design) */}
+              {/* Insert ad after 7 grid slots (before 8th item = design index 6) */}
               {index === 6 && (
                 <div
                   className={styles["library-designs-items-container"]}
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <LeftRightBanner adSlot="4799748492" />
+                </div>
+              )}
+
+              {/* Hire CTA card: 6th grid slot (after leading ad + first 4 designs) */}
+              {index === 4 && (
+                <div
+                  className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
+                >
+                  <LibraryHireCtaCard />
                 </div>
               )}
 
@@ -240,6 +250,14 @@ async function Library({ searchParams }) {
               </div>
             </React.Fragment>
           ))}
+          {/* Fewer than 5 designs: index 4 never runs — show CTA after last card */}
+          {designs.length > 0 && designs.length < 5 && (
+            <div
+              className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
+            >
+              <LibraryHireCtaCard />
+            </div>
+          )}
         </div>
 
         <div className={styles["library-pagination"]}>

@@ -29,7 +29,6 @@ function IndustryDesign({ design, designData, type }) {
 
 
   return (
-    <CadFormProvider>
     <>
       {designData && designData.response && (
         <ProductStructuredData

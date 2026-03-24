@@ -111,6 +111,7 @@
   font-family: inherit;
   box-shadow: 0 16px 38px rgba(79, 70, 229, 0.55);
   transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .primaryCta:hover {

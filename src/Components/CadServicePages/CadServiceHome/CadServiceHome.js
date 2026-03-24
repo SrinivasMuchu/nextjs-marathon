@@ -4,7 +4,7 @@ import styles from './CadServiceHome.module.css'
 
 function CadServiceHome() {
   return (
-    <section className={styles.section} data-cad-form>
+    <section id="cad-quote" className={styles.section} data-cad-form>
       <div className={styles.leftColumn}>
         <span className={styles.tag}>
           <span className={styles.tagBullet} />

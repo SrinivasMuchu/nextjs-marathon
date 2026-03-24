@@ -1,17 +1,17 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import { useCadForm } from "../CadServicePages/CadFormContext"
+
+const CAD_SERVICES_QUOTE_HREF = "/cad-services#cad-quote"
 
 function CadQuoteButton({ label = "Hire a Designer", className }) {
-  const { openFormPopup } = useCadForm()
-
   return (
-    <button type="button" className={className} onClick={openFormPopup}>
+    <Link href={CAD_SERVICES_QUOTE_HREF} className={className}>
       {label}
       <ArrowRight size={16} strokeWidth={2.5} />
-    </button>
+    </Link>
   )
 }
 

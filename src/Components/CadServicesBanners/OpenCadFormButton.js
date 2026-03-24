@@ -1,17 +1,18 @@
 "use client"
 
 import React from "react"
-import { useCadForm } from "../CadServicePages/CadFormContext"
+import Link from "next/link"
+
+const CAD_SERVICES_QUOTE_HREF = "/cad-services#cad-quote"
 
 /**
- * Generic button that opens the CAD services quote popup (uses root CadFormProvider).
+ * Navigates to the CAD services page quote form (inline section), not the popup.
  */
-function OpenCadFormButton({ className, children, type = "button", ...rest }) {
-  const { openFormPopup } = useCadForm()
+function OpenCadFormButton({ className, children, type, href, ...rest }) {
   return (
-    <button type={type} className={className} onClick={openFormPopup} {...rest}>
+    <Link href={href || CAD_SERVICES_QUOTE_HREF} className={className} {...rest}>
       {children}
-    </button>
+    </Link>
   )
 }
 

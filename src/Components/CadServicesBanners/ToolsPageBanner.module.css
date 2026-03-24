@@ -76,6 +76,7 @@
   font-family: inherit;
   box-shadow: 0 10px 26px rgba(124, 58, 237, 0.4);
   transition: all 0.18s ease;
+  text-decoration: none;
 }
 
 .primaryCta:hover {

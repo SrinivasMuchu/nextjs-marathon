@@ -3,6 +3,7 @@ import { Clock } from "lucide-react"
 import CadQuoteButton from "./CadQuoteButton"
 import OpenCadFormButton from "./OpenCadFormButton"
 import styles from "./LibraryDesignPageBanner.module.css"
+import { FileText } from "lucide-react"
 
 function LibraryDesignPageBanner() {
   return (
@@ -10,7 +11,7 @@ function LibraryDesignPageBanner() {
       <div className={styles.bannerCard}>
         <div className={styles.iconCol}>
           <div className={styles.iconCircle}>
-            <span className={styles.iconGlyph}>g</span>
+            <span className={styles.iconGlyph}> <FileText size={22} strokeWidth={2.2} className={styles.iconSvg} /></span>
           </div>
         </div>
 

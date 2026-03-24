@@ -28,7 +28,7 @@ function CadOutsourcingBanner() {
         </div>
 
         <div className={styles.rightContent}>
-          <CadQuoteButton label="Get a Quote" className={styles.primaryCta} />
+          <CadQuoteButton label="Know More" className={styles.primaryCta} />
           <p className={styles.kickoffText}>
             <Clock size={14} className={styles.kickoffIcon} />
             Typical kickoff in 24–72 hrs
