@@ -3,6 +3,7 @@
 import React from "react"
 import { Clock } from "lucide-react"
 import CadQuoteButton from "./CadQuoteButton"
+import CadPopupQuoteButton from "./CadPopupQuoteButton"
 import styles from "./CadOutsourcingBanner.module.css"
 
 function CadOutsourcingBanner() {
@@ -28,7 +29,10 @@ function CadOutsourcingBanner() {
         </div>
 
         <div className={styles.rightContent}>
-          <CadQuoteButton label="Know More" className={styles.primaryCta} />
+          <div className={styles.ctaRow}>
+            <CadQuoteButton label="Know More" className={styles.primaryCta} />
+            <CadPopupQuoteButton label="Get Quote" className={styles.secondaryCta} />
+          </div>
           <p className={styles.kickoffText}>
             <Clock size={14} className={styles.kickoffIcon} />
             Typical kickoff in 24–72 hrs

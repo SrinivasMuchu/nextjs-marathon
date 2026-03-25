@@ -91,6 +91,14 @@
   z-index: 1;
 }
 
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .primaryCta {
   display: inline-flex;
   align-items: center;
@@ -116,6 +124,34 @@
 }
 
 .primaryCta:focus-visible {
+  outline: 2px solid rgba(191, 219, 254, 0.9);
+  outline-offset: 2px;
+}
+
+.secondaryCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 26px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.secondaryCta:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.65);
+  transform: translateY(-2px);
+}
+
+.secondaryCta:focus-visible {
   outline: 2px solid rgba(191, 219, 254, 0.9);
   outline-offset: 2px;
 }
@@ -157,6 +193,11 @@
   .rightContent {
     width: 100%;
     align-items: flex-start;
+  }
+
+  .ctaRow {
+    justify-content: flex-start;
+    width: 100%;
   }
 }
 
