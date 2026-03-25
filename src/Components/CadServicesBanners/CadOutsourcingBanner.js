@@ -31,7 +31,7 @@ function CadOutsourcingBanner() {
         <div className={styles.rightContent}>
           <div className={styles.ctaRow}>
             <CadQuoteButton label="Know More" className={styles.primaryCta} />
-            <CadPopupQuoteButton label="Get Quote" className={styles.secondaryCta} />
+            <CadPopupQuoteButton label="Get a Quote" className={styles.secondaryCta} />
           </div>
           <p className={styles.kickoffText}>
             <Clock size={14} className={styles.kickoffIcon} />
