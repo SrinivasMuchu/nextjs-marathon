@@ -5,6 +5,7 @@ import styles from "./CadHome.module.css";
 import CadDropZoneWrapper from "./CadDropZoneWrapper";
 import { cadViewerFiles } from "@/common.helper";
 import CommonSampleViewer from "@/Components/CommonJsx/CommonSampleViewer";
+import ToolsPageBanner from "@/Components/CadServicesBanners/ToolsPageBanner";
 
 
 function CadHomeDropZone({ isStyled,allowedFormats,type }) {
@@ -33,6 +34,7 @@ function CadHomeDropZone({ isStyled,allowedFormats,type }) {
     </CadDropZoneWrapper>
   
               <CommonSampleViewer/>
+              <ToolsPageBanner />
 
     </>
 

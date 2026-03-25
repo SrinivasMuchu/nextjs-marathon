@@ -146,6 +146,8 @@
   justify-content: center;
   gap: 6px;
   border: none;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
 .ctaOutline {

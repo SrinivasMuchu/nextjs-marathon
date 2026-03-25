@@ -5,13 +5,48 @@ import { useState, useEffect, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { contextState } from './ContextProvider';
+import { useCadForm } from '../CadServicePages/CadFormContext';
 
 function FloatingButton() {
   const pathname = usePathname();
   const { anchorAds } = useContext(contextState);
+  const { showPopup } = useCadForm();
   const [showOptions, setShowOptions] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isStickyStripVisible, setIsStickyStripVisible] = useState(false);
 
-  if (pathname === '/cad-services') return null;
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia('(max-width: 1399px)');
+    const updateIsMobile = (event) => setIsMobile(event.matches);
+
+    setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener('change', updateIsMobile);
+
+    return () => mediaQuery.removeEventListener('change', updateIsMobile);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleStickyStripVisibility = (event) => {
+      setIsStickyStripVisible(Boolean(event?.detail?.visible));
+    };
+
+    window.addEventListener('sticky-cad-strip-visibility-change', handleStickyStripVisibility);
+
+    return () => {
+      window.removeEventListener('sticky-cad-strip-visibility-change', handleStickyStripVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
+    setIsStickyStripVisible(false);
+  }, [pathname]);
+
+  if (showPopup) return null;
+  if (isMobile && isStickyStripVisible) return null;
 
   return (
     <div>

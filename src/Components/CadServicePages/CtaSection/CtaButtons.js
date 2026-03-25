@@ -1,23 +1,19 @@
 "use client"
 
 import React from 'react'
+import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { useCadForm } from '../CadFormContext'
 import styles from './CtaSection.module.css'
 
-function CtaButtons() {
-  const { openFormPopup } = useCadForm()
+const CAD_SERVICES_QUOTE_HREF = '/cad-services'
 
+function CtaButtons() {
   return (
     <div className={styles.ctaButtons}>
-      <button
-        type="button"
-        className={styles.ctaBtnPrimary}
-        onClick={openFormPopup}
-      >
+      <Link href={CAD_SERVICES_QUOTE_HREF} className={styles.ctaBtnPrimary}>
         Request CAD Quote
         <ArrowRight size={16} strokeWidth={2.5} />
-      </button>
+      </Link>
     </div>
   )
 }

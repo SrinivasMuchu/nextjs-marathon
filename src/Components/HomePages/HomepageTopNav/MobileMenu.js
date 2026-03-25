@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import CheckHistory from "@/Components/CommonJsx/CheckHistory";
+import { ArrowRight } from "lucide-react";
 
 function MobileMenu({ onClose, styles }) {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
@@ -82,7 +83,15 @@ function MobileMenu({ onClose, styles }) {
            Dashboard
          </Link>
         <Link href="/library" onClick={handleCloseMenu}>Library</Link>
-        <Link href="/cad-services" onClick={handleCloseMenu}>CAD Services</Link>
+        <Link
+          href="/cad-services"
+          onClick={handleCloseMenu}
+          className={styles.topCtaMenu}
+          aria-label="Hire Designers"
+        >
+          <span className={styles.topCtaMenuDot} />
+          Hire Designers <ArrowRight size={16} strokeWidth={2.5} />
+        </Link>
          
       </div>
     </>

@@ -1,20 +1,19 @@
 "use client"
 
 import React from 'react'
-import { useCadForm } from '../CadFormContext'
+import Link from 'next/link'
 import styles from './EngagementModels.module.css'
 
-function GetStartedButton({ primary = false }) {
-  const { openFormPopup } = useCadForm()
+const CAD_SERVICES_QUOTE_HREF = '/cad-services'
 
+function GetStartedButton({ primary = false }) {
   return (
-    <button
-      type="button"
+    <Link
+      href={CAD_SERVICES_QUOTE_HREF}
       className={`${styles.cta} ${primary ? styles.ctaSolid : styles.ctaOutline}`}
-      onClick={openFormPopup}
     >
       Get Started →
-    </button>
+    </Link>
   )
 }
 

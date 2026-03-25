@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { CadFormProvider } from './CadFormContext'
 import CadServiceHome from './CadServiceHome/CadServiceHome'
 import TrustedByBanner from './TrustedByBanner/TrustedByBanner'
 import WhyMarathon from './WhyMarathon/WhyMarathon'
@@ -15,9 +14,7 @@ import Footer from '../HomePages/Footer/Footer'
 
 function CadServices() {
   return (
-    <CadFormProvider>
     <div>
-    
       <CadServiceHome />
       {/* <TrustedByBanner /> */}
       <WhyMarathon />
@@ -29,7 +26,6 @@ function CadServices() {
       <CtaSection />
       <Footer />
     </div>
-    </CadFormProvider>
   )
 }
 

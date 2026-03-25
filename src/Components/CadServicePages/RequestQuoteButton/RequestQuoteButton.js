@@ -1,22 +1,21 @@
 "use client"
 
 import React from 'react'
+import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { useCadForm } from '../CadFormContext'
 import styles from './RequestQuoteButton.module.css'
 
-function RequestQuoteButton({ variant = 'light' }) {
-  const { openFormPopup } = useCadForm()
+const CAD_SERVICES_QUOTE_HREF = '/cad-services'
 
+function RequestQuoteButton({ variant = 'light' }) {
   return (
-    <button
-      type="button"
+    <Link
+      href={CAD_SERVICES_QUOTE_HREF}
       className={variant === 'dark' ? styles.btnDark : styles.btnLight}
-      onClick={openFormPopup}
     >
       Request CAD Quote
       <ArrowRight size={16} strokeWidth={2.5} />
-    </button>
+    </Link>
   )
 }
 

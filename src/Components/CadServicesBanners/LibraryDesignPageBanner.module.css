@@ -1,0 +1,157 @@
+.section {
+  padding: 16px 0 8px;
+  font-family: inherit;
+}
+
+.bannerCard {
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: 18px 24px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bannerCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 6px;
+  background: linear-gradient(180deg, #7c3aed 0%, #a855f7 50%, #38bdf8 100%);
+  border-radius: 20px 0 0 20px;
+}
+
+.bannerCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+.iconCol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconCircle {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: rgba(129, 140, 248, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconGlyph {
+  font-size: 26px;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+.textCol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #020617;
+}
+
+.description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.ctaCol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.primaryCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 10px 26px rgba(124, 58, 237, 0.4);
+  transition: all 0.18s ease;
+  text-decoration: none;
+}
+
+.primaryCta:hover {
+  background: #9b5cf6;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(124, 58, 237, 0.55);
+}
+
+.secondaryCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #6b21a8;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.secondaryIcon {
+  flex-shrink: 0;
+}
+
+@media screen and (max-width: 800px) {
+  .bannerCard {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+    padding: 16px 18px;
+  }
+
+  .iconCol {
+    justify-content: flex-start;
+  }
+
+  .ctaCol {
+    width: 100%;
+    align-items: flex-start;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .bannerCard {
+    padding: 14px 14px;
+    border-radius: 18px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .description {
+    font-size: 12px;
+  }
+}
+

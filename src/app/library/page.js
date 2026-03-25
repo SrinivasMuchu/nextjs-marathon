@@ -2,6 +2,7 @@ import Library from '@/Components/Library/Library';
 import { ASSET_PREFIX_URL } from '@/config';
 import React from 'react';
 import { getLibraryCanonicalAndRobots } from '@/common.helper';
+import StickyCadStrip from '@/Components/CadServicesBanners/StickyCadStrip';
 
 // This function sets metadata based on query params
 export async function generateMetadata({ searchParams }) {
@@ -60,6 +61,7 @@ function LibraryPage({ searchParams }) {
   return (
     <div>
       <Library searchParams={searchParams} />
+      <StickyCadStrip />
     </div>
   );
 }

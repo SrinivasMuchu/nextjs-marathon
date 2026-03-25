@@ -786,6 +786,30 @@
   box-sizing: border-box;
 }
 
+/* Hire CTA card: avoid .library-designs-items-container p/h* forcing dark library text */
+.library-designs-items-container.libraryHireCtaSlot {
+  background: transparent;
+  border: none;
+  padding: 0;
+  overflow: visible;
+}
+
+.library-designs-items-container.libraryHireCtaSlot p {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: normal;
+  text-align: start;
+}
+
+.library-designs-items-container.libraryHireCtaSlot h2 {
+  color: #fff;
+}
+.library-designs-items-container.libraryHireCtaSlot p {
+  color: #fff;
+}
+
 @media (max-width: 500px) {
   .library-designs-items-container {
     flex: 0 0 100%;

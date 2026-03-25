@@ -18,6 +18,7 @@ import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { IMAGEURLS } from '@/config'
+import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 
 // Page heading structure: 1 h1 (CadFileConversionHeader), 2 h2s (HowItWorks, CoreBenefits), rest h3 (ConversionQualityNotes, InterlinkingBlocks, TrustPrivacy, CadConverterTypes, DesignHub, OrgFaq).
 const converterSteps = [
@@ -136,7 +137,7 @@ function CadFileConversionHome({ convert, conversionParams }) {
                 { label: `${conversionParams}`, href: `/tools/convert-${conversionParams}` },
             ]} />}
             <CadFileConversionHeader convert={convert} conversionParams={conversionParams} />
-
+            <ToolsPageBanner />
             <OrgFeatures type='cad' />
             <ConversionQualityNotes />
             <InterlinkingBlocks />
