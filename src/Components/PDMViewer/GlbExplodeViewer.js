@@ -12,6 +12,12 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
+/**
+ * Default camera distance from OrbitControls target (origin). ~4 fits normalized unit-scale GLB;
+ * old value 570 matched large CAD extents.
+ */
+const INITIAL_ORBIT_CAMERA_DISTANCE = 3.936;
+
 /** Bust browser + CDN caches (CloudFront often serves an old GLB after S3 overwrite). */
 function withAssetCacheBust(url, cacheBust) {
   if (!url || cacheBust == null || cacheBust === "") return url;
@@ -20,7 +26,24 @@ function withAssetCacheBust(url, cacheBust) {
 }
 
 /** Fallback when JSON has no per-part explode */
-const MAX_EXPLODE_SCALE = 3.0;
+const MAX_EXPLODE_SCALE = 12.0;
+
+/**
+ * Normalized CAD: distanceScale = max(MIN, NUM/effectiveSpan, R×RADIUS_MULT).
+ * The R term keeps separation proportional to assembly size when JSON distances stay tiny.
+ * Tune these if 100% dismantle should read more “catalog exploded view”.
+ */
+const NORMALIZED_EXPLODE_DISTANCE_SCALE_MIN = 55.0;
+const NORMALIZED_EXPLODE_DISTANCE_SCALE_NUMERATOR = 110.0;
+/** Extra scale from bounding-sphere radius R (world units) on the normalized path. */
+const NORMALIZED_EXPLODE_DISTANCE_RADIUS_MULT = 28.0;
+/**
+ * If meta omits `normalizeTargetMaxSpan` but R is below this, treat as normalized (span 1).
+ * Wider than ~2.5 so ~unit-scale assemblies that fill the view still get strong dismantle.
+ */
+const ASSUME_NORMALIZED_IF_BOUNDING_RADIUS_LE = 6.0;
+/** Legacy non-normalized: scale dismantle vs bounding sphere radius (JSON distances ~CAD units). */
+const LEGACY_EXPLODE_RADIUS_FACTOR = 0.38;
 
 function forEachMeshMaterial(mesh, fn) {
   const m = mesh.material;
@@ -201,6 +224,8 @@ function ExplodableModel({
   explode,
   activePartName,
   partsMeta,
+  /** Set when meta JSON includes finite `normalizeTargetMaxSpan` > 0 (normalized GLB); otherwise null. */
+  normalizeTargetMaxSpan = null,
   /** If true, motion is flattened to the camera plane (slide). If false, uses JSON/CAD radial dirs — real dismantle. */
   screenPlaneExplode = false,
   /** Without part metadata there is nothing to align explode to — motion stays off. */
@@ -224,11 +249,13 @@ function ExplodableModel({
   const explodeRef = useRef(explode);
   const activePartRef = useRef(activePartName);
   const explodeEnabledRef = useRef(explodeEnabled);
+  const normalizeTargetMaxSpanRef = useRef(normalizeTargetMaxSpan);
   useLayoutEffect(() => {
     explodeRef.current = explode;
     activePartRef.current = activePartName;
     explodeEnabledRef.current = explodeEnabled;
-  }, [explode, activePartName, explodeEnabled]);
+    normalizeTargetMaxSpanRef.current = normalizeTargetMaxSpan;
+  }, [explode, activePartName, explodeEnabled, normalizeTargetMaxSpan]);
   const { byExact, byNorm } = useMemo(
     () => buildExplodeMetaMap(partsMeta),
     [partsMeta]
@@ -344,8 +371,31 @@ function ExplodableModel({
   useFrame(() => {
     const t = explodeEnabledRef.current ? explodeRef.current : 0;
     const R = radiusRef.current;
-    /** Stronger scale so dismantling reads clearly vs model size (JSON distance ~10). */
-    const distanceScale = Math.max(1.0, R * 0.22);
+    const span = normalizeTargetMaxSpanRef.current;
+    let distanceScale;
+    const hasMetaSpan =
+      span != null && span > 0 && Number.isFinite(span);
+    const assumeNormalizedNoMeta =
+      !hasMetaSpan &&
+      R > 0 &&
+      R <= ASSUME_NORMALIZED_IF_BOUNDING_RADIUS_LE;
+    const effectiveSpan = hasMetaSpan
+      ? span
+      : assumeNormalizedNoMeta
+        ? 1
+        : null;
+
+    if (effectiveSpan != null) {
+      // Normalized (or small-scene heuristic): amplify JSON distances; R term caps how “flat” huge sliders feel on big assemblies.
+      distanceScale = Math.max(
+        NORMALIZED_EXPLODE_DISTANCE_SCALE_MIN,
+        NORMALIZED_EXPLODE_DISTANCE_SCALE_NUMERATOR / effectiveSpan,
+        R * NORMALIZED_EXPLODE_DISTANCE_RADIUS_MULT
+      );
+    } else {
+      // Legacy large CAD units: tie scale to model radius (JSON distances large, e.g. ~10).
+      distanceScale = Math.max(1.0, R * LEGACY_EXPLODE_RADIUS_FACTOR);
+    }
 
     if (screenPlaneExplode) {
       camera.getWorldDirection(_scratchViewDir);
@@ -419,6 +469,8 @@ export function GlbExplodeViewer({
   );
   const [explode, setExplode] = useState(0);
   const [partsMeta, setPartsMeta] = useState([]);
+  /** From meta JSON `normalizeTargetMaxSpan` when finite and > 0; null otherwise. */
+  const [normalizeTargetMaxSpan, setNormalizeTargetMaxSpan] = useState(null);
   const [activePartName, setActivePartName] = useState(null);
   const [metaLoadStatus, setMetaLoadStatus] = useState(() =>
     resolvedMetaUrl ? "loading" : "no_url"
@@ -442,10 +494,12 @@ export function GlbExplodeViewer({
     if (!resolvedMetaUrl) {
       setMetaLoadStatus("no_url");
       setPartsMeta([]);
+      setNormalizeTargetMaxSpan(null);
       return;
     }
 
     setMetaLoadStatus("loading");
+    setNormalizeTargetMaxSpan(null);
     let cancelled = false;
 
     fetch(resolvedMetaUrl, { mode: "cors" })
@@ -457,6 +511,13 @@ export function GlbExplodeViewer({
       })
       .then((data) => {
         if (cancelled) return;
+        const rawSpan = data?.normalizeTargetMaxSpan;
+        const span =
+          typeof rawSpan === "number" &&
+          Number.isFinite(rawSpan) &&
+          rawSpan > 0
+            ? rawSpan
+            : null;
         const parts = data?.parts;
         if (!Array.isArray(parts)) {
           console.error(
@@ -464,9 +525,11 @@ export function GlbExplodeViewer({
             data
           );
           setPartsMeta([]);
+          setNormalizeTargetMaxSpan(null);
           setMetaLoadStatus("bad_shape");
           return;
         }
+        setNormalizeTargetMaxSpan(span);
         setPartsMeta(parts);
         setMetaLoadStatus(parts.length ? "ok" : "empty");
       })
@@ -477,6 +540,7 @@ export function GlbExplodeViewer({
           err
         );
         setPartsMeta([]);
+        setNormalizeTargetMaxSpan(null);
         setMetaLoadStatus("error");
       });
 
@@ -553,19 +617,18 @@ export function GlbExplodeViewer({
         onMouseLeave={() => setActivePartName(null)}
       >
         <Canvas
-          camera={{ position: [0, 0, 570], fov: 45 }}
+          camera={{
+            position: [0, 0, INITIAL_ORBIT_CAMERA_DISTANCE],
+            fov: 45,
+          }}
           dpr={[1, 2]}
           gl={{ antialias: true, powerPreference: "high-performance" }}
         >
           <color attach="background" args={["#111827"]} />
           <ambientLight intensity={0.5} />
           <directionalLight position={[10, 10, 5]} intensity={1.2} />
-          <OrbitControls
-            enableDamping
-            makeDefault
-            minDistance={100}
-            maxDistance={817}
-          />
+          {/* OrbitControls: minDistance/maxDistance removed (were 100 / 817) for unrestricted dolly zoom */}
+          <OrbitControls enableDamping makeDefault />
 
           <Suspense fallback={null}>
             <ExplodableModel
@@ -574,6 +637,7 @@ export function GlbExplodeViewer({
               explode={explode}
               activePartName={activePartName}
               partsMeta={partsMeta}
+              normalizeTargetMaxSpan={normalizeTargetMaxSpan}
               screenPlaneExplode={screenPlaneExplode}
               explodeEnabled={hasPartsMeta}
             />

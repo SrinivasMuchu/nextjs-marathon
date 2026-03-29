@@ -3,12 +3,13 @@ const CubeLoader = dynamic(() => import('@/Components/CommonJsx/Loaders/CubeLoad
   ssr: false,
 });
 // import CubeLoader from "@/Components/CommonJsx/Loaders/CubeLoader";
+import axios from "axios";
 import IndustryCadViewer from "@/Components/IndustryDesigns/IndustryCadViewer";
 import { GlbExplodeViewer } from "@/Components/PDMViewer/GlbExplodeViewer";
-import { DESIGN_GLB_PREFIX_URL } from "@/config";
+import { BASE_URL, DESIGN_GLB_PREFIX_URL } from "@/config";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import React, { Suspense, useMemo } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 
 const PartDesignView = dynamic(() => import("@/Components/PDMViewer/PartDesignView"), { ssr: false });
 
@@ -39,12 +40,45 @@ function DesignViewContent() {
         : "",
     [encodedFileId]
   );
+  const [status, setStatus] = useState(fileId ? "PENDING" : null);
+
+  useEffect(() => {
+    if (!fileId || format) return;
+
+    let cancelled = false;
+    let intervalId = null;
+
+    const fetchStatus = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
+          params: { id: fileId, cad_type: "CAD_VIEWER" },
+          headers: { "user-uuid": localStorage.getItem("uuid") || "" },
+        });
+        const nextStatus = response?.data?.data?.status || "PENDING";
+        if (cancelled) return;
+        setStatus(nextStatus);
+      } catch (e) {
+        if (!cancelled) setStatus("FAILED");
+      }
+    };
+
+    fetchStatus();
+    intervalId = setInterval(fetchStatus, 3000);
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [fileId, format]);
 
   if (format) {
     return <IndustryCadViewer />;
   }
   if (!fileId) {
     return <PartDesignView />;
+  }
+  if (status !== "COMPLETED") {
+    return <CubeLoader uploadingMessage={status || "PENDING"} />;
   }
 
   return (
