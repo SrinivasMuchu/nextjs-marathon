@@ -16,40 +16,46 @@ const statusMessages = {
   FAILED: '❌ Something went wrong. Please retry.',
 };
 
-function CubeLoader({ uploadingMessage, totalImages , completedImages,type  }) {
+function CubeLoader({ uploadingMessage, totalImages , completedImages,type, uploadProgressPercent }) {
    const { user } = useContext(contextState); 
 
 
-  // For random progress bar during UPLOADINGFILE
   const [fakeProgress, setFakeProgress] = useState(0);
   const progressInterval = useRef(null);
 
   useEffect(() => {
-    if (uploadingMessage === 'UPLOADINGFILE') {
-      setFakeProgress(5 + Math.floor(Math.random() * 10)); // Start at 5-15%
+    const hasMeasuredUpload =
+      uploadingMessage === 'UPLOADINGFILE' && typeof uploadProgressPercent === 'number';
+
+    if (progressInterval.current) clearInterval(progressInterval.current);
+
+    if (uploadingMessage === 'UPLOADINGFILE' && !hasMeasuredUpload) {
+      setFakeProgress(5 + Math.floor(Math.random() * 10));
       progressInterval.current = setInterval(() => {
         setFakeProgress(prev => {
           if (prev >= 98) return prev;
-          // Increase by 1-5% randomly, but never above 98%
           const next = prev + Math.floor(Math.random() * 5) + 1;
           return next > 98 ? 98 : next;
         });
       }, 400 + Math.random() * 400);
-    } else {
-      // If we just finished uploading, show 100% for a moment
+    } else if (uploadingMessage !== 'UPLOADINGFILE') {
       if (fakeProgress > 0 && fakeProgress < 100) {
         setFakeProgress(100);
-        setTimeout(() => setFakeProgress(0), 600); // Reset after a short delay
+        setTimeout(() => setFakeProgress(0), 600);
       } else {
         setFakeProgress(0);
       }
-      if (progressInterval.current) clearInterval(progressInterval.current);
     }
+
     return () => {
       if (progressInterval.current) clearInterval(progressInterval.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploadingMessage]);
+  }, [uploadingMessage, uploadProgressPercent]);
+
+  const useMeasuredUpload =
+    uploadingMessage === 'UPLOADINGFILE' && typeof uploadProgressPercent === 'number';
+  const barPercent = useMeasuredUpload ? uploadProgressPercent : fakeProgress;
 
   return (
     <div style={{display:'flex',flexDirection:'column',width:'100%'}}>
@@ -74,7 +80,7 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type  }) {
             height: '10px'
           }}>
             <div style={{
-              width: `${fakeProgress}%`,
+              width: `${barPercent}%`,
               backgroundColor: '#610bee',
               borderRadius: '5px',
               height: '100%',
@@ -82,7 +88,7 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type  }) {
             }}></div>
           </div>
           <span style={{ fontSize: '14px', marginTop: '5px', display: 'block', textAlign: 'center' }}>
-            {fakeProgress === 100 ? 'Upload Complete!' : `Uploading... ${fakeProgress}%`}
+            {barPercent === 100 ? 'Upload Complete!' : `Uploading... ${barPercent}%`}
           </span>
         </div>
       )}

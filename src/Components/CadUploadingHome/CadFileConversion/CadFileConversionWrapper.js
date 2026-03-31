@@ -43,6 +43,8 @@ function CadFileConversionWrapper({ children, convert }) {
     const [selectedFileFormate, setSelectedFileFormate] = useState('');
     const { setFile, allowedFormats, setAllowedFormats,user } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
+    const [uploadProgressPercent, setUploadProgressPercent] = useState(null);
+    const partLoadedByIndexRef = useRef([]);
     const [toFormate, setToFormate] = useState('');
     const [verifyEmail, setVerifyEmail] = useState('');
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
@@ -298,6 +300,7 @@ function CadFileConversionWrapper({ children, convert }) {
                 setDisableSelect(false)
                 setLoading(true)
                 setUploadingMessage('UPLOADINGFILE')
+                setUploadProgressPercent(0)
                 const headers = {
                     "user-uuid": localStorage.getItem("uuid"),
                 };
@@ -342,12 +345,14 @@ function CadFileConversionWrapper({ children, convert }) {
                     sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
                     toast.error("⚠️ Error generating signed URL.");
                     setLoading(false);
+                    setUploadProgressPercent(null)
 
                 }
             } catch (e) {
                 sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
                 console.error(e);
                   setLoading(false);
+                  setUploadProgressPercent(null)
 
             }
         }
@@ -394,7 +399,9 @@ function CadFileConversionWrapper({ children, convert }) {
         }
     }
     async function multiUpload(data, file, headers, fileSizeMB) {
-      
+        partLoadedByIndexRef.current = Array.from({ length: data.total_parts }, () => 0);
+        setUploadProgressPercent(0);
+
         const parts = [];
 
         for (let i = 0; i < data.total_parts; i++) {
@@ -409,11 +416,12 @@ function CadFileConversionWrapper({ children, convert }) {
 
         try {
             const uploadedParts = await Promise.all(parts);
-          
+            setUploadProgressPercent(100);
             await completeMultipartUpload(data, uploadedParts, headers, fileSizeMB);
          
         } catch (error) {
             console.error('Error uploading parts:', error);
+            setUploadProgressPercent(null);
             throw error;
         }
     }
@@ -424,9 +432,14 @@ function CadFileConversionWrapper({ children, convert }) {
           
 
             const result = await axios.put(url, part, {
-                headers: {
-                    "Content-Type": file.type,
-                    "Content-Length": part.size, // Ensure Content-Length is set
+                headers: file.type ? { "Content-Type": file.type } : {},
+                onUploadProgress: (ev) => {
+                    partLoadedByIndexRef.current[partNumber] = ev.loaded;
+                    const sum = partLoadedByIndexRef.current.reduce((a, b) => a + b, 0);
+                    const pct = file.size
+                        ? Math.min(100, Math.round((sum / file.size) * 100))
+                        : 0;
+                    setUploadProgressPercent(pct);
                 },
             });
 
@@ -481,14 +494,18 @@ function CadFileConversionWrapper({ children, convert }) {
     };
 
     async function simpleUpload(data, file) {
-      
         setUploadingMessage('UPLOADINGFILE')
+        setUploadProgressPercent(0)
         const result = await axios.put(data.url, file, {
-            headers: {
-                "Content-Type": file.type,
-                "Content-Length": file.size,
+            headers: file.type ? { "Content-Type": file.type } : {},
+            onUploadProgress: (ev) => {
+                if (!file.size) return;
+                const total = ev.total || file.size;
+                const pct = Math.min(100, Math.round(((ev.loaded ?? 0) / total) * 100));
+                setUploadProgressPercent(pct);
             },
         });
+        setUploadProgressPercent(100)
         setUploading(true)
         
             sendGAtagEvent({ event_name: 'converter_file_upload_success', event_category: CAD_CONVERTER_EVENT })
@@ -535,7 +552,7 @@ function CadFileConversionWrapper({ children, convert }) {
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                <CubeLoader uploadingMessage={uploadingMessage} type='convert'/>
+                <CubeLoader uploadingMessage={uploadingMessage} type='convert' uploadProgressPercent={uploadProgressPercent ?? undefined} />
             </div> :
         <>
            
