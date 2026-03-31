@@ -56,6 +56,8 @@ export default function PartDesignView() {
     const [fileName, setFileName] = useState('');
     const [cadViewLink, setCadViewLink] = useState('');
     const [publishCadPopup, setPublishCadPopup] = useState(false);
+    const [uploadProgressPercent, setUploadProgressPercent] = useState(null);
+    const partLoadedByIndexRef = useRef([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -99,6 +101,7 @@ export default function PartDesignView() {
         setFolderId(''); // Clear folder ID
         setError(null); // Clear any errors
         setIsLoading(false); // Reset loading state
+        setUploadProgressPercent(null);
         router.push("/tools//3D-cad-viewer");
     };
 
@@ -117,6 +120,7 @@ export default function PartDesignView() {
         try {
             setIsLoading(true)
             setUploadingMessage('UPLOADINGFILE')
+            setUploadProgressPercent(0)
             sendGAtagEvent({ event_name: 'viewer_file_upload_start', event_category: CAD_VIEWER_EVENT });
             if (fileSizeMB < 5) {
                 sendGAtagEvent({ event_name: 'viewer_file_upload_under_5mb', event_category: CAD_VIEWER_EVENT });
@@ -170,12 +174,14 @@ export default function PartDesignView() {
                 sendGAtagEvent({ event_name: 'viewer_file_signedurl_error', event_category: CAD_VIEWER_EVENT });
                 toast.error("⚠️ Error generating signed URL.");
                 setIsLoading(false)
+                setUploadProgressPercent(null)
                 handleBackToViewer();
             }
         } catch (e) {
             sendGAtagEvent({ event_name: 'viewer_file_upload_error', event_category: CAD_VIEWER_EVENT });
 
             setIsLoading(false)
+            setUploadProgressPercent(null)
         }
     };
     useEffect(() => {
@@ -260,9 +266,12 @@ export default function PartDesignView() {
         } catch (error) {
             console.log(error)
             setIsLoading(false)
+            setUploadProgressPercent(null)
         }
     }
     async function multiUpload(data, file, headers, fileSizeMB) {
+        partLoadedByIndexRef.current = Array.from({ length: data.total_parts }, () => 0);
+        setUploadProgressPercent(0);
 
         const parts = [];
 
@@ -278,11 +287,12 @@ export default function PartDesignView() {
 
         try {
             const uploadedParts = await Promise.all(parts);
-
+            setUploadProgressPercent(100);
             await completeMultipartUpload(data, uploadedParts, headers, fileSizeMB);
 
         } catch (error) {
             console.error('Error uploading parts:', error);
+            setUploadProgressPercent(null);
             throw error;
         }
     }
@@ -292,9 +302,14 @@ export default function PartDesignView() {
             const { url } = data.url[partNumber]; // Get correct presigned URL
 
             const result = await axios.put(url, part, {
-                headers: {
-
-                    "Content-Length": part.size, // Ensure Content-Length is set
+                headers: file.type ? { "Content-Type": file.type } : {},
+                onUploadProgress: (ev) => {
+                    partLoadedByIndexRef.current[partNumber] = ev.loaded;
+                    const sum = partLoadedByIndexRef.current.reduce((a, b) => a + b, 0);
+                    const pct = file.size
+                        ? Math.min(100, Math.round((sum / file.size) * 100))
+                        : 0;
+                    setUploadProgressPercent(pct);
                 },
             });
 
@@ -338,6 +353,7 @@ export default function PartDesignView() {
         } catch (error) {
             console.error("Error completing multipart upload:", error);
             setIsLoading(false);
+            setUploadProgressPercent(null);
             handleBackToViewer();
         }
     };
@@ -345,12 +361,17 @@ export default function PartDesignView() {
     async function simpleUpload(data, file) {
 
         setUploadingMessage('UPLOADINGFILE')
+        setUploadProgressPercent(0)
         const result = await axios.put(data.url, file, {
-            headers: {
-                "Content-Type": file.type,
-                "Content-Length": file.size,
+            headers: file.type ? { "Content-Type": file.type } : {},
+            onUploadProgress: (ev) => {
+                if (!file.size) return;
+                const total = ev.total || file.size;
+                const pct = Math.min(100, Math.round(((ev.loaded ?? 0) / total) * 100));
+                setUploadProgressPercent(pct);
             },
         });
+        setUploadProgressPercent(100)
         sendGAtagEvent({ event_name: 'viewer_file_upload_success', event_category: CAD_VIEWER_EVENT });
         await CreateCad(data.url)
 
@@ -780,7 +801,7 @@ export default function PartDesignView() {
                 )}
             </div>
 
-            {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} /> :
+            {isLoading ? <CubeLoader uploadingMessage={uploadingMessage} completedImages={completedImages} totalImages={totalImages} uploadProgressPercent={uploadProgressPercent ?? undefined} /> :
                 <div style={{
                     position: 'relative',
                     width: '100%',
