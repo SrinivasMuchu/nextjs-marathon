@@ -12,6 +12,7 @@ import React, {
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 /**
  * Default camera distance from OrbitControls target (origin). ~4 fits normalized unit-scale GLB;
@@ -50,8 +51,12 @@ const LEGACY_EXPLODE_RADIUS_FACTOR = 0.38;
 const UI_ACCENT = "#610bee";
 const UI_PANEL_RGBA = "rgba(18, 16, 28, 0.88)";
 const UI_VIEWPORT_BG = "#1E1E1E";
-const CAD_BASE_COLOR = "#999999";
-const CAD_EDGE_COLOR = "#1f1f24";
+const CAD_BASE_COLOR = "#9a9a9e";
+/** GrabCAD-style satin metal: strong metalness, medium roughness (not chrome). */
+const CAD_METALNESS = 0.88;
+const CAD_ROUGHNESS = 0.42;
+/** Dark CAD outline (GrabCAD-like). */
+const CAD_EDGE_COLOR = "#050505";
 const CAD_EDGE_THRESHOLD_DEG = 22;
 /** Full `GlbExplodeViewer` root height. */
 const UI_VIEWER_ROOT_HEIGHT = "90vh";
@@ -77,6 +82,27 @@ const VIEW_PRESETS = {
   BOTTOM: [0, -1, 0],
   ISOMETRIC: null,
 };
+
+/**
+ * Local IBL (no CDN): drei's `Environment preset="…"` fetches .hdr files and fails when DNS/network
+ * blocks that host (ERR_NAME_NOT_RESOLVED). RoomEnvironment bakes reflections on the GPU only.
+ */
+function CadRoomEnvironment() {
+  const { gl, scene } = useThree();
+  useLayoutEffect(() => {
+    const pmremGenerator = new THREE.PMREMGenerator(gl);
+    const roomScene = new RoomEnvironment();
+    const renderTarget = pmremGenerator.fromScene(roomScene, 0.04);
+    scene.environment = renderTarget.texture;
+    return () => {
+      scene.environment = null;
+      renderTarget.dispose();
+      pmremGenerator.dispose();
+      roomScene.dispose();
+    };
+  }, [gl, scene]);
+  return null;
+}
 
 /**
  * Applies camera preset / orbit nudges / dolly when `request` changes (same Canvas as OrbitControls).
@@ -427,16 +453,16 @@ function ExplodableModel({
         node.material = node.material.clone();
       }
 
-      // Enforce CAD base tone for the full design.
+      // GrabCAD-style: uniform gray satin metal + IBL/directional in the Canvas.
       forEachMeshMaterial(node, (mat) => {
         if (!mat || !mat.color) return;
         mat.color.set(CAD_BASE_COLOR);
-        // Flatten PBR response so the model does not appear black from angle/light.
-        if ("metalness" in mat) mat.metalness = 0.0;
-        if ("roughness" in mat) mat.roughness = 1.0;
-        if (mat.emissive) mat.emissive.set("#2a2a2a");
-        if ("emissiveIntensity" in mat) mat.emissiveIntensity = 0.45;
-        // Ignore texture darkening for uniform CAD color.
+        if ("metalness" in mat) mat.metalness = CAD_METALNESS;
+        if ("roughness" in mat) mat.roughness = CAD_ROUGHNESS;
+        if (mat.emissive) mat.emissive.set("#000000");
+        if ("emissiveIntensity" in mat) mat.emissiveIntensity = 0;
+        if ("envMapIntensity" in mat) mat.envMapIntensity = 1.0;
+        // Uniform finish; env map supplies reflections.
         if ("map" in mat) mat.map = null;
         if ("aoMap" in mat) mat.aoMap = null;
         if ("lightMap" in mat) mat.lightMap = null;
@@ -1294,12 +1320,23 @@ export function GlbExplodeViewer({
               fov: 45,
             }}
             dpr={[1, 2]}
-            gl={{ antialias: true, powerPreference: "high-performance" }}
+            gl={{
+              antialias: true,
+              powerPreference: "high-performance",
+              toneMapping: THREE.ACESFilmicToneMapping,
+              outputColorSpace: THREE.SRGBColorSpace,
+            }}
           >
             <color attach="background" args={[UI_VIEWPORT_BG]} />
-            <ambientLight intensity={1.0} />
+            <ambientLight intensity={0.32} />
+            <directionalLight
+              position={[10, 14, 8]}
+              intensity={1.15}
+            />
+            <directionalLight position={[-6, 5, -5]} intensity={0.28} />
             <OrbitControls enableDamping makeDefault />
             <CameraViewControls request={camRequest} />
+            <CadRoomEnvironment />
 
             <Suspense fallback={null}>
               <ExplodableModel
