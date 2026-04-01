@@ -6,6 +6,7 @@ import React, {
   useState,
   useEffect,
   useLayoutEffect,
+  useCallback,
   Suspense,
 } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
@@ -44,6 +45,119 @@ const NORMALIZED_EXPLODE_DISTANCE_RADIUS_MULT = 28.0;
 const ASSUME_NORMALIZED_IF_BOUNDING_RADIUS_LE = 6.0;
 /** Legacy non-normalized: scale dismantle vs bounding sphere radius (JSON distances ~CAD units). */
 const LEGACY_EXPLODE_RADIUS_FACTOR = 0.38;
+
+/** Reference UI accent (replaces red in CAD-style viewer chrome). */
+const UI_ACCENT = "#610bee";
+const UI_PANEL_RGBA = "rgba(18, 16, 28, 0.88)";
+const UI_VIEWPORT_BG = "#1E1E1E";
+const CAD_BASE_COLOR = "#999999";
+const CAD_EDGE_COLOR = "#1f1f24";
+const CAD_EDGE_THRESHOLD_DEG = 22;
+/** Full `GlbExplodeViewer` root height. */
+const UI_VIEWER_ROOT_HEIGHT = "90vh";
+/** Assembly tree panel height (scrolls inside). */
+const UI_ASSEMBLY_PANEL_HEIGHT = "60vh";
+/** Assembly tree drawer */
+const UI_TREE_WIDTH = 256;
+/** Right-side camera / views stack — keep narrow like reference */
+const UI_CONTROL_COLUMN_W = 102;
+/** D-pad orbit button size (px) */
+const UI_DPAD_BTN = 22;
+const UI_DPAD_ZOOM_H = 20;
+
+const _camOffset = new THREE.Vector3();
+const _camSpherical = new THREE.Spherical();
+
+const VIEW_PRESETS = {
+  FRONT: [0, 0, 1],
+  BACK: [0, 0, -1],
+  LEFT: [-1, 0, 0],
+  RIGHT: [1, 0, 0],
+  TOP: [0, 1, 0],
+  BOTTOM: [0, -1, 0],
+  ISOMETRIC: null,
+};
+
+/**
+ * Applies camera preset / orbit nudges / dolly when `request` changes (same Canvas as OrbitControls).
+ */
+function CameraViewControls({ request }) {
+  const { camera, controls } = useThree();
+
+  useLayoutEffect(() => {
+    if (!request || !controls?.target) return;
+    const target = controls.target;
+    let dist = camera.position.distanceTo(target);
+    if (!Number.isFinite(dist) || dist < 1e-6) {
+      dist = INITIAL_ORBIT_CAMERA_DISTANCE;
+    }
+
+    const kind = request.kind;
+
+    if (kind === "preset") {
+      const name = request.name;
+      let ax = 0;
+      let ay = 0;
+      let az = 1;
+      if (name === "ISOMETRIC") {
+        const s = 1 / Math.sqrt(3);
+        ax = s;
+        ay = s;
+        az = s;
+      } else {
+        const d = VIEW_PRESETS[name];
+        if (d) [ax, ay, az] = d;
+      }
+      camera.position.set(
+        target.x + ax * dist,
+        target.y + ay * dist,
+        target.z + az * dist
+      );
+      if (name === "TOP") camera.up.set(0, 0, -1);
+      else if (name === "BOTTOM") camera.up.set(0, 0, 1);
+      else camera.up.set(0, 1, 0);
+      camera.lookAt(target);
+      controls.update();
+      return;
+    }
+
+    if (kind === "nudge") {
+      _camOffset.copy(camera.position).sub(target);
+      _camSpherical.setFromVector3(_camOffset);
+      _camSpherical.theta += request.dTheta ?? 0;
+      _camSpherical.phi += request.dPhi ?? 0;
+      _camSpherical.phi = Math.max(
+        0.08,
+        Math.min(Math.PI - 0.08, _camSpherical.phi)
+      );
+      _camOffset.setFromSpherical(_camSpherical);
+      camera.position.copy(target).add(_camOffset);
+      camera.up.set(0, 1, 0);
+      camera.lookAt(target);
+      controls.update();
+      return;
+    }
+
+    if (kind === "dolly") {
+      const dir = request.dir > 0 ? 1 : -1;
+      if (typeof controls.dollyIn === "function" && typeof controls.dollyOut === "function") {
+        if (dir > 0) controls.dollyOut();
+        else controls.dollyIn();
+      } else {
+        _camOffset.copy(camera.position).sub(target);
+        const len = _camOffset.length();
+        if (len > 1e-6) {
+          _camOffset.normalize();
+          camera.position.addScaledVector(_camOffset, dir * len * 0.12);
+        }
+        camera.lookAt(target);
+      }
+      controls.update();
+    }
+  }, [request, camera, controls]);
+
+  return null;
+}
 
 function forEachMeshMaterial(mesh, fn) {
   const m = mesh.material;
@@ -175,7 +289,7 @@ function metaToExplode(meta) {
   return {
     dir,
     distance: Number(meta.explodeDistance),
-    jsonName: meta.name,
+    jsonName: meta.name || meta.exportName,
   };
 }
 
@@ -226,6 +340,10 @@ function ExplodableModel({
   partsMeta,
   /** Set when meta JSON includes finite `normalizeTargetMaxSpan` > 0 (normalized GLB); otherwise null. */
   normalizeTargetMaxSpan = null,
+  /** Map part label (JSON name) → visible; missing keys default to visible. */
+  partVisibility = null,
+  /** Called when user hovers a part in the 3D view with the pointer. Receives part label or null. */
+  onHoverPart = null,
   /** If true, motion is flattened to the camera plane (slide). If false, uses JSON/CAD radial dirs — real dismantle. */
   screenPlaneExplode = false,
   /** Without part metadata there is nothing to align explode to — motion stays off. */
@@ -250,12 +368,20 @@ function ExplodableModel({
   const activePartRef = useRef(activePartName);
   const explodeEnabledRef = useRef(explodeEnabled);
   const normalizeTargetMaxSpanRef = useRef(normalizeTargetMaxSpan);
+  const partVisibilityRef = useRef(partVisibility);
   useLayoutEffect(() => {
     explodeRef.current = explode;
     activePartRef.current = activePartName;
     explodeEnabledRef.current = explodeEnabled;
     normalizeTargetMaxSpanRef.current = normalizeTargetMaxSpan;
-  }, [explode, activePartName, explodeEnabled, normalizeTargetMaxSpan]);
+    partVisibilityRef.current = partVisibility;
+  }, [
+    explode,
+    activePartName,
+    explodeEnabled,
+    normalizeTargetMaxSpan,
+    partVisibility,
+  ]);
   const { byExact, byNorm } = useMemo(
     () => buildExplodeMetaMap(partsMeta),
     [partsMeta]
@@ -292,6 +418,51 @@ function ExplodableModel({
     });
 
     meshNodes.forEach((node, index) => {
+      // Clone materials per mesh so hover/selection color changes affect only this part.
+      if (Array.isArray(node.material)) {
+        node.material = node.material.map((m) =>
+          m && typeof m.clone === "function" ? m.clone() : m
+        );
+      } else if (node.material && typeof node.material.clone === "function") {
+        node.material = node.material.clone();
+      }
+
+      // Enforce CAD base tone for the full design.
+      forEachMeshMaterial(node, (mat) => {
+        if (!mat || !mat.color) return;
+        mat.color.set(CAD_BASE_COLOR);
+        // Flatten PBR response so the model does not appear black from angle/light.
+        if ("metalness" in mat) mat.metalness = 0.0;
+        if ("roughness" in mat) mat.roughness = 1.0;
+        if (mat.emissive) mat.emissive.set("#2a2a2a");
+        if ("emissiveIntensity" in mat) mat.emissiveIntensity = 0.45;
+        // Ignore texture darkening for uniform CAD color.
+        if ("map" in mat) mat.map = null;
+        if ("aoMap" in mat) mat.aoMap = null;
+        if ("lightMap" in mat) mat.lightMap = null;
+        mat.needsUpdate = true;
+      });
+
+      // Keep CAD-style borders visible for each part.
+      if (node.geometry && !node.getObjectByName("__cad_edges__")) {
+        const edgeGeo = new THREE.EdgesGeometry(
+          node.geometry,
+          CAD_EDGE_THRESHOLD_DEG
+        );
+        const edgeMat = new THREE.LineBasicMaterial({
+          color: CAD_EDGE_COLOR,
+          transparent: true,
+          opacity: 0.95,
+          toneMapped: false,
+        });
+        const edgeLines = new THREE.LineSegments(edgeGeo, edgeMat);
+        edgeLines.name = "__cad_edges__";
+        edgeLines.renderOrder = 2;
+        // Keep borders visual-only; avoid hover/raycast picking on helper edges.
+        edgeLines.raycast = () => null;
+        node.add(edgeLines);
+      }
+
       const worldPos = new THREE.Vector3();
       node.getWorldPosition(worldPos);
       const offsetFromCenter = worldPos.clone().sub(center);
@@ -321,17 +492,29 @@ function ExplodableModel({
           : null;
 
       const partGroup = new THREE.Group();
+      const jsonPartMeta =
+        (partName && partLookup?.get(String(partName))) ||
+        (partName && partLookup?.get(normalizeName(String(partName)))) ||
+        null;
+      // Internal stable ID: GLB node.name === exportName (order in parts[] may differ from traverse).
+      const partId =
+        jsonPartMeta?.exportName ||
+        jsonMeta?.jsonName ||
+        partName;
+
       partGroup.userData = {
         basePos: offsetFromCenter.clone(),
         dir,
         baseDistance,
-        jsonLabel: jsonMeta?.jsonName ?? partsMeta?.[index]?.name ?? partName,
+        // Use technical ID (exportName) here so activePartRef (which stores IDs) matches.
+        jsonLabel: partId,
       };
 
       node.position.set(0, 0, 0);
       if (node.parent) node.parent.remove(node);
       partGroup.add(node);
-      partGroup.name = jsonMeta?.jsonName || partName;
+      // Name the group with the same stable ID used in metadata (exportName).
+      partGroup.name = partId;
 
       root.add(partGroup);
       partsRef.current.push(partGroup);
@@ -430,19 +613,114 @@ function ExplodableModel({
         forEachMeshMaterial(child, (mat) => {
           if (!mat || !mat.color) return;
           if (!child.userData._origColors) child.userData._origColors = new Map();
+          if (!child.userData._origEmissive)
+            child.userData._origEmissive = new Map();
+          if (!child.userData._origMetalness)
+            child.userData._origMetalness = new Map();
+          if (!child.userData._origRoughness)
+            child.userData._origRoughness = new Map();
+          if (!child.userData._origEmissiveIntensity)
+            child.userData._origEmissiveIntensity = new Map();
+
           if (!child.userData._origColors.has(mat.uuid)) {
             child.userData._origColors.set(mat.uuid, mat.color.clone());
           }
-          const orig = child.userData._origColors.get(mat.uuid);
-          mat.color.copy(
-            isActive ? new THREE.Color("#f97316") : orig
-          );
+          if (mat.emissive && !child.userData._origEmissive.has(mat.uuid)) {
+            child.userData._origEmissive.set(mat.uuid, mat.emissive.clone());
+          }
+          if ("metalness" in mat && !child.userData._origMetalness.has(mat.uuid)) {
+            child.userData._origMetalness.set(mat.uuid, mat.metalness);
+          }
+          if ("roughness" in mat && !child.userData._origRoughness.has(mat.uuid)) {
+            child.userData._origRoughness.set(mat.uuid, mat.roughness);
+          }
+          if (
+            "emissiveIntensity" in mat &&
+            !child.userData._origEmissiveIntensity.has(mat.uuid)
+          ) {
+            child.userData._origEmissiveIntensity.set(
+              mat.uuid,
+              mat.emissiveIntensity
+            );
+          }
+
+          const origColor = child.userData._origColors.get(mat.uuid);
+          const origEmissive = mat.emissive
+            ? child.userData._origEmissive.get(mat.uuid)
+            : null;
+          const origMetalness = child.userData._origMetalness.get(mat.uuid);
+          const origRoughness = child.userData._origRoughness.get(mat.uuid);
+          const origEmissiveIntensity =
+            child.userData._origEmissiveIntensity.get(mat.uuid);
+
+          if (isActive) {
+            mat.color.set("#ffd54a");
+            if (mat.emissive) {
+              mat.emissive.set("#ffd54a");
+              if ("emissiveIntensity" in mat) {
+                mat.emissiveIntensity = 2.0;
+              }
+            }
+            if ("metalness" in mat) mat.metalness = 0.0;
+            if ("roughness" in mat) mat.roughness = 0.1;
+          } else {
+            if (origColor) mat.color.copy(origColor);
+            if (mat.emissive && origEmissive) {
+              mat.emissive.copy(origEmissive);
+            }
+            if ("metalness" in mat && origMetalness != null) {
+              mat.metalness = origMetalness;
+            }
+            if ("roughness" in mat && origRoughness != null) {
+              mat.roughness = origRoughness;
+            }
+            if ("emissiveIntensity" in mat && origEmissiveIntensity != null) {
+              mat.emissiveIntensity = origEmissiveIntensity;
+            }
+          }
+          mat.needsUpdate = true;
         });
       });
+
+      const vis = partVisibilityRef.current;
+      const vk = g.userData.jsonLabel || g.name;
+      g.visible =
+        vis == null || Object.keys(vis).length === 0 ? true : vis[vk] !== false;
     });
   });
 
-  return <primitive object={rootGroup} />;
+  const handlePointerOver = useCallback(
+    (e) => {
+      if (!onHoverPart) return;
+      e.stopPropagation();
+      let g = e.object;
+      // Walk up to the group that represents a logical part.
+      while (g && !partsRef.current.includes(g)) {
+        g = g.parent;
+      }
+      if (!g) return;
+      const label = g.userData?.jsonLabel || g.name;
+      if (label) onHoverPart(label);
+    },
+    [onHoverPart]
+  );
+
+  const handlePointerOut = useCallback(
+    (e) => {
+      if (!onHoverPart) return;
+      e.stopPropagation();
+      onHoverPart(null);
+    },
+    [onHoverPart]
+  );
+
+  return (
+    <primitive
+      object={rootGroup}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+    />
+  );
 }
 
 export function GlbExplodeViewer({
@@ -476,19 +754,48 @@ export function GlbExplodeViewer({
     resolvedMetaUrl ? "loading" : "no_url"
   );
 
+  const [treeOpen, setTreeOpen] = useState(true);
+  const [viewsOpen, setViewsOpen] = useState(true);
+  const [explodePanelOpen, setExplodePanelOpen] = useState(false);
+  const explodePanelRef = useRef(null);
+  const [partVisibility, setPartVisibility] = useState({});
+  const [camRequest, setCamRequest] = useState(null);
+  const camReqIdRef = useRef(0);
+
+  const partsForSidebar = useMemo(
+    () =>
+      (partsMeta || []).filter((p) => {
+        if (!isValidPartBbox(p)) return false;
+        // Skip obvious datum artifacts, based on the human name.
+        return !isDatumPartName(p.name);
+      }),
+    [partsMeta]
+  );
+
+  const sidebarPartId = (p) =>
+    p.exportName || (p.id != null ? String(p.id) : p.name || "");
+
   const hasPartsMeta = Array.isArray(partsMeta) && partsMeta.length > 0;
 
   useEffect(() => {
     if (!hasPartsMeta) setExplode(0);
   }, [hasPartsMeta]);
 
-  const partsForSidebar = useMemo(
-    () =>
-      (partsMeta || []).filter(
-        (p) => isValidPartBbox(p) && !isDatumPartName(p.name)
-      ),
-    [partsMeta]
-  );
+  useEffect(() => {
+    if (!hasPartsMeta) setExplodePanelOpen(false);
+  }, [hasPartsMeta]);
+
+  useEffect(() => {
+    if (!explodePanelOpen) return;
+    const onPointerDown = (e) => {
+      const t = e.target;
+      if (t.closest?.("[data-glb-explode-panel]")) return;
+      if (t.closest?.("[data-glb-explode-toggle]")) return;
+      setExplodePanelOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [explodePanelOpen]);
 
   useEffect(() => {
     if (!resolvedMetaUrl) {
@@ -549,127 +856,741 @@ export function GlbExplodeViewer({
     };
   }, [resolvedMetaUrl]);
 
+  const partsSidebarKey = useMemo(
+    () =>
+      partsForSidebar
+        .map((p) => `${p.id ?? ""}\0${p.exportName ?? ""}\0${p.name ?? ""}`)
+        .join("\n"),
+    [partsForSidebar]
+  );
+
+  useEffect(() => {
+    setPartVisibility((prev) => {
+      const next = {};
+      for (const p of partsForSidebar) {
+        const id = sidebarPartId(p);
+        next[id] = prev[id] !== undefined ? prev[id] : true;
+      }
+      return next;
+    });
+  }, [partsSidebarKey, partsForSidebar]);
+
+  const pushCam = useCallback((partial) => {
+    setCamRequest({ id: ++camReqIdRef.current, ...partial });
+  }, []);
+
+  // Human label shown in the UI.
+  const sidebarPartLabel = (p) => {
+    // Prefer the human-friendly CAD name when available.
+    const rawName = p.name || "";
+    const rawExport = p.exportName || "";
+
+    // If backend hasn't yet separated name/exportName and they are identical,
+    // derive something shorter from the exportName (e.g. keep just "(solid 3)").
+    if (rawExport && (!rawName || rawName === rawExport)) {
+      const solidIdx = rawExport.indexOf("(solid");
+      if (solidIdx !== -1) {
+        return rawExport.slice(solidIdx).trim();
+      }
+      // Fallback: strip common upload prefix noise if present.
+      const uploadIdx = rawExport.indexOf("_designs_upload_");
+      if (uploadIdx > 0) {
+        return rawExport.slice(uploadIdx + "_designs_upload_".length);
+      }
+    }
+
+    if (rawName) return rawName;
+    if (rawExport) return rawExport;
+    return p.id != null ? `Part ${p.id}` : "";
+  };
+
+  const allModelsVisible =
+    partsForSidebar.length === 0
+      ? true
+      : partsForSidebar.every(
+          (p) => partVisibility[sidebarPartId(p)] !== false
+        );
+
+  const toggleAllModelsVisible = () => {
+    const nextVal = !allModelsVisible;
+    setPartVisibility((prev) => {
+      const o = { ...prev };
+      for (const p of partsForSidebar) {
+        o[sidebarPartId(p)] = nextVal;
+      }
+      return o;
+    });
+  };
+
+  const togglePartVisible = (p) => {
+    const k = sidebarPartId(p);
+    setPartVisibility((prev) => ({
+      ...prev,
+      [k]: prev[k] === false ? true : false,
+    }));
+  };
+
+  const ORBIT_NUDGE = 0.18;
+
+  const chromeBtn = {
+    border: "none",
+    cursor: "pointer",
+    fontFamily: "inherit",
+  };
+
+  const handleHoverPartFromScene = useCallback((labelOrNull) => {
+    // labelOrNull is the stable ID (exportName) coming from the GLB node.
+    setActivePartName(labelOrNull || null);
+  }, []);
+
   return (
-    <div style={{ display: "flex", width: "100%", height: "89vh" }}>
-      {/* Left: simple parts list from JSON */}
-      <div
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: UI_VIEWER_ROOT_HEIGHT,
+        minHeight: 320,
+        background: UI_VIEWPORT_BG,
+        overflow: "hidden",
+      }}
+    >
+      <style>{`
+        .glb-ev-range { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; outline: none; }
+        .glb-ev-range::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%; background: ${UI_ACCENT}; cursor: pointer; border: 2px solid rgba(255,255,255,0.95); box-shadow: 0 1px 3px rgba(0,0,0,0.35); }
+        .glb-ev-range::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: ${UI_ACCENT}; cursor: pointer; border: 2px solid rgba(255,255,255,0.95); }
+      `}</style>
+
+      {/* Top bar — accent */}
+      <header
         style={{
-          width: 260,
-          background: "#020617",
-          color: "#e5e7eb",
-          padding: "0.75rem",
-          overflow: "auto",
-          fontSize: 12,
+          flexShrink: 0,
+          background: UI_ACCENT,
+          color: "#ffffff",
+          padding: "6px 12px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 10,
+          boxShadow: "0 1px 8px rgba(0,0,0,0.28)",
+          minHeight: 42,
         }}
       >
-        <div style={{ fontWeight: 600, marginBottom: 8 }}>Parts</div>
-        {metaLoadStatus === "loading" && (
-          <div style={{ color: "#94a3b8", marginBottom: 8 }}>Loading metadata…</div>
-        )}
-        {metaLoadStatus === "error" && (
-          <div style={{ color: "#f87171", marginBottom: 8, lineHeight: 1.45 }}>
-            Could not load JSON. Open DevTools → Network: if the request is
-            blocked, add CORS on your bucket/CloudFront (GET for the JSON URL) or
-            proxy the file through your API.
-          </div>
-        )}
-        {metaLoadStatus === "bad_shape" && (
-          <div style={{ color: "#f87171", marginBottom: 8 }}>
-            JSON must include a <code style={{ color: "#e2e8f0" }}>parts</code>{" "}
-            array (see FreeCAD macro output).
-          </div>
-        )}
-        {metaLoadStatus === "ok" && partsForSidebar.length === 0 && (
-          <div style={{ color: "#fbbf24", marginBottom: 8, lineHeight: 1.45 }}>
-            No parts with valid <code style={{ color: "#e2e8f0" }}>bbox</code> in
-            metadata. Check macro: each entry needs xmin…zmax and explode fields.
-          </div>
-        )}
-        {metaLoadStatus === "empty" && (
-          <div style={{ color: "#fbbf24", marginBottom: 8 }}>
-            Metadata loaded but <code style={{ color: "#e2e8f0" }}>parts</code>{" "}
-            is empty — macro found no meshable solids.
-          </div>
-        )}
-        {partsForSidebar.map((p, idx) => {
-          const name = p.name || `Part ${p.id}`;
-          const isActive = activePartName === name;
-          return (
-            <div
-              key={p.id != null ? String(p.id) : `${name}-${idx}`}
-              onMouseEnter={() => setActivePartName(name)}
-              onMouseLeave={() => setActivePartName(null)}
-              style={{
-                padding: "2px 4px",
-                cursor: "pointer",
-                background: isActive ? "#1d4ed8" : "transparent",
-              }}
-            >
-              {name}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Right: viewer */}
-      <div
-        style={{ flex: 1, position: "relative" }}
-        onMouseLeave={() => setActivePartName(null)}
-      >
-        <Canvas
-          camera={{
-            position: [0, 0, INITIAL_ORBIT_CAMERA_DISTANCE],
-            fov: 45,
-          }}
-          dpr={[1, 2]}
-          gl={{ antialias: true, powerPreference: "high-performance" }}
-        >
-          <color attach="background" args={["#111827"]} />
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1.2} />
-          {/* OrbitControls: minDistance/maxDistance removed (were 100 / 817) for unrestricted dolly zoom */}
-          <OrbitControls enableDamping makeDefault />
-
-          <Suspense fallback={null}>
-            <ExplodableModel
-              key={resolvedGlbUrl}
-              url={resolvedGlbUrl}
-              explode={explode}
-              activePartName={activePartName}
-              partsMeta={partsMeta}
-              normalizeTargetMaxSpan={normalizeTargetMaxSpan}
-              screenPlaneExplode={screenPlaneExplode}
-              explodeEnabled={hasPartsMeta}
-            />
-          </Suspense>
-        </Canvas>
-
-        <div
+        <button
+          type="button"
+          onClick={() => setTreeOpen((o) => !o)}
           style={{
-            position: "absolute",
-            left: "50%",
-            bottom: "1rem",
-            transform: "translateX(-50%)",
-            background: "rgba(15,23,42,0.9)",
-            padding: "0.5rem 1rem",
-            borderRadius: 8,
+            ...chromeBtn,
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            color: "#e5e7eb",
+            gap: 7,
+            padding: "6px 11px",
+            borderRadius: 5,
+            background: "rgba(255,255,255,0.18)",
+            color: "#fff",
+            fontSize: 12,
+            fontWeight: 600,
           }}
         >
-          <span style={{ fontSize: 12 }}>Dismantle</span>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={explode}
-            disabled={!hasPartsMeta}
-            onChange={(e) => setExplode(Number(e.target.value))}
-          />
-          <span style={{ fontSize: 12 }}>{Math.round(explode * 100)}%</span>
+          <span style={{ fontSize: 15, lineHeight: 1 }}>☰</span>
+          Assembly Tree
+        </button>
+        <button
+          type="button"
+          data-glb-explode-toggle
+          aria-expanded={explodePanelOpen}
+          aria-controls="glb-explode-range-panel"
+          onClick={() => hasPartsMeta && setExplodePanelOpen((o) => !o)}
+          style={{
+            ...chromeBtn,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "6px 11px",
+            borderRadius: 5,
+            background: explodePanelOpen
+              ? "rgba(255,255,255,0.28)"
+              : "rgba(255,255,255,0.16)",
+            color: "#fff",
+            fontSize: 12,
+            fontWeight: 600,
+            opacity: hasPartsMeta ? 1 : 0.5,
+            border: explodePanelOpen ? "2px solid rgba(255,255,255,0.9)" : "2px solid transparent",
+            boxSizing: "border-box",
+          }}
+        >
+          <span style={{ fontSize: 14 }}>▦</span>
+          Explode
+        </button>
+      </header>
+
+      {explodePanelOpen && hasPartsMeta && (
+        <div
+          ref={explodePanelRef}
+          id="glb-explode-range-panel"
+          role="dialog"
+          aria-label="Explode amount"
+          data-glb-explode-panel
+          style={{
+            position: "absolute",
+            top: 48,
+            right: 10,
+            zIndex: 100,
+            width: 216,
+            background: UI_PANEL_RGBA,
+            padding: "10px 10px 8px",
+            borderRadius: 10,
+            border: `1px solid rgba(97, 11, 238, 0.35)`,
+            boxShadow: "0 12px 36px rgba(0,0,0,0.45)",
+            pointerEvents: "auto",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 8,
+              color: "#f4f4f8",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.02em",
+            }}
+          >
+            <span>Explode</span>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => setExplodePanelOpen(false)}
+              style={{
+                ...chromeBtn,
+                padding: "0 6px",
+                borderRadius: 4,
+                background: "rgba(255,255,255,0.1)",
+                color: "#fff",
+                fontSize: 14,
+                lineHeight: 1.2,
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              background: "rgba(0,0,0,0.22)",
+              padding: "8px 7px",
+              borderRadius: 8,
+            }}
+          >
+            <button
+              type="button"
+              aria-label="Decrease explode"
+              onClick={() => setExplode((x) => Math.max(0, x - 0.05))}
+              style={{
+                ...chromeBtn,
+                width: 24,
+                height: 24,
+                borderRadius: 5,
+                background: UI_ACCENT,
+                color: "#fff",
+                fontSize: 15,
+                fontWeight: 700,
+                lineHeight: 1,
+                flexShrink: 0,
+              }}
+            >
+              −
+            </button>
+            <input
+              type="range"
+              className="glb-ev-range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={explode}
+              onChange={(e) => setExplode(Number(e.target.value))}
+            />
+            <button
+              type="button"
+              aria-label="Increase explode"
+              onClick={() => setExplode((x) => Math.min(1, x + 0.05))}
+              style={{
+                ...chromeBtn,
+                width: 24,
+                height: 24,
+                borderRadius: 5,
+                background: UI_ACCENT,
+                color: "#fff",
+                fontSize: 15,
+                fontWeight: 700,
+                lineHeight: 1,
+                flexShrink: 0,
+              }}
+            >
+              +
+            </button>
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              color: "#c8c8d4",
+              fontSize: 10,
+              marginTop: 7,
+              fontWeight: 600,
+            }}
+          >
+            {Math.round(explode * 100)}%
+          </div>
+        </div>
+      )}
+
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          minHeight: 0,
+          minWidth: 0,
+          position: "relative",
+        }}
+      >
+        {/* Assembly tree drawer */}
+        <aside
+          style={{
+            width: treeOpen ? UI_TREE_WIDTH : 0,
+            flexShrink: 0,
+            alignSelf: "flex-start",
+            height: treeOpen ? UI_ASSEMBLY_PANEL_HEIGHT : 0,
+            maxHeight: treeOpen ? UI_ASSEMBLY_PANEL_HEIGHT : 0,
+            transition: "width 0.2s ease",
+            overflow: "hidden",
+            background: UI_PANEL_RGBA,
+            borderRight: "1px solid rgba(255,255,255,0.07)",
+            boxSizing: "border-box",
+          }}
+        >
+          <div
+            style={{
+              width: UI_TREE_WIDTH,
+              height: "100%",
+              overflowX: "hidden",
+              overflowY: "auto",
+              padding: "10px 10px",
+              color: "#e8e8ed",
+              fontSize: 11,
+              boxSizing: "border-box",
+            }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 12 }}>
+              Assembly
+            </div>
+            {metaLoadStatus === "loading" && (
+              <div style={{ color: "#94a3b8", marginBottom: 8 }}>
+                Loading metadata…
+              </div>
+            )}
+            {metaLoadStatus === "error" && (
+              <div style={{ color: "#f87171", marginBottom: 8, lineHeight: 1.45 }}>
+                Could not load JSON. Check Network / CORS or proxy the JSON URL.
+              </div>
+            )}
+            {metaLoadStatus === "bad_shape" && (
+              <div style={{ color: "#f87171", marginBottom: 8 }}>
+                JSON must include a <code style={{ color: "#e2e8f0" }}>parts</code>{" "}
+                array.
+              </div>
+            )}
+            {metaLoadStatus === "ok" && partsForSidebar.length === 0 && (
+              <div style={{ color: "#fbbf24", marginBottom: 8, lineHeight: 1.45 }}>
+                No parts with valid <code style={{ color: "#e2e8f0" }}>bbox</code>.
+              </div>
+            )}
+            {metaLoadStatus === "empty" && (
+              <div style={{ color: "#fbbf24", marginBottom: 8 }}>
+                Metadata loaded but <code style={{ color: "#e2e8f0" }}>parts</code>{" "}
+                is empty.
+              </div>
+            )}
+
+            {partsForSidebar.length > 0 && (
+              <>
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    cursor: "pointer",
+                    marginBottom: 8,
+                    fontWeight: 600,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={allModelsVisible}
+                    onChange={toggleAllModelsVisible}
+                    style={{ accentColor: UI_ACCENT, width: 16, height: 16 }}
+                  />
+                  Models
+                </label>
+                <div
+                  style={{
+                    paddingLeft: 10,
+                    marginBottom: 8,
+                    borderLeft: `2px solid ${UI_ACCENT}`,
+                    opacity: 0.95,
+                  }}
+                >
+                  <div style={{ fontWeight: 600, marginBottom: 6 }}>
+                    Components
+                  </div>
+                  {partsForSidebar.map((p, idx) => {
+                    const partId = sidebarPartId(p);
+                    const label = sidebarPartLabel(p);
+                    const isActive = activePartName === partId;
+                    return (
+                      <label
+                        key={p.id != null ? String(p.id) : `${name}-${idx}`}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          cursor: "pointer",
+                          padding: "4px 2px",
+                          borderRadius: 4,
+                          background: isActive
+                            ? "rgba(97, 11, 238, 0.35)"
+                            : "transparent",
+                        }}
+                        onMouseEnter={() => setActivePartName(partId)}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={partVisibility[partId] !== false}
+                          onChange={() => togglePartVisible(p)}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ accentColor: UI_ACCENT, width: 15, height: 15 }}
+                        />
+                        <span style={{ flex: 1, lineHeight: 1.35 }}>{label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        </aside>
+
+        {/* Viewport + floating controls */}
+        <div
+          style={{ flex: 1, position: "relative", minWidth: 0 }}
+          onMouseLeave={() => setActivePartName(null)}
+        >
+          <Canvas
+            camera={{
+              position: [0, 0, INITIAL_ORBIT_CAMERA_DISTANCE],
+              fov: 45,
+            }}
+            dpr={[1, 2]}
+            gl={{ antialias: true, powerPreference: "high-performance" }}
+          >
+            <color attach="background" args={[UI_VIEWPORT_BG]} />
+            <ambientLight intensity={1.0} />
+            <OrbitControls enableDamping makeDefault />
+            <CameraViewControls request={camRequest} />
+
+            <Suspense fallback={null}>
+              <ExplodableModel
+                key={resolvedGlbUrl}
+                url={resolvedGlbUrl}
+                explode={explode}
+                activePartName={activePartName}
+                partsMeta={partsMeta}
+                normalizeTargetMaxSpan={normalizeTargetMaxSpan}
+                partVisibility={partVisibility}
+                onHoverPart={handleHoverPartFromScene}
+                screenPlaneExplode={screenPlaneExplode}
+                explodeEnabled={hasPartsMeta}
+              />
+            </Suspense>
+          </Canvas>
+
+          {/* Compact camera D-pad + 2-col views (reference proportions). */}
+          <div
+            style={{
+              position: "absolute",
+              right: 10,
+              top: 10,
+              width: UI_CONTROL_COLUMN_W,
+              maxWidth: UI_CONTROL_COLUMN_W,
+              boxSizing: "border-box",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "stretch",
+              gap: 6,
+              zIndex: 6,
+              pointerEvents: "auto",
+            }}
+          >
+            <div
+              style={{
+                background: UI_ACCENT,
+                padding: 5,
+                borderRadius: 8,
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gridTemplateRows: "repeat(4, auto)",
+                gap: 3,
+                justifyItems: "center",
+                alignItems: "center",
+                boxShadow: "0 3px 10px rgba(0,0,0,0.32)",
+              }}
+            >
+              <span />
+              <button
+                type="button"
+                aria-label="Orbit up"
+                onClick={() => pushCam({ kind: "nudge", dPhi: -ORBIT_NUDGE })}
+                style={{
+                  ...chromeBtn,
+                  gridColumn: 2,
+                  width: UI_DPAD_BTN,
+                  height: UI_DPAD_BTN,
+                  borderRadius: 4,
+                  background: "rgba(0,0,0,0.18)",
+                  color: "rgba(255,255,255,0.95)",
+                  fontSize: 11,
+                  lineHeight: 1,
+                }}
+              >
+                ↑
+              </button>
+              <span />
+              <button
+                type="button"
+                aria-label="Orbit left"
+                onClick={() => pushCam({ kind: "nudge", dTheta: ORBIT_NUDGE })}
+                style={{
+                  ...chromeBtn,
+                  width: UI_DPAD_BTN,
+                  height: UI_DPAD_BTN,
+                  borderRadius: 4,
+                  background: "rgba(0,0,0,0.18)",
+                  color: "rgba(255,255,255,0.95)",
+                  fontSize: 11,
+                  lineHeight: 1,
+                }}
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                aria-label="Isometric view"
+                onClick={() => pushCam({ kind: "preset", name: "ISOMETRIC" })}
+                style={{
+                  ...chromeBtn,
+                  width: UI_DPAD_BTN,
+                  height: UI_DPAD_BTN,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.92)",
+                  color: UI_ACCENT,
+                  fontSize: 9,
+                  fontWeight: 800,
+                  lineHeight: 1,
+                }}
+              >
+                ◎
+              </button>
+              <button
+                type="button"
+                aria-label="Orbit right"
+                onClick={() => pushCam({ kind: "nudge", dTheta: -ORBIT_NUDGE })}
+                style={{
+                  ...chromeBtn,
+                  width: UI_DPAD_BTN,
+                  height: UI_DPAD_BTN,
+                  borderRadius: 4,
+                  background: "rgba(0,0,0,0.18)",
+                  color: "rgba(255,255,255,0.95)",
+                  fontSize: 11,
+                  lineHeight: 1,
+                }}
+              >
+                →
+              </button>
+              <span />
+              <button
+                type="button"
+                aria-label="Orbit down"
+                onClick={() => pushCam({ kind: "nudge", dPhi: ORBIT_NUDGE })}
+                style={{
+                  ...chromeBtn,
+                  gridColumn: 2,
+                  width: UI_DPAD_BTN,
+                  height: UI_DPAD_BTN,
+                  borderRadius: 4,
+                  background: "rgba(0,0,0,0.18)",
+                  color: "rgba(255,255,255,0.95)",
+                  fontSize: 11,
+                  lineHeight: 1,
+                }}
+              >
+                ↓
+              </button>
+              <span />
+              <button
+                type="button"
+                aria-label="Zoom out"
+                onClick={() => pushCam({ kind: "dolly", dir: 1 })}
+                style={{
+                  ...chromeBtn,
+                  gridColumn: 1,
+                  gridRow: 4,
+                  width: 28,
+                  height: UI_DPAD_ZOOM_H,
+                  borderRadius: 4,
+                  background: "rgba(0,0,0,0.18)",
+                  color: "#fff",
+                  fontWeight: 700,
+                  fontSize: 12,
+                  lineHeight: 1,
+                }}
+              >
+                −
+              </button>
+              <button
+                type="button"
+                aria-label="Zoom in"
+                onClick={() => pushCam({ kind: "dolly", dir: -1 })}
+                style={{
+                  ...chromeBtn,
+                  gridColumn: 3,
+                  gridRow: 4,
+                  width: 28,
+                  height: UI_DPAD_ZOOM_H,
+                  borderRadius: 4,
+                  background: "rgba(0,0,0,0.18)",
+                  color: "#fff",
+                  fontWeight: 700,
+                  fontSize: 12,
+                  lineHeight: 1,
+                }}
+              >
+                +
+              </button>
+            </div>
+
+            <div
+              style={{
+                background: UI_PANEL_RGBA,
+                borderRadius: 8,
+                border: `1px solid rgba(97, 11, 238, 0.4)`,
+                overflow: "hidden",
+                width: "100%",
+                maxWidth: "100%",
+                boxSizing: "border-box",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setViewsOpen((o) => !o)}
+                style={{
+                  ...chromeBtn,
+                  width: "100%",
+                  maxWidth: "100%",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 5,
+                  padding: "6px 6px",
+                  background: "rgba(245,245,248,0.97)",
+                  color: UI_ACCENT,
+                  fontWeight: 800,
+                  fontSize: 9,
+                  letterSpacing: "0.12em",
+                }}
+              >
+                VIEWS
+                <span style={{ fontSize: 8, opacity: 0.85, flexShrink: 0 }}>
+                  {viewsOpen ? "▾" : "▸"}
+                </span>
+              </button>
+              {viewsOpen && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+                    gap: "4px 5px",
+                    padding: "6px 5px 7px",
+                    maxHeight: 160,
+                    overflowX: "hidden",
+                    overflowY: "auto",
+                    boxSizing: "border-box",
+                    width: "100%",
+                    minWidth: 0,
+                  }}
+                >
+                  {[
+                    ["FRONT", "BACK"],
+                    ["LEFT", "RIGHT"],
+                    ["TOP", "BOTTOM"],
+                  ].flatMap((pair) =>
+                    pair.map((name) => (
+                      <button
+                        key={name}
+                        type="button"
+                        onClick={() => pushCam({ kind: "preset", name })}
+                        style={{
+                          ...chromeBtn,
+                          minWidth: 0,
+                          maxWidth: "100%",
+                          boxSizing: "border-box",
+                          textAlign: "center",
+                          padding: "5px 2px",
+                          borderRadius: 3,
+                          background: "rgba(60,60,68,0.95)",
+                          color: "#f0f0f5",
+                          fontSize: 9,
+                          fontWeight: 700,
+                          letterSpacing: "0.03em",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {name}
+                      </button>
+                    ))
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => pushCam({ kind: "preset", name: "ISOMETRIC" })}
+                    style={{
+                      ...chromeBtn,
+                      gridColumn: "1 / -1",
+                      minWidth: 0,
+                      maxWidth: "100%",
+                      boxSizing: "border-box",
+                      textAlign: "center",
+                      padding: "5px 2px",
+                      marginTop: 1,
+                      borderRadius: 3,
+                      background: "rgba(60,60,68,0.95)",
+                      color: "#f0f0f5",
+                      fontSize: 9,
+                      fontWeight: 700,
+                      letterSpacing: "0.03em",
+                    }}
+                  >
+                    ISOMETRIC
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
