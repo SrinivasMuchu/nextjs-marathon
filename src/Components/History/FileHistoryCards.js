@@ -200,7 +200,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     if (cad_type === 'USER_CADS') {
       router.push(`/library/${file.route}`);
     } else {
-      router.push(`/tools/cad-renderer?fileId=${file._id}`);
+      const glb = Boolean(file.glb_url);
+      router.push(`/tools/cad-renderer?fileId=${file._id}&glb=${glb}`);
     }
   };
 
@@ -277,11 +278,11 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     setIsEmailVerify(false);
   };
 
-   const getFileHref = (file) => {
-  return file.status === 'COMPLETED'
-    ? `/tools/cad-renderer?fileId=${file._id}`
-    : undefined;
-};
+  const getFileHref = (file) => {
+    if (file.status !== "COMPLETED") return undefined;
+    const glb = Boolean(file.glb_url);
+    return `/tools/cad-renderer?fileId=${file._id}&glb=${glb}`;
+  };
   return (
     <>
       <div className={styles.cadViewerContainer} style={{ width: '100%' }}>

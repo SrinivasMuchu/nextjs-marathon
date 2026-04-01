@@ -1186,15 +1186,21 @@ export function GlbExplodeViewer({
         {/* Assembly tree drawer */}
         <aside
           style={{
-            width: treeOpen ? UI_TREE_WIDTH : 0,
-            flexShrink: 0,
-            alignSelf: "flex-start",
-            height: treeOpen ? UI_ASSEMBLY_PANEL_HEIGHT : 0,
-            maxHeight: treeOpen ? UI_ASSEMBLY_PANEL_HEIGHT : 0,
-            transition: "width 0.2s ease",
+            position: "absolute",
+            left: 10,
+            top: 10,
+            zIndex: 7,
+            width: UI_TREE_WIDTH,
+            height: UI_ASSEMBLY_PANEL_HEIGHT,
+            maxHeight: UI_ASSEMBLY_PANEL_HEIGHT,
+            transition: "transform 0.2s ease, opacity 0.2s ease",
+            transform: treeOpen ? "translateX(0)" : `translateX(-${UI_TREE_WIDTH + 20}px)`,
+            opacity: treeOpen ? 1 : 0,
+            pointerEvents: treeOpen ? "auto" : "none",
             overflow: "hidden",
             background: UI_PANEL_RGBA,
-            borderRight: "1px solid rgba(255,255,255,0.07)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 8,
             boxSizing: "border-box",
           }}
         >

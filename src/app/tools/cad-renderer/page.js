@@ -16,6 +16,9 @@ const PartDesignView = dynamic(() => import("@/Components/PDMViewer/PartDesignVi
 function DesignViewContent() {
   const searchParams = useSearchParams();
   const format = searchParams.get("format");
+  const glbParam = searchParams.get("glb");
+  const hasGlbParam = glbParam != null;
+  const queryIsGlb = hasGlbParam && /^(true|1|yes)$/i.test(String(glbParam));
   const fileId =
     searchParams.get("fileId") ||
     searchParams.get("id") ||
@@ -41,6 +44,7 @@ function DesignViewContent() {
     [encodedFileId]
   );
   const [status, setStatus] = useState(fileId ? "PENDING" : null);
+  const [isGlbViewer, setIsGlbViewer] = useState(false);
 
   useEffect(() => {
     if (!fileId || format) return;
@@ -55,10 +59,17 @@ function DesignViewContent() {
           headers: { "user-uuid": localStorage.getItem("uuid") || "" },
         });
         const nextStatus = response?.data?.data?.status || "PENDING";
+        const hasGlb = hasGlbParam
+          ? queryIsGlb
+          : Boolean(response?.data?.data?.glb_url);
         if (cancelled) return;
         setStatus(nextStatus);
+        setIsGlbViewer(hasGlb);
       } catch (e) {
-        if (!cancelled) setStatus("FAILED");
+        if (!cancelled) {
+          setStatus("FAILED");
+          setIsGlbViewer(false);
+        }
       }
     };
 
@@ -69,7 +80,7 @@ function DesignViewContent() {
       cancelled = true;
       if (intervalId) clearInterval(intervalId);
     };
-  }, [fileId, format]);
+  }, [fileId, format, hasGlbParam, queryIsGlb]);
 
   if (format) {
     return <IndustryCadViewer />;
@@ -79,6 +90,10 @@ function DesignViewContent() {
   }
   if (status !== "COMPLETED") {
     return <CubeLoader uploadingMessage={status || "PENDING"} />;
+  }
+
+  if (!isGlbViewer) {
+    return <PartDesignView />;
   }
 
   return (

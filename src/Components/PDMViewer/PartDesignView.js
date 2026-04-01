@@ -246,7 +246,7 @@ export default function PartDesignView() {
             // user-uuid
             if (response.data.meta.success) {
                 // setUploadingMessage('PENDING')
-                window.location.href = `/tools/cad-renderer?fileId=${response.data.data}`;
+                window.location.href = `/tools/cad-renderer?fileId=${response.data.data}&glb=true`;
 
                 // localStorage.setItem('last_viewed_cad_key', response.data.data)
                 await getStatus()
