@@ -16,6 +16,7 @@ const PartDesignView = dynamic(() => import("@/Components/PDMViewer/PartDesignVi
 function DesignViewContent() {
   const searchParams = useSearchParams();
   const format = searchParams.get("format");
+  const isSample = /^(true|1|yes)$/i.test(String(searchParams.get("sample") || ""));
   const glbParam = searchParams.get("glb");
   const hasGlbParam = glbParam != null;
   const queryIsGlb = hasGlbParam && /^(true|1|yes)$/i.test(String(glbParam));
@@ -48,6 +49,12 @@ function DesignViewContent() {
 
   useEffect(() => {
     if (!fileId || format) return;
+    if (isSample) {
+      // Sample route is static: skip status polling/API entirely.
+      setStatus("COMPLETED");
+      setIsGlbViewer(queryIsGlb);
+      return;
+    }
 
     let cancelled = false;
     let intervalId = null;
@@ -80,7 +87,7 @@ function DesignViewContent() {
       cancelled = true;
       if (intervalId) clearInterval(intervalId);
     };
-  }, [fileId, format, hasGlbParam, queryIsGlb]);
+  }, [fileId, format, hasGlbParam, queryIsGlb, isSample]);
 
   if (format) {
     return <IndustryCadViewer />;
