@@ -10,7 +10,7 @@ function CommonSampleViewer() {
         const handleViewFile = (fileId) => {
           sendGAtagEvent({ event_name: 'viewer_sample_file_clicked', event_category: CAD_VIEWER_EVENT })
 
-            router.push(`/tools/cad-renderer?fileId=${fileId}&sample=true`);
+            router.push(`/tools/cad-renderer?fileId=${fileId}&sample=true&glb=true`);
         }
   return (
     <div className={styles["cad-dropzone-samples"]}>

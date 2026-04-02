@@ -93,24 +93,24 @@ export const convertedFiles = [
 
   export const cadViewerFiles = [
     {
-      "id": '6800a5b1b6b9e6583e6ec3c3',    
-      "name": "Engine Block",
+      "id": '69cc85a7f7e8826363f85c22',    
+      "name": "Arduino car",
       
     },
     {
-      "id": '68012016b1f61b010dd05a53',
-      "name": "End Effector",
+      "id": '69ce600b0761293936b7000b',
+      "name": "TGS 8x4 Truck",
       
     },
     {
-      "id": "68011f2eb1f61b010dd05a50",
-      "name": "Brushless DC Motor",
+      "id": "69ce614a0761293936b701db",
+      "name": "DIY Flight Sim Cockpit",
       
   
     },
     {
-      "id": '6800ef3cb1f61b010dd059d1',
-      "name": "Fixture Clamp",
+      "id": '69ce62220761293936b703c5',
+      "name": "Drone (Fpv-Quadcopter)",
       
     },
     
