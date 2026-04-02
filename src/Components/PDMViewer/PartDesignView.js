@@ -58,33 +58,44 @@ export default function PartDesignView() {
     const [publishCadPopup, setPublishCadPopup] = useState(false);
     const [uploadProgressPercent, setUploadProgressPercent] = useState(null);
     const partLoadedByIndexRef = useRef([]);
+    const uploadStartRef = useRef(false);
     const router = useRouter();
 
     useEffect(() => {
-        if (!file && !searchParams.get('fileId')) {
-            router.push("/tools//3D-cad-viewer");
-            return;
-        }
+        const fileId = searchParams.get('fileId');
+        const sample = searchParams.get('sample');
+
         // const sampleFileKey = localStorage.getItem('sample_view_cad_key');
-        if (searchParams.get('sample')) {
-            setFolderId(searchParams.get('fileId'));
+        if (sample) {
+            setFolderId(fileId);
             setIsLoading(false);
             return;
         }
-        // if(!searchParams.get('fileId')) router.push("/tools//3D-cad-viewer");
-        // if (!file && !searchParams.get('fileId')) router.push("/tools//3D-cad-viewer");
-        try {
-            // Only handle file if it exists and we don't already have a fileId from URL
-            if (file && !searchParams.get('fileId')) {
-                handleFile(file);
-            } else if (searchParams.get('fileId')) {
-                // Clear file state if we're viewing an existing file to prevent conflicts
-                setFile(null);
-            }
-        } catch (error) {
-            console.error("Error retrieving file:", error);
+
+        // Existing CAD from URL: clear upload-state file object to avoid conflicts.
+        if (fileId) {
+            setFile(null);
+            return;
         }
-    }, []);
+
+        // New upload path: start upload exactly once when context file arrives.
+        if (file) {
+            if (!uploadStartRef.current) {
+                uploadStartRef.current = true;
+                handleFile(file);
+            }
+            return;
+        }
+
+        // Race guard: when navigating from dropzone, context `file` can arrive one tick later.
+        const t = setTimeout(() => {
+            if (!uploadStartRef.current && !file && !searchParams.get('fileId')) {
+                router.push("/tools/3D-cad-viewer");
+            }
+        }, 700);
+
+        return () => clearTimeout(t);
+    }, [file, searchParams, router, setFile]);
 
     // Cleanup effect to reset file state when navigating away
     useEffect(() => {
@@ -102,7 +113,7 @@ export default function PartDesignView() {
         setError(null); // Clear any errors
         setIsLoading(false); // Reset loading state
         setUploadProgressPercent(null);
-        router.push("/tools//3D-cad-viewer");
+        router.push("/tools/3D-cad-viewer");
     };
 
 
