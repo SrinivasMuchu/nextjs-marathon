@@ -26,3 +26,9 @@ export function useCadForm() {
   }
   return ctx
 }
+
+/** True when already on the CAD Services marketing page (same-route clicks should open the quote popup, not hard-navigate / scroll to top). */
+export function isCadServicesRoute(pathname) {
+  if (!pathname) return false
+  return pathname.replace(/\/$/, '') === '/cad-services'
+}

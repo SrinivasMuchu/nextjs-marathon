@@ -51,8 +51,18 @@
   font-family: inherit;
 }
 
+.headlineLead {
+  display: block;
+}
+
 .headlineAccent {
-  color: #a855f7;
+  display: block;
+  margin-top: 0.15em;
+  color: #610bee;
+}
+
+.statSymbol {
+  color: #610bee;
 }
 
 .description {
