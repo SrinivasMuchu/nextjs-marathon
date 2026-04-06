@@ -194,6 +194,126 @@ function forEachMeshMaterial(mesh, fn) {
 
 const _scratchViewDir = new THREE.Vector3();
 const _scratchExplodeDir = new THREE.Vector3();
+const _scratchPlaneNormal = new THREE.Vector3();
+const _scratchPlanePoint = new THREE.Vector3();
+const _sectionPlanePool = [
+  new THREE.Plane(),
+  new THREE.Plane(),
+  new THREE.Plane(),
+];
+
+/**
+ * GrabCAD-style section: world-axis clipping planes (X / Y / Z), optional gizmo quads.
+ * Cut-face fill like GrabCAD needs stencil caps — not implemented here; clipping + gizmos match workflow.
+ */
+function applySectionClipping(root, section) {
+  const clearAll = () => {
+    if (!root) return;
+    root.traverse((obj) => {
+      const applyMat = (mat) => {
+        if (!mat) return;
+        mat.clippingPlanes = null;
+        mat.clipIntersection = false;
+        mat.needsUpdate = true;
+      };
+      if (obj.isMesh && obj.material) forEachMeshMaterial(obj, applyMat);
+      if (obj.isLineSegments && obj.material) {
+        const m = obj.material;
+        if (Array.isArray(m)) m.forEach(applyMat);
+        else applyMat(m);
+      }
+    });
+    const gg = root.userData?.sectionGizmoGroup;
+    if (gg) gg.visible = false;
+  };
+
+  if (!root?.userData?.bboxCenter || !section?.enabled) {
+    clearAll();
+    return;
+  }
+
+  const c = root.userData.bboxCenter;
+  const h = root.userData.bboxHalfSize;
+  const planes = [];
+  let pi = 0;
+
+  const pushPlane = (axis, on, flip, offsetNorm) => {
+    if (!on || pi >= _sectionPlanePool.length) return;
+    _scratchPlaneNormal.set(0, 0, 0);
+    if (axis === "x") _scratchPlaneNormal.x = flip ? -1 : 1;
+    if (axis === "y") _scratchPlaneNormal.y = flip ? -1 : 1;
+    if (axis === "z") _scratchPlaneNormal.z = flip ? -1 : 1;
+    const ext = axis === "x" ? h.x : axis === "y" ? h.y : h.z;
+    const dist = Number(offsetNorm) * ext;
+    _scratchPlanePoint.copy(c);
+    if (axis === "x") _scratchPlanePoint.x += dist;
+    if (axis === "y") _scratchPlanePoint.y += dist;
+    if (axis === "z") _scratchPlanePoint.z += dist;
+    const pl = _sectionPlanePool[pi++];
+    pl.setFromNormalAndCoplanarPoint(_scratchPlaneNormal, _scratchPlanePoint);
+    planes.push(pl);
+  };
+
+  const on = section.on || {};
+  const flip = section.flip || {};
+  const off = section.offset || {};
+  pushPlane("x", on.x, flip.x, off.x ?? 0);
+  pushPlane("y", on.y, flip.y, off.y ?? 0);
+  pushPlane("z", on.z, flip.z, off.z ?? 0);
+
+  root.traverse((obj) => {
+    const applyMat = (mat) => {
+      if (!mat) return;
+      if (planes.length) {
+        mat.clippingPlanes = planes;
+        mat.clipIntersection = false;
+      } else {
+        mat.clippingPlanes = null;
+        mat.clipIntersection = false;
+      }
+      mat.needsUpdate = true;
+    };
+    if (obj.isMesh && obj.material) forEachMeshMaterial(obj, applyMat);
+    if (obj.isLineSegments && obj.material) {
+      const m = obj.material;
+      if (Array.isArray(m)) m.forEach(applyMat);
+      else applyMat(m);
+    }
+  });
+
+  const gg = root.userData.sectionGizmoGroup;
+  if (gg) {
+    const show = section.showGizmos !== false;
+    gg.visible = show && planes.length > 0;
+    if (gg.visible) {
+      const maxSpan = Math.max(h.x, h.y, h.z, 1e-6) * 2.2;
+      let i = 0;
+      const syncGizmo = (axis, on, _flip, offsetNorm) => {
+        const mesh = gg.children[i++];
+        if (!mesh) return;
+        mesh.visible = !!on;
+        if (!on) return;
+        const ext = axis === "x" ? h.x : axis === "y" ? h.y : h.z;
+        const dist = Number(offsetNorm) * ext;
+        mesh.position.set(c.x, c.y, c.z);
+        if (axis === "x") {
+          mesh.position.x += dist;
+          mesh.rotation.set(0, Math.PI / 2, 0);
+        } else if (axis === "y") {
+          mesh.position.y += dist;
+          mesh.rotation.set(-Math.PI / 2, 0, 0);
+        } else {
+          mesh.position.z += dist;
+          mesh.rotation.set(0, 0, 0);
+        }
+        mesh.scale.set(maxSpan, maxSpan, 1);
+      };
+      syncGizmo("x", on.x, flip.x, off.x ?? 0);
+      syncGizmo("y", on.y, flip.y, off.y ?? 0);
+      syncGizmo("z", on.z, flip.z, off.z ?? 0);
+    }
+  }
+}
 
 /**
  * Projects motion onto the plane facing the camera — reads as sliding on-screen,
@@ -374,6 +494,8 @@ function ExplodableModel({
   screenPlaneExplode = false,
   /** Without part metadata there is nothing to align explode to — motion stays off. */
   explodeEnabled = true,
+  /** GrabCAD-style section: `{ enabled, on:{x,y,z}, flip:{x,y,z}, offset:{x,y,z} }` */
+  section = null,
 }) {
   const { scene } = useGLTF(url);
   const { camera } = useThree();
@@ -417,6 +539,12 @@ function ExplodableModel({
     () => buildPartLookup(partsMeta),
     [partsMeta]
   );
+
+  const sectionRef = useRef(section);
+  const rootForSectionRef = useRef(null);
+  useLayoutEffect(() => {
+    sectionRef.current = section;
+  }, [section]);
 
   const { rootGroup, radius } = useMemo(() => {
     const clone = scene.clone(true);
@@ -547,6 +675,31 @@ function ExplodableModel({
       partsByNameRef.current[partGroup.name] = partGroup;
     });
 
+    const halfSize = box.getSize(new THREE.Vector3()).multiplyScalar(0.5);
+    root.userData.bboxCenter = center.clone();
+    root.userData.bboxHalfSize = halfSize.clone();
+
+    const gizmoGroup = new THREE.Group();
+    gizmoGroup.name = "__section_gizmos__";
+    gizmoGroup.visible = false;
+    const gizmoGeo = new THREE.PlaneGeometry(1, 1);
+    const mkGizmoMat = (hex) =>
+      new THREE.MeshBasicMaterial({
+        color: hex,
+        transparent: true,
+        opacity: 0.16,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        toneMapped: false,
+      });
+    gizmoGroup.add(
+      new THREE.Mesh(gizmoGeo, mkGizmoMat(0xcc4444)),
+      new THREE.Mesh(gizmoGeo, mkGizmoMat(0x44aa44)),
+      new THREE.Mesh(gizmoGeo, mkGizmoMat(0x4488dd))
+    );
+    root.add(gizmoGroup);
+    root.userData.sectionGizmoGroup = gizmoGroup;
+
     const metaCount = partsMeta?.filter(
       (p) =>
         Array.isArray(p.explodeDir) &&
@@ -576,6 +729,10 @@ function ExplodableModel({
 
     return { rootGroup: root, radius };
   }, [scene, url, partsMeta, byExact, byNorm, partLookup]);
+
+  useLayoutEffect(() => {
+    rootForSectionRef.current = partsRef.current[0]?.parent ?? null;
+  }, [url, partsMeta, rootGroup]);
 
   useFrame(() => {
     const t = explodeEnabledRef.current ? explodeRef.current : 0;
@@ -713,6 +870,8 @@ function ExplodableModel({
       g.visible =
         vis == null || Object.keys(vis).length === 0 ? true : vis[vk] !== false;
     });
+
+    applySectionClipping(rootForSectionRef.current, sectionRef.current);
   });
 
   const handlePointerOver = useCallback(
@@ -784,6 +943,20 @@ export function GlbExplodeViewer({
   const [viewsOpen, setViewsOpen] = useState(true);
   const [explodePanelOpen, setExplodePanelOpen] = useState(false);
   const explodePanelRef = useRef(null);
+  const [sectionPanelOpen, setSectionPanelOpen] = useState(false);
+  const sectionPanelRef = useRef(null);
+  const [sectionAxisOn, setSectionAxisOn] = useState({
+    x: true,
+    y: true,
+    z: true,
+  });
+  const [sectionFlip, setSectionFlip] = useState({
+    x: false,
+    y: false,
+    z: false,
+  });
+  const [sectionOffset, setSectionOffset] = useState({ x: 0, y: 0, z: 0 });
+  const [sectionActiveAxis, setSectionActiveAxis] = useState("x");
   const [partVisibility, setPartVisibility] = useState({});
   const [camRequest, setCamRequest] = useState(null);
   const camReqIdRef = useRef(0);
@@ -817,11 +990,41 @@ export function GlbExplodeViewer({
       const t = e.target;
       if (t.closest?.("[data-glb-explode-panel]")) return;
       if (t.closest?.("[data-glb-explode-toggle]")) return;
+      if (t.closest?.("[data-glb-section-panel]")) return;
+      if (t.closest?.("[data-glb-section-toggle]")) return;
       setExplodePanelOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown, true);
     return () => document.removeEventListener("pointerdown", onPointerDown, true);
   }, [explodePanelOpen]);
+
+  useEffect(() => {
+    if (!sectionPanelOpen) return;
+    const onPointerDown = (e) => {
+      const t = e.target;
+      if (t.closest?.("[data-glb-section-panel]")) return;
+      if (t.closest?.("[data-glb-section-toggle]")) return;
+      if (t.closest?.("[data-glb-explode-panel]")) return;
+      if (t.closest?.("[data-glb-explode-toggle]")) return;
+      setSectionPanelOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [sectionPanelOpen]);
+
+  const sectionConfig = useMemo(() => {
+    if (!sectionPanelOpen) {
+      return { enabled: false, showGizmos: false };
+    }
+    const anyOn = sectionAxisOn.x || sectionAxisOn.y || sectionAxisOn.z;
+    return {
+      enabled: anyOn,
+      on: { ...sectionAxisOn },
+      flip: { ...sectionFlip },
+      offset: { ...sectionOffset },
+      showGizmos: true,
+    };
+  }, [sectionPanelOpen, sectionAxisOn, sectionFlip, sectionOffset]);
 
   useEffect(() => {
     if (!resolvedMetaUrl) {
@@ -1003,6 +1206,7 @@ export function GlbExplodeViewer({
           minHeight: 42,
         }}
       >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <button
           type="button"
           onClick={() => setTreeOpen((o) => !o)}
@@ -1022,12 +1226,48 @@ export function GlbExplodeViewer({
           <span style={{ fontSize: 15, lineHeight: 1 }}>☰</span>
           Assembly Tree
         </button>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <button
+          type="button"
+          data-glb-section-toggle
+          aria-expanded={sectionPanelOpen}
+          aria-controls="glb-section-panel"
+          onClick={() => {
+            setExplodePanelOpen(false);
+            setSectionPanelOpen((o) => !o);
+          }}
+          style={{
+            ...chromeBtn,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "6px 11px",
+            borderRadius: 5,
+            background: sectionPanelOpen
+              ? "rgba(255,80,80,0.35)"
+              : "rgba(255,255,255,0.16)",
+            color: "#fff",
+            fontSize: 12,
+            fontWeight: 600,
+            border: sectionPanelOpen
+              ? "2px solid rgba(255,200,200,0.95)"
+              : "2px solid transparent",
+            boxSizing: "border-box",
+          }}
+        >
+          <span style={{ fontSize: 14 }}>⊞</span>
+          Section
+        </button>
         <button
           type="button"
           data-glb-explode-toggle
           aria-expanded={explodePanelOpen}
           aria-controls="glb-explode-range-panel"
-          onClick={() => hasPartsMeta && setExplodePanelOpen((o) => !o)}
+          onClick={() => {
+            setSectionPanelOpen(false);
+            hasPartsMeta && setExplodePanelOpen((o) => !o);
+          }}
           style={{
             ...chromeBtn,
             display: "flex",
@@ -1049,6 +1289,7 @@ export function GlbExplodeViewer({
           <span style={{ fontSize: 14 }}>▦</span>
           Explode
         </button>
+        </div>
       </header>
 
       {explodePanelOpen && hasPartsMeta && (
@@ -1171,6 +1412,144 @@ export function GlbExplodeViewer({
           >
             {Math.round(explode * 100)}%
           </div>
+        </div>
+      )}
+
+      {sectionPanelOpen && (
+        <div
+          ref={sectionPanelRef}
+          id="glb-section-panel"
+          role="dialog"
+          aria-label="Section planes"
+          data-glb-section-panel
+          style={{
+            position: "absolute",
+            top: 48,
+            right: 10,
+            zIndex: 100,
+            width: 240,
+            background: UI_PANEL_RGBA,
+            padding: "10px 10px 8px",
+            borderRadius: 10,
+            border: "1px solid rgba(255,120,120,0.35)",
+            boxShadow: "0 12px 36px rgba(0,0,0,0.45)",
+            pointerEvents: "auto",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 8,
+              color: "#f4f4f8",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.02em",
+            }}
+          >
+            <span>Section</span>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => setSectionPanelOpen(false)}
+              style={{
+                ...chromeBtn,
+                padding: "0 6px",
+                borderRadius: 4,
+                background: "rgba(255,255,255,0.1)",
+                color: "#fff",
+                fontSize: 14,
+                lineHeight: 1.2,
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div style={{ color: "#c8c8d4", fontSize: 10, marginBottom: 8, lineHeight: 1.35 }}>
+            Select plane orientations (X / Y / Z). Move the active plane with the slider; flip reverses the cut side.
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 6,
+              marginBottom: 10,
+            }}
+          >
+            {(["x", "y", "z"]).map((ax) => (
+              <button
+                key={ax}
+                type="button"
+                onClick={() => {
+                  setSectionActiveAxis(ax);
+                  setSectionAxisOn((o) => ({ ...o, [ax]: !o[ax] }));
+                }}
+                style={{
+                  ...chromeBtn,
+                  padding: "6px 0",
+                  borderRadius: 6,
+                  fontWeight: 800,
+                  fontSize: 12,
+                  color: sectionAxisOn[ax] ? "#fff" : "rgba(255,255,255,0.4)",
+                  background:
+                    sectionActiveAxis === ax
+                      ? "rgba(255,90,90,0.45)"
+                      : "rgba(0,0,0,0.25)",
+                  border:
+                    sectionActiveAxis === ax
+                      ? "2px solid rgba(255,200,200,0.9)"
+                      : "2px solid transparent",
+                  boxSizing: "border-box",
+                }}
+              >
+                {ax.toUpperCase()}
+              </button>
+            ))}
+            <button
+              type="button"
+              title="Flip active plane"
+              aria-label="Flip section direction"
+              onClick={() =>
+                setSectionFlip((o) => ({
+                  ...o,
+                  [sectionActiveAxis]: !o[sectionActiveAxis],
+                }))
+              }
+              style={{
+                ...chromeBtn,
+                padding: "6px 0",
+                borderRadius: 6,
+                background: "rgba(0,0,0,0.25)",
+                color: "#fff",
+                fontSize: 14,
+              }}
+            >
+              ⇄
+            </button>
+          </div>
+          <div
+            style={{
+              color: "#a8a8b8",
+              fontSize: 10,
+              marginBottom: 6,
+              fontWeight: 600,
+            }}
+          >
+            Plane position ({sectionActiveAxis.toUpperCase()})
+          </div>
+          <input
+            type="range"
+            className="glb-ev-range"
+            min={-100}
+            max={100}
+            step={1}
+            value={Math.round((sectionOffset[sectionActiveAxis] ?? 0) * 100)}
+            onChange={(e) => {
+              const v = Number(e.target.value) / 100;
+              setSectionOffset((o) => ({ ...o, [sectionActiveAxis]: v }));
+            }}
+          />
         </div>
       )}
 
@@ -1332,6 +1711,9 @@ export function GlbExplodeViewer({
               toneMapping: THREE.ACESFilmicToneMapping,
               outputColorSpace: THREE.SRGBColorSpace,
             }}
+            onCreated={({ gl }) => {
+              gl.localClippingEnabled = true;
+            }}
           >
             <color attach="background" args={[UI_VIEWPORT_BG]} />
             <ambientLight intensity={0.32} />
@@ -1356,6 +1738,7 @@ export function GlbExplodeViewer({
                 onHoverPart={handleHoverPartFromScene}
                 screenPlaneExplode={screenPlaneExplode}
                 explodeEnabled={hasPartsMeta}
+                section={sectionConfig}
               />
             </Suspense>
           </Canvas>
