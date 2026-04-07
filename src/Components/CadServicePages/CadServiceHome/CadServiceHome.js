@@ -11,10 +11,7 @@ function CadServiceHome() {
           CAD OUTSOURCING
         </span>
         <h1 className={styles.headline}>
-          Stop hiring.
-          <br />
-          Start shipping
-          <br />
+          <span className={styles.headlineLead}>Stop hiring. Start shipping</span>
           <span className={styles.headlineAccent}>CAD in 24 hrs.</span>
         </h1>
         <p className={styles.description}>
@@ -22,15 +19,21 @@ function CadServiceHome() {
         </p>
         <div className={styles.stats}>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>500+</span>
+            <span className={styles.statValue}>
+              500<span className={styles.statSymbol}>+</span>
+            </span>
             <span className={styles.statLabel}>Projects Delivered</span>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>&lt;24 hrs</span>
+            <span className={styles.statValue}>
+              <span className={styles.statSymbol}>&lt;</span>24 hrs
+            </span>
             <span className={styles.statLabel}>Avg. First Response</span>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>15+</span>
+            <span className={styles.statValue}>
+              15<span className={styles.statSymbol}>+</span>
+            </span>
             <span className={styles.statLabel}>CAD Tools Supported</span>
           </div>
         </div>
