@@ -245,6 +245,36 @@ const RENDER_ORDER_CAD_MESH = 20;
 const RENDER_ORDER_CAD_EDGES = 21;
 
 /**
+ * Plane size by axis using the in-plane bbox dimensions:
+ * - X plane spans Y/Z
+ * - Y plane spans X/Z
+ * - Z plane spans X/Y
+ */
+function getSectionPlaneSpanByAxis(axis, h) {
+  if (!h) return { sx: 1, sy: 1, sMax: 1 };
+  const eps = 1e-6;
+  const maxHalf = Math.max(h.x, h.y, h.z, eps);
+  // Keep planes visible on ultra-thin models (e.g., sheet-like dimensions).
+  const minInPlaneHalf = maxHalf * 0.35;
+  let a = 1;
+  let b = 1;
+  if (axis === "x") {
+    a = Math.max(h.z, eps);
+    b = Math.max(h.y, eps);
+  } else if (axis === "y") {
+    a = Math.max(h.x, eps);
+    b = Math.max(h.z, eps);
+  } else {
+    a = Math.max(h.x, eps);
+    b = Math.max(h.y, eps);
+  }
+  // `h` is half-size; plane geometry scale expects full side length.
+  const sx = Math.max(a, minInPlaneHalf) * 2 * SECTION_GIZMO_SPAN_MULT;
+  const sy = Math.max(b, minInPlaneHalf) * 2 * SECTION_GIZMO_SPAN_MULT;
+  return { sx, sy, sMax: Math.max(sx, sy, eps) };
+}
+
+/**
  * Stencil write pass (three.js `webgl_clipping_stencil`): marks cut region per clipping plane.
  */
 function createStencilWriteMaterial(planeRef, backSide) {
@@ -425,8 +455,6 @@ function applySectionClipping(gl, root, section) {
     const show = section.showGizmos !== false;
     gg.visible = show && planes.length > 0;
     if (gg.visible) {
-      const maxSpan =
-        Math.max(h.x, h.y, h.z, 1e-6) * SECTION_GIZMO_SPAN_MULT;
       let i = 0;
       const syncGizmo = (axis, on, _flip, offsetNorm) => {
         const wrap = gg.children[i++];
@@ -448,17 +476,18 @@ function applySectionClipping(gl, root, section) {
         }
         const visual = wrap.children[0];
         const pick = wrap.children[1];
+        const span = getSectionPlaneSpanByAxis(axis, h);
         if (visual) {
           visual.scale.set(
-            maxSpan * SECTION_GIZMO_HIT_SCALE,
-            maxSpan * SECTION_GIZMO_HIT_SCALE,
+            span.sx * SECTION_GIZMO_HIT_SCALE,
+            span.sy * SECTION_GIZMO_HIT_SCALE,
             1
           );
         }
         if (pick) {
           pick.scale.set(
-            maxSpan * SECTION_GIZMO_PICK_SCALE,
-            maxSpan * SECTION_GIZMO_PICK_SCALE,
+            span.sx * SECTION_GIZMO_PICK_SCALE,
+            span.sy * SECTION_GIZMO_PICK_SCALE,
             1
           );
         }
@@ -526,8 +555,6 @@ function syncSectionCapsAndStencilMaterials(root, section) {
     });
   }
 
-  const maxSpan =
-    Math.max(h.x, h.y, h.z, 1e-6) * SECTION_GIZMO_SPAN_MULT;
   const capGroup = root.userData.sectionCapGroup;
   if (!capGroup) return;
 
@@ -564,7 +591,8 @@ function syncSectionCapsAndStencilMaterials(root, section) {
       _scratchPlanePoint.y - pl.normal.y,
       _scratchPlanePoint.z - pl.normal.z
     );
-    child.scale.set(maxSpan, maxSpan, 1);
+    const span = getSectionPlaneSpanByAxis(axis, h);
+    child.scale.set(span.sx, span.sy, 1);
   });
 }
 
