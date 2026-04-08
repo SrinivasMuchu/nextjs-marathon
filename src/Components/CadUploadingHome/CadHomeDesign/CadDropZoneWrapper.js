@@ -2,6 +2,7 @@
 import { IMAGEURLS, allowedFilesList } from "@/config";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
+import { flushSync } from "react-dom";
 import styles from "./CadHome.module.css";
 import { toast } from "react-toastify";
 import axios from 'axios'
@@ -78,8 +79,8 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
             }
             )
             if (response.data.meta.success) {
-                setFile(file)
-                router.push("/tools/cad-renderer");
+                flushSync(() => setFile(file));
+                router.push("/tools/cad-uploading");
             } else {
                 setCheckLimit(true)
               
@@ -141,8 +142,8 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
             return;
         }
 
-        setFile(file)
-        router.push("/tools/cad-renderer");
+        flushSync(() => setFile(file));
+        router.push("/tools/cad-uploading");
     };
 
     const handleDragOver = (event) => {

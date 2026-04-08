@@ -1,5 +1,6 @@
 "use client";
 import React, { useRef,} from "react";
+import { flushSync } from "react-dom";
 import styles from '../CadUploadingHome/CadHomeDesign/CadHome.module.css'
 import { IMAGEURLS,allowedFilesList } from '@/config'
 import Image from "next/image";
@@ -63,11 +64,10 @@ function IndustryDesignUplaodWrapper({children}) {
             }
     
     
-         
-            setFile(file)
+            flushSync(() => setFile(file));
             localStorage.removeItem('sample_view_cad_key')
             // await saveFileToIndexedDB(file);
-            router.push("/tools/cad-renderer");
+            router.push("/tools/cad-uploading");
     
         };
     

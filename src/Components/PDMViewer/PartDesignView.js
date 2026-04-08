@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState, useCallback, useContext } from 'rea
 import * as THREE from 'three';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from 'lucide-react';
 import axios from 'axios'
-import { BASE_URL, BUCKET, CAD_VIEWER_EVENT, DESIGN_GLB_PREFIX_URL } from '@/config';
+import { BASE_URL, CAD_VIEWER_EVENT, DESIGN_GLB_PREFIX_URL } from '@/config';
 import { toast } from 'react-toastify';
 import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import { contextState } from '../CommonJsx/ContextProvider';
@@ -57,45 +57,26 @@ export default function PartDesignView() {
     const [cadViewLink, setCadViewLink] = useState('');
     const [publishCadPopup, setPublishCadPopup] = useState(false);
     const [uploadProgressPercent, setUploadProgressPercent] = useState(null);
-    const partLoadedByIndexRef = useRef([]);
-    const uploadStartRef = useRef(false);
     const router = useRouter();
 
     useEffect(() => {
         const fileId = searchParams.get('fileId');
         const sample = searchParams.get('sample');
 
-        // const sampleFileKey = localStorage.getItem('sample_view_cad_key');
         if (sample) {
             setFolderId(fileId);
             setIsLoading(false);
             return;
         }
 
-        // Existing CAD from URL: clear upload-state file object to avoid conflicts.
         if (fileId) {
             setFile(null);
             return;
         }
 
-        // New upload path: start upload exactly once when context file arrives.
-        if (file) {
-            if (!uploadStartRef.current) {
-                uploadStartRef.current = true;
-                handleFile(file);
-            }
-            return;
-        }
-
-        // Race guard: when navigating from dropzone, context `file` can arrive one tick later.
-        const t = setTimeout(() => {
-            if (!uploadStartRef.current && !file && !searchParams.get('fileId')) {
-                router.push("/tools/3D-cad-viewer");
-            }
-        }, 700);
-
-        return () => clearTimeout(t);
-    }, [file, searchParams, router, setFile]);
+        // Uploads run on /tools/cad-uploading; bare /tools/cad-renderer without fileId → home viewer.
+        router.replace("/tools/3D-cad-viewer");
+    }, [searchParams, router, setFile]);
 
     // Cleanup effect to reset file state when navigating away
     useEffect(() => {
@@ -116,85 +97,6 @@ export default function PartDesignView() {
         router.push("/tools/3D-cad-viewer");
     };
 
-
-
-    const handleFile = async (file) => {
-        // Check if file exists to prevent processing null/undefined files
-        if (!file) {
-            console.error("No file provided to handleFile");
-            setIsLoading(false);
-            return;
-        }
-
-        const fileSizeMB = file.size / (1024 * 1024); // Size in MB
-
-        try {
-            setIsLoading(true)
-            setUploadingMessage('UPLOADINGFILE')
-            setUploadProgressPercent(0)
-            sendGAtagEvent({ event_name: 'viewer_file_upload_start', event_category: CAD_VIEWER_EVENT });
-            if (fileSizeMB < 5) {
-                sendGAtagEvent({ event_name: 'viewer_file_upload_under_5mb', event_category: CAD_VIEWER_EVENT });
-            } else if (fileSizeMB < 10) {
-                sendGAtagEvent({ event_name: 'viewer_file_upload_5_10mb', event_category: CAD_VIEWER_EVENT });
-            } else if (fileSizeMB < 50) {
-                sendGAtagEvent({ event_name: 'viewer_file_upload_10_50mb', event_category: CAD_VIEWER_EVENT });
-            } else if (fileSizeMB < 100) {
-                sendGAtagEvent({ event_name: 'viewer_file_upload_50_100mb', event_category: CAD_VIEWER_EVENT });
-            } else if (fileSizeMB < 200) {
-                sendGAtagEvent({ event_name: 'viewer_file_upload_100_200mb', event_category: CAD_VIEWER_EVENT });
-            } else if (fileSizeMB < 300) {
-                sendGAtagEvent({ event_name: 'viewer_file_upload_200_300mb', event_category: CAD_VIEWER_EVENT });
-            } else {
-                sendGAtagEvent({ event_name: 'viewer_file_upload_size_exceeded', event_category: CAD_VIEWER_EVENT });
-            }
-            const headers = {
-                "user-uuid": localStorage.getItem("uuid"),
-            };
-            // Start a 10s timer to detect slow API
-
-            const preSignedURL = await axios.post(
-                `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                {
-                    bucket_name: BUCKET,
-                    file: file.name,
-                    category: "designs_upload",
-                    filesize: fileSizeMB
-                },
-                {
-                    headers
-                }
-            );
-
-
-            if (
-                preSignedURL.data.meta.code === 200 &&
-                preSignedURL.data.meta.message === "SUCCESS" &&
-                preSignedURL.data.data.url
-            ) {
-
-                if (preSignedURL.data.data.is_mutipart) {
-                    await multiUpload(preSignedURL.data.data, file, headers, fileSizeMB);
-                } else {
-                    await simpleUpload(preSignedURL.data.data, file, fileSizeMB)
-                    // await CreateCad(preSignedURL.data.data.url)
-                }
-                // setFile('')
-
-            } else {
-                sendGAtagEvent({ event_name: 'viewer_file_signedurl_error', event_category: CAD_VIEWER_EVENT });
-                toast.error("⚠️ Error generating signed URL.");
-                setIsLoading(false)
-                setUploadProgressPercent(null)
-                handleBackToViewer();
-            }
-        } catch (e) {
-            sendGAtagEvent({ event_name: 'viewer_file_upload_error', event_category: CAD_VIEWER_EVENT });
-
-            setIsLoading(false)
-            setUploadProgressPercent(null)
-        }
-    };
     useEffect(() => {
         // Don't show notification if:
         // 1. Upload is completed
@@ -242,153 +144,6 @@ export default function PartDesignView() {
 
 
     }, [publishedCad]);
-
-    const CreateCad = async (link) => {
-        try {
-
-            setIsLoading(true)
-            const HEADERS = { "user-uuid": localStorage.getItem('uuid') }
-            setUploadingMessage('UPLOADINGFILE')
-            const response = await axios.post(
-                `${BASE_URL}/v1/cad/create-cad`,
-                {
-                    cad_view_link: link,
-                    file_name: file.name,
-                    s3_bucket: 'design-glb',
-                    uuid: localStorage.getItem('uuid'),
-                },
-                { headers: HEADERS } // Headers should be the third argument
-            );
-
-            // user-uuid
-            if (response.data.meta.success) {
-                // setUploadingMessage('PENDING')
-                window.location.href = `/tools/cad-renderer?fileId=${response.data.data}&glb=true`;
-
-                // localStorage.setItem('last_viewed_cad_key', response.data.data)
-                await getStatus()
-                // await UpdateToDocker(link, response.data.data)
-            } else {
-                setUploadingMessage('')
-                toast.error(response.data.meta.message)
-                handleBackToViewer();
-            }
-            // await clearIndexedDB()
-        } catch (error) {
-            console.log(error)
-            setIsLoading(false)
-            setUploadProgressPercent(null)
-        }
-    }
-    async function multiUpload(data, file, headers, fileSizeMB) {
-        partLoadedByIndexRef.current = Array.from({ length: data.total_parts }, () => 0);
-        setUploadProgressPercent(0);
-
-        const parts = [];
-
-        for (let i = 0; i < data.total_parts; i++) {
-            const start = i * data.part_size;
-            const end = Math.min(start + data.part_size, file.size);
-            const part = file.slice(start, end); // FIXED: Use `slice` for binary data
-
-
-
-            parts.push(uploadPart(i, part, data, file));
-        }
-
-        try {
-            const uploadedParts = await Promise.all(parts);
-            setUploadProgressPercent(100);
-            await completeMultipartUpload(data, uploadedParts, headers, fileSizeMB);
-
-        } catch (error) {
-            console.error('Error uploading parts:', error);
-            setUploadProgressPercent(null);
-            throw error;
-        }
-    }
-
-    const uploadPart = async (partNumber, part, data, file) => {
-        try {
-            const { url } = data.url[partNumber]; // Get correct presigned URL
-
-            const result = await axios.put(url, part, {
-                headers: file.type ? { "Content-Type": file.type } : {},
-                onUploadProgress: (ev) => {
-                    partLoadedByIndexRef.current[partNumber] = ev.loaded;
-                    const sum = partLoadedByIndexRef.current.reduce((a, b) => a + b, 0);
-                    const pct = file.size
-                        ? Math.min(100, Math.round((sum / file.size) * 100))
-                        : 0;
-                    setUploadProgressPercent(pct);
-                },
-            });
-
-
-            const etag = result.headers["etag"] || result.headers["ETag"]; // Fix header extraction
-
-            return { ETag: etag, PartNumber: partNumber + 1 };
-        } catch (error) {
-            console.error(`Error uploading part ${partNumber + 1}:`, error);
-            throw error;
-        }
-    };
-
-    const completeMultipartUpload = async (data, parts, headers, fileSizeMB) => {
-
-        try {
-            setIsLoading(true);
-            setUploadingMessage('UPLOADINGFILE')
-            const file = {
-                key: data.key,
-                upload_id: data.upload_id,
-                parts: parts,
-            };
-
-            const preSignedURL = await axios.post(
-                `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                { bucket_name: BUCKET, file, category: "complete_mutipart", uuid: localStorage.getItem('uuid'), filesize: fileSizeMB },
-                { headers: { 'user-uuid': localStorage.getItem('uuid') } }
-            );
-
-            if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
-
-                sendGAtagEvent({ event_name: 'viewer_file_upload_success', event_category: CAD_VIEWER_EVENT });
-                // Ensure `CreateCad` is called correctly
-                // if (preSignedURL.data.data.Location) {
-                await CreateCad(preSignedURL.data.data.Location);
-                // }
-
-                return true;
-            }
-        } catch (error) {
-            console.error("Error completing multipart upload:", error);
-            setIsLoading(false);
-            setUploadProgressPercent(null);
-            handleBackToViewer();
-        }
-    };
-
-    async function simpleUpload(data, file) {
-
-        setUploadingMessage('UPLOADINGFILE')
-        setUploadProgressPercent(0)
-        const result = await axios.put(data.url, file, {
-            headers: file.type ? { "Content-Type": file.type } : {},
-            onUploadProgress: (ev) => {
-                if (!file.size) return;
-                const total = ev.total || file.size;
-                const pct = Math.min(100, Math.round(((ev.loaded ?? 0) / total) * 100));
-                setUploadProgressPercent(pct);
-            },
-        });
-        setUploadProgressPercent(100)
-        sendGAtagEvent({ event_name: 'viewer_file_upload_success', event_category: CAD_VIEWER_EVENT });
-        await CreateCad(data.url)
-
-    }
-
-
 
     useEffect(() => {
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' || uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
