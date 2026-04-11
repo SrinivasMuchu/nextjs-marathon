@@ -190,14 +190,14 @@ function CadHomeDesign({type}) {
             <FaqPageJsonLd faqSchemaData={faqQuestions} />
             {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
+                      
                       links={[
-                        { label: 'CAD viewer', href: '/tools//3D-cad-viewer' },       
-
+                        { label: 'CAD Viewer', href: '/tools/3D-cad-viewer' },
                       ]}
                     />
             {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
             
-            <OrgFeatures type='cad'/>
+            {/* <OrgFeatures type='cad'/> */}
             <HowItWorks
             label="HOW IT WORKS"
             mainHeading="No downloads. No plugins. Works right from your browser."

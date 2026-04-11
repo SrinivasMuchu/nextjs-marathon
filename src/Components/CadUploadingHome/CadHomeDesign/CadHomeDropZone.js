@@ -1,46 +1,65 @@
-
-
 import React from "react";
 import styles from "./CadHome.module.css";
+import heroStyles from "./CadViewerHero.module.css";
 import CadDropZoneWrapper from "./CadDropZoneWrapper";
-import { cadViewerFiles } from "@/common.helper";
 import CommonSampleViewer from "@/Components/CommonJsx/CommonSampleViewer";
 import ToolsPageBanner from "@/Components/CadServicesBanners/ToolsPageBanner";
 
+const DEFAULT_FORMATS_COPY =
+  "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj)";
 
-function CadHomeDropZone({ isStyled,allowedFormats,type }) {
+function CadHomeDropZone({ isStyled, allowedFormats, type, designVariant }) {
+  const isHeroDark = designVariant === "heroDark";
 
- 
+  const formatsLine = type && Array.isArray(allowedFormats)
+    ? `Supported formats:${allowedFormats.join(", ")}`
+    : DEFAULT_FORMATS_COPY;
+
+  const dropzoneInner = (
+    <div
+      className={isHeroDark ? heroStyles.heroDropzoneContent : styles["cad-dropzone-content"]}
+      style={isStyled && !isHeroDark ? { textAlign: "center", alignItems: "center" } : {}}
+    >
+      <p className={isHeroDark ? heroStyles.heroDropzoneHead : styles["cad-dropzone-head"]}>
+        Drag &amp; drop your 3D{" "}
+        <span
+          className={isHeroDark ? heroStyles.heroDropzoneFile : styles["cad-dropzone-file"]}
+          style={{ cursor: "pointer" }}
+        >
+          files
+        </span>{" "}
+        here
+      </p>
+      {isHeroDark ? (
+        <p className={heroStyles.heroBrowseHint}>or click to browse files</p>
+      ) : (
+        <p className={styles["cad-dropzone-desc"]} style={isStyled ? { width: "80%", textAlign: "center" } : {}}>
+          {formatsLine}
+        </p>
+      )}
+    </div>
+  );
+
   return (
     <>
-
-<CadDropZoneWrapper isStyled={isStyled} type={type}>
-     
-        <div className={styles["cad-dropzone-content"]} style={isStyled ? { textAlign: "center", alignItems: "center" } : {}}>
-          <p className={styles["cad-dropzone-head"]}>
-            Drag & drop your 3D{" "}
-            <span className={styles["cad-dropzone-file"]} style={{ cursor: "pointer" }}>
-              files
-            </span>{" "}
-            here
-          </p>
-          <p className={styles["cad-dropzone-desc"]} style={isStyled ? { width: "80%", textAlign: "center" } : {}}>
-          {type ? `Supported formats:${allowedFormats.join(", ")}` : "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj)"}
-          </p>
-
-         
+      {isHeroDark ? (
+        <div className={heroStyles.uploadSection}>
+          <CadDropZoneWrapper isStyled={isStyled} type={type} designVariant={designVariant}>
+            {dropzoneInner}
+          </CadDropZoneWrapper>
+          <p className={heroStyles.formatsBelow}>{formatsLine}</p>
+          <CommonSampleViewer variant="dark" />
         </div>
-    
-    </CadDropZoneWrapper>
-  
-              <CommonSampleViewer/>
-              <ToolsPageBanner />
-
+      ) : (
+        <>
+          <CadDropZoneWrapper isStyled={isStyled} type={type} designVariant={designVariant}>
+            {dropzoneInner}
+          </CadDropZoneWrapper>
+          <CommonSampleViewer />
+        </>
+      )}
+      <ToolsPageBanner />
     </>
-
-
-
-
   );
 }
 

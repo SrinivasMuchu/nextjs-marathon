@@ -20,7 +20,7 @@ function parseFormatFromPath(segment) {
   return match ? match[1].toLowerCase() : segment.toLowerCase();
 }
 
-function CadDropZoneWrapper({ children, isStyled, type }) {
+function CadDropZoneWrapper({ children, isStyled, type, designVariant }) {
     const fileInputRef = useRef(null);
     const [checkLimit, setCheckLimit] = useState(false);
     const [uploading, setUploading] = useState(false)
@@ -150,18 +150,21 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
         event.preventDefault();
     };
 
+    const isHeroDark = designVariant === "heroDark";
+    const dropzoneClass = isHeroDark ? styles["cad-dropzone-hero"] : styles["cad-dropzone"];
+
     return (
         <>
             {verifyEmail && <UserLoginPupUp onClose={() => setVerifyEmail(false)} />}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {!checkLimit && <>
                 <div
-                    className={styles["cad-dropzone"]}
+                    className={dropzoneClass}
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
                     onClick={handleClick}
 
-                    style={isStyled ? { flexDirection: "column-reverse" } : {}}
+                    style={isStyled && !isHeroDark ? { flexDirection: "column-reverse" } : {}}
                 ><input
                         type="file"
                         ref={fileInputRef}
@@ -169,10 +172,28 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
                         accept={allowedFormats.join(", ")} // Restrict input to allowed file types
                         onChange={handleFileChange}
                     />
-                    {React.Children.map(children, (child) =>
-                        React.isValidElement(child) ? React.cloneElement(child, { allowedFormats }) : child
+                    {isHeroDark ? (
+                        <div className={styles["cad-dropzone-hero-inner"]}>
+                            <Image
+                                src={IMAGEURLS.uploadIcon}
+                                alt="Upload"
+                                width={72}
+                                height={72}
+                                className={styles["cad-dropzone-hero-icon"]}
+                                style={{ cursor: "pointer" }}
+                            />
+                            {React.Children.map(children, (child) =>
+                                React.isValidElement(child) ? React.cloneElement(child, { allowedFormats }) : child
+                            )}
+                        </div>
+                    ) : (
+                        <>
+                            {React.Children.map(children, (child) =>
+                                React.isValidElement(child) ? React.cloneElement(child, { allowedFormats }) : child
+                            )}
+                            <Image src={IMAGEURLS.uploadIcon} alt="upload" width={68} height={68} style={{ cursor: "pointer" }} />
+                        </>
                     )}
-                    <Image src={IMAGEURLS.uploadIcon} alt="upload" width={68} height={68} style={{ cursor: "pointer" }} />
                 </div>
             </>}
         </>

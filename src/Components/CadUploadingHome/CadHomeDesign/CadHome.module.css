@@ -230,6 +230,34 @@
     background: #FFF;
 }
 
+/* Dark hero viewer landing (used with designVariant="heroDark") */
+.cad-dropzone-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(28px, 4vw, 40px) clamp(20px, 3vw, 32px);
+    width: 100%;
+    max-width: 720px;
+    min-height: 200px;
+    border-radius: 16px;
+    border: 2px dashed rgba(255, 255, 255, 0.35);
+    background: rgba(12, 6, 22, 0.55);
+    box-sizing: border-box;
+}
+
+.cad-dropzone-hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.cad-dropzone-hero-icon {
+    filter: brightness(1.15) saturate(1.1);
+}
+
 .cad-dropzone-content {
     display: flex;
     gap: 12px;

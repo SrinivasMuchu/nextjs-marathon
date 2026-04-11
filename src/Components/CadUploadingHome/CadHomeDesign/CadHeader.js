@@ -1,37 +1,49 @@
-import Image from 'next/image'
 import React from 'react'
-import styles from './CadHome.module.css'
+import heroStyles from './CadViewerHero.module.css'
 import CadDropZoneContent from './CadDropZoneContent'
-import { IMAGEURLS } from '@/config'
-import FormateSelector from './FormateSelector'
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
+import { Eye, Shield, Clock, HardDrive } from 'lucide-react'
 
-function CadHeader({type}) {
+function CadHeader({ type }) {
   return (
-    <div className={styles['cad-landing-page']}>
-      <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
-        <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
-          <LeftRightBanner adSlot="3755241003"/>
+    <div className={heroStyles.heroPage}>
+      <div className={heroStyles.heroAdRow}>
+        <div className={heroStyles.heroAdInner}>
+          <LeftRightBanner adSlot="3755241003" />
         </div>
       </div>
-      <div className={styles['cad-landing-left-cont']}>
-        <div className={styles['cad-landing-left-content']}> <h1 className={styles['cad-landing-heading']}>
-          Free Online CAD Viewer –Secure, Fast & Cloud-Based
-        </h1>
-          <p className={styles['cad-landing-description']}>A lightweight, online CAD viewer to quickly preview 3D models—anytime, anywhere.
-
-          </p></div>
-        {/* <FormateSelector/> */}
-
-        <CadDropZoneContent isStyled={false} type={type}/>
-      </div>
-      {/* <div className={styles["cad-landing-wrapper"]}>
-        <div className={styles["cad-landing-bg-circle"]}></div>
-        <div className={styles["cad-landing-right-cont"]}>
-          <Image src={IMAGEURLS.carLogo} alt="upload" width={400} height={360} />
+      <div className={heroStyles.heroInner}>
+        <div className={heroStyles.badge}>
+          <Eye size={16} strokeWidth={2.2} aria-hidden />
+          <span>Free online tool</span>
         </div>
-      </div> */}
-
+        <h1 className={heroStyles.title}>Free Online CAD Viewer</h1>
+        <p className={heroStyles.subtitle}>Secure, Fast &amp; Cloud-Based</p>
+        <p className={heroStyles.description}>
+          A lightweight, online CAD viewer to quickly preview 3D models — anytime, anywhere.
+        </p>
+        <div className={heroStyles.trustRow} role="list">
+          <div className={heroStyles.trustItem} role="listitem">
+            <span className={heroStyles.trustIcon} aria-hidden>
+              <Shield size={18} strokeWidth={2.2} />
+            </span>
+            Private uploads
+          </div>
+          <div className={heroStyles.trustItem} role="listitem">
+            <span className={heroStyles.trustIcon} aria-hidden>
+              <Clock size={18} strokeWidth={2.2} />
+            </span>
+            Auto-delete in 24hrs
+          </div>
+          <div className={heroStyles.trustItem} role="listitem">
+            <span className={heroStyles.trustIcon} aria-hidden>
+              <HardDrive size={18} strokeWidth={2.2} />
+            </span>
+            Up to 300 MB
+          </div>
+        </div>
+        <CadDropZoneContent isStyled={false} type={type} designVariant="heroDark" />
+      </div>
     </div>
   )
 }
