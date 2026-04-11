@@ -7,8 +7,8 @@ import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 function CadHeaderLegacy({ type }) {
   return (
     <div className={styles['cad-landing-page']}>
-      <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
-        <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
+      <div className={styles['cad-ad-bar']}>
+        <div className={styles['cad-ad-bar-inner']}>
           <LeftRightBanner adSlot="3755241003"/>
         </div>
       </div>

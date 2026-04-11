@@ -4,6 +4,7 @@ import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import { flushSync } from "react-dom";
 import styles from "./CadHome.module.css";
+import heroStyles from "./CadViewerHero.module.css";
 import { toast } from "react-toastify";
 import axios from 'axios'
 import { BASE_URL } from '@/config';
@@ -151,7 +152,7 @@ function CadDropZoneWrapper({ children, isStyled, type, designVariant }) {
     };
 
     const isHeroDark = designVariant === "heroDark";
-    const dropzoneClass = isHeroDark ? styles["cad-dropzone-hero"] : styles["cad-dropzone"];
+    const dropzoneClass = isHeroDark ? heroStyles.heroUploadPanelDark : styles["cad-dropzone"];
 
     return (
         <>
@@ -173,13 +174,12 @@ function CadDropZoneWrapper({ children, isStyled, type, designVariant }) {
                         onChange={handleFileChange}
                     />
                     {isHeroDark ? (
-                        <div className={styles["cad-dropzone-hero-inner"]}>
+                        <div className={heroStyles.heroUploadPanelInner}>
                             <Image
                                 src={IMAGEURLS.uploadIcon}
                                 alt="Upload"
                                 width={72}
                                 height={72}
-                                className={styles["cad-dropzone-hero-icon"]}
                                 style={{ cursor: "pointer" }}
                             />
                             {React.Children.map(children, (child) =>

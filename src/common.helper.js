@@ -241,6 +241,19 @@ export const converterTypes = [
 
 ];
 
+/** Homepage “CAD Converter Types” grid (3×3); paths must exist in converterTypes */
+export const popularCadConverterTypes = [
+  { from: 'STEP', to: 'STL', path: '/step-to-stl', description: 'For 3D printing and rapid prototyping' },
+  { from: 'STEP', to: 'IGES', path: '/step-to-iges', description: 'For cross-platform CAD exchange' },
+  { from: 'STEP', to: 'OBJ', path: '/step-to-obj', description: 'For rendering and visualization' },
+  { from: 'IGES', to: 'STEP', path: '/iges-to-step', description: 'For modern CAD compatibility' },
+  { from: 'IGES', to: 'STL', path: '/iges-to-stl', description: 'For 3D printing from legacy files' },
+  { from: 'STL', to: 'STEP', path: '/stl-to-step', description: 'For reverse engineering workflows' },
+  { from: 'OBJ', to: 'STEP', path: '/obj-to-step', description: 'For CAD editing from mesh files' },
+  { from: 'BREP', to: 'STL', path: '/brep-to-stl', description: 'For additive manufacturing' },
+  { from: 'STL', to: 'OBJ', path: '/stl-to-obj', description: 'For game engines and 3D rendering' },
+];
+
 /** Featured conversion cards for topical authority and internal linking (each links to /tools/convert{path}) */
 export const featuredConversions = [
   { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'Convert STEP to STL for 3D printing and slicing.' },

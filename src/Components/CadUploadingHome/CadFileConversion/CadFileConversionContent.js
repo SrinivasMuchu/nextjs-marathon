@@ -12,7 +12,7 @@ function getInitialAllowedFormats(conversionParams) {
   return from ? [`.${from}`] : [];
 }
 
-function CadFileConversionContent({ convert, conversionParams }) {
+function CadFileConversionContent({ convert, conversionParams, designVariant }) {
     const { allowedFormats } = useContext(contextState);
     const initialAllowedFormats = convert && conversionParams ? getInitialAllowedFormats(conversionParams) : [];
   return (
@@ -20,6 +20,7 @@ function CadFileConversionContent({ convert, conversionParams }) {
       convert={convert}
       allowedFormats={allowedFormats}
       initialAllowedFormats={initialAllowedFormats}
+      designVariant={designVariant}
     />
   )
 }

@@ -1,34 +1,66 @@
 import React from 'react'
-import styles from '../CadHomeDesign/CadHome.module.css'
+import cadHomeStyles from '../CadHomeDesign/CadHome.module.css'
+import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import CadFileConversionContent from './CadFileConversionContent'
-import CadDynamicHeading from './CadDynamicHeading'
 import CadDynamicContent from './CadDynamicContent'
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
+import { Zap, Shield, Clock, HardDrive } from 'lucide-react'
 
 function CadFileConversionHeader({ convert, conversionParams }) {
-    return (
-        <div className={styles['cad-landing-page']}>
-            <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
-                <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
-                    <LeftRightBanner adSlot="3755241003"/>
-                </div>
-            </div>
-            <div className={styles['cad-landing-left-cont']}>
-                {convert ? <>  <CadDynamicContent conversionParams={conversionParams}/></> : <>  <div className={styles['cad-landing-left-content']}> <h1 className={styles['cad-landing-heading']}>
-                Free Online 3D CAD File Converter
-                    </h1>
-                        <p className={styles['cad-landing-description']}>
-                        Secure, lightweight online converter to change CAD & 3D file 
-                        formats instantly. Anytime, anywhere.  </p></div></>}
-
-
-
-                <CadFileConversionContent convert={convert} conversionParams={conversionParams}/>
-            </div>
-           
-           
+  return (
+    <div className={heroStyles.heroPage}>
+      <div className={cadHomeStyles['cad-ad-bar']}>
+        <div className={cadHomeStyles['cad-ad-bar-inner']}>
+          <LeftRightBanner adSlot="3755241003" />
         </div>
-    )
+      </div>
+      <div className={heroStyles.heroInner}>
+        <div className={heroStyles.badge}>
+          <Zap size={16} strokeWidth={2.2} aria-hidden />
+          <span>Free online tool</span>
+        </div>
+        {convert ? (
+          <CadDynamicContent conversionParams={conversionParams} heroTone="dark" />
+        ) : (
+          <>
+            <h1 className={heroStyles.title}>
+              Free Online 3D CAD{' '}
+              <span className={heroStyles.titleAccent}>File Converter</span>
+            </h1>
+            <p className={heroStyles.description}>
+              Secure, lightweight online converter to change CAD &amp; 3D file formats instantly.
+              Anytime, anywhere.
+            </p>
+          </>
+        )}
+        <div className={heroStyles.trustRow} role="list">
+          <div className={heroStyles.trustItem} role="listitem">
+            <span className={heroStyles.trustIcon} aria-hidden>
+              <Shield size={18} strokeWidth={2.2} />
+            </span>
+            Encrypted uploads
+          </div>
+          <div className={heroStyles.trustItem} role="listitem">
+            <span className={heroStyles.trustIcon} aria-hidden>
+              <Clock size={18} strokeWidth={2.2} />
+            </span>
+            Auto-delete in 24hrs
+          </div>
+          <div className={heroStyles.trustItem} role="listitem">
+            <span className={heroStyles.trustIcon} aria-hidden>
+              <HardDrive size={18} strokeWidth={2.2} />
+            </span>
+            Up to 300 MB
+          </div>
+        </div>
+        <CadFileConversionContent
+          convert={convert}
+          conversionParams={conversionParams}
+          designVariant="converterHero"
+        />
+      </div>
+    </div>
+  )
 }
 
 export default CadFileConversionHeader

@@ -17,13 +17,13 @@ function CadHomeDropZone({ isStyled, allowedFormats, type, designVariant }) {
 
   const dropzoneInner = (
     <div
-      className={isHeroDark ? heroStyles.heroDropzoneContent : styles["cad-dropzone-content"]}
+      className={isHeroDark ? heroStyles.heroUploadPanelContent : styles["cad-dropzone-content"]}
       style={isStyled && !isHeroDark ? { textAlign: "center", alignItems: "center" } : {}}
     >
-      <p className={isHeroDark ? heroStyles.heroDropzoneHead : styles["cad-dropzone-head"]}>
+      <p className={isHeroDark ? heroStyles.heroUploadPanelHead : styles["cad-dropzone-head"]}>
         Drag &amp; drop your 3D{" "}
         <span
-          className={isHeroDark ? heroStyles.heroDropzoneFile : styles["cad-dropzone-file"]}
+          className={isHeroDark ? heroStyles.heroUploadPanelFile : styles["cad-dropzone-file"]}
           style={{ cursor: "pointer" }}
         >
           files
@@ -31,7 +31,7 @@ function CadHomeDropZone({ isStyled, allowedFormats, type, designVariant }) {
         here
       </p>
       {isHeroDark ? (
-        <p className={heroStyles.heroBrowseHint}>or click to browse files</p>
+        <p className={heroStyles.heroUploadPanelHint}>or click to browse files</p>
       ) : (
         <p className={styles["cad-dropzone-desc"]} style={isStyled ? { width: "80%", textAlign: "center" } : {}}>
           {formatsLine}

@@ -6,22 +6,6 @@
   box-sizing: border-box;
 }
 
-.heroAdRow {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  box-sizing: border-box;
-  position: relative;
-  min-height: 100px;
-  padding-top: 8px;
-}
-
-.heroAdInner {
-  width: 100%;
-  max-width: 970px;
-  margin: 0 auto;
-}
-
 .heroInner {
   max-width: 900px;
   margin: 0 auto;
@@ -170,7 +154,44 @@
   font-weight: 500;
 }
 
-.heroDropzoneHead {
+/* Split primary / accent in one heading (e.g. CAD File | Converter) */
+.titleAccent {
+  color: #c9a8ff;
+}
+
+/* Dark dashed upload panel (CAD viewer, format upload pages, CAD converter) */
+.heroUploadPanelDark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(28px, 4vw, 40px) clamp(20px, 3vw, 32px);
+  width: 100%;
+  max-width: 720px;
+  min-height: 200px;
+  border-radius: 16px;
+  border: 2px dashed rgba(255, 255, 255, 0.38);
+  background: rgba(14, 8, 26, 0.72);
+  box-shadow: 0 12px 40px rgba(4, 2, 10, 0.45);
+  box-sizing: border-box;
+}
+
+.heroUploadPanelInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.heroUploadPanelContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.heroUploadPanelHead {
   color: #ffffff;
   font-size: clamp(17px, 2.4vw, 20px);
   font-weight: 700;
@@ -179,25 +200,27 @@
   text-align: center;
 }
 
-.heroDropzoneFile {
+.heroUploadPanelFile {
   color: #c9a8ff;
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
 }
 
-.heroBrowseHint {
+.heroUploadPanelHint {
   margin: 0;
-  margin-top: 6px;
+  margin-top: 4px;
   font-size: 15px;
   font-weight: 450;
-  color: rgba(244, 240, 255, 0.78);
+  color: rgba(244, 240, 255, 0.72);
   text-align: center;
 }
 
-.heroDropzoneContent {
+.heroDynamicBlock {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
+  text-align: center;
+  width: 100%;
 }
