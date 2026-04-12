@@ -57,18 +57,35 @@ function HowItWorks({
                   <div className={styles.cadViewerStep}>
                     <div className={styles.cadViewerIconWrap}>
                       <span className={styles.cadViewerBadge}>{num}</span>
-                      {step.image ? (
-                        <div className={styles.cadViewerIconBox}>
-                          <Image
-                            src={step.image}
-                            alt=""
-                            width={240}
-                            height={240}
-                            sizes="56px"
-                            className={styles.cadViewerIconImg}
-                          />
-                        </div>
-                      ) : null}
+                      {(() => {
+                        const StepIcon = step.icon;
+                        if (StepIcon) {
+                          return (
+                            <div className={styles.cadViewerIconBox}>
+                              <StepIcon
+                                className={styles.cadViewerReactIcon}
+                                size={40}
+                                aria-hidden
+                              />
+                            </div>
+                          );
+                        }
+                        if (step.image) {
+                          return (
+                            <div className={styles.cadViewerIconBox}>
+                              <Image
+                                src={step.image}
+                                alt=""
+                                width={240}
+                                height={240}
+                                sizes="56px"
+                                className={styles.cadViewerIconImg}
+                              />
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                     <h3 className={styles.cadViewerStepTitle}>{stepTitle}</h3>
                     <p className={styles.cadViewerStepDesc}>{stepDescription}</p>
@@ -132,18 +149,31 @@ function HowItWorks({
                 <span className={styles.stepBadge}>{num}</span>
                 <h3 className={styles.stepTitle}>{stepTitle}</h3>
 
-                {step.image ? (
-                  <div className={styles.stepIcon}>
-                    <Image
-                      src={step.image}
-                      alt=""
-                      width={240}
-                      height={240}
-                      sizes="120px"
-                      className={styles.stepIconImg}
-                    />
-                  </div>
-                ) : null}
+                {(() => {
+                  const StepIcon = step.icon;
+                  if (StepIcon) {
+                    return (
+                      <div className={styles.stepIcon}>
+                        <StepIcon className={styles.stepReactIcon} size={120} aria-hidden />
+                      </div>
+                    );
+                  }
+                  if (step.image) {
+                    return (
+                      <div className={styles.stepIcon}>
+                        <Image
+                          src={step.image}
+                          alt=""
+                          width={240}
+                          height={240}
+                          sizes="120px"
+                          className={styles.stepIconImg}
+                        />
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
                 <p className={styles.stepDescription}>{stepDescription}</p>
               </div>
             );

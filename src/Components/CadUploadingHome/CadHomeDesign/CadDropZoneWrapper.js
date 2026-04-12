@@ -21,7 +21,7 @@ function parseFormatFromPath(segment) {
   return match ? match[1].toLowerCase() : segment.toLowerCase();
 }
 
-function CadDropZoneWrapper({ children, isStyled, type, designVariant }) {
+function CadDropZoneWrapper({ children, isStyled, type, designVariant, dropzoneId }) {
     const fileInputRef = useRef(null);
     const [checkLimit, setCheckLimit] = useState(false);
     const [uploading, setUploading] = useState(false)
@@ -152,7 +152,12 @@ function CadDropZoneWrapper({ children, isStyled, type, designVariant }) {
     };
 
     const isHeroDark = designVariant === "heroDark";
-    const dropzoneClass = isHeroDark ? heroStyles.heroUploadPanelDark : styles["cad-dropzone"];
+    const isIndustryHero = designVariant === "industryHero";
+    const dropzoneClass = isIndustryHero
+        ? heroStyles.industryHeroUploadPanel
+        : isHeroDark
+            ? heroStyles.heroUploadPanelDark
+            : styles["cad-dropzone"];
 
     return (
         <>
@@ -160,12 +165,13 @@ function CadDropZoneWrapper({ children, isStyled, type, designVariant }) {
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {!checkLimit && <>
                 <div
+                    id={dropzoneId || undefined}
                     className={dropzoneClass}
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
                     onClick={handleClick}
 
-                    style={isStyled && !isHeroDark ? { flexDirection: "column-reverse" } : {}}
+                    style={isStyled && !isHeroDark && !isIndustryHero ? { flexDirection: "column-reverse" } : {}}
                 ><input
                         type="file"
                         ref={fileInputRef}
@@ -173,13 +179,13 @@ function CadDropZoneWrapper({ children, isStyled, type, designVariant }) {
                         accept={allowedFormats.join(", ")} // Restrict input to allowed file types
                         onChange={handleFileChange}
                     />
-                    {isHeroDark ? (
+                    {isHeroDark || isIndustryHero ? (
                         <div className={heroStyles.heroUploadPanelInner}>
                             <Image
                                 src={IMAGEURLS.uploadIcon}
                                 alt="Upload"
-                                width={72}
-                                height={72}
+                                width={isIndustryHero ? 56 : 72}
+                                height={isIndustryHero ? 56 : 72}
                                 style={{ cursor: "pointer" }}
                             />
                             {React.Children.map(children, (child) =>

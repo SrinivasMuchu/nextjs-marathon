@@ -6,7 +6,7 @@ import OurFeatures from '@/Components/OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadFileConversionHeader from './CadFileConversionHeader'
-import HowItWorks from '../CadUpload/HowItWorks'
+import CadFileConversionHowItWorks from './CadFileConversionHowItWorks'
 import CoreBenefits from '../CadUpload/CoreBenefits'
 import TrustPrivacy from '../CadUpload/TrustPrivacy'
 import CadConverterTypes from './CadConverterTypes'
@@ -18,15 +18,10 @@ import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { cadConverterFaqQuestions } from '@/data/cadToolFaqs'
-import { IMAGEURLS } from '@/config'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 
 // Page heading structure: 1 h1 (CadFileConversionHeader); h2 (HowItWorks, CoreBenefits, CadConverterTypes); rest h3 (InterlinkingBlocks, TrustPrivacy, DesignHub, OrgFaq).
-const converterSteps = [
-    { text: 'Upload your CAD file (drag & drop)',image: IMAGEURLS.cadFileUpload },
-    { text: 'Choose the output format (STEP / IGES / STL / OBJ / PLY / OFF / BREP)',image: IMAGEURLS.cadFileFormat },
-    { text: 'Convert and download instantly',image: IMAGEURLS.cadFileDownload },
-];
+// “How it works” with react-icons lives in CadFileConversionHowItWorks (client) so icon components are not passed from this Server Component.
 
 const converterBenefits = [
     { icon: 'zap', title: 'Lightning-fast conversion', description: 'Convert in seconds with our cloud-based engine. No waiting.' },
@@ -122,7 +117,7 @@ function CadFileConversionHome({ convert, conversionParams }) {
           
             {/* <OrgFeatures type='cad' /> */}
             <InterlinkingBlocks />
-            <HowItWorks title="How to convert CAD files online" steps={converterSteps} />
+            <CadFileConversionHowItWorks />
             <CoreBenefits
                 title="Why use Marathon OS 3D CAD File Converter"
                 benefits={converterBenefits}

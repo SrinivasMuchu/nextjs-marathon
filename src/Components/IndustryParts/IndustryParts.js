@@ -13,7 +13,7 @@ import IndustryDesigns from './IndustryDesigns';
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import OrgFeatures from '../OrganizationHome/OrgFeatures/OrgFeatures';
 
-// Page heading structure: 1 h1 (IndustryDetails/IndustryHeading), 2 h2s (RoleOfCAD, IndustryDesigns), rest h3 (UseOfCAD, SolutionCad, SampleParts, ChartBuilder, OurFeatures, OrgFaq).
+// Page heading structure: 1 h1 (IndustryCadViewerHero), 2 h2s (RoleOfCAD, IndustryDesigns), rest h3 (UseOfCAD, SolutionCad, SampleParts, ChartBuilder, OurFeatures, OrgFaq).
 function IndustryParts({ industry,
     part_name,
     industryData }) {

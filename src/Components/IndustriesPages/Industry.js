@@ -15,7 +15,7 @@ import IndustryDesignsCrousel from './IndustryDesignsCrousel'
 import ToolsPageBanner from '../CadServicesBanners/ToolsPageBanner'
 import IndustryPageBanner from '../CadServicesBanners/IndustryPageBanner'
 
-// Page heading structure: 1 h1 (IndustryDetails/IndustryHeading), 1 h2 (RoleOfCAD), rest h3 (UseOfCAD, SolutionCad, IndustryDesignsCrousel, SampleParts, ChartBuilder, OurFeatures, OrgFaq).
+// Page heading structure: 1 h1 (IndustryCadViewerHero), 1 h2 (RoleOfCAD), rest h3 (UseOfCAD, SolutionCad, IndustryDesignsCrousel, SampleParts, ChartBuilder, OurFeatures, OrgFaq).
 function Industry({ industry, industryData }) {
    
     const features = [
