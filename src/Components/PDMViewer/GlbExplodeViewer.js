@@ -192,8 +192,543 @@ function forEachMeshMaterial(mesh, fn) {
   else fn(m);
 }
 
+function getSectionGizmoAxisFromObject(obj) {
+  let cur = obj;
+  while (cur) {
+    const ax = cur.userData?.sectionGizmoAxis;
+    if (ax === "x" || ax === "y" || ax === "z") return ax;
+    cur = cur.parent;
+  }
+  return null;
+}
+
 const _scratchViewDir = new THREE.Vector3();
 const _scratchExplodeDir = new THREE.Vector3();
+const _scratchPlaneNormal = new THREE.Vector3();
+const _scratchPlanePoint = new THREE.Vector3();
+const _scratchRay = new THREE.Raycaster();
+const _scratchPointerNdc = new THREE.Vector2();
+const _scratchIntersect = new THREE.Vector3();
+const _scratchHitQ = new THREE.Vector3();
+const _scratchAxisDir = new THREE.Vector3();
+const _scratchW0 = new THREE.Vector3();
+const _sectionPlanePool = [
+  new THREE.Plane(),
+  new THREE.Plane(),
+  new THREE.Plane(),
+];
+/** When the ray is nearly parallel to the clip plane, intersect this view-facing plane instead (GrabCAD-style stable drag). */
+const _dragAssistPlane = new THREE.Plane();
+const _scratchCamToTarget = new THREE.Vector3();
+/** Slightly larger than visual gizmo so the blue plane is easier to grab. */
+const SECTION_GIZMO_HIT_SCALE = 1.14;
+/** Invisible drag area, significantly larger than visible blue plane. */
+const SECTION_GIZMO_PICK_SCALE = 1.25;
+/** Visual size of section plane relative to model span. */
+const SECTION_GIZMO_SPAN_MULT = 1.35;
+
+/** X/Y/Z fixed indices for `_sectionPlanePool` (always 0,1,2 — inactive planes are ignored). */
+const SECTION_AXIS_INDEX = { x: 0, y: 1, z: 2 };
+
+/** GrabCAD-like section cap fill + gizmo tint */
+const SECTION_CAP_COLOR = 0xcc2222;
+const SECTION_CAP_OUTLINE = 0x00ff66;
+const SECTION_GIZMO_COLOR = 0x4488ff;
+/** GrabCAD-like travel: allow section planes beyond bbox half-size. */
+const SECTION_OFFSET_MIN = -6.0;
+const SECTION_OFFSET_MAX = 6.0;
+
+const RENDER_ORDER_SECTION_STENCIL_BASE = 1;
+const RENDER_ORDER_SECTION_CAP = 0.15;
+const RENDER_ORDER_SECTION_CAP_OUTLINE = 0.18;
+const RENDER_ORDER_CAD_MESH = 20;
+const RENDER_ORDER_CAD_EDGES = 21;
+
+/**
+ * Plane size by axis using the in-plane bbox dimensions:
+ * - X plane spans Y/Z
+ * - Y plane spans X/Z
+ * - Z plane spans X/Y
+ */
+function getSectionPlaneSpanByAxis(axis, h) {
+  if (!h) return { sx: 1, sy: 1, sMax: 1 };
+  const eps = 1e-6;
+  const maxHalf = Math.max(h.x, h.y, h.z, eps);
+  // Keep planes visible on ultra-thin models (e.g., sheet-like dimensions).
+  const minInPlaneHalf = maxHalf * 0.35;
+  let a = 1;
+  let b = 1;
+  if (axis === "x") {
+    a = Math.max(h.z, eps);
+    b = Math.max(h.y, eps);
+  } else if (axis === "y") {
+    a = Math.max(h.x, eps);
+    b = Math.max(h.z, eps);
+  } else {
+    a = Math.max(h.x, eps);
+    b = Math.max(h.y, eps);
+  }
+  // `h` is half-size; plane geometry scale expects full side length.
+  const sx = Math.max(a, minInPlaneHalf) * 2 * SECTION_GIZMO_SPAN_MULT;
+  const sy = Math.max(b, minInPlaneHalf) * 2 * SECTION_GIZMO_SPAN_MULT;
+  return { sx, sy, sMax: Math.max(sx, sy, eps) };
+}
+
+/**
+ * Stencil write pass (three.js `webgl_clipping_stencil`): marks cut region per clipping plane.
+ */
+function createStencilWriteMaterial(planeRef, backSide) {
+  const mat = new THREE.MeshBasicMaterial();
+  mat.clipping = true;
+  mat.depthWrite = false;
+  mat.depthTest = false;
+  mat.colorWrite = false;
+  mat.stencilWrite = true;
+  mat.stencilFunc = THREE.AlwaysStencilFunc;
+  mat.clippingPlanes = [planeRef];
+  mat.side = backSide ? THREE.BackSide : THREE.FrontSide;
+  if (backSide) {
+    mat.stencilFail = THREE.IncrementWrapStencilOp;
+    mat.stencilZFail = THREE.IncrementWrapStencilOp;
+    mat.stencilZPass = THREE.IncrementWrapStencilOp;
+  } else {
+    mat.stencilFail = THREE.DecrementWrapStencilOp;
+    mat.stencilZFail = THREE.DecrementWrapStencilOp;
+    mat.stencilZPass = THREE.DecrementWrapStencilOp;
+  }
+  return mat;
+}
+
+function createCapFillMaterial() {
+  return new THREE.MeshStandardMaterial({
+    clipping: true,
+    color: SECTION_CAP_COLOR,
+    metalness: 0.05,
+    roughness: 0.85,
+    emissive: 0x330000,
+    emissiveIntensity: 0.75,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+    stencilWrite: true,
+    stencilRef: 0,
+    stencilFunc: THREE.NotEqualStencilFunc,
+    stencilFail: THREE.ReplaceStencilOp,
+    stencilZFail: THREE.ReplaceStencilOp,
+    stencilZPass: THREE.ReplaceStencilOp,
+  });
+}
+
+function createCapOutlineMaterial() {
+  return new THREE.LineBasicMaterial({
+    clipping: true,
+    color: SECTION_CAP_OUTLINE,
+    linewidth: 1,
+    toneMapped: false,
+    stencilWrite: true,
+    stencilRef: 0,
+    stencilFunc: THREE.NotEqualStencilFunc,
+    stencilFail: THREE.ReplaceStencilOp,
+    stencilZFail: THREE.ReplaceStencilOp,
+    stencilZPass: THREE.ReplaceStencilOp,
+  });
+}
+
+/**
+ * GrabCAD-style section: clipping planes + blue gizmo quads + stencil-filled caps (red) and quad outline (green).
+ * Updates `root.userData.sectionActiveAxes` (e.g. `['x','z']`) for cap / stencil sync.
+ *
+ * @param {THREE.WebGLRenderer | null} gl — enables `localClippingEnabled` every apply (R3F sometimes renders before useFrame).
+ */
+function applySectionClipping(gl, root, section) {
+  if (gl && typeof gl.localClippingEnabled === "boolean") {
+    gl.localClippingEnabled = true;
+  }
+
+  const clearAll = () => {
+    if (!root) return;
+    if (gl && Array.isArray(gl.clippingPlanes)) {
+      gl.clippingPlanes = [];
+    }
+    root.userData.sectionActiveAxes = [];
+    root.traverse((obj) => {
+      const applyMat = (mat) => {
+        if (!mat) return;
+        mat.clippingPlanes = null;
+        mat.clipIntersection = false;
+        if ("clipping" in mat) mat.clipping = false;
+        delete mat.userData.__sectionClipCount;
+        mat.needsUpdate = true;
+      };
+      if (obj.isMesh && obj.material && !obj.userData.skipCadMaterialClip) {
+        forEachMeshMaterial(obj, applyMat);
+      }
+      if (obj.isLineSegments && obj.material) {
+        const m = obj.material;
+        if (Array.isArray(m)) m.forEach(applyMat);
+        else applyMat(m);
+      }
+    });
+    const gg = root.userData?.sectionGizmoGroup;
+    if (gg) gg.visible = false;
+    const cg = root.userData?.sectionCapGroup;
+    if (cg) cg.visible = false;
+  };
+
+  if (!root?.userData?.bboxCenter || !section?.enabled) {
+    clearAll();
+    return;
+  }
+
+  const c = root.userData.bboxCenter;
+  const h = root.userData.bboxHalfSize;
+  const planes = [];
+  const activeAxes = [];
+
+  const pushPlane = (axis, on, flip, offsetNorm) => {
+    if (!on) return;
+    const pi = SECTION_AXIS_INDEX[axis];
+    if (pi === undefined) return;
+    _scratchPlaneNormal.set(0, 0, 0);
+    if (axis === "x") _scratchPlaneNormal.x = flip ? -1 : 1;
+    if (axis === "y") _scratchPlaneNormal.y = flip ? -1 : 1;
+    if (axis === "z") _scratchPlaneNormal.z = flip ? -1 : 1;
+    const ext = axis === "x" ? h.x : axis === "y" ? h.y : h.z;
+    const dist = Number(offsetNorm) * ext;
+    _scratchPlanePoint.copy(c);
+    if (axis === "x") _scratchPlanePoint.x += dist;
+    if (axis === "y") _scratchPlanePoint.y += dist;
+    if (axis === "z") _scratchPlanePoint.z += dist;
+    const pl = _sectionPlanePool[pi];
+    pl.setFromNormalAndCoplanarPoint(_scratchPlaneNormal, _scratchPlanePoint);
+    planes.push(pl);
+    activeAxes.push(axis);
+  };
+
+  const on = section.on || {};
+  const flip = section.flip || {};
+  const off = section.offset || {};
+  pushPlane("x", on.x, flip.x, off.x ?? 0);
+  pushPlane("y", on.y, flip.y, off.y ?? 0);
+  pushPlane("z", on.z, flip.z, off.z ?? 0);
+
+  root.userData.sectionActiveAxes = activeAxes;
+
+  /** `clipAway === false` = full model stays visible; only gizmo planes (overview). `true` = hide material past section planes (GrabCAD cut). */
+  const clipAway = section.clipAway !== false;
+  const planesForClip =
+    planes.length > 0 && clipAway ? planes.map((p) => p.clone()) : null;
+
+  root.traverse((obj) => {
+    const applyMat = (mat) => {
+      if (!mat) return;
+      if (planesForClip?.length) {
+        mat.clippingPlanes = planesForClip;
+        mat.clipIntersection = false;
+        if ("clipping" in mat) mat.clipping = true;
+        const n = planesForClip.length;
+        if (mat.userData.__sectionClipCount !== n) {
+          mat.userData.__sectionClipCount = n;
+          mat.needsUpdate = true;
+        }
+      } else {
+        mat.clippingPlanes = null;
+        mat.clipIntersection = false;
+        if ("clipping" in mat) mat.clipping = false;
+        if (mat.userData.__sectionClipCount != null) {
+          delete mat.userData.__sectionClipCount;
+          mat.needsUpdate = true;
+        }
+      }
+    };
+    if (obj.isMesh && obj.material && !obj.userData.skipCadMaterialClip) {
+      forEachMeshMaterial(obj, applyMat);
+    }
+    if (obj.isLineSegments && obj.material) {
+      const m = obj.material;
+      if (Array.isArray(m)) m.forEach(applyMat);
+      else applyMat(m);
+    }
+  });
+
+  const gg = root.userData.sectionGizmoGroup;
+  if (gg) {
+    const show = section.showGizmos !== false;
+    gg.visible = show && planes.length > 0;
+    if (gg.visible) {
+      let i = 0;
+      const syncGizmo = (axis, on, _flip, offsetNorm) => {
+        const wrap = gg.children[i++];
+        if (!wrap) return;
+        wrap.visible = !!on;
+        if (!on) return;
+        const ext = axis === "x" ? h.x : axis === "y" ? h.y : h.z;
+        const dist = Number(offsetNorm) * ext;
+        wrap.position.set(c.x, c.y, c.z);
+        if (axis === "x") {
+          wrap.position.x += dist;
+          wrap.rotation.set(0, Math.PI / 2, 0);
+        } else if (axis === "y") {
+          wrap.position.y += dist;
+          wrap.rotation.set(-Math.PI / 2, 0, 0);
+        } else {
+          wrap.position.z += dist;
+          wrap.rotation.set(0, 0, 0);
+        }
+        const visual = wrap.children[0];
+        const pick = wrap.children[1];
+        const span = getSectionPlaneSpanByAxis(axis, h);
+        if (visual) {
+          visual.scale.set(
+            span.sx * SECTION_GIZMO_HIT_SCALE,
+            span.sy * SECTION_GIZMO_HIT_SCALE,
+            1
+          );
+        }
+        if (pick) {
+          pick.scale.set(
+            span.sx * SECTION_GIZMO_PICK_SCALE,
+            span.sy * SECTION_GIZMO_PICK_SCALE,
+            1
+          );
+        }
+        wrap.scale.set(1, 1, 1);
+      };
+      syncGizmo("x", on.x, flip.x, off.x ?? 0);
+      syncGizmo("y", on.y, flip.y, off.y ?? 0);
+      syncGizmo("z", on.z, flip.z, off.z ?? 0);
+    }
+  }
+
+  const cg = root.userData.sectionCapGroup;
+  if (cg) {
+    cg.visible =
+      clipAway &&
+      planes.length > 0 &&
+      section.showGizmos !== false;
+  }
+
+  root.traverse((obj) => {
+    const sub = obj.userData?.sectionStencilSubGroup;
+    if (sub) {
+      sub.visible =
+        clipAway &&
+        planes.length > 0 &&
+        section.showGizmos !== false;
+    }
+  });
+}
+
+/**
+ * Cap meshes clip against sibling section planes; stencil materials use pool planes (updated in `applySectionClipping`).
+ */
+function syncSectionCapsAndStencilMaterials(root, section) {
+  if (
+    !root?.userData?.bboxCenter ||
+    !section?.enabled ||
+    !root.userData.sectionActiveAxes?.length
+  ) {
+    return;
+  }
+
+  const on = section.on || {};
+  const h = root.userData.bboxHalfSize;
+  if (!h) return;
+
+  const planeByAxis = {
+    x: on.x ? _sectionPlanePool[0] : null,
+    y: on.y ? _sectionPlanePool[1] : null,
+    z: on.z ? _sectionPlanePool[2] : null,
+  };
+
+  const stencilMatLists = root.userData.sectionStencilWriteMats;
+  if (stencilMatLists) {
+    ["x", "y", "z"].forEach((ax) => {
+      const pair = stencilMatLists[ax];
+      if (!pair) return;
+      const pl = planeByAxis[ax];
+      if (pl && on[ax]) {
+        pair[0].clippingPlanes = [pl];
+        pair[1].clippingPlanes = [pl];
+        pair[0].needsUpdate = true;
+        pair[1].needsUpdate = true;
+      }
+    });
+  }
+
+  const capGroup = root.userData.sectionCapGroup;
+  if (!capGroup) return;
+
+  capGroup.children.forEach((child) => {
+    const axis = child.userData.sectionCapAxis;
+    if (!axis) return;
+    const pl = planeByAxis[axis];
+    if (!pl) {
+      child.visible = false;
+      return;
+    }
+    child.visible = true;
+    const fill = child.userData.capFillMesh;
+    const outline = child.userData.capOutline;
+
+    const clipOthers = [];
+    if (axis !== "x" && on.x) clipOthers.push(planeByAxis.x);
+    if (axis !== "y" && on.y) clipOthers.push(planeByAxis.y);
+    if (axis !== "z" && on.z) clipOthers.push(planeByAxis.z);
+
+    if (fill?.material) {
+      fill.material.clippingPlanes = clipOthers;
+      fill.material.needsUpdate = true;
+    }
+    if (outline?.material) {
+      outline.material.clippingPlanes = clipOthers;
+      outline.material.needsUpdate = true;
+    }
+
+    pl.coplanarPoint(_scratchPlanePoint);
+    child.position.copy(_scratchPlanePoint);
+    child.lookAt(
+      _scratchPlanePoint.x - pl.normal.x,
+      _scratchPlanePoint.y - pl.normal.y,
+      _scratchPlanePoint.z - pl.normal.z
+    );
+    const span = getSectionPlaneSpanByAxis(axis, h);
+    child.scale.set(span.sx, span.sy, 1);
+  });
+}
+
+function disposeSectionStencilResources(root) {
+  if (!root?.userData) return;
+  const sm = root.userData.sectionStencilWriteMats;
+  if (sm) {
+    ["x", "y", "z"].forEach((ax) => {
+      sm[ax]?.forEach((m) => m.dispose());
+    });
+    delete root.userData.sectionStencilWriteMats;
+  }
+  const cg = root.userData.sectionCapGroup;
+  if (cg) {
+    while (cg.children.length) {
+      const capWrapper = cg.children[0];
+      cg.remove(capWrapper);
+      capWrapper.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) o.material.dispose();
+      });
+    }
+  }
+  root.traverse((obj) => {
+    const sub = obj.userData?.sectionStencilSubGroup;
+    if (sub) {
+      sub.traverse((o) => {
+        if (o.material) o.material.dispose();
+      });
+      obj.remove(sub);
+      delete obj.userData.sectionStencilSubGroup;
+    }
+  });
+}
+
+function buildSectionStencilAndCaps(root, section) {
+  disposeSectionStencilResources(root);
+
+  if (!root?.userData?.bboxCenter || !section?.enabled) return;
+
+  const on = section.on || {};
+  const activeAxes = ["x", "y", "z"].filter((ax) => on[ax]);
+  if (!activeAxes.length) return;
+
+  const stencilMats = {};
+  ["x", "y", "z"].forEach((ax) => {
+    if (!on[ax]) return;
+    const pi = SECTION_AXIS_INDEX[ax];
+    stencilMats[ax] = [
+      createStencilWriteMaterial(_sectionPlanePool[pi], true),
+      createStencilWriteMaterial(_sectionPlanePool[pi], false),
+    ];
+  });
+  root.userData.sectionStencilWriteMats = stencilMats;
+
+  const partGroups = root.userData.explodePartGroups;
+  if (Array.isArray(partGroups)) {
+    partGroups.forEach((partGroup) => {
+      const mesh = partGroup.children.find(
+        (ch) =>
+          ch.isMesh &&
+          ch.geometry &&
+          !ch.isSkinnedMesh &&
+          !ch.isInstancedMesh
+      );
+      if (!mesh) return;
+
+      const sub = new THREE.Group();
+      sub.name = "__section_stencil_sub__";
+      activeAxes.forEach((axis, idx) => {
+        const ro = RENDER_ORDER_SECTION_STENCIL_BASE + idx * 2;
+        const mats = stencilMats[axis];
+        if (!mats) return;
+        const mb = new THREE.Mesh(mesh.geometry, mats[0]);
+        const mf = new THREE.Mesh(mesh.geometry, mats[1]);
+        mb.frustumCulled = false;
+        mf.frustumCulled = false;
+        mb.renderOrder = ro;
+        mf.renderOrder = ro;
+        mb.userData.skipCadMaterialClip = true;
+        mf.userData.skipCadMaterialClip = true;
+        mb.userData.skipSectionHoverStyle = true;
+        mf.userData.skipSectionHoverStyle = true;
+        mb.raycast = () => {};
+        mf.raycast = () => {};
+        sub.add(mb, mf);
+      });
+      mesh.add(sub);
+      mesh.userData.sectionStencilSubGroup = sub;
+    });
+  }
+
+  let capGroup = root.userData.sectionCapGroup;
+  if (!capGroup) {
+    capGroup = new THREE.Group();
+    capGroup.name = "__section_caps__";
+    root.add(capGroup);
+    root.userData.sectionCapGroup = capGroup;
+  }
+
+  const nStencilCaps = activeAxes.length;
+  activeAxes.forEach((axis, idx) => {
+    const ro = RENDER_ORDER_SECTION_STENCIL_BASE + idx * 2 + RENDER_ORDER_SECTION_CAP;
+    const wrapper = new THREE.Group();
+    wrapper.userData.sectionCapAxis = axis;
+
+    const capGeo = new THREE.PlaneGeometry(1, 1);
+    const edgeGeo = new THREE.EdgesGeometry(capGeo);
+
+    const fillMat = createCapFillMaterial();
+    fillMat.polygonOffset = true;
+    fillMat.polygonOffsetFactor = -0.5;
+    fillMat.polygonOffsetUnits = -0.5;
+    const fill = new THREE.Mesh(capGeo, fillMat);
+    fill.frustumCulled = false;
+    fill.renderOrder = ro;
+    /** Clear stencil once after the last cap only — intermediate clears break multi-axis stencil caps. */
+    if (idx === nStencilCaps - 1) {
+      fill.onAfterRender = (renderer) => {
+        renderer.clearStencil();
+      };
+    }
+
+    const outlineMat = createCapOutlineMaterial();
+    const outline = new THREE.LineSegments(edgeGeo, outlineMat);
+    outline.frustumCulled = false;
+    outline.renderOrder = ro + RENDER_ORDER_SECTION_CAP_OUTLINE - RENDER_ORDER_SECTION_CAP;
+
+    wrapper.add(fill);
+    wrapper.add(outline);
+    wrapper.userData.capFillMesh = fill;
+    wrapper.userData.capOutline = outline;
+
+    capGroup.add(wrapper);
+  });
+}
 
 /**
  * Projects motion onto the plane facing the camera — reads as sliding on-screen,
@@ -374,9 +909,21 @@ function ExplodableModel({
   screenPlaneExplode = false,
   /** Without part metadata there is nothing to align explode to — motion stays off. */
   explodeEnabled = true,
+  /** GrabCAD-style section: `{ enabled, on:{x,y,z}, flip:{x,y,z}, offset:{x,y,z} }` */
+  section = null,
+  /** While true, dragging section gizmos updates offsets (viewport pointer). */
+  sectionInteractionEnabled = false,
+  /** `(axis, normalizedOffset)` — axis is `'x'|'y'|'z'`, offset in roughly [-1, 1]. */
+  onSectionOffsetChange = null,
+  /** Optional: e.g. set which axis the panel slider controls when user grabs a gizmo. */
+  onSectionGizmoEngage = null,
 }) {
   const { scene } = useGLTF(url);
-  const { camera } = useThree();
+  const { camera, gl, controls, raycaster } = useThree();
+  const orbitControlsRef = useRef(controls ?? null);
+  useLayoutEffect(() => {
+    orbitControlsRef.current = controls ?? null;
+  }, [controls]);
 
   useLayoutEffect(() => {
     return () => {
@@ -416,6 +963,33 @@ function ExplodableModel({
   const partLookup = useMemo(
     () => buildPartLookup(partsMeta),
     [partsMeta]
+  );
+
+  const sectionRef = useRef(section);
+  const rootForSectionRef = useRef(null);
+  const sectionInteractionEnabledRef = useRef(sectionInteractionEnabled);
+  const onSectionOffsetChangeRef = useRef(onSectionOffsetChange);
+  const onSectionGizmoEngageRef = useRef(onSectionGizmoEngage);
+  const sectionDragRef = useRef({ active: false, axis: null, pointerId: null });
+  const applySectionDragClientRef = useRef(() => false);
+
+  useLayoutEffect(() => {
+    sectionRef.current = section;
+  }, [section]);
+  useLayoutEffect(() => {
+    sectionInteractionEnabledRef.current = sectionInteractionEnabled;
+  }, [sectionInteractionEnabled]);
+  useLayoutEffect(() => {
+    onSectionOffsetChangeRef.current = onSectionOffsetChange;
+  }, [onSectionOffsetChange]);
+  useLayoutEffect(() => {
+    onSectionGizmoEngageRef.current = onSectionGizmoEngage;
+  }, [onSectionGizmoEngage]);
+
+  const sectionRebuildKey = useMemo(
+    () =>
+      `${section?.enabled ? 1 : 0}-${section?.on?.x ? 1 : 0}-${section?.on?.y ? 1 : 0}-${section?.on?.z ? 1 : 0}`,
+    [section?.enabled, section?.on?.x, section?.on?.y, section?.on?.z]
   );
 
   const { rootGroup, radius } = useMemo(() => {
@@ -466,6 +1040,7 @@ function ExplodableModel({
         if ("map" in mat) mat.map = null;
         if ("aoMap" in mat) mat.aoMap = null;
         if ("lightMap" in mat) mat.lightMap = null;
+        if ("clipping" in mat) mat.clipping = true;
         mat.needsUpdate = true;
       });
 
@@ -480,10 +1055,11 @@ function ExplodableModel({
           transparent: true,
           opacity: 0.95,
           toneMapped: false,
+          clipping: true,
         });
         const edgeLines = new THREE.LineSegments(edgeGeo, edgeMat);
         edgeLines.name = "__cad_edges__";
-        edgeLines.renderOrder = 2;
+        edgeLines.renderOrder = RENDER_ORDER_CAD_EDGES;
         // Keep borders visual-only; avoid hover/raycast picking on helper edges.
         edgeLines.raycast = () => null;
         node.add(edgeLines);
@@ -542,10 +1118,69 @@ function ExplodableModel({
       // Name the group with the same stable ID used in metadata (exportName).
       partGroup.name = partId;
 
+      node.renderOrder = RENDER_ORDER_CAD_MESH;
+      node.userData.skipSectionHoverStyle = false;
+
       root.add(partGroup);
       partsRef.current.push(partGroup);
       partsByNameRef.current[partGroup.name] = partGroup;
     });
+
+    const halfSize = box.getSize(new THREE.Vector3()).multiplyScalar(0.5);
+    root.userData.bboxCenter = center.clone();
+    root.userData.bboxHalfSize = halfSize.clone();
+    root.userData.explodePartGroups = partsRef.current.slice();
+
+    const gizmoGroup = new THREE.Group();
+    gizmoGroup.name = "__section_gizmos__";
+    gizmoGroup.visible = false;
+    const gizmoGeo = new THREE.PlaneGeometry(1, 1);
+    const mkGizmoMat = () =>
+      new THREE.MeshBasicMaterial({
+        color: SECTION_GIZMO_COLOR,
+        transparent: true,
+        opacity: 0.2,
+        // Must be draggable from both camera sides like GrabCAD.
+        side: THREE.DoubleSide,
+        depthTest: true,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+        polygonOffsetUnits: -2,
+        dithering: false,
+        alphaToCoverage: false,
+        toneMapped: false,
+      });
+    const mkGizmoPickMat = () =>
+      new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        depthTest: true,
+        depthWrite: false,
+        toneMapped: false,
+      });
+    const axesOrder = ["x", "y", "z"];
+    axesOrder.forEach((ax) => {
+      const wrap = new THREE.Group();
+      wrap.userData.sectionGizmoAxis = ax;
+      wrap.frustumCulled = false;
+
+      const gm = new THREE.Mesh(gizmoGeo, mkGizmoMat());
+      gm.userData.sectionGizmoAxis = ax;
+      gm.renderOrder = 30;
+      gm.frustumCulled = false;
+
+      const pick = new THREE.Mesh(gizmoGeo, mkGizmoPickMat());
+      pick.userData.sectionGizmoAxis = ax;
+      pick.renderOrder = 31;
+      pick.frustumCulled = false;
+
+      wrap.add(gm, pick);
+      gizmoGroup.add(wrap);
+    });
+    root.add(gizmoGroup);
+    root.userData.sectionGizmoGroup = gizmoGroup;
 
     const metaCount = partsMeta?.filter(
       (p) =>
@@ -577,7 +1212,180 @@ function ExplodableModel({
     return { rootGroup: root, radius };
   }, [scene, url, partsMeta, byExact, byNorm, partLookup]);
 
-  useFrame(() => {
+  useLayoutEffect(() => {
+    const root = rootGroup;
+    rootForSectionRef.current = root;
+    const s = sectionRef.current;
+    buildSectionStencilAndCaps(root, s);
+    applySectionClipping(gl, root, s);
+    return () => {
+      disposeSectionStencilResources(root);
+      if (gl && Array.isArray(gl.clippingPlanes)) gl.clippingPlanes = [];
+    };
+  }, [rootGroup, sectionRebuildKey, gl]);
+
+  useEffect(() => {
+    const endSectionPlaneDrag = (evPointerId) => {
+      const d = sectionDragRef.current;
+      if (!d.active) return;
+      try {
+        const pid = evPointerId ?? d.pointerId;
+        if (pid != null) {
+          gl.domElement.releasePointerCapture(pid);
+        }
+      } catch (_) {
+        /* ignore */
+      }
+      const ctl = orbitControlsRef.current;
+      if (ctl && "enableRotate" in ctl) {
+        ctl.enableRotate =
+          typeof d.savedEnableRotate === "boolean"
+            ? d.savedEnableRotate
+            : true;
+      }
+      delete d.savedEnableRotate;
+      d.active = false;
+      d.axis = null;
+      d.pointerId = null;
+      delete d.lastNorm;
+    };
+
+    const applyDragFromClient = (clientX, clientY, axis) => {
+      const root = rootForSectionRef.current;
+      const fn = onSectionOffsetChangeRef.current;
+      const ctl = orbitControlsRef.current;
+      if (!root?.userData?.bboxCenter || !fn || !axis) return false;
+      const c = root.userData.bboxCenter;
+      const h = root.userData.bboxHalfSize;
+      const ext = axis === "x" ? h.x : axis === "y" ? h.y : h.z;
+      if (!ext || ext < 1e-20) return false;
+      const rect = gl.domElement.getBoundingClientRect();
+      _scratchPointerNdc.x =
+        ((clientX - rect.left) / rect.width) * 2 - 1;
+      _scratchPointerNdc.y =
+        -((clientY - rect.top) / rect.height) * 2 + 1;
+      _scratchRay.setFromCamera(_scratchPointerNdc, camera);
+      const ray = _scratchRay.ray;
+      // Project pointer ray to closest point on the active axis line (through bbox center).
+      // This avoids the "always same value" bug from intersecting the clip plane itself.
+      _scratchAxisDir.set(
+        axis === "x" ? 1 : 0,
+        axis === "y" ? 1 : 0,
+        axis === "z" ? 1 : 0
+      );
+      _scratchW0.copy(ray.origin).sub(c);
+      const b = ray.direction.dot(_scratchAxisDir);
+      const rayProj = ray.direction.dot(_scratchW0);
+      const e = _scratchAxisDir.dot(_scratchW0);
+      const denom = 1 - b * b; // both ray.direction and axisDir are unit vectors
+
+      let v = null;
+      if (Math.abs(denom) > 1e-6) {
+        const s = (e - b * rayProj) / denom; // axis-line parameter in world units
+        v = s / ext;
+      } else if (ctl?.target) {
+        // Fallback when ray ~parallel to axis.
+        const pi = SECTION_AXIS_INDEX[axis];
+        if (pi !== undefined) {
+          const clipPl = _sectionPlanePool[pi];
+          clipPl.coplanarPoint(_scratchPlanePoint);
+          _scratchCamToTarget
+            .copy(camera.position)
+            .sub(ctl.target)
+            .normalize();
+          _dragAssistPlane.setFromNormalAndCoplanarPoint(
+            _scratchCamToTarget,
+            _scratchPlanePoint
+          );
+          if (ray.intersectPlane(_dragAssistPlane, _scratchIntersect)) {
+            if (axis === "x") v = (_scratchIntersect.x - c.x) / ext;
+            else if (axis === "y") v = (_scratchIntersect.y - c.y) / ext;
+            else v = (_scratchIntersect.z - c.z) / ext;
+          }
+        }
+      }
+      if (v == null || !Number.isFinite(v)) return false;
+      const nv = Math.max(SECTION_OFFSET_MIN, Math.min(SECTION_OFFSET_MAX, v));
+      sectionDragRef.current.lastNorm = nv;
+      fn(axis, nv);
+      return true;
+    };
+    applySectionDragClientRef.current = applyDragFromClient;
+
+    const onMove = (ev) => {
+      const d = sectionDragRef.current;
+      if (!d.active || !d.axis) return;
+      const rayOk = applyDragFromClient(ev.clientX, ev.clientY, d.axis);
+      if (
+        !rayOk &&
+        (ev.movementX !== 0 || ev.movementY !== 0)
+      ) {
+        const fn = onSectionOffsetChangeRef.current;
+        if (!fn) return;
+        const rect = gl.domElement.getBoundingClientRect();
+        const sens =
+          5 /
+          Math.max(120, Math.min(rect.width, rect.height));
+        const base = Number.isFinite(d.lastNorm) ? d.lastNorm : 0;
+        const nv = Math.max(
+          SECTION_OFFSET_MIN,
+          Math.min(SECTION_OFFSET_MAX, base + ev.movementX * sens)
+        );
+        d.lastNorm = nv;
+        fn(d.axis, nv);
+      }
+    };
+
+    const onUp = (ev) => {
+      const d = sectionDragRef.current;
+      if (!d.active) return;
+      if (
+        d.pointerId != null &&
+        ev.pointerId != null &&
+        ev.pointerId !== d.pointerId
+      ) {
+        return;
+      }
+      endSectionPlaneDrag(ev.pointerId);
+    };
+
+    const onWindowMouseUp = () => {
+      if (sectionDragRef.current.active) {
+        endSectionPlaneDrag(null);
+      }
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        endSectionPlaneDrag(null);
+      }
+    };
+
+    const onLostCapture = () => {
+      if (sectionDragRef.current.active) {
+        endSectionPlaneDrag(null);
+      }
+    };
+
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
+    window.addEventListener("mouseup", onWindowMouseUp, true);
+    document.addEventListener("visibilitychange", onVisibility);
+    gl.domElement.addEventListener("lostpointercapture", onLostCapture);
+    return () => {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("mouseup", onWindowMouseUp, true);
+      document.removeEventListener("visibilitychange", onVisibility);
+      gl.domElement.removeEventListener("lostpointercapture", onLostCapture);
+    };
+  }, [gl, camera]);
+
+  useFrame(({ gl }) => {
+    gl.localClippingEnabled = true;
+
     const t = explodeEnabledRef.current ? explodeRef.current : 0;
     const R = radiusRef.current;
     const span = normalizeTargetMaxSpanRef.current;
@@ -636,6 +1444,7 @@ function ExplodableModel({
         ap && (ap === label || ap === g.name);
       g.traverse((child) => {
         if (!child.isMesh || !child.material) return;
+        if (child.userData.skipSectionHoverStyle) return;
         forEachMeshMaterial(child, (mat) => {
           if (!mat || !mat.color) return;
           if (!child.userData._origColors) child.userData._origColors = new Map();
@@ -704,7 +1513,6 @@ function ExplodableModel({
               mat.emissiveIntensity = origEmissiveIntensity;
             }
           }
-          mat.needsUpdate = true;
         });
       });
 
@@ -713,10 +1521,61 @@ function ExplodableModel({
       g.visible =
         vis == null || Object.keys(vis).length === 0 ? true : vis[vk] !== false;
     });
+
+    const rootSec = rootForSectionRef.current;
+    applySectionClipping(gl, rootSec, sectionRef.current);
+    syncSectionCapsAndStencilMaterials(rootSec, sectionRef.current);
   });
+
+  /**
+   * GrabCAD-style: drag the cutting *plane* (not whichever solid the ray hits first).
+   * R3F normally picks the nearest mesh; we take the pointer ray, find active clip planes
+   * whose intersection is within tolerance of that first hit, and treat it as plane drag.
+   */
+  const handleSectionPointerDown = useCallback(
+    (e) => {
+      if (!onSectionOffsetChangeRef.current) return;
+
+      const root = rootForSectionRef.current;
+      const sec = sectionRef.current;
+      if (!root?.userData?.bboxHalfSize || !sec?.enabled) return;
+
+      // If pointer directly hits a gizmo visual/pick surface, use it immediately.
+      let bestAx = getSectionGizmoAxisFromObject(e.object);
+
+      if (!bestAx) {
+        return;
+      }
+
+      const ax = bestAx;
+      e.stopPropagation();
+      onSectionGizmoEngageRef.current?.(ax);
+      sectionDragRef.current = {
+        active: true,
+        axis: ax,
+        pointerId: e.pointerId,
+      };
+      const ctl = orbitControlsRef.current;
+      if (ctl && "enableRotate" in ctl) {
+        sectionDragRef.current.savedEnableRotate = ctl.enableRotate !== false;
+        ctl.enableRotate = false;
+      }
+      try {
+        if (e.pointerId != null) {
+          gl.domElement.setPointerCapture(e.pointerId);
+        }
+      } catch (_) {
+        /* ignore */
+      }
+      applySectionDragClientRef.current(e.clientX, e.clientY, ax);
+    },
+    [gl]
+  );
 
   const handlePointerOver = useCallback(
     (e) => {
+      if (sectionDragRef.current.active) return;
+      if (sectionInteractionEnabledRef.current) return;
       if (!onHoverPart) return;
       e.stopPropagation();
       let g = e.object;
@@ -733,6 +1592,8 @@ function ExplodableModel({
 
   const handlePointerOut = useCallback(
     (e) => {
+      if (sectionDragRef.current.active) return;
+      if (sectionInteractionEnabledRef.current) return;
       if (!onHoverPart) return;
       e.stopPropagation();
       onHoverPart(null);
@@ -743,6 +1604,7 @@ function ExplodableModel({
   return (
     <primitive
       object={rootGroup}
+      onPointerDown={handleSectionPointerDown}
       onPointerOver={handlePointerOver}
       onPointerOut={handlePointerOut}
     />
@@ -784,6 +1646,21 @@ export function GlbExplodeViewer({
   const [viewsOpen, setViewsOpen] = useState(true);
   const [explodePanelOpen, setExplodePanelOpen] = useState(false);
   const explodePanelRef = useRef(null);
+  const [sectionPanelOpen, setSectionPanelOpen] = useState(false);
+  const sectionPanelRef = useRef(null);
+  const [sectionAxisOn, setSectionAxisOn] = useState({
+    x: false,
+    y: false,
+    z: false,
+  });
+  const [sectionFlip, setSectionFlip] = useState({
+    x: false,
+    y: false,
+    z: false,
+  });
+  const [sectionOffset, setSectionOffset] = useState({ x: 0, y: 0, z: 0 });
+  const [sectionActiveAxis, setSectionActiveAxis] = useState("x");
+  const [sectionAxisBtnHover, setSectionAxisBtnHover] = useState(null);
   const [partVisibility, setPartVisibility] = useState({});
   const [camRequest, setCamRequest] = useState(null);
   const camReqIdRef = useRef(0);
@@ -817,11 +1694,42 @@ export function GlbExplodeViewer({
       const t = e.target;
       if (t.closest?.("[data-glb-explode-panel]")) return;
       if (t.closest?.("[data-glb-explode-toggle]")) return;
+      if (t.closest?.("[data-glb-section-panel]")) return;
+      if (t.closest?.("[data-glb-section-toggle]")) return;
       setExplodePanelOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown, true);
     return () => document.removeEventListener("pointerdown", onPointerDown, true);
   }, [explodePanelOpen]);
+
+  useEffect(() => {
+    if (!sectionPanelOpen) return;
+    const onPointerDown = (e) => {
+      const t = e.target;
+      if (t.closest?.("[data-glb-section-panel]")) return;
+      if (t.closest?.("[data-glb-section-toggle]")) return;
+      if (t.closest?.("[data-glb-explode-panel]")) return;
+      if (t.closest?.("[data-glb-explode-toggle]")) return;
+      setSectionPanelOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [sectionPanelOpen]);
+
+  const sectionAnyAxisOn =
+    sectionAxisOn.x || sectionAxisOn.y || sectionAxisOn.z;
+
+  const sectionConfig = useMemo(() => {
+    const anyOn = sectionAxisOn.x || sectionAxisOn.y || sectionAxisOn.z;
+    return {
+      enabled: anyOn,
+      on: { ...sectionAxisOn },
+      flip: { ...sectionFlip },
+      offset: { ...sectionOffset },
+      showGizmos: anyOn,
+      clipAway: true,
+    };
+  }, [sectionAxisOn, sectionFlip, sectionOffset]);
 
   useEffect(() => {
     if (!resolvedMetaUrl) {
@@ -969,6 +1877,18 @@ export function GlbExplodeViewer({
     setActivePartName(labelOrNull || null);
   }, []);
 
+  const handleSectionOffsetFromScene = useCallback((axis, v) => {
+    setSectionOffset((o) => {
+      const prev = o[axis] ?? 0;
+      if (Math.abs(prev - v) < 1e-4) return o;
+      return { ...o, [axis]: v };
+    });
+  }, []);
+
+  const handleSectionGizmoEngage = useCallback((axis) => {
+    setSectionActiveAxis(axis);
+  }, []);
+
   return (
     <div
       style={{
@@ -1003,6 +1923,7 @@ export function GlbExplodeViewer({
           minHeight: 42,
         }}
       >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <button
           type="button"
           onClick={() => setTreeOpen((o) => !o)}
@@ -1022,12 +1943,50 @@ export function GlbExplodeViewer({
           <span style={{ fontSize: 15, lineHeight: 1 }}>☰</span>
           Assembly Tree
         </button>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <button
+          type="button"
+          data-glb-section-toggle
+          aria-expanded={sectionPanelOpen}
+          aria-controls="glb-section-panel"
+          onClick={() => {
+            setExplodePanelOpen(false);
+            setSectionPanelOpen((o) => !o);
+          }}
+          style={{
+            ...chromeBtn,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "6px 11px",
+            borderRadius: 5,
+            background:
+              sectionPanelOpen || sectionAnyAxisOn
+                ? "rgba(255,80,80,0.35)"
+                : "rgba(255,255,255,0.16)",
+            color: "#fff",
+            fontSize: 12,
+            fontWeight: 600,
+            border:
+              sectionPanelOpen || sectionAnyAxisOn
+                ? "2px solid rgba(255,200,200,0.95)"
+                : "2px solid transparent",
+            boxSizing: "border-box",
+          }}
+        >
+          <span style={{ fontSize: 14 }}>⊞</span>
+          Section
+        </button>
         <button
           type="button"
           data-glb-explode-toggle
           aria-expanded={explodePanelOpen}
           aria-controls="glb-explode-range-panel"
-          onClick={() => hasPartsMeta && setExplodePanelOpen((o) => !o)}
+          onClick={() => {
+            setSectionPanelOpen(false);
+            hasPartsMeta && setExplodePanelOpen((o) => !o);
+          }}
           style={{
             ...chromeBtn,
             display: "flex",
@@ -1049,6 +2008,7 @@ export function GlbExplodeViewer({
           <span style={{ fontSize: 14 }}>▦</span>
           Explode
         </button>
+        </div>
       </header>
 
       {explodePanelOpen && hasPartsMeta && (
@@ -1171,6 +2131,179 @@ export function GlbExplodeViewer({
           >
             {Math.round(explode * 100)}%
           </div>
+        </div>
+      )}
+
+      {sectionPanelOpen && (
+        <div
+          ref={sectionPanelRef}
+          id="glb-section-panel"
+          role="dialog"
+          aria-label="Section planes"
+          data-glb-section-panel
+          style={{
+            position: "absolute",
+            top: 48,
+            right: 10,
+            zIndex: 100,
+            width: 240,
+            background: UI_PANEL_RGBA,
+            padding: "10px 10px 8px",
+            borderRadius: 10,
+            border: "1px solid rgba(255,120,120,0.35)",
+            boxShadow: "0 12px 36px rgba(0,0,0,0.45)",
+            pointerEvents: "auto",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 8,
+              color: "#f4f4f8",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.02em",
+            }}
+          >
+            <span>Section</span>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => setSectionPanelOpen(false)}
+              style={{
+                ...chromeBtn,
+                padding: "0 6px",
+                borderRadius: 4,
+                background: "rgba(255,255,255,0.1)",
+                color: "#fff",
+                fontSize: 14,
+                lineHeight: 1.2,
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div style={{ color: "#c8c8d4", fontSize: 10, marginBottom: 8, lineHeight: 1.35 }}>
+            Select plane orientations (X / Y / Z). Each axis starts from center when enabled; drag the plane inward/outward across the design to section anywhere. Enabled axes share the same style; ⇄ flips the cut for the axis you last clicked (see ⇄ tooltip).
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 6,
+              marginBottom: 10,
+            }}
+          >
+            {(["x", "y", "z"]).map((ax) => {
+              const isOn = sectionAxisOn[ax];
+              const isSelectedAxis = sectionActiveAxis === ax;
+              /** Every enabled plane uses the same chrome; ⇄ target is `sectionActiveAxis` (see flip button title). */
+              const showHoverOnIdle =
+                sectionAxisBtnHover === ax && !isOn;
+              const looksActive = isOn || showHoverOnIdle;
+              return (
+              <button
+                key={ax}
+                type="button"
+                aria-pressed={isOn}
+                aria-current={isSelectedAxis && isOn ? "true" : undefined}
+                title={
+                  isOn
+                    ? isSelectedAxis
+                      ? `${ax.toUpperCase()} plane on (⇄ uses this axis)`
+                      : `${ax.toUpperCase()} plane on`
+                    : `${ax.toUpperCase()} plane off`
+                }
+                onMouseEnter={() => setSectionAxisBtnHover(ax)}
+                onMouseLeave={() =>
+                  setSectionAxisBtnHover((h) => (h === ax ? null : h))
+                }
+                onClick={() => {
+                  setSectionActiveAxis(ax);
+                  const turningOn = !sectionAxisOn[ax];
+                  setSectionAxisOn((o) => ({ ...o, [ax]: !o[ax] }));
+                  if (turningOn) {
+                    // GrabCAD-like default: enabling an axis starts from center section.
+                    setSectionOffset((o) => ({ ...o, [ax]: 0 }));
+                  }
+                }}
+                style={{
+                  ...chromeBtn,
+                  padding: "6px 0",
+                  borderRadius: 6,
+                  fontWeight: 800,
+                  fontSize: 12,
+                  boxSizing: "border-box",
+                  transition:
+                    "background 0.12s ease, border-color 0.12s ease, color 0.12s ease",
+                  color: looksActive ? "#fff" : "rgba(255,255,255,0.4)",
+                  background: looksActive
+                    ? "rgba(255,255,255,0.14)"
+                    : "rgba(0,0,0,0.25)",
+                  border: looksActive
+                    ? "1px solid rgba(255,255,255,0.38)"
+                    : "2px solid transparent",
+                }}
+              >
+                {ax.toUpperCase()}
+              </button>
+            );
+            })}
+            <button
+              type="button"
+              title={`Flip section direction (${sectionActiveAxis.toUpperCase()} axis)`}
+              aria-label={`Flip section direction for ${sectionActiveAxis.toUpperCase()} axis`}
+              onClick={() =>
+                setSectionFlip((o) => ({
+                  ...o,
+                  [sectionActiveAxis]: !o[sectionActiveAxis],
+                }))
+              }
+              style={{
+                ...chromeBtn,
+                padding: "6px 0",
+                borderRadius: 6,
+                background: "rgba(0,0,0,0.25)",
+                color: "#fff",
+                fontSize: 14,
+              }}
+            >
+              ⇄
+            </button>
+          </div>
+          <button
+            type="button"
+            data-glb-section-clear
+            aria-label="Remove all section planes"
+            disabled={!sectionAnyAxisOn}
+            onClick={() => {
+              setSectionAxisOn({ x: false, y: false, z: false });
+              setSectionOffset({ x: 0, y: 0, z: 0 });
+              setSectionFlip({ x: false, y: false, z: false });
+            }}
+            style={{
+              ...chromeBtn,
+              width: "100%",
+              marginTop: 2,
+              padding: "8px 10px",
+              borderRadius: 6,
+              fontWeight: 700,
+              fontSize: 11,
+              color: sectionAnyAxisOn ? "#fff" : "rgba(255,255,255,0.35)",
+              background: sectionAnyAxisOn
+                ? "rgba(180,60,60,0.45)"
+                : "rgba(0,0,0,0.2)",
+              border: sectionAnyAxisOn
+                ? "1px solid rgba(255,160,160,0.5)"
+                : "1px solid transparent",
+              boxSizing: "border-box",
+              cursor: sectionAnyAxisOn ? "pointer" : "default",
+            }}
+          >
+            Remove sections
+          </button>
         </div>
       )}
 
@@ -1328,9 +2461,13 @@ export function GlbExplodeViewer({
             dpr={[1, 2]}
             gl={{
               antialias: true,
+              stencil: true,
               powerPreference: "high-performance",
               toneMapping: THREE.ACESFilmicToneMapping,
               outputColorSpace: THREE.SRGBColorSpace,
+            }}
+            onCreated={({ gl }) => {
+              gl.localClippingEnabled = true;
             }}
           >
             <color attach="background" args={[UI_VIEWPORT_BG]} />
@@ -1356,6 +2493,10 @@ export function GlbExplodeViewer({
                 onHoverPart={handleHoverPartFromScene}
                 screenPlaneExplode={screenPlaneExplode}
                 explodeEnabled={hasPartsMeta}
+                section={sectionConfig}
+                sectionInteractionEnabled={sectionAnyAxisOn}
+                onSectionOffsetChange={handleSectionOffsetFromScene}
+                onSectionGizmoEngage={handleSectionGizmoEngage}
               />
             </Suspense>
           </Canvas>
