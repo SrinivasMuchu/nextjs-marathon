@@ -15,6 +15,13 @@
   align-items: start;
 }
 
+.inner > div:first-child {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .title {
   margin: 0 0 20px 0;
   font-size: clamp(28px, 4vw, 42px);
@@ -41,6 +48,7 @@
   flex-wrap: wrap;
   gap: 14px;
   align-items: center;
+  justify-content: center;
   margin-bottom: 28px;
 }
 
@@ -99,6 +107,8 @@
   line-height: 1.5;
   color: rgba(244, 244, 248, 0.85);
   max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .trustBanner strong {
