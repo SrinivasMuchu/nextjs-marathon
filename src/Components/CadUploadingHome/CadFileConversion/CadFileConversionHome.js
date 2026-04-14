@@ -99,13 +99,17 @@ function CadFileConversionHome({ convert, conversionParams }) {
             {!convert && (
                 <ActiveLastBreadcrumb
                     variant="dark"
-                    links={[{ label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' }]}
+                    links={[
+                        { label: 'tools', href: '/tools' },
+                        { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
+                    ]}
                 />
             )}
             {convert && (
                 <ActiveLastBreadcrumb
                     variant="dark"
                     links={[
+                        { label: 'tools', href: '/tools' },
                         { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
                         { label: `${conversionParams}`, href: `/tools/convert-${conversionParams}` },
                     ]}

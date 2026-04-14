@@ -15,6 +15,8 @@ import IndustryDesigns from './IndustryDesigns';
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import OrgFeatures from '../OrganizationHome/OrgFeatures/OrgFeatures';
 import { getIndustryCadViewerFaq } from '@/data/industryPageFaq';
+import ToolsPageBanner from '../CadServicesBanners/ToolsPageBanner';
+import IndustryPageBanner from '../CadServicesBanners/IndustryPageBanner';
 
 function IndustryParts({ industry, part_name, industryData }) {
     const faqQuestions = industryData ? getIndustryCadViewerFaq(industryData) : []
@@ -82,6 +84,7 @@ function IndustryParts({ industry, part_name, industryData }) {
                 />
                 <IndustryDetails industryData={industryData} part_name={part_name} />
                 <IndustryHowItWorksSection industryName={industryData.industry} />
+                <ToolsPageBanner />
                 <OrgFeatures type='cad' />
                 <IndustryMarketingBody industryData={industryData} />
                 <RoleOfCAD industryData={industryData} part_name={part_name} industry={industry} />
@@ -99,6 +102,7 @@ function IndustryParts({ industry, part_name, industryData }) {
                     description="Answers for teams evaluating browser-based CAD review with Marathon OS."
                 />
                 <IndustryFinalCtaBand industryName={industryData.industry} />
+                <IndustryPageBanner />
                 <Footer />
             </>}
 

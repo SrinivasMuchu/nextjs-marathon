@@ -13,6 +13,7 @@ import {
   MdOutlineSpeed,
   MdOutlineLock,
 } from "react-icons/md";
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Eye, Minus, Plus } from "lucide-react";
 import { DESIGN_GLB_PREFIX_URL } from "@/config";
 import styles from "./IndustryPdmGlbViewerSection.module.css";
 
@@ -23,23 +24,20 @@ const PdmGlbPreviewCanvas = dynamic(() => import("./PdmGlbPreviewCanvas"), {
 /** Used only when API does not return `viewer_design_id` for an industry. */
 const FALLBACK_PDM_VIEWER_ID = "69d7265e562aa5e7d23e30ad";
 
-const TOOLBAR_ITEMS = [
-  { id: "zoom", label: "Zoom", type: "mode" },
-  { id: "pan", label: "Pan", type: "mode" },
-  { id: "rotate", label: "Rotate", type: "mode" },
-  { id: "fit", label: "Fit View", type: "action" },
-  { id: "reset", label: "Reset", type: "action" },
-];
-
 const CAD_FORMATS = ["STEP", "IGES", "STL", "PLY", "OFF", "BREP"];
 const INDUSTRY_UPLOAD_DROPZONE_ID = "industry-hero-cad-dropzone";
+const VIEW_PRESETS = [
+  ["FRONT", "BACK"],
+  ["LEFT", "RIGHT"],
+  ["TOP", "BOTTOM"],
+];
 
 export default function IndustryPdmGlbViewerSection({ industryData }) {
   const router = useRouter();
   const industryLabel = industryData?.industry?.trim() || "Automotive";
   const industryWord = industryLabel.split("&")[0].trim().split(" ")[0].toLowerCase();
-  const [interactionMode, setInteractionMode] = useState("rotate");
   const [viewerAction, setViewerAction] = useState(null);
+  const [activeView, setActiveView] = useState("ISOMETRIC");
 
   const viewerDesignId = useMemo(() => {
     const raw =
@@ -55,18 +53,8 @@ export default function IndustryPdmGlbViewerSection({ industryData }) {
     return `${DESIGN_GLB_PREFIX_URL}${encodedId}/${encodedId}.glb`;
   }, [viewerDesignId]);
 
-  const handleToolbarClick = (item) => {
-    if (item.type === "mode") {
-      setInteractionMode(item.id);
-      return;
-    }
-    if (item.id === "fit") {
-      setViewerAction({ type: "fit", at: Date.now() });
-      return;
-    }
-    if (item.id === "reset") {
-      setViewerAction({ type: "reset", at: Date.now() });
-    }
+  const pushViewerAction = (type, extra = {}) => {
+    setViewerAction({ type, at: Date.now(), ...extra });
   };
 
   const handleUploadClick = () => {
@@ -91,29 +79,116 @@ export default function IndustryPdmGlbViewerSection({ industryData }) {
 
       <div className={styles.layout}>
         <div className={styles.leftPane}>
-          <div className={styles.toolbar}>
-            {TOOLBAR_ITEMS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-label={item.label}
-                className={`${styles.toolbarButton} ${
-                  item.type === "mode" && interactionMode === item.id ? styles.toolbarButtonActive : ""
-                }`}
-                onClick={() => handleToolbarClick(item)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
           <div className={styles.viewerShell}>
             <div className={styles.viewerCanvasWrap}>
+              <div className={styles.dpadDock}>
+                <div className={styles.dpad}>
+                  <button
+                    type="button"
+                    className={styles.dpadBtn}
+                    aria-label="Move up"
+                    onClick={() => pushViewerAction("orbitUp")}
+                  >
+                    <ArrowUp size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.dpadBtn}
+                    aria-label="Move left"
+                    onClick={() => pushViewerAction("orbitLeft")}
+                  >
+                    <ArrowLeft size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.dpadBtn} ${styles.dpadCenterBtn}`}
+                    aria-label="Isometric view"
+                    onClick={() => {
+                      setActiveView("ISOMETRIC");
+                      pushViewerAction("preset", { name: "ISOMETRIC" });
+                    }}
+                  >
+                    <Eye size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.dpadBtn}
+                    aria-label="Move right"
+                    onClick={() => pushViewerAction("orbitRight")}
+                  >
+                    <ArrowRight size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.dpadBtn}
+                    aria-label="Move down"
+                    onClick={() => pushViewerAction("orbitDown")}
+                  >
+                    <ArrowDown size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.dpadBtn}
+                    aria-label="Zoom out"
+                    onClick={() => pushViewerAction("zoomOut")}
+                  >
+                    <Minus size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.dpadBtn}
+                    aria-label="Zoom in"
+                    onClick={() => pushViewerAction("zoomIn")}
+                  >
+                    <Plus size={18} />
+                  </button>
+                </div>
+
+                <div className={styles.viewsCard}>
+                  <button
+                    type="button"
+                    className={styles.viewsHeading}
+                    onClick={() => {
+                      setActiveView("ISOMETRIC");
+                      pushViewerAction("preset", { name: "ISOMETRIC" });
+                    }}
+                  >
+                    VIEWS
+                  </button>
+                  <div className={styles.viewsGrid}>
+                    {VIEW_PRESETS.flat().map((viewName) => (
+                      <button
+                        key={viewName}
+                        type="button"
+                        className={`${styles.viewBtn} ${activeView === viewName ? styles.viewBtnActive : ""}`}
+                        onClick={() => {
+                          setActiveView(viewName);
+                          pushViewerAction("preset", { name: viewName });
+                        }}
+                      >
+                        {viewName}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className={`${styles.viewBtn} ${styles.viewBtnWide} ${
+                        activeView === "ISOMETRIC" ? styles.viewBtnActive : ""
+                      }`}
+                      onClick={() => {
+                        setActiveView("ISOMETRIC");
+                        pushViewerAction("preset", { name: "ISOMETRIC" });
+                      }}
+                    >
+                      ISOMETRIC
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <span className={styles.viewerTag}>PDM Viewer / GLB Viewer</span>
               <PdmGlbPreviewCanvas
                 key={viewerDesignId}
                 glbUrl={glbUrl}
-                interactionMode={interactionMode}
                 action={viewerAction}
               />
             </div>

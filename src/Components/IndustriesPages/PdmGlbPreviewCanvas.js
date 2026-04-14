@@ -100,23 +100,9 @@ function ViewerController({ interactionMode, action, modelRef }) {
 
   useEffect(() => {
     if (!controls) return;
-    const MOUSE = THREE.MOUSE;
-    if (interactionMode === "pan") {
-      controls.enablePan = true;
-      controls.enableZoom = false;
-      controls.enableRotate = false;
-      controls.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: null, RIGHT: null };
-    } else if (interactionMode === "zoom") {
-      controls.enablePan = false;
-      controls.enableZoom = true;
-      controls.enableRotate = false;
-      controls.mouseButtons = { LEFT: MOUSE.DOLLY, MIDDLE: null, RIGHT: null };
-    } else {
-      controls.enablePan = false;
-      controls.enableZoom = false;
-      controls.enableRotate = true;
-      controls.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: null, RIGHT: null };
-    }
+    controls.enablePan = true;
+    controls.enableZoom = true;
+    controls.enableRotate = true;
     controls.update();
   }, [interactionMode, controls]);
 
@@ -139,6 +125,59 @@ function ViewerController({ interactionMode, action, modelRef }) {
     controls.update();
   }, [camera, controls, modelRef]);
 
+  const orbitNudge = useCallback(
+    (dTheta, dPhi) => {
+      if (!controls) return;
+      const offset = new THREE.Vector3().subVectors(camera.position, controls.target);
+      const spherical = new THREE.Spherical().setFromVector3(offset);
+      spherical.theta += dTheta;
+      spherical.phi += dPhi;
+      spherical.makeSafe();
+      offset.setFromSpherical(spherical);
+      camera.position.copy(controls.target).add(offset);
+      camera.updateProjectionMatrix();
+      controls.update();
+    },
+    [camera, controls]
+  );
+
+  const setPresetView = useCallback(
+    (name) => {
+      if (!controls) return;
+      const model = modelRef.current;
+      if (!model) return;
+
+      model.updateWorldMatrix(true, true);
+      const box = new THREE.Box3().setFromObject(model);
+      if (box.isEmpty()) return;
+
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = THREE.MathUtils.degToRad(camera.fov);
+      const distance = (maxDim / (2 * Math.tan(fov / 2))) * 1.35;
+
+      const presets = {
+        FRONT: new THREE.Vector3(0, 0, 1),
+        BACK: new THREE.Vector3(0, 0, -1),
+        LEFT: new THREE.Vector3(-1, 0, 0),
+        RIGHT: new THREE.Vector3(1, 0, 0),
+        TOP: new THREE.Vector3(0, 1, 0),
+        BOTTOM: new THREE.Vector3(0, -1, 0),
+        ISOMETRIC: new THREE.Vector3(1, 0.8, 1).normalize(),
+      };
+
+      const dir = presets[name] || presets.ISOMETRIC;
+      camera.position.copy(center).addScaledVector(dir, distance);
+      controls.target.copy(center);
+      camera.near = Math.max(0.01, distance / 100);
+      camera.far = distance * 100;
+      camera.updateProjectionMatrix();
+      controls.update();
+    },
+    [camera, controls, modelRef]
+  );
+
   useEffect(() => {
     if (!action || !controls) return;
     if (action.type === "fit") {
@@ -155,15 +194,35 @@ function ViewerController({ interactionMode, action, modelRef }) {
       return;
     }
     if (action.type === "zoomIn") {
-      controls.dollyIn?.(1.2);
+      controls.dollyOut?.(1.2);
       controls.update();
       return;
     }
     if (action.type === "zoomOut") {
-      controls.dollyOut?.(1.2);
+      controls.dollyIn?.(1.2);
       controls.update();
+      return;
     }
-  }, [action, camera, controls, fitView]);
+    if (action.type === "orbitLeft") {
+      orbitNudge(0.18, 0);
+      return;
+    }
+    if (action.type === "orbitRight") {
+      orbitNudge(-0.18, 0);
+      return;
+    }
+    if (action.type === "orbitUp") {
+      orbitNudge(0, -0.18);
+      return;
+    }
+    if (action.type === "orbitDown") {
+      orbitNudge(0, 0.18);
+      return;
+    }
+    if (action.type === "preset") {
+      setPresetView(action.name);
+    }
+  }, [action, camera, controls, fitView, orbitNudge, setPresetView]);
 
   return null;
 }

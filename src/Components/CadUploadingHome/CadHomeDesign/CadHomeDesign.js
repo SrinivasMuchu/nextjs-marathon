@@ -145,16 +145,22 @@ const steps = [
     { title: '3D printing workflows inspecting STL/OBJ meshes', description: 'inspecting STL/OBJ meshes' },
   ];
 function CadHomeDesign({type}) {
+    const breadcrumbLinks = type
+      ? [
+          { label: 'tools', href: '/tools' },
+          { label: 'CAD Viewer Type', href: '/tools/3D-cad-viewer' },
+        ]
+      : [
+          { label: 'tools', href: '/tools' },
+          { label: 'CAD Viewer', href: '/tools/3D-cad-viewer' },
+        ];
    
     return (
         <>
             <FaqPageJsonLd faqSchemaData={cadViewerFaqQuestions} />
             {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
-                    
-                      links={[
-                        { label: 'CAD Viewer', href: '/tools/3D-cad-viewer' },
-                      ]}
+                      links={breadcrumbLinks}
                     />
             {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
             
