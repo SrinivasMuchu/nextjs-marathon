@@ -83,7 +83,7 @@ function Industry({ industry, industryData }) {
                 <IndustryDetails industryData={industryData} />
                 <IndustryHowItWorksSection industryName={industryData.industry} />
                 <ToolsPageBanner />
-                <OrgFeatures type='cad' />
+                {/* <OrgFeatures type='cad' /> */}
                 <IndustryMarketingBody industryData={industryData} />
                 <RoleOfCAD industryData={industryData} industry={industry} />
                 <UseOfCAD industryData={industryData} />

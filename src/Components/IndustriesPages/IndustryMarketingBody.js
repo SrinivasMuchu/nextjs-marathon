@@ -1,5 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
 import {
   MdOutlinePrecisionManufacturing,
   MdOutlineAccountTree,
@@ -15,7 +14,6 @@ import {
   MdOutlineVerifiedUser,
 } from 'react-icons/md';
 import styles from './IndustryMarketingSections.module.css';
-import { getIndustryExploreLinks } from '@/data/industryExploreLinks';
 
 const FORMAT_CARDS = [
   {
@@ -87,12 +85,11 @@ function splitRoles(csv, fallback) {
 }
 
 /**
- * Sections 1, 2, 3, 4, 6, 7, 8 — industry CAD viewer marketing copy (dynamic industry + API roles where available).
+ * Sections 1, 2, 3, 4, 6, 8 — industry CAD viewer marketing copy (Section 7 explore grid is commented out).
  */
 function IndustryMarketingBody({ industryData }) {
   const industry = (industryData?.industry || 'your industry').trim();
   const industryLower = industry.toLowerCase();
-  const route = industryData?.route || '';
 
   const whoDaily = splitRoles(
     industryData?.roles_view_cad_files,
@@ -101,11 +98,6 @@ function IndustryMarketingBody({ industryData }) {
   const whoLimited = splitRoles(
     industryData?.limited_cad_access,
     'Sales Engineers, Procurement Managers, Field Technicians'
-  );
-
-  const { primary: explorePrimary, secondary: exploreSecondary } = getIndustryExploreLinks(
-    route,
-    industry
   );
 
   return (
@@ -215,7 +207,7 @@ function IndustryMarketingBody({ industryData }) {
         </div>
       </section>
 
-      {/* Section 7 */}
+      {/* Section 7 — temporarily hidden (e.g. "Explore Architecture & Construction components in 3D")
       <section className={styles.blockWhite} aria-labelledby="industry-s7-heading">
         <div className={styles.innerWide}>
           <h2 id="industry-s7-heading" className={styles.h2}>
@@ -244,6 +236,7 @@ function IndustryMarketingBody({ industryData }) {
           ) : null}
         </div>
       </section>
+      */}
 
       {/* Section 8 — centered feature cards (matches “Why Choose” grid layout) */}
       <section className={styles.blockAlt} aria-labelledby="industry-s8-heading">
