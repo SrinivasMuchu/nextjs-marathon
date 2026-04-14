@@ -76,6 +76,7 @@ function HomeTopNav() {
           </span>
           {openDropdown === "tools" && (
             <div className={styles["dropdown-menu"]}>
+              <Link href="/tools" onClick={()=>setOpenDropdown(false)}>All tools</Link>
               <Link href="/tools/org-hierarchy" onClick={()=>setOpenDropdown(false)}>Org Hierarchy</Link>
               <Link href="/tools/3D-cad-viewer" onClick={()=>setOpenDropdown(false)}>CAD Viewer</Link>
               <Link href="/tools/3d-cad-file-converter" onClick={()=>setOpenDropdown(false)}>CAD File Convert</Link>

@@ -1,8 +1,8 @@
 import React from 'react'
 import styles from './Industry.module.css'
-import Image from 'next/image';
-import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
+import { BASE_URL } from '@/config';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
+import { MdOutlineCategory } from 'react-icons/md';
 
 
 async function RoleOfCAD({industryData,part_name,industry}) {
@@ -26,38 +26,70 @@ async function RoleOfCAD({industryData,part_name,industry}) {
      console.error('Error fetching design:', error);
    }
  
-  return (
-    <div className={styles['role-of-cad']}  style={designId ? {} : { textAlign: 'center',justifyContent: 'center'}}>
-        <div className={styles['role-of-cad-content']} >
-          {part_name ? <>
-            <h2 style={designId ? {} : { textAlign: 'center' }}>{industryData.part_name} Essentials</h2>
-            <p style={designId ? {} : { textAlign: 'center' }}>{industryData.description}</p>
-            <span>Used for</span>
-            <p style={designId ? {} : { textAlign: 'center' }}>{industryData.use_cases}</p>
-            <span>Common CAD File Formats</span>
-            <p style={designId ? {} : { textAlign: 'center' }}>{industryData.cad_file_formats}</p>
-          </>:<>
-          <h2>Role of CAD file in {industryData.industry}</h2>
-            <p style={designId ? {} : { textAlign: 'center' }}>{industryData.usage}</p>
-            <span>Common CAD File Formats</span>
-            <p style={designId ? {} : { textAlign: 'center' }}>{industryData.cad_file_formats}</p>
-          </>}
-          
-        </div>
-        {designId && <div className={styles['role-of-cad-desgin']}>
-            {/* <Image
-              src={`${DESIGN_GLB_PREFIX_URL}${designId}/sprite_0_150.webp`}
-              alt={part_name ? part_name : industry}
-              width={400}
-              height={400}
-              className={styles['role-of-cad-desgin-image']}
-            /> */}
-            <HoverImageSequence design={{ _id: designId, page_title: part_name ? part_name : industry }} width={400} height={400} />
-          </div>}
-        
-       
-    </div>
-  )
+ const formatTags = String(industryData?.cad_file_formats || '')
+   .split(',')
+   .map((item) => item.trim())
+   .filter(Boolean);
+
+ if (part_name) {
+   return (
+     <div className={styles['role-of-cad']} style={designId ? {} : { textAlign: 'center', justifyContent: 'center' }}>
+       <div className={styles['role-of-cad-content']}>
+         <h2 style={designId ? {} : { textAlign: 'center' }}>{industryData.part_name} Essentials</h2>
+         <p style={designId ? {} : { textAlign: 'center' }}>{industryData.description}</p>
+         <span>Used for</span>
+         <p style={designId ? {} : { textAlign: 'center' }}>{industryData.use_cases}</p>
+         <span>Common CAD File Formats</span>
+         <p style={designId ? {} : { textAlign: 'center' }}>{industryData.cad_file_formats}</p>
+       </div>
+       {designId && (
+         <div className={styles['role-of-cad-desgin']}>
+           <HoverImageSequence design={{ _id: designId, page_title: part_name ? part_name : industry }} width={400} height={400} />
+         </div>
+       )}
+     </div>
+   );
+ }
+
+ return (
+   <section className={styles.roleSpotlight}>
+     <div className={styles.roleSpotlightInner}>
+       <div className={styles.roleSpotlightContent}>
+         <span className={styles.roleSpotlightBadge}>Industry spotlight</span>
+         <h2 className={styles.roleSpotlightTitle}>Role of CAD file in {industryData.industry}</h2>
+         <p className={styles.roleSpotlightDesc}>{industryData.usage}</p>
+         <h3 className={styles.roleSpotlightSubhead}>Common CAD File Formats</h3>
+         <div className={styles.roleSpotlightTags}>
+           {formatTags.map((format) => (
+             <span key={format} className={styles.roleSpotlightTag}>
+               {format}
+             </span>
+           ))}
+         </div>
+       </div>
+
+       <div className={styles.roleSpotlightPreview}>
+         <div className={styles.roleSpotlightPreviewVisual}>
+           {designId ? (
+             <HoverImageSequence
+               design={{ _id: designId, page_title: part_name ? part_name : industry }}
+               width={220}
+               height={220}
+             />
+           ) : (
+             <span className={styles.roleSpotlightPlaceholder} aria-hidden>
+               <MdOutlineCategory size={34} />
+             </span>
+           )}
+         </div>
+         <p className={styles.roleSpotlightPreviewTitle}>{industryData.industry} CAD Model Preview</p>
+         <p className={styles.roleSpotlightPreviewMeta}>
+           {formatTags.slice(0, 3).join(' · ') || 'STEP · IGES · STL'}
+         </p>
+       </div>
+     </div>
+   </section>
+ )
 }
 
 export default RoleOfCAD

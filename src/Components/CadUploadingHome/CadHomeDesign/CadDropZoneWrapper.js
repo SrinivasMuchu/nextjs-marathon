@@ -14,6 +14,7 @@ import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useRouter } from "next/navigation";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
+import { Upload } from "lucide-react";
 
 function parseFormatFromPath(segment) {
   if (!segment || typeof segment !== 'string') return '';
@@ -181,13 +182,9 @@ function CadDropZoneWrapper({ children, isStyled, type, designVariant, dropzoneI
                     />
                     {isHeroDark || isIndustryHero ? (
                         <div className={heroStyles.heroUploadPanelInner}>
-                            <Image
-                                src={IMAGEURLS.uploadIcon}
-                                alt="Upload"
-                                width={isIndustryHero ? 56 : 72}
-                                height={isIndustryHero ? 56 : 72}
-                                style={{ cursor: "pointer" }}
-                            />
+                            <span className={heroStyles.heroUploadIconGlyph} aria-hidden>
+                                <Upload size={isIndustryHero ? 56 : 72} strokeWidth={1.9} />
+                            </span>
                             {React.Children.map(children, (child) =>
                                 React.isValidElement(child) ? React.cloneElement(child, { allowedFormats }) : child
                             )}

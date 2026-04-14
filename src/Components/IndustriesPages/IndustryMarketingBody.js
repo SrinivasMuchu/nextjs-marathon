@@ -12,6 +12,8 @@ import {
   MdOutlineLayers,
   MdOutlineSpeed,
   MdOutlineVerifiedUser,
+  MdOutlineArrowRightAlt,
+  MdCheckCircleOutline,
 } from 'react-icons/md';
 import styles from './IndustryMarketingSections.module.css';
 
@@ -84,6 +86,11 @@ function splitRoles(csv, fallback) {
   return parts.length ? parts.join(', ') : fallback;
 }
 
+function splitRolesList(csv, fallbackCsv) {
+  const source = splitRoles(csv, fallbackCsv);
+  return source.split(',').map((item) => item.trim()).filter(Boolean);
+}
+
 /**
  * Sections 1, 2, 3, 4, 6, 8 — industry CAD viewer marketing copy (Section 7 explore grid is commented out).
  */
@@ -99,21 +106,32 @@ function IndustryMarketingBody({ industryData }) {
     industryData?.limited_cad_access,
     'Sales Engineers, Procurement Managers, Field Technicians'
   );
+  const dailyRoles = splitRolesList(
+    whoDaily,
+    'Mechanical Engineers, CAD Designers, Simulation Analysts'
+  );
+  const limitedRoles = splitRolesList(
+    whoLimited,
+    'Sales Engineers, Procurement Managers, Field Technicians'
+  );
 
   return (
     <>
       {/* Section 1 */}
       <section className={styles.blockAlt} aria-labelledby="industry-s1-heading">
         <div className={styles.inner}>
-          <h2 id="industry-s1-heading" className={styles.h2}>
-            How {industryLower} teams use CAD viewers for design review
-          </h2>
-          <p className={styles.body}>
-            In {industryLower}, teams use CAD viewers to inspect models, validate interfaces, and align
-            stakeholders during reviews and handoffs. A browser-based viewer makes it easier to open files
-            quickly, inspect geometry, and keep discussions anchored to the same 3D model—without
-            specialized desktop setups.
-          </p>
+          <article className={styles.storyCard}>
+            <span className={styles.storyBadge}>Design review</span>
+            <h2 id="industry-s1-heading" className={styles.storyTitle}>
+              How {industryLower} teams use CAD viewers for design review
+            </h2>
+            <p className={styles.storyBody}>
+              In {industryLower}, teams use CAD viewers to inspect models, validate interfaces, and align
+              stakeholders during reviews and handoffs. A browser-based viewer makes it easier to open files
+              quickly, inspect geometry, and keep discussions anchored to the same 3D model without
+              specialized desktop setups.
+            </p>
+          </article>
         </div>
       </section>
 
@@ -162,14 +180,28 @@ function IndustryMarketingBody({ industryData }) {
                 <MdOutlineGroups className={styles.roleCardIcon} size={22} aria-hidden />
                 Who uses CAD daily
               </div>
-              <p className={styles.roleCardBody}>{whoDaily}</p>
+              <ul className={styles.roleList}>
+                {dailyRoles.map((role) => (
+                  <li key={role} className={styles.roleListItem}>
+                    <MdCheckCircleOutline size={16} className={styles.roleListIcon} aria-hidden />
+                    {role}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className={styles.roleCard}>
+            <div className={`${styles.roleCard} ${styles.roleCardAccent}`}>
               <div className={styles.roleCardHead}>
                 <MdOutlinePersonSearch className={styles.roleCardIcon} size={22} aria-hidden />
-                Often needs CAD access (without full CAD tools)
+                Often needs CAD access
               </div>
-              <p className={styles.roleCardBody}>{whoLimited}</p>
+              <ul className={styles.roleList}>
+                {limitedRoles.map((role) => (
+                  <li key={role} className={styles.roleListItem}>
+                    <MdOutlineArrowRightAlt size={17} className={styles.roleListIcon} aria-hidden />
+                    {role}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
@@ -178,31 +210,43 @@ function IndustryMarketingBody({ industryData }) {
       {/* Section 4 */}
       <section className={styles.blockWhite} aria-labelledby="industry-s4-heading">
         <div className={styles.inner}>
-          <h2 id="industry-s4-heading" className={styles.h2}>
-            How teams review CAD files without heavy desktop software
-          </h2>
-          <p className={styles.body}>
-            Instead of routing every model through a CAD specialist or dedicated workstation, teams can
-            upload files to Marathon OS and preview them online. This keeps cross-functional reviews moving
-            and reduces delays caused by software installs, license access, or high-performance hardware
-            requirements.
-          </p>
+          <article className={styles.storyCard}>
+            <span className={styles.storyBadge}>Workflow</span>
+            <h2 id="industry-s4-heading" className={styles.storyTitle}>
+              How teams review CAD files without heavy desktop software
+            </h2>
+            <p className={styles.storyBody}>
+              Instead of routing every model through a CAD specialist or dedicated workstation, teams can
+              upload files to Marathon OS and preview them online. This keeps cross-functional reviews moving
+              and reduces delays caused by software installs, license access, or high-performance hardware
+              requirements.
+            </p>
+          </article>
         </div>
       </section>
 
       {/* Section 6 */}
       <section className={styles.blockAlt} aria-labelledby="industry-s6-heading">
         <div className={styles.inner}>
-          <h2 id="industry-s6-heading" className={styles.h2}>
-            Security and access control
-          </h2>
-          <div className={styles.securityRow}>
-            <MdOutlineShield className={styles.securityIcon} size={28} aria-hidden />
-            <p className={styles.body}>
+          <div className={styles.securityCard}>
+            <div className={styles.securityHeader}>
+              <span className={styles.securityIconWrap} aria-hidden>
+                <MdOutlineShield className={styles.securityIcon} size={18} />
+              </span>
+              <h2 id="industry-s6-heading" className={styles.securityTitle}>
+                Security and access control
+              </h2>
+            </div>
+            <p className={styles.securityText}>
               Many industry CAD files contain sensitive IP. Marathon OS keeps uploads private and
               automatically deletes uploaded files after 24 hours. That makes it practical for quick review
               when teams want lower friction and tighter handling of shared models.
             </p>
+            <div className={styles.securityTags} aria-label="Security highlights">
+              <span className={styles.securityTag}>Private by default</span>
+              <span className={styles.securityTag}>Auto-delete in 24hrs</span>
+              <span className={styles.securityTag}>Encrypted uploads</span>
+            </div>
           </div>
         </div>
       </section>

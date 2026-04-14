@@ -11,7 +11,7 @@
   box-sizing: border-box;
   padding: clamp(48px, 6vw, 72px) clamp(20px, 4vw, 32px);
   border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  background: #f3f4f6;
 }
 
 .blockWhite {
@@ -130,19 +130,24 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  text-align: center;
+  text-align: left;
+}
+
+.roleCardAccent {
+  background: #f4f1fb;
+  border-color: #d8c7ff;
 }
 
 .roleCardHead {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 10px;
   font-size: 14px;
   font-weight: 700;
-  color: #0f172a;
+  color: #7c3aed;
 }
 
 .roleCardIcon {
@@ -155,6 +160,29 @@
   font-size: 14px;
   line-height: 1.55;
   color: #64748b;
+}
+
+.roleList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roleListItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #0f172a;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.roleListIcon {
+  color: #7c3aed;
+  flex-shrink: 0;
 }
 
 /* Section 6 security */
@@ -173,6 +201,107 @@
   flex-shrink: 0;
   color: #7c3aed;
   margin-top: 2px;
+}
+
+.storyCard {
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: left;
+  border-left: 3px solid #b491ff;
+  padding: 4px 0 4px 14px;
+}
+
+.storyBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid #d9c9ff;
+  background: #f2ebff;
+  color: #7c3aed;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.storyTitle {
+  margin: 12px 0 10px;
+  color: #111827;
+  font-size: clamp(24px, 3vw, 36px);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.storyBody {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.securityCard {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 22px 22px 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  text-align: left;
+}
+
+.securityHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.securityIconWrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.securityTitle {
+  margin: 0;
+  color: #111827;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.securityText {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.securityTags {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.securityTag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1;
 }
 
 /* Section 7 explore links */
@@ -289,5 +418,13 @@
 @media screen and (max-width: 720px) {
   .roleGrid {
     grid-template-columns: 1fr;
+  }
+
+  .storyCard {
+    padding-left: 12px;
+  }
+
+  .securityTitle {
+    font-size: 24px;
   }
 }

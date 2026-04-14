@@ -26,6 +26,7 @@ import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopU
 import { convertedFiles, sendGAtagEvent } from "@/common.helper";
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
+import { Upload } from "lucide-react";
 
 function CadFileConversionWrapper({ children, convert, designVariant, heroFormatsLine }) {
     const fileInputRef = useRef(null);
@@ -582,13 +583,9 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                         />
                         {isConverterHero ? (
                             <div className={heroStyles.heroUploadPanelInner}>
-                                <Image
-                                    src={IMAGEURLS.uploadIcon}
-                                    alt="Upload"
-                                    width={72}
-                                    height={72}
-                                    style={{ cursor: "pointer" }}
-                                />
+                                <span className={heroStyles.heroUploadIconGlyph} aria-hidden>
+                                    <Upload size={72} strokeWidth={1.9} />
+                                </span>
                                 {children}
                             </div>
                         ) : (

@@ -8,7 +8,7 @@ import ToolsPageBanner from "@/Components/CadServicesBanners/ToolsPageBanner";
 const DEFAULT_FORMATS_COPY =
   "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj)";
 
-function CadHomeDropZone({ isStyled, allowedFormats, type, designVariant }) {
+function CadHomeDropZone({ isStyled, allowedFormats, type, designVariant, dropzoneId }) {
   const isHeroDark = designVariant === "heroDark";
 
   const formatsLine = type && Array.isArray(allowedFormats)
@@ -44,7 +44,7 @@ function CadHomeDropZone({ isStyled, allowedFormats, type, designVariant }) {
     <>
       {isHeroDark ? (
         <div className={heroStyles.uploadSection}>
-          <CadDropZoneWrapper isStyled={isStyled} type={type} designVariant={designVariant}>
+          <CadDropZoneWrapper isStyled={isStyled} type={type} designVariant={designVariant} dropzoneId={dropzoneId}>
             {dropzoneInner}
           </CadDropZoneWrapper>
           <p className={heroStyles.formatsBelow}>{formatsLine}</p>
@@ -52,7 +52,7 @@ function CadHomeDropZone({ isStyled, allowedFormats, type, designVariant }) {
         </div>
       ) : (
         <>
-          <CadDropZoneWrapper isStyled={isStyled} type={type} designVariant={designVariant}>
+          <CadDropZoneWrapper isStyled={isStyled} type={type} designVariant={designVariant} dropzoneId={dropzoneId}>
             {dropzoneInner}
           </CadDropZoneWrapper>
           <CommonSampleViewer />

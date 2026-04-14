@@ -49,6 +49,16 @@
   color: #c9a8ff;
 }
 
+/* Second line under industry name on industry landing hero (matches CAD viewer tagline). */
+.secureTagline {
+  margin: 0;
+  margin-top: -4px;
+  font-size: clamp(15px, 2vw, 18px);
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgba(244, 240, 255, 0.72);
+}
+
 .description {
   margin: 0;
   max-width: 640px;
@@ -182,6 +192,20 @@
   align-items: center;
   gap: 16px;
   width: 100%;
+}
+
+.heroUploadIcon {
+  /* Make upload glyph white on dark hero dropzones. */
+  filter: brightness(0) invert(1);
+}
+
+.heroUploadIconGlyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 1;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.5));
 }
 
 .heroUploadPanelContent {
