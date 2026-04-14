@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import {
   MdOutlineVisibility,
   MdOutlineFactCheck,
@@ -31,8 +32,10 @@ const TOOLBAR_ITEMS = [
 ];
 
 const CAD_FORMATS = ["STEP", "IGES", "STL", "PLY", "OFF", "BREP"];
+const INDUSTRY_UPLOAD_DROPZONE_ID = "industry-hero-cad-dropzone";
 
 export default function IndustryPdmGlbViewerSection({ industryData }) {
+  const router = useRouter();
   const industryLabel = industryData?.industry?.trim() || "Automotive";
   const industryWord = industryLabel.split("&")[0].trim().split(" ")[0].toLowerCase();
   const [interactionMode, setInteractionMode] = useState("rotate");
@@ -64,6 +67,17 @@ export default function IndustryPdmGlbViewerSection({ industryData }) {
     if (item.id === "reset") {
       setViewerAction({ type: "reset", at: Date.now() });
     }
+  };
+
+  const handleUploadClick = () => {
+    if (typeof document !== "undefined") {
+      const uploadTarget = document.getElementById(INDUSTRY_UPLOAD_DROPZONE_ID);
+      if (uploadTarget) {
+        uploadTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
+    router.push("/tools/3D-cad-viewer");
   };
 
   return (
@@ -105,7 +119,7 @@ export default function IndustryPdmGlbViewerSection({ industryData }) {
             </div>
           </div>
 
-          <button type="button" className={styles.cta}>
+          <button type="button" className={styles.cta} onClick={handleUploadClick}>
             Upload Your {industryLabel} CAD File
           </button>
         </div>
