@@ -31,7 +31,7 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
           <LeftRightBanner adSlot="3755241003" />
         </div>
       </div>
-      <div className={heroStyles.heroInner}>
+      <div className={`${heroStyles.heroInner} ${heroStyles.industryHeroInnerWide}`}>
         <div className={heroStyles.badge}>
           <Eye size={16} strokeWidth={2.2} aria-hidden />
           <span>Free online tool</span>
@@ -41,7 +41,7 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
         </h1>
         <p className={heroStyles.subtitle}>{industryLabel}</p>
         <p className={heroStyles.secureTagline}>Secure, Fast &amp; Cloud-Based</p>
-        <p className={heroStyles.description}>{description}</p>
+        <p className={`${heroStyles.description} ${heroStyles.industryDescriptionWide}`}>{description}</p>
         <div className={heroStyles.trustRow} role="list">
           <div className={heroStyles.trustItem} role="listitem">
             <span className={heroStyles.trustIcon} aria-hidden>

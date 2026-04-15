@@ -4,13 +4,13 @@ import React, { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
-  MdOutlineVisibility,
   MdOutlineFactCheck,
   MdOutlineSettingsSuggest,
   MdOutlineBuildCircle,
   MdOutlineInsertDriveFile,
   MdOutlinePublic,
   MdOutlineSpeed,
+  MdOutlineVisibility,
   MdOutlineLock,
 } from "react-icons/md";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Eye, Minus, Plus } from "lucide-react";
@@ -30,6 +30,12 @@ const VIEW_PRESETS = [
   ["FRONT", "BACK"],
   ["LEFT", "RIGHT"],
   ["TOP", "BOTTOM"],
+];
+const WHY_BROWSER_BASED_POINTS = [
+  { label: "No CAD install", Icon: MdOutlinePublic },
+  { label: "Faster reviews", Icon: MdOutlineSpeed },
+  { label: "Easier stakeholder access", Icon: MdOutlineVisibility },
+  { label: "Private uploads", Icon: MdOutlineLock },
 ];
 
 export default function IndustryPdmGlbViewerSection({ industryData }) {
@@ -192,10 +198,6 @@ export default function IndustryPdmGlbViewerSection({ industryData }) {
               />
             </div>
           </div>
-
-          <button type="button" className={styles.cta} onClick={handleUploadClick}>
-            Upload Your {industryLabel} CAD File
-          </button>
         </div>
 
         <aside className={styles.rightPane}>
@@ -227,25 +229,22 @@ export default function IndustryPdmGlbViewerSection({ industryData }) {
               ))}
             </ul>
           </div>
-
-          <div className={styles.card}>
-            <h3>Why browser-based?</h3>
-            <ul className={styles.list}>
-              <li>
-                <MdOutlinePublic className={styles.listIcon} size={18} /> No CAD install
-              </li>
-              <li>
-                <MdOutlineSpeed className={styles.listIcon} size={18} /> Faster reviews
-              </li>
-              <li>
-                <MdOutlineVisibility className={styles.listIcon} size={18} /> Easier stakeholder access
-              </li>
-              <li>
-                <MdOutlineLock className={styles.listIcon} size={18} /> Private uploads
-              </li>
-            </ul>
-          </div>
         </aside>
+      </div>
+
+      <div className={styles.browserBasedBlock}>
+        <h3 className={styles.browserBasedTitle}>Why browser based?</h3>
+        <div className={styles.browserBasedPoints}>
+          {WHY_BROWSER_BASED_POINTS.map(({ label, Icon }) => (
+            <span key={label} className={styles.browserBasedPoint}>
+              <Icon size={16} />
+              {label}
+            </span>
+          ))}
+        </div>
+        <button type="button" className={styles.cta} onClick={handleUploadClick}>
+          Upload Your {industryLabel} CAD File
+        </button>
       </div>
     </section>
   );

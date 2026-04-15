@@ -29,6 +29,10 @@ function HomeTopNav() {
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
 
+  const handleNavHover = (dropdownName = null) => {
+    setOpenDropdown(dropdownName);
+  };
+
   // Add this handler inside your component
   const handleDashboardClick = (e) => {
     setOpenDropdown(false);
@@ -49,7 +53,13 @@ function HomeTopNav() {
       </Link>
 
       <div className={styles["home-page-navs"]}>
-        <Link href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</Link>
+        <Link
+          href="#why-us"
+          onMouseEnter={() => handleNavHover(null)}
+          onClick={(e) => handleAnchorClick(e, "why-us")}
+        >
+          Why us?
+        </Link>
         {/* <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
         <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
         <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link> */}
@@ -58,22 +68,35 @@ function HomeTopNav() {
         {/* Dropdown for Tools */}
       
 
-        <Link href="/dashboard" rel="nofollow" onClick={handleDashboardClick}>
+        <Link
+          href="/dashboard"
+          rel="nofollow"
+          onMouseEnter={() => handleNavHover(null)}
+          onClick={handleDashboardClick}
+        >
           Dashboard
         </Link>
-        <Link href="/library" >Library</Link>
+        <Link href="/library" onMouseEnter={() => handleNavHover(null)}>Library</Link>
         <Link
           href="/cad-services"
           className={styles.topCta}
           aria-label="Hire Designers"
+          onMouseEnter={() => handleNavHover(null)}
         >
           <span className={styles.topCtaDot} />
           Hire Designers <ArrowRight size={16} strokeWidth={2.5} />
         </Link>
-        <div style={{ position: "relative" }}>
-          <span style={{ cursor: "pointer" }} onClick={(e) => toggleDropdown(e,"tools")}>
-            Tools ▼
-          </span>
+        <div
+          style={{ position: "relative" }}
+          onMouseEnter={() => handleNavHover("tools")}
+        >
+          <Link
+            href="/tools"
+            className={styles["nav-dropdown-trigger"]}
+            onClick={() => setOpenDropdown(null)}
+          >
+            Tools <span aria-hidden>▼</span>
+          </Link>
           {openDropdown === "tools" && (
             <div className={styles["dropdown-menu"]}>
               <Link href="/tools" onClick={()=>setOpenDropdown(false)}>All tools</Link>
@@ -86,9 +109,20 @@ function HomeTopNav() {
         </div>
 
         {/* Dropdown for Blogs */}
-        <div style={{ position: "relative" }}>
-          <span style={{ cursor: "pointer" }} onClick={(e) => toggleDropdown(e,"blogs")}>
-            Blogs ▼
+        <div
+          style={{ position: "relative" }}
+          onMouseEnter={() => handleNavHover("blogs")}
+        >
+          <span
+            className={styles["nav-dropdown-trigger"]}
+            role="button"
+            tabIndex={0}
+            onClick={(e) => toggleDropdown(e,"blogs")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") toggleDropdown(e, "blogs");
+            }}
+          >
+            Blogs <span aria-hidden>▼</span>
           </span>
           {openDropdown === "blogs" && (
             <div className={styles["dropdown-menu"]} style={{ width: '200px' }}>

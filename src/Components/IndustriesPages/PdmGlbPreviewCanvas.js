@@ -281,7 +281,7 @@ export default function PdmGlbPreviewCanvas({ glbUrl, action }) {
         </div>
       )}
       <Canvas
-        camera={{ position: [1.8, 1.2, 2.6], fov: 40 }}
+        camera={{ position: [1.08, 0.81, 1.65], fov: 35 }}
         dpr={[1, 2]}
         gl={{
           antialias: true,

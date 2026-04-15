@@ -70,7 +70,7 @@
 
 .viewerCanvasWrap {
   position: relative;
-  height: 390px;
+  height: 420px;
 }
 
 .dpadDock {
@@ -81,6 +81,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transform: scale(0.94);
+  transform-origin: top left;
 }
 
 .dpad {
@@ -151,11 +153,13 @@
 }
 
 .viewsCard {
-  width: 114px;
+  width: 132px;
   border-radius: 12px;
   background: #111321;
   border: 1px solid #7b3aed;
   padding: 8px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .viewsHeading {
@@ -174,17 +178,26 @@
 .viewsGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(30px, auto);
   gap: 7px;
 }
 
 .viewBtn {
-  min-height: 32px;
+  min-height: 30px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 6px;
   border-radius: 6px;
   border: 1px solid #3b3f4b;
   background: #2b2f3a;
   color: #f1f5f9;
   font-size: 11px;
   font-weight: 700;
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   cursor: pointer;
 }
 
@@ -206,7 +219,7 @@
 }
 
 .cta {
-  margin-top: 2px;
+  margin-top: 12px;
   width: fit-content;
   border: none;
   border-radius: 10px;
@@ -215,6 +228,46 @@
   color: #fff;
   font-family: inherit;
   font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.browserBasedBlock {
+  margin-top: 16px;
+  border: 1px solid #ececf1;
+  border-radius: 12px;
+  background: #fafafd;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.browserBasedTitle {
+  margin: 0;
+  color: #0f172a;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.browserBasedPoints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.browserBasedPoint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd6fe;
+  background: #ffffff;
+  color: #4338ca;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -274,11 +327,23 @@
   }
 
   .viewerCanvasWrap {
-    height: 320px;
+    height: 360px;
   }
 
   .dpadDock {
-    transform: scale(0.92);
+    transform: scale(0.84);
     transform-origin: top left;
+  }
+
+  .browserBasedTitle {
+    font-size: 18px;
+  }
+
+  .browserBasedPoint {
+    height: auto;
+    min-height: 34px;
+    font-size: 13px;
+    line-height: 1.3;
+    padding: 8px 10px;
   }
 }

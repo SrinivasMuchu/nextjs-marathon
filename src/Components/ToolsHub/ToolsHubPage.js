@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Box, RefreshCw, Network, Eye, Layers } from 'lucide-react';
+import { Box, RefreshCw, Network, Eye, Layers, ArrowRight } from 'lucide-react';
 import Footer from '@/Components/HomePages/Footer/Footer';
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs';
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner';
@@ -12,6 +12,25 @@ const HERO_FEATURES = [
   { Icon: Eye, label: 'Browser-based' },
   { Icon: Layers, label: '50+ formats' },
   { Icon: RefreshCw, label: 'Instant conversion' },
+];
+
+const QUICK_TOOLS_CARDS = [
+  {
+    href: '/tools/3D-cad-viewer',
+    title: 'CAD Viewer',
+    description:
+      'Open and inspect any CAD file instantly in your browser. View STEP, IGES, STL, OBJ, PLY, and more without installing software.',
+    tags: ['50+ Formats', 'Browser-based', 'Zero Install'],
+    Icon: Eye,
+  },
+  {
+    href: '/tools/3d-cad-file-converter',
+    title: 'CAD Converter',
+    description:
+      'Convert between CAD formats in seconds. Transform STEP to STL, OBJ to STL, IGES to STEP, and more with preserved geometry.',
+    tags: ['Instant Convert', 'Batch Process', 'Cloud-based'],
+    Icon: RefreshCw,
+  },
 ];
 
 /** Per-format viewer cards (routes must match `app/tools/[tool]/page.js` allowlist). */
@@ -177,34 +196,25 @@ export default function ToolsHubPage() {
         </header>
       </div>
 
-      <section className={styles.viewersSection} aria-labelledby="cad-viewers-heading">
-        <div className={styles.viewersInner}>
-          <div className={styles.viewersHeader}>
-            <div className={styles.viewersHeaderIcon} aria-hidden>
-              <Eye size={22} strokeWidth={2.2} />
-            </div>
-            <div className={styles.viewersHeaderText}>
-              <h2 id="cad-viewers-heading" className={styles.viewersTitle}>
-                CAD Viewers
-              </h2>
-              <p className={styles.viewersSubtitle}>
-                Open and inspect 3D models, meshes, and point clouds — right in your browser with zero
-                downloads.
-              </p>
-            </div>
-          </div>
-          <div className={styles.viewersGrid}>
-            {CAD_VIEWER_CARDS.map(({ href, title, description, tags }) => (
-              <Link key={href + title} href={href} className={styles.viewerCard}>
-                <div className={styles.viewerCardIcon} aria-hidden>
-                  <Box size={22} strokeWidth={2.2} />
+      <section className={styles.quickToolsSection} aria-label="Core CAD tools">
+        <div className={styles.quickToolsInner}>
+          <div className={styles.quickToolsGrid}>
+            {QUICK_TOOLS_CARDS.map(({ href, title, description, tags, Icon }) => (
+              <Link key={title} href={href} className={styles.quickToolCard}>
+                <div className={styles.quickToolCardTop}>
+                  <span className={styles.quickToolIcon} aria-hidden>
+                    <Icon size={22} strokeWidth={2.2} />
+                  </span>
+                  <span className={styles.quickToolLaunch}>
+                    Launch <ArrowRight size={16} strokeWidth={2.4} />
+                  </span>
                 </div>
-                <h3 className={styles.viewerCardTitle}>{title}</h3>
-                <p className={styles.viewerCardDesc}>{description}</p>
-                <div className={styles.viewerTags}>
-                  {tags.map((t) => (
-                    <span key={t} className={styles.viewerTag}>
-                      {t}
+                <h2 className={styles.quickToolTitle}>{title}</h2>
+                <p className={styles.quickToolDesc}>{description}</p>
+                <div className={styles.quickToolTags}>
+                  {tags.map((tag) => (
+                    <span key={tag} className={styles.quickToolTag}>
+                      {tag}
                     </span>
                   ))}
                 </div>
@@ -234,6 +244,43 @@ export default function ToolsHubPage() {
               <Link key={href + title} href={href} className={styles.viewerCard}>
                 <div className={styles.viewerCardIcon} aria-hidden>
                   <RefreshCw size={22} strokeWidth={2.2} />
+                </div>
+                <h3 className={styles.viewerCardTitle}>{title}</h3>
+                <p className={styles.viewerCardDesc}>{description}</p>
+                <div className={styles.viewerTags}>
+                  {tags.map((t) => (
+                    <span key={t} className={styles.viewerTag}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.viewersSection} aria-labelledby="cad-viewers-heading">
+        <div className={styles.viewersInner}>
+          <div className={styles.viewersHeader}>
+            <div className={styles.viewersHeaderIcon} aria-hidden>
+              <Eye size={22} strokeWidth={2.2} />
+            </div>
+            <div className={styles.viewersHeaderText}>
+              <h2 id="cad-viewers-heading" className={styles.viewersTitle}>
+                CAD Viewers
+              </h2>
+              <p className={styles.viewersSubtitle}>
+                Open and inspect 3D models, meshes, and point clouds — right in your browser with zero
+                downloads.
+              </p>
+            </div>
+          </div>
+          <div className={styles.viewersGrid}>
+            {CAD_VIEWER_CARDS.map(({ href, title, description, tags }) => (
+              <Link key={href + title} href={href} className={styles.viewerCard}>
+                <div className={styles.viewerCardIcon} aria-hidden>
+                  <Box size={22} strokeWidth={2.2} />
                 </div>
                 <h3 className={styles.viewerCardTitle}>{title}</h3>
                 <p className={styles.viewerCardDesc}>{description}</p>
