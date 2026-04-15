@@ -144,11 +144,13 @@ const steps = [
     { title: 'Students opening CAD files without expensive software', description: 'opening CAD files without expensive software' },
     { title: '3D printing workflows inspecting STL/OBJ meshes', description: 'inspecting STL/OBJ meshes' },
   ];
-function CadHomeDesign({type}) {
+function CadHomeDesign({ type, cadType }) {
+    const cadTypeLabel = cadType ? `${String(cadType).toUpperCase()} CAD Viewer` : 'CAD Viewer Type';
     const breadcrumbLinks = type
       ? [
           { label: 'tools', href: '/tools' },
-          { label: 'CAD Viewer Type', href: '/tools/3D-cad-viewer' },
+          { label: 'CAD Viewer', href: '/tools/3D-cad-viewer' },
+          { label: cadTypeLabel },
         ]
       : [
           { label: 'tools', href: '/tools' },

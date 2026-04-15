@@ -185,7 +185,6 @@ export default function IndustryPdmGlbViewerSection({ industryData }) {
                 </div>
               </div>
 
-              <span className={styles.viewerTag}>PDM Viewer / GLB Viewer</span>
               <PdmGlbPreviewCanvas
                 key={viewerDesignId}
                 glbUrl={glbUrl}
