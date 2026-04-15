@@ -1,10 +1,12 @@
 "use client";
 
-import React, { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import Lottie from "lottie-react";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import cubeAnimation from "../CommonJsx/Loaders/Cube.json";
 
 const CAD_BASE_COLOR = "#9a9a9e";
 const CAD_METALNESS = 0.88;
@@ -29,7 +31,7 @@ function CadRoomEnvironment() {
   return null;
 }
 
-function Model({ glbUrl, modelRef }) {
+function Model({ glbUrl, modelRef, onReady }) {
   const { scene } = useGLTF(glbUrl);
   const model = useMemo(() => {
     const cloned = scene.clone(true);
@@ -78,10 +80,11 @@ function Model({ glbUrl, modelRef }) {
 
   useEffect(() => {
     modelRef.current = model;
+    if (onReady) onReady();
     return () => {
       modelRef.current = null;
     };
-  }, [model, modelRef]);
+  }, [model, modelRef, onReady]);
 
   return <primitive object={model} />;
 }
@@ -230,32 +233,79 @@ function ViewerController({ action, modelRef }) {
 
 export default function PdmGlbPreviewCanvas({ glbUrl, action }) {
   const modelRef = useRef(null);
+  const [isModelReady, setIsModelReady] = useState(false);
+
+  useEffect(() => {
+    setIsModelReady(false);
+  }, [glbUrl]);
+
+  const showLoadingOverlay = !isModelReady;
+
   return (
-    <Canvas
-      camera={{ position: [1.8, 1.2, 2.6], fov: 40 }}
-      dpr={[1, 2]}
-      gl={{
-        antialias: true,
-        powerPreference: "high-performance",
-        toneMapping: THREE.ACESFilmicToneMapping,
-        outputColorSpace: THREE.SRGBColorSpace,
-      }}
-    >
-      <color attach="background" args={["#f7f7f8"]} />
-      <ambientLight intensity={0.32} />
-      <directionalLight position={[10, 14, 8]} intensity={1.15} />
-      <directionalLight position={[-6, 5, -5]} intensity={0.28} />
-      <CadRoomEnvironment />
-      <Suspense fallback={null}>
-        <Model glbUrl={glbUrl} modelRef={modelRef} />
-      </Suspense>
-      <OrbitControls
-        makeDefault
-        enablePan={false}
-        enableZoom={false}
-        enableRotate
-      />
-      <ViewerController action={action} modelRef={modelRef} />
-    </Canvas>
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      {showLoadingOverlay && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 4,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background:
+              "radial-gradient(circle at center, rgba(255,255,255,0.72) 0%, rgba(247,247,248,0.9) 78%)",
+            pointerEvents: "none",
+            transition: "opacity 220ms ease",
+          }}
+          aria-live="polite"
+        >
+          <div
+            style={{
+              minWidth: 190,
+              textAlign: "center",
+              padding: "14px 16px",
+              borderRadius: 12,
+              background: "rgba(255, 255, 255, 0.92)",
+              border: "1px solid #e5e7eb",
+              boxShadow: "0 12px 26px rgba(15,23,42,0.1)",
+            }}
+          >
+            <Lottie animationData={cubeAnimation} loop style={{ width: 92, height: 92, margin: "0 auto" }} />
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#1f2937" }}>
+              Loading 3D design...
+            </p>
+            <p style={{ margin: "6px 0 0", fontSize: 12, color: "#64748b" }}>
+              Preparing interactive preview
+            </p>
+          </div>
+        </div>
+      )}
+      <Canvas
+        camera={{ position: [1.8, 1.2, 2.6], fov: 40 }}
+        dpr={[1, 2]}
+        gl={{
+          antialias: true,
+          powerPreference: "high-performance",
+          toneMapping: THREE.ACESFilmicToneMapping,
+          outputColorSpace: THREE.SRGBColorSpace,
+        }}
+      >
+        <color attach="background" args={["#f7f7f8"]} />
+        <ambientLight intensity={0.32} />
+        <directionalLight position={[10, 14, 8]} intensity={1.15} />
+        <directionalLight position={[-6, 5, -5]} intensity={0.28} />
+        <CadRoomEnvironment />
+        <Suspense fallback={null}>
+          <Model glbUrl={glbUrl} modelRef={modelRef} onReady={() => setIsModelReady(true)} />
+        </Suspense>
+        <OrbitControls
+          makeDefault
+          enablePan={false}
+          enableZoom={false}
+          enableRotate
+        />
+        <ViewerController action={action} modelRef={modelRef} />
+      </Canvas>
+    </div>
   );
 }
