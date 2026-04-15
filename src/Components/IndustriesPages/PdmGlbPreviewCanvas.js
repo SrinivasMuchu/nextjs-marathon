@@ -86,7 +86,7 @@ function Model({ glbUrl, modelRef }) {
   return <primitive object={model} />;
 }
 
-function ViewerController({ interactionMode, action, modelRef }) {
+function ViewerController({ action, modelRef }) {
   const { camera, controls } = useThree();
   const initialViewRef = useRef(null);
 
@@ -98,13 +98,14 @@ function ViewerController({ interactionMode, action, modelRef }) {
     };
   }, [camera, controls]);
 
+  /** D-pad only: no mouse / wheel / touch camera control. */
   useEffect(() => {
     if (!controls) return;
-    controls.enablePan = true;
-    controls.enableZoom = true;
-    controls.enableRotate = true;
+    controls.enablePan = false;
+    controls.enableZoom = false;
+    controls.enableRotate = false;
     controls.update();
-  }, [interactionMode, controls]);
+  }, [controls]);
 
   const fitView = useCallback(() => {
     if (!controls || !modelRef.current) return;
@@ -227,7 +228,7 @@ function ViewerController({ interactionMode, action, modelRef }) {
   return null;
 }
 
-export default function PdmGlbPreviewCanvas({ glbUrl, interactionMode = "rotate", action }) {
+export default function PdmGlbPreviewCanvas({ glbUrl, action }) {
   const modelRef = useRef(null);
   return (
     <Canvas
@@ -248,8 +249,13 @@ export default function PdmGlbPreviewCanvas({ glbUrl, interactionMode = "rotate"
       <Suspense fallback={null}>
         <Model glbUrl={glbUrl} modelRef={modelRef} />
       </Suspense>
-      <OrbitControls enablePan enableZoom enableRotate makeDefault />
-      <ViewerController interactionMode={interactionMode} action={action} modelRef={modelRef} />
+      <OrbitControls
+        makeDefault
+        enablePan={false}
+        enableZoom={false}
+        enableRotate={false}
+      />
+      <ViewerController action={action} modelRef={modelRef} />
     </Canvas>
   );
 }
