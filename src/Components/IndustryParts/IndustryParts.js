@@ -17,6 +17,7 @@ import OrgFeatures from '../OrganizationHome/OrgFeatures/OrgFeatures';
 import { getIndustryCadViewerFaq } from '@/data/industryPageFaq';
 import ToolsPageBanner from '../CadServicesBanners/ToolsPageBanner';
 import IndustryPageBanner from '../CadServicesBanners/IndustryPageBanner';
+import DesignHub from '../HomePages/DesignHub/DesignHub';
 
 function IndustryParts({ industry, part_name, industryData }) {
     const faqQuestions = industryData ? getIndustryCadViewerFaq(industryData) : []
@@ -91,11 +92,12 @@ function IndustryParts({ industry, part_name, industryData }) {
                 {industryData && (
                     <IndustryDesigns industryData={industryData} part_name={part_name} industry={industry} />
                 )}
-                <UseOfCAD industryData={industryData} />
+                {/* <UseOfCAD industryData={industryData} /> */}
                 <SolutionCad industryData={industryData} />
                 <SampleParts industry={industry} part_name={part_name} industryLabel={industryData.industry} />
-                <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} />
-                <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} />
+                {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} />
+                <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} /> */}
+                <DesignHub/>
                 <OrgFaq
                     title="FAQ"
                     faqQuestions={faqQuestions}

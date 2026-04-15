@@ -17,6 +17,7 @@ import IndustryDesignsCrousel from './IndustryDesignsCrousel'
 import ToolsPageBanner from '../CadServicesBanners/ToolsPageBanner'
 import IndustryPageBanner from '../CadServicesBanners/IndustryPageBanner'
 import { getIndustryCadViewerFaq } from '@/data/industryPageFaq'
+import DesignHub from '../HomePages/DesignHub/DesignHub'
 
 // Page heading structure: h1 hero, h2 How it works + marketing + RoleOfCAD, etc.
 function Industry({ industry, industryData }) {
@@ -86,17 +87,18 @@ function Industry({ industry, industryData }) {
                 {/* <OrgFeatures type='cad' /> */}
                 <IndustryMarketingBody industryData={industryData} />
                 <RoleOfCAD industryData={industryData} industry={industry} />
-                <UseOfCAD industryData={industryData} />
-                <SolutionCad industryData={industryData} />
+              {/*  <UseOfCAD industryData={industryData} /> */}
+               {/* <SolutionCad industryData={industryData} /> */}
                 <IndustryDesignsCrousel industry={industry} />
                 <SampleParts industry={industry} industryLabel={industryData.industry} />
-                <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} />
-                <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} />
+                {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} /> */}
+                {/* <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} /> */}
                 <OrgFaq
                     title="FAQ"
                     faqQuestions={faqQuestions}
                     description="Answers for teams evaluating browser-based CAD review with Marathon OS."
                 />
+                <DesignHub/>
                 <IndustryFinalCtaBand industryName={industryData.industry} />
                 <IndustryPageBanner />
                 <Footer />
