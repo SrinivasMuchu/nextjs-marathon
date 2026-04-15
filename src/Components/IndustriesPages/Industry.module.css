@@ -175,6 +175,34 @@
     /* opacity: 0.5; */
     text-align: center;
 }
+/* Design-library strip: same card sizing as Design Hub, one horizontal row */
+.industryDesignLibraryGrid {
+    display: grid;
+    grid-template-rows: auto;
+    grid-auto-flow: column;
+    grid-auto-columns: 298px;
+    gap: 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px clamp(16px, 3vw, 40px);
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .industryDesignLibraryGrid {
+        grid-auto-columns: 240px;
+        column-gap: 16px;
+    }
+}
+
+.industryDesignLibraryGrid::-webkit-scrollbar {
+    display: none;
+}
+
 .industry-designs-crousel{
     width: 100%;
     display: flex;

@@ -98,12 +98,12 @@ function ViewerController({ action, modelRef }) {
     };
   }, [camera, controls]);
 
-  /** D-pad only: no mouse / wheel / touch camera control. */
+  /** Keep pan disabled, allow drag/touch rotate, keep zoom through actions. */
   useEffect(() => {
     if (!controls) return;
     controls.enablePan = false;
     controls.enableZoom = false;
-    controls.enableRotate = false;
+    controls.enableRotate = true;
     controls.update();
   }, [controls]);
 
@@ -253,7 +253,7 @@ export default function PdmGlbPreviewCanvas({ glbUrl, action }) {
         makeDefault
         enablePan={false}
         enableZoom={false}
-        enableRotate={false}
+        enableRotate
       />
       <ViewerController action={action} modelRef={modelRef} />
     </Canvas>

@@ -1,12 +1,10 @@
-
-
 import React from 'react';
-import styles from './Industry.module.css';
 import { BASE_URL } from '@/config';
-import Image from 'next/image';
-import { textLettersLimit, getLibraryPath } from '@/common.helper';
+import { getLibraryPath } from '@/common.helper';
 import IndustryCarouselClient from './IndustryDesignsCrouselButtons';
 import Link from 'next/link';
+import designHubStyles from '../HomePages/DesignHub/DesignHub.module.css';
+import { FaArrowRight } from 'react-icons/fa6';
 export default async function IndustryDesignsCrousel({ industry }) {
   let designs = [];
   let category = [];
@@ -34,26 +32,21 @@ export default async function IndustryDesignsCrousel({ industry }) {
   // Reference to the scrollable container
 
 
+  const viewAllHref = category[0]?.industry_category_name
+    ? getLibraryPath({ categoryName: category[0].industry_category_name })
+    : '/library';
+
   return (
-    <div className={styles["industry-designs"]} style={{ position: 'relative' }}>
-      <div className={styles["industry-designs-header"]}>
-        <h3>{industryName} Design Library</h3>
-        <p style={{ color: 'rgba(135, 134, 134, 0.7)' }}>
-          Explore high-quality design inspirations curated for the {industryName}.
-          <Link style={{
-            color: 'white', opacity: '1', padding: '5px 10px',
-            background: '#610bee', borderRadius: '8px', marginLeft: '10px'
-          }}
-            href={category[0]?.industry_category_name ? getLibraryPath({ categoryName: category[0].industry_category_name }) : '/library'}>
-            View all →
-          </Link>
-        </p>
-      </div>
-      <IndustryCarouselClient
-        designs={designs}
-        category={category}
-        industryName={industryName}
-      />
+    <div className={designHubStyles.designHubContainer}>
+      <h3 className={designHubStyles.designHubHead}>{industryName} Design Library</h3>
+      <p className={designHubStyles.designHubDesc}>
+        Explore high-quality design inspirations curated for the {industryName}.
+      </p>
+      <IndustryCarouselClient designs={designs} />
+      <Link href={viewAllHref} className={designHubStyles.viewAllDesignsButton}>
+        View all designs
+        <FaArrowRight className={designHubStyles.viewAllDesignsArrow} />
+      </Link>
     </div>
   );
 }
