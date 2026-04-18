@@ -16,10 +16,25 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
   const industryLabel = industryData?.industry?.trim() || 'your industry';
   const industryLower = industryLabel.toLowerCase();
 
+  const partSlug = partName?.trim() || '';
+  const partDisplayName =
+    (industryData?.part_name && String(industryData.part_name).trim()) ||
+    (partSlug
+      ? partSlug
+          .split(/[-_]+/)
+          .filter(Boolean)
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ')
+      : '');
+
+  const heroAccentLine = partSlug && partDisplayName
+    ? `${partDisplayName} (${industryLabel})`
+    : industryLabel;
+
   const description = partName
     ? (industryData?.description?.trim()
         ? industryData.description.trim()
-        : `A lightweight online tool to view, inspect, and share 3D CAD files — ideal for reviewing models like the ${partName} without installing software.`)
+        : `A lightweight online tool to view, inspect, and share 3D CAD files — ideal for reviewing models like the ${partDisplayName || partName} without installing software.`)
     : (industryData?.usage?.trim()
         ? industryData.usage.trim()
         : `A lightweight online tool to view, inspect, and share 3D CAD files for ${industryLower} teams — no software installation required.`);
@@ -39,7 +54,7 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
         <h1 id="industry-cad-hero-heading" className={heroStyles.title}>
           Free Online CAD Viewer for
         </h1>
-        <p className={heroStyles.subtitle}>{industryLabel}</p>
+        <p className={heroStyles.subtitle}>{heroAccentLine}</p>
         <p className={heroStyles.secureTagline}>Secure, Fast &amp; Cloud-Based</p>
         <p className={`${heroStyles.description} ${heroStyles.industryDescriptionWide}`}>{description}</p>
         <div className={heroStyles.trustRow} role="list">
