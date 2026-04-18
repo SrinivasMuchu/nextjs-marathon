@@ -53,6 +53,16 @@
   color: #c9a8ff;
 }
 
+/* Parts hero: industry in parentheses on its own line under the part name. */
+.heroIndustryBracket {
+  margin: 0;
+  margin-top: -6px;
+  font-size: clamp(18px, 3.2vw, 28px);
+  font-weight: 600;
+  line-height: 1.25;
+  color: #c9a8ff;
+}
+
 /* Second line under industry name on industry landing hero (matches CAD viewer tagline). */
 .secureTagline {
   margin: 0;

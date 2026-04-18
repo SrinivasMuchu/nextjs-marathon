@@ -27,10 +27,6 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
           .join(' ')
       : '');
 
-  const heroAccentLine = partSlug && partDisplayName
-    ? `${partDisplayName} (${industryLabel})`
-    : industryLabel;
-
   const description = partName
     ? (industryData?.description?.trim()
         ? industryData.description.trim()
@@ -54,7 +50,14 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
         <h1 id="industry-cad-hero-heading" className={heroStyles.title}>
           Free Online CAD Viewer for
         </h1>
-        <p className={heroStyles.subtitle}>{heroAccentLine}</p>
+        {partSlug && partDisplayName ? (
+          <>
+            <p className={heroStyles.subtitle}>{partDisplayName}</p>
+            <p className={heroStyles.heroIndustryBracket}>({industryLabel})</p>
+          </>
+        ) : (
+          <p className={heroStyles.subtitle}>{industryLabel}</p>
+        )}
         <p className={heroStyles.secureTagline}>Secure, Fast &amp; Cloud-Based</p>
         <p className={`${heroStyles.description} ${heroStyles.industryDescriptionWide}`}>{description}</p>
         <div className={heroStyles.trustRow} role="list">
