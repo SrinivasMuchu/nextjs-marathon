@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import CheckHistory from "@/Components/CommonJsx/CheckHistory";
-import { RESOURCE_HUB_LINKS } from "@/Components/ResourcesHub/resourceHubLinks";
 import { ArrowRight } from "lucide-react";
 
 function MobileMenu({ onClose, styles }) {
@@ -73,23 +72,9 @@ function MobileMenu({ onClose, styles }) {
           )}
         </div>
 
-        <div className={styles["menu-dropdown"]}>
-          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("resources")}>
-            Resources ▼
-          </span>
-          {openDropdown === "resources" && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <Link href="/resources" onClick={handleCloseMenu}>
-                All resources
-              </Link>
-              {RESOURCE_HUB_LINKS.map((item) => (
-                <Link key={item.href} href={item.href} onClick={handleCloseMenu}>
-                  {item.navLabel ?? item.title}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+        <Link href="/resources" onClick={handleCloseMenu}>
+          Resources
+        </Link>
 
         {/* Dropdown for Blogs */}
         <div className={styles["menu-dropdown"]}>

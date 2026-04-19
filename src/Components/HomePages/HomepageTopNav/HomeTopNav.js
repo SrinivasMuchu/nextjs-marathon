@@ -9,7 +9,6 @@ import styles from "./HomeTopNav.module.css";
 import TopNavProfileButton from "../../CommonJsx/TopNavProfileButton";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
 import CheckHistory from "@/Components/CommonJsx/CheckHistory";
-import { RESOURCE_HUB_LINKS } from "@/Components/ResourcesHub/resourceHubLinks";
 
 function HomeTopNav() {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
@@ -110,34 +109,9 @@ function HomeTopNav() {
           )}
         </div>
 
-        <div
-          style={{ position: "relative" }}
-          onMouseEnter={() => handleNavHover("resources")}
-        >
-          <Link
-            href="/resources"
-            className={styles["nav-dropdown-trigger"]}
-            onClick={() => setOpenDropdown(null)}
-          >
-            Resources <span aria-hidden>▼</span>
-          </Link>
-          {openDropdown === "resources" && (
-            <div className={styles["dropdown-menu"]}>
-              <Link href="/resources" onClick={() => setOpenDropdown(false)}>
-                All resources
-              </Link>
-              {RESOURCE_HUB_LINKS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpenDropdown(false)}
-                >
-                  {item.navLabel ?? item.title}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+        <Link href="/resources" onMouseEnter={() => handleNavHover(null)}>
+          Resources
+        </Link>
 
         {/* Dropdown for Blogs */}
         <div
