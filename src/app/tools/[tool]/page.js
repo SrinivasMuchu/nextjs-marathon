@@ -54,7 +54,7 @@ export default function ToolPage({ params }) {
   if (isViewer) {
     const cadFile = parseCadFileFromSegment(segment);
     if (!cadFile || !ALLOWED_CAD_FILES.includes(cadFile)) return notFound();
-    return <CadHomeDesign type={true} />;
+    return <CadHomeDesign type={true} cadType={cadFile} />;
   }
 
   if (isConvert) {

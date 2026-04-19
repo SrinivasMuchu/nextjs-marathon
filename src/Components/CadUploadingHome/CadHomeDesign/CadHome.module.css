@@ -1,3 +1,21 @@
+/* Full-width white strip for AdSense (stays white on dark hero pages) */
+.cad-ad-bar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    position: relative;
+    min-height: 100px;
+    padding: 8px 0 12px;
+    background: #ffffff;
+}
+
+.cad-ad-bar-inner {
+    width: 100%;
+    max-width: 970px;
+    margin: 0 auto;
+}
+
 .cad-landing-page {
     display: flex;
     /* flex-wrap: wrap; */
@@ -339,7 +357,7 @@
 
 
 .cad-conversion-table th {
-    border-radius: 8px;
+    border-radius: 0;
     border-bottom: 1px solid #610BEE;
     background: linear-gradient(0deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.96) 100%), #610BEE;
     height: 48px;
@@ -369,6 +387,103 @@
     letter-spacing: -0.192px;
 }
 
+/* Conversion file row on dark hero (readable text + header strip) */
+.cad-conversion-table--dark {
+    border: 1px solid rgba(201, 168, 255, 0.35);
+    background: rgba(12, 6, 22, 0.55);
+    /* Square corners — no rounding on header row / outer box */
+    border-radius: 0;
+    overflow: visible;
+}
+
+.cad-conversion-table--dark table {
+    border-collapse: collapse;
+}
+
+.cad-conversion-table--dark th {
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.1);
+    color: #f4f0ff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.cad-conversion-table--dark td {
+    color: #f4f0ff;
+    background: transparent;
+}
+
+.cad-conversion-table--dark tbody tr {
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/*
+ * Format picker: native <select> for behavior + absolute label overlay so the
+ * chosen format is always visible (Windows / dark table inheritance hides native text).
+ */
+.cad-conversion-format-slot {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    min-width: 0;
+    color-scheme: light;
+    isolation: isolate;
+}
+
+.cad-conversion-format-select {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 36px 10px 12px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid #a78bfa;
+    background-color: #ffffff !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent;
+    forced-color-adjust: none;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    appearance: auto;
+}
+
+.cad-conversion-format-select option {
+    color: #0a0514 !important;
+    background-color: #ffffff !important;
+}
+
+.cad-conversion-format-select:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.cad-conversion-format-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    padding: 10px 40px 10px 12px;
+    box-sizing: border-box;
+    pointer-events: none;
+    color: #0a0514;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    background: transparent;
+}
+
+.cad-conversion-format-slotDisabled .cad-conversion-format-label {
+    opacity: 0.65;
+}
+
+.cad-conversion-format-slot:focus-within .cad-conversion-format-select {
+    outline: none;
+    border-color: #610bee;
+    box-shadow: 0 0 0 2px rgba(97, 11, 238, 0.25);
+}
 
 .cad-conversion-button {
     background: #610BEE;
@@ -443,6 +558,20 @@
       width: 45%;
       display: inline-block;
       color: #333;
+    }
+
+    .cad-conversion-table--dark tr {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(8, 4, 16, 0.45);
+    }
+
+    .cad-conversion-table--dark td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f4f0ff;
+    }
+
+    .cad-conversion-table--dark td::before {
+      color: rgba(244, 240, 255, 0.82);
     }
   }
 @media screen and (max-width:1250px) {

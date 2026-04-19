@@ -1,29 +1,33 @@
 import React from 'react';
 import Link from 'next/link';
-import { converterTypes } from '@/common.helper';
+import { ArrowRight } from 'lucide-react';
+import { popularCadConverterTypes } from '@/common.helper';
 import styles from './CadConverterTypes.module.css';
 
 function CadConverterTypes() {
   return (
-    <section className={styles.section}>
-      <div className={styles.wrapper}>
-        <p className={styles.label}>POPULAR CONVERSIONS</p>
-        <h3 className={styles.mainHeading}>CAD Converter Types</h3>
+    <section className={styles.section} aria-labelledby="cad-converter-types-heading">
+      <div className={styles.inner}>
+        <p className={styles.label}>Popular conversions.</p>
+        <h2 id="cad-converter-types-heading" className={styles.mainHeading}>
+          CAD Converter Types
+        </h2>
 
         <div className={styles.grid}>
-          {converterTypes.map((type, index) => (
+          {popularCadConverterTypes.map((item) => (
             <Link
-              key={index}
-              href={`/tools/convert-${type.path.slice(1)}`}
+              key={item.path}
+              href={`/tools/convert-${item.path.slice(1)}`}
               className={styles.card}
             >
-              <div className={styles.cardContent}>
-                <h3 className={styles.cardTitle}>{type.label}</h3>
-                <p className={styles.cardDescription}>
-                  {type.oneLiner}
-                </p>
+              <div className={styles.badgeRow}>
+                <span className={styles.pillFrom}>{item.from}</span>
+                <span className={styles.arrowWrap} aria-hidden>
+                  <ArrowRight size={16} strokeWidth={2.5} className={styles.arrowIcon} />
+                </span>
+                <span className={styles.pillTo}>{item.to}</span>
               </div>
-              {/* <span className={styles.arrow} aria-hidden>&gt;</span> */}
+              <p className={styles.cardDescription}>{item.description}</p>
             </Link>
           ))}
         </div>

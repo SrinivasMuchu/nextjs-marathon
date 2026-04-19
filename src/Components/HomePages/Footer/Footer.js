@@ -48,6 +48,7 @@ function Footer() {
               >
                 Why us?
               </Link>
+              <Link href="/tools">Tools</Link>
               <Link href="/contact-us">Contact us</Link>
               {/* <Link
                 href="#product"

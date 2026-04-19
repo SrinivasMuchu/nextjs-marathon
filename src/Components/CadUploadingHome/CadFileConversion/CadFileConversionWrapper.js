@@ -10,6 +10,7 @@ import { allowedFilesList, CAD_CONVERTER_EVENT, IMAGEURLS } from "@/config";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import styles from '../CadHomeDesign/CadHome.module.css'
+import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import { toast } from "react-toastify";
 import axios from 'axios'
 import { BASE_URL, BUCKET } from '@/config';
@@ -25,8 +26,9 @@ import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopU
 import { convertedFiles, sendGAtagEvent } from "@/common.helper";
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
+import { Upload } from "lucide-react";
 
-function CadFileConversionWrapper({ children, convert }) {
+function CadFileConversionWrapper({ children, convert, designVariant, heroFormatsLine }) {
     const fileInputRef = useRef(null);
     const [s3Url, setS3Url] = useState('');
     const [baseName, setBaseName] = useState('');
@@ -562,13 +564,15 @@ function CadFileConversionWrapper({ children, convert }) {
                         setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
                         folderId={folderId} baseName={baseName} s3Url={s3Url}
                         uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed} />
-                    : <div
-                        className={styles["cad-dropzone"]}
+                    : (() => {
+                        const isConverterHero = designVariant === 'converterHero';
+                        const dropClass = isConverterHero ? heroStyles.heroUploadPanelDark : styles["cad-dropzone"];
+                        return (
+                    <div
+                        className={dropClass}
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
                         onClick={handleClick}
-
-
                     >
                         <input
                             type="file"
@@ -577,17 +581,33 @@ function CadFileConversionWrapper({ children, convert }) {
                             accept={allowedFormats.join(", ")}
                             onChange={handleFileChange}
                         />
-                        {children}
-                        <Image
-                            src={IMAGEURLS.uploadIcon}
-                            alt="upload"
-                            width={68}
-                            height={68}
-                            style={{ cursor: "pointer" }}
-                        />
-                    </div>}
+                        {isConverterHero ? (
+                            <div className={heroStyles.heroUploadPanelInner}>
+                                <span className={heroStyles.heroUploadIconGlyph} aria-hidden>
+                                    <Upload size={72} strokeWidth={1.9} />
+                                </span>
+                                {children}
+                            </div>
+                        ) : (
+                            <>
+                                {children}
+                                <Image
+                                    src={IMAGEURLS.uploadIcon}
+                                    alt="upload"
+                                    width={68}
+                                    height={68}
+                                    style={{ cursor: "pointer" }}
+                                />
+                            </>
+                        )}
+                    </div>
+                        );
+                    })()}
 
             </>}
+            {!uploading && designVariant === 'converterHero' && heroFormatsLine ? (
+                <p className={heroStyles.formatsBelow}>{heroFormatsLine}</p>
+            ) : null}
             {!uploading && (() => {
                 const filteredFiles = convertedFiles.filter(file => {
                     if (convert && fromFormate) {
@@ -601,12 +621,20 @@ function CadFileConversionWrapper({ children, convert }) {
                 // 2. We're in convert mode and have matching files
                 const shouldShow = !convert || (convert && filteredFiles.length > 0);
 
+                const isConverterHero = designVariant === 'converterHero';
                 return shouldShow && (
-                    <div className={styles["cad-dropzone-samples"]}>
-                        {<span>Don’t have a file? Try one of these samples:</span>}
-                        <div className={styles["cad-dropzone-sample-btns"]}>
+                    <div className={isConverterHero ? heroStyles.samplesDark : styles["cad-dropzone-samples"]}>
+                        <span className={isConverterHero ? heroStyles.samplesDarkLabel : undefined}>
+                            {isConverterHero ? "Don't have a file? Try a sample:" : "Don’t have a file? Try one of these samples:"}
+                        </span>
+                        <div className={isConverterHero ? heroStyles.samplesDarkGrid : styles["cad-dropzone-sample-btns"]}>
                             {filteredFiles.map((file) => (
-                                <button key={file.id} onClick={() => handleSampleFileUpload(file)}>
+                                <button
+                                    type="button"
+                                    key={file.id}
+                                    className={isConverterHero ? heroStyles.sampleChip : undefined}
+                                    onClick={() => handleSampleFileUpload(file)}
+                                >
                                     {file.name}
                                 </button>
                             ))}

@@ -3,119 +3,108 @@ import ChartBuilder from '../OrganizationHome/ChartBuilder/ChartBuilder';
 import OurFeatures from '../OrganizationHome/OurFeatures/OurFeatures';
 import OrgFaq from '../OrganizationHome/OrgFaq/OrgFaq';
 import Footer from '../HomePages/Footer/Footer';
-import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav';
 import SampleParts from '../IndustriesPages/SampleParts';
 import SolutionCad from '../IndustriesPages/SolutionCad';
 import UseOfCAD from '../IndustriesPages/UseOfCAD';
 import RoleOfCAD from '../IndustriesPages/RoleOfCAD';
 import IndustryDetails from '../IndustriesPages/IndustryDetails';
+import IndustryHowItWorksSection from '../IndustriesPages/IndustryHowItWorksSection';
+import IndustryMarketingBody from '../IndustriesPages/IndustryMarketingBody';
+import IndustryFinalCtaBand from '../IndustriesPages/IndustryFinalCtaBand';
 import IndustryDesigns from './IndustryDesigns';
 import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs';
 import OrgFeatures from '../OrganizationHome/OrgFeatures/OrgFeatures';
+import { getIndustryCadViewerFaq } from '@/data/industryPageFaq';
+import ToolsPageBanner from '../CadServicesBanners/ToolsPageBanner';
+import IndustryPageBanner from '../CadServicesBanners/IndustryPageBanner';
+import DesignHub from '../HomePages/DesignHub/DesignHub';
 
-// Page heading structure: 1 h1 (IndustryDetails/IndustryHeading), 2 h2s (RoleOfCAD, IndustryDesigns), rest h3 (UseOfCAD, SolutionCad, SampleParts, ChartBuilder, OurFeatures, OrgFaq).
-function IndustryParts({ industry,
-    part_name,
-    industryData }) {
-       
-        const features = [
-            {
-                title: 'Seamless CAD File viewing',
-                description: 'View STEP, IGES, STL, BREP, OBJ, PLY, OFF, and more—instantly and without setup delays.'
-            },
-            {
-                title: 'Handles Large & Complex Models',
-                description: 'Optimized to convert even intricate engineering models with accuracy and speed—no matter the size or complexity.'
-            },
-            {
-                title: 'No Installation Required',
-                description: 'view 3D files directly from your browser. no plugins—just drag, drop, and go.'
-            },
-            {
-                title: 'Secure & Privacy-Focused',
-                description: "Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours to protect your data."
-            },
-    
-        ]
-        const faqQuestions = [
-            {
-                question: "What is Marathon OS 3D CAD File Viewer?",
-                answer: "Marathon OS is a free, cloud-based tool that lets you convert 3D CAD files between formats like STEP, IGES, STL, OBJ, and more—instantly and securely, right in your browser.",
-            },
-            {
-                question: "What file formats are supported?",
-                answer: "We support conversions between major 3D CAD formats including:STEP (.step, .stp), IGES (.iges, .igs), STL (.stl), OBJ (.obj), PLY (.ply), OFF (.off), and BREP (.brp, .brep).",
-            },
-            {
-                question: " Is Marathon OS 3D File viewer free to use?",
-                answer: "Yes! It’s completely free with no usage limits or hidden costs. Just drag, drop, and view.",
-            },
-            {
-                question: "How is my data stored and secured?",
-                answer: " Your files are encrypted during upload, processed securely in the cloud, and automatically deleted after 24 hours to ensure full privacy and protection.",
-            },
-            {
-                question: "Do I need any special software or training?",
-                answer: "Not at all. Marathon OS works entirely in your browser—no installations, no plugins, and no learning curve.",
-            },
-            {
-                question: "Can I view large and complex CAD models?",
-                answer: "Absolutely! Our proprietary high-performance rendering engine ensures smooth, lag-free visualization, even for large and intricate designs.",
-            },
-        ];
-        const whyChoose = {
-            title: 'Why Choose Marathon OS CAD Viewer?',
-            description: 'Marathon OS CAD Viewer renders any CAD file instantly with a proprietary engine, ensuring seamless, lag-free visualization—no matter the model size.'
-        }
-        const essentialDeatails = {
-            title: 'Essential Features of Marathon OS  CAD Viewer',
-            description: 'Effortlessly upload and view CAD files with a high-speed, secure, and scalable tool. Experience smooth, real-time rendering—no software installation required.'
-        }
-        
-        const featuresArray = [
-            {
-                title: 'Lightning-Fast Rendering',
-                description: 'Marathon OS optimizes real-time CAD visualization with smooth performance, even for large and intricate models.'
-            },
-            {
-                title: 'Supports Multiple Formats',
-                description: ' View STEP, IGES, STL, BREP, and more with precision and clarity—right in your browser.'
-            },
-            {
-                title: 'No Installation Required',
-                description: 'Skip heavy software—just upload and start viewing instantly.'
-            },
-            {
-                title: 'Cloud-Based & Secure',
-                description: "Files stay private and automatically delete after 24 hours for security."
-            },
-            {
-                title: 'Engineered for Professionals',
-                description: 'Designed for engineers, manufacturers, and designers needing quick, high-quality CAD previews.'
-            },
-        
-        ]
+function IndustryParts({ industry, part_name, industryData }) {
+    const faqQuestions = industryData ? getIndustryCadViewerFaq(industryData) : []
+
+    const features = [
+        {
+            title: 'Seamless CAD File viewing',
+            description: 'View STEP, IGES, STL, BREP, OBJ, PLY, OFF, and more—instantly and without setup delays.'
+        },
+        {
+            title: 'Handles Large & Complex Models',
+            description: 'Optimized to convert even intricate engineering models with accuracy and speed—no matter the size or complexity.'
+        },
+        {
+            title: 'No Installation Required',
+            description: 'view 3D files directly from your browser. no plugins—just drag, drop, and go.'
+        },
+        {
+            title: 'Secure & Privacy-Focused',
+            description: "Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours to protect your data."
+        },
+    ]
+
+    const whyChoose = {
+        title: 'Why Choose Marathon OS CAD Viewer?',
+        description: 'Marathon OS CAD Viewer renders any CAD file instantly with a proprietary engine, ensuring seamless, lag-free visualization—no matter the model size.'
+    }
+    const essentialDeatails = {
+        title: 'Essential Features of Marathon OS  CAD Viewer',
+        description: 'Effortlessly upload and view CAD files with a high-speed, secure, and scalable tool. Experience smooth, real-time rendering—no software installation required.'
+    }
+
+    const featuresArray = [
+        {
+            title: 'Lightning-Fast Rendering',
+            description: 'Marathon OS optimizes real-time CAD visualization with smooth performance, even for large and intricate models.'
+        },
+        {
+            title: 'Supports Multiple Formats',
+            description: ' View STEP, IGES, STL, BREP, and more with precision and clarity—right in your browser.'
+        },
+        {
+            title: 'No Installation Required',
+            description: 'Skip heavy software—just upload and start viewing instantly.'
+        },
+        {
+            title: 'Cloud-Based & Secure',
+            description: "Files stay private and automatically delete after 24 hours for security."
+        },
+        {
+            title: 'Engineered for Professionals',
+            description: 'Designed for engineers, manufacturers, and designers needing quick, high-quality CAD previews.'
+        },
+    ]
+
     return (
         <div>
             {industryData && <>
-                {/* <HomeTopNav /> */}
-                 <ActiveLastBreadcrumb links={[
-                                    { label: 'CAD viewer', href: '/tools//3D-cad-viewer' },   
-                                    { label: `${industryData.industry}`, href: `/industry/${industry}` },
-                                    { label: `${industryData.part_name}`, href: `/industry/${industry}/${part_name}` }
-                                  
-                                  ]}/>
+                <ActiveLastBreadcrumb
+                    links={[
+                        { label: 'CAD viewer', href: '/tools/3D-cad-viewer' },
+                        { label: `${industryData.industry}`, href: `/industry/${industry}` },
+                        { label: `${industryData.part_name}`, href: `/industry/${industry}/${part_name}` },
+                    ]}
+                />
                 <IndustryDetails industryData={industryData} part_name={part_name} />
+                <IndustryHowItWorksSection industryName={industryData.industry} />
+                <ToolsPageBanner />
                 <OrgFeatures type='cad' />
-                <RoleOfCAD industryData={industryData} part_name={part_name} />
-               {industryData && <IndustryDesigns industryData={industryData} part_name={part_name} industry={industry}/>} 
-
-                <UseOfCAD industryData={industryData} />
+                <IndustryMarketingBody industryData={industryData} />
+                <RoleOfCAD industryData={industryData} part_name={part_name} industry={industry} />
+                {industryData && (
+                    <IndustryDesigns industryData={industryData} part_name={part_name} industry={industry} />
+                )}
+                {/* <UseOfCAD industryData={industryData} /> */}
                 <SolutionCad industryData={industryData} />
-                <SampleParts industry={industry} part_name={part_name} />
-                <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} />
-                <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} />
-                <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS CAD Viewer. Whether you're getting started or looking for advanced features, we've got you covered." />
+                <SampleParts industry={industry} part_name={part_name} industryLabel={industryData.industry} />
+                {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} />
+                <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} /> */}
+                <DesignHub/>
+                <OrgFaq
+                    title="FAQ"
+                    faqQuestions={faqQuestions}
+                    description="Answers for teams evaluating browser-based CAD review with Marathon OS."
+                />
+                <IndustryFinalCtaBand industryName={industryData.industry} />
+                <IndustryPageBanner />
                 <Footer />
             </>}
 

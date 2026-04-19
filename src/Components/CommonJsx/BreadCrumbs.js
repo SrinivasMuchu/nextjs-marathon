@@ -9,9 +9,9 @@ export default function ActiveLastBreadcrumb({ links = [] }) {
     <>
       
      <ServerBreadCrumbs links={links}/>
-      <div className="px-4 py-2 bg-white sticky top-20 z-50 text-sm">
-        <nav aria-label="breadcrumb">
-          <ol className="flex flex-wrap gap-2">
+      <div className="py-2 bg-white text-sm">
+        <nav aria-label="breadcrumb" className="w-full box-border px-16 max-lg:px-8">
+          <ol className="flex flex-wrap gap-2 justify-start">
             <li>
               <Link href="/" className="text-gray-600 hover:underline">
                 Home /

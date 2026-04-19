@@ -17,6 +17,7 @@ import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import CadViewrTypes from './CadViewrTypes'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
+import { cadViewerFaqQuestions } from '@/data/cadToolFaqs'
 import { IMAGEURLS } from '@/config'
 
 // Page heading structure: 1 h1 (CadHeader), 2 h2s (HowItWorks, CoreBenefits), rest h3 (CadViewrTypes, DesignHub, UseCases, TrustPrivacy, ConvertCrossLink, CadIndustry, OrgFaq).
@@ -42,48 +43,6 @@ const features = [
     },
    
 ]
-const faqQuestions = [
-    {
-        question: "What is a CAD viewer?",
-        answer: "A CAD viewer lets you open and preview 2D/3D CAD files without editing them—useful for quick reviews and sharing.",
-    },
-    {
-        question: "Can I open STEP and IGES files online?",
-        answer: "Yes—upload your .step/.stp or .igs/.iges file to preview it directly in your browser.",
-    },
-    {
-        question: "Do I need to install any software?",
-        answer: "No. Marathon OS CAD Viewer is browser-based—no downloads required.",
-    },
-    {
-        question: "Which file formats are supported?",
-        answer: "STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP.",
-    },
-    {
-        question: "Is this CAD viewer free?",
-        answer: "Yes—this page is presented as a Free Online CAD Viewer, with usage constraints like an upload size limit (up to 300 MB per file).",
-    },
-    {
-        question: "What is the max file size?",
-        answer: "Up to 300 MB per upload.",
-    },
-    {
-        question: "Will my file stay private?",
-        answer: "Files stay private, are encrypted, and are automatically deleted after 24 hours; see the Privacy Policy for details.",
-    },
-    {
-        question: "Why does my model look broken (holes/missing faces)?",
-        answer: "Some CAD exchange formats (especially surface-based files like IGES) may import with gaps. Try converting to STEP or re-exporting with healed/stitched surfaces.",
-    },
-    {
-        question: "Can I convert my file to another format?",
-        answer: "Yes—use the 3D File Converter at /tools/3d-cad-file-converter.",
-    },
-    {
-        question: "Does it work on Mac / Windows?",
-        answer: "Yes—because it runs in your browser (no installation needed), it works on Mac and Windows with a modern browser.",
-    },
-];
 const whyChoose = {
     title: 'Why Choose Marathon OS CAD Viewer?',
     description: 'Marathon OS CAD Viewer renders any CAD file instantly with a proprietary engine, ensuring seamless, lag-free visualization—no matter the model size.'
@@ -122,21 +81,17 @@ const featuresArray = [
 const steps = [
     {
       title: 'Upload your CAD file',
-      description: 'Drag & drop or browse to upload',
-      text: 'Upload your CAD file (drag & drop)',
+      description: 'Drag & drop or browse to select your file',
       image: IMAGEURLS.cadFileUpload,
     },
     {
       title: 'Preview in browser',
-      description: 'View, zoom, pan and inspect',
-      text: 'Preview your model in the browser',
+      description: 'View, zoom, pan and inspect your 3D model',
       image: IMAGEURLS.cadFilePreview,
     },
     {
       title: 'Share or convert',
       description: 'Download or convert to another format',
-      textPrefix: 'Share or convert if needed—use the ',
-      link: { href: '/tools/3d-cad-file-converter', label: 'converter tool' },
       image: IMAGEURLS.cadFileShareConversion,
     },
   ];
@@ -144,20 +99,26 @@ const steps = [
 
   const benefits = [
     {
+      icon: 'zap',
       title: 'Instant preview',
-      description: 'Quickly open and inspect CAD files without installing heavy software.',
+      description:
+        'Quickly open and inspect CAD files without installing heavy software.',
     },
     {
-      title: 'Anywhere access',
-      description: 'Review models from any device (desktop or mobile).',
-    },
-    {
+      icon: 'layers',
       title: 'Format support',
-      description: 'Common exchange formats supported in one viewer.',
+      description:
+        'Common exchange formats supported — STEP, IGES, STL, OBJ, PLY, BREP & more.',
     },
     {
+      icon: 'users',
       title: 'Faster collaboration',
-      description: 'Share files with teammates for quick review.',
+      description: 'Share files with teammates for quick review — no plugins needed.',
+    },
+    {
+      icon: 'monitorSmartphone',
+      title: 'Anywhere access',
+      description: 'Review models from any device — desktop, tablet, or mobile.',
     },
   ];
 
@@ -183,30 +144,43 @@ const steps = [
     { title: 'Students opening CAD files without expensive software', description: 'opening CAD files without expensive software' },
     { title: '3D printing workflows inspecting STL/OBJ meshes', description: 'inspecting STL/OBJ meshes' },
   ];
-function CadHomeDesign({type}) {
+function CadHomeDesign({ type, cadType }) {
+    const cadTypeLabel = cadType ? `${String(cadType).toUpperCase()} CAD Viewer` : 'CAD Viewer Type';
+    const breadcrumbLinks = type
+      ? [
+          { label: 'tools', href: '/tools' },
+          { label: 'CAD Viewer', href: '/tools/3D-cad-viewer' },
+          { label: cadTypeLabel },
+        ]
+      : [
+          { label: 'tools', href: '/tools' },
+          { label: 'CAD Viewer', href: '/tools/3D-cad-viewer' },
+        ];
    
     return (
         <>
-            <FaqPageJsonLd faqSchemaData={faqQuestions} />
+            <FaqPageJsonLd faqSchemaData={cadViewerFaqQuestions} />
             {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
-                      links={[
-                        { label: 'CAD viewer', href: '/tools//3D-cad-viewer' },       
-
-                      ]}
+                      links={breadcrumbLinks}
                     />
             {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
             
-            <OrgFeatures type='cad'/>
+            {/* <OrgFeatures type='cad'/> */}
             <HowItWorks
-            label="HOW IT WORKS"
-            mainHeading="No downloads. No plugins. Works right from your browser."
-            title="How to view CAD files online"
-            steps={steps}
-            primaryCta={{ label: 'Upload CAD File', href: '/tools/3D-cad-viewer' }}
-            secondaryCta={{ label: 'Open converter tool', href: '/tools/3d-cad-file-converter' }}
-          />
-            <CoreBenefits benefits={benefits} title="Why use Marathon OS CAD Viewer" />
+                variant="cadViewer"
+                label="HOW IT WORKS"
+                title="How to view CAD files online"
+                mainHeading="No downloads. No plugins. Works right from your browser."
+                steps={steps}
+                primaryCta={{ label: 'Upload CAD File', href: '/tools/3D-cad-viewer' }}
+                secondaryCta={{ label: 'Open Converter Tool', href: '/tools/3d-cad-file-converter' }}
+            />
+            <CoreBenefits
+                variant="viewerGrid"
+                benefits={benefits}
+                title="Why use Marathon OS CAD Viewer"
+            />
            
             <CadViewrTypes/>
             <DesignHub headingLevel={3} />
@@ -216,7 +190,10 @@ function CadHomeDesign({type}) {
             <CadIndustry/>
             {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails}/> */}
-            <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS CAD Viewer. Whether you're getting started or looking for advanced features, we've got you covered."/>
+            <OrgFaq
+                faqQuestions={cadViewerFaqQuestions}
+                description="Find answers to common questions about Marathon OS CAD Viewer."
+            />
             <Footer />
         </>
     )

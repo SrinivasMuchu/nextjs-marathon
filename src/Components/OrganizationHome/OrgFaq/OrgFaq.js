@@ -1,54 +1,34 @@
-"use client";
-import React, { useState } from "react";
-import Image from "next/image";
+import React from 'react';
 import styles from './OrgFaq.module.css';
-import { IMAGEURLS } from "@/config";
 
+/**
+ * FAQ block. Data from server modules (e.g. @/data/cadToolFaqs).
+ * Static layout: every question and answer is always visible (no accordion / toggle).
+ */
+function OrgFaq({ faqQuestions, description, title = 'Frequently asked questions' }) {
+  if (!faqQuestions?.length) return null;
 
-function OrgFaq({faqQuestions,description}) {
-    
+  return (
+    <section className={styles.section} aria-labelledby="org-faq-heading">
+      <div className={styles.inner}>
+        <h2 id="org-faq-heading" className={styles.pageTitle}>
+          {title}
+        </h2>
+        {description ? <p className={styles.intro}>{description}</p> : null}
 
-    const [openIndex, setOpenIndex] = useState(0);
-
-    const handleToggle = (index) => {
-        setOpenIndex((prevIndex) => (prevIndex === index ? null : index));
-    };
-
-    return (
-        <div className={styles.faqpage}>
-            <div className={styles["faqpage-left-container"]}>
-                <h3 className={styles["faq-title"]}>FAQ</h3>
-                <p className={styles["faqpage-visit"]}>
-                    {description}
-                    
-
-                </p>
-                
-            </div>
-            <div className={styles["faqpage-right-container"]}>
-                {faqQuestions.map((item, index) => (
-                    <div
-                        key={index}
-                        className={`${styles["faqpage-questions"]} ${openIndex === index ? styles.open : ""
-                            }`}
-                    >
-                        {/* Use Next.js Image component with appropriate height and width */}
-                        <Image src={IMAGEURLS.openAnswer} alt="Open Answer Icon" width={20} height={20} onClick={() => handleToggle(index)}
-                            className={styles["faqpage-icon"]} />
-
-                        <div className={styles["faq-ques-ans"]}>
-                            <h6 className={styles["faq-question"]}>{item.question}</h6>
-                            {openIndex === index && (
-                                <p className={styles["faq-answer"]} >
-                                    {item.answer}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
+        <ul className={styles.list}>
+          {faqQuestions.map((item, index) => (
+            <li key={index} className={styles.item}>
+              <article className={styles.card}>
+                <h3 className={styles.question}>{item.question}</h3>
+                <p className={styles.answer}>{item.answer}</p>
+              </article>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
 }
 
 export default OrgFaq;

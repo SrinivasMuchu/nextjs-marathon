@@ -6,7 +6,7 @@ import OurFeatures from '@/Components/OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadFileConversionHeader from './CadFileConversionHeader'
-import HowItWorks from '../CadUpload/HowItWorks'
+import CadFileConversionHowItWorks from './CadFileConversionHowItWorks'
 import CoreBenefits from '../CadUpload/CoreBenefits'
 import TrustPrivacy from '../CadUpload/TrustPrivacy'
 import CadConverterTypes from './CadConverterTypes'
@@ -17,21 +17,19 @@ import ConversionQualityNotes from '../CadUpload/ConversionQualityNotes'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
-import { IMAGEURLS } from '@/config'
+import { cadConverterFaqQuestions } from '@/data/cadToolFaqs'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 
-// Page heading structure: 1 h1 (CadFileConversionHeader), 2 h2s (HowItWorks, CoreBenefits), rest h3 (ConversionQualityNotes, InterlinkingBlocks, TrustPrivacy, CadConverterTypes, DesignHub, OrgFaq).
-const converterSteps = [
-    { text: 'Upload your CAD file (drag & drop)',image: IMAGEURLS.cadFileUpload },
-    { text: 'Choose the output format (STEP / IGES / STL / OBJ / PLY / OFF / BREP)',image: IMAGEURLS.cadFileFormat },
-    { text: 'Convert and download instantly',image: IMAGEURLS.cadFileDownload },
-];
+// Page heading structure: 1 h1 (CadFileConversionHeader); h2 (HowItWorks, CoreBenefits, CadConverterTypes); rest h3 (InterlinkingBlocks, TrustPrivacy, DesignHub, OrgFaq).
+// “How it works” with react-icons lives in CadFileConversionHowItWorks (client) so icon components are not passed from this Server Component.
 
 const converterBenefits = [
-    { title: 'Lightning-fast conversion (seconds, cloud-based)', description: 'Convert in seconds with our cloud-based engine.' },
-    { title: 'Handles large & complex models', description: 'Optimized for large and intricate CAD files.' },
-    { title: 'No installation required', description: 'Works in your browser—no downloads or plugins.' },
-    { title: 'Secure & private (encrypted upload + delete after 24 hours)', description: 'Your files are encrypted and automatically removed after 24 hours.' },
+    { icon: 'zap', title: 'Lightning-fast conversion', description: 'Convert in seconds with our cloud-based engine. No waiting.' },
+    { icon: 'monitorSmartphone', title: 'No installation required', description: 'Works in your browser — no downloads or plugins needed.' },
+    { icon: 'cpu', title: 'Handles large & complex models', description: 'Optimized for large and intricate CAD files up to 300 MB.' },
+    { icon: 'shield', title: 'Secure & private', description: 'Encrypted uploads. Files automatically deleted after 24 hours.' },
+    { icon: 'lock', title: 'Your files, your IP', description: 'Full file ownership stays with you. We never share your data.' },
+    { icon: 'clock', title: 'Available 24/7', description: 'Convert files anytime, anywhere — no restrictions.' },
 ];
 
 const converterTrustItems = [
@@ -59,36 +57,6 @@ const features = [
     },
 
 ]
-const faqQuestions = [
-    {
-        question: "What is Marathon OS 3D CAD File Converter?",
-        answer: "Marathon OS 3D File Converter is a browser-based tool that lets you convert CAD/3D file formats online—no software installation needed.",
-    },
-    {
-        question: "What file formats are supported?",
-        answer: "STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), DWG (.dwg), DXF (.dxf).",
-    },
-    {
-        question: "Is Marathon OS 3D File Converter free to use?",
-        answer: "Yes! It’s completely free with no usage limits or hidden costs. Just drag, drop, and convert.",
-    },
-    {
-        question: "How is my data stored and secured?",
-        answer: "Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours.",
-    },
-    {
-        question: "Do I need any special software or training?",
-        answer: "No—just upload your file and convert it directly in your browser (no downloads/plugins).",
-    },
-    {
-        question: "Can I convert large and complex CAD models?",
-        answer: "Yes—the page states it's optimized to handle large & complex models, and supports uploads up to 300 MB.",
-    },
-    {
-        question: "What is the max file size?",
-        answer: "You can upload files up to 300 MB.",
-    },
-];
 const whyChoose = {
     title: 'Why Choose Marathon OS 3D CAD File Converter?',
     description: 'Marathon OS lets you convert 3D CAD files between formats effortlessly with a powerful, cloud-native engine—fast, secure, and optimized for professionals.'
@@ -126,23 +94,39 @@ function CadFileConversionHome({ convert, conversionParams }) {
 
     return (
         <>
-            <FaqPageJsonLd faqSchemaData={faqQuestions} />
+            <FaqPageJsonLd faqSchemaData={cadConverterFaqQuestions} />
             {/* <HomeTopNav /> */}
-            {!convert && <ActiveLastBreadcrumb links={[
-
-                { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
-            ]} />}
-            {convert && <ActiveLastBreadcrumb links={[
-                { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
-                { label: `${conversionParams}`, href: `/tools/convert-${conversionParams}` },
-            ]} />}
+            {!convert && (
+                <ActiveLastBreadcrumb
+                    variant="dark"
+                    links={[
+                        { label: 'tools', href: '/tools' },
+                        { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
+                    ]}
+                />
+            )}
+            {convert && (
+                <ActiveLastBreadcrumb
+                    variant="dark"
+                    links={[
+                        { label: 'tools', href: '/tools' },
+                        { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
+                        { label: `${conversionParams}`, href: `/tools/convert-${conversionParams}` },
+                    ]}
+                />
+            )}
             <CadFileConversionHeader convert={convert} conversionParams={conversionParams} />
-            <ToolsPageBanner />
-            <OrgFeatures type='cad' />
             <ConversionQualityNotes />
+            <ToolsPageBanner />
+          
+            {/* <OrgFeatures type='cad' /> */}
             <InterlinkingBlocks />
-            <HowItWorks title="How to convert CAD files online" steps={converterSteps} />
-            <CoreBenefits title="Why use Marathon OS 3D CAD File Converter" benefits={converterBenefits} />
+            <CadFileConversionHowItWorks />
+            <CoreBenefits
+                title="Why use Marathon OS 3D CAD File Converter"
+                benefits={converterBenefits}
+                variant="cardGrid"
+            />
           
             <TrustPrivacy title="Privacy and file handling" items={converterTrustItems} />
             {conversionParams && <CadConverterFormateText conversionParams={conversionParams} />}
@@ -151,7 +135,10 @@ function CadFileConversionHome({ convert, conversionParams }) {
             {/* <FeaturedConversions /> */}
             <CadConverterTypes />
             <DesignHub headingLevel={3} />
-            <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS 3D CAD File Converter. Whether you're getting started or looking for advanced features, we've got you covered." />
+            <OrgFaq
+                faqQuestions={cadConverterFaqQuestions}
+                description="Find answers to common questions about Marathon OS 3D CAD File Converter."
+            />
             <Footer />
         </>
 

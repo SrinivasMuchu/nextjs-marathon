@@ -1,6 +1,7 @@
 "use client"
 import React,{useState,useEffect} from 'react'
 import cadStyles from '../CadHomeDesign/CadHome.module.css'
+import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import { usePathname } from "next/navigation";
 
 function parseFormatFromPath(segment) {
@@ -9,7 +10,7 @@ function parseFormatFromPath(segment) {
   return match ? match[1].toLowerCase() : segment.toLowerCase();
 }
 
-function CadUploadHeadings() {
+function CadUploadHeadings({ variant }) {
     const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj"])
     const pathname = usePathname();
     const segment = pathname.split("/")[2] || '';
@@ -48,10 +49,15 @@ function CadUploadHeadings() {
     }
 
     const formatLabel = cadFile ? cadFile.toUpperCase() : 'CAD';
+    const isDark = variant === 'dark';
     return (
-        <div className={cadStyles['cad-landing-left-content']}>
-            <h1 className={cadStyles['cad-landing-heading']}>{formatLabel} File Viewer – Instantly Open & Explore {formatLabel} Files</h1>
-            <p className={cadStyles['cad-landing-description']}>Effortlessly view and inspect {formatLabel} ({allowedFormats.join(", ")}) files online. Marathon OS CAD Viewer delivers fast, secure, and high-performance rendering with no downloads needed.</p>
+        <div className={isDark ? heroStyles.heroDynamicBlock : cadStyles['cad-landing-left-content']}>
+            <h1 className={isDark ? heroStyles.title : cadStyles['cad-landing-heading']}>
+              {formatLabel} File Viewer – Instantly Open &amp; Explore {formatLabel} Files
+            </h1>
+            <p className={isDark ? heroStyles.description : cadStyles['cad-landing-description']}>
+              Effortlessly view and inspect {formatLabel} ({allowedFormats.join(", ")}) files online. Marathon OS CAD Viewer delivers fast, secure, and high-performance rendering with no downloads needed.
+            </p>
         </div>
     )
 }

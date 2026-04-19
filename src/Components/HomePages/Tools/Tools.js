@@ -14,7 +14,7 @@ const toolsData = [
         image: IMAGEURLS.cadViewer,
         heading: 'CAD viewer',
         description: 'A lightweight, online CAD viewer to quickly preview 3D models—anytime, anywhere.',
-        route: '/tools//3D-cad-viewer'
+        route: '/tools/3D-cad-viewer'
     },
     {
         image: IMAGEURLS.cadConveter,
