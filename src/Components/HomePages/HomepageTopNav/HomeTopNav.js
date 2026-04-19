@@ -9,6 +9,7 @@ import styles from "./HomeTopNav.module.css";
 import TopNavProfileButton from "../../CommonJsx/TopNavProfileButton";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
 import CheckHistory from "@/Components/CommonJsx/CheckHistory";
+import { RESOURCE_HUB_LINKS } from "@/Components/ResourcesHub/resourceHubLinks";
 
 function HomeTopNav() {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
@@ -100,10 +101,40 @@ function HomeTopNav() {
           {openDropdown === "tools" && (
             <div className={styles["dropdown-menu"]}>
               <Link href="/tools" onClick={()=>setOpenDropdown(false)}>All tools</Link>
+              <Link href="/tools/industries" onClick={()=>setOpenDropdown(false)}>All industries</Link>
               <Link href="/tools/org-hierarchy" onClick={()=>setOpenDropdown(false)}>Org Hierarchy</Link>
               <Link href="/tools/3D-cad-viewer" onClick={()=>setOpenDropdown(false)}>CAD Viewer</Link>
               <Link href="/tools/3d-cad-file-converter" onClick={()=>setOpenDropdown(false)}>CAD File Convert</Link>
               {/* <Link href="/tools/upload-cad-file">upload cad file</Link> */}
+            </div>
+          )}
+        </div>
+
+        <div
+          style={{ position: "relative" }}
+          onMouseEnter={() => handleNavHover("resources")}
+        >
+          <Link
+            href="/resources"
+            className={styles["nav-dropdown-trigger"]}
+            onClick={() => setOpenDropdown(null)}
+          >
+            Resources <span aria-hidden>▼</span>
+          </Link>
+          {openDropdown === "resources" && (
+            <div className={styles["dropdown-menu"]}>
+              <Link href="/resources" onClick={() => setOpenDropdown(false)}>
+                All resources
+              </Link>
+              {RESOURCE_HUB_LINKS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpenDropdown(false)}
+                >
+                  {item.navLabel ?? item.title}
+                </Link>
+              ))}
             </div>
           )}
         </div>

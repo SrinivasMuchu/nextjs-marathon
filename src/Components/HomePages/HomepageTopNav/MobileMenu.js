@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import CheckHistory from "@/Components/CommonJsx/CheckHistory";
+import { RESOURCE_HUB_LINKS } from "@/Components/ResourcesHub/resourceHubLinks";
 import { ArrowRight } from "lucide-react";
 
 function MobileMenu({ onClose, styles }) {
@@ -59,12 +60,33 @@ function MobileMenu({ onClose, styles }) {
               <Link href="/tools" onClick={handleCloseMenu}>
                 All tools
               </Link>
+              <Link href="/tools/industries" onClick={handleCloseMenu}>
+                All industries
+              </Link>
               <Link href="/tools/org-hierarchy" onClick={handleCloseMenu}>
                 Org Hierarchy
               </Link>
               <Link href="/tools/3D-cad-viewer" onClick={handleCloseMenu}>CAD Viewer</Link>
               <Link href="/tools/3d-cad-file-converter" onClick={handleCloseMenu}>CAD File Convert</Link>
               {/* <Link href="/tools/upload-cad-file" onClick={handleCloseMenu}>upload cad file</Link> */}
+            </div>
+          )}
+        </div>
+
+        <div className={styles["menu-dropdown"]}>
+          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("resources")}>
+            Resources ▼
+          </span>
+          {openDropdown === "resources" && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Link href="/resources" onClick={handleCloseMenu}>
+                All resources
+              </Link>
+              {RESOURCE_HUB_LINKS.map((item) => (
+                <Link key={item.href} href={item.href} onClick={handleCloseMenu}>
+                  {item.navLabel ?? item.title}
+                </Link>
+              ))}
             </div>
           )}
         </div>
