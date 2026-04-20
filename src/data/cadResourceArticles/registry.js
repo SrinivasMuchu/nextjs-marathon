@@ -6,6 +6,18 @@ import { hireSolidWorksDesignerArticle } from './hire-a-solidworks-designer-onli
 import { fusion360DesignServiceArticle } from './fusion-360-design-service-get-a-custom-3d-model-from-a-vetted-designer'
 import { autocadDraftingServicesArticle } from './autocad-drafting-services-online-2d-drawings-conversions-and-technical-docs'
 import { revitModelingServicesArticle } from './revit-modeling-services-for-architects-and-engineers'
+import { productModelingServiceArticle } from './3d-product-modeling-service-from-concept-to-production-ready-cad-file'
+import { cad2dDrawingServiceArticle } from './2d-cad-drawing-service-technical-drawings-for-manufacturing-and-patents'
+import { sheetMetalCadDesignServiceArticle } from './sheet-metal-cad-design-service-custom-parts-for-fabrication'
+import { stlFileDesignServiceArticle } from './stl-file-design-service-3d-print-ready-models-on-demand'
+import { productRenderingServiceArticle } from './product-rendering-service-photorealistic-3d-renders-from-your-cad-files'
+import { mechanicalEngineeringCadServiceArticle } from './mechanical-engineering-cad-design-service-get-expert-cad-work-done-fast'
+import { productDevelopmentCadInventorsStartupsArticle } from './product-development-cad-services-for-inventors-and-startups'
+import { architecturalCadDraftingServicesArticle } from './architectural-cad-drafting-services-floor-plans-elevations-and-as-builts'
+import { cadDesignCostPricingGuideArticle } from './how-much-does-cad-design-cost-pricing-guide-for-3d-modeling-and-drafting'
+import { bestCadDesignServices2025Article } from './best-cad-design-services-online-in-2025-a-comparison-guide'
+import { cadDesignBriefGuideArticle } from './how-to-write-a-cad-design-brief-templates-and-tips-for-getting-accurate-quotes'
+import { pdfToCadConversionServiceArticle } from './pdf-to-cad-conversion-service-get-editable-dwg-step-files-from-any-drawing'
 
 /** @type {Record<string, import('./schema').CadResourceArticle>} */
 export const CAD_RESOURCE_ARTICLES_BY_SLUG = {
@@ -17,6 +29,18 @@ export const CAD_RESOURCE_ARTICLES_BY_SLUG = {
   [fusion360DesignServiceArticle.slug]: fusion360DesignServiceArticle,
   [autocadDraftingServicesArticle.slug]: autocadDraftingServicesArticle,
   [revitModelingServicesArticle.slug]: revitModelingServicesArticle,
+  [productModelingServiceArticle.slug]: productModelingServiceArticle,
+  [cad2dDrawingServiceArticle.slug]: cad2dDrawingServiceArticle,
+  [sheetMetalCadDesignServiceArticle.slug]: sheetMetalCadDesignServiceArticle,
+  [stlFileDesignServiceArticle.slug]: stlFileDesignServiceArticle,
+  [productRenderingServiceArticle.slug]: productRenderingServiceArticle,
+  [mechanicalEngineeringCadServiceArticle.slug]: mechanicalEngineeringCadServiceArticle,
+  [productDevelopmentCadInventorsStartupsArticle.slug]: productDevelopmentCadInventorsStartupsArticle,
+  [architecturalCadDraftingServicesArticle.slug]: architecturalCadDraftingServicesArticle,
+  [cadDesignCostPricingGuideArticle.slug]: cadDesignCostPricingGuideArticle,
+  [bestCadDesignServices2025Article.slug]: bestCadDesignServices2025Article,
+  [cadDesignBriefGuideArticle.slug]: cadDesignBriefGuideArticle,
+  [pdfToCadConversionServiceArticle.slug]: pdfToCadConversionServiceArticle,
 }
 
 /**

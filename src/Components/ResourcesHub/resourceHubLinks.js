@@ -1,6 +1,11 @@
 /**
- * Grouped cards on `/resources`. Nav uses `RESOURCE_HUB_LINKS` (flat list).
- * Each item: `{ href, title, description, navLabel? }`
+ * Resources hub (`/resources`) — grouped by intent. Top nav uses flat `RESOURCE_HUB_LINKS`.
+ * Each section: `{ id, heading, links: [...], emptyHint?: string }` (use `emptyHint` when links are not live yet).
+ *
+ * Planned additions (add `links` entries when articles ship):
+ * - Deliverable-type: 3D/2D, sheet metal, STL
+ * - Industry vertical: mechanical, inventors/startups, architectural, product rendering
+ * - Comparison/decision: pricing guide, best services (2025), CAD brief, PDF-to-CAD (live)
  */
 
 export const RESOURCE_HUB_SECTIONS = [
@@ -38,7 +43,6 @@ export const RESOURCE_HUB_SECTIONS = [
       },
     ],
   },
-  // Software-specific CAD guides (e.g. SolidWorks, Fusion, AutoCAD) — add new slugs here.
   {
     id: 'software-specific-service-pages',
     heading: 'Software-specific service pages',
@@ -70,6 +74,108 @@ export const RESOURCE_HUB_SECTIONS = [
         description:
           'BIM modeling, sheets, IFC/DWG/PDF exports, coordination—as-built and documentation scope with vetted Revit experts.',
         navLabel: 'Revit modeling services',
+      },
+    ],
+  },
+  {
+    id: 'deliverable-type-pages',
+    heading: 'Deliverable-type pages',
+    links: [
+      {
+        href: '/cad-services/3d-product-modeling-service-from-concept-to-production-ready-cad-file',
+        title: '3D Product Modeling Service',
+        description:
+          'From concept to production-ready CAD: formats, when to use modeling, DIY vs. managed service, and how to brief for quotes and prototypes.',
+        navLabel: '3D product modeling service',
+      },
+      {
+        href: '/cad-services/2d-cad-drawing-service-technical-drawings-for-manufacturing-and-patents',
+        title: '2D CAD Drawing Service',
+        description:
+          'DWG/DXF, PDF, patent and shop drawings—in-house vs. freelancer vs. managed, what to require, and how to brief.',
+        navLabel: '2D CAD drawing service',
+      },
+      {
+        href: '/cad-services/sheet-metal-cad-design-service-custom-parts-for-fabrication',
+        title: 'Sheet Metal CAD Design Service',
+        description:
+          'STEP, DXF flat patterns, enclosures and brackets—DIY vs fab vs managed, DFM-focused briefs, and Marathon OS workflow.',
+        navLabel: 'Sheet metal CAD design',
+      },
+      {
+        href: '/cad-services/stl-file-design-service-3d-print-ready-models-on-demand',
+        title: 'STL File Design Service',
+        description:
+          'Print-ready meshes, STEP/native options, snap-fits and iterations—briefing for FDM/SLA/SLS and Marathon OS delivery.',
+        navLabel: 'STL file design service',
+      },
+    ],
+  },
+  {
+    id: 'industry-vertical-pages',
+    heading: 'Industry vertical pages',
+    links: [
+      {
+        href: '/cad-services/mechanical-engineering-cad-design-service-get-expert-cad-work-done-fast',
+        title: 'Mechanical Engineering CAD Service',
+        description:
+          'Parts, assemblies, drawings, fixtures—full-time vs freelancer vs managed, outputs for manufacturing, and how to brief.',
+        navLabel: 'Mechanical engineering CAD',
+      },
+      {
+        href: '/cad-services/product-development-cad-services-for-inventors-and-startups',
+        title: 'Product Development CAD for Inventors & Startups',
+        description:
+          'STEP for quotes, STL for prototypes, optional drawings—managed deliverables for founders without hiring freelancers.',
+        navLabel: 'Product development CAD (inventors)',
+      },
+      {
+        href: '/cad-services/architectural-cad-drafting-services-floor-plans-elevations-and-as-builts',
+        title: 'Architectural CAD Drafting Services',
+        description:
+          'Floor plans, elevations, as-builts, DWG/DXF and PDF sets—in-house vs freelancer vs managed, standards, and how to brief.',
+        navLabel: 'Architectural CAD drafting',
+      },
+      {
+        href: '/cad-services/product-rendering-service-photorealistic-3d-renders-from-your-cad-files',
+        title: 'Product Rendering Service',
+        description:
+          'Photorealistic PNG/JPG, turntables, exploded views—DIY vs freelancer vs managed, briefs for look-dev, and Marathon OS workflow.',
+        navLabel: 'Product rendering service',
+      },
+    ],
+  },
+  {
+    id: 'comparison-decision-pages',
+    heading: 'Comparison and decision pages',
+    links: [
+      {
+        href: '/cad-services/how-much-does-cad-design-cost-pricing-guide-for-3d-modeling-and-drafting',
+        title: 'How Much Does CAD Design Cost?',
+        description:
+          'Pricing drivers for 3D modeling and drafting, quote checklist, and hourly vs fixed-price vs in-house.',
+        navLabel: 'CAD design cost guide',
+      },
+      {
+        href: '/cad-services/best-cad-design-services-online-in-2025-a-comparison-guide',
+        title: 'Best CAD Design Services Online (2025)',
+        description:
+          'Compare marketplaces, design networks, and managed CAD on vetting, speed, deliverables, revisions, and IP.',
+        navLabel: 'Best CAD services comparison',
+      },
+      {
+        href: '/cad-services/how-to-write-a-cad-design-brief-templates-and-tips-for-getting-accurate-quotes',
+        title: 'How to Write a CAD Design Brief',
+        description:
+          'Templates and tips: scope, dimensions, manufacturing context, and structured briefs for accurate quotes.',
+        navLabel: 'CAD design brief guide',
+      },
+      {
+        href: '/cad-services/pdf-to-cad-conversion-service-get-editable-dwg-step-files-from-any-drawing',
+        title: 'PDF to CAD Conversion Service',
+        description:
+          'Editable DWG/DXF, optional STEP, clean PDFs—scans, layers, revisions, and when 3D reconstruction applies.',
+        navLabel: 'PDF to CAD conversion',
       },
     ],
   },
