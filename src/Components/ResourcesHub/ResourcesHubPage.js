@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { BookOpen, Boxes, Building2, Scale, Wrench } from 'lucide-react';
 import Footer from '@/Components/HomePages/Footer/Footer';
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs';
+import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner';
+import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css';
 import { RESOURCE_HUB_SECTIONS } from './resourceHubLinks';
 import styles from './ResourcesHubPage.module.css';
 
@@ -47,6 +49,11 @@ export default function ResourcesHubPage() {
   return (
     <div className={styles.page}>
       <ActiveLastBreadcrumb links={[{ label: 'Resources', href: '/resources' }]} />
+      <div className={cadHomeStyles['cad-ad-bar']}>
+        <div className={cadHomeStyles['cad-ad-bar-inner']}>
+          <LeftRightBanner adSlot="3755241003" />
+        </div>
+      </div>
 
       <header className={styles.hero}>
         <div className={styles.heroInner}>

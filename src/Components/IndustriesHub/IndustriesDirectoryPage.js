@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { Building2 } from 'lucide-react';
 import Footer from '@/Components/HomePages/Footer/Footer';
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs';
+import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner';
+import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css';
 import { BASE_URL, MARATHON_ASSET_PREFIX_URL } from '@/config';
 import { textLettersLimit } from '@/common.helper';
 import RequestDemoPopupButton from '@/Components/IndustriesHub/RequestDemoPopupButton';
@@ -52,10 +54,17 @@ function parseFormats(rawFormats) {
 }
 
 function getPartNames(parts) {
-  const names = (Array.isArray(parts) ? parts : [])
-    .map((part) => part?.part_name?.trim())
-    .filter(Boolean);
-  return [...new Set(names)].slice(0, 6);
+  const uniqueByKey = new Map();
+  (Array.isArray(parts) ? parts : []).forEach((part) => {
+    const name = part?.part_name?.trim();
+    if (!name) return;
+    const route = part?.route?.trim() || null;
+    const key = route || name.toLowerCase();
+    if (!uniqueByKey.has(key)) {
+      uniqueByKey.set(key, { name, route });
+    }
+  });
+  return Array.from(uniqueByKey.values()).slice(0, 6);
 }
 
 export default async function IndustriesDirectoryPage() {
@@ -77,6 +86,11 @@ export default async function IndustriesDirectoryPage() {
           { label: 'Industries', href: '/tools/industries' },
         ]}
       />
+      <div className={cadHomeStyles['cad-ad-bar']}>
+        <div className={cadHomeStyles['cad-ad-bar-inner']}>
+          <LeftRightBanner adSlot="3755241003" />
+        </div>
+      </div>
 
       <header className={styles.hero}>
         <div className={styles.heroInner}>
@@ -140,28 +154,30 @@ export default async function IndustriesDirectoryPage() {
               const formats = parseFormats(item?.cad_file_formats);
               return (
               <li key={item._id || item.route}>
-                <Link href={`/industry/${item.route}`} className={styles.card}>
-                  <div className={styles.cardIntro}>
-                    <div className={styles.cardTop}>
-                      {item.logo ? (
-                        <div className={styles.cardMedia}>
-                          <Image
-                            src={`${MARATHON_ASSET_PREFIX_URL}${item.logo}`}
-                            alt={item.industry ? `${item.industry} logo` : 'Industry logo'}
-                            width={180}
-                            height={120}
-                            className={styles.cardImg}
-                          />
+                <article className={styles.card}>
+                  <Link href={`/industry/${item.route}`} className={styles.cardMainLink}>
+                    <div className={styles.cardIntro}>
+                      <div className={styles.cardTop}>
+                        {item.logo ? (
+                          <div className={styles.cardMedia}>
+                            <Image
+                              src={`${MARATHON_ASSET_PREFIX_URL}${item.logo}`}
+                              alt={item.industry ? `${item.industry} logo` : 'Industry logo'}
+                              width={180}
+                              height={120}
+                              className={styles.cardImg}
+                            />
+                          </div>
+                        ) : null}
+                        <div className={styles.cardHeadText}>
+                          <h3 className={styles.cardTitle}>{item.industry}</h3>
                         </div>
-                      ) : null}
-                      <div className={styles.cardHeadText}>
-                        <h3 className={styles.cardTitle}>{item.industry}</h3>
                       </div>
+                      {item.description ? (
+                        <p className={styles.cardDesc}>{textLettersLimit(item.description, 150)}</p>
+                      ) : null}
                     </div>
-                    {item.description ? (
-                      <p className={styles.cardDesc}>{textLettersLimit(item.description, 150)}</p>
-                    ) : null}
-                  </div>
+                  </Link>
                   <div className={styles.cardMetaBlock}>
                     <div className={styles.cardMetaRow}>
                       <p className={styles.cardMetaLabel}>FORMATS</p>
@@ -181,17 +197,22 @@ export default async function IndustriesDirectoryPage() {
                     </div>
                     <div className={styles.partsPills}>
                       {partNames.length ? (
-                        partNames.map((partName) => (
-                          <span key={`${item.route}-${partName}`} className={styles.partPill}>
-                            {partName}
-                          </span>
-                        ))
+                        partNames.map((part) => {
+                          const href = part.route
+                            ? `/industry/${item.route}/${part.route}`
+                            : `/industry/${item.route}`;
+                          return (
+                            <Link key={`${item.route}-${part.name}`} href={href} className={styles.partPillLink}>
+                              {part.name}
+                            </Link>
+                          );
+                        })
                       ) : (
                         <span className={styles.partPillMuted}>Parts will appear soon</span>
                       )}
                     </div>
                   </div>
-                </Link>
+                </article>
               </li>
             )})}
           </ul>

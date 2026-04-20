@@ -280,6 +280,12 @@
   transform: translateY(-1px);
 }
 
+.cardMainLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 .cardIntro {
   min-height: 250px;
   display: flex;
@@ -386,7 +392,7 @@
 }
 
 .metaPill,
-.partPill,
+.partPillLink,
 .partPillMuted {
   border: 1px solid #e5e7eb;
   border-radius: 999px;
@@ -396,6 +402,16 @@
   line-height: 1;
   padding: 6px 9px;
   white-space: nowrap;
+}
+
+.partPillLink {
+  text-decoration: none;
+}
+
+.partPillLink:hover {
+  border-color: rgba(124, 58, 237, 0.35);
+  color: #5b21b6;
+  background: #faf5ff;
 }
 
 .partPillMuted {
