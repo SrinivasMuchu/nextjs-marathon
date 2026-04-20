@@ -5,6 +5,7 @@ import styles from './CadHome.module.css';
 import { textLettersLimit } from '@/common.helper';
 import CadIndustryHeads from './CadIndustryHeads';
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 
 async function getIndustryData() {
     try {
@@ -22,6 +23,7 @@ async function getIndustryData() {
 
 export default async function CadIndustry() {
     const data = await getIndustryData();
+    const visibleIndustries = data.slice(0, 11);
 
     return (
         <div className={styles['cad-industries']}>
@@ -30,7 +32,7 @@ export default async function CadIndustry() {
             </div>
 
             <div className={styles['cad-industries-items']}>
-                {data.map((item) => (
+                {visibleIndustries.map((item) => (
                     <Link href={`/industry/${item.route}`} key={item._id}>
                         <div className={styles['cad-industries-item-cont']}>
                             <div className={styles['cad-industries-item-cont-head']} >
@@ -48,6 +50,16 @@ export default async function CadIndustry() {
                         </div>
                     </Link>
                 ))}
+                <Link href="/tools/industries" key="explore-more-industries">
+                    <div className={`${styles['cad-industries-item-cont']} ${styles['cad-industries-item-cont-explore']}`}>
+                        <div className={styles['cad-industries-item-cont-head']}>
+                            <h6 className={styles['cad-industries-item-cont-explore-title']}>
+                                Explore more industries
+                                <ArrowUpRight size={20} strokeWidth={2.3} aria-hidden />
+                            </h6>
+                        </div>
+                    </div>
+                </Link>
             </div>
         </div>
     );
