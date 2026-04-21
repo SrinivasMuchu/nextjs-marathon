@@ -10,6 +10,7 @@ import { BASE_URL, MARATHON_ASSET_PREFIX_URL } from '@/config';
 import { textLettersLimit } from '@/common.helper';
 import RequestDemoPopupButton from '@/Components/IndustriesHub/RequestDemoPopupButton';
 import styles from './IndustriesDirectoryPage.module.css';
+import DesignHub from '../HomePages/DesignHub/DesignHub';
 
 async function fetchIndustries() {
   try {
@@ -240,7 +241,7 @@ export default async function IndustriesDirectoryPage() {
           </div>
         </div>
       </section>
-
+      <DesignHub/>
       <Footer />
     </div>
   );

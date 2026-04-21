@@ -7,6 +7,7 @@ import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner';
 import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css';
 import { RESOURCE_HUB_SECTIONS } from './resourceHubLinks';
 import styles from './ResourcesHubPage.module.css';
+import DesignHub from '../HomePages/DesignHub/DesignHub';
 
 const SECTION_META = {
   'direct-service-intent': {
@@ -139,6 +140,7 @@ export default function ResourcesHubPage() {
           })
         )}
       </div>
+      <DesignHub/>
 
       <Footer />
     </div>
