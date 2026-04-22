@@ -60,7 +60,7 @@ function DesignViewContent() {
 
     const fetchGlbStatus = async () => {
       try {
-        const response = await axios.post(
+        const response = await axios.get(
           `${BASE_URL}/v1/cad/get-status`,
           { id: fileId, cad_type: "GLB_VIEWER" },
           { headers: { "user-uuid": localStorage.getItem("uuid") || "" } }
