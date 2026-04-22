@@ -60,18 +60,29 @@ function DesignViewContent() {
 
     const fetchGlbStatus = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
-          params: { id: fileId, cad_type: "GLB_VIEWER" },
-          headers: { "user-uuid": localStorage.getItem("uuid") || "" },
-        });
+        const response = await axios.post(
+          `${BASE_URL}/v1/cad/get-status`,
+          { id: fileId, cad_type: "GLB_VIEWER" },
+          { headers: { "user-uuid": localStorage.getItem("uuid") || "" } }
+        );
         const nextStatus = response?.data?.data?.status || "IN_QUEUE";
         if (cancelled) return;
         setStatus(nextStatus);
         setIsGlbViewer(nextStatus === "COMPLETED");
+        if (nextStatus === "COMPLETED" || nextStatus === "FAILED") {
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
+        }
       } catch (e) {
         if (!cancelled) {
           setStatus("FAILED");
           setIsGlbViewer(false);
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
         }
       }
     };
