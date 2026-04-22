@@ -48,7 +48,45 @@ function DesignViewContent() {
   const [isGlbViewer, setIsGlbViewer] = useState(false);
 
   useEffect(() => {
-    if (!fileId || format) return;
+    if (!fileId || !queryIsGlb) return;
+    if (isSample) {
+      setStatus("COMPLETED");
+      setIsGlbViewer(true);
+      return;
+    }
+
+    let cancelled = false;
+    let intervalId = null;
+
+    const fetchGlbStatus = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
+          params: { id: fileId, cad_type: "GLB_VIEWER" },
+          headers: { "user-uuid": localStorage.getItem("uuid") || "" },
+        });
+        const nextStatus = response?.data?.data?.status || "IN_QUEUE";
+        if (cancelled) return;
+        setStatus(nextStatus);
+        setIsGlbViewer(nextStatus === "COMPLETED");
+      } catch (e) {
+        if (!cancelled) {
+          setStatus("FAILED");
+          setIsGlbViewer(false);
+        }
+      }
+    };
+
+    fetchGlbStatus();
+    intervalId = setInterval(fetchGlbStatus, 3000);
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [fileId, queryIsGlb, isSample]);
+
+  useEffect(() => {
+    if (!fileId || format || queryIsGlb) return;
     if (isSample) {
       // Sample route is static: skip status polling/API entirely.
       setStatus("COMPLETED");
@@ -89,11 +127,23 @@ function DesignViewContent() {
     };
   }, [fileId, format, hasGlbParam, queryIsGlb, isSample]);
 
-  if (format) {
-    return <IndustryCadViewer />;
-  }
   if (!fileId) {
     return <PartDesignView />;
+  }
+  if (queryIsGlb) {
+    if (status !== "COMPLETED") {
+      return <CubeLoader uploadingMessage={status || "IN_QUEUE"} />;
+    }
+    return (
+      <GlbExplodeViewer
+        glbUrl={glbUrl}
+        metaUrl={metaUrl}
+        cacheBust={cacheBust || fileId}
+      />
+    );
+  }
+  if (format) {
+    return <IndustryCadViewer />;
   }
   if (status !== "COMPLETED") {
     return <CubeLoader uploadingMessage={status || "PENDING"} />;

@@ -1,10 +1,53 @@
+"use client";
+
+import { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import DesignStats from "../CommonJsx/DesignStats";
-import Link from "next/link";// client part
 import styles from "./IndustryDesign.module.css";
+import { BASE_URL } from "@/config";
 
 import DownloadClientButton from "../CommonJsx/DownloadClientButton";
 
 export default function IndustryDesignHeader({ design, designData, type }) {
+  const [isRequestingViewer, setIsRequestingViewer] = useState(false);
+  const router = useRouter();
+
+  const handleRequestGlbViewer = async () => {
+    const formatType = designData?.file_type ? designData.file_type.toLowerCase() : "step";
+    if (designData?.is_glb) {
+      router.push(`/tools/cad-renderer?fileId=${designData?._id}&glb=true`);
+      return;
+    }
+    try {
+      setIsRequestingViewer(true);
+      const response = await axios.post(
+        `${BASE_URL}/v1/cad/request-glb-viewer`,
+        {
+          design_id: designData?._id,
+          format_type: formatType,
+        },
+        {
+          headers: {
+            "user-uuid": localStorage.getItem("uuid"),
+          },
+        }
+      );
+
+      if (response?.data?.meta?.success) {
+        toast.success(response?.data?.meta?.message || "Viewer request submitted.");
+        router.push(`/tools/cad-renderer?fileId=${designData?._id}&glb=true`);
+      } else {
+        toast.error(response?.data?.meta?.message || "Failed to submit viewer request.");
+      }
+    } catch (error) {
+      console.error("Error requesting GLB viewer:", error);
+      toast.error("Failed to submit viewer request.");
+    } finally {
+      setIsRequestingViewer(false);
+    }
+  };
 
   return (
     
@@ -26,16 +69,14 @@ export default function IndustryDesignHeader({ design, designData, type }) {
                                         price: designData.price, // Use the designPrice prop
                                         // Add other design details as needed
                                     }}/>
- <Link 
-          href={`/tools/cad-renderer?fileId=${designData._id}&format=${
-            designData.file_type ? designData.file_type : "step"
-          }`}
-          rel="nofollow"
-          className={styles.viewerButtonLink}
+        <button
+          type="button"
+          className={styles.viewerButton}
+          onClick={handleRequestGlbViewer}
+          disabled={isRequestingViewer}
         >
-          <button className={styles.viewerButton}>Open in 3D viewer</button>
-          
-        </Link>
+          {isRequestingViewer ? "Opening 3D viewer..." : "Open in 3D viewer"}
+        </button>
        
         </div>
         <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
