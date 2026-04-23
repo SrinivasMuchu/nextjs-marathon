@@ -47,7 +47,7 @@ export default function CadUploadingView() {
         setIsLoading,
         onSuccess: (fileId) => {
           setFile(null);
-          window.location.href = `/tools/cad-renderer?fileId=${encodeURIComponent(fileId)}&glb=true`;
+          window.location.href = `/tools/cad-renderer?fileId=${encodeURIComponent(fileId)}`;
         },
         onFailure: () => {
           setIsLoading(false);

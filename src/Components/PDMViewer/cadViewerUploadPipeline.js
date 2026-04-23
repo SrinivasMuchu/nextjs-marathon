@@ -3,6 +3,15 @@ import { toast } from "react-toastify";
 import { BASE_URL, BUCKET, CAD_VIEWER_EVENT } from "@/config";
 import { sendGAtagEvent } from "@/common.helper";
 
+function getOrCreateUuid() {
+  let uuid = localStorage.getItem("uuid");
+  if (!uuid) {
+    uuid = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem("uuid", uuid);
+  }
+  return uuid;
+}
+
 function sendSizeGATags(fileSizeMB) {
   if (fileSizeMB < 5) {
     sendGAtagEvent({ event_name: "viewer_file_upload_under_5mb", event_category: CAD_VIEWER_EVENT });
@@ -24,7 +33,8 @@ function sendSizeGATags(fileSizeMB) {
 async function createCad(uploadFile, link, { setUploadingMessage, setIsLoading, setUploadProgressPercent, onSuccess, onFailure }) {
   try {
     setIsLoading(true);
-    const HEADERS = { "user-uuid": localStorage.getItem("uuid") };
+    const uuid = getOrCreateUuid();
+    const HEADERS = { "user-uuid": uuid };
     setUploadingMessage("UPLOADINGFILE");
     const response = await axios.post(
       `${BASE_URL}/v1/cad/create-cad`,
@@ -32,7 +42,7 @@ async function createCad(uploadFile, link, { setUploadingMessage, setIsLoading, 
         cad_view_link: link,
         file_name: uploadFile.name,
         s3_bucket: "design-glb",
-        uuid: localStorage.getItem("uuid"),
+        uuid,
       },
       { headers: HEADERS }
     );
@@ -55,6 +65,7 @@ async function createCad(uploadFile, link, { setUploadingMessage, setIsLoading, 
 async function completeMultipartUpload(data, parts, fileSizeMB, uploadFile, ctx) {
   const { setIsLoading, setUploadingMessage, setUploadProgressPercent, onFailure } = ctx;
   try {
+    const uuid = getOrCreateUuid();
     setIsLoading(true);
     setUploadingMessage("UPLOADINGFILE");
     const multipartPayload = {
@@ -69,10 +80,10 @@ async function completeMultipartUpload(data, parts, fileSizeMB, uploadFile, ctx)
         bucket_name: BUCKET,
         file: multipartPayload,
         category: "complete_mutipart",
-        uuid: localStorage.getItem("uuid"),
+        uuid,
         filesize: fileSizeMB,
       },
-      { headers: { "user-uuid": localStorage.getItem("uuid") } }
+      { headers: { "user-uuid": uuid } }
     );
 
     if (preSignedURL.data.meta.code === 200 && preSignedURL.data.meta.message === "SUCCESS") {
@@ -177,7 +188,7 @@ export async function uploadCadViewerFile(file, handlers) {
     sendSizeGATags(fileSizeMB);
 
     const headers = {
-      "user-uuid": localStorage.getItem("uuid"),
+      "user-uuid": getOrCreateUuid(),
     };
 
     const preSignedURL = await axios.post(

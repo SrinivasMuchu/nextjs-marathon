@@ -10,6 +10,15 @@ import { BASE_URL } from "@/config";
 
 import DownloadClientButton from "../CommonJsx/DownloadClientButton";
 
+function getOrCreateUuid() {
+  let uuid = localStorage.getItem("uuid");
+  if (!uuid) {
+    uuid = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem("uuid", uuid);
+  }
+  return uuid;
+}
+
 export default function IndustryDesignHeader({ design, designData, type }) {
   const [isRequestingViewer, setIsRequestingViewer] = useState(false);
   const router = useRouter();
@@ -30,7 +39,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
         },
         {
           headers: {
-            "user-uuid": localStorage.getItem("uuid"),
+            "user-uuid": getOrCreateUuid(),
           },
         }
       );

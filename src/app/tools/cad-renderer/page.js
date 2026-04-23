@@ -13,6 +13,16 @@ import React, { Suspense, useEffect, useMemo, useState } from "react";
 
 const PartDesignView = dynamic(() => import("@/Components/PDMViewer/PartDesignView"), { ssr: false });
 
+function getOrCreateUuid() {
+  if (typeof window === "undefined") return "";
+  let uuid = localStorage.getItem("uuid");
+  if (!uuid) {
+    uuid = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem("uuid", uuid);
+  }
+  return uuid;
+}
+
 function DesignViewContent() {
   const searchParams = useSearchParams();
   const format = searchParams.get("format");
@@ -60,11 +70,10 @@ function DesignViewContent() {
 
     const fetchGlbStatus = async () => {
       try {
-        const response = await axios.get(
-          `${BASE_URL}/v1/cad/get-status`,
-          { id: fileId, cad_type: "GLB_VIEWER" },
-          { headers: { "user-uuid": localStorage.getItem("uuid") || "" } }
-        );
+        const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
+          params: { id: fileId, cad_type: "GLB_VIEWER" },
+          headers: { "user-uuid": getOrCreateUuid() },
+        });
         const nextStatus = response?.data?.data?.status || "IN_QUEUE";
         if (cancelled) return;
         setStatus(nextStatus);
@@ -112,7 +121,7 @@ function DesignViewContent() {
       try {
         const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
           params: { id: fileId, cad_type: "CAD_VIEWER" },
-          headers: { "user-uuid": localStorage.getItem("uuid") || "" },
+          headers: { "user-uuid": getOrCreateUuid() },
         });
         const nextStatus = response?.data?.data?.status || "PENDING";
         const hasGlb = hasGlbParam
