@@ -5,6 +5,7 @@ import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import { getResourceHubCategoryBySlug } from '@/Components/ResourcesHub/resourceHubLinks'
 import CadArticleDescribeProjectButton from './CadArticleDescribeProjectButton'
 import styles from './CadResourceArticle.module.css'
+import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 
 /**
  * @param {object} props
@@ -58,7 +59,7 @@ export default function CadResourceArticle({ article }) {
           ) : null}
         </div>
       </section>
-
+      <DesignHub/>
       <Footer />
     </div>
   )
