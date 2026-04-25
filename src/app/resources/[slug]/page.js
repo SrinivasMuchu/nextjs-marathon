@@ -1,8 +1,9 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import {
   getCadResourceArticle,
   getAllCadResourceSlugs,
 } from '@/data/cadResourceArticles/registry'
+import CadResourceArticle from '@/Components/CadServicePages/ResourceArticles/CadResourceArticle'
 
 const BASE_URL = 'https://marathon-os.com'
 
@@ -28,5 +29,5 @@ export default function CadResourceArticlePage({ params }) {
   if (!article) {
     notFound()
   }
-  redirect(`/resources/${article.slug}`)
+  return <CadResourceArticle article={article} />
 }

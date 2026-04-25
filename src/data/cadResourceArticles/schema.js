@@ -43,7 +43,7 @@
 
 /**
  * @typedef {Object} CadResourceArticle
- * @property {string} slug — URL segment under `/cad-services/[slug]`
+ * @property {string} slug — URL segment under `/resources/[slug]`
  * @property {string} breadcrumbLastLabel
  * @property {CadResourceArticleMetadata} metadata
  * @property {CadResourceHero} hero

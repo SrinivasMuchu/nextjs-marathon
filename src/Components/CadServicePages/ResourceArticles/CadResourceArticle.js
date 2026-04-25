@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
+import { getResourceHubCategoryBySlug } from '@/Components/ResourcesHub/resourceHubLinks'
 import CadArticleDescribeProjectButton from './CadArticleDescribeProjectButton'
 import styles from './CadResourceArticle.module.css'
 
@@ -10,13 +11,17 @@ import styles from './CadResourceArticle.module.css'
  * @param {import('@/data/cadResourceArticles/schema').CadResourceArticle} props.article
  */
 export default function CadResourceArticle({ article }) {
-  const canonicalPath = `/cad-services/${article.slug}`
+  const canonicalPath = `/resources/${article.slug}`
+  const category = getResourceHubCategoryBySlug(article.slug)
 
   return (
     <div className={styles.page}>
       <ActiveLastBreadcrumb
         links={[
           { label: 'CAD Services', href: '/cad-services' },
+          category
+            ? { label: category.heading, href: `/resources#${category.id}` }
+            : { label: 'Resources', href: '/resources' },
           { label: article.breadcrumbLastLabel, href: canonicalPath },
         ]}
       />

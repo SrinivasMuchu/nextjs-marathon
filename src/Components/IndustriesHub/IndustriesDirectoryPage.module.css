@@ -295,22 +295,22 @@
 .cardTop {
   padding: 18px 18px 0;
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
+  align-items: center;
+  gap: 12px;
 }
 
 .cardHeadText {
   min-width: 0;
   width: 100%;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
   gap: 10px;
 }
 
 .cardMedia {
-  width: clamp(118px, 11vw, 170px);
-  height: clamp(76px, 7.4vw, 112px);
+  width: clamp(88px, 8.2vw, 120px);
+  height: clamp(62px, 5.8vw, 84px);
   border-radius: 12px;
   background: transparent;
   border: 0;
@@ -329,13 +329,15 @@
 
 .cardTitle {
   margin: 0;
-  font-size: clamp(22px, 1.8vw, 28px);
+  font-size: clamp(18px, 1.45vw, 24px);
   font-weight: 700;
   color: #0f172a;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  white-space: normal;
-  word-break: break-word;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cardDesc {
@@ -442,7 +444,7 @@
   }
 
   .cardTitle {
-    font-size: clamp(21px, 2.5vw, 25px);
+    font-size: clamp(18px, 2.1vw, 22px);
   }
 
   .cardDesc {
@@ -502,7 +504,7 @@
   }
 
   .cardTitle {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .cardDesc {

@@ -69,6 +69,11 @@ export default function ResourcesHubPage() {
             Practical guides for product teams, engineers, and founders — from hiring CAD
             designers to picking the right software and file format.
           </p>
+          <div className={styles.heroActions}>
+            <Link href="/cad-services" className={styles.heroSecondaryAction}>
+              Marathon OS CAD Services →
+            </Link>
+          </div>
         </div>
       </header>
 
