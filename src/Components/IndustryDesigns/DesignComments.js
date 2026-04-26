@@ -12,6 +12,10 @@ import styles from "./DesignComments.module.css";
 
 const LIMIT = 10;
 
+function isTruthyVerified(value) {
+  return /^(true|1|yes)$/i.test(String(value || ""));
+}
+
 function formatTimeAgo(dateString) {
   const date = new Date(dateString);
   const now = new Date();
@@ -138,8 +142,8 @@ export default function DesignComments({ designId }) {
 
   useEffect(() => {
     const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
-    const isVerified = typeof window !== "undefined" ? localStorage.getItem("is_verified") : null;
-    setIsLoggedIn(!!(uuid && isVerified));
+    const isVerified = typeof window !== "undefined" ? isTruthyVerified(localStorage.getItem("is_verified")) : false;
+    setIsLoggedIn(Boolean(uuid && isVerified));
   }, [updatedDetails]);
 
   useEffect(() => {
@@ -217,7 +221,7 @@ export default function DesignComments({ designId }) {
     if (!trimmed || posting) return;
 
     const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
-    const isVerified = typeof window !== "undefined" ? localStorage.getItem("is_verified") : null;
+    const isVerified = typeof window !== "undefined" ? isTruthyVerified(localStorage.getItem("is_verified")) : false;
     if (!uuid || !isVerified) {
       setShowLogin(true);
       return;
@@ -250,7 +254,7 @@ export default function DesignComments({ designId }) {
     if (!trimmed || replyPosting) return;
 
     const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
-    const isVerified = typeof window !== "undefined" ? localStorage.getItem("is_verified") : null;
+    const isVerified = typeof window !== "undefined" ? isTruthyVerified(localStorage.getItem("is_verified")) : false;
     if (!uuid || !isVerified) {
       setShowLogin(true);
       return;

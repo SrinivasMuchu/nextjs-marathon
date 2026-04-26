@@ -26,7 +26,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
   const handleRequestGlbViewer = async () => {
     const formatType = designData?.file_type ? designData.file_type.toLowerCase() : "step";
     if (designData?.is_glb) {
-      router.push(`/tools/cad-renderer?fileId=${designData?._id}&glb=true`);
+      router.push(`/tools/cad-renderer?designId=${designData?._id}&glb=true`);
       return;
     }
     try {
@@ -46,7 +46,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
 
       if (response?.data?.meta?.success) {
         toast.success(response?.data?.meta?.message || "Viewer request submitted.");
-        router.push(`/tools/cad-renderer?fileId=${designData?._id}&glb=true`);
+        router.push(`/tools/cad-renderer?designId=${designData?._id}&glb=true`);
       } else {
         toast.error(response?.data?.meta?.message || "Failed to submit viewer request.");
       }
@@ -78,6 +78,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
                                         price: designData.price, // Use the designPrice prop
                                         // Add other design details as needed
                                     }}/>
+        {designData.file_type !== 'dxf' && designData.file_type !== 'dwg' && (
         <button
           type="button"
           className={styles.viewerButton}
@@ -86,7 +87,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
         >
           {isRequestingViewer ? "Opening 3D viewer..." : "Open in 3D viewer"}
         </button>
-       
+        )}
         </div>
         <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
     <DesignStats
