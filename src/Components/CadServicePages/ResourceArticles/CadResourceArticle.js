@@ -34,6 +34,9 @@ export default function CadResourceArticle({ article }) {
           <p className={styles.heroLead}>{article.hero.lead}</p>
           <div className={styles.heroActions}>
             <CadArticleDescribeProjectButton>{article.hero.primaryCtaLabel}</CadArticleDescribeProjectButton>
+            <Link href="/cad-services" className={styles.heroSecondaryAction}>
+              Marathon OS CAD Services →
+            </Link>
           </div>
           {article.hero.supportLine ? (
             <p className={styles.heroSupport}>{article.hero.supportLine}</p>
