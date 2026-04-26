@@ -19,7 +19,7 @@ export default function CadResourceArticle({ article }) {
     <div className={styles.page}>
       <ActiveLastBreadcrumb
         links={[
-          { label: 'CAD Services', href: '/cad-services' },
+          { label: 'Resources', href: '/resources' },
           category
             ? { label: category.heading, href: `/resources#${category.id}` }
             : { label: 'Resources', href: '/resources' },
