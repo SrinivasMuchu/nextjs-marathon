@@ -26,7 +26,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
   const handleRequestGlbViewer = async () => {
     const formatType = designData?.file_type ? designData.file_type.toLowerCase() : "step";
     if (designData?.is_glb) {
-      router.push(`/tools/cad-renderer?designId=${designData?._id}&glb=true`);
+      router.push(`/tools/cad-renderer?designId=${designData?._id}&glb=true&ready=true`);
       return;
     }
     try {
@@ -45,8 +45,12 @@ export default function IndustryDesignHeader({ design, designData, type }) {
       );
 
       if (response?.data?.meta?.success) {
-        toast.success(response?.data?.meta?.message || "Viewer request submitted.");
-        router.push(`/tools/cad-renderer?designId=${designData?._id}&glb=true`);
+        const successMessage = response?.data?.meta?.message || "Viewer request submitted.";
+        toast.success(successMessage);
+        const isAlreadyReady = /already available/i.test(successMessage);
+        router.push(
+          `/tools/cad-renderer?designId=${designData?._id}&glb=true${isAlreadyReady ? "&ready=true" : ""}`
+        );
       } else {
         toast.error(response?.data?.meta?.message || "Failed to submit viewer request.");
       }

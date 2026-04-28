@@ -30,6 +30,7 @@ function DesignViewContent() {
   const glbParam = searchParams.get("glb");
   const hasGlbParam = glbParam != null;
   const queryIsGlb = hasGlbParam && /^(true|1|yes)$/i.test(String(glbParam));
+  const readyParam = /^(true|1|yes)$/i.test(String(searchParams.get("ready") || ""));
   const designId = searchParams.get("designId");
   const fileId = searchParams.get("fileId") || searchParams.get("id") || searchParams.get("folderId");
   const targetId = designId || fileId;
@@ -62,6 +63,11 @@ function DesignViewContent() {
   useEffect(() => {
     if (!targetId || !useGlbMode) return;
     if (isSample) {
+      setStatus("COMPLETED");
+      setIsGlbViewer(true);
+      return;
+    }
+    if (readyParam) {
       setStatus("COMPLETED");
       setIsGlbViewer(true);
       return;
@@ -105,7 +111,7 @@ function DesignViewContent() {
       cancelled = true;
       if (intervalId) clearInterval(intervalId);
     };
-  }, [targetId, useGlbMode, isSample]);
+  }, [targetId, useGlbMode, isSample, readyParam]);
 
   useEffect(() => {
     if (!targetId || format || useGlbMode) return;
