@@ -8,7 +8,6 @@ import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner';
 import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css';
 import { BASE_URL, MARATHON_ASSET_PREFIX_URL } from '@/config';
 import { textLettersLimit } from '@/common.helper';
-import RequestDemoPopupButton from '@/Components/IndustriesHub/RequestDemoPopupButton';
 import styles from './IndustriesDirectoryPage.module.css';
 import DesignHub from '../HomePages/DesignHub/DesignHub';
 
@@ -109,9 +108,9 @@ export default async function IndustriesDirectoryPage() {
               Browse all industries
               <span aria-hidden>→</span>
             </a>
-            <RequestDemoPopupButton className={styles.secondaryAction}>
-              Request Demo
-            </RequestDemoPopupButton>
+            <Link href="/cad-services" className={styles.secondaryAction}>
+              Marathon OS CAD Services <span aria-hidden>→</span>
+            </Link>
           </div>
           <div className={styles.heroStats}>
             <div className={styles.stat}>
