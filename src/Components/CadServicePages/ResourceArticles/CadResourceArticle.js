@@ -2,6 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
+import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
+import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css'
 import { getResourceHubCategoryBySlug } from '@/Components/ResourcesHub/resourceHubLinks'
 import CadArticleDescribeProjectButton from './CadArticleDescribeProjectButton'
 import styles from './CadResourceArticle.module.css'
@@ -26,6 +28,11 @@ export default function CadResourceArticle({ article }) {
           { label: article.breadcrumbLastLabel, href: canonicalPath },
         ]}
       />
+      <div className={cadHomeStyles['cad-ad-bar']}>
+        <div className={cadHomeStyles['cad-ad-bar-inner']}>
+          <LeftRightBanner adSlot="3755241003" />
+        </div>
+      </div>
 
       <header className={styles.hero}>
         <div className={styles.heroInner}>
