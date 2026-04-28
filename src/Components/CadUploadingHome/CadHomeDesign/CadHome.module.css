@@ -135,6 +135,43 @@
    flex:1 1 auto
 
 }
+
+.cad-industries-item-cont-explore {
+    border: 1px dashed rgba(97, 11, 238, 0.35);
+    background: linear-gradient(180deg, #ffffff 0%, #f9f5ff 100%);
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.cad-industries-item-cont-explore .cad-industries-item-cont-head {
+    border-bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cad-industries-item-cont-explore-title {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.cad-industries-item-cont-explore h6 {
+    color: #610BEE;
+    margin: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.cad-industries-item-cont-explore p {
+    color: #334155;
+    text-align: center;
+    width: 92%;
+}
 .cad-industries-item-cont-head{
     display: flex;
     align-items: center;

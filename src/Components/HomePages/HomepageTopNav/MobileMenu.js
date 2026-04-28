@@ -59,6 +59,9 @@ function MobileMenu({ onClose, styles }) {
               <Link href="/tools" onClick={handleCloseMenu}>
                 All tools
               </Link>
+              <Link href="/tools/industries" onClick={handleCloseMenu}>
+                All industries
+              </Link>
               <Link href="/tools/org-hierarchy" onClick={handleCloseMenu}>
                 Org Hierarchy
               </Link>
@@ -68,6 +71,10 @@ function MobileMenu({ onClose, styles }) {
             </div>
           )}
         </div>
+
+        <Link href="/resources" onClick={handleCloseMenu}>
+          Resources
+        </Link>
 
         {/* Dropdown for Blogs */}
         <div className={styles["menu-dropdown"]}>
