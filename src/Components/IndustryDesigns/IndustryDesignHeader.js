@@ -89,6 +89,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
           onClick={handleRequestGlbViewer}
           disabled={isRequestingViewer}
         >
+          
           {isRequestingViewer ? "Opening 3D viewer" : "Open in 3D viewer"}
         </button>
         )}
