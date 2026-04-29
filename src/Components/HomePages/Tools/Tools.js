@@ -22,6 +22,12 @@ const toolsData = [
         description: 'A lightweight, online tool to convert 3D file formats—anytime, anywhere, without installing any software.',
         route: '/tools/3d-cad-file-converter'
     },
+    {
+        image: IMAGEURLS.cadCapability,
+        heading: 'CAD drawing pipeline',
+        description: 'Upload STEP and run the TechDraw pipeline on the server—technical sheets and exports.',
+        route: '/tools/cad-drawing-pipeline'
+    },
 ]
 
 function Tools() {
