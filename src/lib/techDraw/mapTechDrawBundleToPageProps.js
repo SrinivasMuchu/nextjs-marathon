@@ -37,19 +37,17 @@ function uniqueViews(entries) {
   return new Set(entries.map((e) => e.view_name).filter(Boolean)).size;
 }
 
-function extractDesignIdFromBaseUrl(baseUrl) {
-  const id = String(baseUrl || "").split("/").pop() || "";
-  return /^[a-f0-9]{24}$/.test(id) ? id : "";
-}
-
-/** SVG-only preview chain for consistent live/local rendering. */
+/** SVG-only preview chain (direct CDN URLs). */
 function sheetPreviewCandidates(baseUrl, sheetNum) {
   const n = Number(sheetNum);
-  const designId = extractDesignIdFromBaseUrl(baseUrl);
-  const apiSvg = designId
-    ? `/api/techdraw-sheet-svg?designId=${encodeURIComponent(designId)}&sheet=${n}`
-    : "";
-  return [apiSvg, `${baseUrl}/svg/sheet_${n}.svg`].filter(Boolean);
+  const designId = String(baseUrl || "").split("/").pop() || "";
+  if (/^[a-f0-9]{24}$/.test(designId)) {
+    return [
+      `/api/techdraw-file?designId=${encodeURIComponent(designId)}&sheet=${n}&ext=svg`,
+      `${baseUrl}/svg/sheet_${n}.svg`,
+    ];
+  }
+  return [`${baseUrl}/svg/sheet_${n}.svg`];
 }
 
 function sheetAssetPaths(baseUrl, sheetNum) {
@@ -316,10 +314,16 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
   const sheets = entries.map((e) => {
     const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num);
     const assets = sheetAssetPaths(baseUrl, e.sheet_num);
+    const designIdFromBase = String(baseUrl || "").split("/").pop() || "";
+    const dxfUrl = /^[a-f0-9]{24}$/.test(designIdFromBase)
+      ? `/api/techdraw-file?designId=${encodeURIComponent(
+          designIdFromBase
+        )}&sheet=${Number(e.sheet_num)}&ext=dxf`
+      : assets.dxf;
     return {
       src: previewCandidates[0],
       previewCandidates,
-      dxfUrl: assets.dxf,
+      dxfUrl,
       label: e.label,
     };
   });

@@ -1,33 +1,21 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import {
-  techdrawAssetProxyUrl,
-  techdrawPreviewCandidatesWithFallback,
-} from "@/lib/techDraw/techdrawPreviewProxy";
 import TwoDDrawingDxfStageClient from "./TwoDDrawingDxfStageClient";
 import styles from "./TwoDDrawingSheetViewerClient.module.css";
 
 function previewSrc(sheet) {
   if (!sheet) return "";
-  const candidates = techdrawPreviewCandidatesWithFallback(sheet.previewCandidates || []);
+  const candidates = sheet.previewCandidates || [];
   if (candidates.length) return candidates[0];
-  if (sheet.src) return techdrawAssetProxyUrl(sheet.src);
+  if (sheet.src) return sheet.src;
   return "";
 }
 
 function previewErrorHandler(sheet) {
-  const list = techdrawPreviewCandidatesWithFallback(sheet?.previewCandidates || []);
-  const single =
-    !list.length && sheet?.src ? [techdrawAssetProxyUrl(sheet.src)] : [];
-  const chain = list.length ? list : single;
-  if (chain.length < 2) return undefined;
   return (e) => {
-    const i = parseInt(e.currentTarget.getAttribute("data-preview-attempt") || "0", 10);
-    if (i + 1 < chain.length) {
-      e.currentTarget.setAttribute("data-preview-attempt", String(i + 1));
-      e.currentTarget.src = chain[i + 1];
-    }
+    // On error just show placeholder; no complex fallback chain.
+    e.currentTarget.style.display = "none";
   };
 }
 
@@ -94,7 +82,6 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
           <TwoDDrawingDxfStageClient
             dxfUrl={active.dxfUrl}
             alt={active.label}
-            onFailed={() => setViewMode("svg")}
           />
         ) : previewSrc(active) ? (
           <img

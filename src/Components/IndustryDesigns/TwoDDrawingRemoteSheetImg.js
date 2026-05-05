@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  techdrawAssetProxyUrl,
-  techdrawPreviewCandidatesWithFallback,
-} from "@/lib/techDraw/techdrawPreviewProxy";
-
 /**
- * Remote sheet preview: tries svg/ first, then screenshots/ and png_dim/ (see mapper).
- * Uses same-origin proxy so CloudFront attachment/octet-stream responses still paint in &lt;img&gt;.
+ * Remote sheet preview: simple direct <img> using provided URL(s).
  */
 export default function TwoDDrawingRemoteSheetImg({
   src,
@@ -16,12 +10,11 @@ export default function TwoDDrawingRemoteSheetImg({
   alt,
   className,
 }) {
-  const list =
-    Array.isArray(previewCandidates) && previewCandidates.length > 0
-      ? techdrawPreviewCandidatesWithFallback(previewCandidates)
-      : src
-        ? [src, techdrawAssetProxyUrl(src), fallbackSrc, fallbackSrc ? techdrawAssetProxyUrl(fallbackSrc) : null].filter(Boolean)
-        : [];
+  const list = Array.isArray(previewCandidates) && previewCandidates.length > 0
+    ? previewCandidates
+    : src
+      ? [src, fallbackSrc].filter(Boolean)
+      : [];
   if (!list.length) return null;
   return (
     <img
