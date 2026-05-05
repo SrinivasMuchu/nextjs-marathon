@@ -1,0 +1,108 @@
+.section {
+  margin-top: 48px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6d28d9;
+  margin: 0 0 8px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #111827;
+  margin: 0 0 10px;
+  line-height: 1.25;
+}
+
+.lead {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.65;
+  margin: 0 0 20px;
+  max-width: 900px;
+}
+
+.inlineCode {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.12em 0.4em;
+  border-radius: 4px;
+}
+
+.gridWrap {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.item {
+  min-width: 0;
+}
+
+.itemIcon {
+  font-size: 18px;
+  line-height: 1;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.itemIconMono {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.itemIconPurple {
+  color: #6d28d9;
+}
+
+.itemIconBlue {
+  color: #1d4ed8;
+}
+
+.itemTitle {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.45;
+  margin: 0 0 8px;
+  word-break: break-word;
+}
+
+.itemDesc {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

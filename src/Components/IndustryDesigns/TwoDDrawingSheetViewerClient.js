@@ -1,0 +1,150 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import {
+  techdrawAssetProxyUrl,
+  techdrawPreviewCandidatesProxied,
+} from "@/lib/techDraw/techdrawPreviewProxy";
+import TwoDDrawingDxfStageClient from "./TwoDDrawingDxfStageClient";
+import styles from "./TwoDDrawingSheetViewerClient.module.css";
+
+function previewSrc(sheet) {
+  if (!sheet) return "";
+  const proxied = techdrawPreviewCandidatesProxied(sheet.previewCandidates || []);
+  if (proxied.length) return proxied[0];
+  if (sheet.src) return techdrawAssetProxyUrl(sheet.src);
+  return "";
+}
+
+function previewErrorHandler(sheet) {
+  const list = techdrawPreviewCandidatesProxied(sheet?.previewCandidates || []);
+  const single =
+    !list.length && sheet?.src ? [techdrawAssetProxyUrl(sheet.src)] : [];
+  const chain = list.length ? list : single;
+  if (chain.length < 2) return undefined;
+  return (e) => {
+    const i = parseInt(e.currentTarget.getAttribute("data-preview-attempt") || "0", 10);
+    if (i + 1 < chain.length) {
+      e.currentTarget.setAttribute("data-preview-attempt", String(i + 1));
+      e.currentTarget.src = chain[i + 1];
+    }
+  };
+}
+
+export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
+  const [cur, setCur] = useState(0);
+  const [viewMode, setViewMode] = useState("svg");
+  const safeSheets = sheets.length ? sheets : [{ src: "", label: "Sheet 1" }];
+  const total = safeSheets.length;
+
+  const go = useCallback(
+    (delta) => {
+      setCur((i) => (i + delta + total) % total);
+    },
+    [total]
+  );
+
+  const goTo = useCallback(
+    (i) => {
+      setCur(((i % total) + total) % total);
+    },
+    [total]
+  );
+
+  const active = safeSheets[cur];
+
+  return (
+    <div className={styles.viewer}>
+      <div className={styles.viewerBar}>
+        <div className={styles.badge}>
+          <span className={styles.badgeIcon} aria-hidden>
+            M
+          </span>
+          Preview · 2D Drawing Sheets
+        </div>
+        <div className={styles.viewerBarRight}>
+          <div className={styles.modeSwitch} role="tablist" aria-label="Preview mode">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === "svg"}
+              className={`${styles.modeBtn} ${viewMode === "svg" ? styles.modeBtnActive : ""}`}
+              onClick={() => setViewMode("svg")}
+            >
+              SVG
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === "dxf"}
+              className={`${styles.modeBtn} ${viewMode === "dxf" ? styles.modeBtnActive : ""}`}
+              onClick={() => setViewMode("dxf")}
+            >
+              DXF
+            </button>
+          </div>
+          <span className={styles.counter} aria-live="polite">
+            {cur + 1} / {total}
+          </span>
+        </div>
+      </div>
+
+      <div className={styles.stage}>
+        {viewMode === "dxf" && active?.dxfUrl ? (
+          <TwoDDrawingDxfStageClient dxfUrl={active.dxfUrl} alt={active.label} />
+        ) : previewSrc(active) ? (
+          <img
+            key={cur}
+            className={styles.stageImg}
+            src={previewSrc(active)}
+            alt={active.label}
+            onError={previewErrorHandler(active)}
+          />
+        ) : (
+          <div className={styles.placeholder}>{active.label}</div>
+        )}
+        <button
+          type="button"
+          className={`${styles.navBtn} ${styles.navLeft}`}
+          onClick={() => go(-1)}
+          aria-label="Previous sheet"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          className={`${styles.navBtn} ${styles.navRight}`}
+          onClick={() => go(1)}
+          aria-label="Next sheet"
+        >
+          ›
+        </button>
+        <div className={styles.pill}>{active.label}</div>
+      </div>
+
+      <div className={styles.thumbRow} role="tablist" aria-label="Drawing sheets">
+        {safeSheets.map((s, i) => (
+          <button
+            key={`${s.label}-${i}`}
+            type="button"
+            role="tab"
+            aria-selected={i === cur}
+            className={`${styles.thumb} ${i === cur ? styles.thumbActive : ""}`}
+            onClick={() => goTo(i)}
+          >
+            {previewSrc(s) ? (
+              <img
+                key={`${s.label}-${i}`}
+                src={previewSrc(s)}
+                alt=""
+                onError={previewErrorHandler(s)}
+              />
+            ) : (
+              <>thumb {i + 1}</>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

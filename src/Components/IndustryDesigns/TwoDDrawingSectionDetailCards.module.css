@@ -1,0 +1,148 @@
+.wrapper {
+  margin-top: 48px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.group {
+  margin-top: 32px;
+}
+
+.group:first-child {
+  margin-top: 0;
+}
+
+.srcTag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.card {
+  flex: 1 1 300px;
+  min-width: 260px;
+  max-width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.head {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.headSection {
+  background: #fef3c7;
+  border-bottom-color: #fde68a;
+}
+
+.headDetail {
+  background: #d1fae5;
+  border-bottom-color: #a7f3d0;
+}
+
+.sym {
+  font-size: 16px;
+  font-weight: 900;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.symSection {
+  color: #d97706;
+}
+
+.symDetail {
+  color: #059669;
+}
+
+.lbl {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.lblSection {
+  color: #d97706;
+}
+
+.lblDetail {
+  color: #059669;
+}
+
+.body {
+  padding: 16px;
+}
+
+.meta {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.desc {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.65;
+  margin: 0 0 12px;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item {
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.5;
+  padding-left: 14px;
+  position: relative;
+}
+
+.itemSection::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #d97706;
+  font-size: 11px;
+}
+
+.itemDetail::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #059669;
+  font-size: 11px;
+}

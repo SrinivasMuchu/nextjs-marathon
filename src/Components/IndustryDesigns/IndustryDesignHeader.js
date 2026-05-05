@@ -22,6 +22,14 @@ function getOrCreateUuid() {
 export default function IndustryDesignHeader({ design, designData, type }) {
   const [isRequestingViewer, setIsRequestingViewer] = useState(false);
   const router = useRouter();
+  const isTwoDEnabled = Boolean(designData?.is_two_dims);
+  const libraryRoute = String(designData?.route || design || "").trim();
+  const twoDPageHref =
+    designData?._id && libraryRoute
+      ? `/library/${encodeURIComponent(
+          libraryRoute
+        )}/2d-technical-drawing/${designData._id}`
+      : null;
 
   const handleRequestGlbViewer = async () => {
     const formatType = designData?.file_type ? designData.file_type.toLowerCase() : "step";
@@ -91,6 +99,15 @@ export default function IndustryDesignHeader({ design, designData, type }) {
         >
           {isRequestingViewer ? "Opening 3D viewer" : "Open in 3D viewer"}
         </button>
+        )}
+        {type === "library" && isTwoDEnabled && twoDPageHref && (
+          <button
+            type="button"
+            className={styles.viewerButton}
+            onClick={() => router.push(twoDPageHref)}
+          >
+            Open 2D Technical Drawings
+          </button>
         )}
         </div>
         <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>

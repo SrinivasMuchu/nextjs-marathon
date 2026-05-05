@@ -774,9 +774,6 @@ border: 1px solid  #D1D4D7;
     .industry-design-suggestion-designs-cont,.industry-design-suggestion-bottom {
         height: auto;
     }
-    .industry-design-page-root{
-        padding: 0 16px;
-    }
 }
 
 
@@ -1012,9 +1009,16 @@ line-height: 20px; /* 142.857% */
 
 }
 .industry-design-page-root{
-    padding: 0 45px;
+    /* Match HomeTopNav horizontal padding so breadcrumbs align with the logo row */
+    padding: 0 64px;
     width: 100%;
     box-sizing: border-box;
+}
+
+@media screen and (max-width: 1050px) {
+    .industry-design-page-root {
+        padding: 0 32px;
+    }
 }
 .industryDesignHeaderEdit{
     display: flex;

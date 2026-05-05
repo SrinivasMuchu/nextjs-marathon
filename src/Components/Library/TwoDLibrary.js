@@ -1,0 +1,156 @@
+import React from "react";
+import axios from "axios";
+import Link from "next/link";
+import { BASE_URL } from "@/config";
+import styles from "./Library.module.css";
+import ServerBreadCrumbs from "../CommonJsx/ServerBreadCrumbs";
+import HoverImageSequence from "../CommonJsx/RotatedImages";
+import DesignStats from "../CommonJsx/DesignStats";
+import DesignDetailsStats from "../CommonJsx/DesignDetailsStats";
+import Footer from "../HomePages/Footer/Footer";
+
+function build2dLibraryHref({ page, search, basePath = "/2d-library" }) {
+  const qp = new URLSearchParams();
+  if (page && Number(page) > 1) qp.set("page", String(page));
+  if (search) qp.set("search", search);
+  const qs = qp.toString();
+  return qs ? `${basePath}?${qs}` : basePath;
+}
+
+export default async function TwoDLibrary({ searchParams, basePath = "/2d-library" }) {
+  const page = Math.max(1, parseInt(searchParams?.page, 10) || 1);
+  const limit = 24;
+  const search = (searchParams?.search || "").trim();
+
+  const queryString = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+    ...(search ? { search } : {}),
+  }).toString();
+
+  const response = await axios.get(
+    `${BASE_URL}/v1/cad/get-2d-library-designs?${queryString}`,
+    { cache: "no-store" }
+  );
+
+  const data = response?.data || {};
+  const designs = Array.isArray(data?.data) ? data.data : [];
+  const pagination = data?.pagination || {};
+  const total = Number(pagination.total || designs.length || 0);
+  const totalPages = Number(pagination.total_pages || 1);
+
+  return (
+    <>
+      <ServerBreadCrumbs
+        links={[
+          { label: "2D Library", href: basePath },
+        ]}
+      />
+      <div className={styles["library-page"]}>
+        <header className={styles["library-hero"]}>
+          <nav className={styles["library-hero-breadcrumb"]} aria-label="Breadcrumb">
+            <Link href="/" className={styles["library-hero-breadcrumb-link"]}>
+              Home
+            </Link>
+            <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+            <span className={styles["library-hero-breadcrumb-current"]}>2D Library</span>
+          </nav>
+          <h1 className={styles["library-hero-title"]}>2D Technical Drawing Library</h1>
+          <p className={styles["library-hero-description"]}>
+            Browse all designs marked as 2D-enabled and open their technical drawing sets.
+          </p>
+        </header>
+
+        <div className={styles["library-below-hero"]}>
+          <div className={styles["library-content"]}>
+            <div className={styles["library-content-head"]}>
+              <span className={styles["library-resources-count"]}>
+                2D Designs ({total} results)
+              </span>
+            </div>
+
+            <div className={styles["library-designs"]}>
+              <div className={styles["library-designs-items"]}>
+                {designs.map((design) => (
+                  <div key={design._id} className={styles["library-designs-items-container"]}>
+                    {(() => {
+                      const route = String(design.route || "").trim();
+                      const href = route
+                        ? `/library/${encodeURIComponent(route)}/2d-technical-drawing/${design._id}`
+                        : `/library/${design._id}/2d-technical-drawing/${design._id}`;
+                      return (
+                    <Link
+                      href={href}
+                      className={styles["library-designs-primary-link"]}
+                      aria-label={design.page_title || design.part_name || "2D design"}
+                    >
+                      <HoverImageSequence design={design} width={280} height={233} />
+                      <h6 title={design.page_title || design.part_name}>
+                        {design.page_title || design.part_name || "Untitled design"}
+                      </h6>
+                    </Link>
+                      );
+                    })()}
+
+                    <div className={styles["design-title-wrapper"]}>
+                      <div
+                        className={styles["design-title-text"]}
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <DesignDetailsStats text="2D Drawing" type="category" />
+                        {design.file_type ? (
+                          <DesignDetailsStats
+                            fileType={`.${String(design.file_type).toLowerCase()}`}
+                            text={`.${String(design.file_type).toUpperCase()}`}
+                          />
+                        ) : null}
+                        <div className={styles["design-stats-wrapper"]}>
+                          <DesignStats
+                            views={design.total_design_views ?? 0}
+                            downloads={design.total_design_downloads ?? 0}
+                          />
+                        </div>
+                      </div>
+                      <span className={styles["design-title-wrapper-price"]}>
+                        {design.price ? `$${design.price}` : "Free"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className={styles["library-pagination"]}>
+                {page > 1 ? (
+                  <Link
+                    href={build2dLibraryHref({ page: page - 1, search, basePath })}
+                    className={styles["pagination-button"]}
+                  >
+                    prev
+                  </Link>
+                ) : null}
+                <span className={`${styles["pagination-button"]} ${styles.active}`}>
+                  {page}
+                </span>
+                {page < totalPages ? (
+                  <Link
+                    href={build2dLibraryHref({ page: page + 1, search, basePath })}
+                    className={styles["pagination-button"]}
+                  >
+                    next
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </>
+  );
+}
+
