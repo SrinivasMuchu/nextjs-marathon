@@ -37,10 +37,19 @@ function uniqueViews(entries) {
   return new Set(entries.map((e) => e.view_name).filter(Boolean)).size;
 }
 
+function extractDesignIdFromBaseUrl(baseUrl) {
+  const id = String(baseUrl || "").split("/").pop() || "";
+  return /^[a-f0-9]{24}$/.test(id) ? id : "";
+}
+
 /** SVG-only preview chain for consistent live/local rendering. */
 function sheetPreviewCandidates(baseUrl, sheetNum) {
   const n = Number(sheetNum);
-  return [`${baseUrl}/svg/sheet_${n}.svg`];
+  const designId = extractDesignIdFromBaseUrl(baseUrl);
+  const apiSvg = designId
+    ? `/api/techdraw-sheet-svg?designId=${encodeURIComponent(designId)}&sheet=${n}`
+    : "";
+  return [apiSvg, `${baseUrl}/svg/sheet_${n}.svg`].filter(Boolean);
 }
 
 function sheetAssetPaths(baseUrl, sheetNum) {
