@@ -26,9 +26,9 @@ export function techdrawPreviewCandidatesWithFallback(candidates) {
   const out = [];
   for (const c of candidates) {
     if (!c) continue;
-    out.push(c);
     const proxied = techdrawAssetProxyUrl(c);
     if (proxied && proxied !== c) out.push(proxied);
+    out.push(c);
   }
   return out;
 }
