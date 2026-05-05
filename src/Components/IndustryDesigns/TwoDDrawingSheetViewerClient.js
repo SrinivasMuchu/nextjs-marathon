@@ -3,21 +3,21 @@
 import { useCallback, useState } from "react";
 import {
   techdrawAssetProxyUrl,
-  techdrawPreviewCandidatesProxied,
+  techdrawPreviewCandidatesWithFallback,
 } from "@/lib/techDraw/techdrawPreviewProxy";
 import TwoDDrawingDxfStageClient from "./TwoDDrawingDxfStageClient";
 import styles from "./TwoDDrawingSheetViewerClient.module.css";
 
 function previewSrc(sheet) {
   if (!sheet) return "";
-  const proxied = techdrawPreviewCandidatesProxied(sheet.previewCandidates || []);
-  if (proxied.length) return proxied[0];
+  const candidates = techdrawPreviewCandidatesWithFallback(sheet.previewCandidates || []);
+  if (candidates.length) return candidates[0];
   if (sheet.src) return techdrawAssetProxyUrl(sheet.src);
   return "";
 }
 
 function previewErrorHandler(sheet) {
-  const list = techdrawPreviewCandidatesProxied(sheet?.previewCandidates || []);
+  const list = techdrawPreviewCandidatesWithFallback(sheet?.previewCandidates || []);
   const single =
     !list.length && sheet?.src ? [techdrawAssetProxyUrl(sheet.src)] : [];
   const chain = list.length ? list : single;
@@ -91,7 +91,11 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
 
       <div className={styles.stage}>
         {viewMode === "dxf" && active?.dxfUrl ? (
-          <TwoDDrawingDxfStageClient dxfUrl={active.dxfUrl} alt={active.label} />
+          <TwoDDrawingDxfStageClient
+            dxfUrl={active.dxfUrl}
+            alt={active.label}
+            onFailed={() => setViewMode("svg")}
+          />
         ) : previewSrc(active) ? (
           <img
             key={cur}

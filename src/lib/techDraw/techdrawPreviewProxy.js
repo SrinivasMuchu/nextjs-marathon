@@ -17,6 +17,22 @@ export function techdrawPreviewCandidatesProxied(candidates) {
   return candidates.map(techdrawAssetProxyUrl);
 }
 
+/**
+ * For each remote asset URL, try direct URL first, then proxy fallback.
+ * This helps when proxy/API has issues while direct CDN image is accessible.
+ */
+export function techdrawPreviewCandidatesWithFallback(candidates) {
+  if (!Array.isArray(candidates)) return [];
+  const out = [];
+  for (const c of candidates) {
+    if (!c) continue;
+    out.push(c);
+    const proxied = techdrawAssetProxyUrl(c);
+    if (proxied && proxied !== c) out.push(proxied);
+  }
+  return out;
+}
+
 export function isUnderTechdrawPrefix(urlStr) {
   try {
     return typeof urlStr === "string" && urlStr.startsWith(`${PREFIX}/`);

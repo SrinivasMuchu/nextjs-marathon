@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { techdrawAssetProxyUrl } from "@/lib/techDraw/techdrawPreviewProxy";
 import styles from "./TwoDDrawingSheetViewerClient.module.css";
 
-export default function TwoDDrawingDxfStageClient({ dxfUrl, alt }) {
+export default function TwoDDrawingDxfStageClient({ dxfUrl, alt, onFailed }) {
   const hostRef = useRef(null);
   const [error, setError] = useState("");
 
@@ -23,9 +23,23 @@ export default function TwoDDrawingDxfStageClient({ dxfUrl, alt }) {
         ]);
         if (stopped || !hostRef.current) return;
 
-        const res = await fetch(techdrawAssetProxyUrl(dxfUrl), { cache: "no-store" });
-        if (!res.ok) throw new Error(`DXF fetch failed (${res.status})`);
-        const content = await res.text();
+        const attempts = [techdrawAssetProxyUrl(dxfUrl), dxfUrl].filter(Boolean);
+        let content = "";
+        let lastStatus = 0;
+        for (const u of attempts) {
+          try {
+            const res = await fetch(u, { cache: "no-store" });
+            if (!res.ok) {
+              lastStatus = res.status;
+              continue;
+            }
+            content = await res.text();
+            if (content) break;
+          } catch {
+            // try next source
+          }
+        }
+        if (!content) throw new Error(`DXF fetch failed (${lastStatus || 404})`);
 
         const DxfParser = DxfParserMod.default || DxfParserMod;
         const parser = new DxfParser();
@@ -38,7 +52,10 @@ export default function TwoDDrawingDxfStageClient({ dxfUrl, alt }) {
         const viewer = new Viewer(dxf, host, w, h);
         viewer.render();
       } catch (e) {
-        if (!stopped) setError(e?.message || "Unable to render DXF");
+        if (!stopped) {
+          setError(e?.message || "Unable to render DXF");
+          if (typeof onFailed === "function") onFailed(e);
+        }
       }
     }
 

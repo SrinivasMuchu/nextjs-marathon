@@ -2,7 +2,7 @@
 
 import {
   techdrawAssetProxyUrl,
-  techdrawPreviewCandidatesProxied,
+  techdrawPreviewCandidatesWithFallback,
 } from "@/lib/techDraw/techdrawPreviewProxy";
 
 /**
@@ -18,9 +18,9 @@ export default function TwoDDrawingRemoteSheetImg({
 }) {
   const list =
     Array.isArray(previewCandidates) && previewCandidates.length > 0
-      ? techdrawPreviewCandidatesProxied(previewCandidates)
+      ? techdrawPreviewCandidatesWithFallback(previewCandidates)
       : src
-        ? [techdrawAssetProxyUrl(src), fallbackSrc ? techdrawAssetProxyUrl(fallbackSrc) : null].filter(Boolean)
+        ? [src, techdrawAssetProxyUrl(src), fallbackSrc, fallbackSrc ? techdrawAssetProxyUrl(fallbackSrc) : null].filter(Boolean)
         : [];
   if (!list.length) return null;
   return (

@@ -37,14 +37,10 @@ function uniqueViews(entries) {
   return new Set(entries.map((e) => e.view_name).filter(Boolean)).size;
 }
 
-/** Order: published sheet vectors first, then raster previews if present. */
+/** SVG-only preview chain for consistent live/local rendering. */
 function sheetPreviewCandidates(baseUrl, sheetNum) {
   const n = Number(sheetNum);
-  return [
-    `${baseUrl}/svg/sheet_${n}.svg`,
-    `${baseUrl}/screenshots/sheet_${n}.png`,
-    `${baseUrl}/png_dim/sheet_${n}.png`,
-  ];
+  return [`${baseUrl}/svg/sheet_${n}.svg`];
 }
 
 function sheetAssetPaths(baseUrl, sheetNum) {
