@@ -26,7 +26,7 @@ const defaultSources = [
   {
     icon: "{ }",
     iconMods: ["itemIconBlue", "itemIconMono"],
-    title: "dimension_specs.json + geometry_per_sheet.json",
+    title: "Dimension and sheet geometry output",
     description:
       "Dimension IDs per sheet and solid-to-sheet mapping — drives the stat strip counts.",
   },
@@ -43,9 +43,8 @@ export default function TwoDAiDrawingAnalysis({ sources = defaultSources }) {
         What the AI Decided &amp; Why
       </h2>
       <p className={styles.lead}>
-        The cards below line up with files published in this design&apos;s CloudFront bundle:
-        JSON at the folder root, plus <code className={styles.inlineCode}>svg/</code>,{" "}
-        <code className={styles.inlineCode}>dxf/</code>, and PDFs.
+        The cards below explain how the generated drawing outputs and assets connect
+        to the final technical sheets.
       </p>
 
       <div className={styles.gridWrap}>

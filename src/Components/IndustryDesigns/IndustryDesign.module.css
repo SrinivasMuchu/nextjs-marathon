@@ -1067,6 +1067,10 @@ letter-spacing: -0.192px;
     gap: 10px;
 }
 
+.secondaryActionsSingle {
+    grid-template-columns: 1fr;
+}
+
 .viewerButtonLink {
     display: flex;
     align-items: center;

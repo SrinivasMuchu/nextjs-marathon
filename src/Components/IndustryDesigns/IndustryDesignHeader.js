@@ -29,6 +29,8 @@ export default function IndustryDesignHeader({ design, designData, type }) {
     designData?._id && libraryRoute
       ? `/library/2d-technical-drawing/${encodeURIComponent(libraryRoute)}`
       : null;
+  const showTwoDButton = type === "library" && isTwoDEnabled && Boolean(twoDPageHref);
+  const showThreeDButton = designData.file_type !== "dxf" && designData.file_type !== "dwg";
 
   const handleRequestGlbViewer = async () => {
     const formatType = designData?.file_type ? designData.file_type.toLowerCase() : "step";
@@ -97,8 +99,12 @@ export default function IndustryDesignHeader({ design, designData, type }) {
             />
           </div>
 
-          <div className={styles.secondaryActions}>
-            {designData.file_type !== "dxf" && designData.file_type !== "dwg" && (
+          <div
+            className={`${styles.secondaryActions} ${
+              !showTwoDButton ? styles.secondaryActionsSingle : ""
+            }`}
+          >
+            {showThreeDButton && (
               <button
                 type="button"
                 className={`${styles.viewerButton} ${
@@ -113,7 +119,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
                 {isRequestingViewer ? "Opening" : "Open 3D viewer"}
               </button>
             )}
-            {type === "library" && isTwoDEnabled && twoDPageHref && (
+            {showTwoDButton && (
               <Link
                 href={twoDPageHref}
                 prefetch

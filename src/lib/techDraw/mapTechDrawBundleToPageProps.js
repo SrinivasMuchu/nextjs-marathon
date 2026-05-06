@@ -177,11 +177,11 @@ function buildViewCards(entries, baseUrl, viewSelectionResponse) {
     const reason = reasonForEntry(e, reasonMaps);
     const body = reason
       ? reason
-      : `This sheet includes ${e.edgeCount} geometry edges from the CAD projection pipeline. Dimension IDs for this sheet are listed in dimension_specs.json.`;
+      : `This sheet includes ${e.edgeCount} geometry edges from the CAD projection pipeline.`;
     return {
       title: e.label,
       badgeKey: badgeKeyForEntry(e),
-      source: `geometry_per_sheet.json → sheet ${e.sheet_num} (${e.view_name})`,
+      source: `Sheet ${e.sheet_num} (${e.view_name})`,
       body,
       imageSrc: previewCandidates[0],
       previewCandidates,
@@ -205,7 +205,7 @@ function buildSectionDetailGroups(entries, dimensionSpecs, viewSelectionResponse
     : [];
 
   const dimNote = dimensionSpecs
-    ? "Dimension selection IDs for section sheets are included in dimension_specs.json."
+    ? "Dimension references for section sheets are included in the pipeline output."
     : "";
 
   const groups = [];
@@ -250,7 +250,7 @@ function buildSectionDetailGroups(entries, dimensionSpecs, viewSelectionResponse
           meta:
             anchor || radius
               ? `anchor: (${anchor || "—"})${radius ? ` · radius: ${radius}` : ""}`
-              : "detail-view anchor from view_selection_response.json",
+              : "detail-view anchor from pipeline output",
           description:
             String(d?.reason || "").trim() ||
             `Detail ${refUpper} highlights a localized manufacturing-critical area for the drawing package.`,
@@ -336,9 +336,7 @@ function buildTransparencyIntro(
   const provider = meta.provider || "";
   const model = meta.model || "";
   const saved = meta.saved_at_utc || "";
-  const vsNote = viewSelectionResponse
-    ? " View selection metadata is in view_selection_response.json."
-    : "";
+  const vsNote = "";
   const analysedViews = uniqueViews(entries);
   const sectionsCount = sectionEntries(entries).length;
   const hasDetails = Array.isArray(viewSelectionResponse?.llm_data?.detail_views)
@@ -348,7 +346,7 @@ function buildTransparencyIntro(
   return [
     `The Marathon 3D→2D pipeline rendered ${analysedViews} views of the 3D CAD model and passed them through our AI analysis engine.${vsNote}`,
     `The AI reasoned about the geometry, selected view candidates, and planned ${sectionsCount} section cut${sectionsCount === 1 ? "" : "s"} to expose critical internal features.${hasDetails ? " It also selected detail-view anchor points for local manufacturing-critical regions." : ""} The final drawing configuration was then generated automatically for sheet outputs in SVG, DXF, and PDF.`,
-    `dimension_specs.json maps ${totalDimIds} dimension IDs across sheets. geometry_per_sheet.json stores per-sheet labels, views, and extracted edge geometry.`,
+    `${totalDimIds} dimension references were mapped across sheets, with per-sheet labels, views, and extracted edge geometry.`,
   ];
 }
 
@@ -358,7 +356,7 @@ function buildAiAnalysisSources(viewSelectionResponse, totalDimIds) {
     {
       icon: "🎯",
       iconMods: [],
-      title: "view_selection_response.json",
+      title: "View-selection analysis output",
       description: vs
         ? `Stage 2 view selection (${vs.provider || "LLM"} · ${vs.model || "model"}), saved ${vs.saved_at_utc || "—"}.`
         : "AI-selected views for this drawing set when Stage 2 JSON is present in the bundle.",
@@ -366,7 +364,7 @@ function buildAiAnalysisSources(viewSelectionResponse, totalDimIds) {
     {
       icon: "{ }",
       iconMods: ["itemIconBlue", "itemIconMono"],
-      title: "dimension_specs.json + geometry_per_sheet.json",
+      title: "Dimension and geometry outputs",
       description: `${totalDimIds} dimension references and per-sheet projection geometry for this design.`,
     },
     {

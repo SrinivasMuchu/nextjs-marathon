@@ -118,7 +118,6 @@ export default function TwoDDrawingSectionDetailCards({ groups }) {
     <div className={styles.wrapper} aria-label="Section cuts and detail views">
       {data.map((group) => (
         <div key={group.srcTag} className={styles.group}>
-          <div className={styles.srcTag}>{group.srcTag}</div>
           <div className={styles.row}>
             {group.cards.map((card) => (
               <Card key={card.label} card={card} variant={group.variant} />

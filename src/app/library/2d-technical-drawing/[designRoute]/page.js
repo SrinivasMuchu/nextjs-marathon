@@ -21,6 +21,33 @@ async function fetchDesignByRoute(designRoute) {
   }
 }
 
+async function fetchLightHeroStats(designId) {
+  try {
+    const base = `${TECH_DRAW_LIBRARY_PREFIX}/${designId}`;
+    const res = await fetch(`${base}/geometry_per_sheet.json`, {
+      next: { revalidate: 120 },
+    });
+    if (!res.ok) return null;
+    const geo = await res.json();
+    const entries = geo && typeof geo === "object" ? Object.values(geo) : [];
+    const views = new Set(
+      entries.map((e) => String(e?.view_name || "").trim()).filter(Boolean)
+    ).size;
+    const sections = entries.filter((e) => {
+      const label = String(e?.label || "");
+      const view = String(e?.view_name || "");
+      return /section/i.test(label) || /^section/i.test(view);
+    }).length;
+    return {
+      sheets: entries.length,
+      views,
+      sections,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }) {
   const designRoute = String(params?.designRoute || "").trim();
   return {
@@ -93,6 +120,7 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
   const design = await fetchDesignByRoute(designRoute);
   const designId = String(design?._id || "").trim();
   if (!/^[a-f0-9]{24}$/i.test(designId)) notFound();
+  const lightStats = await fetchLightHeroStats(designId);
   const title = String(design?.page_title || design?.part_name || "2D Technical Drawing Set").trim();
   const breadcrumbLinks = [
     { label: "Library", href: "/library" },
@@ -105,12 +133,11 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
   const heroProps = {
     title: `${title} — 2D Technical Drawing Set`,
     tags: [],
-    // Initial paint: keep lightweight placeholders until full JSON loads.
     stats: [
-      { value: "—", label: "Drawing Sheets" },
-      { value: "—", label: "Views Analysed" },
+      { value: String(lightStats?.sheets ?? "0"), label: "Drawing Sheets" },
+      { value: String(lightStats?.views ?? "0"), label: "Views Analysed" },
       { value: "3", label: "Export Formats" },
-      { value: "—", label: "Section Cuts" },
+      { value: String(lightStats?.sections ?? "0"), label: "Section Cuts" },
       { value: "1st Angle", label: "Projection" },
     ],
     showBadges: true,

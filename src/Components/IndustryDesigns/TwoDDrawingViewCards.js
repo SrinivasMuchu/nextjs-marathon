@@ -58,9 +58,6 @@ const defaultViews = [
 export default function TwoDDrawingViewCards({ views = defaultViews }) {
   return (
     <section className={styles.section} aria-label="View-by-view analysis">
-      <div className={styles.srcTag}>
-        geometry_per_sheet.json + svg/sheet_N.svg — per drawing sheet
-      </div>
       <div className={styles.list}>
         {views.map((v) => {
           const b = BADGE[v.badgeKey] || BADGE.ortho;
@@ -82,7 +79,6 @@ export default function TwoDDrawingViewCards({ views = defaultViews }) {
                   <h3 className={styles.title}>{v.title}</h3>
                   <span className={`${styles.badge} ${b.className}`}>{b.label}</span>
                 </div>
-                <p className={styles.source}>{v.source}</p>
                 <p className={styles.text}>{v.body}</p>
               </div>
             </article>

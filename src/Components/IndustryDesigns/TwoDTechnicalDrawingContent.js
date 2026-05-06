@@ -3,7 +3,6 @@ import TwoDDrawingViewCards from "./TwoDDrawingViewCards";
 import TwoDDrawingSectionDetailCards from "./TwoDDrawingSectionDetailCards";
 // import TwoDDrawingBomTable from "./TwoDDrawingBomTable";
 import TwoDDrawingSheetDownloads from "./TwoDDrawingSheetDownloads";
-import TwoDDrawingCtaBanner from "./TwoDDrawingCtaBanner";
 import TwoDDrawingTransparencyBlock from "./TwoDDrawingTransparencyBlock";
 import TwoDDrawingPreviewPanel from "./TwoDDrawingPreviewPanel";
 import TwoDDrawingRightSidebar from "./TwoDDrawingRightSidebar";
@@ -50,7 +49,7 @@ export default function TwoDTechnicalDrawingContent({
       <TwoDDrawingSectionDetailCards groups={sectionDetailGroups} />
       {/* <TwoDDrawingBomTable rows={bomRows} /> */}
       <TwoDDrawingSheetDownloads rows={sheetDownloadRows} />
-      <TwoDDrawingCtaBanner generateHref={generateHref} />
+      {/* <TwoDDrawingCtaBanner generateHref={generateHref} /> */}
       <TwoDDrawingTransparencyBlock
         metaStats={transparencyMetaStats}
         introParagraphs={transparencyIntroParagraphs}
