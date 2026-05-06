@@ -35,6 +35,7 @@ function buildLibraryHref(params) {
     recency: params.recency,
     free_paid: params.free_paid,
     file_format: params.file_format,
+    two_dims: params.two_dims,
   });
 }
 
@@ -50,6 +51,11 @@ async function Library({ searchParams }) {
   const recency = searchParams?.recency || '';
   const freePaid = searchParams?.free_paid || '';
   const fileFormat = searchParams?.file_format || '';
+  const rawTwoDims = searchParams?.two_dims;
+  const twoDimsOn = ['1', 'true', 'yes'].includes(
+    String(rawTwoDims || '').trim().toLowerCase()
+  );
+  const twoDimsParam = twoDimsOn ? '1' : '';
 
   // Read UUID from cookies (server-side)
   const cookieStore = cookies();
@@ -65,6 +71,7 @@ async function Library({ searchParams }) {
     recency: recency,
     free_paid: freePaid,
     file_format: fileFormat,
+    two_dims: twoDimsParam,
     page,
     limit,
     uuid,
@@ -169,15 +176,38 @@ async function Library({ searchParams }) {
             initialRecency: searchParams?.recency,
             initialFreePaid: searchParams?.free_paid,
             initialFileFormat: searchParams?.file_format,
+            initialTwoDims: twoDimsParam,
             hasActiveFilters: Object.keys(searchParams || {}).length > 0,
           }}
           contentHead={
             <>
-              <span className={styles["library-resources-count"]}>
-                All Designs ({(pagination?.totalItems ?? designs?.length ?? 0)} results)
-              </span>
-              <div className={styles["library-content-sort"]}>
-                <SortBySelect initialSort={searchParams?.sort} className={styles["library-content-sort-select"]} />
+              <div className={styles['library-content-head-left']}>
+                <span className={styles['library-resources-count']}>
+                  All Designs ({(pagination?.totalItems ?? designs?.length ?? 0)} results)
+                </span>
+                <Link
+                  href={buildLibraryHref({
+                    category,
+                    search: searchQuery,
+                    page: 1,
+                    tags,
+                    sort,
+                    recency,
+                    free_paid: freePaid,
+                    file_format: fileFormat,
+                    two_dims: twoDimsOn ? '' : '1',
+                  })}
+                  className={
+                    styles['library-toolbar-two-dims'] +
+                    (twoDimsOn ? ` ${styles['library-toolbar-two-dims-active']}` : '')
+                  }
+                  aria-pressed={twoDimsOn}
+                >
+                  2D drawings only
+                </Link>
+              </div>
+              <div className={styles['library-content-sort']}>
+                <SortBySelect initialSort={searchParams?.sort} className={styles['library-content-sort-select']} />
               </div>
             </>
           }
@@ -262,7 +292,7 @@ async function Library({ searchParams }) {
 
         <div className={styles["library-pagination"]}>
           {page > 1 && (
-            <Link href={buildLibraryHref({ category, search: searchQuery, page: page - 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })} className={styles['pagination-button']}>
+            <Link href={buildLibraryHref({ category, search: searchQuery, page: page - 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat, two_dims: twoDimsParam })} className={styles['pagination-button']}>
               <KeyboardBackspaceIcon /> prev
             </Link>
           )}
@@ -278,7 +308,7 @@ async function Library({ searchParams }) {
             const startPage = showLeftDots ? Math.max(2, page - siblingCount) : 2;
             const endPage = showRightDots ? Math.min(totalPages - 1, page + siblingCount) : totalPages - 1;
 
-            const q = (p) => buildLibraryHref({ category, search: searchQuery, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat });
+            const q = (p) => buildLibraryHref({ category, search: searchQuery, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat, two_dims: twoDimsParam });
 
             pageLinks.push(
               <Link
@@ -326,7 +356,7 @@ async function Library({ searchParams }) {
           })()}
 
           {page < totalPages && (
-            <Link href={buildLibraryHref({ category, search: searchQuery, page: page + 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat })} className={styles['pagination-button']}>
+            <Link href={buildLibraryHref({ category, search: searchQuery, page: page + 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat, two_dims: twoDimsParam })} className={styles['pagination-button']}>
               next <KeyboardBackspaceIcon style={{ transform: "rotate(180deg)" }} />
             </Link>
           )}
