@@ -109,7 +109,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
                 <span className={styles.viewerButtonIcon} aria-hidden>
                   🧊
                 </span>
-                {isRequestingViewer ? "Opening 3D viewer" : "Open 3D viewer"}
+                {isRequestingViewer ? "Opening " : "Open 3D viewer"}
               </button>
             )}
             {type === "library" && isTwoDEnabled && twoDPageHref && (
