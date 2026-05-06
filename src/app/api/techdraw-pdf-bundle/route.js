@@ -1,14 +1,25 @@
+import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
 import JSZip from "jszip";
 import { TECH_DRAW_LIBRARY_PREFIX } from "@/config";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
 
 const ALLOW_PREFIX = TECH_DRAW_LIBRARY_PREFIX.replace(/\/$/, "");
 const DESIGN_ID_RE = /^[a-f0-9]{24}$/;
 
+const CDN_FETCH_INIT = {
+  cache: "no-store",
+  headers: {
+    Accept: "*/*",
+    "User-Agent": "MarathonOS-Frontend/1.0 (techdraw-pdf-bundle)",
+  },
+};
+
 async function fetchBytes(url) {
-  const res = await fetch(url, { next: { revalidate: 120 } });
+  const res = await fetch(url, CDN_FETCH_INIT);
   if (!res.ok) return null;
   return new Uint8Array(await res.arrayBuffer());
 }
@@ -51,7 +62,6 @@ export async function GET(request) {
   const zip = new JSZip();
   let added = 0;
 
-  // Common technical drawing PDF names across old/new bundles.
   const rootPdfCandidates = [
     "technical_drawing_simple.pdf",
     "drawing.pdf",
@@ -64,7 +74,6 @@ export async function GET(request) {
     }
   }
 
-  // Collect per-sheet PDFs from either root or /pdf/ folder layouts.
   for (let i = 1; i <= nSheets; i += 1) {
     const fileName = `sheet_${i}.pdf`;
     const sheetPdf =
@@ -80,13 +89,16 @@ export async function GET(request) {
     return NextResponse.json({ error: "No PDFs found in bundle" }, { status: 404 });
   }
 
-  const out = await zip.generateAsync({
-    type: "uint8array",
-    compression: "DEFLATE",
-    compressionOptions: { level: 6 },
+  /* STORE: PDFs barely compress; faster CPU on serverless. */
+  const nodeStream = zip.generateNodeStream({
+    type: "nodebuffer",
+    streamFiles: true,
+    compression: "STORE",
   });
 
-  return new NextResponse(out, {
+  const webStream = Readable.toWeb(nodeStream);
+
+  return new NextResponse(webStream, {
     status: 200,
     headers: {
       "Content-Type": "application/zip",
@@ -95,4 +107,3 @@ export async function GET(request) {
     },
   });
 }
-

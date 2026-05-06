@@ -94,6 +94,15 @@
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.18);
 }
 
+.stagePdf {
+  width: min(96%, 980px);
+  height: 370px;
+  display: block;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.18);
+}
+
 .dxfWrap {
   width: 100%;
   max-width: 100%;

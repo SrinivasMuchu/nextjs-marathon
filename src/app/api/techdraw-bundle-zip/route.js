@@ -1,14 +1,26 @@
+import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
 import JSZip from "jszip";
 import { TECH_DRAW_LIBRARY_PREFIX } from "@/config";
 
 export const runtime = "nodejs";
+/** Allow long ZIP builds on Vercel Pro / similar (ignored elsewhere). */
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
 
 const ALLOW_PREFIX = TECH_DRAW_LIBRARY_PREFIX.replace(/\/$/, "");
 const DESIGN_ID_RE = /^[a-f0-9]{24}$/;
 
+const CDN_FETCH_INIT = {
+  cache: "no-store",
+  headers: {
+    Accept: "*/*",
+    "User-Agent": "MarathonOS-Frontend/1.0 (techdraw-bundle)",
+  },
+};
+
 async function fetchBytes(url) {
-  const res = await fetch(url, { next: { revalidate: 120 } });
+  const res = await fetch(url, CDN_FETCH_INIT);
   if (!res.ok) return null;
   return new Uint8Array(await res.arrayBuffer());
 }
@@ -59,34 +71,34 @@ export async function GET(request) {
     "llm_usage_log.jsonl",
   ];
 
-  await Promise.all(
-    rootJson.map(async (name) => {
-      const buf = await fetchBytes(`${root}/${name}`);
-      if (buf) zip.file(name, buf);
-    })
-  );
+  for (const name of rootJson) {
+    const buf = await fetchBytes(`${root}/${name}`);
+    if (buf) zip.file(name, buf);
+  }
 
   const combinedPdf = await fetchBytes(`${root}/technical_drawing_simple.pdf`);
   if (combinedPdf) zip.file("technical_drawing_simple.pdf", combinedPdf);
 
+  /* Sequential fetches reduce peak memory vs Promise.all (helps small serverless). */
   for (let i = 1; i <= nSheets; i++) {
-    const [pdf, svg, dxf] = await Promise.all([
-      fetchBytes(`${root}/sheet_${i}.pdf`),
-      fetchBytes(`${root}/svg/sheet_${i}.svg`),
-      fetchBytes(`${root}/dxf/sheet_${i}.dxf`),
-    ]);
+    const pdf = await fetchBytes(`${root}/sheet_${i}.pdf`);
     if (pdf) zip.file(`pdf/sheet_${i}.pdf`, pdf);
+    const svg = await fetchBytes(`${root}/svg/sheet_${i}.svg`);
     if (svg) zip.file(`svg/sheet_${i}.svg`, svg);
+    const dxf = await fetchBytes(`${root}/dxf/sheet_${i}.dxf`);
     if (dxf) zip.file(`dxf/sheet_${i}.dxf`, dxf);
   }
 
-  const out = await zip.generateAsync({
-    type: "uint8array",
+  const nodeStream = zip.generateNodeStream({
+    type: "nodebuffer",
+    streamFiles: true,
     compression: "DEFLATE",
-    compressionOptions: { level: 6 },
+    compressionOptions: { level: 4 },
   });
 
-  return new NextResponse(out, {
+  const webStream = Readable.toWeb(nodeStream);
+
+  return new NextResponse(webStream, {
     status: 200,
     headers: {
       "Content-Type": "application/zip",

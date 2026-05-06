@@ -4,7 +4,6 @@ import Link from "next/link";
 import { BASE_URL } from "@/config";
 import styles from "./Library.module.css";
 import ServerBreadCrumbs from "../CommonJsx/ServerBreadCrumbs";
-import HoverImageSequence from "../CommonJsx/RotatedImages";
 import DesignStats from "../CommonJsx/DesignStats";
 import DesignDetailsStats from "../CommonJsx/DesignDetailsStats";
 import Footer from "../HomePages/Footer/Footer";
@@ -76,15 +75,32 @@ export default async function TwoDLibrary({ searchParams, basePath = "/2d-librar
                     {(() => {
                       const route = String(design.route || "").trim();
                       const href = route
-                        ? `/library/${encodeURIComponent(route)}/2d-technical-drawing/${design._id}`
-                        : `/library/${design._id}/2d-technical-drawing/${design._id}`;
+                        ? `/library/2d-technical-drawing/${encodeURIComponent(route)}`
+                        : `/library/2d-technical-drawing/${design._id}`;
+                      const previewSrc = design?._id
+                        ? `/api/techdraw-file?designId=${encodeURIComponent(
+                            design._id
+                          )}&sheet=1&ext=svg`
+                        : "";
                       return (
                     <Link
                       href={href}
                       className={styles["library-designs-primary-link"]}
                       aria-label={design.page_title || design.part_name || "2D design"}
                     >
-                      <HoverImageSequence design={design} width={280} height={233} />
+                      <div className={styles["two-d-library-preview-wrap"]}>
+                        {previewSrc ? (
+                          <img
+                            className={styles["two-d-library-preview-img"]}
+                            src={previewSrc}
+                            alt={`${design.page_title || design.part_name || "2D design"} preview`}
+                          />
+                        ) : (
+                          <div className={styles["two-d-library-preview-fallback"]}>
+                            2D Preview
+                          </div>
+                        )}
+                      </div>
                       <h6 title={design.page_title || design.part_name}>
                         {design.page_title || design.part_name || "Untitled design"}
                       </h6>

@@ -26,9 +26,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
   const libraryRoute = String(designData?.route || design || "").trim();
   const twoDPageHref =
     designData?._id && libraryRoute
-      ? `/library/${encodeURIComponent(
-          libraryRoute
-        )}/2d-technical-drawing/${designData._id}`
+      ? `/library/2d-technical-drawing/${encodeURIComponent(libraryRoute)}`
       : null;
 
   const handleRequestGlbViewer = async () => {
@@ -81,34 +79,52 @@ export default function IndustryDesignHeader({ design, designData, type }) {
           {designData.price? <p style={{fontSize:'24px',fontWeight:'500'}}>${designData.price}<span style={{fontSize:'16px',fontWeight:'400',color:'#001325'}}>/download</span></p>:<p style={{fontSize:'24px',fontWeight:'500'}}>Free</p>}
         </div>
       
-        <div className={styles.statsCont}>
-            <DownloadClientButton custumDownload={true} 
-          folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type ? designData.file_type : 'step'} 
-          designPrice={designData?.price} designDetails={{
-                                        title: designData.page_title, // You can pass actual design title here
-                                        description: designData.page_description, // You can pass actual design description here
-                                        price: designData.price, // Use the designPrice prop
-                                        // Add other design details as needed
-                                    }}/>
-        {designData.file_type !== 'dxf' && designData.file_type !== 'dwg' && (
-        <button
-          type="button"
-          className={styles.viewerButton}
-          onClick={handleRequestGlbViewer}
-          disabled={isRequestingViewer}
-        >
-          {isRequestingViewer ? "Opening 3D viewer" : "Open in 3D viewer"}
-        </button>
-        )}
-        {type === "library" && isTwoDEnabled && twoDPageHref && (
-          <button
-            type="button"
-            className={styles.viewerButton}
-            onClick={() => router.push(twoDPageHref)}
-          >
-            Open 2D Technical Drawings
-          </button>
-        )}
+        <div className={styles.actionStack}>
+          <div className={styles.primaryAction}>
+            <DownloadClientButton
+              custumDownload={true}
+              folderId={designData._id}
+              isDownladable={designData.is_downloadable}
+              step={true}
+              filetype={designData.file_type ? designData.file_type : "step"}
+              designPrice={designData?.price}
+              designDetails={{
+                title: designData.page_title,
+                description: designData.page_description,
+                price: designData.price,
+              }}
+            />
+          </div>
+
+          <div className={styles.secondaryActions}>
+            {designData.file_type !== "dxf" && designData.file_type !== "dwg" && (
+              <button
+                type="button"
+                className={`${styles.viewerButton} ${
+                  type === "library" ? styles.viewerButtonOutline : ""
+                }`}
+                onClick={handleRequestGlbViewer}
+                disabled={isRequestingViewer}
+              >
+                <span className={styles.viewerButtonIcon} aria-hidden>
+                  🧊
+                </span>
+                {isRequestingViewer ? "Opening 3D viewer" : "Open 3D viewer"}
+              </button>
+            )}
+            {type === "library" && isTwoDEnabled && twoDPageHref && (
+              <button
+                type="button"
+                className={`${styles.viewerButton} ${styles.viewerButtonOutline}`}
+                onClick={() => router.push(twoDPageHref)}
+              >
+                <span className={styles.viewerButtonIcon} aria-hidden>
+                  📐
+                </span>
+                2D drawings
+              </button>
+            )}
+          </div>
         </div>
         <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
     <DesignStats

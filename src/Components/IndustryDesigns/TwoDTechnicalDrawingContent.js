@@ -7,6 +7,7 @@ import TwoDDrawingCtaBanner from "./TwoDDrawingCtaBanner";
 import TwoDDrawingTransparencyBlock from "./TwoDDrawingTransparencyBlock";
 import TwoDDrawingPreviewPanel from "./TwoDDrawingPreviewPanel";
 import TwoDDrawingRightSidebar from "./TwoDDrawingRightSidebar";
+import TwoDMoreDesignsSection from "./TwoDMoreDesignsSection";
 import { DEFAULT_2D_SHEETS } from "./twoDDrawingPageDefaults";
 import layoutStyles from "./TwoDDrawingMainLayout.module.css";
 
@@ -28,6 +29,7 @@ export default function TwoDTechnicalDrawingContent({
   sheetDownloadRows,
   transparencyMetaStats,
   transparencyIntroParagraphs,
+  currentDesignId,
 }) {
   return (
     <>
@@ -52,6 +54,7 @@ export default function TwoDTechnicalDrawingContent({
         metaStats={transparencyMetaStats}
         introParagraphs={transparencyIntroParagraphs}
       />
+      <TwoDMoreDesignsSection currentDesignId={currentDesignId} />
     </>
   );
 }

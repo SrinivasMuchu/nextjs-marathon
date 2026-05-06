@@ -7,6 +7,7 @@ const DESIGN_ID_RE = /^[a-f0-9]{24}$/;
 function mimeFor(ext) {
   if (ext === "svg") return "image/svg+xml; charset=utf-8";
   if (ext === "dxf") return "application/dxf";
+  if (ext === "pdf") return "application/pdf";
   return "application/octet-stream";
 }
 
@@ -19,14 +20,23 @@ export async function GET(request) {
   if (!DESIGN_ID_RE.test(designId) || !Number.isInteger(sheet) || sheet < 1) {
     return NextResponse.json({ error: "invalid params" }, { status: 400 });
   }
-  if (!["svg", "dxf"].includes(ext)) {
+  if (!["svg", "dxf", "pdf"].includes(ext)) {
     return NextResponse.json({ error: "invalid ext" }, { status: 400 });
   }
 
-  const target = `${PREFIX}/${designId}/${ext}/sheet_${sheet}.${ext}`;
+  const target =
+    ext === "pdf"
+      ? `${PREFIX}/${designId}/sheet_${sheet}.pdf`
+      : `${PREFIX}/${designId}/${ext}/sheet_${sheet}.${ext}`;
   let upstream;
   try {
-    upstream = await fetch(target, { next: { revalidate: 120 } });
+    upstream = await fetch(target, {
+      cache: "no-store",
+      headers: {
+        Accept: "*/*",
+        "User-Agent": "MarathonOS-Frontend/1.0 (techdraw-file)",
+      },
+    });
   } catch {
     return NextResponse.json({ error: "fetch failed" }, { status: 502 });
   }

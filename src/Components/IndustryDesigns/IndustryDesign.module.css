@@ -1044,6 +1044,29 @@ letter-spacing: -0.192px;
     flex-wrap: wrap;
 }
 
+.actionStack {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.primaryAction {
+    width: 100%;
+}
+
+.primaryAction button,
+.primaryAction a {
+    width: 100%;
+}
+
+.secondaryActions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
 .viewerButtonLink {
     display: flex;
     align-items: center;
@@ -1067,10 +1090,28 @@ letter-spacing: -0.192px;
     justify-content: center;
     box-sizing: border-box;
     transition: background 0.2s ease;
+    gap: 8px;
 }
 
 .viewerButton:hover {
     background: #4f0bc7;
+}
+
+.viewerButtonIcon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.viewerButtonOutline {
+    background: transparent;
+    border: 1px solid #595f66;
+    color: #1f2937;
+}
+
+.viewerButtonOutline:hover {
+    background: #f8fafc;
+    color: #111827;
+    border-color: #7b8290;
 }
 
 .statsCont button {
@@ -1155,6 +1196,9 @@ letter-spacing: -0.192px;
     width: 100%;
     font-size: 16px;
     padding: 12px 16px;
+   }
+   .secondaryActions {
+    grid-template-columns: 1fr 1fr;
    }
    
    .statsCont {

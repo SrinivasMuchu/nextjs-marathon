@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import TwoDDrawingDxfStageClient from "./TwoDDrawingDxfStageClient";
 import styles from "./TwoDDrawingSheetViewerClient.module.css";
 
 function previewSrc(sheet) {
@@ -64,11 +63,11 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
             <button
               type="button"
               role="tab"
-              aria-selected={viewMode === "dxf"}
-              className={`${styles.modeBtn} ${viewMode === "dxf" ? styles.modeBtnActive : ""}`}
-              onClick={() => setViewMode("dxf")}
+              aria-selected={viewMode === "pdf"}
+              className={`${styles.modeBtn} ${viewMode === "pdf" ? styles.modeBtnActive : ""}`}
+              onClick={() => setViewMode("pdf")}
             >
-              DXF
+              PDF
             </button>
           </div>
           <span className={styles.counter} aria-live="polite">
@@ -78,10 +77,12 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
       </div>
 
       <div className={styles.stage}>
-        {viewMode === "dxf" && active?.dxfUrl ? (
-          <TwoDDrawingDxfStageClient
-            dxfUrl={active.dxfUrl}
-            alt={active.label}
+        {viewMode === "pdf" && active?.pdfUrl ? (
+          <iframe
+            key={`pdf-${cur}`}
+            className={styles.stagePdf}
+            src={active.pdfUrl}
+            title={`${active.label} PDF`}
           />
         ) : previewSrc(active) ? (
           <img

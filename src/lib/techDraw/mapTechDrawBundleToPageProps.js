@@ -103,14 +103,86 @@ function badgeKeyForEntry(entry) {
   return "ortho";
 }
 
-function buildViewCards(entries, baseUrl) {
+function normalizeViewToken(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function buildReasonMaps(viewSelectionResponse) {
+  const selected = Array.isArray(viewSelectionResponse?.llm_data?.selected_views)
+    ? viewSelectionResponse.llm_data.selected_views
+    : [];
+  const sections = Array.isArray(viewSelectionResponse?.llm_data?.section_views)
+    ? viewSelectionResponse.llm_data.section_views
+    : [];
+  const details = Array.isArray(viewSelectionResponse?.llm_data?.detail_views)
+    ? viewSelectionResponse.llm_data.detail_views
+    : [];
+
+  const byType = new Map();
+  selected.forEach((v) => {
+    const key = normalizeViewToken(v?.type);
+    const reason = String(v?.reason || "").trim();
+    if (key && reason && !byType.has(key)) byType.set(key, reason);
+  });
+
+  const sectionBySymbol = new Map();
+  sections.forEach((v) => {
+    const key = normalizeViewToken(v?.symbol);
+    const reason = String(v?.reason || "").trim();
+    if (key && reason && !sectionBySymbol.has(key)) sectionBySymbol.set(key, reason);
+  });
+
+  const detailByRef = new Map();
+  details.forEach((v) => {
+    const key = normalizeViewToken(v?.reference);
+    const reason = String(v?.reason || "").trim();
+    if (key && reason && !detailByRef.has(key)) detailByRef.set(key, reason);
+  });
+
+  return { byType, sectionBySymbol, detailByRef };
+}
+
+function reasonForEntry(entry, reasonMaps) {
+  const text = `${entry?.label || ""} ${entry?.view_name || ""}`;
+  const norm = normalizeViewToken(text);
+
+  if (norm.includes("front")) return reasonMaps.byType.get("front") || "";
+  if (norm.includes("top")) return reasonMaps.byType.get("top") || "";
+  if (norm.includes("left")) return reasonMaps.byType.get("left") || "";
+  if (norm.includes("right")) return reasonMaps.byType.get("right") || "";
+  if (norm.includes("isometric") || norm.includes("iso"))
+    return reasonMaps.byType.get("isometric") || "";
+
+  const sectionMatch = String(entry?.label || "").match(/section\s*([A-Z])/i);
+  if (sectionMatch?.[1]) {
+    const r = reasonMaps.sectionBySymbol.get(normalizeViewToken(sectionMatch[1]));
+    if (r) return r;
+  }
+
+  const detailMatch = String(entry?.label || "").match(/detail\s*([A-Z])/i);
+  if (detailMatch?.[1]) {
+    const r = reasonMaps.detailByRef.get(normalizeViewToken(detailMatch[1]));
+    if (r) return r;
+  }
+
+  return "";
+}
+
+function buildViewCards(entries, baseUrl, viewSelectionResponse) {
+  const reasonMaps = buildReasonMaps(viewSelectionResponse);
   return entries.map((e) => {
     const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num);
+    const reason = reasonForEntry(e, reasonMaps);
+    const body = reason
+      ? reason
+      : `This sheet includes ${e.edgeCount} geometry edges from the CAD projection pipeline. Dimension IDs for this sheet are listed in dimension_specs.json.`;
     return {
       title: e.label,
       badgeKey: badgeKeyForEntry(e),
       source: `geometry_per_sheet.json → sheet ${e.sheet_num} (${e.view_name})`,
-      body: `This sheet includes ${e.edgeCount} geometry edges from the CAD projection pipeline. Dimension IDs for this sheet are listed in dimension_specs.json.`,
+      body,
       imageSrc: previewCandidates[0],
       previewCandidates,
     };
@@ -125,16 +197,21 @@ function sectionSymbolFromLabel(label) {
   return label.slice(0, 12);
 }
 
-function buildSectionDetailGroups(entries, dimensionSpecs) {
+function buildSectionDetailGroups(entries, dimensionSpecs, viewSelectionResponse) {
   const sections = sectionEntries(entries);
-  if (sections.length < 2) return [];
+  const reasonMaps = buildReasonMaps(viewSelectionResponse);
+  const detailViews = Array.isArray(viewSelectionResponse?.llm_data?.detail_views)
+    ? viewSelectionResponse.llm_data.detail_views
+    : [];
 
   const dimNote = dimensionSpecs
     ? "Dimension selection IDs for section sheets are included in dimension_specs.json."
     : "";
 
-  return [
-    {
+  const groups = [];
+
+  if (sections.length > 0) {
+    groups.push({
       srcTag:
         'drawing_config.py → DRAWING_CONFIG_SEMANTIC["sheet_*"]["section_a"] and ["section_b"] (see pipeline output)',
       variant: "section",
@@ -142,15 +219,52 @@ function buildSectionDetailGroups(entries, dimensionSpecs) {
         symbol: sectionSymbolFromLabel(e.label),
         label: `section_${String.fromCharCode(97 + idx)} · ${e.view_name}`,
         meta: `sheet_num: ${e.sheet_num} · edges: ${e.edgeCount}`,
-        description: `${e.label}. ${dimNote} Geometry is derived from the 3D model projection for this drawing set.`,
+        description: (() => {
+          const reason = reasonForEntry(e, reasonMaps);
+          if (reason) return reason;
+          return `${e.label}. ${dimNote} Geometry is derived from the 3D model projection for this drawing set.`;
+        })(),
         bullets: [
           `${e.edgeCount} resolved edges in sheet geometry`,
           "See technical_drawing_simple.pdf, sheet_N.pdf, and svg/ for full graphical context",
           "Verify critical dimensions against the source CAD before manufacturing",
         ],
       })),
-    },
-  ];
+    });
+  }
+
+  if (detailViews.length > 0) {
+    groups.push({
+      srcTag:
+        'drawing_config.py → DRAWING_CONFIG_SEMANTIC["sheet_*"]["detail_*"] (see pipeline output)',
+      variant: "detail",
+      cards: detailViews.slice(0, 2).map((d, idx) => {
+        const ref = String(d?.reference || String.fromCharCode(67 + idx)).trim();
+        const refUpper = ref.toUpperCase();
+        const baseView = String(d?.base_view || "").trim();
+        const anchor = Array.isArray(d?.anchor) ? d.anchor.join(", ") : "";
+        const radius = d?.radius != null ? String(d.radius) : "";
+        return {
+          symbol: `Detail ${refUpper}`,
+          label: `detail_${ref.toLowerCase()}${baseView ? ` · base_view: ${baseView}` : ""}`,
+          meta:
+            anchor || radius
+              ? `anchor: (${anchor || "—"})${radius ? ` · radius: ${radius}` : ""}`
+              : "detail-view anchor from view_selection_response.json",
+          description:
+            String(d?.reason || "").trim() ||
+            `Detail ${refUpper} highlights a localized manufacturing-critical area for the drawing package.`,
+          bullets: [
+            "Detail-view anchor selected by the AI planning stage",
+            "Use with sheet PDF/SVG for local feature inspection",
+            "Validate critical dimensions against source CAD before release",
+          ],
+        };
+      }),
+    });
+  }
+
+  return groups;
 }
 
 function buildSheetDownloadRows(entries, baseUrl) {
@@ -211,6 +325,7 @@ function buildTransparencyMeta(entries, dimensionsResponse, viewSelectionRespons
 }
 
 function buildTransparencyIntro(
+  entries,
   dimensionsResponse,
   viewSelectionResponse,
   dimensionSpecs,
@@ -224,10 +339,16 @@ function buildTransparencyIntro(
   const vsNote = viewSelectionResponse
     ? " View selection metadata is in view_selection_response.json."
     : "";
+  const analysedViews = uniqueViews(entries);
+  const sectionsCount = sectionEntries(entries).length;
+  const hasDetails = Array.isArray(viewSelectionResponse?.llm_data?.detail_views)
+    ? viewSelectionResponse.llm_data.detail_views.length > 0
+    : false;
 
   return [
-    `Pipeline stage: ${stage}.${provider ? ` Provider: ${provider}.` : ""}${model ? ` Model: ${model}.` : ""}${saved ? ` Saved ${saved}.` : ""}${vsNote}`,
-    `dimension_specs.json maps ${totalDimIds} dimension IDs across sheets. geometry_per_sheet.json stores per-sheet labels, views, and extracted edge geometry. Assets are published under svg/, dxf/, sheet_N.pdf, and technical_drawing_simple.pdf.`,
+    `The Marathon 3D→2D pipeline rendered ${analysedViews} views of the 3D CAD model and passed them through our AI analysis engine.${vsNote}`,
+    `The AI reasoned about the geometry, selected view candidates, and planned ${sectionsCount} section cut${sectionsCount === 1 ? "" : "s"} to expose critical internal features.${hasDetails ? " It also selected detail-view anchor points for local manufacturing-critical regions." : ""} The final drawing configuration was then generated automatically for sheet outputs in SVG, DXF, and PDF.`,
+    `dimension_specs.json maps ${totalDimIds} dimension IDs across sheets. geometry_per_sheet.json stores per-sheet labels, views, and extracted edge geometry.`,
   ];
 }
 
@@ -297,7 +418,9 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
   const designLibraryHref = designRoute
     ? `/library/${encodeURIComponent(designRoute)}`
     : `/library/${designId}`;
-  const drawingPageHref = `${designLibraryHref}/2d-technical-drawing/${designId}`;
+  const drawingPageHref = designRoute
+    ? `/library/2d-technical-drawing/${encodeURIComponent(designRoute)}`
+    : `/library/2d-technical-drawing/${designId}`;
 
   const sectionCount = sectionEntries(entries).length;
   // const bomRows = normalizeBomRows(bom);
@@ -313,17 +436,13 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
 
   const sheets = entries.map((e) => {
     const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num);
-    const assets = sheetAssetPaths(baseUrl, e.sheet_num);
-    const designIdFromBase = String(baseUrl || "").split("/").pop() || "";
-    const dxfUrl = /^[a-f0-9]{24}$/.test(designIdFromBase)
-      ? `/api/techdraw-file?designId=${encodeURIComponent(
-          designIdFromBase
-        )}&sheet=${Number(e.sheet_num)}&ext=dxf`
-      : assets.dxf;
+    const n = Number(e.sheet_num);
     return {
       src: previewCandidates[0],
       previewCandidates,
-      dxfUrl,
+      pdfUrl: `/api/techdraw-file?designId=${encodeURIComponent(
+        designId
+      )}&sheet=${n}&ext=pdf`,
       label: e.label,
     };
   });
@@ -355,8 +474,12 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     zipHref: `/api/techdraw-bundle-zip?designId=${encodeURIComponent(designId)}`,
     drawingInfo: buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse),
     aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
-    viewCards: buildViewCards(entries, baseUrl),
-    sectionDetailGroups: buildSectionDetailGroups(entries, dimensionSpecs),
+    viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse),
+    sectionDetailGroups: buildSectionDetailGroups(
+      entries,
+      dimensionSpecs,
+      viewSelectionResponse
+    ),
     // bomRows,
     sheetDownloadRows,
     transparencyMetaStats: buildTransparencyMeta(
@@ -365,6 +488,7 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
       viewSelectionResponse /* , bomRows */
     ),
     transparencyIntroParagraphs: buildTransparencyIntro(
+      entries,
       dimensionsResponse,
       viewSelectionResponse,
       dimensionSpecs,
