@@ -36,10 +36,12 @@ async function fetchDesignBasicMeta(designId) {
  */
 export async function fetchTechDrawBundle(designId) {
   const baseUrl = folderUrl(designId);
-  const [dimensionSpecs, dimensionsResponse, geometryPerSheet, viewSelectionResponse, designMeta /* , bom */] =
+  const [
+    geometryPerSheet,
+    viewSelectionResponse,
+    designMeta /* , bom */,
+  ] =
     await Promise.all([
-      fetchJson(`${baseUrl}/dimension_specs.json`),
-      fetchJson(`${baseUrl}/dimensions_response.json`),
       fetchJson(`${baseUrl}/geometry_per_sheet.json`),
       fetchJson(`${baseUrl}/view_selection_response.json`),
       fetchDesignBasicMeta(designId),
@@ -48,8 +50,8 @@ export async function fetchTechDrawBundle(designId) {
 
   return {
     baseUrl,
-    dimensionSpecs,
-    dimensionsResponse,
+    dimensionSpecs: null,
+    dimensionsResponse: null,
     geometryPerSheet,
     viewSelectionResponse,
     designMeta,

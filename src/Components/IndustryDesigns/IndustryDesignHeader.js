@@ -3,6 +3,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import DesignStats from "../CommonJsx/DesignStats";
 import styles from "./IndustryDesign.module.css";
@@ -109,20 +110,20 @@ export default function IndustryDesignHeader({ design, designData, type }) {
                 <span className={styles.viewerButtonIcon} aria-hidden>
                   🧊
                 </span>
-                {isRequestingViewer ? "Opening " : "Open 3D viewer"}
+                {isRequestingViewer ? "Opening" : "Open 3D viewer"}
               </button>
             )}
             {type === "library" && isTwoDEnabled && twoDPageHref && (
-              <button
-                type="button"
+              <Link
+                href={twoDPageHref}
+                prefetch
                 className={`${styles.viewerButton} ${styles.viewerButtonOutline}`}
-                onClick={() => router.push(twoDPageHref)}
               >
                 <span className={styles.viewerButtonIcon} aria-hidden>
                   📐
                 </span>
                 2D drawings
-              </button>
+              </Link>
             )}
           </div>
         </div>

@@ -10,6 +10,7 @@ import TwoDDrawingRightSidebar from "./TwoDDrawingRightSidebar";
 import TwoDMoreDesignsSection from "./TwoDMoreDesignsSection";
 import { DEFAULT_2D_SHEETS } from "./twoDDrawingPageDefaults";
 import layoutStyles from "./TwoDDrawingMainLayout.module.css";
+import { Suspense } from "react";
 
 /**
  * Server component: two-column main area (preview + sidebar) and AI analysis block.
@@ -54,7 +55,9 @@ export default function TwoDTechnicalDrawingContent({
         metaStats={transparencyMetaStats}
         introParagraphs={transparencyIntroParagraphs}
       />
-      <TwoDMoreDesignsSection currentDesignId={currentDesignId} />
+      <Suspense fallback={null}>
+        <TwoDMoreDesignsSection currentDesignId={currentDesignId} />
+      </Suspense>
     </>
   );
 }
