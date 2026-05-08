@@ -1,5 +1,6 @@
 import TwoDTechnicalDrawingPage from "@/Components/IndustryDesigns/TwoDTechnicalDrawingPage";
 import TwoDTechnicalDrawingContent from "@/Components/IndustryDesigns/TwoDTechnicalDrawingContent";
+import TwoDTechnicalDrawingPageJsonLd from "@/Components/JsonLdSchemas/TwoDTechnicalDrawingPageJsonLd";
 import { BASE_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
 import { fetchTechDrawBundle } from "@/lib/techDraw/fetchTechDrawBundle";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
@@ -137,6 +138,8 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
     },
     { label: "2D Technical Drawings", href: `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}` },
   ];
+  const pageDescription = `Download free 2D technical drawings for the ${title} CAD model. Includes front, top, side and section views with PDF, SVG and DXF drawing sheet formats.`;
+
   const heroProps = {
     title: `${title} — 2D Technical Drawing Set (2D CAD drawings)`,
     tags: [],
@@ -151,11 +154,19 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
   };
 
   return (
-    <TwoDTechnicalDrawingPage breadcrumbLinks={breadcrumbLinks} heroProps={heroProps}>
-      <Suspense fallback={<TwoDTechnicalDrawingInitialFallback designId={designId} />}>
-        <TwoDTechnicalDrawingDeferredContent designId={designId} />
-      </Suspense>
-    </TwoDTechnicalDrawingPage>
+    <>
+      <TwoDTechnicalDrawingPageJsonLd
+        designRoute={designRoute}
+        designId={designId}
+        pageTitle={title}
+        description={pageDescription}
+      />
+      <TwoDTechnicalDrawingPage breadcrumbLinks={breadcrumbLinks} heroProps={heroProps}>
+        <Suspense fallback={<TwoDTechnicalDrawingInitialFallback designId={designId} />}>
+          <TwoDTechnicalDrawingDeferredContent designId={designId} />
+        </Suspense>
+      </TwoDTechnicalDrawingPage>
+    </>
   );
 }
 

@@ -7,7 +7,9 @@ import ServerBreadCrumbs from "../CommonJsx/ServerBreadCrumbs";
 import DesignStats from "../CommonJsx/DesignStats";
 import DesignDetailsStats from "../CommonJsx/DesignDetailsStats";
 import Footer from "../HomePages/Footer/Footer";
-import TwoDLibraryPageJsonLd from "../JsonLdSchemas/TwoDLibraryPageJsonLd";
+import LibraryPageJsonLd from "../JsonLdSchemas/LibraryPageJsonLd";
+
+const SITE_LIST_ORIGIN = "https://marathon-os.com";
 
 function build2dLibraryHref({
   page,
@@ -54,11 +56,23 @@ export default async function TwoDLibrary({
         ]}
       />
       <div className={styles["library-page"]}>
-        <TwoDLibraryPageJsonLd
+        <LibraryPageJsonLd
           designs={designs}
-          pagination={pagination}
+          pagination={{ totalPages }}
           page={page}
           limit={limit}
+          listUrl={`${SITE_LIST_ORIGIN}${basePath}`}
+          listTitle="2D Technical Drawing Library"
+          listDescription="Browse free 2D technical drawings generated from 3D CAD models. Download engineering drawing sheets in PDF, SVG and DXF formats for mechanical, robotics, automotive and industrial designs."
+          defaultItemName="2D Technical Drawing"
+          scriptId="json-ld-2d-library-itemlist"
+          getItemPath={(design) => {
+            const route = String(design?.route || "").trim();
+            if (route) {
+              return `${basePath}/${encodeURIComponent(route)}`;
+            }
+            return `${basePath}/${design._id}`;
+          }}
         />
         <header className={styles["library-hero"]}>
           <nav className={styles["library-hero-breadcrumb"]} aria-label="Breadcrumb">
@@ -68,10 +82,12 @@ export default async function TwoDLibrary({
             <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
             <span className={styles["library-hero-breadcrumb-current"]}>2D Library</span>
           </nav>
-          <h1 className={styles["library-hero-title"]}>2D Technical Drawing Library</h1>
+          <h1 className={styles["library-hero-title"]}>
+            2D Technical Drawing Library — 2D CAD drawings
+          </h1>
           <p className={styles["library-hero-description"]}>
-            Browse free 2D CAD drawings generated from 3D CAD models and open
-            their technical drawing sets.
+            Browse free 2D CAD drawings generated from 3D CAD models. Open each
+            technical drawing set and download PDF, SVG, and DXF formats.
           </p>
         </header>
 
