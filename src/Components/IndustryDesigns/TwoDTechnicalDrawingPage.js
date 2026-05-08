@@ -17,7 +17,7 @@ const defaultBreadcrumbLinks = [
   },
   {
     label: "2D Technical Drawings",
-    href: "/library/2d-technical-drawing/industrial-ip67-ethernet-m12-angle-conne-698ec00809bd85d18216b084",
+    href: "/library/2d-technical-drawings/industrial-ip67-ethernet-m12-angle-conne-698ec00809bd85d18216b084",
   },
 ];
 

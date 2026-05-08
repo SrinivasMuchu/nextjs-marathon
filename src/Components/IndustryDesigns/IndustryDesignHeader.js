@@ -27,7 +27,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
   const libraryRoute = String(designData?.route || design || "").trim();
   const twoDPageHref =
     designData?._id && libraryRoute
-      ? `/library/2d-technical-drawing/${encodeURIComponent(libraryRoute)}`
+      ? `/library/2d-technical-drawings/${encodeURIComponent(libraryRoute)}`
       : null;
   const showTwoDButton = type === "library" && isTwoDEnabled && Boolean(twoDPageHref);
   const showThreeDButton = designData.file_type !== "dxf" && designData.file_type !== "dwg";

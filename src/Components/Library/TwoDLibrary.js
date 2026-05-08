@@ -7,8 +7,13 @@ import ServerBreadCrumbs from "../CommonJsx/ServerBreadCrumbs";
 import DesignStats from "../CommonJsx/DesignStats";
 import DesignDetailsStats from "../CommonJsx/DesignDetailsStats";
 import Footer from "../HomePages/Footer/Footer";
+import TwoDLibraryPageJsonLd from "../JsonLdSchemas/TwoDLibraryPageJsonLd";
 
-function build2dLibraryHref({ page, search, basePath = "/2d-library" }) {
+function build2dLibraryHref({
+  page,
+  search,
+  basePath = "/library/2d-technical-drawings",
+}) {
   const qp = new URLSearchParams();
   if (page && Number(page) > 1) qp.set("page", String(page));
   if (search) qp.set("search", search);
@@ -16,7 +21,10 @@ function build2dLibraryHref({ page, search, basePath = "/2d-library" }) {
   return qs ? `${basePath}?${qs}` : basePath;
 }
 
-export default async function TwoDLibrary({ searchParams, basePath = "/2d-library" }) {
+export default async function TwoDLibrary({
+  searchParams,
+  basePath = "/library/2d-technical-drawings",
+}) {
   const page = Math.max(1, parseInt(searchParams?.page, 10) || 1);
   const limit = 24;
   const search = (searchParams?.search || "").trim();
@@ -46,6 +54,12 @@ export default async function TwoDLibrary({ searchParams, basePath = "/2d-librar
         ]}
       />
       <div className={styles["library-page"]}>
+        <TwoDLibraryPageJsonLd
+          designs={designs}
+          pagination={pagination}
+          page={page}
+          limit={limit}
+        />
         <header className={styles["library-hero"]}>
           <nav className={styles["library-hero-breadcrumb"]} aria-label="Breadcrumb">
             <Link href="/" className={styles["library-hero-breadcrumb-link"]}>
@@ -56,7 +70,8 @@ export default async function TwoDLibrary({ searchParams, basePath = "/2d-librar
           </nav>
           <h1 className={styles["library-hero-title"]}>2D Technical Drawing Library</h1>
           <p className={styles["library-hero-description"]}>
-            Browse all designs marked as 2D-enabled and open their technical drawing sets.
+            Browse free 2D CAD drawings generated from 3D CAD models and open
+            their technical drawing sets.
           </p>
         </header>
 
@@ -75,8 +90,8 @@ export default async function TwoDLibrary({ searchParams, basePath = "/2d-librar
                     {(() => {
                       const route = String(design.route || "").trim();
                       const href = route
-                        ? `/library/2d-technical-drawing/${encodeURIComponent(route)}`
-                        : `/library/2d-technical-drawing/${design._id}`;
+                        ? `/library/2d-technical-drawings/${encodeURIComponent(route)}`
+                        : `/library/2d-technical-drawings/${design._id}`;
                       const previewSrc = design?._id
                         ? `/api/techdraw-file?designId=${encodeURIComponent(
                             design._id

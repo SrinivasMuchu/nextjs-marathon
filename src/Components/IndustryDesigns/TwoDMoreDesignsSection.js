@@ -28,7 +28,7 @@ export default async function TwoDMoreDesignsSection({ currentDesignId }) {
     <section className={styles.section} aria-label="More 2D designs">
       <div className={styles.header}>
         <h2 className={styles.title}>Explore More 2D Designs</h2>
-        <Link href="/2d-library" className={styles.link}>
+        <Link href="/library/2d-technical-drawings" className={styles.link}>
           View all
         </Link>
       </div>
@@ -38,8 +38,8 @@ export default async function TwoDMoreDesignsSection({ currentDesignId }) {
           const id = String(design?._id || "").trim();
           const route = String(design?.route || "").trim();
           const href = route
-            ? `/library/2d-technical-drawing/${encodeURIComponent(route)}`
-            : `/library/2d-technical-drawing/${id}`;
+            ? `/library/2d-technical-drawings/${encodeURIComponent(route)}`
+            : `/library/2d-technical-drawings/${id}`;
           const title = String(design?.page_title || design?.part_name || "2D Design");
           const previewSrc = id
             ? `/api/techdraw-file?designId=${encodeURIComponent(id)}&sheet=1&ext=svg`

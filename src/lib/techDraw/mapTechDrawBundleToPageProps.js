@@ -417,8 +417,8 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     ? `/library/${encodeURIComponent(designRoute)}`
     : `/library/${designId}`;
   const drawingPageHref = designRoute
-    ? `/library/2d-technical-drawing/${encodeURIComponent(designRoute)}`
-    : `/library/2d-technical-drawing/${designId}`;
+    ? `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}`
+    : `/library/2d-technical-drawings/${designId}`;
 
   const sectionCount = sectionEntries(entries).length;
   // const bomRows = normalizeBomRows(bom);

@@ -50,13 +50,20 @@ async function fetchLightHeroStats(designId) {
 
 export async function generateMetadata({ params }) {
   const designRoute = String(params?.designRoute || "").trim();
+  const design = await fetchDesignByRoute(designRoute);
+  const productName = String(
+    design?.page_title ||
+      design?.part_name ||
+      designRoute.replace(/-/g, " ").trim() ||
+      "Product"
+  ).trim();
   return {
-    title: "2D Technical Drawings | Marathon OS",
+    title: `${productName} 2D Technical Drawing - PDF, SVG & DXF | Marathon OS`,
     description:
-      "AI-assisted 2D technical drawing set: sheets, dimensions metadata, and downloads (PDF, SVG, DXF).",
+      `Download free 2D technical drawings for the ${productName} CAD model. Includes front, top, side and section views with PDF, SVG and DXF drawing sheet formats.`,
     metadataBase: new URL("https://marathon-os.com"),
     alternates: {
-      canonical: `/library/2d-technical-drawing/${encodeURIComponent(designRoute)}`,
+      canonical: `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}`,
     },
   };
 }
@@ -128,10 +135,10 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
       label: title,
       href: `/library/${encodeURIComponent(designRoute)}`,
     },
-    { label: "2D Technical Drawings", href: `/library/2d-technical-drawing/${encodeURIComponent(designRoute)}` },
+    { label: "2D Technical Drawings", href: `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}` },
   ];
   const heroProps = {
-    title: `${title} — 2D Technical Drawing Set`,
+    title: `${title} — 2D Technical Drawing Set (2D CAD drawings)`,
     tags: [],
     stats: [
       { value: String(lightStats?.sheets ?? "0"), label: "Drawing Sheets" },
