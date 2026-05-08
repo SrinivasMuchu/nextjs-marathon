@@ -2,9 +2,16 @@ import Link from "next/link";
 import { BASE_URL } from "@/config";
 import styles from "./TwoDMoreDesignsSection.module.css";
 
+/** How many “more” cards to show (excluding current design). */
+const MORE_2D_DESIGNS_COUNT = 8;
+
 async function fetchMoreTwoDDesigns(currentDesignId) {
   if (!BASE_URL) return [];
-  const query = new URLSearchParams({ page: "1", limit: "12" }).toString();
+  /** Fetch extra rows so we still have eight cards after removing the current design. */
+  const query = new URLSearchParams({
+    page: "1",
+    limit: String(MORE_2D_DESIGNS_COUNT + 8),
+  }).toString();
   try {
     const res = await fetch(`${BASE_URL}/v1/cad/get-2d-library-designs?${query}`, {
       cache: "no-store",
@@ -14,7 +21,7 @@ async function fetchMoreTwoDDesigns(currentDesignId) {
     const rows = Array.isArray(payload?.data) ? payload.data : [];
     return rows
       .filter((d) => String(d?._id || "") !== String(currentDesignId || ""))
-      .slice(0, 8);
+      .slice(0, MORE_2D_DESIGNS_COUNT);
   } catch {
     return [];
   }
