@@ -186,24 +186,14 @@ async function Library({ searchParams }) {
                   All Designs ({(pagination?.totalItems ?? designs?.length ?? 0)} results)
                 </span>
                 <Link
-                  href={buildLibraryHref({
-                    category,
-                    search: searchQuery,
-                    page: 1,
-                    tags,
-                    sort,
-                    recency,
-                    free_paid: freePaid,
-                    file_format: fileFormat,
-                    two_dims: twoDimsOn ? '' : '1',
-                  })}
-                  className={
-                    styles['library-toolbar-two-dims'] +
-                    (twoDimsOn ? ` ${styles['library-toolbar-two-dims-active']}` : '')
-                  }
-                  aria-pressed={twoDimsOn}
+                  href="/library/2d-technical-drawings"
+                  prefetch
+                  className={styles['library-toolbar-2d-library-cta']}
                 >
-                  2D drawings only
+                  <span className={styles['library-toolbar-2d-library-cta-icon']} aria-hidden>
+                    📐
+                  </span>
+                  2D technical drawing library
                 </Link>
               </div>
               <div className={styles['library-content-sort']}>
