@@ -41,10 +41,9 @@ function uniqueViews(entries) {
 function sheetPreviewCandidates(baseUrl, sheetNum) {
   const n = Number(sheetNum);
   const designId = String(baseUrl || "").split("/").pop() || "";
-  if (/^[a-f0-9]{24}$/.test(designId)) {
+  if (/^[a-f0-9]{24}$/i.test(designId)) {
     return [
       `/api/techdraw-file?designId=${encodeURIComponent(designId)}&sheet=${n}&ext=svg`,
-      `${baseUrl}/svg/sheet_${n}.svg`,
     ];
   }
   return [`${baseUrl}/svg/sheet_${n}.svg`];

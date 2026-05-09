@@ -51,7 +51,15 @@ export default function TwoDDrawingRightSidebar({
               <span className={styles.fmtMeta}>{filesWord}</span>
             </div>
           </div>
-
+          <Link href={cadModelHref} prefetch className={styles.backLinkBtn}>
+          <span className={styles.backLinkBtnIcon} aria-hidden>
+            🧊
+          </span>
+          <span>Open 3D CAD model</span>
+          <span aria-hidden className={styles.backLinkBtnArrow}>
+            →
+          </span>
+        </Link>
           <div className={styles.noticeBlue}>
             <span aria-hidden>ℹ️</span>
             <p>
@@ -69,12 +77,7 @@ export default function TwoDDrawingRightSidebar({
           </div>
         </div>
 
-        <Link href={cadModelHref} className={styles.backLink}>
-          <span>← Also view the 3D CAD Model</span>
-          <span aria-hidden style={{ color: "#c4b5fd" }}>
-            →
-          </span>
-        </Link>
+       
       </div>
 
       {/* <div className={styles.ctaCard}>

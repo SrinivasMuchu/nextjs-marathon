@@ -1060,15 +1060,32 @@ letter-spacing: -0.192px;
     width: 100%;
 }
 
+/* Desktop: equal two-column row, fixed height, single line (matches sidebar width) */
 .secondaryActions {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+    align-items: stretch;
 }
 
 .secondaryActionsSingle {
     grid-template-columns: 1fr;
+}
+
+.secondaryActions > button,
+.secondaryActions > a {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 48px;
+    min-height: 48px;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: clamp(14px, 1.1vw, 18px);
 }
 
 .viewerButtonLink {
@@ -1198,11 +1215,31 @@ letter-spacing: -0.192px;
    
    .viewerButton {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     font-size: 16px;
     padding: 12px 16px;
+    box-sizing: border-box;
    }
+
+   /* Mobile / tablet: stack secondary actions; allow wrapping text */
    .secondaryActions {
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px;
+   }
+
+   .secondaryActions > button,
+   .secondaryActions > a {
+    height: auto;
+    min-height: 48px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.25;
+    justify-content: center;
+    text-align: center;
    }
    
    .statsCont {
@@ -1217,6 +1254,12 @@ letter-spacing: -0.192px;
    }
    .desktop-only {
      display: none;
+   }
+
+   .industry-design-header-viewer-crousal button {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
    }
 }
 

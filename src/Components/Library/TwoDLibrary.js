@@ -8,6 +8,7 @@ import DesignStats from "../CommonJsx/DesignStats";
 import DesignDetailsStats from "../CommonJsx/DesignDetailsStats";
 import Footer from "../HomePages/Footer/Footer";
 import LibraryPageJsonLd from "../JsonLdSchemas/LibraryPageJsonLd";
+import FallbackImageClient from "../CommonJsx/FallbackImageClient";
 
 const SITE_LIST_ORIGIN = "https://marathon-os.com";
 
@@ -121,10 +122,12 @@ export default async function TwoDLibrary({
                     >
                       <div className={styles["two-d-library-preview-wrap"]}>
                         {previewSrc ? (
-                          <img
+                          <FallbackImageClient
                             className={styles["two-d-library-preview-img"]}
                             src={previewSrc}
-                            alt={`${design.page_title || design.part_name || "2D design"} preview`}
+                            alt={`${
+                              design.page_title || design.part_name || "2D design"
+                            } preview`}
                           />
                         ) : (
                           <div className={styles["two-d-library-preview-fallback"]}>

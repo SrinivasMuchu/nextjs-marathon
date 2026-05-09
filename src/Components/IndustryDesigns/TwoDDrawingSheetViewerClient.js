@@ -13,7 +13,14 @@ function previewSrc(sheet) {
 
 function previewErrorHandler(sheet) {
   return (e) => {
-    // On error just show placeholder; no complex fallback chain.
+    const candidates = Array.isArray(sheet?.previewCandidates) ? sheet.previewCandidates : [];
+    const fallbackSrc = candidates[1];
+    const alreadyTried = e.currentTarget.dataset.fallbackTried === "1";
+    if (!alreadyTried && fallbackSrc) {
+      e.currentTarget.dataset.fallbackTried = "1";
+      e.currentTarget.src = fallbackSrc;
+      return;
+    }
     e.currentTarget.style.display = "none";
   };
 }

@@ -149,20 +149,37 @@ a.btnSecondary {
   color: #4c1d95;
 }
 
-.backLink {
+.backLinkBtn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-top: 1px solid #f3f4f6;
-  font-size: 13px;
-  color: #6b7280;
+  gap: 8px;
+  margin: 0 16px 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #c4b5fd;
+  background: #f5f3ff;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5b21b6;
   text-decoration: none;
+  box-sizing: border-box;
 }
 
-.backLink:hover {
-  background: #f9fafb;
-  color: #6d28d9;
+.backLinkBtn:hover {
+  background: #ede9fe;
+  border-color: #a78bfa;
+  color: #4c1d95;
+}
+
+.backLinkBtnIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.backLinkBtnArrow {
+  margin-left: auto;
+  color: #7c3aed;
+  font-weight: 700;
 }
 
 .ctaCard {

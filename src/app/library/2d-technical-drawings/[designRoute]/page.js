@@ -6,6 +6,7 @@ import { fetchTechDrawBundle } from "@/lib/techDraw/fetchTechDrawBundle";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import Link from "next/link";
 
 async function fetchDesignByRoute(designRoute) {
   if (!BASE_URL) return null;
@@ -69,17 +70,23 @@ export async function generateMetadata({ params }) {
   };
 }
 
-async function TwoDTechnicalDrawingDeferredContent({ designId }) {
+async function TwoDTechnicalDrawingDeferredContent({ designId, cadModelHref }) {
   const bundle = await fetchTechDrawBundle(designId);
   if (!bundle.geometryPerSheet || typeof bundle.geometryPerSheet !== "object") {
     notFound();
   }
   const props = mapTechDrawBundleToPageProps(designId, bundle);
   const { baseUrl: _u, ...contentProps } = props;
-  return <TwoDTechnicalDrawingContent {...contentProps} currentDesignId={designId} />;
+  return (
+    <TwoDTechnicalDrawingContent
+      {...contentProps}
+      cadModelHref={cadModelHref}
+      currentDesignId={designId}
+    />
+  );
 }
 
-function TwoDTechnicalDrawingInitialFallback({ designId }) {
+function TwoDTechnicalDrawingInitialFallback({ designId, cadModelHref }) {
   const firstSheet = `${TECH_DRAW_LIBRARY_PREFIX}/${designId}/svg/sheet_1.svg`;
   return (
     <div
@@ -100,6 +107,24 @@ function TwoDTechnicalDrawingInitialFallback({ designId }) {
       >
         Loading full drawing details...
       </div>
+      {cadModelHref ? (
+        <div style={{ marginBottom: 12 }}>
+          <Link
+            href={cadModelHref}
+            prefetch
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              fontSize: 14,
+              fontWeight: 600,
+              color: "#5b21b6",
+              textDecoration: "none",
+            }}
+          >
+            ← Open 3D CAD model page
+          </Link>
+        </div>
+      ) : null}
       <div
         style={{
           height: 320,
@@ -130,11 +155,12 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
   if (!/^[a-f0-9]{24}$/i.test(designId)) notFound();
   const lightStats = await fetchLightHeroStats(designId);
   const title = String(design?.page_title || design?.part_name || "2D Technical Drawing Set").trim();
+  const cadModelHref = `/library/${encodeURIComponent(designRoute)}`;
   const breadcrumbLinks = [
     { label: "Library", href: "/library" },
     {
       label: title,
-      href: `/library/${encodeURIComponent(designRoute)}`,
+      href: cadModelHref,
     },
     { label: "2D Technical Drawings", href: `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}` },
   ];
@@ -162,8 +188,12 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
         description={pageDescription}
       />
       <TwoDTechnicalDrawingPage breadcrumbLinks={breadcrumbLinks} heroProps={heroProps}>
-        <Suspense fallback={<TwoDTechnicalDrawingInitialFallback designId={designId} />}>
-          <TwoDTechnicalDrawingDeferredContent designId={designId} />
+        <Suspense
+          fallback={
+            <TwoDTechnicalDrawingInitialFallback designId={designId} cadModelHref={cadModelHref} />
+          }
+        >
+          <TwoDTechnicalDrawingDeferredContent designId={designId} cadModelHref={cadModelHref} />
         </Suspense>
       </TwoDTechnicalDrawingPage>
     </>

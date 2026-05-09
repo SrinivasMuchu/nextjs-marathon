@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BASE_URL } from "@/config";
 import styles from "./TwoDMoreDesignsSection.module.css";
+import FallbackImageClient from "../CommonJsx/FallbackImageClient";
 
 /** How many “more” cards to show (excluding current design). */
 const MORE_2D_DESIGNS_COUNT = 8;
@@ -55,7 +56,11 @@ export default async function TwoDMoreDesignsSection({ currentDesignId }) {
             <Link key={id} href={href} className={styles.card}>
               <div className={styles.previewWrap}>
                 {previewSrc ? (
-                  <img className={styles.previewImg} src={previewSrc} alt={`${title} preview`} />
+                  <FallbackImageClient
+                    className={styles.previewImg}
+                    src={previewSrc}
+                    alt={`${title} preview`}
+                  />
                 ) : (
                   <div className={styles.previewFallback}>2D Preview</div>
                 )}
