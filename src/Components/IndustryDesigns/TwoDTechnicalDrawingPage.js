@@ -2,11 +2,12 @@ import React from "react";
 import ActiveLastBreadcrumb from "../CommonJsx/BreadCrumbs";
 import Footer from "../HomePages/Footer/Footer";
 import DesignHub from "../HomePages/DesignHub/DesignHub";
-import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
+import TwoDRecentlyAddedStrip from "./TwoDRecentlyAddedStrip";
 import IndustryDesignDropZone from "./IndustryDesignDropZone";
 import LibraryDesignPageBanner from "../CadServicesBanners/LibraryDesignPageBanner";
 import StickyCadStrip from "../CadServicesBanners/StickyCadStrip";
 import TwoDTechnicalDrawingHero from "./TwoDTechnicalDrawingHero";
+import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
 import styles from "./IndustryDesign.module.css";
 
 const defaultBreadcrumbLinks = [
@@ -34,11 +35,25 @@ export default function TwoDTechnicalDrawingPage({
     <>
       <div className={styles["industry-design-page-root"]}>
         <ActiveLastBreadcrumb alignWithHeader links={breadcrumbLinks} />
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            boxSizing: "border-box",
+            position: "relative",
+            minHeight: "100px",
+          }}
+        >
+          <div style={{ width: "100%", maxWidth: "970px", margin: "0 auto" }}>
+            <LeftRightBanner adSlot="2408570633" />
+          </div>
+        </div>
         <TwoDTechnicalDrawingHero {...heroProps} />
         {children}
       </div>
       <DesignHub headingLevel={3} />
-      <RecentlyAddedDesigns />
+      <TwoDRecentlyAddedStrip />
       <IndustryDesignDropZone />
       <LibraryDesignPageBanner />
       <StickyCadStrip />

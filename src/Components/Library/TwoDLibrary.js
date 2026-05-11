@@ -9,6 +9,8 @@ import DesignDetailsStats from "../CommonJsx/DesignDetailsStats";
 import Footer from "../HomePages/Footer/Footer";
 import LibraryPageJsonLd from "../JsonLdSchemas/LibraryPageJsonLd";
 import FallbackImageClient from "../CommonJsx/FallbackImageClient";
+import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
+import LibraryHireCtaCard from "./LibraryHireCtaCard";
 
 const SITE_LIST_ORIGIN = "https://marathon-os.com";
 
@@ -102,76 +104,116 @@ export default async function TwoDLibrary({
 
             <div className={styles["library-designs"]}>
               <div className={styles["library-designs-items"]}>
-                {designs.map((design) => (
-                  <div key={design._id} className={styles["library-designs-items-container"]}>
-                    {(() => {
-                      const route = String(design.route || "").trim();
-                      const href = route
-                        ? `/library/2d-technical-drawings/${encodeURIComponent(route)}`
-                        : `/library/2d-technical-drawings/${design._id}`;
-                      const previewSrc = design?._id
-                        ? `/api/techdraw-file?designId=${encodeURIComponent(
-                            design._id
-                          )}&sheet=1&ext=svg`
-                        : "";
-                      return (
-                    <Link
-                      href={href}
-                      className={styles["library-designs-primary-link"]}
-                      aria-label={design.page_title || design.part_name || "2D design"}
-                    >
-                      <div className={styles["two-d-library-preview-wrap"]}>
-                        {previewSrc ? (
-                          <FallbackImageClient
-                            className={styles["two-d-library-preview-img"]}
-                            src={previewSrc}
-                            alt={`${
-                              design.page_title || design.part_name || "2D design"
-                            } preview`}
-                          />
-                        ) : (
-                          <div className={styles["two-d-library-preview-fallback"]}>
-                            2D Preview
-                          </div>
-                        )}
-                      </div>
-                      <h6 title={design.page_title || design.part_name}>
-                        {design.page_title || design.part_name || "Untitled design"}
-                      </h6>
-                    </Link>
-                      );
-                    })()}
-
-                    <div className={styles["design-title-wrapper"]}>
+                {designs.map((design, index) => (
+                  <React.Fragment key={`2d-design-${design._id}`}>
+                    {index === 0 && (
                       <div
-                        className={styles["design-title-text"]}
+                        className={styles["library-designs-items-container"]}
                         style={{
                           display: "flex",
-                          gap: "10px",
                           alignItems: "center",
-                          flexWrap: "wrap",
+                          justifyContent: "center",
                         }}
                       >
-                        <DesignDetailsStats text="2D Drawing" type="category" />
-                        {design.file_type ? (
-                          <DesignDetailsStats
-                            fileType={`.${String(design.file_type).toLowerCase()}`}
-                            text={`.${String(design.file_type).toUpperCase()}`}
-                          />
-                        ) : null}
-                        <div className={styles["design-stats-wrapper"]}>
-                          <DesignStats
-                            views={design.total_design_views ?? 0}
-                            downloads={design.total_design_downloads ?? 0}
-                          />
-                        </div>
+                        <LeftRightBanner adSlot="2408570633" />
                       </div>
-                      <span className={styles["design-title-wrapper-price"]}>
-                        {design.price ? `$${design.price}` : "Free"}
-                      </span>
+                    )}
+                    {index === 6 && (
+                      <div
+                        className={styles["library-designs-items-container"]}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <LeftRightBanner adSlot="4799748492" />
+                      </div>
+                    )}
+                    {index === 4 && (
+                      <div
+                        className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
+                      >
+                        <LibraryHireCtaCard />
+                      </div>
+                    )}
+                    <div className={styles["library-designs-items-container"]}>
+                      {(() => {
+                        const route = String(design.route || "").trim();
+                        const href = route
+                          ? `/library/2d-technical-drawings/${encodeURIComponent(route)}`
+                          : `/library/2d-technical-drawings/${design._id}`;
+                        const previewSrc = design?._id
+                          ? `/api/techdraw-file?designId=${encodeURIComponent(
+                              design._id
+                            )}&sheet=1&ext=svg`
+                          : "";
+                        return (
+                          <Link
+                            href={href}
+                            className={styles["library-designs-primary-link"]}
+                            aria-label={design.page_title || design.part_name || "2D design"}
+                          >
+                            <div className={styles["two-d-library-preview-wrap"]}>
+                              {previewSrc ? (
+                                <FallbackImageClient
+                                  className={styles["two-d-library-preview-img"]}
+                                  src={previewSrc}
+                                  alt={`${
+                                    design.page_title || design.part_name || "2D design"
+                                  } preview`}
+                                />
+                              ) : (
+                                <div className={styles["two-d-library-preview-fallback"]}>
+                                  2D Preview
+                                </div>
+                              )}
+                            </div>
+                            <h6 title={design.page_title || design.part_name}>
+                              {design.page_title || design.part_name || "Untitled design"}
+                            </h6>
+                          </Link>
+                        );
+                      })()}
+
+                      <div className={styles["design-title-wrapper"]}>
+                        <div
+                          className={styles["design-title-text"]}
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <DesignDetailsStats text="2D Drawing" type="category" />
+                          {design.file_type ? (
+                            <DesignDetailsStats
+                              fileType={`.${String(design.file_type).toLowerCase()}`}
+                              text={`.${String(design.file_type).toUpperCase()}`}
+                            />
+                          ) : null}
+                          <div className={styles["design-stats-wrapper"]}>
+                            <DesignStats
+                              views={design.total_design_views ?? 0}
+                              downloads={design.total_design_downloads ?? 0}
+                            />
+                          </div>
+                        </div>
+                        <span className={styles["design-title-wrapper-price"]}>
+                          {design.price ? `$${design.price}` : "Free"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </React.Fragment>
                 ))}
+                {designs.length > 0 && designs.length < 5 && (
+                  <div
+                    className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
+                  >
+                    <LibraryHireCtaCard />
+                  </div>
+                )}
               </div>
 
               <div className={styles["library-pagination"]}>
