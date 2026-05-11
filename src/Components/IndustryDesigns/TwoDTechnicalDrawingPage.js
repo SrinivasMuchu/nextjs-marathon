@@ -2,7 +2,7 @@ import React from "react";
 import ActiveLastBreadcrumb from "../CommonJsx/BreadCrumbs";
 import Footer from "../HomePages/Footer/Footer";
 import DesignHub from "../HomePages/DesignHub/DesignHub";
-import TwoDRecentlyAddedStrip from "./TwoDRecentlyAddedStrip";
+import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
 import IndustryDesignDropZone from "./IndustryDesignDropZone";
 import LibraryDesignPageBanner from "../CadServicesBanners/LibraryDesignPageBanner";
 import StickyCadStrip from "../CadServicesBanners/StickyCadStrip";
@@ -53,7 +53,7 @@ export default function TwoDTechnicalDrawingPage({
         {children}
       </div>
       <DesignHub headingLevel={3} />
-      <TwoDRecentlyAddedStrip />
+      <RecentlyAddedDesigns />
       <IndustryDesignDropZone />
       <LibraryDesignPageBanner />
       <StickyCadStrip />

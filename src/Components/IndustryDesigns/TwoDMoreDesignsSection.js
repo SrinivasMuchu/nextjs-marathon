@@ -1,14 +1,7 @@
-import React from "react";
 import Link from "next/link";
 import { BASE_URL } from "@/config";
 import styles from "./TwoDMoreDesignsSection.module.css";
 import FallbackImageClient from "../CommonJsx/FallbackImageClient";
-import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
-import LibraryHireCtaCard from "../Library/LibraryHireCtaCard";
-
-/** Same slots as main library grid */
-const LIBRARY_LEADER_AD_SLOT = "2408570633";
-const LIBRARY_MID_GRID_AD_SLOT = "4799748492";
 
 /** How many “more” cards to show (excluding current design). */
 const MORE_2D_DESIGNS_COUNT = 8;
@@ -49,7 +42,7 @@ export default async function TwoDMoreDesignsSection({ currentDesignId }) {
       </div>
 
       <div className={styles.grid}>
-        {designs.map((design, index) => {
+        {designs.map((design) => {
           const id = String(design?._id || "").trim();
           const route = String(design?.route || "").trim();
           const href = route
@@ -60,48 +53,26 @@ export default async function TwoDMoreDesignsSection({ currentDesignId }) {
             ? `/api/techdraw-file?designId=${encodeURIComponent(id)}&sheet=1&ext=svg`
             : "";
           return (
-            <React.Fragment key={id}>
-              {index === 0 && (
-                <div className={styles.monetizationCell}>
-                  <LeftRightBanner adSlot={LIBRARY_LEADER_AD_SLOT} />
-                </div>
-              )}
-              {index === 4 && (
-                <div className={`${styles.monetizationCell} ${styles.hireCell}`}>
-                  <LibraryHireCtaCard />
-                </div>
-              )}
-              {index === 6 && (
-                <div className={styles.monetizationCell}>
-                  <LeftRightBanner adSlot={LIBRARY_MID_GRID_AD_SLOT} />
-                </div>
-              )}
-              <Link href={href} className={styles.card}>
-                <div className={styles.previewWrap}>
-                  {previewSrc ? (
-                    <FallbackImageClient
-                      className={styles.previewImg}
-                      src={previewSrc}
-                      alt={`${title} preview`}
-                    />
-                  ) : (
-                    <div className={styles.previewFallback}>2D Preview</div>
-                  )}
-                </div>
-                <div className={styles.cardTitle}>{title}</div>
-                <div className={styles.cardMeta}>
-                  <span>2D Drawing</span>
-                  <span>{design?.price ? `$${design.price}` : "Free"}</span>
-                </div>
-              </Link>
-            </React.Fragment>
+            <Link key={id} href={href} className={styles.card}>
+              <div className={styles.previewWrap}>
+                {previewSrc ? (
+                  <FallbackImageClient
+                    className={styles.previewImg}
+                    src={previewSrc}
+                    alt={`${title} preview`}
+                  />
+                ) : (
+                  <div className={styles.previewFallback}>2D Preview</div>
+                )}
+              </div>
+              <div className={styles.cardTitle}>{title}</div>
+              <div className={styles.cardMeta}>
+                <span>2D Drawing</span>
+                <span>{design?.price ? `$${design.price}` : "Free"}</span>
+              </div>
+            </Link>
           );
         })}
-        {designs.length > 0 && designs.length < 5 && (
-          <div className={`${styles.monetizationCell} ${styles.hireCell}`}>
-            <LibraryHireCtaCard />
-          </div>
-        )}
       </div>
     </section>
   );
