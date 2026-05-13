@@ -30,9 +30,9 @@ async function fetchDesignBasicMeta(designId) {
 }
 
 /**
- * Load pipeline JSON for a freecad-techdraw folder on CloudFront.
+ * Load pipeline JSON for a freecad-2d-techdraw folder on CloudFront.
  * BOM: bom.json fetch commented out — re-enable when BOM UI is restored.
- * @param {string} designId — folder name under freecad-techdraw/
+ * @param {string} designId — folder name under freecad-2d-techdraw/
  */
 export async function fetchTechDrawBundle(designId) {
   const baseUrl = folderUrl(designId);
