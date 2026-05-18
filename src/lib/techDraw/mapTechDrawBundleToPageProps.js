@@ -357,7 +357,7 @@ function buildAiAnalysisSources(viewSelectionResponse, totalDimIds) {
       iconMods: [],
       title: "View-selection analysis output",
       description: vs
-        ? `Stage 2 view selection (${vs.provider || "LLM"} · ${vs.model || "model"}), saved ${vs.saved_at_utc || "—"}.`
+        ? `Stage 2 view selection, saved ${vs.saved_at_utc || "—"}.`
         : "AI-selected views for this drawing set when Stage 2 JSON is present in the bundle.",
     },
     {
@@ -470,7 +470,7 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
     zipHref: `/api/techdraw-bundle-zip?designId=${encodeURIComponent(designId)}`,
     drawingInfo: buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse),
-    aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
+    // aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
     viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse),
     sectionDetailGroups: buildSectionDetailGroups(
       entries,
