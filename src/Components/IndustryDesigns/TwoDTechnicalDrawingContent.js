@@ -22,7 +22,6 @@ export default function TwoDTechnicalDrawingContent({
   freecadHref,
   zipHref,
   drawingInfo,
-  aiAnalysisSources,
   viewCards,
   sectionDetailGroups,
   bomRows,
@@ -44,7 +43,7 @@ export default function TwoDTechnicalDrawingContent({
           drawingInfo={drawingInfo}
         />
       </div>
-      <TwoDAiDrawingAnalysis sources={aiAnalysisSources} />
+      <TwoDAiDrawingAnalysis />
       <TwoDDrawingViewCards views={viewCards} />
       <TwoDDrawingSectionDetailCards groups={sectionDetailGroups} />
       {/* <TwoDDrawingBomTable rows={bomRows} /> */}
