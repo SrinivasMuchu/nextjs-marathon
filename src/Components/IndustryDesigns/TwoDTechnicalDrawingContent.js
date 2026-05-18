@@ -1,4 +1,4 @@
-// import TwoDAiDrawingAnalysis from "./TwoDAiDrawingAnalysis";
+import TwoDAiDrawingAnalysis from "./TwoDAiDrawingAnalysis";
 import TwoDDrawingViewCards from "./TwoDDrawingViewCards";
 import TwoDDrawingSectionDetailCards from "./TwoDDrawingSectionDetailCards";
 // import TwoDDrawingBomTable from "./TwoDDrawingBomTable";
@@ -12,7 +12,7 @@ import layoutStyles from "./TwoDDrawingMainLayout.module.css";
 import { Suspense } from "react";
 
 /**
- * Server component: two-column main area (preview + sidebar) and drawing detail sections.
+ * Server component: two-column main area (preview + sidebar) and AI analysis block.
  */
 export default function TwoDTechnicalDrawingContent({
   sheets = DEFAULT_2D_SHEETS,
@@ -22,7 +22,7 @@ export default function TwoDTechnicalDrawingContent({
   freecadHref,
   zipHref,
   drawingInfo,
-  // aiAnalysisSources,
+  aiAnalysisSources,
   viewCards,
   sectionDetailGroups,
   bomRows,
@@ -44,7 +44,7 @@ export default function TwoDTechnicalDrawingContent({
           drawingInfo={drawingInfo}
         />
       </div>
-      {/* <TwoDAiDrawingAnalysis sources={aiAnalysisSources} /> */}
+      <TwoDAiDrawingAnalysis sources={aiAnalysisSources} />
       <TwoDDrawingViewCards views={viewCards} />
       <TwoDDrawingSectionDetailCards groups={sectionDetailGroups} />
       {/* <TwoDDrawingBomTable rows={bomRows} /> */}
