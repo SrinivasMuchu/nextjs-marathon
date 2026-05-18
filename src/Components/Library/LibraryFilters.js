@@ -50,6 +50,7 @@ export default function LibraryFilters({
   initialRecency,
   initialFreePaid,
   initialFileFormat,
+  initialTwoDims = '',
   hasActiveFilters,
   tagsHasMore,
   onLoadMoreTags,
@@ -88,7 +89,7 @@ export default function LibraryFilters({
       setLocalTag(tags || '');
     }
     prevSheetOpenRef.current = !!sheetOpen;
-  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, category, tags]);
+  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, category, tags]);
 
   const tagSearch = typeof onTagSearchChange === 'function' ? (tagSearchProp ?? '') : tagSearchLocal;
   const setTagSearch = typeof onTagSearchChange === 'function' ? onTagSearchChange : setTagSearchLocal;
@@ -106,10 +107,11 @@ export default function LibraryFilters({
         recency: initialRecency,
         free_paid: initialFreePaid,
         file_format: initialFileFormat,
+        two_dims: initialTwoDims,
         page: 1,
         ...overrides,
       }),
-    [category, tags, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat]
+    [category, tags, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims]
   );
 
   const selectedFormats = inSheet ? localFormats : (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
@@ -128,9 +130,10 @@ export default function LibraryFilters({
         recency: localRecency || undefined,
         free_paid: localFreePaid || undefined,
         file_format: localFormats.length ? localFormats.join(',') : undefined,
+        two_dims: initialTwoDims || undefined,
         page: 1,
       }),
-    [category, localCategory, localTag, localSearch, localSort, localRecency, localFreePaid, localFormats]
+    [category, localCategory, localTag, localSearch, localSort, localRecency, localFreePaid, localFormats, initialTwoDims]
   );
 
   /* Normalize tags array (backend may not return count; we only need the list) */

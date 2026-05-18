@@ -52,12 +52,15 @@ function FloatingButton() {
     <div>
       {showOptions && (
         <div
-          className="fixed right-6 flex flex-col gap-2 z-[9999]"
-          style={{ bottom: anchorAds?'150px':'80px' }} // 56px is approx height of main button
+          className="fixed flex flex-col gap-2 z-[9999]"
+          style={{
+            right: 'max(12px, env(safe-area-inset-right, 0px))',
+            bottom: anchorAds ? 'max(150px, calc(80px + env(safe-area-inset-bottom, 0px)))' : 'max(80px, calc(20px + env(safe-area-inset-bottom, 0px)))',
+          }}
         >
 
           <Link
-            href="/tools//3D-cad-viewer"
+            href="/tools/3D-cad-viewer"
               onClick={() => {
                 sendGAtagEvent({ event_name: 'floating_button_view_click', event_category: CAD_FLOATING_BUTTON_EVENT });
                 setShowOptions(false);
@@ -107,9 +110,15 @@ function FloatingButton() {
 
       {/* Floating Main Button */}
       <button
+        type="button"
         onClick={() => setShowOptions(!showOptions)}
-        className="fixed right-6 bg-[#610bee] text-white px-5 py-3 rounded-full shadow-lg transition z-[9999]"
-        style={{ bottom: anchorAds?'95px':'20px' }}
+        className="fixed bg-[#610bee] text-white px-4 py-3 sm:px-5 rounded-full shadow-lg transition z-[9999] text-sm sm:text-base"
+        style={{
+          right: 'max(12px, env(safe-area-inset-right, 0px))',
+          bottom: anchorAds
+            ? 'max(95px, calc(20px + env(safe-area-inset-bottom, 0px)))'
+            : 'max(20px, env(safe-area-inset-bottom, 0px))',
+        }}
       >
         CAD Actions
       </button>

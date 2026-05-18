@@ -16,6 +16,8 @@ export const LIBRARY_PARAMS = {
   recency: 'recency',
   free_paid: 'free_paid',
   file_format: 'file_format',
+  /** When set to "1", API returns only designs with is_two_dims true */
+  two_dims: 'two_dims',
   page: 'page',
   limit: 'limit',
   uuid: 'uuid',
@@ -43,6 +45,7 @@ export function buildLibraryDesignsParams(filters) {
     recency = '',
     free_paid = '',
     file_format = '',
+    two_dims = '',
     page = 1,
     limit = 20,
     uuid = null,
@@ -56,6 +59,7 @@ export function buildLibraryDesignsParams(filters) {
   if (recency) params[LIBRARY_PARAMS.recency] = recency;
   if (free_paid) params[LIBRARY_PARAMS.free_paid] = free_paid;
   if (file_format) params[LIBRARY_PARAMS.file_format] = file_format;
+  if (two_dims) params[LIBRARY_PARAMS.two_dims] = two_dims;
   params[LIBRARY_PARAMS.page] = String(page);
   params[LIBRARY_PARAMS.limit] = String(limit);
   if (uuid) params[LIBRARY_PARAMS.uuid] = uuid;

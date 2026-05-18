@@ -7,15 +7,14 @@ import ViewAllDesigns from '../DesignHub/ViewAllDesigns'
 
 async function RecentlyAddedDesigns() {
   try {
-    // Fetch recently added designs (server-side)
     const response = await fetch(
       `${BASE_URL}/v1/cad/get-recently-added-designs?limit=10`,
       { cache: 'no-store' }
     )
-    
+
     const data = await response.json()
     const designs = data?.data || []
-    
+
     return (
       <div className={styles.recentlyAddedDesignsContainer}>
         <h2 className={styles.recentlyAddedDesignsHead}>Recently added / Trending</h2>
@@ -24,9 +23,9 @@ async function RecentlyAddedDesigns() {
           {designs.length > 0 ? (
             designs.map((design) => (
               <div key={design._id} className={styles.recentlyAddedDesignCard}>
-                <Link 
-                  href={`/library/${design.route}`} 
-                  className={libraryStyles["library-designs-items-container-home"]}
+                <Link
+                  href={`/library/${design.route}`}
+                  className={libraryStyles['library-designs-items-container-home']}
                 >
                   <HoverImageSequence design={design} width={298} height={298} />
                 </Link>
@@ -34,7 +33,6 @@ async function RecentlyAddedDesigns() {
                   {design.page_title}
                 </div>
               </div>
-             
             ))
           ) : (
             <p>No designs available</p>

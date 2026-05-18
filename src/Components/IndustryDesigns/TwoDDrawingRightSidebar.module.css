@@ -1,0 +1,289 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.cardBody {
+  padding: 16px;
+}
+
+.cardTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+
+.downloadActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 12px;
+  background: #6d28d9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btnPrimary:hover {
+  opacity: 0.92;
+}
+
+.btnSecondary {
+  width: 100%;
+  padding: 11px;
+  background: #fff;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnSecondary:hover {
+  border-color: #6d28d9;
+  color: #6d28d9;
+}
+
+a.btnSecondary {
+  text-decoration: none;
+  text-align: center;
+  display: block;
+  box-sizing: border-box;
+}
+
+.formatGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.formatCell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 12px;
+  background: #fff;
+}
+
+.fmtPdf {
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+.fmtSvg {
+  font-weight: 700;
+  color: #059669;
+}
+
+.fmtDxf {
+  font-weight: 700;
+  color: #d97706;
+}
+
+.fmtPng {
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.fmtMeta {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.noticeBase {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.noticeBase p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.noticeBlue {
+  composes: noticeBase;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.noticeBlue p {
+  color: #1e3a8a;
+}
+
+.noticePurple {
+  composes: noticeBase;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+}
+
+.noticePurple p {
+  color: #4c1d95;
+}
+
+.backLinkBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #c4b5fd;
+  background: #f5f3ff;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5b21b6;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.backLinkBtn:hover {
+  background: #ede9fe;
+  border-color: #a78bfa;
+  color: #4c1d95;
+}
+
+.backLinkBtnIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.backLinkBtnArrow {
+  margin-left: auto;
+  color: #7c3aed;
+  font-weight: 700;
+}
+
+.ctaCard {
+  border: 1px solid #ddd6fe;
+  border-radius: 10px;
+  background: #f5f3ff;
+  padding: 16px;
+}
+
+.ctaEyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #6d28d9;
+  margin-bottom: 8px;
+}
+
+.ctaTitle {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.ctaDesc {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.55;
+  margin: 0 0 14px;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.priceBig {
+  font-size: 28px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.priceSub {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.generateBtn {
+  width: 100%;
+  padding: 12px;
+  background: #6d28d9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.generateBtn:hover {
+  opacity: 0.92;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.infoVal {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.infoKey {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.infoFooter {
+  margin-top: 12px;
+  font-size: 11px;
+  color: #9ca3af;
+}
