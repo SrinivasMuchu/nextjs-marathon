@@ -10,6 +10,10 @@ export default function TwoDAiDrawingAnalysis() {
       <h2 id="ai-drawing-analysis-heading" className={styles.title}>
         What the AI Decided &amp; Why
       </h2>
+      <p className={styles.lead}>
+        The cards below explain how the generated drawing outputs and assets connect
+        to the final technical sheets.
+      </p>
     </section>
   );
 }
