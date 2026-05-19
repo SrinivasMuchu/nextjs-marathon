@@ -1,10 +1,33 @@
 import React from 'react'
-import styles from './Industry.module.css'
+import styles from './SampleParts.module.css'
 import { BASE_URL } from '@/config';
 import Link from 'next/link';
 
-async function SampleParts({ industry, part_name }) {
-   
+function formatSlugAsLabel(slug) {
+    if (!slug) return ''
+    return slug
+        .split('-')
+        .filter(Boolean)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ')
+}
+
+/** First word of label, lowercased — e.g. "Medical & Healthcare" → "medical" */
+function subtitleIndustryWord(industryLabel, industrySlug) {
+    const label = (industryLabel || '').trim()
+    if (label) {
+        const first = label.split('&')[0].trim().split(/\s+/)[0]
+        if (first) return first.toLowerCase()
+    }
+    const fromSlug = formatSlugAsLabel(industrySlug).split(/\s+/)[0]
+    return fromSlug ? fromSlug.toLowerCase() : 'industry'
+}
+
+async function SampleParts({ industry, part_name, industryLabel }) {
+    const displayIndustry =
+        (industryLabel && industryLabel.trim()) || formatSlugAsLabel(industry)
+    const industryWord = subtitleIndustryWord(industryLabel, industry)
+
     try {
         const response = await fetch(
             `${BASE_URL}/v1/cad/get-industry-part-data?industry=${industry}`,
@@ -21,7 +44,6 @@ async function SampleParts({ industry, part_name }) {
         const result = await response.json();
         let data = result.data || [];
 
-        // Filter out parts that match the part_name
         if (part_name) {
             data = data.filter(item =>
                 !item.route?.toLowerCase().includes(part_name.toLowerCase()) &&
@@ -30,37 +52,36 @@ async function SampleParts({ industry, part_name }) {
             );
         }
 
-        return (
-            <>
-            {data.length ? <div className={styles['sample-parts']}>
-                <h3>Sample Parts (CAD Viewable in Marathon-OS)</h3>
+        if (!data.length) {
+            return null
+        }
 
-                <div className={styles['sample-parts-container']}>
-                    {
-                        data.map((item, index) => (
+        return (
+            <section className={styles.section} aria-labelledby="sample-parts-heading">
+                <div className={styles.inner}>
+                    <h2 id="sample-parts-heading" className={styles.title}>
+                        Sample {displayIndustry} Parts
+                    </h2>
+                    <p className={styles.subtitle}>
+                        Browse and preview common {industryWord} CAD models instantly.
+                    </p>
+                    <div className={styles.pillWrap}>
+                        {data.map((item, index) => (
                             <Link
                                 href={`/industry/${industry}/${item.route}`}
                                 key={item.id || index}
-                                passHref
+                                className={styles.pill}
                             >
-                                <button
-                                    className={styles['sample-parts-box']}
-                                >
-                                    {item.part_name || `Part ${index + 1}`}
-                                </button>
+                                {item.part_name || `Part ${index + 1}`}
                             </Link>
                         ))}
-                    
+                    </div>
                 </div>
-            </div>:<></>}
-            
-            </>
-           
+            </section>
         );
     } catch (error) {
         console.error("Failed to fetch sample parts:", error);
-
-
+        return null
     }
 }
 

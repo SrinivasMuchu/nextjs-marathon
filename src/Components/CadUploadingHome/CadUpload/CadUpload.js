@@ -1,26 +1,48 @@
 import React from 'react'
-import cadStyles from '../CadHomeDesign/CadHome.module.css'
+import cadHomeStyles from '../CadHomeDesign/CadHome.module.css'
+import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import CadDropZoneContent from '../CadHomeDesign/CadDropZoneContent'
-import HomeTopNav from '@/Components/HomePages/HomepageTopNav/HomeTopNav'
 import CadUploadHeadings from './CadUploadHeadings'
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
+import { Eye, Shield, Clock, HardDrive } from 'lucide-react'
 
-function CadUpload({type}) {
+function CadUpload({ type }) {
   return (
-     <div className={cadStyles['cad-landing-page']} style={{position:'relative'}}>
-     <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
-        <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
-          <LeftRightBanner adSlot="3755241003"/>
+    <div className={heroStyles.heroPage}>
+      <div className={cadHomeStyles['cad-ad-bar']}>
+        <div className={cadHomeStyles['cad-ad-bar-inner']}>
+          <LeftRightBanner adSlot="3755241003" />
         </div>
       </div>
-        <div className={cadStyles['cad-landing-left-cont']}>
-           <CadUploadHeadings/>
-           <CadDropZoneContent isStyled={true} type={type}/>
-            
+      <div className={heroStyles.heroInner}>
+        <div className={heroStyles.badge}>
+          <Eye size={16} strokeWidth={2.2} aria-hidden />
+          <span>Free online tool</span>
         </div>
-        {/* <div className={cadStyles['cad-uploading-circle-bg']}></div> */}
+        <CadUploadHeadings variant="dark" />
+        <div className={heroStyles.trustRow} role="list">
+          <div className={heroStyles.trustItem} role="listitem">
+            <span className={heroStyles.trustIcon} aria-hidden>
+              <Shield size={18} strokeWidth={2.2} />
+            </span>
+            Private uploads
+          </div>
+          <div className={heroStyles.trustItem} role="listitem">
+            <span className={heroStyles.trustIcon} aria-hidden>
+              <Clock size={18} strokeWidth={2.2} />
+            </span>
+            Auto-delete in 24hrs
+          </div>
+          <div className={heroStyles.trustItem} role="listitem">
+            <span className={heroStyles.trustIcon} aria-hidden>
+              <HardDrive size={18} strokeWidth={2.2} />
+            </span>
+            Up to 300 MB
+          </div>
+        </div>
+        <CadDropZoneContent isStyled type={type} designVariant="heroDark" />
+      </div>
     </div>
-   
   )
 }
 

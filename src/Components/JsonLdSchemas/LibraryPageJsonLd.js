@@ -2,43 +2,70 @@ import React from 'react';
 import Script from 'next/script';
 
 const SITE_URL = 'https://marathon-os.com';
-const LIBRARY_URL = `${SITE_URL}/library`;
+const DEFAULT_LIST_URL = `${SITE_URL}/library`;
+const DEFAULT_LIST_TITLE = 'CAD Design Library';
+const DEFAULT_LIST_DESCRIPTION =
+  'Browse Marathon OS CAD Design Library. Search and filter by category or tags, preview 3D CAD models and download files for engineering workflows.';
 
 /**
- * Renders ItemList JSON-LD for the library page.
+ * Renders ItemList JSON-LD for library-style listing pages (main library, 2D library, etc.).
  * @param {Object} props
  * @param {Array<{ _id: string, route: string, page_title?: string }>} props.designs - List of designs on current page
  * @param {Object} props.pagination - { totalPages }
  * @param {number} props.page - Current page (1-based)
  * @param {number} props.limit - Items per page
+ * @param {string} [props.listUrl] - Canonical URL of the ItemList page
+ * @param {string} [props.listTitle] - ItemList name
+ * @param {string} [props.listDescription] - ItemList description
+ * @param {string} [props.defaultItemName] - Fallback name for each list item
+ * @param {string} [props.scriptId] - Script element id (must be unique per page)
+ * @param {(design: object) => string} [props.getItemPath] - Site path for each design (leading slash, no origin), e.g. (d) => `/library/${d.route}`
  */
-function LibraryPageJsonLd({ designs = [], pagination = {}, page = 1, limit = 20 }) {
+function LibraryPageJsonLd({
+  designs = [],
+  pagination = {},
+  page = 1,
+  limit = 20,
+  listUrl = DEFAULT_LIST_URL,
+  listTitle = DEFAULT_LIST_TITLE,
+  listDescription = DEFAULT_LIST_DESCRIPTION,
+  defaultItemName = 'CAD Design',
+  scriptId = 'json-ld-library-itemlist',
+  getItemPath,
+}) {
   const totalPages = pagination?.totalPages ?? 1;
   const numberOfItems = totalPages * limit;
+  const resolvePath =
+    getItemPath ||
+    ((design) => `/library/${design.route}`);
 
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'CAD Design Library',
-    description: 'Browse Marathon OS CAD Design Library. Search and filter by category or tags, preview 3D CAD models and download files for engineering workflows.',
-    url: LIBRARY_URL,
+    name: listTitle,
+    description: listDescription,
+    url: listUrl,
     numberOfItems,
     itemListOrder: 'https://schema.org/ItemListOrderUnordered',
-    itemListElement: designs.map((design, index) => ({
-      '@type': 'ListItem',
-      position: (page - 1) * limit + index + 1,
-      item: {
-        '@type': 'webpage',
-        '@id': `${SITE_URL}/library/${design.route}`,
-        name: design.page_title || 'CAD Design',
-        url: `${SITE_URL}/library/${design.route}`,
-      },
-    })),
+    itemListElement: designs.map((design, index) => {
+      const path = resolvePath(design);
+      const itemFullUrl = `${SITE_URL}${path}`;
+      return {
+        '@type': 'ListItem',
+        position: (page - 1) * limit + index + 1,
+        item: {
+          '@type': 'webpage',
+          '@id': itemFullUrl,
+          name: design.page_title || defaultItemName,
+          url: itemFullUrl,
+        },
+      };
+    }),
   };
 
   return (
     <Script
-      id="json-ld-library-itemlist"
+      id={scriptId}
       type="application/ld+json"
       strategy="afterInteractive"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}

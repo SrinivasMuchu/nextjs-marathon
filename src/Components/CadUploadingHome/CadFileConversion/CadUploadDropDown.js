@@ -1,11 +1,23 @@
 "use client";
-import React, { useEffect } from 'react';
-import Select from 'react-select';
-import cadStyles from '../CadHomeDesign/CadHome.module.css';
-import { useRouter } from "next/navigation";
-import { DESIGN_GLB_PREFIX_URL } from '@/config';
-import {  textLettersLimit } from './../../../common.helper';
-import Link from 'next/link';
+import React, { useCallback, useEffect, useMemo } from "react";
+import cadStyles from "../CadHomeDesign/CadHome.module.css";
+import { textLettersLimit } from "./../../../common.helper";
+import Link from "next/link";
+
+const FORMAT_ALIASES = {
+  stp: "step",
+  igs: "iges",
+  brp: "brep",
+};
+
+/** Normalize format keys from URL/state (e.g. ".stl", "STL", "stp" -> canonical value key) */
+function normalizeFormatKey(v) {
+  if (v == null || v === "") return "";
+  const s = String(v).toLowerCase().trim();
+  const noDot = s.startsWith(".") ? s.slice(1) : s;
+  return FORMAT_ALIASES[noDot] || noDot;
+}
+
 function CadDropDown({
   file,
   selectedFileFormate,
@@ -15,58 +27,58 @@ function CadDropDown({
   uploadingMessage,
   handleFileConvert,
   disableSelect,
-  to, s3Url,
-  setDisableSelect
+  to,
+  s3Url,
+  setDisableSelect,
 }) {
-  const formatOptions = [
-    { value: 'step', label: '.step' },
-    { value: 'brep', label: '.brep' },
-    { value: 'iges', label: '.iges' },
-    { value: 'obj', label: '.obj' },
-    { value: 'ply', label: '.ply' },
-    { value: 'stl', label: '.stl' },
-    { value: 'off', label: '.off' },
-    { value: 'dxf', label: '.dxf' },
-    { value: 'dwg', label: '.dwg' },
-    // { value: 'glb', label: '.glb' },
-  ];
+  const formatOptions = useMemo(
+    () => [
+      { value: "step", label: ".step" },
+      { value: "brep", label: ".brep" },
+      { value: "iges", label: ".iges" },
+      { value: "obj", label: ".obj" },
+      { value: "ply", label: ".ply" },
+      { value: "stl", label: ".stl" },
+      { value: "off", label: ".off" },
+      { value: "dxf", label: ".dxf" },
+      { value: "dwg", label: ".dwg" },
+    ],
+    []
+  );
 
-  // Set initial format when 'to' prop changes
+  const selectedKey = normalizeFormatKey(selectedFileFormate);
+
   useEffect(() => {
-    if (to && !selectedFileFormate) {
-      const targetFormat = Array.isArray(to) ? to[0] : to;
-      setSelectedFileFormate(targetFormat);
+    if (to && !selectedKey) {
+      const raw = Array.isArray(to) ? to[0] : to;
+      const targetFormat = normalizeFormatKey(raw);
+      if (targetFormat) setSelectedFileFormate(targetFormat);
     }
-  }, [to, selectedFileFormate, setSelectedFileFormate]);
+  }, [to, selectedKey, setSelectedFileFormate]);
 
-  // Auto-select format for DXF/DWG files when only one option is available
   useEffect(() => {
     if (file) {
       const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
-      if ((fileExt === "dxf" || fileExt === "dwg") && !selectedFileFormate) {
-        // Auto-select the other format (if input is DXF, select DWG and vice versa)
+      if ((fileExt === "dxf" || fileExt === "dwg") && !selectedKey) {
         const otherFormat = fileExt === "dxf" ? "dwg" : "dxf";
         setSelectedFileFormate(otherFormat);
       }
     }
-  }, [file, selectedFileFormate, setSelectedFileFormate]);
+  }, [file, selectedKey, setSelectedFileFormate]);
 
-  const router = useRouter();
-  // Get filtered options based on file extension
-  const getFilteredOptions = () => {
+  const getFilteredOptions = useCallback(() => {
     if (!file) return formatOptions;
 
     const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
 
-    // Special handling for DXF and DWG: can only convert to DXF or DWG
     if (fileExt === "dxf" || fileExt === "dwg") {
-      return formatOptions.filter(option => {
-        // Only show DXF and DWG options, excluding the input format
-        return (option.value === "dxf" || option.value === "dwg") && option.value !== fileExt;
-      });
+      return formatOptions.filter(
+        (option) =>
+          (option.value === "dxf" || option.value === "dwg") && option.value !== fileExt
+      );
     }
 
-    return formatOptions.filter(option => {
+    return formatOptions.filter((option) => {
       if (option.value === "dxf" || option.value === "dwg") {
         return false;
       }
@@ -81,64 +93,62 @@ function CadDropDown({
       }
       return option.value !== fileExt;
     });
+  }, [file, formatOptions]);
+
+  const handleNativeChange = (event) => {
+    const v = normalizeFormatKey(event.target.value);
+    setSelectedFileFormate(v);
+    setDisableSelect(false);
   };
 
-  // Get the currently selected option
-  const getSelectedOption = () => {
-    if (selectedFileFormate) {
-      return formatOptions.find(option => option.value === selectedFileFormate);
-    }
-    return null;
-  };
+  const filteredOptions = useMemo(() => getFilteredOptions(), [getFilteredOptions]);
 
-  const handleSelectFileFormat = (selectedOption) => {
-    if (selectedOption) {
-      setSelectedFileFormate(selectedOption.value);
-      setDisableSelect(false);
-    }
-  };
+  const selectedOption =
+    selectedKey && formatOptions.find((o) => o.value === selectedKey);
+  const optionsForSelect = useMemo(() => {
+    if (!selectedOption) return filteredOptions;
+    if (filteredOptions.some((o) => o.value === selectedOption.value)) return filteredOptions;
+    return [selectedOption, ...filteredOptions];
+  }, [filteredOptions, selectedOption]);
+
+  const selectValueAttr =
+    selectedKey && optionsForSelect.some((o) => o.value === selectedKey)
+      ? selectedKey
+      : "";
+
+  const displayLabel = useMemo(() => {
+    if (!selectedKey) return "Select format…";
+    return (
+      formatOptions.find((o) => o.value === selectedKey)?.label ?? `.${selectedKey}`
+    );
+  }, [selectedKey, formatOptions]);
 
   const handleConvert = () => {
-    if (!selectedFileFormate) {
+    if (!selectValueAttr) {
       console.error("No format selected for conversion");
       return;
     }
     setDisableSelect(true);
     if (s3Url) {
-      handleFileConvert('', s3Url);
+      handleFileConvert("", s3Url);
     } else {
       handleFileConvert(file);
     }
-
   };
 
-  const isConvertButtonVisible = !!selectedFileFormate;
-  
-  // Get filtered options once
-  const filteredOptions = getFilteredOptions();
-  
-  // Check if input file is DXF or DWG
   const fileExt = file?.name?.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
   const isDxfOrDwg = fileExt === "dxf" || fileExt === "dwg";
-  
-  // Disable dropdown if DXF/DWG input and only one option available (or if already disabled)
-  // When DXF/DWG is input, there's only one output option (the other format), so disable the dropdown
-  const isSelectDisabled = uploadingMessage || disableSelect || (isDxfOrDwg && filteredOptions.length === 1);
-  
-  // Convert button should only be disabled during upload/conversion, not because of DXF/DWG restriction
+  const isSelectDisabled =
+    uploadingMessage || disableSelect || (isDxfOrDwg && filteredOptions.length === 1);
   const isConvertButtonDisabled = uploadingMessage || disableSelect;
-
-
-
-  
+  const isConvertButtonVisible = !!selectValueAttr;
 
   return (
-    <div className={cadStyles['cad-conversion-table']}>
+    <div className={`${cadStyles["cad-conversion-table"]} ${cadStyles["cad-conversion-table--dark"]}`}>
       <table>
         <thead>
           <tr>
             <th>File Name</th>
-
             <th>File Format</th>
             <th>Convert To</th>
             <th>Status</th>
@@ -148,22 +158,39 @@ function CadDropDown({
         <tbody>
           <tr>
             <td data-label="File Name">{textLettersLimit(file?.name, 35)}</td>
-            <td data-label="File Format">{file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}</td>
+            <td data-label="File Format">
+              {file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}
+            </td>
             <td data-label="Convert To">
-              <Select
-                value={getSelectedOption()}
-                onChange={handleSelectFileFormat}
-                options={filteredOptions}
-                className={cadStyles['cad-conversion-select']}
-                isDisabled={isSelectDisabled}
-                isSearchable={false}
-              />
+              <div
+                className={`${cadStyles["cad-conversion-format-slot"]} ${
+                  isSelectDisabled ? cadStyles["cad-conversion-format-slotDisabled"] : ""
+                }`}
+              >
+                <select
+                  key={file?.name ? `fmt-${file.name}` : "fmt"}
+                  className={cadStyles["cad-conversion-format-select"]}
+                  value={selectValueAttr}
+                  onChange={handleNativeChange}
+                  disabled={isSelectDisabled}
+                  aria-label={`Output file format. ${displayLabel}`}
+                >
+                  <option value="">Select format…</option>
+                  {optionsForSelect.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+                <div className={cadStyles["cad-conversion-format-label"]}>{displayLabel}</div>
+              </div>
             </td>
             <td data-label="Status">{uploadingMessage}</td>
             <td data-label="Action">
               {isConvertButtonVisible && !uploadingMessage && (
                 <button
-                  className={cadStyles['cad-conversion-button']}
+                  type="button"
+                  className={cadStyles["cad-conversion-button"]}
                   onClick={handleConvert}
                   disabled={isConvertButtonDisabled}
                 >
@@ -171,18 +198,17 @@ function CadDropDown({
                 </button>
               )}
 
-              {uploadingMessage === 'COMPLETED' && (
-                <Link href='/dashboard?cad_type=CAD_CONVERTER' className={cadStyles['cad-conversion-button']}>
-                
-                    Download from dashboard
-                  
+              {uploadingMessage === "COMPLETED" && (
+                <Link
+                  href="/dashboard?cad_type=CAD_CONVERTER"
+                  className={cadStyles["cad-conversion-button"]}
+                >
+                  Download from dashboard
                 </Link>
-
               )}
             </td>
           </tr>
         </tbody>
-
       </table>
     </div>
   );

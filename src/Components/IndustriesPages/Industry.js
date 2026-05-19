@@ -3,9 +3,11 @@ import RoleOfCAD from './RoleOfCAD'
 import UseOfCAD from './UseOfCAD'
 import SolutionCad from './SolutionCad'
 import SampleParts from './SampleParts'
-import HomeTopNav from '../HomePages/HomepageTopNav/HomeTopNav'
 import OrgFeatures from '../OrganizationHome/OrgFeatures/OrgFeatures'
 import IndustryDetails from './IndustryDetails'
+import IndustryHowItWorksSection from './IndustryHowItWorksSection'
+import IndustryMarketingBody from './IndustryMarketingBody'
+import IndustryFinalCtaBand from './IndustryFinalCtaBand'
 import ChartBuilder from '../OrganizationHome/ChartBuilder/ChartBuilder'
 import OurFeatures from '../OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '../OrganizationHome/OrgFaq/OrgFaq'
@@ -14,10 +16,13 @@ import ActiveLastBreadcrumb from '../CommonJsx/BreadCrumbs'
 import IndustryDesignsCrousel from './IndustryDesignsCrousel'
 import ToolsPageBanner from '../CadServicesBanners/ToolsPageBanner'
 import IndustryPageBanner from '../CadServicesBanners/IndustryPageBanner'
+import { getIndustryCadViewerFaq } from '@/data/industryPageFaq'
+import DesignHub from '../HomePages/DesignHub/DesignHub'
 
-// Page heading structure: 1 h1 (IndustryDetails/IndustryHeading), 1 h2 (RoleOfCAD), rest h3 (UseOfCAD, SolutionCad, IndustryDesignsCrousel, SampleParts, ChartBuilder, OurFeatures, OrgFaq).
+// Page heading structure: h1 hero, h2 How it works + marketing + RoleOfCAD, etc.
 function Industry({ industry, industryData }) {
-   
+    const faqQuestions = industryData ? getIndustryCadViewerFaq(industryData) : []
+
     const features = [
         {
             title: 'Seamless CAD File viewing',
@@ -35,34 +40,8 @@ function Industry({ industry, industryData }) {
             title: 'Secure & Privacy-Focused',
             description: "Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours to protect your data."
         },
-
     ]
-    const faqQuestions = [
-        {
-            question: "What is Marathon OS 3D CAD File Viewer?",
-            answer: "Marathon OS is a free, cloud-based tool that lets you convert 3D CAD files between formats like STEP, IGES, STL, OBJ, and more—instantly and securely, right in your browser.",
-        },
-        {
-            question: "What file formats are supported?",
-            answer: "We support conversions between major 3D CAD formats including:STEP (.step, .stp), IGES (.iges, .igs), STL (.stl), OBJ (.obj), PLY (.ply), OFF (.off), and BREP (.brp, .brep).",
-        },
-        {
-            question: " Is Marathon OS 3D File viewer free to use?",
-            answer: "Yes! It’s completely free with no usage limits or hidden costs. Just drag, drop, and view.",
-        },
-        {
-            question: "How is my data stored and secured?",
-            answer: " Your files are encrypted during upload, processed securely in the cloud, and automatically deleted after 24 hours to ensure full privacy and protection.",
-        },
-        {
-            question: "Do I need any special software or training?",
-            answer: "Not at all. Marathon OS works entirely in your browser—no installations, no plugins, and no learning curve.",
-        },
-        {
-            question: "Can I view large and complex CAD models?",
-            answer: "Absolutely! Our proprietary high-performance rendering engine ensures smooth, lag-free visualization, even for large and intricate designs.",
-        },
-    ];
+
     const whyChoose = {
         title: 'Why Choose Marathon OS CAD Viewer?',
         description: 'Marathon OS CAD Viewer renders any CAD file instantly with a proprietary engine, ensuring seamless, lag-free visualization—no matter the model size.'
@@ -71,7 +50,7 @@ function Industry({ industry, industryData }) {
         title: 'Essential Features of Marathon OS  CAD Viewer',
         description: 'Effortlessly upload and view CAD files with a high-speed, secure, and scalable tool. Experience smooth, real-time rendering—no software installation required.'
     }
-    
+
     const featuresArray = [
         {
             title: 'Lightning-Fast Rendering',
@@ -93,30 +72,34 @@ function Industry({ industry, industryData }) {
             title: 'Engineered for Professionals',
             description: 'Designed for engineers, manufacturers, and designers needing quick, high-quality CAD previews.'
         },
-    
     ]
 
-   
     return (
         <div>
             {industryData && <>
-                {/* <HomeTopNav /> */}
                 <ActiveLastBreadcrumb links={[
-                    { label: 'CAD viewer', href: '/tools//3D-cad-viewer' },   
+                    { label: 'CAD viewer', href: '/tools/3D-cad-viewer' },
                     { label: `${industryData.industry}`, href: `/industry/${industry}` },
-                  
-                  ]}/>
+                ]} />
                 <IndustryDetails industryData={industryData} />
+                <IndustryHowItWorksSection industryName={industryData.industry} />
                 <ToolsPageBanner />
-                <OrgFeatures type='cad' />
-                <RoleOfCAD industryData={industryData} industry={industry}/>
-                <UseOfCAD industryData={industryData} />
-                <SolutionCad industryData={industryData} />
-                <IndustryDesignsCrousel industry={industry}/>
-                <SampleParts industry={industry} />
-                <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} />
-                <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} />
-                <OrgFaq faqQuestions={faqQuestions} description="Find answers to common questions about Marathon OS CAD Viewer. Whether you're getting started or looking for advanced features, we've got you covered." />
+                {/* <OrgFeatures type='cad' /> */}
+                <IndustryMarketingBody industryData={industryData} />
+                <RoleOfCAD industryData={industryData} industry={industry} />
+              {/*  <UseOfCAD industryData={industryData} /> */}
+               {/* <SolutionCad industryData={industryData} /> */}
+                <IndustryDesignsCrousel industry={industry} />
+                <SampleParts industry={industry} industryLabel={industryData.industry} />
+                {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} headingLevel={3} /> */}
+                {/* <OurFeatures features={features} essentialDeatails={essentialDeatails} headingLevel={3} /> */}
+                <OrgFaq
+                    title="FAQ"
+                    faqQuestions={faqQuestions}
+                    description="Answers for teams evaluating browser-based CAD review with Marathon OS."
+                />
+                <DesignHub/>
+                <IndustryFinalCtaBand industryName={industryData.industry} />
                 <IndustryPageBanner />
                 <Footer />
             </>}

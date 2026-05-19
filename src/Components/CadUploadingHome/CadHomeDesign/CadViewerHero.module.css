@@ -1,0 +1,285 @@
+.heroPage {
+  width: 100%;
+  background: radial-gradient(120% 80% at 50% 0%, rgba(97, 11, 238, 0.35) 0%, transparent 55%),
+    linear-gradient(180deg, #12061f 0%, #0d0514 45%, #0a040f 100%);
+  color: #f4f0ff;
+  box-sizing: border-box;
+}
+
+.heroInner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 56px) clamp(20px, 4vw, 40px) clamp(40px, 6vw, 72px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.industryHeroInnerWide {
+  max-width: 1120px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e9ddff;
+  background: rgba(97, 11, 238, 0.35);
+  border: 1px solid rgba(201, 168, 255, 0.35);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #ffffff;
+}
+
+.subtitle {
+  margin: 0;
+  margin-top: -8px;
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #c9a8ff;
+}
+
+/* Parts hero: industry in parentheses on its own line under the part name. */
+.heroIndustryBracket {
+  margin: 0;
+  margin-top: -6px;
+  font-size: clamp(18px, 3.2vw, 28px);
+  font-weight: 600;
+  line-height: 1.25;
+  color: #c9a8ff;
+}
+
+/* Second line under industry name on industry landing hero (matches CAD viewer tagline). */
+.secureTagline {
+  margin: 0;
+  margin-top: -4px;
+  font-size: clamp(15px, 2vw, 18px);
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgba(244, 240, 255, 0.72);
+}
+
+.description {
+  margin: 0;
+  max-width: 80%;
+  font-size: clamp(15px, 2vw, 18px);
+  line-height: 1.55;
+  color: rgba(244, 240, 255, 0.82);
+  font-weight: 450;
+}
+
+/* Industry landing hero copy can be wider than default CAD hero text. */
+.industryDescriptionWide {
+  max-width: 100%;
+}
+
+.trustRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(12px, 3vw, 28px);
+  margin-top: 4px;
+}
+
+.trustItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(244, 240, 255, 0.9);
+}
+
+.trustIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(97, 11, 238, 0.45);
+  color: #d4bcff;
+}
+
+.uploadSection {
+  width: 100%;
+  max-width: 720px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.samplesDark {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+}
+
+.samplesDarkLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(244, 240, 255, 0.88);
+}
+
+.samplesDarkGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.sampleChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(20, 10, 36, 0.65);
+  color: #f4f0ff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.sampleChip:hover {
+  background: rgba(97, 11, 238, 0.45);
+  border-color: rgba(201, 168, 255, 0.45);
+}
+
+.sampleChipIcon {
+  display: flex;
+  color: #c9a8ff;
+}
+
+.formatsBelow {
+  margin: 0;
+  width: 100%;
+  max-width: 720px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(244, 240, 255, 0.65);
+  font-weight: 500;
+}
+
+/* Split primary / accent in one heading (e.g. CAD File | Converter) */
+.titleAccent {
+  color: #c9a8ff;
+}
+
+/* Dark dashed upload panel (CAD viewer, format upload pages, CAD converter) */
+.heroUploadPanelDark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(28px, 4vw, 40px) clamp(20px, 3vw, 32px);
+  width: 100%;
+  max-width: 720px;
+  min-height: 200px;
+  border-radius: 16px;
+  border: 2px dashed rgba(255, 255, 255, 0.38);
+  background: rgba(14, 8, 26, 0.72);
+  box-shadow: 0 12px 40px rgba(4, 2, 10, 0.45);
+  box-sizing: border-box;
+}
+
+.heroUploadPanelInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.heroUploadIcon {
+  /* Make upload glyph white on dark hero dropzones. */
+  filter: brightness(0) invert(1);
+}
+
+.heroUploadIconGlyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 1;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.5));
+}
+
+.heroUploadPanelContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.heroUploadPanelHead {
+  color: #ffffff;
+  font-size: clamp(17px, 2.4vw, 20px);
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0;
+  text-align: center;
+}
+
+.heroUploadPanelFile {
+  color: #c9a8ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.heroUploadPanelHint {
+  margin: 0;
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 450;
+  color: rgba(244, 240, 255, 0.72);
+  text-align: center;
+}
+
+.heroDynamicBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Industry pages: compact dashed panel inside the hero upload card */
+.industryHeroUploadPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 3vw, 28px) clamp(16px, 2.5vw, 24px);
+  width: 100%;
+  min-height: 160px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.03);
+  box-sizing: border-box;
+  cursor: pointer;
+}

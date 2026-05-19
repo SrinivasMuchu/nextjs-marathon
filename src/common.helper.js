@@ -241,6 +241,19 @@ export const converterTypes = [
 
 ];
 
+/** Homepage “CAD Converter Types” grid (3×3); paths must exist in converterTypes */
+export const popularCadConverterTypes = [
+  { from: 'STEP', to: 'STL', path: '/step-to-stl', description: 'For 3D printing and rapid prototyping' },
+  { from: 'STEP', to: 'IGES', path: '/step-to-iges', description: 'For cross-platform CAD exchange' },
+  { from: 'STEP', to: 'OBJ', path: '/step-to-obj', description: 'For rendering and visualization' },
+  { from: 'IGES', to: 'STEP', path: '/iges-to-step', description: 'For modern CAD compatibility' },
+  { from: 'IGES', to: 'STL', path: '/iges-to-stl', description: 'For 3D printing from legacy files' },
+  { from: 'STL', to: 'STEP', path: '/stl-to-step', description: 'For reverse engineering workflows' },
+  { from: 'OBJ', to: 'STEP', path: '/obj-to-step', description: 'For CAD editing from mesh files' },
+  { from: 'BREP', to: 'STL', path: '/brep-to-stl', description: 'For additive manufacturing' },
+  { from: 'STL', to: 'OBJ', path: '/stl-to-obj', description: 'For game engines and 3D rendering' },
+];
+
 /** Featured conversion cards for topical authority and internal linking (each links to /tools/convert{path}) */
 export const featuredConversions = [
   { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'Convert STEP to STL for 3D printing and slicing.' },
@@ -317,7 +330,7 @@ export function getLibraryPath({ categoryName = null, tagName = null }) {
 /**
  * Append query string for search, page, sort, etc. (everything except category/tag which are in path).
  */
-export function getLibraryPathWithQuery({ categoryName = null, tagName = null, search, page, limit, sort, recency, free_paid, file_format }) {
+export function getLibraryPathWithQuery({ categoryName = null, tagName = null, search, page, limit, sort, recency, free_paid, file_format, two_dims }) {
   const path = getLibraryPath({ categoryName, tagName });
   const params = new URLSearchParams();
   if (search) params.set('search', search);
@@ -327,6 +340,8 @@ export function getLibraryPathWithQuery({ categoryName = null, tagName = null, s
   if (recency) params.set('recency', recency);
   if (free_paid) params.set('free_paid', free_paid);
   if (file_format) params.set('file_format', file_format);
+  const td = String(two_dims || '').trim().toLowerCase();
+  if (td === '1' || td === 'true' || td === 'yes') params.set('two_dims', '1');
   const q = params.toString();
   return q ? `${path}?${q}` : path;
 }
@@ -375,6 +390,8 @@ export function getLibraryCanonicalAndRobots({ path, searchParams = {} }) {
   const hasSortVariant = sort && sort !== LIBRARY_DEFAULT_SORT;
   const hasFreePaidVariant = (params.free_paid || '').trim() !== ''; // treat free/paid like a sort toggle
   const hasFileFormatVariant = (params.file_format || '').trim() !== '';
+  const twoDimsRaw = (params.two_dims || '').trim().toLowerCase();
+  const hasTwoDimsVariant = twoDimsRaw === '1' || twoDimsRaw === 'true' || twoDimsRaw === 'yes';
   const hasTrackingParams = Object.keys(params).some((k) =>
     LIBRARY_TRACKING_PARAMS.some((t) => k.toLowerCase() === t.toLowerCase())
   );
@@ -384,7 +401,7 @@ export function getLibraryCanonicalAndRobots({ path, searchParams = {} }) {
   const canonicalPath = queryString ? `${path}?${queryString}` : path;
 
   let robots;
-  if (hasSortVariant || hasFreePaidVariant || hasFileFormatVariant || hasTrackingParams) {
+  if (hasSortVariant || hasFreePaidVariant || hasFileFormatVariant || hasTwoDimsVariant || hasTrackingParams) {
     robots = 'noindex, follow';
   }
 

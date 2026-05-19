@@ -4,6 +4,7 @@ import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import { flushSync } from "react-dom";
 import styles from "./CadHome.module.css";
+import heroStyles from "./CadViewerHero.module.css";
 import { toast } from "react-toastify";
 import axios from 'axios'
 import { BASE_URL } from '@/config';
@@ -13,6 +14,7 @@ import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useRouter } from "next/navigation";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
+import { Upload } from "lucide-react";
 
 function parseFormatFromPath(segment) {
   if (!segment || typeof segment !== 'string') return '';
@@ -20,7 +22,7 @@ function parseFormatFromPath(segment) {
   return match ? match[1].toLowerCase() : segment.toLowerCase();
 }
 
-function CadDropZoneWrapper({ children, isStyled, type }) {
+function CadDropZoneWrapper({ children, isStyled, type, designVariant, dropzoneId }) {
     const fileInputRef = useRef(null);
     const [checkLimit, setCheckLimit] = useState(false);
     const [uploading, setUploading] = useState(false)
@@ -150,18 +152,27 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
         event.preventDefault();
     };
 
+    const isHeroDark = designVariant === "heroDark";
+    const isIndustryHero = designVariant === "industryHero";
+    const dropzoneClass = isIndustryHero
+        ? heroStyles.industryHeroUploadPanel
+        : isHeroDark
+            ? heroStyles.heroUploadPanelDark
+            : styles["cad-dropzone"];
+
     return (
         <>
             {verifyEmail && <UserLoginPupUp onClose={() => setVerifyEmail(false)} />}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {!checkLimit && <>
                 <div
-                    className={styles["cad-dropzone"]}
+                    id={dropzoneId || undefined}
+                    className={dropzoneClass}
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
                     onClick={handleClick}
 
-                    style={isStyled ? { flexDirection: "column-reverse" } : {}}
+                    style={isStyled && !isHeroDark && !isIndustryHero ? { flexDirection: "column-reverse" } : {}}
                 ><input
                         type="file"
                         ref={fileInputRef}
@@ -169,10 +180,23 @@ function CadDropZoneWrapper({ children, isStyled, type }) {
                         accept={allowedFormats.join(", ")} // Restrict input to allowed file types
                         onChange={handleFileChange}
                     />
-                    {React.Children.map(children, (child) =>
-                        React.isValidElement(child) ? React.cloneElement(child, { allowedFormats }) : child
+                    {isHeroDark || isIndustryHero ? (
+                        <div className={heroStyles.heroUploadPanelInner}>
+                            <span className={heroStyles.heroUploadIconGlyph} aria-hidden>
+                                <Upload size={isIndustryHero ? 56 : 72} strokeWidth={1.9} />
+                            </span>
+                            {React.Children.map(children, (child) =>
+                                React.isValidElement(child) ? React.cloneElement(child, { allowedFormats }) : child
+                            )}
+                        </div>
+                    ) : (
+                        <>
+                            {React.Children.map(children, (child) =>
+                                React.isValidElement(child) ? React.cloneElement(child, { allowedFormats }) : child
+                            )}
+                            <Image src={IMAGEURLS.uploadIcon} alt="upload" width={68} height={68} style={{ cursor: "pointer" }} />
+                        </>
                     )}
-                    <Image src={IMAGEURLS.uploadIcon} alt="upload" width={68} height={68} style={{ cursor: "pointer" }} />
                 </div>
             </>}
         </>

@@ -9,12 +9,15 @@
 .features-cont {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    flex-wrap: wrap;
     border-bottom: 1px solid #D9D9D9;
     border-top: 1px solid #D9D9D9;
     padding: 20px;
     gap: 20px;
     width: 85%;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 .features-text {

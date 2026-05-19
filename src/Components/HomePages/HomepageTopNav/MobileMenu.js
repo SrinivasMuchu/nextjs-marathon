@@ -56,16 +56,26 @@ function MobileMenu({ onClose, styles }) {
           </span>
           {openDropdown === "tools" && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Link href="/tools" onClick={handleCloseMenu}>
+                All tools
+              </Link>
+              <Link href="/tools/industries" onClick={handleCloseMenu}>
+                All industries
+              </Link>
               <Link href="/tools/org-hierarchy" onClick={handleCloseMenu}>
                 Org Hierarchy
               </Link>
-              <Link href="/tools//3D-cad-viewer" onClick={handleCloseMenu}>CAD Viewer</Link>
+              <Link href="/tools/3D-cad-viewer" onClick={handleCloseMenu}>CAD Viewer</Link>
               <Link href="/tools/3d-cad-file-converter" onClick={handleCloseMenu}>CAD File Convert</Link>
               <Link href="/tools/cad-drawing-pipeline" onClick={handleCloseMenu}>Drawing pipeline</Link>
               {/* <Link href="/tools/upload-cad-file" onClick={handleCloseMenu}>upload cad file</Link> */}
             </div>
           )}
         </div>
+
+        <Link href="/resources" onClick={handleCloseMenu}>
+          Resources
+        </Link>
 
         {/* Dropdown for Blogs */}
         <div className={styles["menu-dropdown"]}>

@@ -774,9 +774,6 @@ border: 1px solid  #D1D4D7;
     .industry-design-suggestion-designs-cont,.industry-design-suggestion-bottom {
         height: auto;
     }
-    .industry-design-page-root{
-        padding: 0 16px;
-    }
 }
 
 
@@ -1012,9 +1009,16 @@ line-height: 20px; /* 142.857% */
 
 }
 .industry-design-page-root{
-    padding: 0 45px;
+    /* Match HomeTopNav horizontal padding so breadcrumbs align with the logo row */
+    padding: 0 64px;
     width: 100%;
     box-sizing: border-box;
+}
+
+@media screen and (max-width: 1050px) {
+    .industry-design-page-root {
+        padding: 0 32px;
+    }
 }
 .industryDesignHeaderEdit{
     display: flex;
@@ -1040,6 +1044,50 @@ letter-spacing: -0.192px;
     flex-wrap: wrap;
 }
 
+.actionStack {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.primaryAction {
+    width: 100%;
+}
+
+.primaryAction button,
+.primaryAction a {
+    width: 100%;
+}
+
+/* Desktop: equal two-column row, fixed height, single line (matches sidebar width) */
+.secondaryActions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-items: stretch;
+}
+
+.secondaryActionsSingle {
+    grid-template-columns: 1fr;
+}
+
+.secondaryActions > button,
+.secondaryActions > a {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 48px;
+    min-height: 48px;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: clamp(14px, 1.1vw, 18px);
+}
+
 .viewerButtonLink {
     display: flex;
     align-items: center;
@@ -1063,10 +1111,28 @@ letter-spacing: -0.192px;
     justify-content: center;
     box-sizing: border-box;
     transition: background 0.2s ease;
+    gap: 8px;
 }
 
 .viewerButton:hover {
     background: #4f0bc7;
+}
+
+.viewerButtonIcon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.viewerButtonOutline {
+    background: transparent;
+    border: 1px solid #595f66;
+    color: #1f2937;
+}
+
+.viewerButtonOutline:hover {
+    background: #f8fafc;
+    color: #111827;
+    border-color: #7b8290;
 }
 
 .statsCont button {
@@ -1149,8 +1215,31 @@ letter-spacing: -0.192px;
    
    .viewerButton {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     font-size: 16px;
     padding: 12px 16px;
+    box-sizing: border-box;
+   }
+
+   /* Mobile / tablet: stack secondary actions; allow wrapping text */
+   .secondaryActions {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px;
+   }
+
+   .secondaryActions > button,
+   .secondaryActions > a {
+    height: auto;
+    min-height: 48px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.25;
+    justify-content: center;
+    text-align: center;
    }
    
    .statsCont {
@@ -1165,6 +1254,12 @@ letter-spacing: -0.192px;
    }
    .desktop-only {
      display: none;
+   }
+
+   .industry-design-header-viewer-crousal button {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
    }
 }
 

@@ -45,6 +45,7 @@ function IndustryDesign({ design, designData, type }) {
           {/* <HomeTopNav /> */}
           {!type ?
             <ActiveLastBreadcrumb
+              alignWithHeader
               links={[
                 { label: 'CAD viewer', href: '/tools//3D-cad-viewer' },
                 { label: `${design.industry}`, href: `/industry/${design.industry}` },
@@ -53,6 +54,7 @@ function IndustryDesign({ design, designData, type }) {
 
               ]}
             /> : <ActiveLastBreadcrumb
+              alignWithHeader
               links={[
                 { label: 'Library', href: '/library' },
                 { label: `${designData.response.page_title}`, href: `/library/${design.industry_design}` },

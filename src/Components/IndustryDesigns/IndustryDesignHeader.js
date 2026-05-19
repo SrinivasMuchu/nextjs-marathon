@@ -1,10 +1,75 @@
+"use client";
+
+import { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import DesignStats from "../CommonJsx/DesignStats";
-import Link from "next/link";// client part
 import styles from "./IndustryDesign.module.css";
+import { BASE_URL } from "@/config";
 
 import DownloadClientButton from "../CommonJsx/DownloadClientButton";
 
+function getOrCreateUuid() {
+  let uuid = localStorage.getItem("uuid");
+  if (!uuid) {
+    uuid = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem("uuid", uuid);
+  }
+  return uuid;
+}
+
 export default function IndustryDesignHeader({ design, designData, type }) {
+  const [isRequestingViewer, setIsRequestingViewer] = useState(false);
+  const router = useRouter();
+  const isTwoDEnabled = Boolean(designData?.is_two_dims);
+  const libraryRoute = String(designData?.route || design || "").trim();
+  const twoDPageHref =
+    designData?._id && libraryRoute
+      ? `/library/2d-technical-drawings/${encodeURIComponent(libraryRoute)}`
+      : null;
+  const showTwoDButton = type === "library" && isTwoDEnabled && Boolean(twoDPageHref);
+  const showThreeDButton = designData.file_type !== "dxf" && designData.file_type !== "dwg";
+
+  const handleRequestGlbViewer = async () => {
+    const formatType = designData?.file_type ? designData.file_type.toLowerCase() : "step";
+    if (designData?.is_glb) {
+      router.push(`/tools/cad-renderer?designId=${designData?._id}&glb=true&ready=true`);
+      return;
+    }
+    try {
+      setIsRequestingViewer(true);
+      const response = await axios.post(
+        `${BASE_URL}/v1/cad/request-glb-viewer`,
+        {
+          design_id: designData?._id,
+          format_type: formatType,
+        },
+        {
+          headers: {
+            "user-uuid": getOrCreateUuid(),
+          },
+        }
+      );
+
+      if (response?.data?.meta?.success) {
+        const successMessage = response?.data?.meta?.message || "Viewer request submitted.";
+        toast.success(successMessage);
+        const isAlreadyReady = /already available/i.test(successMessage);
+        router.push(
+          `/tools/cad-renderer?designId=${designData?._id}&glb=true${isAlreadyReady ? "&ready=true" : ""}`
+        );
+      } else {
+        toast.error(response?.data?.meta?.message || "Failed to submit viewer request.");
+      }
+    } catch (error) {
+      console.error("Error requesting GLB viewer:", error);
+      toast.error("Failed to submit viewer request.");
+    } finally {
+      setIsRequestingViewer(false);
+    }
+  };
 
   return (
     
@@ -17,26 +82,56 @@ export default function IndustryDesignHeader({ design, designData, type }) {
           {designData.price? <p style={{fontSize:'24px',fontWeight:'500'}}>${designData.price}<span style={{fontSize:'16px',fontWeight:'400',color:'#001325'}}>/download</span></p>:<p style={{fontSize:'24px',fontWeight:'500'}}>Free</p>}
         </div>
       
-        <div className={styles.statsCont}>
-            <DownloadClientButton custumDownload={true} 
-          folderId={designData._id} isDownladable={designData.is_downloadable} step={true} filetype={designData.file_type ? designData.file_type : 'step'} 
-          designPrice={designData?.price} designDetails={{
-                                        title: designData.page_title, // You can pass actual design title here
-                                        description: designData.page_description, // You can pass actual design description here
-                                        price: designData.price, // Use the designPrice prop
-                                        // Add other design details as needed
-                                    }}/>
- <Link 
-          href={`/tools/cad-renderer?fileId=${designData._id}&format=${
-            designData.file_type ? designData.file_type : "step"
-          }`}
-          rel="nofollow"
-          className={styles.viewerButtonLink}
-        >
-          <button className={styles.viewerButton}>Open in 3D viewer</button>
-          
-        </Link>
-       
+        <div className={styles.actionStack}>
+          <div className={styles.primaryAction}>
+            <DownloadClientButton
+              custumDownload={true}
+              folderId={designData._id}
+              isDownladable={designData.is_downloadable}
+              step={true}
+              filetype={designData.file_type ? designData.file_type : "step"}
+              designPrice={designData?.price}
+              designDetails={{
+                title: designData.page_title,
+                description: designData.page_description,
+                price: designData.price,
+              }}
+            />
+          </div>
+
+          <div
+            className={`${styles.secondaryActions} ${
+              !showTwoDButton ? styles.secondaryActionsSingle : ""
+            }`}
+          >
+            {showThreeDButton && (
+              <button
+                type="button"
+                className={`${styles.viewerButton} ${
+                  type === "library" ? styles.viewerButtonOutline : ""
+                }`}
+                onClick={handleRequestGlbViewer}
+                disabled={isRequestingViewer}
+              >
+                <span className={styles.viewerButtonIcon} aria-hidden>
+                  🧊
+                </span>
+                {isRequestingViewer ? "Opening" : "Open 3D viewer"}
+              </button>
+            )}
+            {showTwoDButton && (
+              <Link
+                href={twoDPageHref}
+                prefetch
+                className={`${styles.viewerButton} ${styles.viewerButtonOutline}`}
+              >
+                <span className={styles.viewerButtonIcon} aria-hidden>
+                  📐
+                </span>
+                2D drawings
+              </Link>
+            )}
+          </div>
         </div>
         <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
     <DesignStats

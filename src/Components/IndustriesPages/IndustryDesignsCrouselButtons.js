@@ -1,110 +1,30 @@
 'use client';
 
-import React, { useRef } from 'react';
-import styles from './Industry.module.css';
-import Image from 'next/image';
-import { textLettersLimit, getLibraryPath } from '@/common.helper';
-import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from '@/config';
-import HoverImageSequence from '../CommonJsx/RotatedImages';
+import React from 'react';
+import HoverImageSequenceHome from '../CommonJsx/RotatedHomePageDesigns';
 import libraryStyles from '../Library/Library.module.css';
+import designHubStyles from '../HomePages/DesignHub/DesignHub.module.css';
+import industryStyles from './Industry.module.css';
 import Link from 'next/link';
-export default function IndustryCarouselClient({ designs, category }) {
-  const carouselRef = useRef(null);
-  const itemWidth = 320; // width including margin/padding
 
-  const scroll = (direction) => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollBy({
-        left: direction === 'left' ? -itemWidth : itemWidth,
-        behavior: 'smooth',
-      });
-    }
-  };
-
+export default function IndustryCarouselClient({ designs }) {
   return (
-    <>
-
-
-      {/* Navigation Buttons */}
-      <button onClick={() => scroll('left')} style={{
-        position: 'absolute', left: '0', top: '45%',
-        zIndex: 1, padding: '6px 12px'
-      }}><Image src={IMAGEURLS.leftArrow} alt="left-arrow" width={40} height={40} /></button>
-
-      <button onClick={() => scroll('right')} style={{
-        position: 'absolute', right: '0', top: '45%',
-        zIndex: 1, padding: '6px 12px'
-      }}><Image src={IMAGEURLS.rightArrow} alt="right-arrow" width={40} height={40} /></button>
-
-      {/* Carousel */}
-      <div
-        ref={carouselRef}
-        className={styles["industry-designs-crousel"]}
-        style={{
-          display: 'flex',
-          gap: '16px',
-          overflowX: 'auto',
-          scrollSnapType: 'x mandatory',
-          scrollBehavior: 'smooth',
-          scrollbarWidth: 'none',
-          padding: '10px 40px', // to make space for buttons
-        }}
-      >
-        {[...designs, {
-          _id: 'explore-more',
-          route: '',
-          page_title: 'Explore More',
-          page_description: '',
-          isExploreMore: true,
-        }].map((design, index) => (
-          <Link
-            key={design._id || index}
-            href={design.isExploreMore ? getLibraryPath({ categoryName: category[0]?.industry_category_name }) : `/library/${design.route}`}
-            className={libraryStyles["library-designs-items-container"]}
-
-          >
-            {!design.isExploreMore ? (
-              <div>
-                {/* <Image
-                  src={`${DESIGN_GLB_PREFIX_URL}${design._id}/sprite_0_150.webp`}
-                  alt={design.page_title}
-                  className={styles["industry-designs-item-img"]}
-                  width={300}
-                  height={250}
-                /> */}
-                <HoverImageSequence design={design} width={300} height={250} />
-                <div style={{ width: '100%', height: '2px', background: 'grey' }}></div>
-                <div className={libraryStyles["design-title-wrapper"]}>
-                  <h6 title={design.page_title}>{textLettersLimit(design.page_title, 30)}</h6>
-                  <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p>
-
-                </div>
-              </div>
-            ) : (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textDecoration: 'none',
-
-
-                borderRadius: '12px',
-                transition: 'all 0.3s ease',
-                color: 'black',
-                height: '100%'
-              }}>
-                <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
-                  Explore More
-                </div>
-                <div style={{ fontSize: '14px', color: '#666' }}>
-                  Designs ➡️
-                </div>
-              </div>
-            )}
-          </Link>
+    <div className={designHubStyles.designHubDesignsContainer}>
+      <div className={industryStyles.industryDesignLibraryGrid}>
+        {designs.map((design) => (
+          <div key={design._id} className={designHubStyles.designHubDesignCard}>
+            <Link
+              href={`/library/${design.route}`}
+              className={libraryStyles['library-designs-items-container-home']}
+            >
+              <HoverImageSequenceHome design={design} loading="lazy" />
+            </Link>
+            <div className={designHubStyles.designHubDesignTitle} title={design.page_title}>
+              {design.page_title}
+            </div>
+          </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }

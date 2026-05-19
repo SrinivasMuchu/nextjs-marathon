@@ -1,4 +1,5 @@
 import styles from '../CadHomeDesign/CadHome.module.css';
+import heroStyles from '../CadHomeDesign/CadViewerHero.module.css';
 import CadDynamicHeaderWrapper from './CadDynamicHeaderWrapper'
 
 /** Parse conversion segment (e.g. "step-to-stl") to { from, to } for stable first-paint and CLS */
@@ -11,19 +12,27 @@ function parseConversionParams(conversionParams) {
   return { from, to };
 }
 
-function CadDynamicHeading({ paramsText, conversionParams }) {
+function CadDynamicHeading({ paramsText, conversionParams, heroTone }) {
   // Use server-known conversionParams for first paint to avoid CLS; context updates after hydration
   const initial = conversionParams ? parseConversionParams(conversionParams) : null;
   const from = (paramsText?.from || initial?.from) || '';
   const to = (paramsText?.to || initial?.to) || '';
+  const isDark = heroTone === 'dark';
 
   return (
     <CadDynamicHeaderWrapper>
-    <div className={styles['cad-landing-left-content']}>
-      <h1 className={styles['cad-landing-heading']}>
-        Free Online {from ? from.toUpperCase() : ''} to {to ? to.toUpperCase() : ''} Converter – Fast, Secure & Cloud-Based
-      </h1>
-      <p className={styles['cad-landing-description']}>
+    <div className={isDark ? heroStyles.heroDynamicBlock : styles['cad-landing-left-content']}>
+      {isDark ? (
+        <h1 className={heroStyles.title}>
+          Free Online {from ? from.toUpperCase() : ''} to {to ? to.toUpperCase() : ''}{' '}
+          <span className={heroStyles.titleAccent}>Converter</span>
+        </h1>
+      ) : (
+        <h1 className={styles['cad-landing-heading']}>
+          Free Online {from ? from.toUpperCase() : ''} to {to ? to.toUpperCase() : ''} Converter – Fast, Secure & Cloud-Based
+        </h1>
+      )}
+      <p className={isDark ? heroStyles.description : styles['cad-landing-description']}>
         {from && to
           ? `Easily convert your .${from} files to .${to} format using our powerful online 3D CAD converter—no downloads or installations required.`
           : 'Easily convert your 3D files using our powerful online 3D CAD converter—no downloads or installations required.'}
