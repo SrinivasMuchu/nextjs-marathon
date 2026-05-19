@@ -1,23 +1,9 @@
 import { ASSET_PREFIX_URL } from "@/config";
 import CadDrawingPipelineView from "@/Components/CadDrawingPipeline/CadDrawingPipelineView";
-import { JetBrains_Mono, Syne } from "next/font/google";
 import React from "react";
 
 const SITE = "https://marathon-os.com";
 const CANONICAL = "/tools/cad-drawing-pipeline";
-
-const syne = Syne({
-  subsets: ["latin"],
-  variable: "--font-pipeline-syne",
-  weight: ["400", "600", "700", "800"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-pipeline-mono",
-  display: "swap",
-});
 
 export const metadata = {
   title: "CAD drawing pipeline (STEP → TechDraw) | Marathon OS",
@@ -31,9 +17,5 @@ export const metadata = {
 };
 
 export default function CadDrawingPipelinePage() {
-  return (
-    <div className={`${syne.variable} ${jetbrainsMono.variable}`}>
-      <CadDrawingPipelineView />
-    </div>
-  );
+  return <CadDrawingPipelineView />;
 }

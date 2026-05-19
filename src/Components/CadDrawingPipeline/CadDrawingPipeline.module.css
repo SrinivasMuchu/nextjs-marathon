@@ -16,15 +16,16 @@
   --success: #00e5a0;
   --warning: #f5a623;
   --error: #ff4d6a;
-  --font-mono: var(--font-pipeline-mono), ui-monospace, monospace;
-  --font-display: var(--font-pipeline-syne), system-ui, sans-serif;
+  /* Match app layout: Inter body (from globals / layout.js) */
+  --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
 
   position: relative;
   min-height: calc(100vh - 1px);
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-mono);
-  font-size: 13px;
+  font-family: var(--font-body);
+  font-size: 14px;
   overflow-x: hidden;
 }
 
@@ -83,7 +84,7 @@
   border-radius: 8px;
   display: grid;
   place-items: center;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 800;
   font-size: 16px;
   color: #fff;
@@ -92,7 +93,7 @@
 }
 
 .logoText {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
   font-size: 17px;
   color: var(--text);
@@ -100,12 +101,10 @@
 }
 
 .logoSub {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-top: 1px;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
 }
 
 .headerBadge {
@@ -121,11 +120,11 @@
 }
 
 .pageTitle {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 1.1;
-  letter-spacing: -1.5px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   margin-bottom: 10px;
 }
 
@@ -200,7 +199,7 @@
 }
 
 .cardTitle {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
   font-size: 14px;
   color: var(--text);
@@ -231,13 +230,33 @@
   box-shadow: 0 0 40px var(--purple-glow);
 }
 
-.uploadZone input[type="file"] {
+/* Hidden input — zone click opens picker once (avoids overlay double-dialog) */
+.fileInputHidden {
   position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.uploadOnlyLayout {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.uploadPhaseHint {
+  font-size: 13px;
+  color: var(--text-muted, #8b8fa3);
+  margin: 0 0 12px;
+}
+
+.jobIdCode {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9em;
 }
 
 .uploadIcon {
@@ -247,7 +266,7 @@
 }
 
 .uploadLabel {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
   font-size: 15px;
   color: var(--text);
@@ -289,8 +308,8 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 14px;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
   color: var(--text);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -325,8 +344,8 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 14px;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
   color: var(--text);
   outline: none;
 }
@@ -340,8 +359,8 @@
   background: none;
   border: none;
   color: var(--text-dim);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-body);
+  font-size: 13px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -382,7 +401,7 @@
   border: none;
   border-radius: 10px;
   padding: 14px 20px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
   font-size: 14px;
   letter-spacing: -0.3px;
@@ -506,7 +525,7 @@
 }
 
 .stageName {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
   font-size: 13px;
   color: var(--text);
@@ -648,7 +667,8 @@
   padding: 16px;
   height: 220px;
   overflow-y: auto;
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 12px;
   line-height: 1.8;
   color: #7a7aaa;
 }
@@ -726,7 +746,7 @@
 }
 
 .statVal {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 800;
   font-size: 22px;
   color: var(--purple);
@@ -791,6 +811,12 @@
 
 .sheetThumbReady .sheetThumbLabel {
   color: var(--text);
+}
+
+.sheetThumbLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .sheetThumbBadge {
@@ -901,13 +927,42 @@
   border: 1px solid rgba(255, 77, 106, 0.25);
 }
 
+.resultBannerWarn {
+  background: rgba(245, 166, 35, 0.08);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+}
+
+.checkStatusBtn {
+  margin-top: 10px;
+  background: var(--purple-subtle);
+  border: 1px solid var(--border-accent);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.checkStatusBtn:hover:not(:disabled) {
+  background: rgba(97, 11, 238, 0.2);
+  border-color: var(--purple);
+}
+
+.checkStatusBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .resultIcon {
   font-size: 20px;
   flex-shrink: 0;
 }
 
 .resultText {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
   font-size: 13px;
 }
@@ -941,7 +996,8 @@
   background: #060610;
   border: 1px solid var(--border);
   border-radius: 8px;
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   line-height: 1.45;
   max-height: 240px;
   overflow: auto;
