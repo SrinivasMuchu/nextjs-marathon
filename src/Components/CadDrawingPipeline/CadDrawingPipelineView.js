@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { prepareCadDrawingJob } from "@/api/cadDrawingPipelineApi";
+import {
+  checkTechDrawEligibility,
+  getOrCreateTechDrawUuid,
+  getTechDrawPriceDisplay,
+  prepareCadDrawingJob,
+  uploadAndSubmitTechDrawJob,
+} from "@/api/cadDrawingPipelineApi";
+import { openTechDrawPayment } from "./techDrawPayment";
 import { STEP_EXT } from "./pipelineConstants";
 import styles from "./CadDrawingPipeline.module.css";
 
@@ -18,8 +25,32 @@ export default function CadDrawingPipelineView() {
   const [error, setError] = useState("");
   const [advOpen, setAdvOpen] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [eligibility, setEligibility] = useState(null);
+  const [eligibilityLoading, setEligibilityLoading] = useState(true);
   const fileInputRef = useRef(null);
   const submitLockRef = useRef(false);
+
+  const prices = getTechDrawPriceDisplay();
+
+  useEffect(() => {
+    getOrCreateTechDrawUuid();
+  }, []);
+
+  const refreshEligibility = useCallback(async () => {
+    setEligibilityLoading(true);
+    try {
+      const data = await checkTechDrawEligibility();
+      setEligibility(data);
+    } catch {
+      setEligibility(null);
+    } finally {
+      setEligibilityLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshEligibility();
+  }, [refreshEligibility]);
 
   const pickFile = useCallback((f) => {
     if (!f) return;
@@ -46,6 +77,9 @@ export default function CadDrawingPipelineView() {
     else if (f) toast.error("Only .step or .stp files are allowed.");
   };
 
+  const needsPaidFlow =
+    eligibility && !eligibility.free_run_available && !eligibilityLoading;
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,31 +97,53 @@ export default function CadDrawingPipelineView() {
     submitLockRef.current = true;
     setSubmitting(true);
     setError("");
-    setUploadPhase("Preparing upload…");
 
     try {
-      const prep = await prepareCadDrawingJob({
-        file,
-        title: title.trim(),
-        description: description.trim(),
-        onPhase: (phase) => {
-          if (phase === "upload-url") setUploadPhase("Requesting upload URL…");
-          if (phase === "s3-upload") setUploadPhase("Uploading STEP file…");
-          if (phase === "submit") setUploadPhase("Creating job in database…");
-        },
-      });
+      const onPhase = (phase) => {
+        if (phase === "upload-url") setUploadPhase("Requesting upload URL…");
+        if (phase === "s3-upload") setUploadPhase("Uploading STEP file…");
+        if (phase === "submit") setUploadPhase("Creating job & starting pipeline…");
+      };
+
+      let jobId;
+
+      if (needsPaidFlow) {
+        setUploadPhase(`Pay ${prices.baseLabel} + tax (${prices.totalLabel})…`);
+        const payment = await openTechDrawPayment({
+          description: `2D technical drawing — ${prices.baseLabel}`,
+        });
+        setUploadPhase("Payment received — uploading STEP file…");
+        jobId = await uploadAndSubmitTechDrawJob({
+          file,
+          title: title.trim(),
+          description: description.trim(),
+          payment,
+          onPhase,
+        });
+        toast.success("Payment received. Your drawing is processing.");
+      } else {
+        const prep = await prepareCadDrawingJob({
+          file,
+          title: title.trim(),
+          description: description.trim(),
+          requiresPayment: false,
+          onPhase,
+        });
+        jobId = prep.jobId;
+        toast.success("Drawing pipeline started.");
+      }
 
       setUploadPhase("Opening job dashboard…");
-      router.push(`/dashboard/2d-technical-drawing/${prep.jobId}`);
+      router.push(`/dashboard/2d-technical-drawing/${jobId}`);
     } catch (err) {
       const msg =
+        err?.message ||
         err?.response?.data?.meta?.message ||
         (axios.isAxiosError(err) && err.response?.data?.meta?.message) ||
-        err?.message ||
         "Request failed";
       const text = typeof msg === "string" ? msg : JSON.stringify(msg, null, 2);
       setError(text);
-      toast.error("Could not start the drawing pipeline.");
+      toast.error(text.length > 80 ? "Could not start the drawing pipeline." : text);
       submitLockRef.current = false;
       setSubmitting(false);
       setUploadPhase("");
@@ -112,10 +168,35 @@ export default function CadDrawingPipelineView() {
           Drawing <span className={styles.pageTitleAccent}>Pipeline</span>
         </h1>
         <p className={styles.pageDesc}>
-          Upload a STEP or STP file to generate technical drawings with AI-assisted views,
-          dimensions, and exports (PDF, SVG, DXF). After the job is created, you will be taken
-          to your job dashboard to track progress (and complete payment if required).
+          Upload a STEP or STP file to generate technical drawings. Your first job is free.
+          After that, you pay {prices.baseLabel} (+ tax) first, then your file is uploaded and
+          processing starts.
         </p>
+
+        {!eligibilityLoading && eligibility ? (
+          <div
+            className={`${styles.resultBanner} ${
+              eligibility.free_run_available ? styles.resultBannerOk : styles.resultBannerWarn
+            }`}
+            style={{ marginBottom: 16 }}
+          >
+            <span className={styles.resultIcon}>
+              {eligibility.free_run_available ? "✓" : "💳"}
+            </span>
+            <div>
+              <div className={styles.resultText}>
+                {eligibility.free_run_available
+                  ? `Your first drawing is free (${prices.baseLabel})`
+                  : `Pay ${prices.baseLabel} before upload`}
+              </div>
+              <div className={styles.resultSub}>
+                {eligibility.free_run_available
+                  ? "Upload your STEP file and processing starts immediately."
+                  : `Step 1: Pay ${prices.baseLabel} + tax (${prices.totalLabel}). Step 2: Your STEP file uploads automatically. Step 3: Pipeline runs.`}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {error ? (
           <div className={`${styles.resultBanner} ${styles.resultBannerErr}`}>
@@ -198,51 +279,25 @@ export default function CadDrawingPipelineView() {
                   />
                 </div>
 
-                <button
-                  type="button"
-                  className={styles.advToggle}
-                  onClick={() => setAdvOpen((v) => !v)}
-                  disabled={submitting}
-                >
-                  <span className={`${styles.advChevron} ${advOpen ? styles.advChevronOpen : ""}`}>
-                    ▶
-                  </span>{" "}
-                  Advanced options
-                </button>
-                <div className={`${styles.advPanel} ${advOpen ? styles.advPanelOpen : ""}`}>
-                  <div className={styles.fieldRow}>
-                    <div className={styles.field}>
-                      <label className={styles.fieldLabel}>Drawing standard</label>
-                      <select className={styles.select} disabled={submitting} defaultValue="iso">
-                        <option value="iso">ISO (1st angle)</option>
-                        <option value="ansi">ANSI (3rd angle)</option>
-                      </select>
-                    </div>
-                    <div className={styles.field}>
-                      <label className={styles.fieldLabel}>Sheet size</label>
-                      <select className={styles.select} disabled={submitting} defaultValue="A3">
-                        <option value="A3">A3 (420×297mm)</option>
-                        <option value="A2">A2 (594×420mm)</option>
-                        <option value="A4">A4 (297×210mm)</option>
-                      </select>
-                    </div>
-                  </div>
-                  <p className={styles.hint}>
-                    Advanced fields are UI-only for now; wire them to the API when the backend
-                    accepts them.
-                  </p>
-                </div>
-
                 {uploadPhase ? (
                   <p className={styles.uploadPhaseHint}>{uploadPhase}</p>
+                ) : null}
+
+                {needsPaidFlow ? (
+                  <p className={styles.uploadPhaseHint} style={{ marginBottom: 8 }}>
+                    You will pay <strong>{prices.baseLabel}</strong> + tax ({prices.totalLabel})
+                    first, then your file uploads.
+                  </p>
                 ) : null}
 
                 <button className={styles.runBtn} type="submit" disabled={submitting}>
                   {submitting ? (
                     <>
                       <span className={styles.spinner} aria-hidden />
-                      {uploadPhase || "Starting pipeline…"}
+                      {uploadPhase || "Working…"}
                     </>
+                  ) : needsPaidFlow ? (
+                    <>▶ Pay {prices.baseLabel} & upload</>
                   ) : (
                     <>▶ Run drawing pipeline</>
                   )}

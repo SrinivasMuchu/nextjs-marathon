@@ -7,6 +7,7 @@ import axios from "axios";
 import {
   countTechDrawSheets,
   getTechDrawJobStatus,
+  getTechDrawPriceDisplay,
   outputItemsFromJob,
   sheetDownloadsFromJob,
   TechDrawPollError,
@@ -25,6 +26,7 @@ import {
   SHEET_LABELS,
 } from "./pipelineConstants";
 import { openTechDrawPayment } from "./techDrawPayment";
+import TechDrawJobLibraryResults from "./TechDrawJobLibraryResults";
 import styles from "./CadDrawingPipeline.module.css";
 
 function isTransientStatusError(err) {
@@ -46,6 +48,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
   const [currentJob, setCurrentJob] = useState(null);
   const [needsPayment, setNeedsPayment] = useState(false);
   const [paying, setPaying] = useState(false);
+  const paymentPrices = getTechDrawPriceDisplay();
 
   const [logs, setLogs] = useState(() => [
     { kind: "dim", text: `// Job ${jobId}` },
@@ -241,10 +244,23 @@ export default function CadDrawingPipelineStatus({ jobId }) {
     setPaying(true);
     setError("");
     try {
-      await openTechDrawPayment(jobId);
-      appendLog("ok", "  ✓ Payment verified — pipeline starting.");
+      await openTechDrawPayment({
+        jobId,
+        description: `2D technical drawing · ${paymentPrices.baseLabel}`,
+      });
+      appendLog("ok", "  ✓ Payment verified.");
       setNeedsPayment(false);
-      await startPolling();
+      const { job } = await getTechDrawJobStatus(jobId);
+      if (job?.status === "PROCESSING" || job?.status === "COMPLETED") {
+        appendLog("info", "  → Pipeline running…");
+        await startPolling();
+      } else {
+        appendLog(
+          "warn",
+          "  Upload your STEP file on the pipeline page to start processing.",
+        );
+        toast.info("Payment received. Upload your STEP file on the pipeline page.");
+      }
     } catch (err) {
       const text = err?.message || "Payment failed";
       setError(text);
@@ -252,7 +268,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
     } finally {
       setPaying(false);
     }
-  }, [appendLog, jobId, startPolling]);
+  }, [appendLog, jobId, paymentPrices, startPolling]);
 
   useEffect(() => {
     if (!jobId || pollStartedRef.current) return;
@@ -271,9 +287,9 @@ export default function CadDrawingPipelineStatus({ jobId }) {
         handleJobStatusUpdate(job);
 
         const paymentPending =
-          job.payment_status === "pending" &&
           job.status === "PENDING" &&
-          !job.is_free_run;
+          (job.payment_pending === true ||
+            (job.payment_status === "pending" && !job.is_free_run));
 
         if (paymentPending) {
           setNeedsPayment(true);
@@ -319,6 +335,14 @@ export default function CadDrawingPipelineStatus({ jobId }) {
   const displayTitle = getJobDisplayTitle(jobForDisplay);
   const pageSubtitle = getJobPageSubtitle(jobForDisplay);
 
+  const showLibraryResults =
+    completedJob?.output_s3_prefix &&
+    (completedJob.status === "COMPLETED" || isLikelyPostSuccessInfraFailure(completedJob));
+
+  if (showLibraryResults) {
+    return <TechDrawJobLibraryResults jobId={jobId} job={completedJob} />;
+  }
+
   return (
     <div className={styles.root}>
       <div className={styles.page}>
@@ -346,8 +370,19 @@ export default function CadDrawingPipelineStatus({ jobId }) {
             <span className={styles.resultIcon}>💳</span>
             <div>
               <div className={styles.resultText}>Payment required</div>
+              <div
+                style={{
+                  fontSize: 28,
+                  fontWeight: 700,
+                  color: "#610bee",
+                  margin: "8px 0 4px",
+                }}
+              >
+                {paymentPrices.baseLabel}
+              </div>
               <div className={styles.resultSub}>
-                Complete payment to start the drawing pipeline for this job.
+                Pay first ({paymentPrices.totalLabel} incl. tax), then upload your STEP on the
+                pipeline page if you have not already.
               </div>
               <button
                 type="button"
@@ -355,7 +390,9 @@ export default function CadDrawingPipelineStatus({ jobId }) {
                 onClick={handlePayAndStart}
                 disabled={paying}
               >
-                {paying ? "Opening checkout…" : "Pay and start pipeline"}
+                {paying
+                  ? "Opening checkout…"
+                  : `Pay ${paymentPrices.baseLabel} and start`}
               </button>
             </div>
           </div>
@@ -506,48 +543,41 @@ export default function CadDrawingPipelineStatus({ jobId }) {
                 <div className={styles.cardTitle}>Sheet previews</div>
               </div>
               <div className={styles.sheetsGrid}>
-                {SHEET_LABELS.slice(0, sheetDownloads.length || SHEET_LABELS.length).map(
-                  ([a, b], i) => {
-                    const sheet = sheetDownloads[i];
-                    const ready = Boolean(sheet?.pdfHref);
-                    const label = `${a} ${b}`.trim();
-                    const thumbClass = `${styles.sheetThumb} ${ready ? `${styles.sheetThumbLink} ${styles.sheetThumbReady}` : ""}`;
-                    const inner = (
-                      <>
-                        {ready ? <div className={styles.sheetThumbBadge}>PDF</div> : null}
-                        <div className={styles.sheetThumbIcon}>{ready ? "🗒" : "📄"}</div>
-                        <div className={styles.sheetThumbLabel}>
-                          {a}
-                          <br />
-                          {b}
-                        </div>
-                      </>
-                    );
-                    if (ready) {
-                      return (
-                        <a
-                          key={`${a}-${b}`}
-                          href={sheet.pdfHref}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={thumbClass}
-                          title={`Download ${label} (PDF)`}
-                        >
-                          {inner}
-                        </a>
-                      );
-                    }
+                {SHEET_LABELS.map(([a, b], i) => {
+                  const sheet = sheetDownloads[i];
+                  const ready = Boolean(sheet?.pdfHref);
+                                    const thumbClass = `${styles.sheetThumb} ${ready ? `${styles.sheetThumbLink} ${styles.sheetThumbReady}` : ""}`;
+                  const inner = (
+                    <>
+                      {ready ? <div className={styles.sheetThumbBadge}>PDF</div> : null}
+                      <div className={styles.sheetThumbIcon}>{ready ? "🗒" : "📄"}</div>
+                      <div className={styles.sheetThumbLabel}>
+                        {a}
+                        <br />
+                        {b}
+                      </div>
+                    </>
+                  );
+                  if (ready && sheet?.pdfHref) {
                     return (
-                      <div
-                        key={`${a}-${b}`}
+                      <a
+                        key={i}
+                        href={sheet.pdfHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className={thumbClass}
-                        title="Available when processing completes"
+                        title={`Sheet ${i + 1} PDF`}
                       >
                         {inner}
-                      </div>
+                      </a>
                     );
-                  },
-                )}
+                  }
+                  return (
+                    <div key={i} className={thumbClass}>
+                      {inner}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

@@ -1,4 +1,9 @@
-import { createTechDrawOrder, verifyTechDrawPayment } from "@/api/cadDrawingPipelineApi";
+import {
+  createTechDrawOrder,
+  formatTechDrawPrice,
+  getTechDrawPriceDisplay,
+  verifyTechDrawPayment,
+} from "@/api/cadDrawingPipelineApi";
 import { MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
 
 export function loadRazorpayScript() {
@@ -12,7 +17,11 @@ export function loadRazorpayScript() {
   });
 }
 
-export function openTechDrawPayment(jobId) {
+/**
+ * Pay first (no DB job). Resolves with Razorpay ids for submit after upload.
+ * @param {string} [jobId] — only for legacy dashboard jobs that were created before pay
+ */
+export function openTechDrawPayment({ description, jobId } = {}) {
   return new Promise((resolve, reject) => {
     (async () => {
       try {
@@ -23,23 +32,38 @@ export function openTechDrawPayment(jobId) {
           return;
         }
 
+        const prices = getTechDrawPriceDisplay();
+
+        const chargeLabel =
+          description ||
+          `2D technical drawing — ${prices.baseLabel} + tax (${prices.totalLabel} total)`;
+
+        const razorpayAmount =
+          Number(order.razorpay_amount) > 0
+            ? Math.round(Number(order.razorpay_amount))
+            : Math.round(prices.total * 100);
+
         const options = {
           key: RAZORPAY_KEY_ID,
-          amount: Math.round(order.amount * 100),
-          currency: order.currency,
+          amount: razorpayAmount,
+          currency: order.currency || "USD",
           name: MARATHONDETAILS.name,
           image: MARATHONDETAILS.image,
-          description: "TechDraw drawing pipeline",
+          description: chargeLabel,
           order_id: order.orderId,
           handler: async (response) => {
             try {
               await verifyTechDrawPayment({
-                job_id: jobId,
+                ...(jobId ? { job_id: jobId } : {}),
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
               });
-              resolve();
+              resolve({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              });
             } catch (err) {
               reject(err);
             }
@@ -58,3 +82,5 @@ export function openTechDrawPayment(jobId) {
     })();
   });
 }
+
+export { formatTechDrawPrice, getTechDrawPriceDisplay };

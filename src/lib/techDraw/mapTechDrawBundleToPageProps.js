@@ -3,6 +3,13 @@
  * Shapes: dimension_specs.json, dimensions_response.json, geometry_per_sheet.json, view_selection_response.json.
  */
 
+import {
+  techdrawBundlePdfViewUrl,
+  techdrawFileApiUrl,
+  techdrawSheetPdfViewUrl,
+  techdrawSheetPreviewUrls,
+} from "./techdrawFileApi";
+
 function sortGeometryKeys(geometryPerSheet) {
   if (!geometryPerSheet || typeof geometryPerSheet !== "object") return [];
   return Object.keys(geometryPerSheet).sort(
@@ -37,16 +44,24 @@ function uniqueViews(entries) {
   return new Set(entries.map((e) => e.view_name).filter(Boolean)).size;
 }
 
-/** SVG-only preview chain (direct CDN URLs). */
-function sheetPreviewCandidates(baseUrl, sheetNum) {
+function isUserPipelineCdnBase(baseUrl) {
+  return String(baseUrl || "").includes("user-freecad-techdraw");
+}
+
+/** SVG preview URLs (same-origin API so inline MIME + no forced download). */
+function sheetPreviewCandidates(baseUrl, sheetNum, designId) {
   const n = Number(sheetNum);
-  const designId = String(baseUrl || "").split("/").pop() || "";
-  if (/^[a-f0-9]{24}$/i.test(designId)) {
-    return [
-      `/api/techdraw-file?designId=${encodeURIComponent(designId)}&sheet=${n}&ext=svg`,
-    ];
+  const id = String(designId || "").trim();
+  const base = String(baseUrl || "").replace(/\/$/, "");
+  if (isUserPipelineCdnBase(base) && id) {
+    return techdrawSheetPreviewUrls(id, n, { userPipeline: true });
   }
-  return [`${baseUrl}/svg/sheet_${n}.svg`];
+  const fromBase = base.split("/").pop() || "";
+  const resolvedId = id || fromBase;
+  if (/^[a-f0-9]{24}$/i.test(resolvedId)) {
+    return techdrawSheetPreviewUrls(resolvedId, n, { userPipeline: false });
+  }
+  return [`${base}/svg/sheet_${n}.svg`];
 }
 
 function sheetAssetPaths(baseUrl, sheetNum) {
@@ -169,10 +184,10 @@ function reasonForEntry(entry, reasonMaps) {
   return "";
 }
 
-function buildViewCards(entries, baseUrl, viewSelectionResponse) {
+function buildViewCards(entries, baseUrl, viewSelectionResponse, designId) {
   const reasonMaps = buildReasonMaps(viewSelectionResponse);
   return entries.map((e) => {
-    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num);
+    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num, designId);
     const reason = reasonForEntry(e, reasonMaps);
     const body = reason
       ? reason
@@ -266,8 +281,34 @@ function buildSectionDetailGroups(entries, dimensionSpecs, viewSelectionResponse
   return groups;
 }
 
-function buildSheetDownloadRows(entries, baseUrl) {
+function buildSheetDownloadRows(entries, baseUrl, designId) {
+  const userCdn = isUserPipelineCdnBase(baseUrl);
+  const id = String(designId || "").trim();
   return entries.map((e) => {
+    const n = Number(e.sheet_num);
+    if (userCdn && id) {
+      return {
+        name: e.label,
+        pdf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "pdf",
+          source: "user",
+          disposition: "attachment",
+        }),
+        svg: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "svg",
+          source: "user",
+          disposition: "attachment",
+        }),
+        dxf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "dxf",
+          source: "user",
+          disposition: "attachment",
+        }),
+      };
+    }
     const paths = sheetAssetPaths(baseUrl, e.sheet_num);
     return {
       name: e.label,
@@ -431,20 +472,19 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     { value: "1st Angle", label: "Projection" },
   ];
 
+  const userCdn = isUserPipelineCdnBase(baseUrl);
   const sheets = entries.map((e) => {
-    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num);
+    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num, designId);
     const n = Number(e.sheet_num);
     return {
       src: previewCandidates[0],
       previewCandidates,
-      pdfUrl: `/api/techdraw-file?designId=${encodeURIComponent(
-        designId
-      )}&sheet=${n}&ext=pdf`,
+      pdfUrl: techdrawSheetPdfViewUrl(designId, n, { userPipeline: userCdn }),
       label: e.label,
     };
   });
 
-  const sheetDownloadRows = buildSheetDownloadRows(entries, baseUrl);
+  const sheetDownloadRows = buildSheetDownloadRows(entries, baseUrl, designId);
 
   return {
     designId,
@@ -465,13 +505,15 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     },
     sheets,
     cadModelHref: designLibraryHref,
-    generateHref: "/generate",
-    pdfHref: `/api/techdraw-pdf-bundle?designId=${encodeURIComponent(designId)}`,
+    generateHref: userCdn ? "/tools/cad-drawing-pipeline" : "/generate",
+    pdfHref: techdrawBundlePdfViewUrl(designId, { userPipeline: userCdn }),
     freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
-    zipHref: `/api/techdraw-bundle-zip?designId=${encodeURIComponent(designId)}`,
+    zipHref: userCdn
+      ? techdrawBundlePdfViewUrl(designId, { userPipeline: true })
+      : `/api/techdraw-bundle-zip?designId=${encodeURIComponent(designId)}`,
     drawingInfo: buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse),
     // aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
-    viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse),
+    viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse, designId),
     sectionDetailGroups: buildSectionDetailGroups(
       entries,
       dimensionSpecs,

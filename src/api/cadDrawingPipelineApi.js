@@ -7,22 +7,81 @@ import { BASE_URL, DESIGN_GLB_PREFIX_URL } from "@/config";
 
 export const TECHDRAW_API_BASE = "/v1/cad-techdraw";
 
+/** List price shown in UI when API omits fields (keep in sync with TECHDRAW_JOB_PRICE_USD). */
+export const TECHDRAW_BASE_PRICE_USD = 4.99;
+const TECHDRAW_GST_RATE = 0.18;
+
+/** Display price for TechDraw (base USD; server may add tax at checkout). */
+export function formatTechDrawPrice(amount, currency = "USD") {
+  const n = Number(amount);
+  if (!Number.isFinite(n) || n <= 0) return "";
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency || "USD",
+    }).format(n);
+  } catch {
+    return `$${n.toFixed(2)}`;
+  }
+}
+
+/** Normalized labels for banners, buttons, and Razorpay copy (always $4.99 list price). */
+export function getTechDrawPriceDisplay() {
+  const currency = "USD";
+  const base = TECHDRAW_BASE_PRICE_USD;
+  const total = Math.round(base * (1 + TECHDRAW_GST_RATE) * 100) / 100;
+  return {
+    base,
+    total,
+    currency,
+    baseLabel: formatTechDrawPrice(base, currency),
+    totalLabel: formatTechDrawPrice(total, currency),
+  };
+}
+
 const UPLOAD_TIMEOUT_MS = 120_000;
 const POLL_INTERVAL_MS = 5_000;
 const STATUS_REQUEST_TIMEOUT_MS = 60_000;
 const MAX_POLL_TRANSIENT_ERRORS = 24;
 
+/** Same anonymous session pattern as cad-renderer / cad-uploading tools. */
+export function getOrCreateTechDrawUuid() {
+  if (typeof window === "undefined") return "";
+  let uuid = localStorage.getItem("uuid");
+  if (!uuid) {
+    uuid =
+      window.crypto?.randomUUID?.() ||
+      `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem("uuid", uuid);
+  }
+  return uuid;
+}
+
 function userUuidHeader() {
-  if (typeof window === "undefined") return {};
-  const uuid = localStorage.getItem("uuid");
+  const uuid = getOrCreateTechDrawUuid();
   return uuid ? { "user-uuid": uuid } : {};
 }
 
 function assertUuid() {
-  const uuid = typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
+  if (!BASE_URL) {
+    throw new Error("App API URL is not configured (NEXT_PUBLIC_BASE_URL).");
+  }
+  const uuid = getOrCreateTechDrawUuid();
   if (!uuid) {
     throw new Error("Session not ready. Refresh the page and try again.");
   }
+}
+
+function formatApiError(err, fallback = "Request failed") {
+  if (err instanceof Error && !axios.isAxiosError(err)) return err.message;
+  if (axios.isAxiosError(err)) {
+    const msg = err.response?.data?.meta?.message;
+    if (typeof msg === "string" && msg) return msg;
+    if (!err.response) {
+      return "Network error — check your connection or try again.";
+    }
+  }
+  return fallback;
 }
 
 function unwrap(data) {
@@ -66,12 +125,24 @@ export async function getTechDrawUploadUrl(fileName, filesize) {
 }
 
 export async function uploadStepToS3(putUrl, file) {
-  await axios.put(putUrl, file, {
-    headers: { "Content-Type": "application/step" },
-    timeout: UPLOAD_TIMEOUT_MS,
-    maxContentLength: Infinity,
-    maxBodyLength: Infinity,
-  });
+  if (!putUrl) {
+    throw new Error("Upload URL missing from server.");
+  }
+  try {
+    await axios.put(putUrl, file, {
+      headers: { "Content-Type": "application/step" },
+      timeout: UPLOAD_TIMEOUT_MS,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+    });
+  } catch (err) {
+    if (axios.isAxiosError(err) && !err.response) {
+      throw new Error(
+        "Could not upload the STEP file to storage (browser blocked the request — often CORS on the S3 bucket). Try again or use another network.",
+      );
+    }
+    throw new Error(formatApiError(err, "STEP file upload failed."));
+  }
 }
 
 export async function checkTechDrawEligibility() {
@@ -83,21 +154,40 @@ export async function checkTechDrawEligibility() {
   return unwrap(data);
 }
 
-export async function submitTechDrawJob({ title, description, input_file_url, s3_bucket, file_name }) {
+export async function submitTechDrawJob({
+  title,
+  description,
+  input_file_url,
+  s3_bucket,
+  file_name,
+  razorpay_order_id,
+  razorpay_payment_id,
+  razorpay_signature,
+}) {
   assertUuid();
   const { data } = await axios.post(
     `${BASE_URL}${TECHDRAW_API_BASE}/submit`,
-    { title, description, input_file_url, s3_bucket, file_name },
+    {
+      title,
+      description,
+      input_file_url,
+      s3_bucket,
+      file_name,
+      ...(razorpay_order_id
+        ? { razorpay_order_id, razorpay_payment_id, razorpay_signature }
+        : {}),
+    },
     { headers: userUuidHeader(), timeout: 60_000 },
   );
   return unwrap(data);
 }
 
+/** Razorpay checkout only — no job row until submit after payment. */
 export async function createTechDrawOrder(jobId) {
   assertUuid();
   const { data } = await axios.post(
     `${BASE_URL}${TECHDRAW_API_BASE}/create-order`,
-    { job_id: jobId },
+    jobId ? { job_id: jobId } : {},
     { headers: userUuidHeader(), timeout: 30_000 },
   );
   return unwrap(data);
@@ -112,7 +202,12 @@ export async function verifyTechDrawPayment({
   assertUuid();
   const { data } = await axios.post(
     `${BASE_URL}${TECHDRAW_API_BASE}/verify-payment`,
-    { job_id, razorpay_order_id, razorpay_payment_id, razorpay_signature },
+    {
+      ...(job_id ? { job_id } : {}),
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    },
     { headers: userUuidHeader(), timeout: 60_000 },
   );
   return unwrap(data);
@@ -179,16 +274,48 @@ export async function pollTechDrawJobUntilDone(jobId, opts = {}) {
   }
 }
 
-/** Upload STEP and create job (does not poll). */
-export async function prepareCadDrawingJob({ file, title = "", description = "", onPhase }) {
+/** Upload STEP and create job via same-origin API proxy (avoids S3 CORS). */
+async function prepareCadDrawingJobViaProxy({ file, title, description, onPhase }) {
+  const uuid = getOrCreateTechDrawUuid();
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("title", title || file.name);
+  formData.append("description", description || "");
+
+  onPhase?.("upload-url");
+  onPhase?.("s3-upload");
+  onPhase?.("submit");
+
+  const { data } = await axios.post("/api/techdraw-upload-step", formData, {
+    headers: { "user-uuid": uuid },
+    timeout: UPLOAD_TIMEOUT_MS + 60_000,
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
+  });
+
+  if (!data?.meta?.success) {
+    const msg = data?.meta?.message || "Request failed";
+    throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+  }
+
+  return data.data;
+}
+
+/** Upload STEP and create job in DB (free run, or after Razorpay payment). */
+export async function uploadAndSubmitTechDrawJob({
+  file,
+  title = "",
+  description = "",
+  payment,
+  onPhase,
+}) {
   if (!file) throw new Error("No file selected");
+  assertUuid();
 
   onPhase?.("upload-url");
   const upload = await getTechDrawUploadUrl(file.name, file.size);
-
   onPhase?.("s3-upload");
   await uploadStepToS3(upload.put_url, file);
-
   onPhase?.("submit");
   const submit = await submitTechDrawJob({
     title: title || file.name,
@@ -196,20 +323,45 @@ export async function prepareCadDrawingJob({ file, title = "", description = "",
     input_file_url: upload.input_file_url,
     s3_bucket: upload.s3_bucket,
     file_name: upload.file_name,
+    ...(payment || {}),
   });
+  return String(submit.job_id);
+}
 
-  const jobId = String(submit.job_id);
+/**
+ * Paid: details stay in client state until after payment.
+ * Free: upload + create job immediately.
+ */
+export async function prepareCadDrawingJob({
+  file,
+  title = "",
+  description = "",
+  requiresPayment = false,
+  onPhase,
+}) {
+  if (!file) throw new Error("No file selected");
+  assertUuid();
 
-  if (submit.requires_payment) {
-    return {
-      needsPayment: true,
-      jobId,
-      price: submit.price,
-      currency: submit.currency,
-    };
+  const prices = getTechDrawPriceDisplay();
+
+  if (requiresPayment) {
+    return { needsPayment: true, prices };
   }
 
-  return { needsPayment: false, jobId };
+  let jobId;
+  try {
+    jobId = await uploadAndSubmitTechDrawJob({ file, title, description, onPhase });
+  } catch (proxyErr) {
+    const proxyMsg = formatApiError(proxyErr, "");
+    if (proxyMsg && !/network|fetch|timeout|502|503|504/i.test(proxyMsg)) {
+      throw proxyErr;
+    }
+    jobId = await prepareCadDrawingJobViaProxy({ file, title, description, onPhase }).then(
+      (d) => String(d.job_id),
+    );
+  }
+
+  return { needsPayment: false, jobId, prices };
 }
 
 export async function startCadDrawingPipeline({ file, title = "", description = "", onPhase }) {

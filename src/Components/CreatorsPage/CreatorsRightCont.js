@@ -6,6 +6,7 @@ import FileHistoryCards from '../History/FileHistoryCards'
 import KycTab from '../KYC/KycTab'
 import Earnings from '../Earnings/Earnings'
 import Analytics from '../History/Analytics'
+import TechDrawDashboardCards from '../History/TechDrawDashboardCards'
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -38,6 +39,7 @@ function CreatorsRightCont({
     { label: "Projects", cadType: "USER_CADS" },
     { label: "CAD Viewer", cadType: "CAD_VIEWER" },
     { label: "CAD Convertor", cadType: "CAD_CONVERTER" },
+    { label: "2D Drawings", cadType: "CAD_TECHDRAW" },
     { label: "Downloads", cadType: "USER_DOWNLOADS" },
     { label: "Analytics", cadType: "ANALYTICS" },
     { label: "KYC", cadType: "USER_KYC" },
@@ -54,14 +56,16 @@ function CreatorsRightCont({
       setValue(1)
     } else if (cadType === 'USER_CADS') {
       setValue(0)
-    } else if (cadType === 'USER_DOWNLOADS') {
+    } else if (cadType === 'CAD_TECHDRAW') {
       setValue(3)
-    } else if (cadType === 'ANALYTICS') {
+    } else if (cadType === 'USER_DOWNLOADS') {
       setValue(4)
-    } else if (cadType === 'USER_KYC') {
+    } else if (cadType === 'ANALYTICS') {
       setValue(5)
-    } else if (cadType === 'EARNINGS') {
+    } else if (cadType === 'USER_KYC') {
       setValue(6)
+    } else if (cadType === 'EARNINGS') {
+      setValue(7)
     } else {
       setValue(0) // Default to My CAD Files
     }
@@ -148,6 +152,14 @@ function CreatorsRightCont({
             />
           </TabPanel>
           <TabPanel value={value} index={3} style={{ background: '#F6F6F6', height: '100%' }}>
+            <TechDrawDashboardCards
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              setTotalPages={setTotalPages}
+            />
+          </TabPanel>
+          <TabPanel value={value} index={4} style={{ background: '#F6F6F6', height: '100%' }}>
             <FileHistoryCards
               type="USER_DOWNLOADS"
               cad_type="USER_DOWNLOADS"
@@ -157,7 +169,7 @@ function CreatorsRightCont({
               setTotalPages={setTotalPages}
             />
           </TabPanel>
-          <TabPanel value={value} index={4} style={{ background: '#F6F6F6', height: '100%' }}>
+          <TabPanel value={value} index={5} style={{ background: '#F6F6F6', height: '100%' }}>
             <Analytics
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -165,10 +177,10 @@ function CreatorsRightCont({
               setTotalPages={setTotalPages}
             />
           </TabPanel>
-          <TabPanel value={value} index={5} style={{ background: '#F6F6F6', height: '100%' }}>
+          <TabPanel value={value} index={6} style={{ background: '#F6F6F6', height: '100%' }}>
             <KycTab />
           </TabPanel>
-          <TabPanel value={value} index={6} style={{ background: '#F6F6F6', height: '100%' }}>
+          <TabPanel value={value} index={7} style={{ background: '#F6F6F6', height: '100%' }}>
             <Earnings />
           </TabPanel>
         </> :
