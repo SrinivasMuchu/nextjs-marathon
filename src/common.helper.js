@@ -31,11 +31,16 @@ export function sendGAtagEvent1(eventName,category,publish_from) {
 
 }
 export function sendGAtagEvent(eventData) {
+  if (
+    typeof window === "undefined" ||
+    typeof window.gtag !== "function" ||
+    !eventData ||
+    !eventData.event_name
+  ) {
+    return;
+  }
   const { event_name, ...eventParams } = eventData;
-  
-
-    window.gtag('event', event_name, eventParams);
-  
+  window.gtag("event", event_name, eventParams);
 }
 
 export function formatDate(dateString) {

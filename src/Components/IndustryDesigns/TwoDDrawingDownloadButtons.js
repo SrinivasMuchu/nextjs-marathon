@@ -1,6 +1,8 @@
 "use client";
 
 import styles from "./TwoDDrawingRightSidebar.module.css";
+import { sendGAtagEvent } from "@/common.helper";
+import { CAD_2D_DRAWING_EVENT } from "@/config";
 
 export default function TwoDDrawingDownloadButtons({
   onPdf,
@@ -12,11 +14,20 @@ export default function TwoDDrawingDownloadButtons({
   freecadLabel = "🛠 Download FreeCAD (.FCStd)",
   zipLabel = "📦 Download All Formats (.zip)",
 }) {
+  const trackDownloadClick = (eventName) => {
+    sendGAtagEvent({
+      event_name: eventName,
+      event_category: CAD_2D_DRAWING_EVENT,
+    });
+  };
+
   const handlePdf = () => {
+    trackDownloadClick("techdraw_download_pdf_click");
     if (onPdf) onPdf();
     else if (pdfHref) window.open(pdfHref, "_blank", "noopener,noreferrer");
   };
   const handleZip = () => {
+    trackDownloadClick("techdraw_download_zip_click");
     if (onZip) onZip();
     else if (zipHref) window.open(zipHref, "_blank", "noopener,noreferrer");
   };
@@ -33,6 +44,7 @@ export default function TwoDDrawingDownloadButtons({
           download
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackDownloadClick("techdraw_download_freecad_click")}
         >
           {freecadLabel}
         </a>
@@ -44,6 +56,7 @@ export default function TwoDDrawingDownloadButtons({
           download
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackDownloadClick("techdraw_download_zip_click")}
         >
           {zipLabel}
         </a>

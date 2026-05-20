@@ -7,6 +7,7 @@ import TwoDDrawingTransparencyBlock from "./TwoDDrawingTransparencyBlock";
 import TwoDDrawingPreviewPanel from "./TwoDDrawingPreviewPanel";
 import TwoDDrawingRightSidebar from "./TwoDDrawingRightSidebar";
 import TwoDMoreDesignsSection from "./TwoDMoreDesignsSection";
+import TwoDDrawingAnalyticsTracker from "./TwoDDrawingAnalyticsTracker";
 import { DEFAULT_2D_SHEETS } from "./twoDDrawingPageDefaults";
 import layoutStyles from "./TwoDDrawingMainLayout.module.css";
 import { Suspense } from "react";
@@ -31,7 +32,8 @@ export default function TwoDTechnicalDrawingContent({
   currentDesignId,
 }) {
   return (
-    <>
+    <div data-techdraw-analytics-root="true">
+      <TwoDDrawingAnalyticsTracker designId={currentDesignId} />
       <div className={layoutStyles.mainGrid}>
         <TwoDDrawingPreviewPanel sheets={sheets} />
         <TwoDDrawingRightSidebar
@@ -56,6 +58,6 @@ export default function TwoDTechnicalDrawingContent({
       <Suspense fallback={null}>
         <TwoDMoreDesignsSection currentDesignId={currentDesignId} />
       </Suspense>
-    </>
+    </div>
   );
 }
