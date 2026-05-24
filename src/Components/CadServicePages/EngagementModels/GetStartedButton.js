@@ -16,7 +16,7 @@ function GetStartedButton({ primary = false }) {
 
   if (samePage) {
     return (
-      <button type="button" className={className} onClick={() => openFormPopup()}>
+      <button type="button" className={className} onClick={() => openFormPopup('engagement_get_started')}>
         Get Started →
       </button>
     )
