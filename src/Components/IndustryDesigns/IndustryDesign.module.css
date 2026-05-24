@@ -1055,8 +1055,10 @@ letter-spacing: -0.192px;
     width: 100%;
 }
 
-.primaryAction button,
-.primaryAction a {
+/* Only the main CTA — not buttons inside portaled popups */
+.primaryAction > button,
+.primaryAction > a,
+.primaryAction > span > button {
     width: 100%;
 }
 

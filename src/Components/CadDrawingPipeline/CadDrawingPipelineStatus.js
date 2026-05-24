@@ -1,33 +1,32 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import axios from "axios";
 import {
-  countTechDrawSheets,
   getTechDrawJobStatus,
   getTechDrawPriceDisplay,
-  outputItemsFromJob,
-  sheetDownloadsFromJob,
   TechDrawPollError,
   waitForTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
+import { consumeConsoleStatuses, formatStatusConsoleLine } from "@/api/consoleStatus";
 import {
   derivePipelineStageUi,
   isLikelyPostSuccessInfraFailure,
-  PIPELINE_STAGE_LABELS,
 } from "@/api/cadDrawingPipelineStages";
 import {
   getJobDisplayTitle,
   getJobPageSubtitle,
   logLineClass,
   PIPELINE_STAGES_UI,
-  SHEET_LABELS,
 } from "./pipelineConstants";
 import { openTechDrawPayment } from "./techDrawPayment";
-import TechDrawJobLibraryResults from "./TechDrawJobLibraryResults";
 import styles from "./CadDrawingPipeline.module.css";
+import {
+  isTechDrawJobComplete,
+  techDrawDesignPath,
+} from "@/lib/techDraw/techDrawJobRoutes";
 
 function isTransientStatusError(err) {
   if (err instanceof TechDrawPollError) return err.transient;
@@ -41,6 +40,7 @@ function isTransientStatusError(err) {
 }
 
 export default function CadDrawingPipelineStatus({ jobId }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
@@ -59,21 +59,30 @@ export default function CadDrawingPipelineStatus({ jobId }) {
   const [stagesDone, setStagesDone] = useState(() => PIPELINE_STAGES_UI.map(() => false));
   const [stagesError, setStagesError] = useState(false);
   const [errorStageIndex, setErrorStageIndex] = useState(-1);
-  const [runStats, setRunStats] = useState({
-    sheets: "—",
-    dims: "—",
-    tokens: "—",
-    time: "—",
-  });
-
-  const runStartRef = useRef(Date.now());
   const pollAbortRef = useRef(null);
   const lastLoggedStatusRef = useRef(null);
+  const consoleStatusesSeenRef = useRef(0);
+  const terminalBodyRef = useRef(null);
   const pollStartedRef = useRef(false);
 
   const appendLog = useCallback((kind, text) => {
     setLogs((prev) => [...prev, { kind, text }]);
   }, []);
+
+  const syncConsoleStatuses = useCallback(
+    (job) => {
+      if (!job) return;
+      consumeConsoleStatuses(job, consoleStatusesSeenRef, appendLog);
+    },
+    [appendLog],
+  );
+
+  useEffect(() => {
+    const el = terminalBodyRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [logs]);
 
   const applyPipelineStageUi = useCallback((job) => {
     const ui = derivePipelineStageUi(job, PIPELINE_STAGES_UI.length);
@@ -94,29 +103,18 @@ export default function CadDrawingPipelineStatus({ jobId }) {
   );
 
   const applyCompletedJob = useCallback(
-    (job, elapsedSec) => {
+    (job) => {
       setCompletedJob(job);
       setResult({ meta: { success: true }, data: { job, job_id: jobId } });
       applyPipelineStageUi(job);
-      setRunStats({
-        sheets: countTechDrawSheets(job) ? String(countTechDrawSheets(job)) : "—",
-        dims: "—",
-        tokens: "—",
-        time:
-          job.time_taken_seconds != null
-            ? `${job.time_taken_seconds}s`
-            : elapsedSec != null
-              ? `${elapsedSec}s`
-              : "—",
-      });
     },
     [applyPipelineStageUi, jobId],
   );
 
   const finishPipelineRun = useCallback(
     (job) => {
-      const elapsed = ((Date.now() - (runStartRef.current || Date.now())) / 1000).toFixed(1);
-      applyCompletedJob(job, elapsed);
+      syncConsoleStatuses(job);
+      applyCompletedJob(job);
       setError("");
       setStagesError(false);
       setErrorStageIndex(-1);
@@ -126,8 +124,11 @@ export default function CadDrawingPipelineStatus({ jobId }) {
         appendLog("info", `  Output prefix: ${job.output_s3_prefix}`);
       }
       toast.success("Drawing pipeline finished.");
+      if (isTechDrawJobComplete(job)) {
+        router.replace(techDrawDesignPath(jobId));
+      }
     },
-    [appendLog, applyCompletedJob],
+    [appendLog, applyCompletedJob, jobId, router, syncConsoleStatuses],
   );
 
   const applyFailedJobFromApi = useCallback(
@@ -183,33 +184,31 @@ export default function CadDrawingPipelineStatus({ jobId }) {
 
   const onPhase = useCallback(
     (phase, job) => {
-      if (phase === "processing") appendLog("info", "  → Pipeline running — polling status…");
+      if (phase === "processing") {
+        appendLog("info", "  → Live processing updates appear below…");
+      }
       if (phase === "status" && job?.status) {
-        const logKey = `${job.status}:${job.pipeline_stage || ""}:${job.error_message || ""}`;
-        if (logKey !== lastLoggedStatusRef.current) {
-          lastLoggedStatusRef.current = logKey;
-          const stageLabel = job.pipeline_stage
-            ? PIPELINE_STAGE_LABELS[job.pipeline_stage] || job.pipeline_stage
-            : "";
-          appendLog(
-            "info",
-            stageLabel
-              ? `  → ${job.status} · ${stageLabel}`
-              : `  → Job status: ${job.status}`,
-          );
-          if (job.status === "FAILED" && job.error_message) {
-            if (isLikelyPostSuccessInfraFailure(job)) {
-              appendLog(
-                "warn",
-                "  ⚠ Drawing upload completed — FAILED is from Kafka offset commit, not the pipeline.",
-              );
-            }
+        const prevSeen = consoleStatusesSeenRef.current;
+        const added = consumeConsoleStatuses(job, consoleStatusesSeenRef, appendLog);
+        const statusKey = `${job.status}:${job.console_status || ""}:${job.pipeline_stage || ""}`;
+        if (added === 0 && statusKey !== lastLoggedStatusRef.current) {
+          lastLoggedStatusRef.current = statusKey;
+          appendLog("info", formatStatusConsoleLine(job));
+        } else if (added > 0) {
+          lastLoggedStatusRef.current = statusKey;
+        }
+        if (job.status === "FAILED" && job.error_message) {
+          if (isLikelyPostSuccessInfraFailure(job)) {
+            appendLog(
+              "warn",
+              "  ⚠ Upload finished — FAILED label is from queue, not the drawing.",
+            );
           }
         }
         handleJobStatusUpdate(job);
       }
     },
-    [appendLog, handleJobStatusUpdate],
+    [appendLog, handleJobStatusUpdate, syncConsoleStatuses],
   );
 
   const startPolling = useCallback(async () => {
@@ -273,7 +272,6 @@ export default function CadDrawingPipelineStatus({ jobId }) {
   useEffect(() => {
     if (!jobId || pollStartedRef.current) return;
     pollStartedRef.current = true;
-    runStartRef.current = Date.now();
 
     let cancelled = false;
 
@@ -284,6 +282,11 @@ export default function CadDrawingPipelineStatus({ jobId }) {
 
         appendLog("hdr", "========== JOB STATUS ==========");
         appendLog("info", `  Title: ${job.title || job.file_name || jobId}`);
+        consumeConsoleStatuses(job, consoleStatusesSeenRef, appendLog);
+        if ((job.console_statuses || []).length === 0) {
+          appendLog("info", formatStatusConsoleLine(job));
+        }
+        lastLoggedStatusRef.current = `${job.status}:${job.console_status || ""}:${job.pipeline_stage || ""}`;
         handleJobStatusUpdate(job);
 
         const paymentPending =
@@ -326,39 +329,15 @@ export default function CadDrawingPipelineStatus({ jobId }) {
       cancelled = true;
       pollAbortRef.current?.abort();
     };
-  }, [appendLog, applyFailedJobFromApi, finishPipelineRun, handleJobStatusUpdate, jobId, startPolling]);
+  }, [appendLog, applyFailedJobFromApi, finishPipelineRun, handleJobStatusUpdate, jobId, startPolling, syncConsoleStatuses]);
 
   const jobForDisplay = currentJob || completedJob;
-  const hasOutputs = Boolean(jobForDisplay?.output_s3_prefix);
-  const sheetDownloads = hasOutputs ? sheetDownloadsFromJob(jobForDisplay) : [];
-  const outputItems = hasOutputs ? outputItemsFromJob(jobForDisplay) : [];
   const displayTitle = getJobDisplayTitle(jobForDisplay);
   const pageSubtitle = getJobPageSubtitle(jobForDisplay);
-
-  const showLibraryResults =
-    completedJob?.output_s3_prefix &&
-    (completedJob.status === "COMPLETED" || isLikelyPostSuccessInfraFailure(completedJob));
-
-  if (showLibraryResults) {
-    return <TechDrawJobLibraryResults jobId={jobId} job={completedJob} />;
-  }
 
   return (
     <div className={styles.root}>
       <div className={styles.page}>
-        <header className={styles.header}>
-          <div className={styles.logo}>
-            <div className={styles.logoMark}>M</div>
-            <div>
-              <div className={styles.logoText}>Marathon-OS</div>
-              <div className={styles.logoSub}>2D technical drawing · Job status</div>
-            </div>
-          </div>
-          <Link href="/tools/cad-drawing-pipeline" className={styles.headerBadge}>
-            ← New drawing
-          </Link>
-        </header>
-
         <h1 className={styles.pageTitle}>
           {displayTitle}
           <span className={styles.pageTitleAccent}> · Pipeline</span>
@@ -490,138 +469,25 @@ export default function CadDrawingPipelineStatus({ jobId }) {
                   );
                 })}
               </div>
-
-              <div className={styles.terminal}>
-                <div className={styles.terminalBar}>
-                  <span className={`${styles.tDot} ${styles.tDot1}`} />
-                  <span className={`${styles.tDot} ${styles.tDot2}`} />
-                  <span className={`${styles.tDot} ${styles.tDot3}`} />
-                  <span className={styles.terminalLabel}>pipeline.log</span>
-                </div>
-                <div className={styles.terminalBody}>
-                  {logs.map((line, idx) => (
-                    <span key={`${idx}-${line.text.slice(0, 24)}`} className={styles.logLine}>
-                      <span className={logLineClass(line.kind)}>{line.text}</span>
-                      <br />
-                    </span>
-                  ))}
-                  <span className={`${styles.logLine} ${styles.logCursor}`} />
-                </div>
-              </div>
             </div>
           </div>
 
           <div className={styles.rightCol}>
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <div className={styles.cardIcon}>📊</div>
-                <div className={styles.cardTitle}>Run statistics</div>
+            <div className={`${styles.terminal} ${styles.terminalSidebar}`}>
+              <div className={styles.terminalBar}>
+                <span className={`${styles.tDot} ${styles.tDot1}`} />
+                <span className={`${styles.tDot} ${styles.tDot2}`} />
+                <span className={`${styles.tDot} ${styles.tDot3}`} />
+                <span className={styles.terminalLabel}>processing status</span>
               </div>
-              <div className={styles.statsGrid}>
-                <div className={styles.stat}>
-                  <div className={styles.statVal}>{runStats.sheets}</div>
-                  <div className={styles.statLabel}>Sheets</div>
-                </div>
-                <div className={styles.stat}>
-                  <div className={styles.statVal}>{runStats.dims}</div>
-                  <div className={styles.statLabel}>Dimensions</div>
-                </div>
-                <div className={styles.stat}>
-                  <div className={styles.statVal}>{runStats.tokens}</div>
-                  <div className={styles.statLabel}>AI tokens</div>
-                </div>
-                <div className={styles.stat}>
-                  <div className={styles.statVal}>{runStats.time}</div>
-                  <div className={styles.statLabel}>Duration</div>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <div className={styles.cardIcon}>🗂</div>
-                <div className={styles.cardTitle}>Sheet previews</div>
-              </div>
-              <div className={styles.sheetsGrid}>
-                {SHEET_LABELS.map(([a, b], i) => {
-                  const sheet = sheetDownloads[i];
-                  const ready = Boolean(sheet?.pdfHref);
-                                    const thumbClass = `${styles.sheetThumb} ${ready ? `${styles.sheetThumbLink} ${styles.sheetThumbReady}` : ""}`;
-                  const inner = (
-                    <>
-                      {ready ? <div className={styles.sheetThumbBadge}>PDF</div> : null}
-                      <div className={styles.sheetThumbIcon}>{ready ? "🗒" : "📄"}</div>
-                      <div className={styles.sheetThumbLabel}>
-                        {a}
-                        <br />
-                        {b}
-                      </div>
-                    </>
-                  );
-                  if (ready && sheet?.pdfHref) {
-                    return (
-                      <a
-                        key={i}
-                        href={sheet.pdfHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={thumbClass}
-                        title={`Sheet ${i + 1} PDF`}
-                      >
-                        {inner}
-                      </a>
-                    );
-                  }
-                  return (
-                    <div key={i} className={thumbClass}>
-                      {inner}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <div className={styles.cardIcon}>📁</div>
-                <div className={styles.cardTitle}>Output files</div>
-              </div>
-              <div className={styles.outputFiles}>
-                {!hasOutputs ? (
-                  <div className={styles.outputEmpty}>
-                    No outputs yet.
+              <div className={styles.terminalBody} ref={terminalBodyRef}>
+                {logs.map((line, idx) => (
+                  <span key={`${idx}-${line.text.slice(0, 24)}`} className={styles.logLine}>
+                    <span className={logLineClass(line.kind)}>{line.text}</span>
                     <br />
-                    Processing will populate this list.
-                  </div>
-                ) : (
-                  outputItems.map((item, idx) => {
-                    const extClass =
-                      item.ext === "pdf"
-                        ? styles.extPdf
-                        : item.ext === "svg"
-                          ? styles.extSvg
-                          : item.ext === "dxf"
-                            ? styles.extDxf
-                            : item.ext === "png"
-                              ? styles.extCsv
-                              : styles.extJson;
-                    return (
-                      <a
-                        key={`${item.fileName || item.name}-${idx}`}
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.outputItem}
-                        title={item.fileName}
-                      >
-                        <span className={`${styles.outputExt} ${extClass}`}>
-                          {item.ext.toUpperCase()}
-                        </span>
-                        <span className={styles.outputName}>{item.name}</span>
-                      </a>
-                    );
-                  })
-                )}
+                  </span>
+                ))}
+                <span className={`${styles.logLine} ${styles.logCursor}`} />
               </div>
             </div>
           </div>

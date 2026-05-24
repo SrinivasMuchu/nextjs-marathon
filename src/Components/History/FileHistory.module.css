@@ -172,6 +172,11 @@
 .historyItem img{
   height: 160px;
 }
+.historyItemPreviewImg {
+  width: 100%;
+  height: 160px;
+  object-fit: contain;
+}
 .industry-design-files {
   width: 100%;
 }

@@ -7,6 +7,10 @@ import TwoDTechnicalDrawingContentClient from "@/Components/IndustryDesigns/TwoD
 import { fetchTechDrawBundleFromPrefix } from "@/lib/techDraw/fetchTechDrawBundleFromPrefix";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
 import { getJobDisplayTitle } from "./pipelineConstants";
+import {
+  techDrawDesignPath,
+  techDrawPipelineStatusPath,
+} from "@/lib/techDraw/techDrawJobRoutes";
 
 function mapUserJobToLibraryProps(jobId, job, bundle) {
   const mapped = mapTechDrawBundleToPageProps(jobId, {
@@ -30,19 +34,22 @@ function mapUserJobToLibraryProps(jobId, job, bundle) {
       { label: "Drawing pipeline", href: "/tools/cad-drawing-pipeline" },
       {
         label: title,
-        href: `/dashboard/2d-technical-drawing/${jobId}`,
+        href: techDrawPipelineStatusPath(jobId),
       },
       {
         label: "2D Technical Drawings",
-        href: `/dashboard/2d-technical-drawing/${jobId}`,
+        href: techDrawDesignPath(jobId),
       },
     ],
     heroProps: {
       ...mapped.heroProps,
       title: `${title} — 2D Technical Drawing Set (2D CAD drawings)`,
+      showFreeDownloadBadge: false,
     },
     cadModelHref: "/tools/cad-drawing-pipeline",
     generateHref: "/tools/cad-drawing-pipeline",
+    showDownloadAllPdfs: false,
+    showCadModelLink: false,
   };
 }
 
@@ -82,8 +89,8 @@ export default function TechDrawJobLibraryResults({ jobId, job }) {
         }}
       >
         <p style={{ color: "#b91c1c", marginBottom: 12 }}>{loadError}</p>
-        <Link href={`/dashboard/2d-technical-drawing/${jobId}`} style={{ color: "#5b21b6" }}>
-          ← Back to job status
+        <Link href={techDrawPipelineStatusPath(jobId)} style={{ color: "#5b21b6" }}>
+          ← Back to pipeline status
         </Link>
       </div>
     );

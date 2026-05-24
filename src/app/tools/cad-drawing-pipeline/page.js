@@ -1,6 +1,15 @@
 import { ASSET_PREFIX_URL } from "@/config";
 import CadDrawingPipelineView from "@/Components/CadDrawingPipeline/CadDrawingPipelineView";
-import React from "react";
+import CadDrawingPipelineOutputFormats from "@/Components/CadDrawingPipeline/CadDrawingPipelineOutputFormats";
+import CadDrawingPipelineFinalCta from "@/Components/CadDrawingPipeline/CadDrawingPipelineFinalCta";
+import CadDrawingPipelineFaq from "@/Components/CadDrawingPipeline/CadDrawingPipelineFaq";
+import Footer from "@/Components/HomePages/Footer/Footer";
+import CadDrawingPipelinePaidCta from "@/Components/CadDrawingPipeline/CadDrawingPipelinePaidCta";
+import CadDrawingPipelineTransparency from "@/Components/CadDrawingPipeline/CadDrawingPipelineTransparency";
+import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawingPipelineProcess";
+import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
+import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
+import React, { Suspense } from "react";
 
 const SITE = "https://marathon-os.com";
 const CANONICAL = "/tools/cad-drawing-pipeline";
@@ -16,6 +25,30 @@ export const metadata = {
   alternates: { canonical: CANONICAL },
 };
 
+function PipelineSectionFallback() {
+  return <div className={styles.pipelineSectionFallback} aria-hidden />;
+}
+
 export default function CadDrawingPipelinePage() {
-  return <CadDrawingPipelineView />;
+  return (
+    <>
+      <div className={styles.root}>
+        <CadDrawingPipelineView />
+
+        <div className={styles.page}>
+          <Suspense fallback={<PipelineSectionFallback />}>
+            <CadDrawingPipelineSampleSheets />
+          </Suspense>
+          <CadDrawingPipelineProcess />
+          <CadDrawingPipelineOutputFormats />
+          <CadDrawingPipelineTransparency />
+          <CadDrawingPipelinePaidCta />
+          <CadDrawingPipelineFaq />
+        </div>
+
+        <CadDrawingPipelineFinalCta />
+      </div>
+      <Footer />
+    </>
+  );
 }

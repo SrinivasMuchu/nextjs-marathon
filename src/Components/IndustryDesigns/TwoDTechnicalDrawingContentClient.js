@@ -20,6 +20,8 @@ export default function TwoDTechnicalDrawingContentClient({
   pdfHref,
   freecadHref,
   zipHref,
+  showDownloadAllPdfs = true,
+  showCadModelLink = true,
   drawingInfo,
   viewCards,
   sectionDetailGroups,
@@ -38,6 +40,8 @@ export default function TwoDTechnicalDrawingContentClient({
           pdfHref={pdfHref}
           freecadHref={freecadHref}
           zipHref={zipHref}
+          showDownloadAllPdfs={showDownloadAllPdfs}
+          showCadModelLink={showCadModelLink}
           drawingInfo={drawingInfo}
         />
       </div>

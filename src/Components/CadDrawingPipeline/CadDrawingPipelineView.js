@@ -12,7 +12,10 @@ import {
   uploadAndSubmitTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
 import { openTechDrawPayment } from "./techDrawPayment";
+import CadDrawingPipelineHero from "./CadDrawingPipelineHero";
+import CadDrawingPipelineHowItWorks from "./CadDrawingPipelineHowItWorks";
 import { STEP_EXT } from "./pipelineConstants";
+import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
 import styles from "./CadDrawingPipeline.module.css";
 
 export default function CadDrawingPipelineView() {
@@ -28,6 +31,7 @@ export default function CadDrawingPipelineView() {
   const [eligibility, setEligibility] = useState(null);
   const [eligibilityLoading, setEligibilityLoading] = useState(true);
   const fileInputRef = useRef(null);
+  const uploadSectionRef = useRef(null);
   const submitLockRef = useRef(false);
 
   const prices = getTechDrawPriceDisplay();
@@ -134,7 +138,7 @@ export default function CadDrawingPipelineView() {
       }
 
       setUploadPhase("Opening job dashboard…");
-      router.push(`/dashboard/2d-technical-drawing/${jobId}`);
+      router.push(techDrawPipelineStatusPath(jobId));
     } catch (err) {
       const msg =
         err?.message ||
@@ -150,28 +154,41 @@ export default function CadDrawingPipelineView() {
     }
   };
 
-  return (
-    <div className={styles.root}>
-      <div className={styles.page}>
-        <header className={styles.header}>
-          <div className={styles.logo}>
-            <div className={styles.logoMark}>M</div>
-            <div>
-              <div className={styles.logoText}>Marathon-OS</div>
-              <div className={styles.logoSub}>Engineering · Manufacturing · Supply Chain</div>
-            </div>
-          </div>
-          <div className={styles.headerBadge}>CAD Pipeline v1.0</div>
-        </header>
+  const priceShort = `$${Math.floor(prices.base)}`;
+  const heroCtaLabel = eligibility?.free_run_available
+    ? "Generate My Drawing — Free"
+    : `Generate My Drawing — ${priceShort}`;
 
-        <h1 className={styles.pageTitle}>
-          Drawing <span className={styles.pageTitleAccent}>Pipeline</span>
-        </h1>
-        <p className={styles.pageDesc}>
-          Upload a STEP or STP file to generate technical drawings. Your first job is free.
-          After that, you pay {prices.baseLabel} (+ tax) first, then your file is uploaded and
-          processing starts.
-        </p>
+  const scrollToUpload = useCallback(() => {
+    uploadSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => fileInputRef.current?.focus(), 400);
+  }, []);
+
+  return (
+    <>
+      <CadDrawingPipelineHero
+        priceShort={priceShort}
+        ctaLabel={!eligibilityLoading ? heroCtaLabel : undefined}
+        onGenerateClick={scrollToUpload}
+      />
+
+      <div className={styles.page}>
+        <section
+          id="cad-pipeline-upload"
+          ref={uploadSectionRef}
+          className={styles.uploadSection}
+          aria-labelledby="cad-pipeline-upload-title"
+        >
+          <h2 id="cad-pipeline-upload-title" className={styles.uploadSectionTitle}>
+            Upload your <span className={styles.pageTitleAccent}>STEP file</span>
+          </h2>
+          <p className={styles.uploadSectionDesc}>
+            {!eligibilityLoading && eligibility?.free_run_available
+              ? "Your first drawing is free — drop a STEP or STP file below to start."
+              : !eligibilityLoading && eligibility
+                ? `Upload a STEP or STP file. Pay ${prices.baseLabel} (+ tax) before each new drawing.`
+                : "Upload a STEP or STP file to generate multi-sheet technical drawings."}
+          </p>
 
         {!eligibilityLoading && eligibility ? (
           <div
@@ -306,7 +323,10 @@ export default function CadDrawingPipelineView() {
             </div>
           </div>
         </div>
+        </section>
+
+        <CadDrawingPipelineHowItWorks />
       </div>
-    </div>
+    </>
   );
 }

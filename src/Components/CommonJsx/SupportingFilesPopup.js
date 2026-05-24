@@ -117,8 +117,9 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
   if (loading) {
     return (
       <PopupWrapper>
-        <div style={{
-          background: '#fff',
+        <div
+          className={styles.popUpPanel}
+          style={{
           borderRadius: '12px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
           padding: '40px 32px',
@@ -130,7 +131,6 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
           alignItems: 'center',
           justifyContent: 'center',
           fontFamily: "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
-          position: 'relative'
         }}>
           <div style={{ fontSize: 22, fontWeight: 600, color: '#2d3748', marginBottom: 24 }}>Fetching Supporting Files...</div>
           <div style={{ marginBottom: 24 }}>
@@ -166,8 +166,9 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
 
   return (
     <PopupWrapper>
-      <div style={{
-        background: '#fff',
+      <div
+        className={styles.popUpPanel}
+        style={{
         borderRadius: '12px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
         padding: '24px 32px',
@@ -176,7 +177,6 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
         maxHeight: '80vh',
         overflowY: 'auto',
         fontFamily: "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
-        position: 'relative'
       }}>
         <div style={{
           display: 'flex',
@@ -259,6 +259,8 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
             </div>
             {/* Download Button */}
             <button
+              type="button"
+              className={styles.supportingFilesDownloadBtn}
               onClick={onDownloadMainFile}
               disabled={isDownloadingMainFile}
               style={{
@@ -375,6 +377,8 @@ function SupportingFilesPopup({ files, onClose, loading, onDownloadMainFile, isD
 
                 {/* Download Button */}
                 <button
+                  type="button"
+                  className={styles.supportingFilesDownloadBtn}
                   onClick={() => handleDownload(file)}
                   style={{
                     display: 'flex',

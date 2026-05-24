@@ -2,6 +2,10 @@ import styles from "./CadDrawingPipeline.module.css";
 
 export const STEP_EXT = /\.(step|stp)$/i;
 
+/** Example design for pipeline marketing (3D sprite + library 2D sheet). */
+export const PIPELINE_DEMO_DESIGN_ID = "6818320b458fe187fec4bd43";
+export const PIPELINE_DEMO_3D_SPRITE_URL = `https://d1d8a3050v4fu6.cloudfront.net/${PIPELINE_DEMO_DESIGN_ID}/sprite_0_0.webp`;
+
 /** Prefer user title, then STEP filename without extension. */
 export function getJobDisplayTitle(job, fallback = "Technical drawing") {
   const title = (job?.title || "").trim();

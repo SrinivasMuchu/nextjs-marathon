@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
@@ -12,8 +12,22 @@ import CheckHistory from "@/Components/CommonJsx/CheckHistory";
 
 function HomeTopNav() {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
+  const topNavRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!openDropdown) return undefined;
+
+    const handleClickOutside = (event) => {
+      if (topNavRef.current && !topNavRef.current.contains(event.target)) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openDropdown]);
 
   const handleAnchorClick = (event, sectionId) => {
     event.preventDefault();
@@ -34,13 +48,17 @@ function HomeTopNav() {
   };
 
   // Add this handler inside your component
-  const handleDashboardClick = (e) => {
-    setOpenDropdown(false);
+  const handleDashboardClick = () => {
+    setOpenDropdown(null);
     router.refresh();
   };
 
   return (
-    <div className={styles["home-page-top"]} onClick={()=> setOpenDropdown(false)}>
+    <div
+      ref={topNavRef}
+      className={styles["home-page-top"]}
+      onClick={() => setOpenDropdown(null)}
+    >
       <Link href="/">
         <Image
           src={IMAGEURLS.logo}

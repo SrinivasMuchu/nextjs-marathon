@@ -8,9 +8,11 @@ import { BASE_URL } from "@/config";
 import Loading from "../CommonJsx/Loaders/Loading";
 import FallbackImageClient from "../CommonJsx/FallbackImageClient";
 import Pagenation from "../CommonJsx/Pagenation";
+import FileStatus from "../CommonJsx/FileStatus";
+import TechDrawBillingBadge from "../CommonJsx/TechDrawBillingBadge";
 import { textLettersLimit } from "@/common.helper";
 import { getOrCreateTechDrawUuid } from "@/api/cadDrawingPipelineApi";
-import libraryStyles from "../Library/Library.module.css";
+import { techDrawJobHref } from "@/lib/techDraw/techDrawJobRoutes";
 import styles from "./FileHistory.module.css";
 
 function formatDate(dateString) {
@@ -27,14 +29,13 @@ function jobTitle(job) {
   return t || "Technical drawing";
 }
 
-function statusLabel(status) {
+function normalizeFileStatus(status) {
   const s = String(status || "").toUpperCase();
-  if (s === "COMPLETED") return "Complete";
-  if (s === "PROCESSING" || s === "RUNNING") return "Processing";
-  if (s === "FAILED") return "Failed";
-  if (s === "PENDING") return "Pending";
-  if (s === "QUEUED") return "Queued";
-  return s || "—";
+  if (s === "COMPLETED") return "completed";
+  if (s === "FAILED") return "failed";
+  if (["PROCESSING", "UPLOADING", "RUNNING", "QUEUED"].includes(s)) return "processing";
+  if (s === "PENDING") return "pending";
+  return "pending";
 }
 
 function previewSrc(job) {
@@ -139,7 +140,7 @@ export default function TechDrawDashboardCards({
             </svg>
             <input
               type="text"
-              placeholder="Search project"
+              placeholder="Search 2D drawing"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.searchInput}
@@ -198,67 +199,104 @@ export default function TechDrawDashboardCards({
           </Link>
         </div>
       ) : (
-        <div className={libraryStyles["library-designs"]} style={{ width: "100%" }}>
-          <div className={libraryStyles["library-designs-items"]}>
-            {jobs.map((job) => {
-              const id = String(job._id || "");
-              const href = `/dashboard/2d-technical-drawing/${id}`;
-              const title = jobTitle(job);
-              const src = previewSrc(job);
-              const status = String(job.status || "").toUpperCase();
+        <div className={styles.historyContainer}>
+          {jobs.map((job) => {
+            const id = String(job._id || "");
+            const href = techDrawJobHref(job);
+            const title = jobTitle(job);
+            const src = previewSrc(job);
+            const status = String(job.status || "").toUpperCase();
+            const isCompleted = status === "COMPLETED";
 
-              return (
-                <div key={id} className={libraryStyles["library-designs-items-container"]}>
-                  <Link
-                    href={href}
-                    className={libraryStyles["library-designs-primary-link"]}
-                    aria-label={title}
-                  >
-                    <div
-                      className={libraryStyles["two-d-library-preview-wrap"]}
-                      style={{ position: "relative" }}
-                    >
-                      {src ? (
-                        <FallbackImageClient
-                          className={libraryStyles["two-d-library-preview-img"]}
-                          src={src}
-                          alt={`${title} preview`}
-                        />
-                      ) : (
-                        <div className={libraryStyles["two-d-library-preview-fallback"]}>
-                          {status === "COMPLETED" ? "2D Preview" : statusLabel(status)}
-                        </div>
-                      )}
-                      {status && status !== "COMPLETED" ? (
-                        <span
-                          style={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            background: "rgba(97, 11, 238, 0.92)",
-                            color: "#fff",
-                            fontSize: 11,
-                            fontWeight: 600,
-                            padding: "4px 8px",
-                            borderRadius: 6,
-                          }}
-                        >
-                          {statusLabel(status)}
-                        </span>
-                      ) : null}
-                    </div>
-                    <h6 title={title}>{textLettersLimit(title, 52)}</h6>
-                  </Link>
-                  <p style={{ margin: "4px 0 0", fontSize: 12, color: "#6b7280" }}>
-                    {formatDate(job.createdAt)}
-                    {job.time_taken_seconds != null
-                      ? ` · ${job.time_taken_seconds}s`
-                      : ""}
-                  </p>
+            return (
+              <Link
+                key={id}
+                href={href}
+                className={styles.historyItem}
+                style={{ width: "310px", position: "relative" }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 10,
+                    left: 10,
+                    zIndex: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <FileStatus status={normalizeFileStatus(job.status)} />
                 </div>
-              );
-            })}
-          </div>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 10,
+                    right: 10,
+                    zIndex: 2,
+                  }}
+                >
+                  <TechDrawBillingBadge billingType={job.billing_type} />
+                </div>
+
+                {isCompleted && src ? (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: 160,
+                      background: "#f3f4f6",
+                      borderRadius: 4,
+                      overflow: "hidden",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <FallbackImageClient
+                      src={src}
+                      alt={`${title} preview`}
+                      className={styles.historyItemPreviewImg}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: 160,
+                      background: "#e6e4f0",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: 4,
+                      color: "#6b7280",
+                      fontSize: 13,
+                    }}
+                  >
+                    {isCompleted ? "2D Preview" : null}
+                  </div>
+                )}
+
+                <div className={styles.historyFileDetails}>
+                  <span style={{ fontSize: 16, fontWeight: 500 }}>
+                    {textLettersLimit(title, 20)}
+                  </span>
+                </div>
+
+                <div className={styles.historyFileDetails}>
+                  <span
+                    style={{
+                      color: "rgba(0, 19, 37, 0.50)",
+                      fontSize: 12,
+                      fontWeight: 400,
+                    }}
+                  >
+                    {formatDate(job.createdAt)}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
 

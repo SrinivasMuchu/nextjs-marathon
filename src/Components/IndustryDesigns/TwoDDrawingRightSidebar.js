@@ -12,6 +12,8 @@ export default function TwoDDrawingRightSidebar({
   pdfHref,
   freecadHref,
   zipHref,
+  showDownloadAllPdfs = true,
+  showCadModelLink = true,
   drawingInfo = {
     viewsAnalysed: 6,
     sheetsGenerated: 9,
@@ -35,6 +37,7 @@ export default function TwoDDrawingRightSidebar({
             pdfHref={pdfHref}
             freecadHref={freecadHref}
             zipHref={zipHref}
+            showPdfButton={showDownloadAllPdfs}
           />
 
           <div className={styles.formatGrid}>
@@ -51,15 +54,17 @@ export default function TwoDDrawingRightSidebar({
               <span className={styles.fmtMeta}>{filesWord}</span>
             </div>
           </div>
-          <Link href={cadModelHref} prefetch className={styles.backLinkBtn}>
-          <span className={styles.backLinkBtnIcon} aria-hidden>
-            🧊
-          </span>
-          <span>Open 3D CAD model</span>
-          <span aria-hidden className={styles.backLinkBtnArrow}>
-            →
-          </span>
-        </Link>
+          {showCadModelLink && cadModelHref ? (
+            <Link href={cadModelHref} prefetch className={styles.backLinkBtn}>
+              <span className={styles.backLinkBtnIcon} aria-hidden>
+                🧊
+              </span>
+              <span>Open 3D CAD model</span>
+              <span aria-hidden className={styles.backLinkBtnArrow}>
+                →
+              </span>
+            </Link>
+          ) : null}
           <div className={styles.noticeBlue}>
             <span aria-hidden>ℹ️</span>
             <p>
