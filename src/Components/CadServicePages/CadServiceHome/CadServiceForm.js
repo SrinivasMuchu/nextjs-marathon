@@ -1,11 +1,12 @@
 "use client"
 
-import React, { useState, useRef, useId } from 'react'
+import React, { useState, useRef, useId, useEffect } from 'react'
 import axios from 'axios'
 import { Send, Upload } from 'lucide-react'
 import { toast } from 'react-toastify'
 import ReactPhoneNumber from '@/Components/CommonJsx/ReactPhoneNumber'
-import { BASE_URL } from '@/config'
+import { sendGAtagEvent } from '@/common.helper'
+import { BASE_URL, CAD_HIRE_DESIGNER_EVENT } from '@/config'
 import styles from './CadServiceForm.module.css'
 
 const UPLOAD_TIMEOUT_MS = 120000 // 2 min for large CAD files
@@ -21,12 +22,22 @@ const SERVICE_OPTIONS = [
   { value: 'other', label: 'Other' },
 ]
 
+function trackHireDesignerEvent(eventName, extra = {}) {
+  sendGAtagEvent({
+    event_name: eventName,
+    event_category: CAD_HIRE_DESIGNER_EVENT,
+    ...extra,
+  })
+}
+
 function CadServiceForm({ onClose, inPopup = false }) {
+  const formContext = inPopup ? 'popup' : 'inline'
   const fileInputId = useId()
   const fileInputRef = React.useRef(null)
   const fileUrlRef = useRef('')
   const uploadIdRef = useRef(0)
   const abortControllerRef = useRef(null)
+  const hasStartedRef = useRef(false)
   const [formData, setFormData] = useState({
     fullName: '',
     workEmail: '',
@@ -40,8 +51,22 @@ function CadServiceForm({ onClose, inPopup = false }) {
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    trackHireDesignerEvent('hire_designer_form_view', {
+      form_context: formContext,
+      page_path: window.location.pathname,
+    })
+  }, [formContext])
+
   const handleChange = (e) => {
     const { name, value } = e.target
+    if (!hasStartedRef.current) {
+      hasStartedRef.current = true
+      trackHireDesignerEvent('hire_designer_form_start', {
+        form_context: formContext,
+        field_name: name,
+      })
+    }
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -82,10 +107,17 @@ function CadServiceForm({ onClose, inPopup = false }) {
       // Ignore if user selected a different file before this upload finished
       if (thisUploadId !== uploadIdRef.current) return
       setFileUrl(url)
+      fileUrlRef.current = url
+      trackHireDesignerEvent('hire_designer_form_file_upload_success', {
+        form_context: formContext,
+      })
     } catch (err) {
       if (axios.isCancel(err) || err.name === 'CanceledError' || err.name === 'AbortError') return
       if (thisUploadId !== uploadIdRef.current) return
       const msg = err.response?.data?.meta?.message || err.message || 'File upload failed. Please try again.'
+      trackHireDesignerEvent('hire_designer_form_file_upload_error', {
+        form_context: formContext,
+      })
       toast.error(msg)
       setFile(null)
       fileUrlRef.current = ''
@@ -97,6 +129,11 @@ function CadServiceForm({ onClose, inPopup = false }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    trackHireDesignerEvent('hire_designer_form_submit_click', {
+      form_context: formContext,
+      service_type: formData.service || 'unknown',
+      has_file: Boolean(fileUrlRef.current || fileUrl),
+    })
     setLoading(true)
     try {
       const payload = {
@@ -115,6 +152,10 @@ function CadServiceForm({ onClose, inPopup = false }) {
       )
 
       if (response.data?.meta?.success) {
+        trackHireDesignerEvent('hire_designer_form_submit_success', {
+          form_context: formContext,
+          service_type: formData.service || 'unknown',
+        })
         toast.success('Request submitted! We\'ll reply within 24 hours.')
         setFormData({
           fullName: '',
@@ -128,12 +169,21 @@ function CadServiceForm({ onClose, inPopup = false }) {
         setFileUrl('')
         fileUrlRef.current = ''
         if (fileInputRef.current) fileInputRef.current.value = ''
+        hasStartedRef.current = false
         onClose?.()
       } else {
+        trackHireDesignerEvent('hire_designer_form_submit_error', {
+          form_context: formContext,
+          error_type: 'api_response',
+        })
         toast.error(response.data?.meta?.message || 'Something went wrong. Please try again.')
       }
     } catch (err) {
       console.error('CAD service request error:', err)
+      trackHireDesignerEvent('hire_designer_form_submit_error', {
+        form_context: formContext,
+        error_type: 'network_or_server',
+      })
       toast.error(err.response?.data?.meta?.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
@@ -176,7 +226,16 @@ function CadServiceForm({ onClose, inPopup = false }) {
           <label className={styles.formLabel} htmlFor="cad-phone-input">PHONE / WHATSAPP</label>
           <ReactPhoneNumber
             phoneNumber={formData.phone}
-            setPhoneNumber={(value) => setFormData((prev) => ({ ...prev, phone: value || '' }))}
+            setPhoneNumber={(value) => {
+              if (!hasStartedRef.current) {
+                hasStartedRef.current = true
+                trackHireDesignerEvent('hire_designer_form_start', {
+                  form_context: formContext,
+                  field_name: 'phone',
+                })
+              }
+              setFormData((prev) => ({ ...prev, phone: value || '' }))
+            }}
             styles={styles}
             classname="formPhoneInput"
             id="cad-phone-input"

@@ -23,7 +23,7 @@ function RequestQuoteButton({ variant = 'light' }) {
 
   if (samePage) {
     return (
-      <button type="button" className={className} onClick={() => openFormPopup()}>
+      <button type="button" className={className} onClick={() => openFormPopup('request_quote_button')}>
         {content}
       </button>
     )

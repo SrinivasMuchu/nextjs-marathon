@@ -16,7 +16,7 @@ export default function CadArticleDescribeProjectButton({
     <button
       type="button"
       className={[styles.btn, className].filter(Boolean).join(' ')}
-      onClick={() => openFormPopup()}
+      onClick={() => openFormPopup('resource_article')}
     >
       {children}
       {showArrow ? <ArrowRight size={18} strokeWidth={2.5} aria-hidden /> : null}
