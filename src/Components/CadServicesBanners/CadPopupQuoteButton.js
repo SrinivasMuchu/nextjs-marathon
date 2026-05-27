@@ -8,7 +8,7 @@ function CadPopupQuoteButton({ label = "Get Quote", className }) {
   const { openFormPopup } = useCadForm()
 
   return (
-    <button type="button" className={className} onClick={openFormPopup}>
+    <button type="button" className={className} onClick={() => openFormPopup('cad_popup_quote_button')}>
       {label}
       <ArrowRight size={16} strokeWidth={2.5} />
     </button>

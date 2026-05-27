@@ -23,7 +23,7 @@ function CtaButtons() {
   return (
     <div className={styles.ctaButtons}>
       {samePage ? (
-        <button type="button" className={styles.ctaBtnPrimary} onClick={() => openFormPopup()}>
+        <button type="button" className={styles.ctaBtnPrimary} onClick={() => openFormPopup('cta_section')}>
           {content}
         </button>
       ) : (
