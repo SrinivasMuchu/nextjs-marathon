@@ -182,6 +182,9 @@ a.btnSecondary {
   font-weight: 700;
 }
 
+/* Styles below back the "[disabled] Generate Your Own CTA" block in
+   TwoDDrawingRightSidebar.js. Safe to keep in place even while the JSX is
+   commented out — CSS modules tree-shake unused class names at build time. */
 .ctaCard {
   border: 1px solid #ddd6fe;
   border-radius: 10px;

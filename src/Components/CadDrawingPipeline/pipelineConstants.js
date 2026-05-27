@@ -31,7 +31,7 @@ export const PIPELINE_STAGES_UI = [
   },
   {
     name: "Stage 2 · Smart View Selection",
-    desc: "AI reviews views, picks the most informative set, sections, details, and BOM.",
+    desc: "AI reviews views and picks the most informative set, including sections and details.",
   },
   {
     name: "Stage 3 · Drawing Sheet Setup",
@@ -43,7 +43,7 @@ export const PIPELINE_STAGES_UI = [
   },
   {
     name: "Stage 5 · Annotate & Export",
-    desc: "Applies dimensions and exports PDF, SVG, DXF, and BOM.",
+    desc: "Applies dimensions and exports the editable FCStd file along with PDF, SVG, and DXF.",
   },
 ];
 

@@ -13,7 +13,7 @@ export function techDrawPipelineStatusPath(jobId) {
 
 export function techDrawDesignPath(jobId) {
   const id = String(jobId || "").trim();
-  return `/dashboard/2d-technical-drawing/${encodeURIComponent(id)}/design`;
+  return `/dashboard/2d-technical-drawing/design/${encodeURIComponent(id)}`;
 }
 
 /** Dashboard card / deep link — completed → design page, else pipeline status. */

@@ -83,6 +83,29 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
         </div>
       </div>
 
+      <div
+        role="note"
+        style={{
+          margin: "0 0 14px",
+          padding: "10px 14px",
+          borderRadius: 10,
+          background: "rgba(245, 166, 35, 0.08)",
+          border: "1px solid rgba(245, 166, 35, 0.35)",
+          color: "#f5a623",
+          fontSize: 13,
+          lineHeight: 1.45,
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 8,
+        }}
+      >
+        <span aria-hidden style={{ fontSize: 16, lineHeight: 1 }}>⚠</span>
+        <span>
+          SVG and PDF files may not accurately reflect the dimensions. Please download the{" "}
+          <strong>FCStd</strong> file for accurate details.
+        </span>
+      </div>
+
       <div className={styles.stage}>
         {viewMode === "pdf" && active?.pdfUrl ? (
           <iframe

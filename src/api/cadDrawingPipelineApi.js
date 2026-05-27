@@ -40,7 +40,7 @@ export function getTechDrawPriceDisplay() {
 }
 
 const UPLOAD_TIMEOUT_MS = 120_000;
-const POLL_INTERVAL_MS = 5_000;
+const POLL_INTERVAL_MS = 3_000;
 const STATUS_REQUEST_TIMEOUT_MS = 60_000;
 const MAX_POLL_TRANSIENT_ERRORS = 24;
 

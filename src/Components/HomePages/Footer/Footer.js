@@ -48,8 +48,26 @@ function Footer() {
               >
                 Why us?
               </Link>
-              <Link href="/tools">Tools</Link>
+              {/* <Link href="/tools">Tools</Link> */}
               <Link href="/contact-us">Contact us</Link>
+              {/* <Link
+                href="#product"
+                onClick={(e) => handleAnchorClick(e, "product")}
+              >
+                Product
+              </Link>
+              <Link
+                href="#pricing"
+                onClick={(e) => handleAnchorClick(e, "pricing")}
+              >
+                Pricing
+              </Link> */}
+            </div>
+            <div className={styles["footer-navs"]}>
+              <Link href="/tools">Tools</Link>
+              <Link href="/tools/cad-drawing-pipeline">3D to 2D Drawing Pipeline</Link>
+              <Link href="/tools/3d-cad-viewer">3D CAD Viewer</Link>
+              <Link href="/tools/3d-cad-file-converter">3D CAD File Converter</Link>
               {/* <Link
                 href="#product"
                 onClick={(e) => handleAnchorClick(e, "product")}
@@ -81,10 +99,12 @@ function Footer() {
                   <span className={styles.footerCadArrow}>→</span>
                 </div>
               </Link>
-              <Link href="/tools/org-hierarchy">Org Hierarchy</Link>
+              <Link href="/library/2d-technical-drawings">2D Library</Link>
+            
+              {/* <Link href="/tools/org-hierarchy">Org Hierarchy</Link>
             
               <Link href="/tools//3D-cad-viewer">CAD Viewer</Link>
-              <Link href="/tools/3d-cad-file-converter">CAD Converter</Link>
+              <Link href="/tools/3d-cad-file-converter">CAD Converter</Link> */}
             </div>
           {/* </div> */}
         {/* </div> */}

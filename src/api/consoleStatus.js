@@ -59,12 +59,15 @@ export function formatStatusConsoleLine(job, consoleMessage) {
 
 /** Terminal color from message text */
 export function consoleStatusLogKind(message) {
-  const m = (message || "").toLowerCase();
-  if (m.includes("complete") || m.includes("ready ✓") || m.includes("captured ✓") || m.includes("created ✓")) {
+  const raw = (message || "").trim();
+  const m = raw.toLowerCase();
+  // ✓ / "✅" prefixes (or trailing "ready ✓" / "captured ✓" from older messages)
+  // all light up as success.
+  if (raw.startsWith("✅") || m.startsWith("complete") || m.includes("ready ✓") || m.includes("captured ✓") || m.includes("created ✓")) {
     return "ok";
   }
-  if (m.includes("failed") || m.includes("error")) return "err";
-  if (m.startsWith("step ")) return "info";
+  if (raw.startsWith("❌") || m.includes("failed") || m.includes("error")) return "err";
+  if (raw.startsWith("⚠")) return "warn";
   return "info";
 }
 
@@ -85,5 +88,68 @@ export function consumeConsoleStatuses(job, seenCountRef, appendLog) {
   if (seenCountRef) {
     seenCountRef.current = entries.length;
   }
+  return added;
+}
+
+function entryAtMs(entry, fallbackMs) {
+  const at = entry?.at;
+  if (!at) return fallbackMs;
+  const ts = new Date(at).getTime();
+  return Number.isFinite(ts) ? ts : fallbackMs;
+}
+
+/**
+ * Append BOTH new console_statuses (curated step lines) and new worker_logs
+ * (verbose worker stdout tail) to the terminal, interleaved by the entry's
+ * `at` timestamp so the dashboard reads chronologically — the way
+ * `docker logs -f` would on the consumer host.
+ *
+ * @param {object} job  Job payload from /status.
+ * @param {{consoleStatusesSeen: {current:number}, workerLogsSeen: {current:number}}} refs
+ * @param {(kind: string, text: string) => void} appendLog
+ * @returns {number} total new lines appended
+ */
+export function consumeJobLogs(job, refs, appendLog) {
+  const statusEntries = Array.isArray(job?.console_statuses) ? job.console_statuses : [];
+  const workerEntries = Array.isArray(job?.worker_logs) ? job.worker_logs : [];
+
+  const statusSeen = refs?.consoleStatusesSeen?.current ?? 0;
+  const workerSeen = refs?.workerLogsSeen?.current ?? 0;
+
+  const baseMs = Date.now();
+  const merged = [];
+
+  for (let i = statusSeen; i < statusEntries.length; i += 1) {
+    const e = statusEntries[i];
+    const msg = (e?.message || "").trim();
+    if (!msg) continue;
+    merged.push({ type: "status", at: entryAtMs(e, baseMs + i), text: msg });
+  }
+  for (let i = workerSeen; i < workerEntries.length; i += 1) {
+    const e = workerEntries[i];
+    const line = (e?.line || "").trim();
+    if (!line) continue;
+    // Stable secondary sort key so worker logs from the same millisecond keep
+    // their original order (and always render *after* a curated step line
+    // that shares the same timestamp).
+    merged.push({ type: "worker", at: entryAtMs(e, baseMs + i) + 0.5, text: line });
+  }
+
+  merged.sort((a, b) => a.at - b.at);
+
+  let added = 0;
+  for (const entry of merged) {
+    if (entry.type === "status") {
+      appendLog(consoleStatusLogKind(entry.text), formatStatusConsoleLine(job, entry.text));
+    } else {
+      // Verbose stdout tail — render dim so the curated step lines still pop.
+      appendLog("dim", `    ${entry.text}`);
+    }
+    added += 1;
+  }
+
+  if (refs?.consoleStatusesSeen) refs.consoleStatusesSeen.current = statusEntries.length;
+  if (refs?.workerLogsSeen) refs.workerLogsSeen.current = workerEntries.length;
+
   return added;
 }

@@ -7,19 +7,19 @@ import styles from "./CadDrawingPipeline.module.css";
 const BENEFITS = [
   {
     title: "Up to 9 drawing sheets",
-    detail: "front, top, side, isometric, section views, detail views, and BOM",
+    detail: "front, top, side, isometric, section views, and detail views",
   },
   {
     title: "4 export formats",
-    detail: "PDF, SVG, DXF, and high-resolution PNG all included",
+    detail: "editable FCStd, PDF, SVG, and DXF all included",
   },
   {
     title: "Auto-dimensioning",
     detail: "AI places critical dimensions automatically on every view",
   },
   {
-    title: "Bill of Materials",
-    detail: "components, quantities, and materials extracted from your assembly",
+    title: "Editable FCStd source",
+    detail: "open the master file in FreeCAD for accurate dimensions and easy edits",
   },
   {
     title: "Section & detail views",

@@ -1,6 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
-import { Box, RefreshCw, Network, Eye, Layers, ArrowRight, Building2 } from 'lucide-react';
+import {
+  ArrowRight,
+  Box,
+  Building2,
+  Eye,
+  Layers,
+  Network,
+  PenTool,
+  RefreshCw,
+} from 'lucide-react';
 import Footer from '@/Components/HomePages/Footer/Footer';
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs';
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner';
@@ -30,6 +39,14 @@ const QUICK_TOOLS_CARDS = [
       'Convert between CAD formats in seconds. Transform STEP to STL, OBJ to STL, IGES to STEP, and more with preserved geometry.',
     tags: ['Instant Convert', 'Batch Process', 'Cloud-based'],
     Icon: RefreshCw,
+  },
+  {
+    href: '/tools/cad-drawing-pipeline',
+    title: 'STEP → 2D Drawings',
+    description:
+      'Upload a STEP file and get multi-sheet 2D technical drawings — front, top, section and detail views with AI-placed dimensions.',
+    tags: ['STEP/STP', 'Multi-sheet', 'AI Dimensions'],
+    Icon: PenTool,
   },
   {
     href: '/tools/industries',

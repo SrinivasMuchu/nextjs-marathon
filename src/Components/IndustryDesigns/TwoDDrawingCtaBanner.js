@@ -3,7 +3,7 @@ import styles from "./TwoDDrawingCtaBanner.module.css";
 
 const defaultChecks = [
   "Ready in under 4 minutes",
-  "9 sheets · PDF, SVG, DXF, PNG",
+  "9 sheets · editable FCStd + PDF, SVG, DXF",
   "No subscription · pay per file",
 ];
 
@@ -11,12 +11,12 @@ const defaultChecks = [
  * Server shell + client upload button only. Responsive: stacks on narrow viewports; CTA row wraps.
  */
 export default function TwoDDrawingCtaBanner({
-  generateHref = "/generate",
-  eyebrow = "Paid Pipeline · $4 per set",
+  generateHref = "/tools/cad-drawing-pipeline",
+  eyebrow = "Paid Pipeline · $4.99 per set",
   title = "Have your own CAD file? Get 2D drawings just like these.",
   description = "Upload any STEP, IGES, or FreeCAD file. Our AI analyses the 3D geometry, selects the best views and section cuts, and delivers a complete 2D engineering drawing set in under 4 minutes.",
-  buttonLabel = "⚡ Upload CAD & Generate — $4",
-  price = "$4",
+  buttonLabel = "⚡ Upload CAD & Generate — $4.99",
+  price = "$4.99",
   priceSubtext = "per drawing set",
   turnaround = "4 min",
   turnaroundLabel = "avg. turnaround",

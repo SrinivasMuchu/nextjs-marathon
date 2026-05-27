@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -16,7 +16,55 @@ import CadDrawingPipelineHero from "./CadDrawingPipelineHero";
 import CadDrawingPipelineHowItWorks from "./CadDrawingPipelineHowItWorks";
 import { STEP_EXT } from "./pipelineConstants";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
+import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 import styles from "./CadDrawingPipeline.module.css";
+
+function isUserVerified() {
+  if (typeof window === "undefined") return false;
+  return Boolean(window.localStorage.getItem("is_verified"));
+}
+
+// Hard cap on STEP/STP uploads. FreeCAD load times grow quickly past this point
+// and the S3 upload + worker pipeline cost balloons, so we reject larger files
+// up front on the client. Keep in sync with any server-side enforcement.
+const MAX_UPLOAD_BYTES = 100 * 1024 * 1024; // 100 MB
+const MAX_UPLOAD_LABEL = "100 MB";
+
+function formatMb(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const LLM_STATUS_MESSAGES = {
+  overloaded:
+    "The AI service is currently overloaded. Please try again in a few moments.",
+  rate_limited:
+    "The AI service is rate-limited right now. Please wait a minute and retry.",
+  timeout:
+    "The AI service did not respond in time. Please retry in a moment.",
+  auth_error:
+    "AI service authentication failed. Please contact support.",
+  model_not_found:
+    "The configured AI model is unavailable. Please contact support.",
+  not_configured:
+    "The AI service is not configured on the server. Please contact support.",
+  unavailable:
+    "The AI service is temporarily unavailable. Please try again shortly.",
+};
+
+function getLlmDownMessage(status) {
+  return (
+    LLM_STATUS_MESSAGES[status] ||
+    "The AI service is temporarily unavailable. Please try again in a few minutes."
+  );
+}
+
+function isLlmAvailable(eligibility) {
+  if (!eligibility) return true;
+  if (typeof eligibility.llm_available === "boolean") return eligibility.llm_available;
+  if (eligibility.haiku_status) return eligibility.haiku_status === "ok";
+  return true;
+}
 
 export default function CadDrawingPipelineView() {
   const router = useRouter();
@@ -30,9 +78,11 @@ export default function CadDrawingPipelineView() {
   const [dragOver, setDragOver] = useState(false);
   const [eligibility, setEligibility] = useState(null);
   const [eligibilityLoading, setEligibilityLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
   const fileInputRef = useRef(null);
   const uploadSectionRef = useRef(null);
   const submitLockRef = useRef(false);
+  const pendingAfterLoginRef = useRef(false);
 
   const prices = getTechDrawPriceDisplay();
 
@@ -58,6 +108,16 @@ export default function CadDrawingPipelineView() {
 
   const pickFile = useCallback((f) => {
     if (!f) return;
+    if (!STEP_EXT.test(f.name)) {
+      toast.error("Only .step or .stp files are allowed.");
+      return;
+    }
+    if (f.size > MAX_UPLOAD_BYTES) {
+      const msg = `File is ${formatMb(f.size)}. Maximum allowed size is ${MAX_UPLOAD_LABEL}.`;
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
     setFile(f);
     setError("");
   }, []);
@@ -77,12 +137,17 @@ export default function CadDrawingPipelineView() {
     e.preventDefault();
     setDragOver(false);
     const f = e.dataTransfer.files?.[0];
-    if (f && STEP_EXT.test(f.name)) pickFile(f);
-    else if (f) toast.error("Only .step or .stp files are allowed.");
+    pickFile(f);
   };
 
   const needsPaidFlow =
     eligibility && !eligibility.free_run_available && !eligibilityLoading;
+
+  const llmAvailable = useMemo(() => isLlmAvailable(eligibility), [eligibility]);
+  const llmDownMessage = useMemo(
+    () => (llmAvailable ? "" : getLlmDownMessage(eligibility?.llm_status)),
+    [llmAvailable, eligibility],
+  );
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -97,12 +162,50 @@ export default function CadDrawingPipelineView() {
       toast.error("Only .step or .stp files are allowed.");
       return;
     }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      const msg = `File is ${formatMb(file.size)}. Maximum allowed size is ${MAX_UPLOAD_LABEL}.`;
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (!isUserVerified()) {
+      toast.info("Please log in to run the drawing pipeline.");
+      pendingAfterLoginRef.current = true;
+      setShowLogin(true);
+      return;
+    }
+
+    if (!llmAvailable) {
+      const msg = llmDownMessage || getLlmDownMessage(eligibility?.llm_status);
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
 
     submitLockRef.current = true;
     setSubmitting(true);
     setError("");
 
     try {
+      setUploadPhase("Checking AI service…");
+      let freshEligibility;
+      try {
+        freshEligibility = await checkTechDrawEligibility();
+        setEligibility(freshEligibility);
+      } catch {
+        freshEligibility = eligibility;
+      }
+      if (!isLlmAvailable(freshEligibility)) {
+        const msg = getLlmDownMessage(freshEligibility?.llm_status);
+        setError(msg);
+        toast.error(msg);
+        submitLockRef.current = false;
+        setSubmitting(false);
+        setUploadPhase("");
+        return;
+      }
+
       const onPhase = (phase) => {
         if (phase === "upload-url") setUploadPhase("Requesting upload URL…");
         if (phase === "s3-upload") setUploadPhase("Uploading STEP file…");
@@ -164,6 +267,20 @@ export default function CadDrawingPipelineView() {
     window.setTimeout(() => fileInputRef.current?.focus(), 400);
   }, []);
 
+  const handleLoginClose = useCallback(() => {
+    setShowLogin(false);
+    const shouldResume = pendingAfterLoginRef.current && isUserVerified();
+    pendingAfterLoginRef.current = false;
+    if (shouldResume) {
+      refreshEligibility();
+      window.setTimeout(() => {
+        document
+          .getElementById("cad-pipeline-submit-form")
+          ?.requestSubmit?.();
+      }, 200);
+    }
+  }, [refreshEligibility]);
+
   return (
     <>
       <CadDrawingPipelineHero
@@ -179,38 +296,39 @@ export default function CadDrawingPipelineView() {
           className={styles.uploadSection}
           aria-labelledby="cad-pipeline-upload-title"
         >
-          <h2 id="cad-pipeline-upload-title" className={styles.uploadSectionTitle}>
-            Upload your <span className={styles.pageTitleAccent}>STEP file</span>
+          {/* <h2 id="cad-pipeline-upload-title" className={styles.uploadSectionTitle}>
+            Free Online <span className={styles.pageTitleAccent}>CAD Viewer</span>
           </h2>
+          <div className={styles.uploadSectionSubtitle}>
+            Secure, Fast &amp; Cloud-Based
+          </div>
           <p className={styles.uploadSectionDesc}>
-            {!eligibilityLoading && eligibility?.free_run_available
-              ? "Your first drawing is free — drop a STEP or STP file below to start."
-              : !eligibilityLoading && eligibility
-                ? `Upload a STEP or STP file. Pay ${prices.baseLabel} (+ tax) before each new drawing.`
-                : "Upload a STEP or STP file to generate multi-sheet technical drawings."}
-          </p>
+            A lightweight, online CAD viewer to quickly preview 3D models — anytime, anywhere.
+          </p> */}
 
-        {!eligibilityLoading && eligibility ? (
+        {!eligibilityLoading && eligibility && !llmAvailable ? (
           <div
-            className={`${styles.resultBanner} ${
-              eligibility.free_run_available ? styles.resultBannerOk : styles.resultBannerWarn
-            }`}
-            style={{ marginBottom: 16 }}
+            className={`${styles.resultBanner} ${styles.resultBannerErr}`}
+            style={{ marginBottom: 16, alignItems: "flex-start", gap: 12 }}
           >
-            <span className={styles.resultIcon}>
-              {eligibility.free_run_available ? "✓" : "💳"}
-            </span>
-            <div>
-              <div className={styles.resultText}>
-                {eligibility.free_run_available
-                  ? `Your first drawing is free (${prices.baseLabel})`
-                  : `Pay ${prices.baseLabel} before upload`}
-              </div>
-              <div className={styles.resultSub}>
-                {eligibility.free_run_available
-                  ? "Upload your STEP file and processing starts immediately."
-                  : `Step 1: Pay ${prices.baseLabel} + tax (${prices.totalLabel}). Step 2: Your STEP file uploads automatically. Step 3: Pipeline runs.`}
-              </div>
+            <span className={styles.resultIcon}>⚠</span>
+            <div style={{ flex: 1 }}>
+              <div className={styles.resultText}>AI service is unavailable</div>
+              <div className={styles.resultSub}>{llmDownMessage}</div>
+              <button
+                type="button"
+                onClick={refreshEligibility}
+                disabled={eligibilityLoading}
+                className={styles.runBtn}
+                style={{
+                  marginTop: 10,
+                  padding: "6px 14px",
+                  width: "auto",
+                  fontSize: 13,
+                }}
+              >
+                {eligibilityLoading ? "Checking…" : "Retry AI check"}
+              </button>
             </div>
           </div>
         ) : null}
@@ -232,7 +350,7 @@ export default function CadDrawingPipelineView() {
               <div className={styles.cardTitle}>Input configuration</div>
             </div>
             <div className={styles.cardBody}>
-              <form onSubmit={onSubmit}>
+              <form id="cad-pipeline-submit-form" onSubmit={onSubmit}>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -264,10 +382,18 @@ export default function CadDrawingPipelineView() {
                 >
                   <div className={styles.uploadIcon}>📦</div>
                   <div className={styles.uploadLabel}>Drop STEP / STP here</div>
-                  <div className={styles.uploadHint}>or click to browse · .step .stp</div>
-                  {file ? <div className={styles.uploadFileName}>✓ {file.name}</div> : null}
+                  <div className={styles.uploadHint}>
+                    or click to browse · .step .stp · max {MAX_UPLOAD_LABEL}
+                  </div>
+                  {file ? (
+                    <div className={styles.uploadFileName}>
+                      ✓ {file.name} ({formatMb(file.size)})
+                    </div>
+                  ) : null}
                 </div>
-
+                {/* keep an warning or informative color for the following text */}
+                <p className={styles.uploadHint} style={{ color: "#ff0000"}}>*Providing a clear title and detailed description helps the AI generate more accurate 2D drawings, dimensions, section views, and manufacturing-ready measurements.</p>
+                <br />
                 <div className={styles.field}>
                   <label className={styles.fieldLabel} htmlFor="cad-pipeline-title">
                     Drawing title
@@ -277,7 +403,7 @@ export default function CadDrawingPipelineView() {
                     className={styles.input}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Industrial Pump Housing CAD Model"
+                    placeholder="e.g. Detailed Frigate Ship Model with Realistic Dimensions"
                     disabled={submitting}
                   />
                 </div>
@@ -291,7 +417,7 @@ export default function CadDrawingPipelineView() {
                     className={styles.textarea}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Notes for the LLM / title block"
+                    placeholder="e.g. Explore a highly detailed frigate ship model designed with dimensions closely matching an actual vessel. Ideal for maritime simulations and design projects."
                     disabled={submitting}
                   />
                 </div>
@@ -307,12 +433,19 @@ export default function CadDrawingPipelineView() {
                   </p>
                 ) : null}
 
-                <button className={styles.runBtn} type="submit" disabled={submitting}>
+                <button
+                  className={styles.runBtn}
+                  type="submit"
+                  disabled={submitting || !llmAvailable}
+                  title={!llmAvailable ? llmDownMessage : undefined}
+                >
                   {submitting ? (
                     <>
                       <span className={styles.spinner} aria-hidden />
                       {uploadPhase || "Working…"}
                     </>
+                  ) : !llmAvailable ? (
+                    <>⚠ AI service unavailable</>
                   ) : needsPaidFlow ? (
                     <>▶ Pay {prices.baseLabel} & upload</>
                   ) : (
@@ -327,6 +460,8 @@ export default function CadDrawingPipelineView() {
 
         <CadDrawingPipelineHowItWorks />
       </div>
+
+      {showLogin ? <UserLoginPupUp onClose={handleLoginClose} type="login" /> : null}
     </>
   );
 }

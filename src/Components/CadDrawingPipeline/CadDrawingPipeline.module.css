@@ -59,17 +59,41 @@
 .page {
   position: relative;
   z-index: 1;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 28px 28px 80px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 28px 64px 80px;
+  box-sizing: border-box;
 }
 
 /* Landing hero (upload page) */
 .hero {
   position: relative;
   z-index: 1;
-  padding: clamp(40px, 6vw, 72px) 28px clamp(48px, 7vw, 80px);
+  padding: clamp(40px, 6vw, 72px) 64px clamp(48px, 7vw, 80px);
   text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .page {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  .hero {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .hero {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 }
 
 .heroInner {
@@ -224,6 +248,9 @@
 
 .uploadSection {
   scroll-margin-top: 96px;
+  margin-top: clamp(56px, 8vw, 88px);
+  padding-top: clamp(40px, 6vw, 56px);
+  border-top: 1px solid var(--border);
 }
 
 .uploadSectionTitle {
@@ -234,9 +261,18 @@
   text-align: center;
 }
 
+.uploadSectionSubtitle {
+  margin: 0 auto 14px;
+  text-align: center;
+  font-size: clamp(14px, 1.4vw, 16px);
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+
 .uploadSectionDesc {
   margin: 0 auto 28px;
-  max-width: 520px;
+  max-width: 560px;
   text-align: center;
   font-size: 13px;
   color: var(--text-dim);
@@ -1381,7 +1417,8 @@
 }
 
 .uploadOnlyLayout {
-  max-width: 640px;
+  width: 100%;
+  max-width: 1100px;
   margin: 0 auto;
 }
 

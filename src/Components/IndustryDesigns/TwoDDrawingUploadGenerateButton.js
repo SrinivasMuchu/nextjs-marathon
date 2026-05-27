@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import styles from "./TwoDDrawingRightSidebar.module.css";
 
 export default function TwoDDrawingUploadGenerateButton({
-  href = "/generate",
+  href = "/tools/cad-drawing-pipeline",
   label = "⚡ Upload CAD & Generate",
 }) {
   const router = useRouter();

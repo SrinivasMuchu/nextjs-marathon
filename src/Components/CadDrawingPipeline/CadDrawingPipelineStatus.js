@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import {
   getTechDrawJobStatus,
-  getTechDrawPriceDisplay,
   TechDrawPollError,
   waitForTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
-import { consumeConsoleStatuses, formatStatusConsoleLine } from "@/api/consoleStatus";
+import { consumeJobLogs, formatStatusConsoleLine } from "@/api/consoleStatus";
 import {
   derivePipelineStageUi,
   isLikelyPostSuccessInfraFailure,
@@ -21,7 +21,6 @@ import {
   logLineClass,
   PIPELINE_STAGES_UI,
 } from "./pipelineConstants";
-import { openTechDrawPayment } from "./techDrawPayment";
 import styles from "./CadDrawingPipeline.module.css";
 import {
   isTechDrawJobComplete,
@@ -41,14 +40,13 @@ function isTransientStatusError(err) {
 
 export default function CadDrawingPipelineStatus({ jobId }) {
   const router = useRouter();
+  const { user } = useContext(contextState);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
   const [completedJob, setCompletedJob] = useState(null);
   const [currentJob, setCurrentJob] = useState(null);
   const [needsPayment, setNeedsPayment] = useState(false);
-  const [paying, setPaying] = useState(false);
-  const paymentPrices = getTechDrawPriceDisplay();
 
   const [logs, setLogs] = useState(() => [
     { kind: "dim", text: `// Job ${jobId}` },
@@ -62,17 +60,95 @@ export default function CadDrawingPipelineStatus({ jobId }) {
   const pollAbortRef = useRef(null);
   const lastLoggedStatusRef = useRef(null);
   const consoleStatusesSeenRef = useRef(0);
+  const workerLogsSeenRef = useRef(0);
   const terminalBodyRef = useRef(null);
   const pollStartedRef = useRef(false);
 
-  const appendLog = useCallback((kind, text) => {
-    setLogs((prev) => [...prev, { kind, text }]);
+  const logRefs = useRef({
+    consoleStatusesSeen: consoleStatusesSeenRef,
+    workerLogsSeen: workerLogsSeenRef,
+  });
+
+  // ── Streaming log reveal ────────────────────────────────────────────────
+  // Lines are queued in a ref and drained one-at-a-time on a short timer so
+  // the dashboard terminal types them out instead of dumping a wall of pre-
+  // existing text the moment the page loads. Matches the feel of tailing the
+  // consumer's stdout in real time.
+  const pendingLogsRef = useRef([]);
+  const flushTimerRef = useRef(null);
+  const LOG_REVEAL_DELAY_MS = 80;
+
+  const drainCallbacksRef = useRef([]);
+
+  const runDrainCallbacks = useCallback(() => {
+    const callbacks = drainCallbacksRef.current;
+    drainCallbacksRef.current = [];
+    callbacks.forEach((cb) => {
+      try {
+        cb();
+      } catch (_) {
+        /* ignore individual callback failures */
+      }
+    });
   }, []);
+
+  const drainOneLog = useCallback(() => {
+    const next = pendingLogsRef.current.shift();
+    if (!next) {
+      if (flushTimerRef.current) {
+        window.clearInterval(flushTimerRef.current);
+        flushTimerRef.current = null;
+      }
+      runDrainCallbacks();
+      return;
+    }
+    setLogs((prev) => [...prev, next]);
+  }, [runDrainCallbacks]);
+
+  const scheduleFlush = useCallback(() => {
+    if (flushTimerRef.current) return;
+    drainOneLog();
+    if (pendingLogsRef.current.length === 0) return;
+    flushTimerRef.current = window.setInterval(drainOneLog, LOG_REVEAL_DELAY_MS);
+  }, [drainOneLog]);
+
+  const appendLog = useCallback(
+    (kind, text) => {
+      pendingLogsRef.current.push({ kind, text });
+      scheduleFlush();
+    },
+    [scheduleFlush],
+  );
+
+  /** Run `cb` once the streaming log queue has finished revealing every line. */
+  const afterLogsDrained = useCallback(
+    (cb) => {
+      if (typeof cb !== "function") return;
+      if (pendingLogsRef.current.length === 0 && !flushTimerRef.current) {
+        cb();
+        return;
+      }
+      drainCallbacksRef.current.push(cb);
+    },
+    [],
+  );
+
+  useEffect(
+    () => () => {
+      if (flushTimerRef.current) {
+        window.clearInterval(flushTimerRef.current);
+        flushTimerRef.current = null;
+      }
+      pendingLogsRef.current = [];
+      drainCallbacksRef.current = [];
+    },
+    [],
+  );
 
   const syncConsoleStatuses = useCallback(
     (job) => {
       if (!job) return;
-      consumeConsoleStatuses(job, consoleStatusesSeenRef, appendLog);
+      consumeJobLogs(job, logRefs.current, appendLog);
     },
     [appendLog],
   );
@@ -125,10 +201,13 @@ export default function CadDrawingPipelineStatus({ jobId }) {
       }
       toast.success("Drawing pipeline finished.");
       if (isTechDrawJobComplete(job)) {
-        router.replace(techDrawDesignPath(jobId));
+        // Wait for the streaming terminal to finish revealing every line
+        // before we navigate, otherwise the user sees the redirect happen
+        // mid-stream.
+        afterLogsDrained(() => router.replace(techDrawDesignPath(jobId)));
       }
     },
-    [appendLog, applyCompletedJob, jobId, router, syncConsoleStatuses],
+    [afterLogsDrained, appendLog, applyCompletedJob, jobId, router, syncConsoleStatuses],
   );
 
   const applyFailedJobFromApi = useCallback(
@@ -188,8 +267,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
         appendLog("info", "  → Live processing updates appear below…");
       }
       if (phase === "status" && job?.status) {
-        const prevSeen = consoleStatusesSeenRef.current;
-        const added = consumeConsoleStatuses(job, consoleStatusesSeenRef, appendLog);
+        const added = consumeJobLogs(job, logRefs.current, appendLog);
         const statusKey = `${job.status}:${job.console_status || ""}:${job.pipeline_stage || ""}`;
         if (added === 0 && statusKey !== lastLoggedStatusRef.current) {
           lastLoggedStatusRef.current = statusKey;
@@ -239,36 +317,6 @@ export default function CadDrawingPipelineStatus({ jobId }) {
     await startPolling();
   }, [loading, needsPayment, startPolling]);
 
-  const handlePayAndStart = useCallback(async () => {
-    setPaying(true);
-    setError("");
-    try {
-      await openTechDrawPayment({
-        jobId,
-        description: `2D technical drawing · ${paymentPrices.baseLabel}`,
-      });
-      appendLog("ok", "  ✓ Payment verified.");
-      setNeedsPayment(false);
-      const { job } = await getTechDrawJobStatus(jobId);
-      if (job?.status === "PROCESSING" || job?.status === "COMPLETED") {
-        appendLog("info", "  → Pipeline running…");
-        await startPolling();
-      } else {
-        appendLog(
-          "warn",
-          "  Upload your STEP file on the pipeline page to start processing.",
-        );
-        toast.info("Payment received. Upload your STEP file on the pipeline page.");
-      }
-    } catch (err) {
-      const text = err?.message || "Payment failed";
-      setError(text);
-      toast.error(text);
-    } finally {
-      setPaying(false);
-    }
-  }, [appendLog, jobId, paymentPrices, startPolling]);
-
   useEffect(() => {
     if (!jobId || pollStartedRef.current) return;
     pollStartedRef.current = true;
@@ -282,8 +330,11 @@ export default function CadDrawingPipelineStatus({ jobId }) {
 
         appendLog("hdr", "========== JOB STATUS ==========");
         appendLog("info", `  Title: ${job.title || job.file_name || jobId}`);
-        consumeConsoleStatuses(job, consoleStatusesSeenRef, appendLog);
-        if ((job.console_statuses || []).length === 0) {
+        consumeJobLogs(job, logRefs.current, appendLog);
+        if (
+          (job.console_statuses || []).length === 0 &&
+          (job.worker_logs || []).length === 0
+        ) {
           appendLog("info", formatStatusConsoleLine(job));
         }
         lastLoggedStatusRef.current = `${job.status}:${job.console_status || ""}:${job.pipeline_stage || ""}`;
@@ -344,35 +395,40 @@ export default function CadDrawingPipelineStatus({ jobId }) {
         </h1>
         <p className={styles.pageDesc}>{pageSubtitle}</p>
 
-        {needsPayment ? (
-          <div className={`${styles.resultBanner} ${styles.resultBannerWarn}`}>
-            <span className={styles.resultIcon}>💳</span>
-            <div>
-              <div className={styles.resultText}>Payment required</div>
+        {overallStatus !== "COMPLETED" && user?.email ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              padding: "12px 18px",
+              margin: "0 0 18px",
+              borderRadius: 12,
+              background:
+                "linear-gradient(135deg, rgba(97, 11, 238, 0.16) 0%, rgba(97, 11, 238, 0.06) 100%)",
+              border: "1px solid rgba(97, 11, 238, 0.45)",
+              color: "#e8e8f0",
+              boxShadow: "0 0 18px rgba(97, 11, 238, 0.15)",
+            }}
+          >
+            <span style={{ fontSize: 22, lineHeight: 1 }}>📧</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>
+                We will notify you when your CAD 2d views are ready.
+              </div>
               <div
                 style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  color: "#610bee",
-                  margin: "8px 0 4px",
+                  fontSize: 13,
+                  color: "#a8a8c2",
+                  marginTop: 2,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {paymentPrices.baseLabel}
+                Email:&nbsp;
+                <span style={{ color: "#c9b6ff", fontWeight: 500 }}>{user.email}</span>
               </div>
-              <div className={styles.resultSub}>
-                Pay first ({paymentPrices.totalLabel} incl. tax), then upload your STEP on the
-                pipeline page if you have not already.
-              </div>
-              <button
-                type="button"
-                className={styles.checkStatusBtn}
-                onClick={handlePayAndStart}
-                disabled={paying}
-              >
-                {paying
-                  ? "Opening checkout…"
-                  : `Pay ${paymentPrices.baseLabel} and start`}
-              </button>
             </div>
           </div>
         ) : null}

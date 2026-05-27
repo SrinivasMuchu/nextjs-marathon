@@ -1,14 +1,23 @@
 import Link from "next/link";
 import TwoDDrawingDownloadButtons from "./TwoDDrawingDownloadButtons";
+// CTA temporarily disabled — re-enable along with the commented JSX block below.
+// import TwoDDrawingUploadGenerateButton from "./TwoDDrawingUploadGenerateButton";
 import styles from "./TwoDDrawingRightSidebar.module.css";
 
 /**
- * Right column: downloads, notices, link to 3D, generate CTA, drawing info.
- * Layout and copy are server-rendered; only download + upload CTAs are client islands.
+ * Right column: downloads, notices, link to 3D, drawing info.
+ *
+ * The "Generate Your Own" CTA that used to live in this sidebar is currently
+ * COMMENTED OUT — the full-width <TwoDDrawingCtaBanner /> rendered by the
+ * parent serves as the single conversion surface on this page (mirrors the
+ * 3D design page). To bring the sidebar CTA back, uncomment:
+ *   - the `TwoDDrawingUploadGenerateButton` import above,
+ *   - the JSX block marked "[disabled] Generate Your Own CTA" in render(),
+ *   - and pass `generateHref` from the parent again.
  */
 export default function TwoDDrawingRightSidebar({
   cadModelHref = "/library/industrial-ip67-ethernet-m12-angle-conne-698ec00809bd85d18216b084",
-  generateHref = "/generate",
+  // generateHref = "/tools/cad-drawing-pipeline", // used by the disabled sidebar CTA
   pdfHref,
   freecadHref,
   zipHref,
@@ -23,10 +32,8 @@ export default function TwoDDrawingRightSidebar({
   },
 }) {
   const nSheets = drawingInfo.sheetsGenerated ?? 0;
-  const sheetWord =
-    nSheets === 1 ? "1 sheet" : `${nSheets} sheets`;
-  const filesWord =
-    nSheets === 1 ? "1 file" : `${nSheets} files`;
+  const sheetWord = nSheets === 1 ? "1 sheet" : `${nSheets} sheets`;
+  const filesWord = nSheets === 1 ? "1 file" : `${nSheets} files`;
 
   return (
     <aside className={styles.sidebar}>
@@ -82,10 +89,12 @@ export default function TwoDDrawingRightSidebar({
           </div>
         </div>
 
-       
       </div>
 
-      {/* <div className={styles.ctaCard}>
+      {/* [disabled] Generate Your Own CTA — uncomment to restore the sidebar CTA card.
+          Currently superseded by the full-width <TwoDDrawingCtaBanner /> rendered
+          by the parent (TwoDTechnicalDrawingContent), to match the 3D design page.
+      <div className={styles.ctaCard}>
         <div className={styles.ctaEyebrow}>Generate Your Own</div>
         <h3 className={styles.ctaTitle}>
           Have a CAD file?
@@ -94,7 +103,7 @@ export default function TwoDDrawingRightSidebar({
         </h3>
         <p className={styles.ctaDesc}>
           Upload any STEP or CAD file. AI analyses the geometry and generates a full 2D
-          drawing set — PDF, SVG, DXF, PNG.
+          drawing set — editable FCStd, PDF, SVG, DXF.
         </p>
         <div className={styles.priceRow}>
           <span className={styles.priceBig}>$4</span>
@@ -103,12 +112,11 @@ export default function TwoDDrawingRightSidebar({
         <TwoDDrawingUploadGenerateButton href={generateHref} />
         <div className={styles.metaRow}>
           <span className={styles.metaItem}>⏱ &lt;4 minutes</span>
-          <span className={styles.metaItem}>
-            📄 {sheetWord}
-          </span>
+          <span className={styles.metaItem}>📄 {sheetWord}</span>
           <span className={styles.metaItem}>📦 4 formats</span>
         </div>
-      </div> */}
+      </div>
+      */}
 
       {/* <div className={styles.card}>
         <div className={styles.cardBody}>

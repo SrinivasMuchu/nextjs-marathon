@@ -34,8 +34,8 @@ export default function CadDrawingPipelineHero({
 
         <p className={styles.heroDesc}>
           Browse our library of AI-generated engineering drawings — multi-view orthographic
-          sheets, dimensioned views, section cuts, and BOM tables, all produced automatically
-          from 3D CAD.
+          sheets, dimensioned views, section cuts, and editable FCStd files, all produced
+          automatically from 3D CAD.
         </p>
 
         <div className={styles.heroActions}>
