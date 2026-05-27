@@ -32,6 +32,30 @@ export const PIPELINE_STAGE_LABELS = {
   ANNOTATE_EXPORT: "Annotate & export",
 };
 
+const WORKER_CLAIMED_RE =
+  /processing started|downloading your 3d model|capturing engineering views|opening step file/i;
+
+/** Job is PROCESSING in Mongo but the single consumer has not started it yet (Kafka backlog). */
+export function isJobInPipelineQueue(job) {
+  if (job?.status !== "PROCESSING") return false;
+  if (job?.pipeline_stage) return false;
+
+  const lines = [
+    job?.console_status,
+    ...(Array.isArray(job?.console_statuses)
+      ? job.console_statuses.map((e) => e?.message)
+      : []),
+  ]
+    .map((m) => (m || "").toString().trim())
+    .filter(Boolean);
+
+  for (const line of lines) {
+    if (/in queue/i.test(line)) return true;
+    if (WORKER_CLAIMED_RE.test(line)) return false;
+  }
+
+  return true;
+}
 
 /**
  * @param {{ status?: string, pipeline_stage?: string }} job
@@ -111,6 +135,15 @@ export function derivePipelineStageUi(job, stageCount = PIPELINE_STAGES.length) 
   }
 
   if (status === "PROCESSING" || status === "UPLOADING") {
+    if (status === "PROCESSING" && isJobInPipelineQueue(job)) {
+      return {
+        overallStatus: "IN QUEUE",
+        stagesDone: Array(stageCount).fill(false),
+        activeStageIndex: -1,
+        stagesError: false,
+        errorStageIndex: -1,
+      };
+    }
     return processingUi(stageIdx);
   }
 

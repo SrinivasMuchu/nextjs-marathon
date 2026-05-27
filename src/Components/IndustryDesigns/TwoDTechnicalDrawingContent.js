@@ -135,6 +135,6 @@ export default function TwoDTechnicalDrawingContent({
       <Suspense fallback={null}>
         <TwoDMoreDesignsSection currentDesignId={currentDesignId} />
       </Suspense>
-    </div>
+    </>
   );
 }

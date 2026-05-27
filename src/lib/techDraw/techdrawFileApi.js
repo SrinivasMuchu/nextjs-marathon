@@ -31,12 +31,30 @@ export function techdrawSheetPreviewUrls(designId, sheetNum, { userPipeline = fa
   return [techdrawFileApiUrl(designId, { sheet: n, ext: "svg" })];
 }
 
-export function techdrawSheetPdfViewUrl(designId, sheetNum, { userPipeline = false } = {}) {
+/**
+ * Chrome/Edge built-in PDF viewer: hide the thumbnail sidebar on first paint.
+ * @see https://pdfobject.com/pdf/pdf_open_parameters_acro8.pdf (navpanes, pagemode)
+ */
+export function withPdfEmbedViewerParams(pdfUrl) {
+  const base = String(pdfUrl || "").trim();
+  if (!base) return "";
+  const params = "navpanes=0&pagemode=none";
+  const hashIdx = base.indexOf("#");
+  if (hashIdx === -1) return `${base}#${params}`;
+  const existing = base.slice(hashIdx + 1);
+  return `${base.slice(0, hashIdx + 1)}${existing ? `${existing}&${params}` : params}`;
+}
+
+export function techdrawSheetPdfViewUrl(
+  designId,
+  sheetNum,
+  { userPipeline = false, embed = true } = {},
+) {
   const n = Number(sheetNum);
-  if (userPipeline) {
-    return techdrawFileApiUrl(designId, { sheet: n, ext: "pdf", source: "user" });
-  }
-  return techdrawFileApiUrl(designId, { sheet: n, ext: "pdf" });
+  const url = userPipeline
+    ? techdrawFileApiUrl(designId, { sheet: n, ext: "pdf", source: "user" })
+    : techdrawFileApiUrl(designId, { sheet: n, ext: "pdf" });
+  return embed ? withPdfEmbedViewerParams(url) : url;
 }
 
 export function techdrawBundlePdfViewUrl(designId, { userPipeline = false } = {}) {

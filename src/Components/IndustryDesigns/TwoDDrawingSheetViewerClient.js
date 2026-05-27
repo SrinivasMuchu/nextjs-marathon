@@ -27,7 +27,7 @@ function previewErrorHandler(sheet) {
 
 export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
   const [cur, setCur] = useState(0);
-  const [viewMode, setViewMode] = useState("svg");
+  const [viewMode, setViewMode] = useState("pdf");
   const safeSheets = sheets.length ? sheets : [{ src: "", label: "Sheet 1" }];
   const total = safeSheets.length;
 
@@ -61,20 +61,20 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
             <button
               type="button"
               role="tab"
-              aria-selected={viewMode === "svg"}
-              className={`${styles.modeBtn} ${viewMode === "svg" ? styles.modeBtnActive : ""}`}
-              onClick={() => setViewMode("svg")}
-            >
-              SVG
-            </button>
-            <button
-              type="button"
-              role="tab"
               aria-selected={viewMode === "pdf"}
               className={`${styles.modeBtn} ${viewMode === "pdf" ? styles.modeBtnActive : ""}`}
               onClick={() => setViewMode("pdf")}
             >
               PDF
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === "svg"}
+              className={`${styles.modeBtn} ${viewMode === "svg" ? styles.modeBtnActive : ""}`}
+              onClick={() => setViewMode("svg")}
+            >
+              SVG
             </button>
           </div>
           <span className={styles.counter} aria-live="polite">

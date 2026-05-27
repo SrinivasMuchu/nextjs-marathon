@@ -68,6 +68,7 @@ export function consoleStatusLogKind(message) {
   }
   if (raw.startsWith("❌") || m.includes("failed") || m.includes("error")) return "err";
   if (raw.startsWith("⚠")) return "warn";
+  if (raw.startsWith("⏳") || m.includes("in queue")) return "warn";
   return "info";
 }
 

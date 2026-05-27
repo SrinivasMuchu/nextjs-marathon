@@ -3,10 +3,10 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import CadDrawingPipelineStatus from "@/Components/CadDrawingPipeline/CadDrawingPipelineStatus";
 import TechDrawJobRouteGuard from "@/Components/CadDrawingPipeline/TechDrawJobRouteGuard";
+import TechDrawJobDesignView from "@/Components/CadDrawingPipeline/TechDrawJobDesignView";
 
-export default function TechDrawJobStatusPage() {
+export default function TechDrawJobDesignPage() {
   const params = useParams();
   const jobId = params?.id ? String(params.id) : "";
 
@@ -20,8 +20,8 @@ export default function TechDrawJobStatusPage() {
   }
 
   return (
-    <TechDrawJobRouteGuard jobId={jobId} mode="pipeline">
-      <CadDrawingPipelineStatus jobId={jobId} />
+    <TechDrawJobRouteGuard jobId={jobId} mode="design">
+      <TechDrawJobDesignView jobId={jobId} />
     </TechDrawJobRouteGuard>
   );
 }

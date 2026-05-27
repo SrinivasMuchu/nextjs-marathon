@@ -487,7 +487,8 @@ export default function CadDrawingPipelineStatus({ jobId }) {
                     loading ||
                     overallStatus === "RUNNING" ||
                     overallStatus === "PROCESSING" ||
-                    overallStatus === "QUEUED";
+                    overallStatus === "QUEUED" ||
+                    overallStatus === "IN QUEUE";
                   const active =
                     pipelineRunning && !stagesError && activeStageIndex === i;
                   const err = stagesError && i === errorStageIndex && !done;
@@ -515,7 +516,15 @@ export default function CadDrawingPipelineStatus({ jobId }) {
                         <div className={styles.stageName}>{s.name}</div>
                         <div className={styles.stageDesc}>{s.desc}</div>
                         <div className={styles.stageStatus}>
-                          {done ? "DONE" : active ? "RUNNING" : err ? "ERROR" : "WAITING"}
+                          {done
+                            ? "DONE"
+                            : active
+                              ? "RUNNING"
+                              : err
+                                ? "ERROR"
+                                : overallStatus === "IN QUEUE"
+                                  ? "QUEUED"
+                                  : "WAITING"}
                         </div>
                         <div className={styles.stageProgress}>
                           <div className={styles.stageProgressFill} />
