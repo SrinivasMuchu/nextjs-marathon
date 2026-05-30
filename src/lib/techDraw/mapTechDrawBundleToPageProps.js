@@ -1,7 +1,14 @@
 /**
- * Maps CloudFront freecad-2d-techdraw JSON into props for TwoDTechnicalDrawingPage / TwoDTechnicalDrawingContent.
+ * Maps CloudFront 2d-technical-drawings JSON into props for TwoDTechnicalDrawingPage / TwoDTechnicalDrawingContent.
  * Shapes: dimension_specs.json, dimensions_response.json, geometry_per_sheet.json, view_selection_response.json.
  */
+
+import {
+  techdrawBundlePdfViewUrl,
+  techdrawFileApiUrl,
+  techdrawSheetPdfViewUrl,
+  techdrawSheetPreviewUrls,
+} from "./techdrawFileApi";
 
 function sortGeometryKeys(geometryPerSheet) {
   if (!geometryPerSheet || typeof geometryPerSheet !== "object") return [];
@@ -26,6 +33,42 @@ function normalizeGeometryEntries(geometryPerSheet) {
   });
 }
 
+/**
+ * Layer B filter — drop entries whose underlying sheet artifacts won't
+ * render cleanly. An entry is kept only when:
+ *   • The TechDraw projection produced ≥ 1 edge for it. ``edgeCount === 0``
+ *     means the SVG/PDF exports are visually blank even though the files
+ *     might exist on S3 (this is the "Section A-A" blank-tile case from
+ *     the dashboard screenshot).
+ *   • If the bundle fetcher ran HEAD probes (``availabilityBySheet``), the
+ *     sheet's preview SVG resolved on S3. ``false`` means the file 404'd
+ *     or the CDN reported a Content-Length below the empty-shell floor.
+ *   • If no availability map is present (older callers, or when probing
+ *     was skipped), we don't enforce that part — just the edgeCount rule.
+ *
+ * Both rules combined give us:
+ *   pipeline-clean jobs       → no filtering needed, everything passes
+ *   pre-Layer-A legacy jobs   → blank views drop via edgeCount, missing
+ *                               files drop via availability map
+ *   future S3 deletions       → drop via availability map even when the
+ *                               JSONs still reference the sheet
+ */
+function filterRenderableEntries(entries, availabilityBySheet) {
+  if (!Array.isArray(entries)) return [];
+  const hasAvailability =
+    availabilityBySheet && typeof availabilityBySheet === "object";
+  return entries.filter((e) => {
+    if (!e || e.edgeCount <= 0) return false;
+    if (hasAvailability) {
+      const n = Number(e.sheet_num);
+      if (Number.isInteger(n) && availabilityBySheet[n] === false) {
+        return false;
+      }
+    }
+    return true;
+  });
+}
+
 function countDimensionIds(dimensionSpecs) {
   if (!dimensionSpecs || typeof dimensionSpecs !== "object") return 0;
   return Object.values(dimensionSpecs).reduce((sum, arr) => {
@@ -37,16 +80,24 @@ function uniqueViews(entries) {
   return new Set(entries.map((e) => e.view_name).filter(Boolean)).size;
 }
 
-/** SVG-only preview chain (direct CDN URLs). */
-function sheetPreviewCandidates(baseUrl, sheetNum) {
+function isUserPipelineCdnBase(baseUrl) {
+  return String(baseUrl || "").includes("user-freecad-techdraw");
+}
+
+/** SVG preview URLs (same-origin API so inline MIME + no forced download). */
+function sheetPreviewCandidates(baseUrl, sheetNum, designId) {
   const n = Number(sheetNum);
-  const designId = String(baseUrl || "").split("/").pop() || "";
-  if (/^[a-f0-9]{24}$/i.test(designId)) {
-    return [
-      `/api/techdraw-file?designId=${encodeURIComponent(designId)}&sheet=${n}&ext=svg`,
-    ];
+  const id = String(designId || "").trim();
+  const base = String(baseUrl || "").replace(/\/$/, "");
+  if (isUserPipelineCdnBase(base) && id) {
+    return techdrawSheetPreviewUrls(id, n, { userPipeline: true });
   }
-  return [`${baseUrl}/svg/sheet_${n}.svg`];
+  const fromBase = base.split("/").pop() || "";
+  const resolvedId = id || fromBase;
+  if (/^[a-f0-9]{24}$/i.test(resolvedId)) {
+    return techdrawSheetPreviewUrls(resolvedId, n, { userPipeline: false });
+  }
+  return [`${base}/svg/sheet_${n}.svg`];
 }
 
 function sheetAssetPaths(baseUrl, sheetNum) {
@@ -169,10 +220,10 @@ function reasonForEntry(entry, reasonMaps) {
   return "";
 }
 
-function buildViewCards(entries, baseUrl, viewSelectionResponse) {
+function buildViewCards(entries, baseUrl, viewSelectionResponse, designId) {
   const reasonMaps = buildReasonMaps(viewSelectionResponse);
   return entries.map((e) => {
-    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num);
+    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num, designId);
     const reason = reasonForEntry(e, reasonMaps);
     const body = reason
       ? reason
@@ -266,8 +317,34 @@ function buildSectionDetailGroups(entries, dimensionSpecs, viewSelectionResponse
   return groups;
 }
 
-function buildSheetDownloadRows(entries, baseUrl) {
+function buildSheetDownloadRows(entries, baseUrl, designId) {
+  const userCdn = isUserPipelineCdnBase(baseUrl);
+  const id = String(designId || "").trim();
   return entries.map((e) => {
+    const n = Number(e.sheet_num);
+    if (userCdn && id) {
+      return {
+        name: e.label,
+        pdf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "pdf",
+          source: "user",
+          disposition: "attachment",
+        }),
+        svg: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "svg",
+          source: "user",
+          disposition: "attachment",
+        }),
+        dxf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "dxf",
+          source: "user",
+          disposition: "attachment",
+        }),
+      };
+    }
     const paths = sheetAssetPaths(baseUrl, e.sheet_num);
     return {
       name: e.label,
@@ -404,10 +481,14 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     geometryPerSheet,
     viewSelectionResponse,
     designMeta,
+    availabilityBySheet,
     // bom,
   } = bundle;
 
-  const entries = normalizeGeometryEntries(geometryPerSheet);
+  const rawEntries = normalizeGeometryEntries(geometryPerSheet);
+  // Single source of truth for "which sheets do we render?" — every
+  // downstream consumer (cards, sections, downloads, stats) uses this list.
+  const entries = filterRenderableEntries(rawEntries, availabilityBySheet);
   const totalDimIds = countDimensionIds(dimensionSpecs);
   const productTitle = resolveProductTitle(entries, designMeta);
   const title = `${productTitle} — 2D Technical Drawing Set`;
@@ -431,24 +512,31 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     { value: "1st Angle", label: "Projection" },
   ];
 
+  const userCdn = isUserPipelineCdnBase(baseUrl);
   const sheets = entries.map((e) => {
-    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num);
+    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num, designId);
     const n = Number(e.sheet_num);
     return {
       src: previewCandidates[0],
       previewCandidates,
-      pdfUrl: `/api/techdraw-file?designId=${encodeURIComponent(
-        designId
-      )}&sheet=${n}&ext=pdf`,
+      pdfUrl: techdrawSheetPdfViewUrl(designId, n, { userPipeline: userCdn }),
       label: e.label,
     };
   });
 
-  const sheetDownloadRows = buildSheetDownloadRows(entries, baseUrl);
+  const sheetDownloadRows = buildSheetDownloadRows(entries, baseUrl, designId);
+
+  // Empty-state signal — render the failure notice instead of empty grids
+  // when geometry had sheets but every one of them was filtered out by
+  // Layer B (either edgeCount === 0 or HEAD-probe said the file is missing).
+  const hasRenderableSheets = entries.length > 0;
+  const wasFilteredEmpty = rawEntries.length > 0 && entries.length === 0;
 
   return {
     designId,
     baseUrl,
+    hasRenderableSheets,
+    wasFilteredEmpty,
     breadcrumbLinks: [
       { label: "Library", href: "/library" },
       {
@@ -465,13 +553,17 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     },
     sheets,
     cadModelHref: designLibraryHref,
-    generateHref: "/generate",
-    pdfHref: `/api/techdraw-pdf-bundle?designId=${encodeURIComponent(designId)}`,
+    // Both library + user-pipeline pages CTA into the same upload flow.
+    // (The legacy "/generate" route never existed and led to a 404.)
+    generateHref: "/tools/cad-drawing-pipeline",
+    pdfHref: techdrawBundlePdfViewUrl(designId, { userPipeline: userCdn }),
     freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
-    zipHref: `/api/techdraw-bundle-zip?designId=${encodeURIComponent(designId)}`,
+    zipHref: userCdn
+      ? techdrawBundlePdfViewUrl(designId, { userPipeline: true })
+      : `/api/techdraw-bundle-zip?designId=${encodeURIComponent(designId)}`,
     drawingInfo: buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse),
     // aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
-    viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse),
+    viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse, designId),
     sectionDetailGroups: buildSectionDetailGroups(
       entries,
       dimensionSpecs,

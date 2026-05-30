@@ -66,6 +66,11 @@ const nextConfig = {
         destination: '/industry/video-games-and-virtual-reality/:slug*',
         permanent: true,
       },
+      {
+        source: '/dashboard/2d-technical-drawing/design/:id',
+        destination: '/dashboard/2d-technical-drawing/:id',
+        permanent: true,
+      },
     ];
   },
 

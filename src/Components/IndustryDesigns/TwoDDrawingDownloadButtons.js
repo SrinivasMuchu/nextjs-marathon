@@ -10,6 +10,7 @@ export default function TwoDDrawingDownloadButtons({
   pdfHref,
   freecadHref,
   zipHref,
+  showPdfButton = true,
   pdfLabel = "⬇ Download All PDFs",
   freecadLabel = "🛠 Download FreeCAD (.FCStd)",
   zipLabel = "📦 Download All Formats (.zip)",
@@ -34,9 +35,11 @@ export default function TwoDDrawingDownloadButtons({
 
   return (
     <div className={styles.downloadActions}>
-      <button type="button" className={styles.btnPrimary} onClick={handlePdf}>
-        {pdfLabel}
-      </button>
+      {showPdfButton ? (
+        <button type="button" className={styles.btnPrimary} onClick={handlePdf}>
+          {pdfLabel}
+        </button>
+      ) : null}
       {freecadHref ? (
         <a
           href={freecadHref}

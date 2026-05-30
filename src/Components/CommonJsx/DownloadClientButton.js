@@ -300,7 +300,14 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   return (
     <>
       {custumDownload ? (
-        <>
+        <span
+          style={{
+            display: 'block',
+            width: '100%',
+            visibility: openSupportingFiles ? 'hidden' : 'visible',
+          }}
+          aria-hidden={openSupportingFiles}
+        >
           {isDownladable === false ? (
             <Tooltip
               title='This file is view-only downloads are disabled by the creator.' arrow
@@ -366,7 +373,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
               {isDownLoading ? 'Processing...' : 'Download 3D design'}
             </button>
           )}
-        </>
+        </span>
       ) : (
         <>
           {isDownladable === false ? (

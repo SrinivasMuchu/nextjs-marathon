@@ -28,6 +28,7 @@ export default function TwoDTechnicalDrawingHero({
   tags = defaultTags,
   stats = defaultStats,
   showBadges = true,
+  showFreeDownloadBadge = true,
 }) {
   return (
     <header className={styles.hero}>
@@ -39,7 +40,9 @@ export default function TwoDTechnicalDrawingHero({
           <span className={`${styles.chip} ${styles.chipAi}`}>
             <span aria-hidden>🤖</span> AI Generated
           </span>
-          <span className={`${styles.chip} ${styles.chipFree}`}>Free Download</span>
+          {showFreeDownloadBadge ? (
+            <span className={`${styles.chip} ${styles.chipFree}`}>Free Download</span>
+          ) : null}
         </div>
       )}
 

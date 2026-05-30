@@ -11,6 +11,7 @@ import LibraryPageJsonLd from "../JsonLdSchemas/LibraryPageJsonLd";
 import FallbackImageClient from "../CommonJsx/FallbackImageClient";
 import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
 import LibraryHireCtaCard from "./LibraryHireCtaCard";
+import TechDrawPageViewTracker from "../CadDrawingPipeline/TechDrawPageViewTracker";
 
 const SITE_LIST_ORIGIN = "https://marathon-os.com";
 
@@ -53,6 +54,7 @@ export default async function TwoDLibrary({
 
   return (
     <>
+      <TechDrawPageViewTracker pageType="library_list" />
       <ServerBreadCrumbs
         links={[
           { label: "2D Library", href: basePath },
