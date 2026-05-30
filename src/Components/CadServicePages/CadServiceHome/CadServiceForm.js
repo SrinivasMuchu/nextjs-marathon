@@ -11,6 +11,7 @@ import styles from './CadServiceForm.module.css'
 
 const UPLOAD_TIMEOUT_MS = 120000 // 2 min for large CAD files
 const PRESIGNED_TIMEOUT_MS = 30000 // 30 s for presigned
+const LINKEDIN_CAD_SERVICE_CONVERSION_ID = 26345300
 
 const SERVICE_OPTIONS = [
   { value: '', label: 'Select a service...' },
@@ -28,6 +29,12 @@ function trackHireDesignerEvent(eventName, extra = {}) {
     event_category: CAD_HIRE_DESIGNER_EVENT,
     ...extra,
   })
+}
+
+function trackLinkedInCadServiceConversion() {
+  if (typeof window !== 'undefined' && typeof window.lintrk === 'function') {
+    window.lintrk('track', { conversion_id: LINKEDIN_CAD_SERVICE_CONVERSION_ID })
+  }
 }
 
 function CadServiceForm({ onClose, inPopup = false }) {
@@ -134,6 +141,9 @@ function CadServiceForm({ onClose, inPopup = false }) {
       service_type: formData.service || 'unknown',
       has_file: Boolean(fileUrlRef.current || fileUrl),
     })
+    if (!inPopup) {
+      trackLinkedInCadServiceConversion()
+    }
     setLoading(true)
     try {
       const payload = {
