@@ -147,7 +147,7 @@ export default function TechDrawDashboardCards({
             />
           </div>
         </div>
-        {/* <Link
+        <Link
           href="/tools/cad-drawing-pipeline"
           style={{
             borderRadius: "8px",
@@ -175,7 +175,7 @@ export default function TechDrawDashboardCards({
           }}
         >
           <IoAddSharp /> New file
-        </Link> */}
+        </Link>
       </div>
 
       {loading ? (
@@ -194,9 +194,9 @@ export default function TechDrawDashboardCards({
           <p style={{ margin: "0 0 12px", color: "#374151" }}>
             No 2D drawing jobs yet.
           </p>
-          {/* <Link href="/tools/cad-drawing-pipeline" style={{ color: "#610bee", fontWeight: 600 }}>
+          <Link href="/tools/cad-drawing-pipeline" style={{ color: "#610bee", fontWeight: 600 }}>
             Upload a STEP file to start
-          </Link> */}
+          </Link>
         </div>
       ) : (
         <div className={styles.historyContainer}>
