@@ -4,13 +4,10 @@ import { useRouter } from "next/navigation";
 import styles from "./TwoDDrawingCtaBanner.module.css";
 
 export default function TwoDDrawingCtaBannerButton({
-  // href = "/tools/cad-drawing-pipeline",
-  href = "",
+  href = "/tools/cad-drawing-pipeline",
   children,
 }) {
   const router = useRouter();
-
-  if (!href) return null;
 
   return (
     <button

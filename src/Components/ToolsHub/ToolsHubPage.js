@@ -40,14 +40,14 @@ const QUICK_TOOLS_CARDS = [
     tags: ['Instant Convert', 'Batch Process', 'Cloud-based'],
     Icon: RefreshCw,
   },
-  // {
-  //   href: '/tools/cad-drawing-pipeline',
-  //   title: 'STEP → 2D Drawings',
-  //   description:
-  //     'Upload a STEP file and get multi-sheet 2D technical drawings — front, top, section and detail views with AI-placed dimensions.',
-  //   tags: ['STEP/STP', 'Multi-sheet', 'AI Dimensions'],
-  //   Icon: PenTool,
-  // },
+  {
+    href: '/tools/cad-drawing-pipeline',
+    title: 'STEP → 2D Drawings',
+    description:
+      'Upload a STEP file and get multi-sheet 2D technical drawings — front, top, section and detail views with AI-placed dimensions.',
+    tags: ['STEP/STP', 'Multi-sheet', 'AI Dimensions'],
+    Icon: PenTool,
+  },
   {
     href: '/tools/industries',
     title: 'Industries',

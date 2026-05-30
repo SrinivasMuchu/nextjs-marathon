@@ -24,7 +24,7 @@ import DesignHub from '../HomePages/DesignHub/DesignHub';
 import RecentlyAddedDesigns from '../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns';
 import LibraryDesignPageBanner from '../CadServicesBanners/LibraryDesignPageBanner';
 import StickyCadStrip from '../CadServicesBanners/StickyCadStrip';
-// import TwoDDrawingCtaBanner from './TwoDDrawingCtaBanner';
+import TwoDDrawingCtaBanner from './TwoDDrawingCtaBanner';
 
 // Page heading structure: 1 h1 (IndustryHeaderDetails), 2 h2s (AboutCad, first IndustryDesignsSuggestion), rest h3 (second IndustryDesignsSuggestion if present).
 function IndustryDesign({ design, designData, type }) {
@@ -112,10 +112,10 @@ function IndustryDesign({ design, designData, type }) {
                 <AboutCad cadReport={designData.report} filetype={designData.response.file_type} />
               )}
 
-          {/* <TwoDDrawingCtaBanner
+          <TwoDDrawingCtaBanner
             title="Want 2D engineering drawings for this CAD?"
             description="Upload any STEP, IGES, or FreeCAD file (including this design's source file). Our AI analyses the 3D geometry, picks the best views, places dimensions, and returns a complete 2D drawing set — editable FCStd plus PDF, SVG, and DXF — in under 4 minutes."
-          /> */}
+          />
 
           {designData?.response?._id && (
                 <DesignComments designId={designData.response._id} />
