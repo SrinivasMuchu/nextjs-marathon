@@ -8,7 +8,6 @@ import TwoDDrawingTransparencyBlock from "./TwoDDrawingTransparencyBlock";
 import TwoDDrawingPreviewPanel from "./TwoDDrawingPreviewPanel";
 import TwoDDrawingRightSidebar from "./TwoDDrawingRightSidebar";
 import TwoDMoreDesignsSection from "./TwoDMoreDesignsSection";
-import TwoDDrawingAnalyticsTracker from "./TwoDDrawingAnalyticsTracker";
 import { DEFAULT_2D_SHEETS } from "./twoDDrawingPageDefaults";
 import layoutStyles from "./TwoDDrawingMainLayout.module.css";
 import { Suspense } from "react";

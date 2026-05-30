@@ -1,5 +1,5 @@
 /**
- * Maps CloudFront freecad-2d-techdraw JSON into props for TwoDTechnicalDrawingPage / TwoDTechnicalDrawingContent.
+ * Maps CloudFront 2d-technical-drawings JSON into props for TwoDTechnicalDrawingPage / TwoDTechnicalDrawingContent.
  * Shapes: dimension_specs.json, dimensions_response.json, geometry_per_sheet.json, view_selection_response.json.
  */
 

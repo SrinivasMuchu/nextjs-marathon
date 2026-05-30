@@ -93,14 +93,14 @@ async function buildAvailabilityMap(baseUrl, geometryPerSheet) {
 }
 
 /**
- * Load pipeline JSON for a freecad-2d-techdraw folder on CloudFront.
+ * Load pipeline JSON for a 2d-technical-drawings folder on CloudFront.
  * BOM: bom.json fetch commented out — re-enable when BOM UI is restored.
  *
  * Also runs Layer B (frontend) availability probes for each candidate
  * sheet — the mapper uses this to hide cards for sheets whose SVG is
  * either missing on S3 or trivially small (a blank "<svg/>" shell).
  *
- * @param {string} designId — folder name under freecad-2d-techdraw/
+ * @param {string} designId — folder name under 2d-technical-drawings/
  */
 export async function fetchTechDrawBundle(designId) {
   const baseUrl = folderUrl(designId);

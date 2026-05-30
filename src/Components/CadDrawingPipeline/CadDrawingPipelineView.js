@@ -16,6 +16,15 @@ import CadDrawingPipelineHero from "./CadDrawingPipelineHero";
 import CadDrawingPipelineHowItWorks from "./CadDrawingPipelineHowItWorks";
 import { STEP_EXT } from "./pipelineConstants";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
+import {
+  flowTypeFromEligibility,
+  trackTechDrawFileRejected,
+  trackTechDrawFileSelected,
+  trackTechDrawUploadFailed,
+  trackTechDrawUploadPhase,
+  trackTechDrawUploadStart,
+  trackTechDrawUploadSuccess,
+} from "@/lib/techDraw/techDrawAnalytics";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 import styles from "./CadDrawingPipeline.module.css";
 
@@ -109,15 +118,18 @@ export default function CadDrawingPipelineView() {
   const pickFile = useCallback((f) => {
     if (!f) return;
     if (!STEP_EXT.test(f.name)) {
+      trackTechDrawFileRejected("invalid_extension");
       toast.error("Only .step or .stp files are allowed.");
       return;
     }
     if (f.size > MAX_UPLOAD_BYTES) {
+      trackTechDrawFileRejected("file_too_large");
       const msg = `File is ${formatMb(f.size)}. Maximum allowed size is ${MAX_UPLOAD_LABEL}.`;
       setError(msg);
       toast.error(msg);
       return;
     }
+    trackTechDrawFileSelected(f);
     setFile(f);
     setError("");
   }, []);
@@ -187,6 +199,9 @@ export default function CadDrawingPipelineView() {
     setSubmitting(true);
     setError("");
 
+    const flowType = needsPaidFlow ? "paid" : flowTypeFromEligibility(eligibility);
+    trackTechDrawUploadStart({ flowType, file });
+
     try {
       setUploadPhase("Checking AI service…");
       let freshEligibility;
@@ -207,6 +222,7 @@ export default function CadDrawingPipelineView() {
       }
 
       const onPhase = (phase) => {
+        trackTechDrawUploadPhase(phase);
         if (phase === "upload-url") setUploadPhase("Requesting upload URL…");
         if (phase === "s3-upload") setUploadPhase("Uploading STEP file…");
         if (phase === "submit") setUploadPhase("Creating job & starting pipeline…");
@@ -240,6 +256,7 @@ export default function CadDrawingPipelineView() {
         toast.success("Drawing pipeline started.");
       }
 
+      trackTechDrawUploadSuccess({ flowType, jobId, file });
       setUploadPhase("Opening job dashboard…");
       router.push(techDrawPipelineStatusPath(jobId));
     } catch (err) {
@@ -249,6 +266,10 @@ export default function CadDrawingPipelineView() {
         (axios.isAxiosError(err) && err.response?.data?.meta?.message) ||
         "Request failed";
       const text = typeof msg === "string" ? msg : JSON.stringify(msg, null, 2);
+      trackTechDrawUploadFailed({
+        flowType: needsPaidFlow ? "paid" : flowTypeFromEligibility(eligibility),
+        errorMessage: text,
+      });
       setError(text);
       toast.error(text.length > 80 ? "Could not start the drawing pipeline." : text);
       submitLockRef.current = false;

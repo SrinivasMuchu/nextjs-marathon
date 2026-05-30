@@ -10,6 +10,7 @@ import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawin
 import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
+import TechDrawPageViewTracker from "@/Components/CadDrawingPipeline/TechDrawPageViewTracker";
 
 const SITE = "https://marathon-os.com";
 const CANONICAL = "/tools/cad-drawing-pipeline";
@@ -32,6 +33,7 @@ function PipelineSectionFallback() {
 export default function CadDrawingPipelinePage() {
   return (
     <>
+      <TechDrawPageViewTracker pageType="upload" />
       <div className={styles.root}>
         <CadDrawingPipelineView />
 

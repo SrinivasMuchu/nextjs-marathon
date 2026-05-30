@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import CadDrawingPipelineStatus from "@/Components/CadDrawingPipeline/CadDrawingPipelineStatus";
 import TechDrawJobRouteGuard from "@/Components/CadDrawingPipeline/TechDrawJobRouteGuard";
+import TechDrawPageViewTracker from "@/Components/CadDrawingPipeline/TechDrawPageViewTracker";
 
 export default function TechDrawJobStatusPage() {
   const params = useParams();
@@ -21,6 +22,7 @@ export default function TechDrawJobStatusPage() {
 
   return (
     <TechDrawJobRouteGuard jobId={jobId} mode="pipeline">
+      <TechDrawPageViewTracker pageType="pipeline_status" jobId={jobId} />
       <CadDrawingPipelineStatus jobId={jobId} />
     </TechDrawJobRouteGuard>
   );

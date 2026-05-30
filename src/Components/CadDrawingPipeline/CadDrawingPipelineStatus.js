@@ -26,6 +26,12 @@ import {
   isTechDrawJobComplete,
   techDrawDesignPath,
 } from "@/lib/techDraw/techDrawJobRoutes";
+import {
+  trackTechDrawPipelineFailed,
+  trackTechDrawPipelineProgress,
+  trackTechDrawPipelineStatusView,
+  trackTechDrawPipelineSuccess,
+} from "@/lib/techDraw/techDrawAnalytics";
 
 function isTransientStatusError(err) {
   if (err instanceof TechDrawPollError) return err.transient;
@@ -63,6 +69,8 @@ export default function CadDrawingPipelineStatus({ jobId }) {
   const workerLogsSeenRef = useRef(0);
   const terminalBodyRef = useRef(null);
   const pollStartedRef = useRef(false);
+  const statusViewTrackedRef = useRef(false);
+  const progressTrackedRef = useRef(false);
 
   const logRefs = useRef({
     consoleStatusesSeen: consoleStatusesSeenRef,
@@ -189,6 +197,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
 
   const finishPipelineRun = useCallback(
     (job) => {
+      trackTechDrawPipelineSuccess({ jobId, job });
       syncConsoleStatuses(job);
       applyCompletedJob(job);
       setError("");
@@ -224,6 +233,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
         return true;
       }
       const text = job.error_message || "Pipeline failed on the server.";
+      trackTechDrawPipelineFailed({ jobId, job, errorMessage: text });
       setError(text);
       setOverallStatus("FAILED");
       setStagesError(true);
@@ -289,10 +299,20 @@ export default function CadDrawingPipelineStatus({ jobId }) {
     [appendLog, handleJobStatusUpdate, syncConsoleStatuses],
   );
 
+  const markPipelineProgress = useCallback(
+    (job) => {
+      if (progressTrackedRef.current) return;
+      progressTrackedRef.current = true;
+      trackTechDrawPipelineProgress({ jobId, job });
+    },
+    [jobId],
+  );
+
   const startPolling = useCallback(async () => {
     setLoading(true);
     setStagesError(false);
     setOverallStatus("RUNNING");
+    markPipelineProgress(currentJob);
     appendLog("info", "  → Watching pipeline progress…");
 
     try {
@@ -301,6 +321,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
     } catch (err) {
       if (!handlePipelineError(err)) {
         const text = err?.message || "Request failed";
+        trackTechDrawPipelineFailed({ jobId, job: currentJob, errorMessage: text });
         setError(text);
         setOverallStatus("FAILED");
         setStagesError(true);
@@ -310,7 +331,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
     } finally {
       setLoading(false);
     }
-  }, [appendLog, finishPipelineRun, handlePipelineError, jobId, onPhase]);
+  }, [appendLog, currentJob, finishPipelineRun, handlePipelineError, jobId, markPipelineProgress, onPhase]);
 
   const continueWaitingForJob = useCallback(async () => {
     if (loading || needsPayment) return;
@@ -340,6 +361,11 @@ export default function CadDrawingPipelineStatus({ jobId }) {
         lastLoggedStatusRef.current = `${job.status}:${job.console_status || ""}:${job.pipeline_stage || ""}`;
         handleJobStatusUpdate(job);
 
+        if (!statusViewTrackedRef.current) {
+          statusViewTrackedRef.current = true;
+          trackTechDrawPipelineStatusView({ jobId, job });
+        }
+
         const paymentPending =
           job.status === "PENDING" &&
           (job.payment_pending === true ||
@@ -365,6 +391,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
           return;
         }
 
+        markPipelineProgress(job);
         await startPolling();
       } catch (err) {
         if (cancelled) return;
@@ -380,7 +407,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
       cancelled = true;
       pollAbortRef.current?.abort();
     };
-  }, [appendLog, applyFailedJobFromApi, finishPipelineRun, handleJobStatusUpdate, jobId, startPolling, syncConsoleStatuses]);
+  }, [appendLog, applyFailedJobFromApi, finishPipelineRun, handleJobStatusUpdate, jobId, markPipelineProgress, startPolling, syncConsoleStatuses]);
 
   const jobForDisplay = currentJob || completedJob;
   const displayTitle = getJobDisplayTitle(jobForDisplay);

@@ -9,6 +9,7 @@ import StickyCadStrip from "../CadServicesBanners/StickyCadStrip";
 import TwoDTechnicalDrawingHero from "./TwoDTechnicalDrawingHero";
 import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
 import styles from "./IndustryDesign.module.css";
+import TechDrawPageViewTracker from "../CadDrawingPipeline/TechDrawPageViewTracker";
 
 const defaultBreadcrumbLinks = [
   { label: "Library", href: "/library" },
@@ -30,9 +31,13 @@ export default function TwoDTechnicalDrawingPage({
   breadcrumbLinks = defaultBreadcrumbLinks,
   heroProps = {},
   children = null,
+  designId = "",
 }) {
   return (
     <>
+      {designId ? (
+        <TechDrawPageViewTracker pageType="library" designId={designId} />
+      ) : null}
       <div className={styles["industry-design-page-root"]}>
         <ActiveLastBreadcrumb alignWithHeader links={breadcrumbLinks} />
         <div
