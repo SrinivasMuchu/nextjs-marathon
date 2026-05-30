@@ -1,4 +1,4 @@
-import TwoDDrawingCtaBannerButton from "./TwoDDrawingCtaBannerButton";
+// import TwoDDrawingCtaBannerButton from "./TwoDDrawingCtaBannerButton";
 import styles from "./TwoDDrawingCtaBanner.module.css";
 
 const defaultChecks = [
@@ -11,7 +11,8 @@ const defaultChecks = [
  * Server shell + client upload button only. Responsive: stacks on narrow viewports; CTA row wraps.
  */
 export default function TwoDDrawingCtaBanner({
-  generateHref = "/tools/cad-drawing-pipeline",
+  // generateHref = "/tools/cad-drawing-pipeline",
+  generateHref = "",
   eyebrow = "Paid Pipeline · $4.99 per set",
   title = "Have your own CAD file? Get 2D drawings just like these.",
   description = "Upload any STEP, IGES, or FreeCAD file. Our AI analyses the 3D geometry, selects the best views and section cuts, and delivers a complete 2D engineering drawing set in under 4 minutes.",
@@ -32,9 +33,9 @@ export default function TwoDDrawingCtaBanner({
           </h2>
           <p className={styles.desc}>{description}</p>
           <div className={styles.ctaRow}>
-            <TwoDDrawingCtaBannerButton href={generateHref}>
+            {/* <TwoDDrawingCtaBannerButton href={generateHref}>
               {buttonLabel}
-            </TwoDDrawingCtaBannerButton>
+            </TwoDDrawingCtaBannerButton> */}
             <ul className={styles.checks}>
               {checks.map((line) => (
                 <li key={line}>✓ {line}</li>
