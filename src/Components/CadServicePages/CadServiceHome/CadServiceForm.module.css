@@ -138,6 +138,19 @@
   padding-right: 36px;
 }
 
+.softwareSelectWrap {
+  position: relative;
+  width: 100%;
+}
+
+.softwareSelectRequiredInput {
+  position: absolute;
+  opacity: 0;
+  height: 0;
+  width: 0;
+  pointer-events: none;
+}
+
 .uploadSection {
   display: flex;
   align-items: center;

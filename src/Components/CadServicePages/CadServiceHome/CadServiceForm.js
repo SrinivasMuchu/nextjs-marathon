@@ -8,6 +8,8 @@ import ReactPhoneNumber from '@/Components/CommonJsx/ReactPhoneNumber'
 import { sendGAtagEvent } from '@/common.helper'
 import { BASE_URL, CAD_HIRE_DESIGNER_EVENT } from '@/config'
 import styles from './CadServiceForm.module.css'
+import { MODEL_USE_OPTIONS } from './cadServiceFormOptions'
+import SoftwareFormatSelect from './SoftwareFormatSelect'
 
 const UPLOAD_TIMEOUT_MS = 120000 // 2 min for large CAD files
 const PRESIGNED_TIMEOUT_MS = 30000 // 30 s for presigned
@@ -51,6 +53,8 @@ function CadServiceForm({ onClose, inPopup = false }) {
     phone: '',
     company: '',
     service: '',
+    modelUse: '',
+    softwareFormat: '',
     requirement: '',
   })
   const [file, setFile] = useState(null)
@@ -75,6 +79,17 @@ function CadServiceForm({ onClose, inPopup = false }) {
       })
     }
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSoftwareFormatChange = (value) => {
+    if (!hasStartedRef.current) {
+      hasStartedRef.current = true
+      trackHireDesignerEvent('hire_designer_form_start', {
+        form_context: formContext,
+        field_name: 'softwareFormat',
+      })
+    }
+    setFormData((prev) => ({ ...prev, softwareFormat: value }))
   }
 
   const uploadToS3 = async (selectedFile, signal) => {
@@ -146,12 +161,15 @@ function CadServiceForm({ onClose, inPopup = false }) {
     }
     setLoading(true)
     try {
+      const modelUseLabel = MODEL_USE_OPTIONS.find((opt) => opt.value === formData.modelUse)?.label || formData.modelUse || ''
       const payload = {
         full_name: formData.fullName,
         email: formData.workEmail,
         phone_number: formData.phone || '',
         company_name: formData.company || '',
         what_do_you_need: formData.service || '',
+        model_use: modelUseLabel === 'Select an option...' ? '' : modelUseLabel,
+        software_format: formData.softwareFormat || '',
         requirement: formData.requirement,
         file: fileUrlRef.current || fileUrl || '',
       }
@@ -173,6 +191,8 @@ function CadServiceForm({ onClose, inPopup = false }) {
           phone: '',
           company: '',
           service: '',
+          modelUse: '',
+          softwareFormat: '',
           requirement: '',
         })
         setFile(null)
@@ -277,6 +297,33 @@ function CadServiceForm({ onClose, inPopup = false }) {
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+        </div>
+        <div className={`${styles.formGroup} ${styles.formGridFull}`}>
+          <label className={styles.formLabel} htmlFor="modelUse">WILL THE MODEL BE USED FOR? *</label>
+          <select
+            id="modelUse"
+            name="modelUse"
+            className={styles.formSelect}
+            value={formData.modelUse}
+            onChange={handleChange}
+            required
+          >
+            {MODEL_USE_OPTIONS.map((opt) => (
+              <option key={opt.value || 'placeholder'} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className={`${styles.formGroup} ${styles.formGridFull}`}>
+          <label className={styles.formLabel} htmlFor="softwareFormat">
+            SOFTWARE PREFERENCE FOR MODELLING? *
+          </label>
+          <SoftwareFormatSelect
+            inputId="softwareFormat"
+            value={formData.softwareFormat}
+            onChange={handleSoftwareFormatChange}
+            required
+            inPopup={inPopup}
+          />
         </div>
         <div className={`${styles.formGroup} ${styles.formGridFull}`}>
           <label className={styles.formLabel} htmlFor="requirement">DESCRIBE YOUR REQUIREMENT *</label>
