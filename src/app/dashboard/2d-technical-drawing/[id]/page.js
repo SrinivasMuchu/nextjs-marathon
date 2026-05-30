@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
+// import Link from "next/link";
 import TechDrawJobRouteGuard from "@/Components/CadDrawingPipeline/TechDrawJobRouteGuard";
 import TechDrawJobDesignView from "@/Components/CadDrawingPipeline/TechDrawJobDesignView";
 
@@ -13,8 +13,8 @@ export default function TechDrawJobDesignPage() {
   if (!jobId) {
     return (
       <p style={{ padding: 24, fontFamily: "system-ui" }}>
-        Missing job id. Start a new drawing from{" "}
-        <Link href="/tools/cad-drawing-pipeline">the pipeline upload page</Link>.
+        Missing job id. Start a new drawing from the pipeline upload page.
+        {/* <Link href="/tools/cad-drawing-pipeline">the pipeline upload page</Link> */}
       </p>
     );
   }
