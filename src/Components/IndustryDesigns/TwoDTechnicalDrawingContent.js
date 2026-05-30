@@ -3,7 +3,7 @@ import TwoDDrawingViewCards from "./TwoDDrawingViewCards";
 import TwoDDrawingSectionDetailCards from "./TwoDDrawingSectionDetailCards";
 // import TwoDDrawingBomTable from "./TwoDDrawingBomTable";
 import TwoDDrawingSheetDownloads from "./TwoDDrawingSheetDownloads";
-import TwoDDrawingCtaBanner from "./TwoDDrawingCtaBanner";
+// import TwoDDrawingCtaBanner from "./TwoDDrawingCtaBanner";
 import TwoDDrawingTransparencyBlock from "./TwoDDrawingTransparencyBlock";
 import TwoDDrawingPreviewPanel from "./TwoDDrawingPreviewPanel";
 import TwoDDrawingRightSidebar from "./TwoDDrawingRightSidebar";
@@ -50,22 +50,23 @@ function EmptyDeliverablesNotice({ generateHref }) {
         contact support.
       </p>
       {generateHref ? (
-        <a
-          href={generateHref}
-          style={{
-            display: "inline-block",
-            marginTop: 14,
-            background: "#9a3412",
-            color: "#fff",
-            padding: "9px 16px",
-            borderRadius: 8,
-            fontSize: 14,
-            fontWeight: 600,
-            textDecoration: "none",
-          }}
-        >
-          Try a new upload
-        </a>
+        null
+        // <a
+        //   href={generateHref}
+        //   style={{
+        //     display: "inline-block",
+        //     marginTop: 14,
+        //     background: "#9a3412",
+        //     color: "#fff",
+        //     padding: "9px 16px",
+        //     borderRadius: 8,
+        //     fontSize: 14,
+        //     fontWeight: 600,
+        //     textDecoration: "none",
+        //   }}
+        // >
+        //   Try a new upload
+        // </a>
       ) : null}
     </section>
   );
@@ -126,7 +127,7 @@ export default function TwoDTechnicalDrawingContent({
           <TwoDDrawingSheetDownloads rows={sheetDownloadRows} />
         </>
       ) : null}
-      <TwoDDrawingCtaBanner generateHref={generateHref} />
+      {/* <TwoDDrawingCtaBanner generateHref={generateHref} /> */}
       <TwoDDrawingTransparencyBlock
         metaStats={transparencyMetaStats}
         introParagraphs={transparencyIntroParagraphs}
