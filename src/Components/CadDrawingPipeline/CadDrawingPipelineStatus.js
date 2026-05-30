@@ -29,7 +29,6 @@ import {
 import {
   trackTechDrawPipelineFailed,
   trackTechDrawPipelineProgress,
-  trackTechDrawPipelineStatusView,
   trackTechDrawPipelineSuccess,
 } from "@/lib/techDraw/techDrawAnalytics";
 
@@ -69,7 +68,6 @@ export default function CadDrawingPipelineStatus({ jobId }) {
   const workerLogsSeenRef = useRef(0);
   const terminalBodyRef = useRef(null);
   const pollStartedRef = useRef(false);
-  const statusViewTrackedRef = useRef(false);
   const progressTrackedRef = useRef(false);
 
   const logRefs = useRef({
@@ -360,11 +358,6 @@ export default function CadDrawingPipelineStatus({ jobId }) {
         }
         lastLoggedStatusRef.current = `${job.status}:${job.console_status || ""}:${job.pipeline_stage || ""}`;
         handleJobStatusUpdate(job);
-
-        if (!statusViewTrackedRef.current) {
-          statusViewTrackedRef.current = true;
-          trackTechDrawPipelineStatusView({ jobId, job });
-        }
 
         const paymentPending =
           job.status === "PENDING" &&
