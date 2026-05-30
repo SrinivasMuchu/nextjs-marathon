@@ -8,6 +8,7 @@ import DownloadedList from './DownloadedList'
 import SearchedList from './SearchedList'
 import RatingsList from './RatingsList'
 import LikesList from './LikesList'
+import CadServiceRequestsTable from './CadServiceRequestsTable'
 import styles from './AdminPannel.module.css'
 import AdminPannelAuthentication from './AdminPannelAuthentication'
 
@@ -55,6 +56,8 @@ function AdminPannel({ children }) {
         return 'Ratings'
       case 'likes-list':
         return 'Likes'
+      case 'cad-service-requests':
+        return 'CAD Service Requests'
       default:
         return 'Admin Panel'
     }
@@ -76,6 +79,8 @@ function AdminPannel({ children }) {
         return <RatingsList />
       case 'likes-list':
         return <LikesList />
+      case 'cad-service-requests':
+        return <CadServiceRequestsTable />
       default:
         return <DesignTable />
     }
