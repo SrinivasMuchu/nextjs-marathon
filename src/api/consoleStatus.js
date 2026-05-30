@@ -100,10 +100,9 @@ function entryAtMs(entry, fallbackMs) {
 }
 
 /**
- * Append BOTH new console_statuses (curated step lines) and new worker_logs
- * (verbose worker stdout tail) to the terminal, interleaved by the entry's
- * `at` timestamp so the dashboard reads chronologically — the way
- * `docker logs -f` would on the consumer host.
+ * Append new curated console_statuses to the terminal (user-facing one-liners).
+ * Worker stdout is still persisted on the job as `worker_logs` for ops/debugging
+ * via docker logs / Mongo — it is intentionally not rendered in the dashboard UI.
  *
  * @param {object} job  Job payload from /status.
  * @param {{consoleStatusesSeen: {current:number}, workerLogsSeen: {current:number}}} refs
@@ -115,41 +114,17 @@ export function consumeJobLogs(job, refs, appendLog) {
   const workerEntries = Array.isArray(job?.worker_logs) ? job.worker_logs : [];
 
   const statusSeen = refs?.consoleStatusesSeen?.current ?? 0;
-  const workerSeen = refs?.workerLogsSeen?.current ?? 0;
-
-  const baseMs = Date.now();
-  const merged = [];
+  let added = 0;
 
   for (let i = statusSeen; i < statusEntries.length; i += 1) {
-    const e = statusEntries[i];
-    const msg = (e?.message || "").trim();
+    const msg = (statusEntries[i]?.message || "").trim();
     if (!msg) continue;
-    merged.push({ type: "status", at: entryAtMs(e, baseMs + i), text: msg });
-  }
-  for (let i = workerSeen; i < workerEntries.length; i += 1) {
-    const e = workerEntries[i];
-    const line = (e?.line || "").trim();
-    if (!line) continue;
-    // Stable secondary sort key so worker logs from the same millisecond keep
-    // their original order (and always render *after* a curated step line
-    // that shares the same timestamp).
-    merged.push({ type: "worker", at: entryAtMs(e, baseMs + i) + 0.5, text: line });
-  }
-
-  merged.sort((a, b) => a.at - b.at);
-
-  let added = 0;
-  for (const entry of merged) {
-    if (entry.type === "status") {
-      appendLog(consoleStatusLogKind(entry.text), formatStatusConsoleLine(job, entry.text));
-    } else {
-      // Verbose stdout tail — render dim so the curated step lines still pop.
-      appendLog("dim", `    ${entry.text}`);
-    }
+    appendLog(consoleStatusLogKind(msg), formatStatusConsoleLine(job, msg));
     added += 1;
   }
 
   if (refs?.consoleStatusesSeen) refs.consoleStatusesSeen.current = statusEntries.length;
+  // Advance worker cursor so a future toggle would not replay the full backlog.
   if (refs?.workerLogsSeen) refs.workerLogsSeen.current = workerEntries.length;
 
   return added;
