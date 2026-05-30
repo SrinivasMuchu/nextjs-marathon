@@ -31,7 +31,7 @@ function mapUserJobToLibraryProps(jobId, job, bundle) {
   return {
     ...mapped,
     breadcrumbLinks: [
-      // { label: "Drawing pipeline", href: "/tools/cad-drawing-pipeline" },
+      { label: "Drawing pipeline", href: "/tools/cad-drawing-pipeline" },
       {
         label: title,
         href: techDrawPipelineStatusPath(jobId),
@@ -46,10 +46,8 @@ function mapUserJobToLibraryProps(jobId, job, bundle) {
       title: `${title} — 2D Technical Drawing Set (2D CAD drawings)`,
       showFreeDownloadBadge: false,
     },
-    // cadModelHref: "/tools/cad-drawing-pipeline",
-    // generateHref: "/tools/cad-drawing-pipeline",
-    cadModelHref: "",
-    generateHref: "",
+    cadModelHref: "/tools/cad-drawing-pipeline",
+    generateHref: "/tools/cad-drawing-pipeline",
     showDownloadAllPdfs: false,
     showCadModelLink: false,
   };
