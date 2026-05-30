@@ -65,7 +65,7 @@ function Footer() {
             </div>
             <div className={styles["footer-navs"]}>
               <Link href="/tools">Tools</Link>
-              {/* <Link href="/tools/cad-drawing-pipeline">3D to 2D Drawing Pipeline</Link> */}
+              <Link href="/tools/cad-drawing-pipeline">3D to 2D Drawing Pipeline</Link>
               <Link href="/tools/3d-cad-viewer">3D CAD Viewer</Link>
               <Link href="/tools/3d-cad-file-converter">3D CAD File Converter</Link>
               {/* <Link

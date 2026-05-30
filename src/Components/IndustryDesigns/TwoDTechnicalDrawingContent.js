@@ -107,7 +107,7 @@ export default function TwoDTechnicalDrawingContent({
           <TwoDDrawingPreviewPanel sheets={sheets} />
           <TwoDDrawingRightSidebar
             cadModelHref={cadModelHref}
-            // generateHref={generateHref} // re-enable when the sidebar CTA below is uncommented
+            generateHref={generateHref}
             pdfHref={pdfHref}
             freecadHref={freecadHref}
             zipHref={zipHref}
