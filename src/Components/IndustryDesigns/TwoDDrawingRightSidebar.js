@@ -1,12 +1,23 @@
 import Link from "next/link";
 import TwoDDrawingDownloadButtons from "./TwoDDrawingDownloadButtons";
-import TwoDDrawingUploadGenerateButton from "./TwoDDrawingUploadGenerateButton";
+// CTA temporarily disabled — re-enable along with the commented JSX block below.
+// import TwoDDrawingUploadGenerateButton from "./TwoDDrawingUploadGenerateButton";
 import styles from "./TwoDDrawingRightSidebar.module.css";
 
-/** Right column: downloads, notices, link to 3D, drawing info, and upload CTA. */
+/**
+ * Right column: downloads, notices, link to 3D, drawing info.
+ *
+ * The "Generate Your Own" CTA that used to live in this sidebar is currently
+ * COMMENTED OUT — the full-width <TwoDDrawingCtaBanner /> rendered by the
+ * parent serves as the single conversion surface on this page (mirrors the
+ * 3D design page). To bring the sidebar CTA back, uncomment:
+ *   - the `TwoDDrawingUploadGenerateButton` import above,
+ *   - the JSX block marked "[disabled] Generate Your Own CTA" in render(),
+ *   - and pass `generateHref` from the parent again.
+ */
 export default function TwoDDrawingRightSidebar({
   cadModelHref = "/library/industrial-ip67-ethernet-m12-angle-conne-698ec00809bd85d18216b084",
-  generateHref = "/tools/cad-drawing-pipeline",
+  // generateHref = "/tools/cad-drawing-pipeline", // used by the disabled sidebar CTA
   pdfHref,
   freecadHref,
   zipHref,
@@ -80,6 +91,9 @@ export default function TwoDDrawingRightSidebar({
 
       </div>
 
+      {/* [disabled] Generate Your Own CTA — uncomment to restore the sidebar CTA card.
+          Currently superseded by the full-width <TwoDDrawingCtaBanner /> rendered
+          by the parent (TwoDTechnicalDrawingContent), to match the 3D design page.
       <div className={styles.ctaCard}>
         <div className={styles.ctaEyebrow}>Generate Your Own</div>
         <h3 className={styles.ctaTitle}>
@@ -102,6 +116,7 @@ export default function TwoDDrawingRightSidebar({
           <span className={styles.metaItem}>📦 4 formats</span>
         </div>
       </div>
+      */}
 
       {/* <div className={styles.card}>
         <div className={styles.cardBody}>

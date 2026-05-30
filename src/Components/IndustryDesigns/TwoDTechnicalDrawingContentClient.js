@@ -96,7 +96,6 @@ export default function TwoDTechnicalDrawingContentClient({
           <TwoDDrawingPreviewPanel sheets={sheets} />
           <TwoDDrawingRightSidebar
             cadModelHref={cadModelHref}
-            generateHref={generateHref}
             pdfHref={pdfHref}
             freecadHref={freecadHref}
             zipHref={zipHref}
