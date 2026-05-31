@@ -555,8 +555,7 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     cadModelHref: designLibraryHref,
     // Both library + user-pipeline pages CTA into the same upload flow.
     // (The legacy "/generate" route never existed and led to a 404.)
-    // generateHref: "/tools/cad-drawing-pipeline",
-    generateHref: "",
+    generateHref: "/tools/cad-drawing-pipeline",
     pdfHref: techdrawBundlePdfViewUrl(designId, { userPipeline: userCdn }),
     freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
     zipHref: userCdn
