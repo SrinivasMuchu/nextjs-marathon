@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState,useContext } from "react";
 import { contextState } from "../ContextProvider";
-import { GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
+import { ADSENSE_ENABLED, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 import { usePathname } from "next/navigation";
 import styles from '../CommonStyles.module.css'
 function AnchorAdBanner({ adSlot }) {
   const {setAnchorAds,anchorAds} = useContext(contextState);
-const pathname = usePathname();
+  const pathname = usePathname();
   const [key, setKey] = useState(0);
  
 
@@ -32,7 +32,7 @@ const pathname = usePathname();
   }, [key]);
 
 
-  if (!anchorAds) return null;
+  if (!ADSENSE_ENABLED || !anchorAds) return null;
 
 
   return (

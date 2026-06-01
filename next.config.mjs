@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXT_GOOGLE_ADS_CLIENT_ID: process.env.NEXT_GOOGLE_ADS_CLIENT_ID,
+  },
   images: {
     remotePatterns: [
       {

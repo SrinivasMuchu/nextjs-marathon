@@ -7,7 +7,7 @@ import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 import FloatingButton from "@/Components/CommonJsx/FloatingButton";
 import HomeTopNav from "@/Components/HomePages/HomepageTopNav/HomeTopNav";
 import { CadFormProvider } from "@/Components/CadServicePages/CadFormContext";
-import { ASSET_PREFIX_URL, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
+import { ADSENSE_ENABLED, ASSET_PREFIX_URL, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 
 
 
@@ -152,7 +152,9 @@ export default function RootLayout({ children }) {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.marathon-os.com" />
         <meta property="og:site_name" content="Marathon OS" />
-        <meta name="google-adsense-account" content={GOOGLE_ADSENSE_CLIENT_ID} />
+        {ADSENSE_ENABLED ? (
+          <meta name="google-adsense-account" content={GOOGLE_ADSENSE_CLIENT_ID} />
+        ) : null}
         <link
           rel="icon"
           href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg"
@@ -229,12 +231,14 @@ export default function RootLayout({ children }) {
             `,
           }}
         /> */}
-        <Script
-          id="google-adsense"
-          strategy="afterInteractive"
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${GOOGLE_ADSENSE_CLIENT_ID}`}
-          crossOrigin="anonymous"
-        />
+        {ADSENSE_ENABLED ? (
+          <Script
+            id="google-adsense"
+            strategy="afterInteractive"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${GOOGLE_ADSENSE_CLIENT_ID}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
 
         <Script
           id="json-ld-organization"
