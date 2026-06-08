@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import IndustryDesignHeader from './IndustryDesignHeader'
 import IndustryDesignFilesList from './IndustryDesignFilesList'
 import IndustryDesignsSuggestion from './IndustryDesignsSuggestion'
@@ -14,6 +14,7 @@ import ProductStructuredData from '../JsonLdSchemas/DesignPageJsonLd'
 import styles from './IndustryDesign.module.css'
 import AnchorAdBanner from '../CommonJsx/Adsense/AnchorAdBanner'
 import IndustryHeaderDetails from './IndustryHeaderDetails'
+import DesignViewerLcpImage from './DesignViewerLcpImage'
 import DownloadsRatingAlert from '../CreatorsPage/DownloadsRatingAlert'
 import CadDesignDownload from './CadDesignDownlaod'
 import DesignViewer from './DesignViewer';
@@ -43,7 +44,6 @@ function IndustryDesign({ design, designData, type }) {
 
       <div className={styles['industry-design-page-root']}>
         {designData && <>
-          {/* <HomeTopNav /> */}
           {!type ?
             <ActiveLastBreadcrumb
               alignWithHeader
@@ -62,13 +62,19 @@ function IndustryDesign({ design, designData, type }) {
 
               ]}
             />}
-            
+
+            <IndustryHeaderDetails designData={designData} />
+            {designData.response?._id && (
+              <DesignViewerLcpImage
+                designId={designData.response._id}
+                fileType={designData.response.file_type}
+              />
+            )}
             <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
                 <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
                     <LeftRightBanner adSlot="4923244212"/>
                 </div>
             </div>
-            <IndustryHeaderDetails designData={designData}/>
           <div className={styles['industry-design-header-container']} >
           
           {/* <div className={styles['mobile-only']}>
@@ -131,10 +137,14 @@ function IndustryDesign({ design, designData, type }) {
         </>}
 
       </div>
-      <DesignHub headingLevel={3} />
-          <RecentlyAddedDesigns />
-          <IndustryDesignDropZone />
-          <LibraryDesignPageBanner />
+      <Suspense fallback={null}>
+        <DesignHub headingLevel={3} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <RecentlyAddedDesigns />
+      </Suspense>
+      <IndustryDesignDropZone />
+      <LibraryDesignPageBanner />
       <StickyCadStrip />
       <Footer />
     </>

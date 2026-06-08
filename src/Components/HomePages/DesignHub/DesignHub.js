@@ -5,7 +5,7 @@ import { BASE_URL } from '../../../config'
 async function getCategoriesAndDesigns() {
   try {
     const categoriesRes = await fetch(`${BASE_URL}/v1/cad/get-categories`, {
-      cache: 'no-store',
+      next: { revalidate: 3600 },
     })
 
     const categoriesJson = await categoriesRes.json()
@@ -29,7 +29,7 @@ async function getCategoriesAndDesigns() {
             `${BASE_URL}/v1/cad/get-category-design?category=${encodeURIComponent(
               categoryName
             )}&limit=16&page=1&random=true`,
-            { cache: 'no-store' }
+            { next: { revalidate: 3600 } }
           )
 
           const designsJson = await designsRes.json()

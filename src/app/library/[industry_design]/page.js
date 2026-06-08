@@ -1,11 +1,12 @@
 import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign';
 import Library from '@/Components/Library/Library';
-import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
+import { ASSET_PREFIX_URL } from '@/config';
+import { fetchIndustryPartDesignByLibraryRoute } from '@/lib/fetchIndustryDesign';
 import { notFound } from 'next/navigation';
 import { resolveCategorySlugToName, getLibraryPath, getLibraryCanonicalAndRobots } from '@/common.helper';
 import axios from 'axios';
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 /** Design routes contain a MongoDB ObjectId (24 hex chars); category slugs do not. Use this to differentiate. */
 function isDesignRoute(segment) {
@@ -16,54 +17,42 @@ export async function generateMetadata({ params, searchParams }) {
   const segment = params?.industry_design;
 
   if (isDesignRoute(segment)) {
-    // Has Mongo ID → design route → only try design API
     try {
-      const designRes = await fetch(
-        `${BASE_URL}/v1/cad/get-industry-part-design?industry_design_route=${segment}`,
-        { cache: 'no-store' }
-      );
+      const designData = await fetchIndustryPartDesignByLibraryRoute(segment);
+      const design = designData?.response;
 
-      if (designRes.ok) {
-        const json = await designRes.json();
-        const designWrapper = json?.data;
-        const design = designWrapper?.response;
-
-        if (design) {
-          const productName = design.page_title || design.part_name || '3D CAD Model';
-          const modelName = design.part_name || design.page_title || productName;
-
-          const rawFileType = typeof design.file_type === 'string' ? design.file_type : 'step';
-          const fileTypeLabel = rawFileType.toLowerCase().replace(/^\./, '');
-
-          const priceNumber = typeof design.price === 'number' ? design.price : Number(design.price || 0);
-          const isPaid = !Number.isNaN(priceNumber) && priceNumber > 0;
-          const isDownloadable = design.is_downloadable !== false;
-
-          let priceSnippet = '';
-          if (isDownloadable) {
-            if (isPaid) {
-              priceSnippet = ` $${priceNumber}/Download.`;
-            } else {
-              priceSnippet = ' Free Download.';
-            }
-          }
-
-          const title = `${productName} CAD Model - Download ${fileTypeLabel} | Marathon OS`;
-          const description = `Download the ${modelName} 3D CAD model in ${fileTypeLabel}. Preview online and get included views/files only on Marathon OS.${priceSnippet}`;
-
-          return {
-            title,
-            description,
-            openGraph: {
-              images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
-            },
-            metadataBase: new URL('https://marathon-os.com'),
-            alternates: { canonical: `/library/${segment}` },
-          };
-        }
+      if (!design) {
+        notFound();
       }
-    } catch (_) {}
-    notFound();
+
+      const productName = design.page_title || design.part_name || '3D CAD Model';
+      const modelName = design.part_name || design.page_title || productName;
+      const rawFileType = typeof design.file_type === 'string' ? design.file_type : 'step';
+      const fileTypeLabel = rawFileType.toLowerCase().replace(/^\./, '');
+      const priceNumber = typeof design.price === 'number' ? design.price : Number(design.price || 0);
+      const isPaid = !Number.isNaN(priceNumber) && priceNumber > 0;
+      const isDownloadable = design.is_downloadable !== false;
+
+      let priceSnippet = '';
+      if (isDownloadable) {
+        priceSnippet = isPaid ? ` $${priceNumber}/Download.` : ' Free Download.';
+      }
+
+      const title = `${productName} CAD Model - Download ${fileTypeLabel} | Marathon OS`;
+      const description = `Download the ${modelName} 3D CAD model in ${fileTypeLabel}. Preview online and get included views/files only on Marathon OS.${priceSnippet}`;
+
+      return {
+        title,
+        description,
+        openGraph: {
+          images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
+        },
+        metadataBase: new URL('https://marathon-os.com'),
+        alternates: { canonical: `/library/${segment}` },
+      };
+    } catch (_) {
+      notFound();
+    }
   }
 
   // No Mongo ID → category slug → resolve via categories
@@ -104,18 +93,15 @@ export default async function LibrarySegmentPage({ params, searchParams }) {
   const segment = params?.industry_design;
 
   if (isDesignRoute(segment)) {
-    // Has Mongo ID → design route → only try design API
     try {
-      const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?industry_design_route=${segment}`, { cache: 'no-store' });
-      if (response.ok) {
-        const data = await response.json();
-        if (data?.data) {
-          const normalizedData = { ...data.data, report: data.data.report };
-          return <IndustryDesign design={segment} designData={normalizedData} type="library" />;
-        }
+      const normalizedData = await fetchIndustryPartDesignByLibraryRoute(segment);
+      if (!normalizedData) {
+        notFound();
       }
-    } catch (_) {}
-    notFound();
+      return <IndustryDesign design={segment} designData={normalizedData} type="library" />;
+    } catch (_) {
+      notFound();
+    }
   }
 
   // No Mongo ID → category slug → resolve via categories

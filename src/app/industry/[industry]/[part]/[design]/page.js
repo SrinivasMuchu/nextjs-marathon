@@ -1,80 +1,61 @@
 import IndustryDesign from '@/Components/IndustryDesigns/IndustryDesign';
-import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
-import { notFound } from 'next/navigation'; // 👈
+import { ASSET_PREFIX_URL } from '@/config';
+import { fetchIndustryPartDesignByRoute } from '@/lib/fetchIndustryDesign';
+import { notFound } from 'next/navigation';
+
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }) {
-  const design = params.design;
-  const industry = params.industry;
-  const part = params.part;
+  const { design, industry, part } = params;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/design-meta-data?route=${design}`, {
-      method: 'GET',
-      cache: 'no-store',
-    });
+    const designData = await fetchIndustryPartDesignByRoute(design);
+    const res = designData?.response;
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (!res) {
+      notFound();
     }
 
-    const data = await response.json();
-    const designData = data.data;
-
-    if (!designData) {
-      notFound(); // 👈 If design not found, 404
-    }
+    const title = res.meta_title || res.page_title;
+    const description = res.meta_description || res.page_description;
 
     return {
-      title: `${designData.meta_title} | Marathon OS`,
-      description: designData.meta_description,
+      title: `${title} | Marathon OS`,
+      description,
       openGraph: {
         images: [
           {
             url: `${ASSET_PREFIX_URL}logo-1.png`,
             width: 1200,
             height: 630,
-            type: "image/png",
+            type: 'image/png',
           },
         ],
       },
-      metadataBase: new URL("https://marathon-os.com"),
+      metadataBase: new URL('https://marathon-os.com'),
       alternates: {
         canonical: `/industry/${industry}/${part}/${design}`,
       },
     };
   } catch (error) {
-    console.error("Failed to fetch metadata:", error);
-    notFound(); // 👈 Error fetching? 404
+    console.error('Failed to fetch metadata:', error);
+    notFound();
   }
 }
 
 export default async function PartDesigns({ params }) {
-  const design = params.design;
+  const { design } = params;
 
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?design_route=${design}`, {
-      method: 'GET',
-      cache: 'no-store',
-    });
+    const normalizedData = await fetchIndustryPartDesignByRoute(design);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (!normalizedData) {
+      notFound();
     }
-
-    const data = await response.json();
-
-    if (!data.data) {
-      notFound(); // 👈 If design data missing, 404
-    }
-
-    const normalizedData = {
-      ...data.data,
-      report: data.data.report || { cad_report: null },
-    };
 
     return <IndustryDesign design={params} designData={normalizedData} />;
   } catch (error) {
-    console.error("Failed to fetch design data:", error);
-    notFound(); // 👈 Error = 404
+    console.error('Failed to fetch design data:', error);
+    notFound();
   }
 }

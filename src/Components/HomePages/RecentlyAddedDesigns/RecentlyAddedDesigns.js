@@ -9,7 +9,7 @@ async function RecentlyAddedDesigns() {
   try {
     const response = await fetch(
       `${BASE_URL}/v1/cad/get-recently-added-designs?limit=10`,
-      { cache: 'no-store' }
+      { next: { revalidate: 3600 } }
     )
 
     const data = await response.json()

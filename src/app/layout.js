@@ -1,30 +1,29 @@
 import "./globals.css";
 import Script from "next/script";
+import dynamic from "next/dynamic";
 import { Inter, Roboto } from "next/font/google";
-import ToastProvider from "@/Components/CommonJsx/ReactToastify";
-import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 import FloatingButton from "@/Components/CommonJsx/FloatingButton";
 import HomeTopNav from "@/Components/HomePages/HomepageTopNav/HomeTopNav";
 import { CadFormProvider } from "@/Components/CadServicePages/CadFormContext";
 import { ADSENSE_ENABLED, ASSET_PREFIX_URL, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 
-
-
-const inter = Inter({ 
-  subsets: ["latin"], 
+const ToastProvider = dynamic(() => import("@/Components/CommonJsx/ReactToastify"), { ssr: false });
+const CreateLocalStorage = dynamic(() => import("@/Components/CommonJsx/CreateLocalStorage"), { ssr: false });
+const inter = Inter({
+  subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
   preload: true,
-  adjustFontFallback: true, // Reduces layout shift with fallback font metrics
+  adjustFontFallback: true,
 });
 
-// Load Roboto with font-display: swap to prevent MUI from loading it from Google Fonts CDN
 const roboto = Roboto({
-  weight: ['300', '400', '500', '700'],
+  weight: ['400', '700'],
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-roboto',
+  preload: false,
   adjustFontFallback: true,
 });
 const GA_TRACKING_ID = "G-6P47TN4FMC";
@@ -96,50 +95,7 @@ export default function RootLayout({ children }) {
         {/* DNS prefetch and preconnect for faster resource loading */}
         <link rel="dns-prefetch" href="https://marathon-os.com" />
         <link rel="preconnect" href="https://marathon-os.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* Intercept and modify Google Fonts loading to add font-display=swap */}
-        <Script
-          strategy="beforeInteractive"
-          id="font-display-swap"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Intercept link tags for Google Fonts
-                const observer = new MutationObserver(function(mutations) {
-                  mutations.forEach(function(mutation) {
-                    mutation.addedNodes.forEach(function(node) {
-                      if (node.nodeName === 'LINK' && node.href && node.href.includes('fonts.googleapis.com')) {
-                        // Add display=swap parameter if not present
-                        if (!node.href.includes('display=')) {
-                          const separator = node.href.includes('?') ? '&' : '?';
-                          node.href = node.href + separator + 'display=swap';
-                        }
-                      }
-                    });
-                  });
-                });
-                
-                // Observe document head for new link tags
-                observer.observe(document.head, {
-                  childList: true,
-                  subtree: false
-                });
-                
-                // Also check existing link tags
-                document.querySelectorAll('link[href*="fonts.googleapis.com"]').forEach(function(link) {
-                  if (!link.href.includes('display=')) {
-                    const separator = link.href.includes('?') ? '&' : '?';
-                    link.href = link.href + separator + 'display=swap';
-                  }
-                });
-              })();
-            `,
-          }}
-        />
-        
+
         <link rel="icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
 
         <link rel="apple-touch-icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
@@ -170,7 +126,7 @@ export default function RootLayout({ children }) {
         />
 
         <Script
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           id="disable-ga-on-localhost"
           dangerouslySetInnerHTML={{
             __html: `
@@ -240,28 +196,22 @@ export default function RootLayout({ children }) {
           />
         ) : null}
 
-        <Script
-          id="json-ld-organization"
+        <script
           type="application/ld+json"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        <Script
-          id="json-ld"
+        <script
           type="application/ld+json"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
         />
-        <Script
-          id="json-ld-website"
+        <script
           type="application/ld+json"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
 
       </head>
 
-      <body className={`${inter.variable} ${roboto.variable}`}>
+      <body className={`${inter.className} ${inter.variable} ${roboto.variable}`}>
         <ToastProvider />
         <CreateLocalStorage />
         <ContextWrapper>

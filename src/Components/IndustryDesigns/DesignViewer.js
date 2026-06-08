@@ -576,6 +576,9 @@ export default function DesignViewer({
                 alt={`sprite x=${xDeg} y=${yDeg}`}
                 width={1200}
                 height={650}
+                priority
+                fetchPriority="high"
+                unoptimized
                 draggable={false}
                 style={{ cursor: supportedImages.length > 0 ? 'pointer' : undefined }}
                 sizes="(max-width: 768px) 100vw, 1200px"

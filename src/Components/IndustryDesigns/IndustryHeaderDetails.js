@@ -1,13 +1,15 @@
 import Link from 'next/link'
 import React from 'react'
+import dynamic from 'next/dynamic'
 import styles from './IndustryDesign.module.css'
 import { FaStar, FaRegStar } from 'react-icons/fa'
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats'
 import NameProfile from '../CommonJsx/NameProfile'
 import IndustryDetailsEditButton from './IndustryDetailsEditButton'
-import DesignLike from './DesignLike'
 
-function IndustryHeaderDetails({ designData }) {
+const DesignLike = dynamic(() => import('./DesignLike'), { ssr: false })
+
+function IndustryHeaderDetails({ designData, showTitle = true }) {
   const res = designData?.response || {}
   const averageRating = res.average_rating != null ? Number(res.average_rating) : null
   const ratingCount = res.rating_count != null ? Number(res.rating_count) : 0
@@ -25,10 +27,13 @@ function IndustryHeaderDetails({ designData }) {
 
   return (
     <div className={styles.industryDesignHeaderDetails}>
-      <div className={styles.industryDesignHeaderDetailsTitleRow}>
-        <h1>{res.page_title}</h1>
-        <DesignLike designId={res._id} />
-      </div>
+      {showTitle && (
+        <div className={styles.industryDesignHeaderDetailsTitleRow}>
+          <h1>{res.page_title}</h1>
+          <DesignLike designId={res._id} />
+        </div>
+      )}
+      {!showTitle && <DesignLike designId={res._id} />}
 
       <div className={styles.industryDesignHeaderDetailsMetaRow}>
         {hasAuthor && (
