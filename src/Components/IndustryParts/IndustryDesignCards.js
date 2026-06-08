@@ -1,6 +1,7 @@
 // app/components/IndustryDesignCards.tsx (or .jsx if using JS)
 import IndustryDesignParallelaxWrapper from './IndustryDesignParallelaxWrapper';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
+import { designSpriteWebpUrl } from '@/constants/designSpriteAngles';
 import { textLettersLimit } from '@/common.helper';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -27,7 +28,7 @@ async function IndustryDesignCards({ styles, part_name, industry, uuid }) {
           <Link href={`/industry/${industry}/${part_name}/${capability.route}`}>
             <div className={styles['capabilities-img-cont']} >
               <Image
-                src={`${DESIGN_GLB_PREFIX_URL}${capability._id}/sprite_0_150.webp`}
+                src={designSpriteWebpUrl(`${DESIGN_GLB_PREFIX_URL}${capability._id}`, 0, 0)}
                 alt={capability.page_title}
                 className={styles['capabilities-img']}
                 width={100}

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from '../Library/Library.module.css';
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
+import { DESIGN_SPRITE_ANGLES, designSpriteWebpUrl } from '@/constants/designSpriteAngles';
 import StaticDesign from './StaticDesign';
 
 const HoverImageSequenceHome = ({ design, loading }) => {
@@ -19,7 +20,7 @@ const HoverImageSequenceHome = ({ design, loading }) => {
   // Check if file type is DXF or DWG
   const isDxfOrDwg = design?.file_type?.toLowerCase() === 'dxf' || design?.file_type?.toLowerCase() === 'dwg';
 
-  const angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
+  const spriteAngles = DESIGN_SPRITE_ANGLES;
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef(null);
   const hoverRef = useRef(false);
@@ -51,7 +52,7 @@ const HoverImageSequenceHome = ({ design, loading }) => {
   const startCycling = () => {
     if (intervalRef.current || !hoverRef.current) return;
     // For DXF/DWG with supporting images, cycle through image count; otherwise cycle through angles
-    const cycleLength = isDxfOrDwg && hasSupportingImages ? supportingImages.length : angles.length;
+    const cycleLength = isDxfOrDwg && hasSupportingImages ? supportingImages.length : spriteAngles.length;
     intervalRef.current = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % cycleLength);
     }, 300);
@@ -129,7 +130,11 @@ const HoverImageSequenceHome = ({ design, loading }) => {
     >
       {isVisible ? (
         <Image
-          src={`${IMAGE_BASE_URL}/sprite_${angles[currentIndex]}_${angles[currentIndex]}.webp`}
+          src={designSpriteWebpUrl(
+            IMAGE_BASE_URL,
+            spriteAngles[currentIndex].x,
+            spriteAngles[currentIndex].y
+          )}
           alt={design.page_title}
           width={298}
           height={298}

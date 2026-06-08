@@ -2,44 +2,14 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from "@/config";
+import { designSpriteSlides } from "@/constants/designSpriteAngles";
 import Image from "next/image";
 import IndustryDesignCarouselWrapper from "./IndustryDesignCarouselWrapper";
 import IndustryCarouselImages from "./IndustryCarouselImages";
 import DownloadClientButton from "../CommonJsx/DownloadClientButton";
 
 function IndustryDesignsCarousel({ designData, type, design }) {
-    const slides = [
-        {
-            title: `${designData.page_title}_0_0_degree_snapshot`,
-            x: 0,
-            y: 0
-        },
-        {
-            title: `${designData.page_title}_0_90_degree_snapshot`,
-            x: 0,
-            y: 90
-        },
-        {
-            title: `${designData.page_title}_0_270_degree_snapshot`,
-            x: 0,
-            y: 270,
-        },
-        {
-            title: `${designData.page_title}_90_0_degree_snapshot`,
-            x: 90,
-            y: 0
-        },
-        {
-            title: `${designData.page_title}_270_0_degree_snapshot`,
-            x: 270,
-            y: 0,
-        },
-        {
-            title: `${designData.page_title}_60_30_degree_snapshot`,
-            x: 60,
-            y: 30
-        }
-    ];
+    const slides = designSpriteSlides(designData.page_title);
     const [activeIndex, setActiveIndex] = useState(0);
     const total = slides.length;
 

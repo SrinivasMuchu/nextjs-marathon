@@ -1,5 +1,6 @@
 import React from "react";
 import { DESIGN_GLB_PREFIX_URL } from "@/config";
+import { DESIGN_SPRITE_ANGLES, designSpriteWebpUrl } from "@/constants/designSpriteAngles";
 
 function ProductStructuredData({
   designData,
@@ -13,15 +14,9 @@ function ProductStructuredData({
   const mpn = designData?._id || "";
   const brandName = "Marathon";
   
-  // Generate image URLs from the carousel views
-  const imageUrls = [
-    `${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_0_0.webp`,
-    `${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_0_90.webp`,
-    `${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_0_270.webp`,
-    `${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_90_0.webp`,
-    `${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_270_0.webp`,
-    `${DESIGN_GLB_PREFIX_URL}${designData._id}/sprite_60_30.webp`
-  ];
+  const imageUrls = DESIGN_SPRITE_ANGLES.map(({ x, y }) =>
+    designSpriteWebpUrl(`${DESIGN_GLB_PREFIX_URL}${designData._id}`, x, y)
+  );
 
   // Generate download URL based on type
   const downloadUrl = type 

@@ -17,7 +17,7 @@ const categories = [
     title: "Automotive",
     route: 'automotive',
     _id: '6817dd65e883a1bdfe58b894',
-    thumbnail: `${DESIGN_GLB_PREFIX_URL}6817dd65e883a1bdfe58b894/sprite_0_150.webp`
+    thumbnail: `${DESIGN_GLB_PREFIX_URL}6817dd65e883a1bdfe58b894/sprite_0_0.webp`
   },
   {
     title: "Architecture",

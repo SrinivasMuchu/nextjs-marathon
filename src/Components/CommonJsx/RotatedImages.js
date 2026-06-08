@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from '../Library/Library.module.css';
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
+import { DESIGN_SPRITE_ANGLES, designSpriteWebpUrl } from '@/constants/designSpriteAngles';
 import StaticDesign from './StaticDesign';
 
 
@@ -19,8 +20,7 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
     design?.file_type?.toLowerCase() === 'dxf' ||
     design?.file_type?.toLowerCase() === 'dwg';
 
-  const angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
-  // const yangles = [0, 330, 300, 270, 240, 210, 180, 150, 120, 90, 60, 30];
+  const spriteAngles = DESIGN_SPRITE_ANGLES;
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef(null);
   const hoverRef = useRef(false);
@@ -58,7 +58,7 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
   const startCycling = () => {
     if (intervalRef.current || !hoverRef.current) return;
     intervalRef.current = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % angles.length);
+      setCurrentIndex(prev => (prev + 1) % spriteAngles.length);
     }, 300);
   };
 
@@ -121,7 +121,11 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
     >
       {isVisible ? (
         <Image
-          src={`${IMAGE_BASE_URL}/sprite_${angles[currentIndex]}_${angles[currentIndex]}.webp`}
+          src={designSpriteWebpUrl(
+            IMAGE_BASE_URL,
+            spriteAngles[currentIndex].x,
+            spriteAngles[currentIndex].y
+          )}
           alt={design.page_title}
           width={width}
           height={height}
