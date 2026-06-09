@@ -1,16 +1,17 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styles from './KycDetails.module.css';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
-import { toast } from 'react-toastify';
 import Loading from '../CommonJsx/Loaders/Loading';
 import Kyc from './Kyc';
-import Image from 'next/image';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 import PopupWrapper from '../CommonJsx/PopupWrapper';
+import { contextState } from '../CommonJsx/ContextProvider';
 
 function KycTab() {
+  const { user } = useContext(contextState);
+  const isKycCompleted = user?.kycStatus === 'completed';
    const [formData, setFormData] = useState({
     name: '',
     ifsc: '',
@@ -27,13 +28,40 @@ function KycTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasExistingData, setHasExistingData] = useState(false);
   const [showKycForm, setShowKycForm] = useState(false);
+  const [showSignaturePad, setShowSignaturePad] = useState(false);
+  const [signatureLoadStatus, setSignatureLoadStatus] = useState('idle');
 
   useEffect(() => {
     fetchSellerDetails();
   }, []);
 
+  useEffect(() => {
+    if (isKycCompleted) {
+      fetchSellerDetails();
+    }
+  }, [isKycCompleted]);
+
+  useEffect(() => {
+    if (!formData.signature_url) {
+      setSignatureLoadStatus('idle');
+      return;
+    }
+
+    setSignatureLoadStatus('loading');
+    const img = new window.Image();
+    img.onload = () => setSignatureLoadStatus('loaded');
+    img.onerror = () => setSignatureLoadStatus('error');
+    img.src = formData.signature_url;
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [formData.signature_url]);
+
   const fetchSellerDetails = async () => {
     setIsLoading(true);
+    setSignatureLoadStatus('idle');
     try {
       const response = await axios.get(`${BASE_URL}/v1/payment/get-seller-details`, {
         headers: { 'user-uuid': localStorage.getItem('uuid') }
@@ -47,15 +75,18 @@ function KycTab() {
           contact: data.user_data.phone_number || '',
           aadhar: data.user_data.aadhaar || '',
           pan: data.user_data.pan || '',
-          gst_number:  data.user_data.gst || '',
-          signature_url: data.user_data.signature_s3_url || '' // Add this line
+          gst_number: data.user_data.gst || '',
+          signature_url: data.user_data.signature_s3_url || '',
         });
         setHasExistingData(true);
+      } else if (isKycCompleted) {
+        setHasExistingData(true);
+      } else {
+        setHasExistingData(false);
       }
     } catch (error) {
       console.error('Error fetching seller details:', error);
-      // If no data or error, allow user to create new
-      setHasExistingData(false);
+      setHasExistingData(isKycCompleted);
     } finally {
       setIsLoading(false);
     }
@@ -72,14 +103,30 @@ function KycTab() {
 
   const handleCloseKycForm = () => {
     setShowKycForm(false);
-    // Refresh data after KYC submission
     fetchSellerDetails();
   };
+
+  const handleOpenSignaturePad = () => {
+    if (!localStorage.getItem('is_verified')) {
+      setIsUserVerified(true);
+    } else {
+      setShowSignaturePad(true);
+    }
+  };
+
+  const handleCloseSignaturePad = () => {
+    setShowSignaturePad(false);
+    fetchSellerDetails();
+  };
+
+  const hasValidSignature = signatureLoadStatus === 'loaded';
 
   const setUser = (userUpdateFn) => {
     // Handle user update if needed
     console.log('User updated:', userUpdateFn);
   };
+
+  const showCompleteKycPrompt = !hasExistingData && !isKycCompleted;
 
   if (isLoading) {
     return (
@@ -87,8 +134,7 @@ function KycTab() {
     );
   }
 
-  // Show button if no existing data
-  if (!hasExistingData) {
+  if (showCompleteKycPrompt) {
     return (
       <>
       {isUserVerified && <UserLoginPupUp type='dashboard'
@@ -230,46 +276,42 @@ function KycTab() {
             </div>
           )}
 
-          {/* Show Signature Chip if exists */}
-          {formData.signature_url && (
-             <div className={styles.inputGroup}>
-              <label htmlFor="signature" className={styles.label}>Signature</label>
+          <div className={styles.inputGroup}>
+            <label htmlFor="signature" className={styles.label}>Signature</label>
+            {hasValidSignature ? (
               <div
-              style={{
-                height:'48px',
-                padding: '0px',
-                display:'flex',
-                alignItems:'center',
-                justifyContent:'center'
-                // borderRadius: '16px',
-                // background: '#f0f0f0',
-                // marginBottom: '12px',
-                // marginRight: '8px',
-                // border: '1px solid #ccc',
-                // maxWidth: 'fit-content'
-              }}
-              className={`${styles.input} ${styles.readonlyInput}`}
-            >
-              <Image
-                src={formData.signature_url}
-                alt="Signature"
-                width={100}
-                height={48}
-                style={{
-                  height: '32px',
-                  width: 'auto',
-                  marginRight: '8px',
-                  borderRadius: '4px',
-                  background: '#fff'
-                }}
-              />
-              {/* <span style={{ fontSize: '14px', color: '#333' }}>Signature</span> */}
-            </div>
-             </div>
-            
-          )}
+                className={`${styles.input} ${styles.readonlyInput} ${styles.signaturePreview}`}
+              >
+                <img
+                  src={formData.signature_url}
+                  alt="Signature"
+                  className={styles.signatureImage}
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleOpenSignaturePad}
+                className={styles.addSignatureBtn}
+              >
+                Add Signature
+              </button>
+            )}
+          </div>
         </form>
       </div>
+
+      {isUserVerified && (
+        <UserLoginPupUp
+          type="dashboard"
+          onClose={() => setIsUserVerified(false)}
+        />
+      )}
+      {showSignaturePad && (
+        <PopupWrapper>
+          <Kyc signatureOnly onClose={handleCloseSignaturePad} />
+        </PopupWrapper>
+      )}
     </div>
   );
 }
