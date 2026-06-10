@@ -2,9 +2,17 @@
   display: flex;
   height: 90vh;
   background: white;
-  /* color: #e6e8f0; */
   width: 100%;
-  /* font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji"; */
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
+  height: 90vh;
+  overflow: auto;
+  width: 100%;
 }
 
 /* Sidebar */
@@ -117,9 +125,40 @@
 .content {
   flex: 1;
   padding: 20px 24px;
-  height: 90vh;
-    overflow: auto;
-    width:100%;
+  min-height: 100%;
+  overflow: visible;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 72px !important;
+    flex-shrink: 0;
+  }
+
+  .sidebar .label,
+  .sidebar .brand > span:not(.brandIcon) {
+    display: none;
+  }
+
+  .sidebarHeader {
+    justify-content: center;
+    padding: 12px 8px;
+  }
 }
 
 .header {

@@ -107,6 +107,18 @@
   border-color: #610bee;
 }
 
+.formInputError,
+.formSelectError,
+.formTextareaError {
+  border-color: #ef4444;
+}
+
+.formInputError:focus,
+.formSelectError:focus,
+.formTextareaError:focus {
+  border-color: #ef4444;
+}
+
 /* React Phone Number input - match form input styling */
 .formPhoneInput {
   width: 100%;
@@ -121,6 +133,35 @@
 .formPhoneInput:focus-within {
   outline: none;
   border-color: #610bee;
+}
+
+.formPhoneInputError {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #ef4444;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.formPhoneInputError:focus-within {
+  outline: none;
+  border-color: #ef4444;
+}
+
+.formHint {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.formFieldError {
+  margin: 0;
+  font-size: 12px;
+  color: #ef4444;
+  line-height: 1.4;
 }
 
 .formTextarea {

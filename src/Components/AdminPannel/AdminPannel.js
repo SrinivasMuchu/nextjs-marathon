@@ -57,7 +57,7 @@ function AdminPannel({ children }) {
       case 'likes-list':
         return 'Likes'
       case 'cad-service-requests':
-        return 'CAD Service Requests'
+        return ''
       default:
         return 'Admin Panel'
     }
@@ -88,9 +88,11 @@ function AdminPannel({ children }) {
 
   const content = (
     <div className={styles.content}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>{getTitle()}</h2>
-      </div>
+      {getTitle() ? (
+        <div className={styles.header}>
+          <h2 className={styles.title}>{getTitle()}</h2>
+        </div>
+      ) : null}
       {renderContent()}
     </div>
   )
@@ -103,8 +105,7 @@ function AdminPannel({ children }) {
         onToggle={() => setCollapsed(v => !v)}
         onSelect={setActiveTab}
       />
-      <div style={{height:'90vh',overFlow:'auto',width:'100%'}} >
-
+      <div className={styles.mainContent}>
         {children ?? content}
       </div>
       

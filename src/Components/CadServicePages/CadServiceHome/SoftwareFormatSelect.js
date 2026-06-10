@@ -10,18 +10,19 @@ const ALL_SOFTWARE_OPTIONS = SOFTWARE_FORMAT_OPTIONS.filter((opt) => opt.value)
 const SEARCH_DEBOUNCE_MS = 300
 const RESULT_LIMIT = 25
 
-const selectStyles = {
+function buildSelectStyles(hasError = false) {
+  return {
   control: (provided, state) => ({
     ...provided,
     minHeight: 44,
     borderRadius: 10,
-    borderColor: state.isFocused ? '#610bee' : '#e5e7eb',
+    borderColor: hasError ? '#ef4444' : state.isFocused ? '#610bee' : '#e5e7eb',
     boxShadow: 'none',
     fontSize: 16,
     fontFamily: 'inherit',
     cursor: 'pointer',
     '&:hover': {
-      borderColor: state.isFocused ? '#610bee' : '#e5e7eb',
+      borderColor: hasError ? '#ef4444' : state.isFocused ? '#610bee' : '#e5e7eb',
     },
   }),
   valueContainer: (provided) => ({
@@ -71,8 +72,9 @@ const selectStyles = {
     fontSize: 15,
   }),
 }
+}
 
-function SoftwareFormatSelect({ value, onChange, inputId, required, inPopup = false }) {
+function SoftwareFormatSelect({ value, onChange, inputId, required, inPopup = false, hasError = false }) {
   const [searchInput, setSearchInput] = useState('')
   const [displayOptions, setDisplayOptions] = useState(() =>
     searchSoftwareOptions(ALL_SOFTWARE_OPTIONS, '', RESULT_LIMIT)
@@ -152,7 +154,7 @@ function SoftwareFormatSelect({ value, onChange, inputId, required, inPopup = fa
         isClearable={false}
         isLoading={isSearching}
         filterOption={() => true}
-        styles={selectStyles}
+        styles={buildSelectStyles(hasError)}
         menuPortalTarget={inPopup && typeof document !== 'undefined' ? document.body : undefined}
         menuPosition={inPopup ? 'fixed' : 'absolute'}
         noOptionsMessage={() =>

@@ -5,6 +5,7 @@
 
 import {
   techdrawBundlePdfViewUrl,
+  techdrawBundleZipUrl,
   techdrawFileApiUrl,
   techdrawSheetPdfViewUrl,
   techdrawSheetPreviewUrls,
@@ -558,9 +559,7 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     generateHref: "/tools/cad-drawing-pipeline",
     pdfHref: techdrawBundlePdfViewUrl(designId, { userPipeline: userCdn }),
     freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
-    zipHref: userCdn
-      ? techdrawBundlePdfViewUrl(designId, { userPipeline: true })
-      : `/api/techdraw-bundle-zip?designId=${encodeURIComponent(designId)}`,
+    zipHref: techdrawBundleZipUrl(designId, { userPipeline: userCdn }),
     drawingInfo: buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse),
     // aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
     viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse, designId),
