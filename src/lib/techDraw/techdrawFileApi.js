@@ -66,3 +66,10 @@ export function techdrawBundlePdfViewUrl(designId, { userPipeline = false } = {}
   }
   return `/api/techdraw-pdf-bundle?designId=${encodeURIComponent(designId)}`;
 }
+
+export function techdrawBundleZipUrl(designId, { userPipeline = false } = {}) {
+  const id = String(designId || "").trim();
+  const params = new URLSearchParams({ designId: id });
+  if (userPipeline) params.set("source", "user");
+  return `/api/techdraw-bundle-zip?${params}`;
+}

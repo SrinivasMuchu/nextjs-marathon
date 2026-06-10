@@ -4,6 +4,7 @@ import React, { useState, useRef, useId, useEffect } from 'react'
 import axios from 'axios'
 import { Send, Upload } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { isValidPhoneNumber } from 'react-phone-number-input'
 import ReactPhoneNumber from '@/Components/CommonJsx/ReactPhoneNumber'
 import { sendGAtagEvent } from '@/common.helper'
 import { BASE_URL, CAD_HIRE_DESIGNER_EVENT } from '@/config'
@@ -14,6 +15,7 @@ import SoftwareFormatSelect from './SoftwareFormatSelect'
 const UPLOAD_TIMEOUT_MS = 120000 // 2 min for large CAD files
 const PRESIGNED_TIMEOUT_MS = 30000 // 30 s for presigned
 const LINKEDIN_CAD_SERVICE_CONVERSION_ID = 26345300
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const SERVICE_OPTIONS = [
   { value: '', label: 'Select a service...' },
@@ -24,6 +26,16 @@ const SERVICE_OPTIONS = [
   { value: 'reverse-engineering', label: 'Reverse Engineering' },
   { value: 'other', label: 'Other' },
 ]
+
+const EMPTY_FIELD_ERRORS = {
+  fullName: '',
+  workEmail: '',
+  phone: '',
+  service: '',
+  modelUse: '',
+  softwareFormat: '',
+  requirement: '',
+}
 
 function trackHireDesignerEvent(eventName, extra = {}) {
   sendGAtagEvent({
@@ -37,6 +49,51 @@ function trackLinkedInCadServiceConversion() {
   if (typeof window !== 'undefined' && typeof window.lintrk === 'function') {
     window.lintrk('track', { conversion_id: LINKEDIN_CAD_SERVICE_CONVERSION_ID })
   }
+}
+
+function FieldError({ message }) {
+  if (!message) return null
+  return <p className={styles.formFieldError}>{message}</p>
+}
+
+function validateFormFields(formData) {
+  const errors = { ...EMPTY_FIELD_ERRORS }
+
+  if (!String(formData.fullName || '').trim()) {
+    errors.fullName = 'Please enter your full name.'
+  }
+
+  const email = String(formData.workEmail || '').trim()
+  if (!email) {
+    errors.workEmail = 'Please enter your work email.'
+  } else if (!EMAIL_RE.test(email)) {
+    errors.workEmail = 'Please enter a valid email address.'
+  }
+
+  const phone = String(formData.phone || '').trim()
+  if (!phone) {
+    errors.phone = 'Please enter your phone number with country code.'
+  } else if (!isValidPhoneNumber(phone)) {
+    errors.phone = 'Enter a valid number for the selected country (e.g. +91 and 10 digits for India).'
+  }
+
+  if (!formData.service) {
+    errors.service = 'Please select what you need.'
+  }
+
+  if (!formData.modelUse) {
+    errors.modelUse = 'Please select how the model will be used.'
+  }
+
+  if (!String(formData.softwareFormat || '').trim()) {
+    errors.softwareFormat = 'Please select a software preference.'
+  }
+
+  if (!String(formData.requirement || '').trim()) {
+    errors.requirement = 'Please describe your requirement.'
+  }
+
+  return errors
 }
 
 function CadServiceForm({ onClose, inPopup = false }) {
@@ -57,6 +114,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
     softwareFormat: '',
     requirement: '',
   })
+  const [fieldErrors, setFieldErrors] = useState(EMPTY_FIELD_ERRORS)
   const [file, setFile] = useState(null)
   const [fileUrl, setFileUrl] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -69,6 +127,10 @@ function CadServiceForm({ onClose, inPopup = false }) {
     })
   }, [formContext])
 
+  const clearFieldError = (fieldName) => {
+    setFieldErrors((prev) => (prev[fieldName] ? { ...prev, [fieldName]: '' } : prev))
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target
     if (!hasStartedRef.current) {
@@ -79,6 +141,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
       })
     }
     setFormData((prev) => ({ ...prev, [name]: value }))
+    clearFieldError(name)
   }
 
   const handleSoftwareFormatChange = (value) => {
@@ -90,6 +153,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
       })
     }
     setFormData((prev) => ({ ...prev, softwareFormat: value }))
+    clearFieldError('softwareFormat')
   }
 
   const uploadToS3 = async (selectedFile, signal) => {
@@ -113,9 +177,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files?.[0]
     if (!selectedFile) return
-    // Abort any in-flight upload
     if (abortControllerRef.current) abortControllerRef.current.abort()
-    // Reset input so same file can be re-selected (some browsers don't fire onChange otherwise)
     e.target.value = ''
     const thisUploadId = ++uploadIdRef.current
     const controller = new AbortController()
@@ -126,7 +188,6 @@ function CadServiceForm({ onClose, inPopup = false }) {
     setUploading(true)
     try {
       const url = await uploadToS3(selectedFile, controller.signal)
-      // Ignore if user selected a different file before this upload finished
       if (thisUploadId !== uploadIdRef.current) return
       setFileUrl(url)
       fileUrlRef.current = url
@@ -151,6 +212,15 @@ function CadServiceForm({ onClose, inPopup = false }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    const errors = validateFormFields(formData)
+    setFieldErrors(errors)
+
+    const firstError = Object.values(errors).find(Boolean)
+    if (firstError) {
+      toast.error(firstError)
+      return
+    }
+
     trackHireDesignerEvent('hire_designer_form_submit_click', {
       form_context: formContext,
       service_type: formData.service || 'unknown',
@@ -163,14 +233,14 @@ function CadServiceForm({ onClose, inPopup = false }) {
     try {
       const modelUseLabel = MODEL_USE_OPTIONS.find((opt) => opt.value === formData.modelUse)?.label || formData.modelUse || ''
       const payload = {
-        full_name: formData.fullName,
-        email: formData.workEmail,
-        phone_number: formData.phone || '',
+        full_name: formData.fullName.trim(),
+        email: formData.workEmail.trim(),
+        phone_number: String(formData.phone || '').trim(),
         company_name: formData.company || '',
         what_do_you_need: formData.service || '',
         model_use: modelUseLabel === 'Select an option...' ? '' : modelUseLabel,
         software_format: formData.softwareFormat || '',
-        requirement: formData.requirement,
+        requirement: formData.requirement.trim(),
         file: fileUrlRef.current || fileUrl || '',
       }
 
@@ -195,6 +265,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
           softwareFormat: '',
           requirement: '',
         })
+        setFieldErrors(EMPTY_FIELD_ERRORS)
         setFile(null)
         setFileUrl('')
         fileUrlRef.current = ''
@@ -232,12 +303,12 @@ function CadServiceForm({ onClose, inPopup = false }) {
             id="fullName"
             name="fullName"
             type="text"
-            className={styles.formInput}
+            className={`${styles.formInput} ${fieldErrors.fullName ? styles.formInputError : ''}`}
             placeholder="Jane Smith"
             value={formData.fullName}
             onChange={handleChange}
-            required
           />
+          <FieldError message={fieldErrors.fullName} />
         </div>
         <div className={styles.formGroup}>
           <label className={styles.formLabel} htmlFor="workEmail">WORK EMAIL *</label>
@@ -245,15 +316,15 @@ function CadServiceForm({ onClose, inPopup = false }) {
             id="workEmail"
             name="workEmail"
             type="email"
-            className={styles.formInput}
+            className={`${styles.formInput} ${fieldErrors.workEmail ? styles.formInputError : ''}`}
             placeholder="jane@company.com"
             value={formData.workEmail}
             onChange={handleChange}
-            required
           />
+          <FieldError message={fieldErrors.workEmail} />
         </div>
         <div className={styles.formGroup}>
-          <label className={styles.formLabel} htmlFor="cad-phone-input">PHONE / WHATSAPP</label>
+          <label className={styles.formLabel} htmlFor="cad-phone-input">PHONE / WHATSAPP *</label>
           <ReactPhoneNumber
             phoneNumber={formData.phone}
             setPhoneNumber={(value) => {
@@ -265,11 +336,14 @@ function CadServiceForm({ onClose, inPopup = false }) {
                 })
               }
               setFormData((prev) => ({ ...prev, phone: value || '' }))
+              clearFieldError('phone')
             }}
             styles={styles}
-            classname="formPhoneInput"
+            classname={fieldErrors.phone ? 'formPhoneInputError' : 'formPhoneInput'}
             id="cad-phone-input"
           />
+          <p className={styles.formHint}>Select country code, then enter your mobile number (not the full number with country digits repeated).</p>
+          <FieldError message={fieldErrors.phone} />
         </div>
         <div className={styles.formGroup}>
           <label className={styles.formLabel} htmlFor="company">COMPANY</label>
@@ -288,30 +362,30 @@ function CadServiceForm({ onClose, inPopup = false }) {
           <select
             id="service"
             name="service"
-            className={styles.formSelect}
+            className={`${styles.formSelect} ${fieldErrors.service ? styles.formSelectError : ''}`}
             value={formData.service}
             onChange={handleChange}
-            required
           >
             {SERVICE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+          <FieldError message={fieldErrors.service} />
         </div>
         <div className={`${styles.formGroup} ${styles.formGridFull}`}>
           <label className={styles.formLabel} htmlFor="modelUse">WILL THE MODEL BE USED FOR? *</label>
           <select
             id="modelUse"
             name="modelUse"
-            className={styles.formSelect}
+            className={`${styles.formSelect} ${fieldErrors.modelUse ? styles.formSelectError : ''}`}
             value={formData.modelUse}
             onChange={handleChange}
-            required
           >
             {MODEL_USE_OPTIONS.map((opt) => (
               <option key={opt.value || 'placeholder'} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+          <FieldError message={fieldErrors.modelUse} />
         </div>
         <div className={`${styles.formGroup} ${styles.formGridFull}`}>
           <label className={styles.formLabel} htmlFor="softwareFormat">
@@ -321,21 +395,22 @@ function CadServiceForm({ onClose, inPopup = false }) {
             inputId="softwareFormat"
             value={formData.softwareFormat}
             onChange={handleSoftwareFormatChange}
-            required
             inPopup={inPopup}
+            hasError={Boolean(fieldErrors.softwareFormat)}
           />
+          <FieldError message={fieldErrors.softwareFormat} />
         </div>
         <div className={`${styles.formGroup} ${styles.formGridFull}`}>
           <label className={styles.formLabel} htmlFor="requirement">DESCRIBE YOUR REQUIREMENT *</label>
           <textarea
             id="requirement"
             name="requirement"
-            className={styles.formTextarea}
+            className={`${styles.formTextarea} ${fieldErrors.requirement ? styles.formTextareaError : ''}`}
             placeholder="E.g. 10 sheet metal parts in SolidWorks, need STEP + drawing packs, deadline in 5 days..."
             value={formData.requirement}
             onChange={handleChange}
-            required
           />
+          <FieldError message={fieldErrors.requirement} />
         </div>
       </div>
 
@@ -367,7 +442,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
 
   if (inPopup) {
     return (
-      <form className={`${styles.formCard} ${styles.formCardPopup}`} onSubmit={handleSubmit}>
+      <form className={`${styles.formCard} ${styles.formCardPopup}`} onSubmit={handleSubmit} noValidate>
         <div className={styles.formScrollContent}>{formContent}</div>
         <div className={styles.formStickyFooter}>{submitButton}</div>
       </form>
@@ -375,7 +450,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
   }
 
   return (
-    <form className={styles.formCard} onSubmit={handleSubmit}>
+    <form className={styles.formCard} onSubmit={handleSubmit} noValidate>
       {formContent}
       {submitButton}
     </form>

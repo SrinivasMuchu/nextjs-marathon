@@ -4,12 +4,20 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import SearchIcon from '@mui/icons-material/Search'
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
 import { BASE_URL } from '@/config'
 import { formatDate } from '@/common.helper'
 import Pagenation from '@/Components/CommonJsx/Pagenation'
 import Loading from '../CommonJsx/Loaders/Loading'
-import styles from './AdminPannel.module.css'
 import modalStyles from '../CommonJsx/AdminApprovalButtons.module.css'
+import styles from './CadServiceRequestsTable.module.css'
+import {
+  CAD_SERVICE_STATUSES,
+  getCadServiceStatusColor,
+  getCadServiceStatusLabel,
+  normalizeCadServiceStatus,
+} from './cadServiceStatusConfig'
 
 const SERVICE_LABELS = {
   modeling: '3D Modeling',
@@ -20,22 +28,32 @@ const SERVICE_LABELS = {
   other: 'Other',
 }
 
-function normalizeStatus(status) {
-  return status || 'pending'
-}
+const FILTER_OPTIONS = [
+  { value: 'all', label: 'All' },
+  ...CAD_SERVICE_STATUSES.map((status) => ({
+    value: status.value,
+    label: status.label,
+  })),
+]
 
-function isPendingStatus(status) {
-  const normalized = normalizeStatus(status)
-  return normalized === 'pending'
-}
+function StatusBadge({ status }) {
+  const normalized = normalizeCadServiceStatus(status)
+  const color = getCadServiceStatusColor(normalized)
+  const label = getCadServiceStatusLabel(normalized)
 
-function statusBadge(status) {
-  const base = styles.badge
-  const normalized = normalizeStatus(status)
-  if (normalized === 'approved') return `${base} ${styles.badgeSuccess}`
-  if (normalized === 'pending') return `${base} ${styles.badgeWarn}`
-  if (normalized === 'rejected') return `${base} ${styles.badgeDanger}`
-  return `${base} ${styles.badgeInfo}`
+  return (
+    <span
+      className={styles.statusBadge}
+      style={{
+        color,
+        backgroundColor: `${color}1a`,
+        borderColor: `${color}59`,
+      }}
+    >
+      <span className={styles.statusDot} style={{ backgroundColor: color }} />
+      {label}
+    </span>
+  )
 }
 
 function DetailRow({ label, value, isLink }) {
@@ -54,26 +72,131 @@ function DetailRow({ label, value, isLink }) {
   )
 }
 
+function getServiceLabel(request) {
+  return SERVICE_LABELS[request.what_do_you_need] || request.what_do_you_need || ''
+}
+
+async function fetchAllRequestsForExport(baseUrl, headers, q, action) {
+  const allRequests = []
+  let page = 1
+  let totalPages = 1
+
+  do {
+    const params = { page, limit: 100, q }
+    if (action !== 'all') params.action = action
+
+    const response = await axios.get(`${baseUrl}/v1/admin-pannel/get-cad-service-requests`, {
+      params,
+      headers,
+    })
+
+    const respData = response?.data?.data || {}
+    allRequests.push(...(respData.requests || []))
+    totalPages = respData.totalPages || 1
+    page += 1
+  } while (page <= totalPages)
+
+  return allRequests
+}
+
+async function exportRequestsToExcel(rows) {
+  const ExcelJS = (await import('exceljs')).default
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet('CAD Service Requests')
+
+  worksheet.columns = [
+    { header: 'Request ID', key: 'id', width: 26 },
+    { header: 'Full Name', key: 'full_name', width: 22 },
+    { header: 'Email', key: 'email', width: 28 },
+    { header: 'Phone', key: 'phone_number', width: 18 },
+    { header: 'Company', key: 'company_name', width: 22 },
+    { header: 'Service', key: 'service', width: 20 },
+    { header: 'Model Use', key: 'model_use', width: 20 },
+    { header: 'Software Format', key: 'software_format', width: 20 },
+    { header: 'Requirement', key: 'requirement', width: 40 },
+    { header: 'Reference File URL', key: 'file', width: 40 },
+    { header: 'Status', key: 'status', width: 20 },
+    { header: 'Rejection Reason', key: 'rejected_message', width: 30 },
+    { header: 'Submitted At', key: 'createdAt', width: 18 },
+    { header: 'Reviewed At', key: 'reviewed_at', width: 18 },
+    { header: 'Updated At', key: 'updatedAt', width: 18 },
+  ]
+
+  worksheet.getRow(1).font = { bold: true }
+
+  rows.forEach((request) => {
+    worksheet.addRow({
+      id: request._id || '',
+      full_name: request.full_name || '',
+      email: request.email || '',
+      phone_number: request.phone_number || '',
+      company_name: request.company_name || '',
+      service: getServiceLabel(request),
+      model_use: request.model_use || '',
+      software_format: request.software_format || '',
+      requirement: request.requirement || '',
+      file: request.file || '',
+      status: getCadServiceStatusLabel(request.status),
+      rejected_message: request.rejected_message || '',
+      createdAt: request.createdAt ? formatDate(request.createdAt) : '',
+      reviewed_at: request.reviewed_at ? formatDate(request.reviewed_at) : '',
+      updatedAt: request.updatedAt ? formatDate(request.updatedAt) : '',
+    })
+  })
+
+  const buffer = await workbook.xlsx.writeBuffer()
+  const blob = new Blob(
+    [buffer],
+    { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+  )
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `cad-service-requests-${new Date().toISOString().slice(0, 10)}.xlsx`
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+function RequestStatusSelect({ request, isSubmitting, onStatusSelect, className }) {
+  return (
+    <select
+      className={className}
+      value={normalizeCadServiceStatus(request.status)}
+      disabled={isSubmitting}
+      onChange={(e) => onStatusSelect(request, e.target.value)}
+      aria-label={`Change status for ${request.full_name || request.email || 'request'}`}
+    >
+      {CAD_SERVICE_STATUSES.map((status) => (
+        <option key={status.value} value={status.value}>
+          {status.label}
+        </option>
+      ))}
+    </select>
+  )
+}
+
 function CadServiceRequestsTable() {
   const [requests, setRequests] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [limit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
-  const [total, setTotal] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
   const [searchInput, setSearchInput] = useState('')
-  const [statusFilter, setStatusFilter] = useState('pending')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [statusCounts, setStatusCounts] = useState({})
+  const [totalCount, setTotalCount] = useState(0)
   const [viewRequest, setViewRequest] = useState(null)
   const [rejectTarget, setRejectTarget] = useState(null)
   const [rejectionMessage, setRejectionMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
 
   const adminHeaders = () => ({
     'admin-uuid': localStorage.getItem('admin-uuid'),
   })
 
-  const fetchRequests = async (page = 1, q = '', action = 'pending') => {
+  const fetchRequests = async (page = 1, q = '', action = 'all') => {
     setIsLoading(true)
     try {
       const params = { page, limit, q }
@@ -87,7 +210,8 @@ function CadServiceRequestsTable() {
       const respData = response?.data?.data || {}
       setRequests(respData.requests || [])
       setTotalPages(respData.totalPages || 1)
-      setTotal(respData.total || 0)
+      setStatusCounts(respData.statusCounts || {})
+      setTotalCount(respData.total || respData.summary?.total || 0)
       if (respData.page && respData.page !== page) {
         setCurrentPage(respData.page)
       }
@@ -95,7 +219,6 @@ function CadServiceRequestsTable() {
       console.error('Error fetching CAD service requests:', error)
       setRequests([])
       setTotalPages(1)
-      setTotal(0)
       toast.error('Failed to load CAD service requests')
     } finally {
       setIsLoading(false)
@@ -128,11 +251,11 @@ function CadServiceRequestsTable() {
     fetchRequests(currentPage, searchTerm, statusFilter)
   }
 
-  const handleStatusUpdate = async (requestId, action, message = '') => {
+  const handleStatusUpdate = async (requestId, nextStatus, message = '') => {
     setIsSubmitting(true)
     try {
-      const payload = { request_id: requestId, action }
-      if (action === 'reject') payload.rejected_message = message
+      const payload = { request_id: requestId, status: nextStatus }
+      if (nextStatus === 'rejected') payload.rejected_message = message
 
       const response = await axios.post(
         `${BASE_URL}/v1/admin-pannel/update-cad-service-request`,
@@ -157,12 +280,25 @@ function CadServiceRequestsTable() {
     }
   }
 
+  const handleStatusSelect = (request, nextStatus) => {
+    const current = normalizeCadServiceStatus(request.status)
+    if (nextStatus === current) return
+
+    if (nextStatus === 'rejected') {
+      setRejectTarget(request)
+      setRejectionMessage('')
+      return
+    }
+
+    handleStatusUpdate(request._id, nextStatus)
+  }
+
   const handleRejectSubmit = () => {
     if (!rejectionMessage.trim()) {
       toast.error('Please provide a rejection reason')
       return
     }
-    handleStatusUpdate(rejectTarget._id, 'reject', rejectionMessage.trim())
+    handleStatusUpdate(rejectTarget._id, 'rejected', rejectionMessage.trim())
   }
 
   const openView = async (request) => {
@@ -181,67 +317,100 @@ function CadServiceRequestsTable() {
     }
   }
 
-  const renderActions = (request) => {
-    const isPending = isPendingStatus(request.status)
-    return (
-      <div className={styles.actionCell}>
-        <button
-          type="button"
-          className={styles.actionBtn}
-          onClick={() => openView(request)}
-        >
-          View
-        </button>
-        <button
-          type="button"
-          className={`${styles.actionBtn} ${styles.actionApprove}`}
-          disabled={!isPending || isSubmitting}
-          onClick={() => handleStatusUpdate(request._id, 'approve')}
-        >
-          Approve
-        </button>
-        <button
-          type="button"
-          className={`${styles.actionBtn} ${styles.actionReject}`}
-          disabled={!isPending || isSubmitting}
-          onClick={() => {
-            setRejectTarget(request)
-            setRejectionMessage('')
-          }}
-        >
-          Reject
-        </button>
-      </div>
-    )
+  const getFilterCount = (filterValue) => {
+    if (filterValue === 'all') return totalCount
+    return statusCounts[filterValue] || 0
+  }
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const rows = await fetchAllRequestsForExport(
+        BASE_URL,
+        adminHeaders(),
+        searchTerm,
+        statusFilter
+      )
+
+      if (!rows.length) {
+        toast.info('No requests to export')
+        return
+      }
+
+      await exportRequestsToExcel(rows)
+      toast.success(`Exported ${rows.length} request${rows.length === 1 ? '' : 's'}`)
+    } catch (error) {
+      console.error('Export error:', error)
+      toast.error('Failed to export requests')
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   return (
-    <>
-      <div className={styles.searchContainer}>
-        <div className={styles.filterContainer}>
-          <div className={styles.filterButtons}>
-            {['all', 'pending', 'approved', 'rejected'].map((filter) => (
+    <div className={styles.page}>
+      <div className={styles.sectionHeader}>
+        <div className={styles.sectionTitleWrap}>
+          <h3 className={styles.sectionTitle}>All requests</h3>
+          <span className={styles.sectionSubtitle}>{totalCount} requests</span>
+        </div>
+        <button
+          type="button"
+          className={styles.exportBtn}
+          onClick={handleExport}
+          disabled={isExporting}
+        >
+          <FileDownloadOutlinedIcon fontSize="small" />
+          {isExporting ? 'Exporting...' : 'Export Excel'}
+        </button>
+      </div>
+
+      <div className={styles.filtersRow}>
+        <div className={`${styles.filterPills} ${styles.filterPillsDesktop}`}>
+          {FILTER_OPTIONS.map((filter) => {
+            const count = getFilterCount(filter.value)
+            const label = filter.value === 'all' ? filter.label : `${filter.label} (${count})`
+            return (
               <button
-                key={filter}
+                key={filter.value}
                 type="button"
-                className={`${styles.filterBtn} ${statusFilter === filter ? styles.filterBtnActive : ''}`}
-                onClick={() => handleFilterChange(filter)}
+                className={`${styles.filterPill} ${statusFilter === filter.value ? styles.filterPillActive : ''}`}
+                onClick={() => handleFilterChange(filter.value)}
               >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                {label}
               </button>
+            )
+          })}
+        </div>
+
+        <div className={styles.statusFilterRow}>
+          <label className={styles.statusFilterLabel} htmlFor="cad-status-filter">
+            Filter by status
+          </label>
+          <select
+            id="cad-status-filter"
+            className={styles.statusDropdown}
+            value={statusFilter}
+            onChange={(e) => handleFilterChange(e.target.value)}
+          >
+            {FILTER_OPTIONS.map((filter) => (
+              <option key={filter.value} value={filter.value}>
+                {filter.label}
+                {filter.value !== 'all' ? ` (${getFilterCount(filter.value)})` : ` (${totalCount})`}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
 
         <form onSubmit={handleSearch} className={styles.searchForm}>
-          <div className={styles['search-container']}>
-            <SearchIcon className={styles['search-icon']} />
+          <div className={styles.searchInputWrap}>
+            <SearchIcon className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Search name, email, company..."
+              placeholder="Search name, email, service..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className={styles['search-input']}
+              className={styles.searchInput}
             />
           </div>
           <button type="submit" className={styles.searchBtn}>Search</button>
@@ -253,59 +422,135 @@ function CadServiceRequestsTable() {
         </form>
       </div>
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Service</th>
-              <th>Status</th>
-              <th>Submitted</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          {isLoading ? (
-            <tbody>
-              <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: 20 }}>
-                  <Loading />
-                </td>
-              </tr>
-            </tbody>
-          ) : (
-            <tbody>
-              {requests.length === 0 ? (
+      <div className={styles.desktopTable}>
+        <div className={styles.tableScroll}>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: 20 }}>
-                    No CAD service requests found
-                  </td>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Service</th>
+                  <th>Status</th>
+                  <th>Submitted</th>
+                  <th>View</th>
+                  <th>Change status</th>
                 </tr>
-              ) : (
-                requests.map((request) => (
-                  <tr key={request._id} className={styles.row}>
-                    <td>{request.full_name || '—'}</td>
-                    <td>{request.email || '—'}</td>
-                    <td>
-                      {SERVICE_LABELS[request.what_do_you_need] || request.what_do_you_need || '—'}
+              </thead>
+              {isLoading ? (
+                <tbody>
+                  <tr>
+                    <td colSpan={7} className={styles.emptyCell}>
+                      <Loading />
                     </td>
-                    <td>
-                      <span className={statusBadge(request.status)}>
-                        {normalizeStatus(request.status).charAt(0).toUpperCase() + normalizeStatus(request.status).slice(1)}
-                      </span>
-                    </td>
-                    <td>{formatDate(request.createdAt)}</td>
-                    <td>{renderActions(request)}</td>
                   </tr>
-                ))
+                </tbody>
+              ) : (
+                <tbody>
+                  {requests.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className={styles.emptyCell}>
+                        No CAD service requests found
+                      </td>
+                    </tr>
+                  ) : (
+                    requests.map((request) => (
+                      <tr key={request._id}>
+                        <td>{request.full_name || '—'}</td>
+                        <td>{request.email || '—'}</td>
+                        <td>
+                          {SERVICE_LABELS[request.what_do_you_need] || request.what_do_you_need || '—'}
+                        </td>
+                        <td>
+                          <StatusBadge status={request.status} />
+                        </td>
+                        <td>{formatDate(request.createdAt)}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className={styles.viewBtn}
+                            onClick={() => openView(request)}
+                            aria-label="View request"
+                          >
+                            <VisibilityOutlinedIcon fontSize="small" />
+                          </button>
+                        </td>
+                        <td>
+                          <RequestStatusSelect
+                            request={request}
+                            isSubmitting={isSubmitting}
+                            onStatusSelect={handleStatusSelect}
+                            className={styles.statusSelect}
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
               )}
-            </tbody>
-          )}
-        </table>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.mobileCards}>
+        {isLoading ? (
+          <div className={styles.mobileEmpty}>
+            <Loading />
+          </div>
+        ) : requests.length === 0 ? (
+          <div className={styles.mobileEmpty}>No CAD service requests found</div>
+        ) : (
+          requests.map((request) => (
+            <article key={request._id} className={styles.requestCard}>
+              <div className={styles.requestCardHeader}>
+                <div>
+                  <h4 className={styles.requestCardName}>{request.full_name || '—'}</h4>
+                  <p className={styles.requestCardEmail}>{request.email || '—'}</p>
+                </div>
+                <button
+                  type="button"
+                  className={styles.viewBtn}
+                  onClick={() => openView(request)}
+                  aria-label="View request"
+                >
+                  <VisibilityOutlinedIcon fontSize="small" />
+                </button>
+              </div>
+
+              <div className={styles.requestCardMeta}>
+                <div className={styles.requestCardField}>
+                  <span className={styles.requestCardLabel}>Service</span>
+                  <span className={styles.requestCardValue}>
+                    {SERVICE_LABELS[request.what_do_you_need] || request.what_do_you_need || '—'}
+                  </span>
+                </div>
+                <div className={styles.requestCardField}>
+                  <span className={styles.requestCardLabel}>Submitted</span>
+                  <span className={styles.requestCardValue}>{formatDate(request.createdAt)}</span>
+                </div>
+              </div>
+
+              <div className={styles.requestCardStatusRow}>
+                <StatusBadge status={request.status} />
+              </div>
+
+              <div className={styles.requestCardActions}>
+                <span className={styles.requestCardLabel}>Change status</span>
+                <RequestStatusSelect
+                  request={request}
+                  isSubmitting={isSubmitting}
+                  onStatusSelect={handleStatusSelect}
+                  className={styles.statusSelectMobile}
+                />
+              </div>
+            </article>
+          ))
+        )}
       </div>
 
       {totalPages > 1 && (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+        <div className={styles.paginationWrap}>
           <Pagenation
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
@@ -335,34 +580,11 @@ function CadServiceRequestsTable() {
               <DetailRow label="Software preference" value={viewRequest.software_format} />
               <DetailRow label="Requirement" value={viewRequest.requirement} />
               <DetailRow label="Reference file" value={viewRequest.file} isLink={Boolean(viewRequest.file)} />
-              <DetailRow label="Status" value={viewRequest.status} />
+              <DetailRow label="Status" value={getCadServiceStatusLabel(viewRequest.status)} />
               {viewRequest.rejected_message ? (
                 <DetailRow label="Rejection reason" value={viewRequest.rejected_message} />
               ) : null}
             </div>
-            {isPendingStatus(viewRequest.status) && (
-              <div className={styles.viewModalActions}>
-                <button
-                  type="button"
-                  className={`${modalStyles.button} ${modalStyles.approve}`}
-                  disabled={isSubmitting}
-                  onClick={() => handleStatusUpdate(viewRequest._id, 'approve')}
-                >
-                  Approve
-                </button>
-                <button
-                  type="button"
-                  className={`${modalStyles.button} ${modalStyles.reject}`}
-                  disabled={isSubmitting}
-                  onClick={() => {
-                    setRejectTarget(viewRequest)
-                    setViewRequest(null)
-                  }}
-                >
-                  Reject
-                </button>
-              </div>
-            )}
             <div className={modalStyles.modalActions}>
               <button
                 type="button"
@@ -419,7 +641,7 @@ function CadServiceRequestsTable() {
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }
 
