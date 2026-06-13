@@ -1,9 +1,13 @@
 export const TECHDRAW_ERROR_CODES = {
   DIMENSION_EXTRACTION_FAILED: "DIMENSION_EXTRACTION_FAILED",
+  EXPORT_TIMEOUT: "EXPORT_TIMEOUT",
 };
 
 export const DIMENSION_EXTRACTION_FAILED_USER_MSG =
   "We could not generate dimensions from your uploaded CAD model because the geometry required for dimension extraction was not detected.";
+
+export const EXPORT_TIMEOUT_USER_MSG =
+  "Your drawing took too long to export and was stopped before completion. Try a simpler assembly, or contact support if this keeps happening.";
 
 export const DIMENSION_EXTRACTION_FREE_RETRY_MSG =
   "Upload another CAD file and we will process it free of charge.";
@@ -11,6 +15,11 @@ export const DIMENSION_EXTRACTION_FREE_RETRY_MSG =
 export function isDimensionExtractionFailure(job) {
   const code = job?.error_code || job?.errorCode;
   return code === TECHDRAW_ERROR_CODES.DIMENSION_EXTRACTION_FAILED;
+}
+
+export function isExportTimeoutFailure(job) {
+  const code = job?.error_code || job?.errorCode;
+  return code === TECHDRAW_ERROR_CODES.EXPORT_TIMEOUT;
 }
 
 export function isFreeRetryAvailable(job) {
