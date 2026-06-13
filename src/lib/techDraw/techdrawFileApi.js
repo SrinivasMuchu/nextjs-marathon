@@ -50,21 +50,32 @@ export function withPdfEmbedViewerParams(pdfUrl) {
 export function techdrawSheetPdfViewUrl(
   designId,
   sheetNum,
-  { userPipeline = false, embed = true } = {},
+  { userPipeline = false, embed = true, outputPrefix = "" } = {},
 ) {
   const n = Number(sheetNum);
+  const prefix = String(outputPrefix || "").trim();
   const url = userPipeline
-    ? techdrawFileApiUrl(designId, { sheet: n, ext: "pdf", source: "user" })
+    ? techdrawFileApiUrl(designId, {
+        sheet: n,
+        ext: "pdf",
+        ...(prefix ? { prefix } : { source: "user" }),
+      })
     : techdrawFileApiUrl(designId, { sheet: n, ext: "pdf" });
   return embed ? withPdfEmbedViewerParams(url) : url;
 }
 
-export function techdrawBundlePdfViewUrl(designId, { userPipeline = false } = {}) {
+export function techdrawBundlePdfViewUrl(
+  designId,
+  { userPipeline = false, outputPrefix = "" } = {},
+) {
+  const prefix = String(outputPrefix || "").trim();
   if (userPipeline) {
-    return techdrawFileApiUrl(designId, {
-      source: "user",
-      file: "technical_drawing_simple.pdf",
-    });
+    return withPdfEmbedViewerParams(
+      techdrawFileApiUrl(designId, {
+        ...(prefix ? { prefix } : { source: "user" }),
+        file: "technical_drawing_simple.pdf",
+      }),
+    );
   }
   return `/api/techdraw-pdf-bundle?designId=${encodeURIComponent(designId)}`;
 }

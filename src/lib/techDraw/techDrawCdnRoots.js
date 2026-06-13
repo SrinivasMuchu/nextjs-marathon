@@ -9,7 +9,7 @@ export function libraryCdnRoot(designId) {
 
 /** Legacy pipeline folder layout (older jobs). */
 export function legacyUserPipelineRoot(designId) {
-  return `${CDN}/user-freecad-techdraw/${String(designId || "").trim()}`;
+  return `${CDN}/qwen_tech_draw_designs/${String(designId || "").trim()}`;
 }
 
 /** Resolve CloudFront folder from cad_tech_draw.output_s3_prefix (e.g. qwen_tech_draw_designs/{id}). */

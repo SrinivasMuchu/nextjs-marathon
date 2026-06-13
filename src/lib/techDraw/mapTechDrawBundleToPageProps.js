@@ -9,7 +9,6 @@ import {
   techdrawFileApiUrl,
   techdrawSheetPdfViewUrl,
   techdrawSheetPreviewUrls,
-  withPdfEmbedViewerParams,
 } from "./techdrawFileApi";
 import {
   directSheetAssetUrls,
@@ -529,9 +528,10 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
   const sheets = entries.map((e) => {
     const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num, designId);
     const n = Number(e.sheet_num);
-    const pdfUrl = userPipeline
-      ? withPdfEmbedViewerParams(directSheetAssetUrls(baseUrl, n).pdf)
-      : techdrawSheetPdfViewUrl(designId, n, { userPipeline: false });
+    const pdfUrl = techdrawSheetPdfViewUrl(designId, n, {
+      userPipeline,
+      outputPrefix: outputS3Prefix || "",
+    });
     return {
       src: previewCandidates[0],
       previewCandidates,
@@ -572,9 +572,10 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     // Both library + user-pipeline pages CTA into the same upload flow.
     // (The legacy "/generate" route never existed and led to a 404.)
     generateHref: "/tools/cad-drawing-pipeline",
-    pdfHref: userPipeline
-      ? `${String(baseUrl || "").replace(/\/$/, "")}/technical_drawing_simple.pdf`
-      : techdrawBundlePdfViewUrl(designId, { userPipeline: false }),
+    pdfHref: techdrawBundlePdfViewUrl(designId, {
+      userPipeline,
+      outputPrefix: outputS3Prefix || "",
+    }),
     freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
     zipHref: techdrawBundleZipUrl(designId, {
       userPipeline: userPipeline && !outputS3Prefix,
