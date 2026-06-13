@@ -10,6 +10,10 @@ import {
   techdrawSheetPdfViewUrl,
   techdrawSheetPreviewUrls,
 } from "./techdrawFileApi";
+import {
+  directSheetAssetUrls,
+  isUserPipelineCdnBase,
+} from "./techDrawCdnRoots";
 
 function sortGeometryKeys(geometryPerSheet) {
   if (!geometryPerSheet || typeof geometryPerSheet !== "object") return [];
@@ -81,17 +85,14 @@ function uniqueViews(entries) {
   return new Set(entries.map((e) => e.view_name).filter(Boolean)).size;
 }
 
-function isUserPipelineCdnBase(baseUrl) {
-  return String(baseUrl || "").includes("user-freecad-techdraw");
-}
-
-/** SVG preview URLs (same-origin API so inline MIME + no forced download). */
+/** SVG preview URLs — pipeline jobs use direct CDN paths from output_s3_prefix. */
 function sheetPreviewCandidates(baseUrl, sheetNum, designId) {
   const n = Number(sheetNum);
   const id = String(designId || "").trim();
   const base = String(baseUrl || "").replace(/\/$/, "");
-  if (isUserPipelineCdnBase(base) && id) {
-    return techdrawSheetPreviewUrls(id, n, { userPipeline: true });
+  if (isUserPipelineCdnBase(base)) {
+    const assets = directSheetAssetUrls(base, n);
+    return [assets.svg, assets.svgNodim];
   }
   const fromBase = base.split("/").pop() || "";
   const resolvedId = id || fromBase;
@@ -319,11 +320,20 @@ function buildSectionDetailGroups(entries, dimensionSpecs, viewSelectionResponse
 }
 
 function buildSheetDownloadRows(entries, baseUrl, designId) {
-  const userCdn = isUserPipelineCdnBase(baseUrl);
+  const userPipeline = isUserPipelineCdnBase(baseUrl);
   const id = String(designId || "").trim();
   return entries.map((e) => {
     const n = Number(e.sheet_num);
-    if (userCdn && id) {
+    if (userPipeline) {
+      const assets = directSheetAssetUrls(baseUrl, n);
+      return {
+        name: e.label,
+        pdf: assets.pdf,
+        svg: assets.svg,
+        dxf: assets.dxf,
+      };
+    }
+    if (id) {
       return {
         name: e.label,
         pdf: techdrawFileApiUrl(id, {
@@ -477,6 +487,7 @@ function normalizeBomRows(bom) {
 export function mapTechDrawBundleToPageProps(designId, bundle) {
   const {
     baseUrl,
+    outputS3Prefix,
     dimensionSpecs,
     dimensionsResponse,
     geometryPerSheet,
@@ -513,14 +524,18 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     { value: "1st Angle", label: "Projection" },
   ];
 
-  const userCdn = isUserPipelineCdnBase(baseUrl);
+  const userPipeline = isUserPipelineCdnBase(baseUrl);
   const sheets = entries.map((e) => {
     const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num, designId);
     const n = Number(e.sheet_num);
+    const pdfUrl = techdrawSheetPdfViewUrl(designId, n, {
+      userPipeline,
+      outputPrefix: outputS3Prefix || "",
+    });
     return {
       src: previewCandidates[0],
       previewCandidates,
-      pdfUrl: techdrawSheetPdfViewUrl(designId, n, { userPipeline: userCdn }),
+      pdfUrl,
       label: e.label,
     };
   });
@@ -557,9 +572,15 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     // Both library + user-pipeline pages CTA into the same upload flow.
     // (The legacy "/generate" route never existed and led to a 404.)
     generateHref: "/tools/cad-drawing-pipeline",
-    pdfHref: techdrawBundlePdfViewUrl(designId, { userPipeline: userCdn }),
+    pdfHref: techdrawBundlePdfViewUrl(designId, {
+      userPipeline,
+      outputPrefix: outputS3Prefix || "",
+    }),
     freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
-    zipHref: techdrawBundleZipUrl(designId, { userPipeline: userCdn }),
+    zipHref: techdrawBundleZipUrl(designId, {
+      userPipeline: userPipeline && !outputS3Prefix,
+      outputPrefix: outputS3Prefix || "",
+    }),
     drawingInfo: buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse),
     // aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
     viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse, designId),

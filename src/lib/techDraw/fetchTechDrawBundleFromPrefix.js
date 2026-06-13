@@ -1,4 +1,5 @@
 import { DESIGN_GLB_PREFIX_URL } from "@/config";
+import { isUserPipelineCdnBase } from "./techDrawCdnRoots";
 
 const MIN_VALID_SVG_BYTES = 800;
 
@@ -61,7 +62,8 @@ async function buildAvailabilityMap(baseUrl, geometryPerSheet) {
  * Client-safe (no server-only APIs).
  */
 export async function fetchTechDrawBundleFromPrefix(outputS3Prefix) {
-  const baseUrl = techDrawCdnBaseFromPrefix(outputS3Prefix);
+  const prefix = String(outputS3Prefix || "").trim();
+  const baseUrl = techDrawCdnBaseFromPrefix(prefix);
   if (!baseUrl) return null;
 
   const [geometryPerSheet, viewSelectionResponse, dimensionSpecs] = await Promise.all([
@@ -81,12 +83,13 @@ export async function fetchTechDrawBundleFromPrefix(outputS3Prefix) {
 
   return {
     baseUrl,
+    outputS3Prefix: prefix,
     geometryPerSheet,
     viewSelectionResponse,
     dimensionSpecs,
     dimensionsResponse: null,
     designMeta: null,
     availabilityBySheet,
-    isUserPipelineOutput: baseUrl.includes("user-freecad-techdraw"),
+    isUserPipelineOutput: isUserPipelineCdnBase(baseUrl),
   };
 }

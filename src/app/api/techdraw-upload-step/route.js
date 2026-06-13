@@ -29,6 +29,7 @@ export async function POST(request) {
   const file = formData.get("file");
   const title = String(formData.get("title") || "").trim();
   const description = String(formData.get("description") || "").trim();
+  const originalFailedJobId = String(formData.get("original_failed_job_id") || "").trim();
 
   if (!file || typeof file === "string") {
     return NextResponse.json(
@@ -91,6 +92,7 @@ export async function POST(request) {
         input_file_url,
         s3_bucket,
         file_name,
+        ...(originalFailedJobId ? { original_failed_job_id: originalFailedJobId } : {}),
       }),
       cache: "no-store",
     });

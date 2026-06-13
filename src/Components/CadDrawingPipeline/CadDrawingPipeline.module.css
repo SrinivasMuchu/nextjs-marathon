@@ -2188,3 +2188,77 @@
   overflow: auto;
   color: var(--text-dim);
 }
+
+.dimensionFailureModal {
+  position: relative;
+  width: min(520px, 92vw);
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  color: #111;
+}
+
+.dimensionFailureModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dimensionFailureModalTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.dimensionFailureModalClose {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+  color: #666;
+}
+
+.dimensionFailureModalBody {
+  margin: 0 0 10px;
+  line-height: 1.55;
+  color: #333;
+}
+
+.dimensionFailureModalSub {
+  margin: 0 0 20px;
+  line-height: 1.5;
+  color: #610bee;
+  font-weight: 600;
+}
+
+.dimensionFailureModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dimensionFailureModalSecondary,
+.dimensionFailureModalPrimary {
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.dimensionFailureModalSecondary {
+  border: 2px solid #610bee;
+  background: transparent;
+  color: #610bee;
+}
+
+.dimensionFailureModalPrimary {
+  border: none;
+  background: #610bee;
+  color: #fff;
+}

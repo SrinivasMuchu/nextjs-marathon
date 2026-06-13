@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import axios from "axios";
 import {
@@ -16,6 +16,7 @@ import CadDrawingPipelineHero from "./CadDrawingPipelineHero";
 import CadDrawingPipelineHowItWorks from "./CadDrawingPipelineHowItWorks";
 import { STEP_EXT } from "./pipelineConstants";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
+import { DIMENSION_EXTRACTION_FREE_RETRY_MSG } from "@/api/techDrawErrors";
 import {
   flowTypeFromEligibility,
   trackTechDrawFileRejected,
@@ -77,6 +78,9 @@ function isLlmAvailable(eligibility) {
 
 export default function CadDrawingPipelineView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const freeRetryFor = String(searchParams.get("freeRetryFor") || "").trim();
+  const isFreeRetryFlow = Boolean(freeRetryFor);
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -153,7 +157,7 @@ export default function CadDrawingPipelineView() {
   };
 
   const needsPaidFlow =
-    eligibility && !eligibility.free_run_available && !eligibilityLoading;
+    !isFreeRetryFlow && eligibility && !eligibility.free_run_available && !eligibilityLoading;
 
   const llmAvailable = useMemo(() => isLlmAvailable(eligibility), [eligibility]);
   const llmDownMessage = useMemo(
@@ -221,6 +225,14 @@ export default function CadDrawingPipelineView() {
         return;
       }
 
+      // Re-check payment requirement from fresh eligibility (not stale render state).
+      const needsPaymentNow =
+        !isFreeRetryFlow &&
+        Boolean(
+          freshEligibility?.requires_payment ||
+            (freshEligibility && !freshEligibility.free_run_available),
+        );
+
       const onPhase = (phase) => {
         trackTechDrawUploadPhase(phase);
         if (phase === "upload-url") setUploadPhase("Requesting upload URL…");
@@ -230,7 +242,7 @@ export default function CadDrawingPipelineView() {
 
       let jobId;
 
-      if (needsPaidFlow) {
+      if (needsPaymentNow) {
         setUploadPhase(`Pay ${prices.baseLabel} + tax (${prices.totalLabel})…`);
         const payment = await openTechDrawPayment({
           description: `2D technical drawing — ${prices.baseLabel}`,
@@ -250,13 +262,22 @@ export default function CadDrawingPipelineView() {
           title: title.trim(),
           description: description.trim(),
           requiresPayment: false,
+          original_failed_job_id: isFreeRetryFlow ? freeRetryFor : undefined,
           onPhase,
         });
         jobId = prep.jobId;
-        toast.success("Drawing pipeline started.");
+        toast.success(
+          isFreeRetryFlow
+            ? "Free replacement upload started."
+            : "Drawing pipeline started.",
+        );
       }
 
-      trackTechDrawUploadSuccess({ flowType, jobId, file });
+      trackTechDrawUploadSuccess({
+        flowType: needsPaymentNow ? "paid" : flowTypeFromEligibility(freshEligibility),
+        jobId,
+        file,
+      });
       setUploadPhase("Opening job dashboard…");
       router.push(techDrawPipelineStatusPath(jobId));
     } catch (err) {
@@ -350,6 +371,19 @@ export default function CadDrawingPipelineView() {
               >
                 {eligibilityLoading ? "Checking…" : "Retry AI check"}
               </button>
+            </div>
+          </div>
+        ) : null}
+
+        {isFreeRetryFlow ? (
+          <div
+            className={`${styles.resultBanner} ${styles.resultBannerWarn}`}
+            style={{ marginBottom: 16 }}
+          >
+            <span className={styles.resultIcon}>↻</span>
+            <div>
+              <div className={styles.resultText}>Free replacement upload</div>
+              <div className={styles.resultSub}>{DIMENSION_EXTRACTION_FREE_RETRY_MSG}</div>
             </div>
           </div>
         ) : null}

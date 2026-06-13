@@ -163,6 +163,7 @@ export async function submitTechDrawJob({
   razorpay_order_id,
   razorpay_payment_id,
   razorpay_signature,
+  original_failed_job_id,
 }) {
   assertUuid();
   const { data } = await axios.post(
@@ -173,6 +174,7 @@ export async function submitTechDrawJob({
       input_file_url,
       s3_bucket,
       file_name,
+      ...(original_failed_job_id ? { original_failed_job_id } : {}),
       ...(razorpay_order_id
         ? { razorpay_order_id, razorpay_payment_id, razorpay_signature }
         : {}),
@@ -275,12 +277,21 @@ export async function pollTechDrawJobUntilDone(jobId, opts = {}) {
 }
 
 /** Upload STEP and create job via same-origin API proxy (avoids S3 CORS). */
-async function prepareCadDrawingJobViaProxy({ file, title, description, onPhase }) {
+async function prepareCadDrawingJobViaProxy({
+  file,
+  title,
+  description,
+  original_failed_job_id,
+  onPhase,
+}) {
   const uuid = getOrCreateTechDrawUuid();
   const formData = new FormData();
   formData.append("file", file);
   formData.append("title", title || file.name);
   formData.append("description", description || "");
+  if (original_failed_job_id) {
+    formData.append("original_failed_job_id", original_failed_job_id);
+  }
 
   onPhase?.("upload-url");
   onPhase?.("s3-upload");
@@ -301,12 +312,13 @@ async function prepareCadDrawingJobViaProxy({ file, title, description, onPhase 
   return data.data;
 }
 
-/** Upload STEP and create job in DB (free run, or after Razorpay payment). */
+/** Upload STEP and create job in DB (free run, free retry, or after Razorpay payment). */
 export async function uploadAndSubmitTechDrawJob({
   file,
   title = "",
   description = "",
   payment,
+  original_failed_job_id,
   onPhase,
 }) {
   if (!file) throw new Error("No file selected");
@@ -323,6 +335,7 @@ export async function uploadAndSubmitTechDrawJob({
     input_file_url: upload.input_file_url,
     s3_bucket: upload.s3_bucket,
     file_name: upload.file_name,
+    original_failed_job_id,
     ...(payment || {}),
   });
   return String(submit.job_id);
@@ -337,6 +350,7 @@ export async function prepareCadDrawingJob({
   title = "",
   description = "",
   requiresPayment = false,
+  original_failed_job_id,
   onPhase,
 }) {
   if (!file) throw new Error("No file selected");
@@ -344,24 +358,34 @@ export async function prepareCadDrawingJob({
 
   const prices = getTechDrawPriceDisplay();
 
-  if (requiresPayment) {
+  if (requiresPayment && !original_failed_job_id) {
     return { needsPayment: true, prices };
   }
 
   let jobId;
   try {
-    jobId = await uploadAndSubmitTechDrawJob({ file, title, description, onPhase });
+    jobId = await uploadAndSubmitTechDrawJob({
+      file,
+      title,
+      description,
+      original_failed_job_id,
+      onPhase,
+    });
   } catch (proxyErr) {
     const proxyMsg = formatApiError(proxyErr, "");
     if (proxyMsg && !/network|fetch|timeout|502|503|504/i.test(proxyMsg)) {
       throw proxyErr;
     }
-    jobId = await prepareCadDrawingJobViaProxy({ file, title, description, onPhase }).then(
-      (d) => String(d.job_id),
-    );
+    jobId = await prepareCadDrawingJobViaProxy({
+      file,
+      title,
+      description,
+      original_failed_job_id,
+      onPhase,
+    }).then((d) => String(d.job_id));
   }
 
-  return { needsPayment: false, jobId, prices };
+  return { needsPayment: false, jobId, prices, isFreeRetry: Boolean(original_failed_job_id) };
 }
 
 export async function startCadDrawingPipeline({ file, title = "", description = "", onPhase }) {

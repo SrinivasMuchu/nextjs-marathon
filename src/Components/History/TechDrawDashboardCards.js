@@ -40,8 +40,15 @@ function normalizeFileStatus(status) {
 
 function previewSrc(job) {
   const id = String(job?._id || "");
-  if (!id || !job?.output_s3_prefix) return "";
-  return `/api/techdraw-file?designId=${encodeURIComponent(id)}&source=user&sheet=1&ext=svg`;
+  const prefix = String(job?.output_s3_prefix || "").trim();
+  if (!id || !prefix) return "";
+  const params = new URLSearchParams({
+    designId: id,
+    sheet: "1",
+    ext: "svg",
+    prefix,
+  });
+  return `/api/techdraw-file?${params}`;
 }
 
 export default function TechDrawDashboardCards({

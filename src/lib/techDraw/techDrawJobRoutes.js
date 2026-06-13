@@ -16,6 +16,12 @@ export function techDrawDesignPath(jobId) {
   return `/dashboard/2d-technical-drawing/${encodeURIComponent(id)}`;
 }
 
+/** Upload page with free-retry context for a failed dimension-extraction job. */
+export function techDrawFreeRetryUploadPath(failedJobId) {
+  const id = String(failedJobId || "").trim();
+  return `/tools/cad-drawing-pipeline?freeRetryFor=${encodeURIComponent(id)}`;
+}
+
 /** Dashboard card / deep link — completed → design page, else pipeline status. */
 export function techDrawJobHref(job) {
   const id = String(job?._id || job?.id || "").trim();

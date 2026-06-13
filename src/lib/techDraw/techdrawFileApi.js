@@ -4,11 +4,13 @@
 
 export function techdrawFileApiUrl(
   designId,
-  { sheet, ext, source, disposition, variant, file } = {},
+  { sheet, ext, source, disposition, variant, file, prefix } = {},
 ) {
   const id = String(designId || "").trim();
   const params = new URLSearchParams({ designId: id });
-  if (source === "user") params.set("source", "user");
+  const outputPrefix = String(prefix || "").trim();
+  if (outputPrefix) params.set("prefix", outputPrefix);
+  else if (source === "user") params.set("source", "user");
   if (file) {
     params.set("file", file);
   } else if (sheet != null && ext) {
@@ -48,28 +50,41 @@ export function withPdfEmbedViewerParams(pdfUrl) {
 export function techdrawSheetPdfViewUrl(
   designId,
   sheetNum,
-  { userPipeline = false, embed = true } = {},
+  { userPipeline = false, embed = true, outputPrefix = "" } = {},
 ) {
   const n = Number(sheetNum);
+  const prefix = String(outputPrefix || "").trim();
   const url = userPipeline
-    ? techdrawFileApiUrl(designId, { sheet: n, ext: "pdf", source: "user" })
+    ? techdrawFileApiUrl(designId, {
+        sheet: n,
+        ext: "pdf",
+        ...(prefix ? { prefix } : { source: "user" }),
+      })
     : techdrawFileApiUrl(designId, { sheet: n, ext: "pdf" });
   return embed ? withPdfEmbedViewerParams(url) : url;
 }
 
-export function techdrawBundlePdfViewUrl(designId, { userPipeline = false } = {}) {
+export function techdrawBundlePdfViewUrl(
+  designId,
+  { userPipeline = false, outputPrefix = "" } = {},
+) {
+  const prefix = String(outputPrefix || "").trim();
   if (userPipeline) {
-    return techdrawFileApiUrl(designId, {
-      source: "user",
-      file: "technical_drawing_simple.pdf",
-    });
+    return withPdfEmbedViewerParams(
+      techdrawFileApiUrl(designId, {
+        ...(prefix ? { prefix } : { source: "user" }),
+        file: "technical_drawing_simple.pdf",
+      }),
+    );
   }
   return `/api/techdraw-pdf-bundle?designId=${encodeURIComponent(designId)}`;
 }
 
-export function techdrawBundleZipUrl(designId, { userPipeline = false } = {}) {
+export function techdrawBundleZipUrl(designId, { userPipeline = false, outputPrefix = "" } = {}) {
   const id = String(designId || "").trim();
   const params = new URLSearchParams({ designId: id });
-  if (userPipeline) params.set("source", "user");
+  const prefix = String(outputPrefix || "").trim();
+  if (prefix) params.set("prefix", prefix);
+  else if (userPipeline) params.set("source", "user");
   return `/api/techdraw-bundle-zip?${params}`;
 }
