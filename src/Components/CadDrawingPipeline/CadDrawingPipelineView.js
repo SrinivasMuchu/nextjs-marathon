@@ -225,6 +225,14 @@ export default function CadDrawingPipelineView() {
         return;
       }
 
+      // Re-check payment requirement from fresh eligibility (not stale render state).
+      const needsPaymentNow =
+        !isFreeRetryFlow &&
+        Boolean(
+          freshEligibility?.requires_payment ||
+            (freshEligibility && !freshEligibility.free_run_available),
+        );
+
       const onPhase = (phase) => {
         trackTechDrawUploadPhase(phase);
         if (phase === "upload-url") setUploadPhase("Requesting upload URL…");
@@ -234,7 +242,7 @@ export default function CadDrawingPipelineView() {
 
       let jobId;
 
-      if (needsPaidFlow) {
+      if (needsPaymentNow) {
         setUploadPhase(`Pay ${prices.baseLabel} + tax (${prices.totalLabel})…`);
         const payment = await openTechDrawPayment({
           description: `2D technical drawing — ${prices.baseLabel}`,
@@ -265,7 +273,11 @@ export default function CadDrawingPipelineView() {
         );
       }
 
-      trackTechDrawUploadSuccess({ flowType, jobId, file });
+      trackTechDrawUploadSuccess({
+        flowType: needsPaymentNow ? "paid" : flowTypeFromEligibility(freshEligibility),
+        jobId,
+        file,
+      });
       setUploadPhase("Opening job dashboard…");
       router.push(techDrawPipelineStatusPath(jobId));
     } catch (err) {
