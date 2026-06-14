@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect, useContext, useCallback } from 'rea
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
-import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList, ASSET_PREFIX_URL } from '@/config';
+import { BASE_URL, CAD_INPUT_FILES_BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList, ASSET_PREFIX_URL } from '@/config';
 import { fetchCadTagsPage, TAGS_PAGE_SIZE } from '@/api/cadTagsApi';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
@@ -376,9 +376,10 @@ function UploadYourCadDesign({
             const { data: presignedRes } = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
-                    bucket_name: BUCKET,
+                    bucket_name: CAD_INPUT_FILES_BUCKET,
                     file: file.name,
                     category: "designs_upload",
+                    cad_input_type: "design-uploads",
                     filesize: fileSizeMB
                 },
                 { headers }
@@ -533,9 +534,10 @@ function UploadYourCadDesign({
             const { data: presignedRes } = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
-                    bucket_name: BUCKET,
+                    bucket_name: CAD_INPUT_FILES_BUCKET,
                     file: file.name,
                     category: "designs_upload",
+                    cad_input_type: "design-uploads",
                     filesize: fileSizeMB
                 },
                 { headers }

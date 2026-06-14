@@ -1,5 +1,5 @@
 import React from 'react';
-import {PHOTO_LINK} from '@/config';
+import {USER_PROFILES_PREFIX_URL} from '@/config';
 import Image from 'next/image'
 
 function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,borderRadius, border }) {
@@ -14,12 +14,19 @@ function NameProfile({ userName, width, memberPhoto,fontSize,fontweight,padding,
         }
     };
 
+    const getPhotoSrc = () => {
+        if (memberPhoto.startsWith('data:') || memberPhoto.startsWith('http')) {
+            return memberPhoto;
+        }
+        return USER_PROFILES_PREFIX_URL + memberPhoto;
+    };
+
     return (
         <>
             {memberPhoto && !memberPhoto.startsWith('data:') ? (
                 <Image width={parseInt(width)} 
                 height={parseInt(width)}  style={{width:width,height:width,borderRadius:borderRadius?borderRadius: '50%',border:border?'1px solid #E2E8F0':'none'}}
-                    src={!memberPhoto.includes(PHOTO_LINK)?PHOTO_LINK + memberPhoto:memberPhoto}
+                    src={getPhotoSrc()}
                     alt=""
                 />
             ) : memberPhoto && memberPhoto.startsWith('data:') ? (

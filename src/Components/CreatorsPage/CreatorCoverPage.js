@@ -2,7 +2,7 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
 import { contextState } from '../CommonJsx/ContextProvider';
 import Image from 'next/image';
-import { BASE_URL, IMAGEURLS, PHOTO_LINK } from '@/config';
+import { BASE_URL, IMAGEURLS, USER_PROFILES_PREFIX_URL } from '@/config';
 import styles from './Creators.module.css';
 import axios from 'axios';
 
@@ -13,6 +13,14 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
   const [uploading, setUploading] = useState(false);
   const [previewCover, setPreviewCover] = useState(null);
   const profileData = !creatorId ? user : viewer;
+
+  const getCoverPhotoSrc = (coverImage) => {
+    if (!coverImage) return '';
+    if (coverImage.startsWith('data:') || coverImage.startsWith('http')) {
+      return coverImage;
+    }
+    return USER_PROFILES_PREFIX_URL + coverImage;
+  };
 
 
   const handleFileUpload = async (e) => {
@@ -94,7 +102,7 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
           ) : profileData?.cover_image ? (
             <div className={styles.coverPhoto} style={{ background: 'none', position: 'relative' }}>
               <Image
-                src={PHOTO_LINK + profileData.cover_image}
+                src={getCoverPhotoSrc(profileData.cover_image)}
                 alt="Cover Image"
                 layout="fill"
                 objectFit="cover"

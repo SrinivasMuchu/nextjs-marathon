@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './KycDetails.module.css';
 import axios from 'axios';
-import { BASE_URL } from '@/config';
+import { BASE_URL, USER_PROFILES_PREFIX_URL } from '@/config';
 import { toast } from 'react-toastify';
 import Loading from '../CommonJsx/Loaders/Loading';
 import Kyc from './Kyc';
@@ -27,6 +27,14 @@ function KycTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasExistingData, setHasExistingData] = useState(false);
   const [showKycForm, setShowKycForm] = useState(false);
+
+  const getSignatureSrc = (signatureUrl) => {
+    if (!signatureUrl) return '';
+    if (signatureUrl.startsWith('data:') || signatureUrl.startsWith('http')) {
+      return signatureUrl;
+    }
+    return USER_PROFILES_PREFIX_URL + signatureUrl;
+  };
 
   useEffect(() => {
     fetchSellerDetails();
@@ -251,7 +259,7 @@ function KycTab() {
               className={`${styles.input} ${styles.readonlyInput}`}
             >
               <Image
-                src={formData.signature_url}
+                src={getSignatureSrc(formData.signature_url)}
                 alt="Signature"
                 width={100}
                 height={48}
