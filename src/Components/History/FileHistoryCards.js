@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, DESIGN_GLB_PREFIX_URL,  CAD_CONVERTER_EVENT,  } from '@/config';
+import { BASE_URL, buildCadConverterOutputUrl, CAD_CONVERTER_EVENT } from '@/config';
 import styles from './FileHistory.module.css';
 import Pagenation from '../CommonJsx/Pagenation';
 import { sendGAtagEvent } from "@/common.helper";
@@ -219,7 +219,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
 
       setDownloading(prev => ({ ...prev, [index]: true }));
 
-      const url = `${DESIGN_GLB_PREFIX_URL}${file._id}/${file.base_name}.${file.output_format}`;
+      const url = buildCadConverterOutputUrl(file._id, file.base_name, file.output_format);
 
       // if (!file.sample_file || file.is_published) {
       //   setUploadedFile({

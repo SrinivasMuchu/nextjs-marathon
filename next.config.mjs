@@ -30,6 +30,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'marathon-user-profiles.s3.ap-south-1.amazonaws.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'd1m7wq8q1jgofx.cloudfront.net',
+      }
     ],
   },
   reactStrictMode: false,
