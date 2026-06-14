@@ -85,14 +85,16 @@ function uniqueViews(entries) {
   return new Set(entries.map((e) => e.view_name).filter(Boolean)).size;
 }
 
-/** SVG preview URLs — pipeline jobs use direct CDN paths from output_s3_prefix. */
-function sheetPreviewCandidates(baseUrl, sheetNum, designId) {
+/** SVG preview URLs — user-pipeline jobs proxy via /api/techdraw-file (correct MIME inline). */
+function sheetPreviewCandidates(baseUrl, sheetNum, designId, outputS3Prefix = "") {
   const n = Number(sheetNum);
   const id = String(designId || "").trim();
   const base = String(baseUrl || "").replace(/\/$/, "");
   if (isUserPipelineCdnBase(base)) {
-    const assets = directSheetAssetUrls(base, n);
-    return [assets.svg, assets.svgNodim];
+    return techdrawSheetPreviewUrls(id, n, {
+      userPipeline: true,
+      outputPrefix: outputS3Prefix,
+    });
   }
   const fromBase = base.split("/").pop() || "";
   const resolvedId = id || fromBase;
@@ -222,10 +224,15 @@ function reasonForEntry(entry, reasonMaps) {
   return "";
 }
 
-function buildViewCards(entries, baseUrl, viewSelectionResponse, designId) {
+function buildViewCards(entries, baseUrl, viewSelectionResponse, designId, outputS3Prefix = "") {
   const reasonMaps = buildReasonMaps(viewSelectionResponse);
   return entries.map((e) => {
-    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num, designId);
+    const previewCandidates = sheetPreviewCandidates(
+      baseUrl,
+      e.sheet_num,
+      designId,
+      outputS3Prefix,
+    );
     const reason = reasonForEntry(e, reasonMaps);
     const body = reason
       ? reason
@@ -526,7 +533,12 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
 
   const userPipeline = isUserPipelineCdnBase(baseUrl);
   const sheets = entries.map((e) => {
-    const previewCandidates = sheetPreviewCandidates(baseUrl, e.sheet_num, designId);
+    const previewCandidates = sheetPreviewCandidates(
+      baseUrl,
+      e.sheet_num,
+      designId,
+      outputS3Prefix,
+    );
     const n = Number(e.sheet_num);
     const pdfUrl = techdrawSheetPdfViewUrl(designId, n, {
       userPipeline,
@@ -583,7 +595,7 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     }),
     drawingInfo: buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse),
     // aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
-    viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse, designId),
+    viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse, designId, outputS3Prefix),
     sectionDetailGroups: buildSectionDetailGroups(
       entries,
       dimensionSpecs,

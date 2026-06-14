@@ -22,13 +22,36 @@ export function isExportTimeoutFailure(job) {
   return code === TECHDRAW_ERROR_CODES.EXPORT_TIMEOUT;
 }
 
+export const PIPELINE_FAILED_USER_MSG =
+  "We could not finish generating your technical drawing. You can try again with another CAD file at no extra charge.";
+
 export function isFreeRetryAvailable(job) {
+  const status = String(job?.status || "").toUpperCase();
   return (
-    isDimensionExtractionFailure(job) &&
+    status === "FAILED" &&
     Boolean(job?.free_retry_granted) &&
     !job?.free_retry_consumed &&
-    job?.free_retry_available !== false
+    job?.free_retry_available !== false &&
+    !job?.is_free_retry
   );
+}
+
+export function failureModalTitle(job) {
+  if (isDimensionExtractionFailure(job)) {
+    return "Dimensions could not be generated";
+  }
+  return "Drawing could not be completed";
+}
+
+export function failureUserMessage(job) {
+  if (isDimensionExtractionFailure(job)) {
+    return DIMENSION_EXTRACTION_FAILED_USER_MSG;
+  }
+  if (isExportTimeoutFailure(job)) {
+    return EXPORT_TIMEOUT_USER_MSG;
+  }
+  const serverMessage = job?.error_message || job?.message;
+  return serverMessage || PIPELINE_FAILED_USER_MSG;
 }
 
 export function jobFailurePayload(job) {

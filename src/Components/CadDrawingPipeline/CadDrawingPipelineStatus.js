@@ -588,6 +588,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
       {showDimensionFailureModal ? (
         <TechDrawDimensionExtractionFailedModal
           jobId={jobId}
+          job={currentJob}
           onClose={() => setShowDimensionFailureModal(false)}
         />
       ) : null}

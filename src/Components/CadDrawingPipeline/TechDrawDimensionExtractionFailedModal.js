@@ -5,14 +5,16 @@ import { useRouter } from "next/navigation";
 import ClearIcon from "@mui/icons-material/Clear";
 import PopupWrapper from "@/Components/CommonJsx/PopupWrapper";
 import {
-  DIMENSION_EXTRACTION_FAILED_USER_MSG,
   DIMENSION_EXTRACTION_FREE_RETRY_MSG,
+  failureModalTitle,
+  failureUserMessage,
 } from "@/api/techDrawErrors";
 import { techDrawFreeRetryUploadPath } from "@/lib/techDraw/techDrawJobRoutes";
 import styles from "./CadDrawingPipeline.module.css";
 
 export default function TechDrawDimensionExtractionFailedModal({
   jobId,
+  job,
   onClose,
 }) {
   const router = useRouter();
@@ -32,7 +34,7 @@ export default function TechDrawDimensionExtractionFailedModal({
       >
         <div className={styles.dimensionFailureModalHeader}>
           <h2 id="techdraw-dimension-failure-title" className={styles.dimensionFailureModalTitle}>
-            Dimensions could not be generated
+            {failureModalTitle(job)}
           </h2>
           <button
             type="button"
@@ -44,7 +46,7 @@ export default function TechDrawDimensionExtractionFailedModal({
           </button>
         </div>
 
-        <p className={styles.dimensionFailureModalBody}>{DIMENSION_EXTRACTION_FAILED_USER_MSG}</p>
+        <p className={styles.dimensionFailureModalBody}>{failureUserMessage(job)}</p>
         <p className={styles.dimensionFailureModalSub}>{DIMENSION_EXTRACTION_FREE_RETRY_MSG}</p>
 
         <div className={styles.dimensionFailureModalActions}>

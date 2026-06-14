@@ -22,12 +22,18 @@ export function techdrawFileApiUrl(
   return `/api/techdraw-file?${params}`;
 }
 
-export function techdrawSheetPreviewUrls(designId, sheetNum, { userPipeline = false } = {}) {
+export function techdrawSheetPreviewUrls(
+  designId,
+  sheetNum,
+  { userPipeline = false, outputPrefix = "" } = {},
+) {
   const n = Number(sheetNum);
+  const prefix = String(outputPrefix || "").trim();
   if (userPipeline) {
+    const base = prefix ? { prefix } : { source: "user" };
     return [
-      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", source: "user" }),
-      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", source: "user", variant: "nodim" }),
+      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", ...base }),
+      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", variant: "nodim", ...base }),
     ];
   }
   return [techdrawFileApiUrl(designId, { sheet: n, ext: "svg" })];
