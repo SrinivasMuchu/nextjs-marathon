@@ -3,7 +3,8 @@
  * Base: POST/GET ${BASE_URL}/v1/cad-techdraw/*
  */
 import axios from "axios";
-import { BASE_URL, DESIGN_GLB_PREFIX_URL } from "@/config";
+import { BASE_URL } from "@/config";
+import { techDrawUserJobCdnBase } from "@/lib/techDraw/fetchTechDrawBundleFromPrefix";
 
 export const TECHDRAW_API_BASE = "/v1/cad-techdraw";
 
@@ -394,11 +395,9 @@ export async function waitForTechDrawJob(jobId, onPhase) {
   return { job, jobId };
 }
 
-/** CloudFront base for a completed TechDraw job (prefix includes user-freecad-techdraw/{id}). */
+/** CloudFront base for a completed user TechDraw job: …/user-freecad-techdraw/{jobId}. */
 export function techDrawOutputBaseUrl(job) {
-  const prefix = job?.output_s3_prefix;
-  if (!prefix || typeof prefix !== "string") return "";
-  return `${DESIGN_GLB_PREFIX_URL.replace(/\/$/, "")}/${prefix.replace(/^\//, "")}`;
+  return techDrawUserJobCdnBase(job?._id || job?.id);
 }
 
 const TECHDRAW_SHEET_COUNT = 5;
@@ -433,7 +432,7 @@ export function sheetDownloadsFromJob(job) {
   });
 }
 
-/** All downloadable artifacts under output_s3_prefix on CloudFront. */
+/** All downloadable artifacts under user-freecad-techdraw/{jobId} on CloudFront. */
 export function outputItemsFromJob(job) {
   const base = techDrawOutputBaseUrl(job);
   if (!base) return [];

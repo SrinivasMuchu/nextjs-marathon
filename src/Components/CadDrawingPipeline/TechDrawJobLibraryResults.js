@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import TwoDTechnicalDrawingPageClient from "@/Components/IndustryDesigns/TwoDTechnicalDrawingPageClient";
 import TwoDTechnicalDrawingContentClient from "@/Components/IndustryDesigns/TwoDTechnicalDrawingContentClient";
-import { fetchTechDrawBundleFromPrefix } from "@/lib/techDraw/fetchTechDrawBundleFromPrefix";
+import { fetchTechDrawBundleForJob } from "@/lib/techDraw/fetchTechDrawBundleFromPrefix";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
 import { getJobDisplayTitle } from "./pipelineConstants";
 import {
@@ -62,7 +62,7 @@ export default function TechDrawJobLibraryResults({ jobId, job }) {
 
     (async () => {
       setLoadError("");
-      const bundle = await fetchTechDrawBundleFromPrefix(job?.output_s3_prefix);
+      const bundle = await fetchTechDrawBundleForJob(jobId);
       if (cancelled) return;
       if (!bundle) {
         setLoadError(

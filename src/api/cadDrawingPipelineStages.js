@@ -21,7 +21,7 @@ export function isLikelyPostSuccessInfraFailure(job) {
   if (!msg.includes("commitfailed") && !msg.includes("not part of an active group")) {
     return false;
   }
-  return Boolean((job?.output_s3_prefix || "").trim());
+  return Boolean(String(job?._id || job?.id || "").trim());
 }
 
 export const PIPELINE_STAGE_LABELS = {

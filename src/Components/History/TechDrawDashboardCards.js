@@ -40,7 +40,7 @@ function normalizeFileStatus(status) {
 
 function previewSrc(job) {
   const id = String(job?._id || "");
-  if (!id || !job?.output_s3_prefix) return "";
+  if (!id) return "";
   return `/api/techdraw-file?designId=${encodeURIComponent(id)}&source=user&sheet=1&ext=svg`;
 }
 

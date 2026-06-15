@@ -1,10 +1,18 @@
 import { DESIGN_GLB_PREFIX_URL } from "@/config";
 
 const MIN_VALID_SVG_BYTES = 800;
+const USER_TECHDRAW_FOLDER = "user-freecad-techdraw";
+const JOB_ID_RE = /^[a-f0-9]{24}$/;
+
+/** CloudFront folder for a user pipeline job: …/user-freecad-techdraw/{jobId} */
+export function techDrawUserJobCdnBase(jobId) {
+  const id = String(jobId || "").trim();
+  if (!JOB_ID_RE.test(id)) return "";
+  return `${DESIGN_GLB_PREFIX_URL.replace(/\/$/, "")}/${USER_TECHDRAW_FOLDER}/${id}`;
+}
 
 /**
- * Build CloudFront folder URL from cad_tech_draw.output_s3_prefix
- * (e.g. user-freecad-techdraw/6a0c091a…).
+ * Build CloudFront folder URL from an explicit S3 prefix (library bundles, etc.).
  */
 export function techDrawCdnBaseFromPrefix(outputS3Prefix) {
   const prefix = String(outputS3Prefix || "").trim().replace(/^\//, "");
@@ -56,12 +64,7 @@ async function buildAvailabilityMap(baseUrl, geometryPerSheet) {
   return map;
 }
 
-/**
- * Load pipeline JSON from a TechDraw output folder (user or library prefix).
- * Client-safe (no server-only APIs).
- */
-export async function fetchTechDrawBundleFromPrefix(outputS3Prefix) {
-  const baseUrl = techDrawCdnBaseFromPrefix(outputS3Prefix);
+async function loadTechDrawBundleFromBaseUrl(baseUrl, isUserPipelineOutput) {
   if (!baseUrl) return null;
 
   const [geometryPerSheet, viewSelectionResponse, dimensionSpecs] = await Promise.all([
@@ -87,6 +90,23 @@ export async function fetchTechDrawBundleFromPrefix(outputS3Prefix) {
     dimensionsResponse: null,
     designMeta: null,
     availabilityBySheet,
-    isUserPipelineOutput: baseUrl.includes("user-freecad-techdraw"),
+    isUserPipelineOutput,
   };
+}
+
+/** Load user pipeline outputs from CloudFront using the job id (not output_s3_prefix). */
+export async function fetchTechDrawBundleForJob(jobId) {
+  return loadTechDrawBundleFromBaseUrl(techDrawUserJobCdnBase(jobId), true);
+}
+
+/**
+ * Load pipeline JSON from a TechDraw output folder (library prefix).
+ * Client-safe (no server-only APIs).
+ */
+export async function fetchTechDrawBundleFromPrefix(outputS3Prefix) {
+  const baseUrl = techDrawCdnBaseFromPrefix(outputS3Prefix);
+  return loadTechDrawBundleFromBaseUrl(
+    baseUrl,
+    baseUrl.includes(USER_TECHDRAW_FOLDER),
+  );
 }
