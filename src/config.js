@@ -13,8 +13,10 @@ export const publishFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs"
 export const BUCKET = 'marathon-org-assets';
 export const DESIGN_GLB_PREFIX_URL = 'https://d1d8a3050v4fu6.cloudfront.net/';
 /** CDN folder for 2D technical drawing bundles (JSON + svg/ + dxf/ + screenshots/ + sheet PDFs). */
+// export const TECH_DRAW_LIBRARY_PREFIX =
+//   "https://d1d8a3050v4fu6.cloudfront.net/2d-technical-drawings";
 export const TECH_DRAW_LIBRARY_PREFIX =
-  "https://d1d8a3050v4fu6.cloudfront.net/2d-technical-drawings";
+  "https://d1d8a3050v4fu6.cloudfront.net/qwen_tech_draw_designs";
 export const IMAGEURLS = {
   logo: `${MARATHON_ASSET_PREFIX_URL}marathon-demo-logo.svg`,
   fileformat:`${MARATHON_ASSET_PREFIX_URL}3d-file-format.webp`,
