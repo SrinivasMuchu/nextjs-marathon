@@ -7,7 +7,13 @@ import Loading from "@/Components/CommonJsx/Loaders/Loading";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
 import TechDrawJobLibraryResults from "./TechDrawJobLibraryResults";
 
-export default function TechDrawJobDesignView({ jobId }) {
+export default function TechDrawJobDesignView({
+  jobId,
+  fetchJobStatus = getTechDrawJobStatus,
+  adminMode = false,
+  getPipelineStatusPath = techDrawPipelineStatusPath,
+  getDesignPath = techDrawDesignPath,
+}) {
   const [job, setJob] = useState(null);
   const [error, setError] = useState("");
 
@@ -16,7 +22,7 @@ export default function TechDrawJobDesignView({ jobId }) {
 
     (async () => {
       try {
-        const { job: data } = await getTechDrawJobStatus(jobId);
+        const { job: data } = await fetchJobStatus(jobId);
         if (cancelled) return;
         setJob(data);
       } catch (err) {
@@ -29,13 +35,13 @@ export default function TechDrawJobDesignView({ jobId }) {
     return () => {
       cancelled = true;
     };
-  }, [jobId]);
+  }, [fetchJobStatus, jobId]);
 
   if (error) {
     return (
       <p style={{ padding: 24, fontFamily: "system-ui" }}>
         {error}{" "}
-        <Link href={techDrawPipelineStatusPath(jobId)} style={{ color: "#610bee" }}>
+        <Link href={getPipelineStatusPath(jobId)} style={{ color: "#610bee" }}>
           View pipeline status
         </Link>
       </p>
@@ -46,5 +52,13 @@ export default function TechDrawJobDesignView({ jobId }) {
     return <Loading smallScreen={true} />;
   }
 
-  return <TechDrawJobLibraryResults jobId={jobId} job={job} />;
+  return (
+    <TechDrawJobLibraryResults
+      jobId={jobId}
+      job={job}
+      adminMode={adminMode}
+      getPipelineStatusPath={getPipelineStatusPath}
+      getDesignPath={getDesignPath}
+    />
+  );
 }

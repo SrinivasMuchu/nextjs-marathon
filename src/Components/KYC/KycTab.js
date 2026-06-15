@@ -2,7 +2,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import styles from './KycDetails.module.css';
 import axios from 'axios';
-import { BASE_URL } from '@/config';
+import { BASE_URL, USER_PROFILES_PREFIX_URL } from '@/config';
+import { toast } from 'react-toastify';
 import Loading from '../CommonJsx/Loaders/Loading';
 import Kyc from './Kyc';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
@@ -30,6 +31,14 @@ function KycTab() {
   const [showKycForm, setShowKycForm] = useState(false);
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [signatureLoadStatus, setSignatureLoadStatus] = useState('idle');
+
+  const getSignatureSrc = (signatureUrl) => {
+    if (!signatureUrl) return '';
+    if (signatureUrl.startsWith('data:') || signatureUrl.startsWith('http')) {
+      return signatureUrl;
+    }
+    return USER_PROFILES_PREFIX_URL + signatureUrl;
+  };
 
   useEffect(() => {
     fetchSellerDetails();

@@ -60,16 +60,33 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type, uplo
   return (
     <div style={{display:'flex',flexDirection:'column',width:'100%'}}>
     {type === 'convert' && <HomeTopNav />}
-    <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', 
-    justifyContent: 'space-between',background:'white' }}>
+    <div style={{ width: '100%', minHeight: '100vh', display: 'flex', alignItems: 'center', 
+    justifyContent: 'space-between', background: 'white', color: '#1f2937' }}>
       <div style={{ width: '300px', height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>
               <LeftRightBanner adSlot={type === 'convert' ? "9130570279" : "7541354101"} />
 
       </div>
-      <div style={{ width: '100%',height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',flexDirection: 'column', gap: '10px' }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '520px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '10px',
+        color: '#1f2937',
+      }}>
            <Lottie animationData={cube} loop={true} style={{ width: 200, height: 200 }} />
 
-      <span>{statusMessages[uploadingMessage] || ''}</span>
+      <span style={{
+        fontSize: '16px',
+        fontWeight: 600,
+        color: '#374151',
+        textAlign: 'center',
+        lineHeight: 1.4,
+      }}>
+        {statusMessages[uploadingMessage] || ''}
+      </span>
       {/* Show progress bar during UPLOADINGFILE or when processing */}
       {(uploadingMessage === 'UPLOADINGFILE' || (fakeProgress === 100 && uploadingMessage !== 'UPLOADINGFILE')) && (
         <div style={{ width: '80%', maxWidth: '300px', marginTop: '10px', display: 'flex', flexDirection: 'column' }}>
@@ -160,13 +177,16 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type, uplo
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
-            marginTop: '8px'
+            marginTop: '8px',
+            flexWrap: 'wrap',
+            wordBreak: 'break-word',
           }}>
             <span style={{ fontSize: '16px' }}>📧</span>
             <span style={{
               fontSize: '14px',
               color: '#374151',
-              fontWeight: '500'
+              fontWeight: '500',
+              textAlign: 'center',
             }}>
               Email: {user.email}
             </span>
@@ -176,13 +196,15 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type, uplo
         <div style={{
           fontSize: '13px',
           color: '#6b7280',
-          marginTop: '16px'
+          marginTop: '16px',
+          lineHeight: 1.5,
         }}>
           For any issues, please contact our support team at{' '}
           <a href="mailto:invite@marathon-os.com" style={{
             color: '#8b5cf6',
             textDecoration: 'none',
-            fontWeight: '500'
+            fontWeight: '500',
+            whiteSpace: 'nowrap',
           }}>
             invite@marathon-os.com
           </a>

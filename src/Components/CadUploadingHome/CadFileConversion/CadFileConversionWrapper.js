@@ -13,7 +13,7 @@ import styles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import { toast } from "react-toastify";
 import axios from 'axios'
-import { BASE_URL, BUCKET } from '@/config';
+import { BASE_URL, CAD_INPUT_FILES_BUCKET } from '@/config';
 import { usePathname } from "next/navigation";
 import { useContext } from 'react';
 import CadUploadDropDown from './CadUploadDropDown'
@@ -320,9 +320,10 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                 const preSignedURL = await axios.post(
                     `${BASE_URL}/v1/cad/get-next-presigned-url`,
                     {
-                        bucket_name: BUCKET,
+                        bucket_name: CAD_INPUT_FILES_BUCKET,
                         file: file.name,
                         category: "designs_upload",
+                        cad_input_type: "converter",
                         filesize: fileSizeMB
                     },
                     {
@@ -373,7 +374,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                     input_format: fileConvert.name.split('.').pop(),
                     output_format: selectedFileFormate,
                     file_name: fileConvert.name,
-                    s3_bucket: "design-glb", uuid: localStorage.getItem('uuid'),
+                    uuid: localStorage.getItem('uuid'),
                 }, {
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
@@ -468,7 +469,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
 
             const preSignedURL = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
-                { bucket_name: BUCKET, file, category: "complete_mutipart", filesize: fileSizeMB },
+                { bucket_name: CAD_INPUT_FILES_BUCKET, file, category: "complete_mutipart", cad_input_type: "converter", filesize: fileSizeMB },
                 {
                     headers: {
                         "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security

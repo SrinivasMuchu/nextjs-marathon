@@ -11,7 +11,14 @@ export const DESCRIPTIONLIMIT = 500;
 export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj"];
 export const publishFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj",".dxf",".dwg"];
 export const BUCKET = 'marathon-org-assets';
+export const CAD_INPUT_FILES_BUCKET = 'cad-input-files';
+export const CAD_INPUT_FILES_PREFIX_URL = 'https://cad-input-files.s3.ap-south-1.amazonaws.com/';
+export const CAD_OUTPUT_FILES_BUCKET = 'cad-output-files';
+export const CAD_OUTPUT_FILES_PREFIX_URL = 'https://d1m7wq8q1jgofx.cloudfront.net/';
+export const CAD_VIEWER_OUTPUT_PREFIX = 'viewer';
+export const CAD_CONVERTER_OUTPUT_PREFIX = 'converter';
 export const DESIGN_GLB_PREFIX_URL = 'https://d1d8a3050v4fu6.cloudfront.net/';
+export const USER_PROFILES_PREFIX_URL = 'https://marathon-user-profiles.s3.ap-south-1.amazonaws.com/';
 /** CDN folder for 2D technical drawing bundles (JSON + svg/ + dxf/ + screenshots/ + sheet PDFs). */
 export const TECH_DRAW_LIBRARY_PREFIX =
   "https://d1d8a3050v4fu6.cloudfront.net/2d-technical-drawings";
@@ -122,6 +129,29 @@ export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 export const GOOGLE_ADSENSE_CLIENT_ID = process.env.NEXT_GOOGLE_ADS_CLIENT_ID
 export const RAZORPAY_SECRET = process.env.NEXT_PUBLIC_RAZORPAY_SECRET_ID
 export const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+
+/** CAD viewer tool outputs: cad-output-files/viewer/{id}/{filename} */
+export function buildCadViewerOutputUrl(fileId, fileName) {
+  const id = encodeURIComponent(fileId || '');
+  if (!id) return '';
+  const safeName = encodeURIComponent(fileName || fileId);
+  return `${CAD_OUTPUT_FILES_PREFIX_URL}${CAD_VIEWER_OUTPUT_PREFIX}/${id}/${safeName}`;
+}
+
+export function buildCadViewerGlbUrl(fileId) {
+  return buildCadViewerOutputUrl(fileId, `${fileId}.glb`);
+}
+
+export function buildCadViewerMetaUrl(fileId) {
+  return buildCadViewerOutputUrl(fileId, `${fileId}.json`);
+}
+
+/** CAD converter outputs: cad-output-files/converter/{id}/{baseName}.{format} */
+export function buildCadConverterOutputUrl(fileId, baseName, outputFormat) {
+  const id = encodeURIComponent(fileId || '');
+  if (!id || !baseName || !outputFormat) return '';
+  return `${CAD_OUTPUT_FILES_PREFIX_URL}${CAD_CONVERTER_OUTPUT_PREFIX}/${id}/${baseName}.${String(outputFormat).toLowerCase()}`;
+}
 
 export const MARATHONDETAILS = {
   name: "Marathon Technologies",

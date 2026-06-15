@@ -1,7 +1,7 @@
 "use client";
 import React from 'react'
 import styles from './FileHistory.module.css';
-import { DESIGN_GLB_PREFIX_URL, IMAGEURLS } from '@/config';
+import { buildCadViewerGlbUrl, IMAGEURLS } from '@/config';
 import Image from 'next/image';
 import Loading from '../CommonJsx/Loaders/Loading';
 import { IoAddSharp } from "react-icons/io5";
@@ -114,11 +114,7 @@ function HistoryGlbHoverPreview({ glbUrl, hovered }) {
 const isGlbFile = (file) => Boolean(file?.glb_url);
 const resolveHistoryGlbUrl = (file) => {
   if (!file?.glb_url) return '';
-  // Keep consistent with cad-renderer page: always build from CDN prefix + file id.
-  // Some backend rows carry private S3 URLs in glb_url (403 from browser).
-  const id = encodeURIComponent(file?._id || '');
-  if (!id) return '';
-  return `${DESIGN_GLB_PREFIX_URL}${id}/${id}.glb`;
+  return buildCadViewerGlbUrl(file._id);
 };
 
 function CadViewerFiles({ loading, cadViewerFileHistory, searchTerm,
