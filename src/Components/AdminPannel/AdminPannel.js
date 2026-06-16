@@ -1,5 +1,6 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import AdminSidebar from './AdminSidebar'
 import DesignTable from './DesignTable'
 import PaymentsTable from './PaymentsTable'
@@ -9,19 +10,31 @@ import SearchedList from './SearchedList'
 import RatingsList from './RatingsList'
 import LikesList from './LikesList'
 import CadServiceRequestsTable from './CadServiceRequestsTable'
+import TechDrawJobsTable from './TechDrawJobsTable'
 import styles from './AdminPannel.module.css'
 import AdminPannelAuthentication from './AdminPannelAuthentication'
+import {
+  adminHrefForTab,
+  adminTabFromSearchParams,
+  DEFAULT_ADMIN_TAB,
+  isValidAdminTab,
+} from './adminTabConfig'
 
+function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const isMainAdminPage = pathname === '/admin'
 
-function AdminPannel({ children }) {
+  const tabFromUrl = isMainAdminPage ? adminTabFromSearchParams(searchParams) : initialTab
   const [collapsed, setCollapsed] = useState(false)
-  const [activeTab, setActiveTab] = useState('designs') // 'designs' | 'payments'
+  const [activeTab, setActiveTab] = useState(
+    isValidAdminTab(initialTab) ? initialTab : tabFromUrl,
+  )
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
- 
 
   useEffect(() => {
-    // Check if admin UUID exists in localStorage
     const adminUuid = localStorage.getItem('admin-uuid')
     if (adminUuid) {
       setIsAuthenticated(true)
@@ -30,7 +43,29 @@ function AdminPannel({ children }) {
     }
   }, [])
 
+  useEffect(() => {
+    if (isMainAdminPage) {
+      setActiveTab(adminTabFromSearchParams(searchParams))
+      return
+    }
+    if (isValidAdminTab(initialTab)) {
+      setActiveTab(initialTab)
+    }
+  }, [initialTab, isMainAdminPage, searchParams])
 
+  const handleSelectTab = useCallback(
+    (tab) => {
+      if (!isValidAdminTab(tab)) return
+
+      if (isMainAdminPage) {
+        router.replace(adminHrefForTab(tab), { scroll: false })
+        return
+      }
+
+      router.push(adminHrefForTab(tab))
+    },
+    [isMainAdminPage, router],
+  )
 
   if (showLogin) {
     return <AdminPannelAuthentication setIsAuthenticated={setIsAuthenticated} setShowLogin={setShowLogin} />
@@ -58,6 +93,8 @@ function AdminPannel({ children }) {
         return 'Likes'
       case 'cad-service-requests':
         return ''
+      case 'techdraw-jobs':
+        return 'TechDraw Uploads'
       default:
         return 'Admin Panel'
     }
@@ -81,6 +118,8 @@ function AdminPannel({ children }) {
         return <LikesList />
       case 'cad-service-requests':
         return <CadServiceRequestsTable />
+      case 'techdraw-jobs':
+        return <TechDrawJobsTable />
       default:
         return <DesignTable />
     }
@@ -103,7 +142,7 @@ function AdminPannel({ children }) {
         collapsed={collapsed}
         activeTab={activeTab}
         onToggle={() => setCollapsed(v => !v)}
-        onSelect={setActiveTab}
+        onSelect={handleSelectTab}
       />
       <div className={styles.mainContent}>
         {children ?? content}

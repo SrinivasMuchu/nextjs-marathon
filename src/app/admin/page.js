@@ -1,9 +1,11 @@
 import AdminPannel from '@/Components/AdminPannel/AdminPannel'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 function page() {
   return (
-    <div><AdminPannel/></div>
+    <Suspense fallback={null}>
+      <AdminPannel />
+    </Suspense>
   )
 }
 

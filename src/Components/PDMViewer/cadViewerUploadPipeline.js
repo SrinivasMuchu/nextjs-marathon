@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { BASE_URL, BUCKET, CAD_VIEWER_EVENT } from "@/config";
+import { BASE_URL, CAD_INPUT_FILES_BUCKET, CAD_VIEWER_EVENT } from "@/config";
 import { sendGAtagEvent } from "@/common.helper";
 
 function getOrCreateUuid() {
@@ -41,7 +41,6 @@ async function createCad(uploadFile, link, { setUploadingMessage, setIsLoading, 
       {
         cad_view_link: link,
         file_name: uploadFile.name,
-        s3_bucket: "design-glb",
         uuid,
       },
       { headers: HEADERS }
@@ -77,9 +76,10 @@ async function completeMultipartUpload(data, parts, fileSizeMB, uploadFile, ctx)
     const preSignedURL = await axios.post(
       `${BASE_URL}/v1/cad/get-next-presigned-url`,
       {
-        bucket_name: BUCKET,
+        bucket_name: CAD_INPUT_FILES_BUCKET,
         file: multipartPayload,
         category: "complete_mutipart",
+        cad_input_type: "viewer",
         uuid,
         filesize: fileSizeMB,
       },
@@ -194,9 +194,10 @@ export async function uploadCadViewerFile(file, handlers) {
     const preSignedURL = await axios.post(
       `${BASE_URL}/v1/cad/get-next-presigned-url`,
       {
-        bucket_name: BUCKET,
+        bucket_name: CAD_INPUT_FILES_BUCKET,
         file: file.name,
         category: "designs_upload",
+        cad_input_type: "viewer",
         filesize: fileSizeMB,
       },
       { headers }
