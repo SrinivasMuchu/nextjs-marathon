@@ -1,4 +1,4 @@
-import { PHOTO_LINK } from "./config";
+import { PHOTO_LINK, DESIGN_GLB_PREFIX_URL } from "./config";
 
 export const textLettersLimit = (text, limitType) => {
 
@@ -62,33 +62,34 @@ export function formatDate(dateString) {
 export const convertedFiles = [
   {
     "id": "1",
-    "url": `${PHOTO_LINK}67f7f3651e29d8a1a943e57f/designs_upload/67f7f3651e29d8a1a943e57f_designs_upload_upload_1745498051_620_cy79pc4yd3r.step`,
+    "url": `${DESIGN_GLB_PREFIX_URL}sample_files/converter/step_file.STEP`,
     "format": "step",
     "name": "sample.step"
 
   },
   {
     "id": '2',
-    "url": `${PHOTO_LINK}67f7f3651e29d8a1a943e57f/designs_upload/67f7f3651e29d8a1a943e57f_designs_upload_upload_1745231893_385_b3jinkax9rn.stl`,
+    "url": `${DESIGN_GLB_PREFIX_URL}sample_files/converter/stl_file.STL`,
     "format": "stl",
 
     "name": "sample.stl"
   },
   {
     "id": '3',
-    "url": `${PHOTO_LINK}67f7f3651e29d8a1a943e57f/designs_upload/67f7f3651e29d8a1a943e57f_designs_upload_upload_1745562522_827_dqmd45tl4ft.ply`,
+    "url": `${DESIGN_GLB_PREFIX_URL}sample_files/converter/ply_file.ply`,
     "format": "ply",
     "name": "sample.ply"
   },
   {
     "id": '4',
-    "url": `${PHOTO_LINK}67f7f3651e29d8a1a943e57f/designs_upload/67f7f3651e29d8a1a943e57f_designs_upload_upload_1745497469_620_njtb4ms2wf.iges`,
+    "url": `${DESIGN_GLB_PREFIX_URL}sample_files/converter/igs_file.IGS`,
     "format": "iges",
     "name": "sample.iges"
   },
+
   {
     "id": "5",
-    "url": `${PHOTO_LINK}67f7f3651e29d8a1a943e57f/designs_upload/67f7f3651e29d8a1a943e57f_designs_upload_upload_1745497955_891_tbkq0vuhfd.obj`,
+    "url": `${DESIGN_GLB_PREFIX_URL}sample_files/converter/obj_file.obj`,
     "format": "obj",
     "name": "sample.obj"
 
@@ -98,23 +99,23 @@ export const convertedFiles = [
 
   export const cadViewerFiles = [
     {
-      "id": '69cc85a7f7e8826363f85c22',    
-      "name": "Arduino car",
+     "id": '69831e5196888fd1a671ec12',    
+      "name": "Electric Go Kart Roll",
       
     },
     {
-      "id": '69ce600b0761293936b7000b',
+      "id": '698ebb35c6bb4d464875f171',
       "name": "TGS 8x4 Truck",
       
     },
     {
-      "id": "69ce614a0761293936b701db",
+      "id": "698eb8b533d75271de7259cd",
       "name": "DIY Flight Sim Cockpit",
       
   
     },
     {
-      "id": '69ce62220761293936b703c5',
+      "id": '69dc8d16562aa5e7d2713efc',
       "name": "Drone (Fpv-Quadcopter)",
       
     },
