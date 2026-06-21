@@ -55,7 +55,6 @@ function Faq() {
               key={index}
               question={faq.question}
               answer={faq.answer}
-              defaultOpen={index === 0}
             />
           ))}
         </div>

@@ -3,6 +3,7 @@ import Library from '@/Components/Library/Library';
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import { notFound } from 'next/navigation';
 import { resolveCategorySlugToName, getLibraryPath, getLibraryCanonicalAndRobots } from '@/common.helper';
+import { buildLibraryDetailMetadata, buildPageMetadata } from '@/lib/seo/pageMetadata';
 import axios from 'axios';
 
 export const revalidate = 60;
@@ -30,36 +31,13 @@ export async function generateMetadata({ params, searchParams }) {
 
         if (design) {
           const productName = design.page_title || design.part_name || '3D CAD Model';
-          const modelName = design.part_name || design.page_title || productName;
+          const { title, description } = buildLibraryDetailMetadata(productName);
 
-          const rawFileType = typeof design.file_type === 'string' ? design.file_type : 'step';
-          const fileTypeLabel = rawFileType.toLowerCase().replace(/^\./, '');
-
-          const priceNumber = typeof design.price === 'number' ? design.price : Number(design.price || 0);
-          const isPaid = !Number.isNaN(priceNumber) && priceNumber > 0;
-          const isDownloadable = design.is_downloadable !== false;
-
-          let priceSnippet = '';
-          if (isDownloadable) {
-            if (isPaid) {
-              priceSnippet = ` $${priceNumber}/Download.`;
-            } else {
-              priceSnippet = ' Free Download.';
-            }
-          }
-
-          const title = `${productName} CAD Model - Download ${fileTypeLabel} | Marathon OS`;
-          const description = `Download the ${modelName} 3D CAD model in ${fileTypeLabel}. Preview online and get included views/files only on Marathon OS.${priceSnippet}`;
-
-          return {
+          return buildPageMetadata({
             title,
             description,
-            openGraph: {
-              images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
-            },
-            metadataBase: new URL('https://marathon-os.com'),
-            alternates: { canonical: `/library/${segment}` },
-          };
+            canonicalPath: `/library/${segment}`,
+          });
         }
       }
     } catch (_) {}

@@ -1,32 +1,22 @@
-import { ASSET_PREFIX_URL } from "@/config";
+import HomePage from "@/Components/Home/HomePage";
+import FaqPageJsonLd from "@/Components/JsonLdSchemas/FaqPageJsonLd";
+import { buildPageMetadata } from "@/lib/seo/pageMetadata";
+import styles from "./page.module.css";
 
-export const metadata = {
-  title: "CAD Design Library + Free CAD Viewer & 3D Converter | Marathon OS",
-  description:
-    "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
-  keywords: "CAD model library, CAD models download, free CAD models, online CAD viewer, 3D file converter, STEP viewer online, IGES viewer online, STL viewer online, STEP to STL, IGES to STEP, STL to OBJ, engineering CAD models, mechanical CAD files, 3D CAD designs",
-  openGraph: {
-    title: "CAD Design Library + Free CAD Viewer & 3D Converter | Marathon OS",
-    description:
-      "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
-    url: "https://www.marathon-os.com",
-    siteName: "Marathon OS",
-    images: [
-      {
-        url: `${ASSET_PREFIX_URL}logo-1.png`,
-        width: 1200,
-        height: 630,
-        type: "image/png",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
+const CANONICAL_PATH = "/";
+const TITLE = "CAD Design Library + Free CAD Viewer & 3D Converter | Marathon OS";
+const DESCRIPTION =
+  "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.";
 
-  },metadataBase: new URL("https://marathon-os.com"),
-    alternates: {
-      canonical: "/",
-    },
-};
+export const metadata = buildPageMetadata({
+  title: TITLE,
+  description: DESCRIPTION,
+  canonicalPath: CANONICAL_PATH,
+  extra: {
+    keywords:
+      "CAD model library, CAD models download, free CAD models, online CAD viewer, 3D file converter, STEP viewer online, IGES viewer online, STL viewer online, STEP to STL, IGES to STEP, STL to OBJ, engineering CAD models, mechanical CAD files, 3D CAD designs",
+  },
+});
 
 /** FAQ items as plain text for FAQPage schema (must match visible content on page) */
 const faqSchemaData = [
@@ -39,33 +29,10 @@ const faqSchemaData = [
   { question: "What if there's a problem with a file or I need help?", answer: "If a file is broken, incorrect, or you need support, contact us via the Contact Us page or email invite@marathon-os.com with the listing link or order details, and we'll help resolve it." },
 ];
 
-const faqJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faqSchemaData.map((item) => ({
-    "@type": "Question",
-    name: item.question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.answer,
-    },
-  })),
-};
-
-import HomePage from "@/Components/Home/HomePage";
-import Script from "next/script";
-import styles from "./page.module.css";
-
 export default function Home() {
-  
   return (
     <>
-      <Script
-        id="json-ld-faq"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
+      <FaqPageJsonLd faqSchemaData={faqSchemaData} />
       <div className={styles["marathon"]}>
         <HomePage />
       </div>
