@@ -1,5 +1,4 @@
 import React from 'react';
-import Script from 'next/script';
 
 const SITE_URL = 'https://marathon-os.com';
 const DEFAULT_LIST_URL = `${SITE_URL}/library`;
@@ -64,10 +63,9 @@ function LibraryPageJsonLd({
   };
 
   return (
-    <Script
+    <script
       id={scriptId}
       type="application/ld+json"
-      strategy="afterInteractive"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
     />
   );

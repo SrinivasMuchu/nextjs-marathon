@@ -1,5 +1,3 @@
-'use client'
-
 import React from 'react'
 import CadServiceHome from './CadServiceHome/CadServiceHome'
 import TrustedByBanner from './TrustedByBanner/TrustedByBanner'

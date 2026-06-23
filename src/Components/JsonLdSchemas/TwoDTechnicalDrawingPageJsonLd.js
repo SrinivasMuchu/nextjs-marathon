@@ -1,5 +1,4 @@
 import React from "react";
-import Script from "next/script";
 import { TECH_DRAW_LIBRARY_PREFIX } from "@/config";
 
 const SITE_URL = "https://marathon-os.com";
@@ -32,10 +31,8 @@ function TwoDTechnicalDrawingPageJsonLd({
   };
 
   return (
-    <Script
-      id="json-ld-2d-technical-drawing-webpage"
+    <script
       type="application/ld+json"
-      strategy="afterInteractive"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
     />
   );

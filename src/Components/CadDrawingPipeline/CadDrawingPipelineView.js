@@ -12,7 +12,6 @@ import {
   uploadAndSubmitTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
 import { openTechDrawPayment } from "./techDrawPayment";
-import CadDrawingPipelineHero from "./CadDrawingPipelineHero";
 import CadDrawingPipelineHowItWorks from "./CadDrawingPipelineHowItWorks";
 import { STEP_EXT } from "./pipelineConstants";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
@@ -278,16 +277,6 @@ export default function CadDrawingPipelineView() {
     }
   };
 
-  const priceShort = `$${Math.floor(prices.base)}`;
-  const heroCtaLabel = eligibility?.free_run_available
-    ? "Generate My Drawing — Free"
-    : `Generate My Drawing — ${priceShort}`;
-
-  const scrollToUpload = useCallback(() => {
-    uploadSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.setTimeout(() => fileInputRef.current?.focus(), 400);
-  }, []);
-
   const handleLoginClose = useCallback(() => {
     setShowLogin(false);
     const shouldResume = pendingAfterLoginRef.current && isUserVerified();
@@ -304,12 +293,6 @@ export default function CadDrawingPipelineView() {
 
   return (
     <>
-      <CadDrawingPipelineHero
-        priceShort={priceShort}
-        ctaLabel={!eligibilityLoading ? heroCtaLabel : undefined}
-        onGenerateClick={scrollToUpload}
-      />
-
       <div className={styles.page}>
         <section
           id="cad-pipeline-upload"

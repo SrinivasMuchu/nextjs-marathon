@@ -12,6 +12,7 @@ async function fetchMoreTwoDDesigns(currentDesignId) {
   const query = new URLSearchParams({
     page: "1",
     limit: String(MORE_2D_DESIGNS_COUNT + 8),
+    sort: "newest",
   }).toString();
   try {
     const res = await fetch(`${BASE_URL}/v1/cad/get-2d-library-designs?${query}`, {
