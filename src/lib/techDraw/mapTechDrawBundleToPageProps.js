@@ -497,9 +497,6 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
   const designLibraryHref = designRoute
     ? `/library/${encodeURIComponent(designRoute)}`
     : `/library/${designId}`;
-  const drawingPageHref = designRoute
-    ? `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}`
-    : `/library/2d-technical-drawings/${designId}`;
 
   const sectionCount = sectionEntries(entries).length;
   // const bomRows = normalizeBomRows(bom);
@@ -540,11 +537,8 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     wasFilteredEmpty,
     breadcrumbLinks: [
       { label: "Library", href: "/library" },
-      {
-        label: productTitle,
-        href: designLibraryHref,
-      },
-      { label: "2D Technical Drawings", href: drawingPageHref },
+      { label: "2D Technical Drawings", href: "/library/2d-technical-drawings" },
+      { label: productTitle },
     ],
     heroProps: {
       title,

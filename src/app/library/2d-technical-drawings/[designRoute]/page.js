@@ -158,11 +158,8 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
   const cadModelHref = `/library/${encodeURIComponent(designRoute)}`;
   const breadcrumbLinks = [
     { label: "Library", href: "/library" },
-    {
-      label: title,
-      href: cadModelHref,
-    },
-    { label: "2D Technical Drawings", href: `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}` },
+    { label: "2D Technical Drawings", href: "/library/2d-technical-drawings" },
+    { label: title },
   ];
   const pageDescription = `Download free 2D technical drawings for the ${title} CAD model. Includes front, top, side and section views with PDF, SVG and DXF drawing sheet formats.`;
 

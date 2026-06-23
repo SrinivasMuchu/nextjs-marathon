@@ -158,6 +158,21 @@ async function Library({ searchParams }) {
         ? `Browse ${tagLabel} CAD models used in real projects. Preview online and download STEP/STP, IGES, STL and more. Filter by category, file type, price and popularity.`
         : 'Browse quality-checked 3D CAD models. Preview online and download STEP/STP, IGES, STL and more—filter by category, tags, file type, price and popularity.';
 
+  const breadcrumbSchemaLinks = [{ label: 'Library', href: '/library' }];
+  if (categoryLabel) {
+    if (tagLabel) {
+      breadcrumbSchemaLinks.push({
+        label: categoryLabel,
+        href: getLibraryPath({ categoryName: category }),
+      });
+      breadcrumbSchemaLinks.push({ label: tagLabel });
+    } else {
+      breadcrumbSchemaLinks.push({ label: categoryLabel });
+    }
+  } else if (tagLabel) {
+    breadcrumbSchemaLinks.push({ label: tagLabel });
+  }
+
   return (
     <>
       <LibraryPageJsonLd
@@ -166,7 +181,7 @@ async function Library({ searchParams }) {
         page={page}
         limit={limit}
       />
-      <ServerBreadCrumbs links={[{ label: 'Library', href: '/library' }]} />
+      <ServerBreadCrumbs links={breadcrumbSchemaLinks} />
 
       <div className={styles["library-page"]}>
         {/* Dark purple header: breadcrumb, title, description only */}
@@ -174,7 +189,37 @@ async function Library({ searchParams }) {
           <nav className={styles["library-hero-breadcrumb"]} aria-label="Breadcrumb">
             <Link href="/" className={styles["library-hero-breadcrumb-link"]}>Home</Link>
             <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
-            <span className={styles["library-hero-breadcrumb-current"]}>Library</span>
+            {categoryLabel || tagLabel ? (
+              <>
+                <Link href="/library" className={styles["library-hero-breadcrumb-link"]}>Library</Link>
+                {categoryLabel ? (
+                  <>
+                    <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                    {tagLabel ? (
+                      <>
+                        <Link
+                          href={getLibraryPath({ categoryName: category })}
+                          className={styles["library-hero-breadcrumb-link"]}
+                        >
+                          {categoryLabel}
+                        </Link>
+                        <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                        <span className={styles["library-hero-breadcrumb-current"]}>{tagLabel}</span>
+                      </>
+                    ) : (
+                      <span className={styles["library-hero-breadcrumb-current"]}>{categoryLabel}</span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                    <span className={styles["library-hero-breadcrumb-current"]}>{tagLabel}</span>
+                  </>
+                )}
+              </>
+            ) : (
+              <span className={styles["library-hero-breadcrumb-current"]}>Library</span>
+            )}
           </nav>
           <h1 className={styles["library-hero-title"]}>{heroTitle}</h1>
           <p className={styles["library-hero-description"]}>
