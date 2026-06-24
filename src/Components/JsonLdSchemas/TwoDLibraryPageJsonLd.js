@@ -1,5 +1,4 @@
 import React from "react";
-import Script from "next/script";
 
 const SITE_URL = "https://marathon-os.com";
 const LIBRARY_URL = `${SITE_URL}/library/2d-technical-drawings`;
@@ -30,10 +29,9 @@ function TwoDLibraryPageJsonLd({ designs = [], pagination = {}, page = 1, limit 
   };
 
   return (
-    <Script
+    <script
       id="json-ld-2d-library-itemlist"
       type="application/ld+json"
-      strategy="afterInteractive"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
     />
   );

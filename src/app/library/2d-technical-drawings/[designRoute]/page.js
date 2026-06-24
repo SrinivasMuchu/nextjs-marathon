@@ -2,6 +2,7 @@ import TwoDTechnicalDrawingPage from "@/Components/IndustryDesigns/TwoDTechnical
 import TwoDTechnicalDrawingContent from "@/Components/IndustryDesigns/TwoDTechnicalDrawingContent";
 import TwoDTechnicalDrawingPageJsonLd from "@/Components/JsonLdSchemas/TwoDTechnicalDrawingPageJsonLd";
 import { BASE_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
+import { buildPageMetadata, buildTwoDDrawingMetadata, deriveTwoDDrawingMetaFromGeometry } from "@/lib/seo/pageMetadata";
 import { fetchTechDrawBundle } from "@/lib/techDraw/fetchTechDrawBundle";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
 import { notFound } from "next/navigation";
@@ -23,31 +24,36 @@ async function fetchDesignByRoute(designRoute) {
   }
 }
 
-async function fetchLightHeroStats(designId) {
+async function fetchGeometryPerSheet(designId) {
   try {
     const base = `${TECH_DRAW_LIBRARY_PREFIX}/${designId}`;
     const res = await fetch(`${base}/geometry_per_sheet.json`, {
       next: { revalidate: 120 },
     });
     if (!res.ok) return null;
-    const geo = await res.json();
-    const entries = geo && typeof geo === "object" ? Object.values(geo) : [];
-    const views = new Set(
-      entries.map((e) => String(e?.view_name || "").trim()).filter(Boolean)
-    ).size;
-    const sections = entries.filter((e) => {
-      const label = String(e?.label || "");
-      const view = String(e?.view_name || "");
-      return /section/i.test(label) || /^section/i.test(view);
-    }).length;
-    return {
-      sheets: entries.length,
-      views,
-      sections,
-    };
+    return await res.json();
   } catch {
     return null;
   }
+}
+
+async function fetchLightHeroStats(designId) {
+  const geo = await fetchGeometryPerSheet(designId);
+  if (!geo || typeof geo !== "object") return null;
+  const entries = Object.values(geo);
+  const views = new Set(
+    entries.map((e) => String(e?.view_name || "").trim()).filter(Boolean)
+  ).size;
+  const sections = entries.filter((e) => {
+    const label = String(e?.label || "");
+    const view = String(e?.view_name || "");
+    return /section/i.test(label) || /^section/i.test(view);
+  }).length;
+  return {
+    sheets: entries.length,
+    views,
+    sections,
+  };
 }
 
 export async function generateMetadata({ params }) {
@@ -59,15 +65,21 @@ export async function generateMetadata({ params }) {
       designRoute.replace(/-/g, " ").trim() ||
       "Product"
   ).trim();
-  return {
-    title: `${productName} 2D Technical Drawing - PDF, SVG & DXF | Marathon OS`,
-    description:
-      `Download free 2D technical drawings for the ${productName} CAD model. Includes front, top, side and section views with PDF, SVG and DXF drawing sheet formats.`,
-    metadataBase: new URL("https://marathon-os.com"),
-    alternates: {
-      canonical: `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}`,
-    },
-  };
+  const designId = String(design?._id || "").trim();
+  const geometryPerSheet =
+    /^[a-f0-9]{24}$/i.test(designId) ? await fetchGeometryPerSheet(designId) : null;
+  const { viewType, sectionDetailType } = deriveTwoDDrawingMetaFromGeometry(geometryPerSheet);
+  const { title, description } = buildTwoDDrawingMetadata(productName, {
+    viewType,
+    sectionDetailType,
+  });
+  const canonicalPath = `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}`;
+
+  return buildPageMetadata({
+    title,
+    description,
+    canonicalPath,
+  });
 }
 
 async function TwoDTechnicalDrawingDeferredContent({ designId, cadModelHref }) {
@@ -156,15 +168,17 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
   const lightStats = await fetchLightHeroStats(designId);
   const title = String(design?.page_title || design?.part_name || "2D Technical Drawing Set").trim();
   const cadModelHref = `/library/${encodeURIComponent(designRoute)}`;
+  const geometryPerSheet = await fetchGeometryPerSheet(designId);
+  const { viewType, sectionDetailType } = deriveTwoDDrawingMetaFromGeometry(geometryPerSheet);
+  const { description: pageDescription } = buildTwoDDrawingMetadata(title, {
+    viewType,
+    sectionDetailType,
+  });
   const breadcrumbLinks = [
     { label: "Library", href: "/library" },
-    {
-      label: title,
-      href: cadModelHref,
-    },
-    { label: "2D Technical Drawings", href: `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}` },
+    { label: "2D Technical Drawings", href: "/library/2d-technical-drawings" },
+    { label: title },
   ];
-  const pageDescription = `Download free 2D technical drawings for the ${title} CAD model. Includes front, top, side and section views with PDF, SVG and DXF drawing sheet formats.`;
 
   const heroProps = {
     title: `${title} — 2D Technical Drawing Set (2D CAD drawings)`,

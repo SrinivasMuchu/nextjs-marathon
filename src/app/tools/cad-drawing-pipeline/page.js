@@ -1,4 +1,3 @@
-import { ASSET_PREFIX_URL } from "@/config";
 import CadDrawingPipelineView from "@/Components/CadDrawingPipeline/CadDrawingPipelineView";
 import CadDrawingPipelineOutputFormats from "@/Components/CadDrawingPipeline/CadDrawingPipelineOutputFormats";
 import CadDrawingPipelineFinalCta from "@/Components/CadDrawingPipeline/CadDrawingPipelineFinalCta";
@@ -8,23 +7,24 @@ import CadDrawingPipelinePaidCta from "@/Components/CadDrawingPipeline/CadDrawin
 import CadDrawingPipelineTransparency from "@/Components/CadDrawingPipeline/CadDrawingPipelineTransparency";
 import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawingPipelineProcess";
 import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
+import CadDrawingPipelineHeroServer from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroServer";
+import SoftwareApplicationJsonLd from "@/Components/JsonLdSchemas/SoftwareApplicationJsonLd";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
 import TechDrawPageViewTracker from "@/Components/CadDrawingPipeline/TechDrawPageViewTracker";
+import { buildPageMetadata } from "@/lib/seo/pageMetadata";
 
 const SITE = "https://marathon-os.com";
 const CANONICAL = "/tools/cad-drawing-pipeline";
+const TITLE = "CAD Drawing Pipeline (STEP to TechDraw) | Marathon OS";
+const DESCRIPTION =
+  "Upload a STEP file to generate AI-assisted technical drawing sheets in PDF, SVG, DXF, and PNG formats via the Marathon OS drawing pipeline.";
 
-export const metadata = {
-  title: "CAD drawing pipeline (STEP → TechDraw) | Marathon OS",
-  description:
-    "Upload a STEP file to generate technical drawings via the Marathon OS drawing pipeline.",
-  openGraph: {
-    images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: "image/png" }],
-  },
-  metadataBase: new URL(SITE),
-  alternates: { canonical: CANONICAL },
-};
+export const metadata = buildPageMetadata({
+  title: TITLE,
+  description: DESCRIPTION,
+  canonicalPath: CANONICAL,
+});
 
 function PipelineSectionFallback() {
   return <div className={styles.pipelineSectionFallback} aria-hidden />;
@@ -33,8 +33,16 @@ function PipelineSectionFallback() {
 export default function CadDrawingPipelinePage() {
   return (
     <>
+      <SoftwareApplicationJsonLd
+        name="CAD Drawing Pipeline (STEP to TechDraw)"
+        url={`${SITE}${CANONICAL}`}
+        description="Upload a STEP file to generate AI-assisted technical drawing sheets in PDF, SVG, DXF, and PNG formats."
+        price="4"
+        priceCurrency="USD"
+      />
       <TechDrawPageViewTracker pageType="upload" />
       <div className={styles.root}>
+        <CadDrawingPipelineHeroServer />
         <CadDrawingPipelineView />
 
         <div className={styles.page}>

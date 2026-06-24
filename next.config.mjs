@@ -94,7 +94,16 @@ const nextConfig = {
         ],
       },
        {
-        source: '/dashboard',
+        source: '/dashboard/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+      {
+        source: '/admin/:path*',
         headers: [
           {
             key: 'X-Robots-Tag',

@@ -342,7 +342,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
             classname={fieldErrors.phone ? 'formPhoneInputError' : 'formPhoneInput'}
             id="cad-phone-input"
           />
-          <p className={styles.formHint}>Select country code, then enter your mobile number (not the full number with country digits repeated).</p>
+          {/* <p className={styles.formHint}>Select country code, then enter your mobile number (not the full number with country digits repeated).</p> */}
           <FieldError message={fieldErrors.phone} />
         </div>
         <div className={styles.formGroup}>

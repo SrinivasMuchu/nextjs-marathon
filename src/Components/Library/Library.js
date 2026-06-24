@@ -1,9 +1,15 @@
 
 import React from 'react';
 import axios from 'axios';
+import { notFound } from 'next/navigation';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
 import { fetchCadTagsPage } from '@/api/cadTagsApi';
 import { buildLibraryDesignsParams } from '@/api/libraryDesignsApi';
+import {
+  formatLibraryResultsCount,
+  getLibraryPaginationWindow,
+  hasLibraryNarrowingFilters,
+} from '@/utils/libraryPagination';
 import Image from 'next/image';
 import styles from './Library.module.css';
 import { textLettersLimit } from '@/common.helper';
@@ -78,21 +84,55 @@ async function Library({ searchParams }) {
   });
   const queryString = new URLSearchParams(apiParams).toString();
 
+  const designsRequest = axios
+    .get(`${BASE_URL}/v1/cad/get-category-design?${queryString}`, { cache: 'no-store' })
+    .catch((err) => {
+      const status = err.response?.status;
+      const message = err.response?.data?.meta?.message;
+      if (status === 404 || message === 'Page not found') {
+        notFound();
+      }
+      throw err;
+    });
+
   const [response, categoriesRes, tagsFirstPage] = await Promise.all([
-    axios.get(`${BASE_URL}/v1/cad/get-category-design?${queryString}`, { cache: 'no-store' }),
+    designsRequest,
     axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
     fetchCadTagsPage(0, 10, null, category || null),
   ]);
 
   const allCategories = categoriesRes.data?.data || [];
   const data = response.data;
+
+  if (data?.meta?.success === false && data?.meta?.message === 'Page not found') {
+    notFound();
+  }
+
   const designs = data?.data?.designDetails || [];
   const pagination = data?.data?.pagination || {};
   const totalPages = pagination?.totalPages || 1;
+  // URL page (searchParams) may exceed range; API returns last-page data in currentPage when clamped
+  const dataPage = pagination?.currentPage ?? page;
   const initialTags = Array.isArray(tagsFirstPage?.data) ? tagsFirstPage.data : [];
   const initialTagsHasMore = tagsFirstPage?.hasMore === true;
+  const hasFilters = hasLibraryNarrowingFilters({
+    category,
+    tags,
+    search: searchQuery,
+    recency,
+    free_paid: freePaid,
+    file_format: fileFormat,
+    two_dims: twoDimsParam,
+  });
 
-  const totalItems = pagination?.totalItems ?? designs?.length ?? 0;
+  const paginationWindow = getLibraryPaginationWindow({
+    currentPage: dataPage,
+    totalPages,
+    hasNextPage: pagination?.hasNextPage,
+    hasPrevPage: pagination?.hasPrevPage,
+    showCompactTotals: hasFilters,
+  });
+  const resultsCountLabel = formatLibraryResultsCount(pagination, designs?.length ?? 0);
 
   const activeCategory =
     allCategories.find(
@@ -118,6 +158,21 @@ async function Library({ searchParams }) {
         ? `Browse ${tagLabel} CAD models used in real projects. Preview online and download STEP/STP, IGES, STL and more. Filter by category, file type, price and popularity.`
         : 'Browse quality-checked 3D CAD models. Preview online and download STEP/STP, IGES, STL and more—filter by category, tags, file type, price and popularity.';
 
+  const breadcrumbSchemaLinks = [{ label: 'Library', href: '/library' }];
+  if (categoryLabel) {
+    if (tagLabel) {
+      breadcrumbSchemaLinks.push({
+        label: categoryLabel,
+        href: getLibraryPath({ categoryName: category }),
+      });
+      breadcrumbSchemaLinks.push({ label: tagLabel });
+    } else {
+      breadcrumbSchemaLinks.push({ label: categoryLabel });
+    }
+  } else if (tagLabel) {
+    breadcrumbSchemaLinks.push({ label: tagLabel });
+  }
+
   return (
     <>
       <LibraryPageJsonLd
@@ -126,7 +181,7 @@ async function Library({ searchParams }) {
         page={page}
         limit={limit}
       />
-      <ServerBreadCrumbs links={[{ label: 'Library', href: '/library' }]} />
+      <ServerBreadCrumbs links={breadcrumbSchemaLinks} />
 
       <div className={styles["library-page"]}>
         {/* Dark purple header: breadcrumb, title, description only */}
@@ -134,7 +189,37 @@ async function Library({ searchParams }) {
           <nav className={styles["library-hero-breadcrumb"]} aria-label="Breadcrumb">
             <Link href="/" className={styles["library-hero-breadcrumb-link"]}>Home</Link>
             <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
-            <span className={styles["library-hero-breadcrumb-current"]}>Library</span>
+            {categoryLabel || tagLabel ? (
+              <>
+                <Link href="/library" className={styles["library-hero-breadcrumb-link"]}>Library</Link>
+                {categoryLabel ? (
+                  <>
+                    <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                    {tagLabel ? (
+                      <>
+                        <Link
+                          href={getLibraryPath({ categoryName: category })}
+                          className={styles["library-hero-breadcrumb-link"]}
+                        >
+                          {categoryLabel}
+                        </Link>
+                        <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                        <span className={styles["library-hero-breadcrumb-current"]}>{tagLabel}</span>
+                      </>
+                    ) : (
+                      <span className={styles["library-hero-breadcrumb-current"]}>{categoryLabel}</span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                    <span className={styles["library-hero-breadcrumb-current"]}>{tagLabel}</span>
+                  </>
+                )}
+              </>
+            ) : (
+              <span className={styles["library-hero-breadcrumb-current"]}>Library</span>
+            )}
           </nav>
           <h1 className={styles["library-hero-title"]}>{heroTitle}</h1>
           <p className={styles["library-hero-description"]}>
@@ -183,7 +268,10 @@ async function Library({ searchParams }) {
             <>
               <div className={styles['library-content-head-left']}>
                 <span className={styles['library-resources-count']}>
-                  All Designs ({(pagination?.totalItems ?? designs?.length ?? 0)} results)
+                  All Designs ({resultsCountLabel} results)
+                  {hasFilters && totalPages > 1 && totalPages <= 5
+                    ? ` · Page ${dataPage} of ${totalPages}`
+                    : ''}
                 </span>
                 <Link
                   href="/library/2d-technical-drawings"
@@ -281,72 +369,68 @@ async function Library({ searchParams }) {
         </div>
 
         <div className={styles["library-pagination"]}>
-          {page > 1 && (
-            <Link href={buildLibraryHref({ category, search: searchQuery, page: page - 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat, two_dims: twoDimsParam })} className={styles['pagination-button']}>
+          {paginationWindow.hasPrev && (
+            <Link
+              href={buildLibraryHref({
+                category,
+                search: searchQuery,
+                page: dataPage - 1,
+                tags,
+                sort,
+                recency,
+                free_paid: freePaid,
+                file_format: fileFormat,
+                two_dims: twoDimsParam,
+              })}
+              className={styles['pagination-button']}
+            >
               <KeyboardBackspaceIcon /> prev
             </Link>
           )}
 
-          {(() => {
-            const pageLinks = [];
-            const siblingCount = 1;
-            const totalVisible = 5 + siblingCount * 2;
+          {paginationWindow.showLeadingEllipsis && (
+            <span className={styles.dots}>...</span>
+          )}
 
-            const showLeftDots = page > 2 + siblingCount;
-            const showRightDots = page < totalPages - (1 + siblingCount);
+          {paginationWindow.pages.map((p) => (
+            <Link
+              key={p}
+              href={buildLibraryHref({
+                category,
+                search: searchQuery,
+                page: p,
+                tags,
+                sort,
+                recency,
+                free_paid: freePaid,
+                file_format: fileFormat,
+                two_dims: twoDimsParam,
+              })}
+              className={`${styles['pagination-button']} ${dataPage === p ? styles.active : ''}`}
+            >
+              {p}
+            </Link>
+          ))}
 
-            const startPage = showLeftDots ? Math.max(2, page - siblingCount) : 2;
-            const endPage = showRightDots ? Math.min(totalPages - 1, page + siblingCount) : totalPages - 1;
+          {paginationWindow.showTrailingEllipsis && (
+            <span className={styles.dots}>...</span>
+          )}
 
-            const q = (p) => buildLibraryHref({ category, search: searchQuery, page: p, tags, sort, recency, free_paid: freePaid, file_format: fileFormat, two_dims: twoDimsParam });
-
-            pageLinks.push(
-              <Link
-                key={1}
-                href={q(1)}
-                className={`${styles['pagination-button']} ${page === 1 ? styles.active : ''}`}
-              >
-                1
-              </Link>
-            );
-
-            if (showLeftDots) {
-              pageLinks.push(<span key="dots-left" className={styles.dots}>...</span>);
-            }
-
-            for (let p = startPage; p <= endPage; p++) {
-              pageLinks.push(
-                <Link
-                  key={p}
-                  href={q(p)}
-                  className={`${styles['pagination-button']} ${page === p ? styles.active : ''}`}
-                >
-                  {p}
-                </Link>
-              );
-            }
-
-            if (showRightDots) {
-              pageLinks.push(<span key="dots-right" className={styles.dots}>...</span>);
-            }
-
-            if (totalPages > 1) {
-              pageLinks.push(
-                <Link
-                  key={totalPages}
-                  href={q(totalPages)}
-                  className={`${styles['pagination-button']} ${page === totalPages ? styles.active : ''}`}
-                >
-                  {totalPages}
-                </Link>
-              );
-            }
-
-            return pageLinks;
-          })()}
-
-          {page < totalPages && (
-            <Link href={buildLibraryHref({ category, search: searchQuery, page: page + 1, tags, sort, recency, free_paid: freePaid, file_format: fileFormat, two_dims: twoDimsParam })} className={styles['pagination-button']}>
+          {paginationWindow.hasNext && (
+            <Link
+              href={buildLibraryHref({
+                category,
+                search: searchQuery,
+                page: dataPage + 1,
+                tags,
+                sort,
+                recency,
+                free_paid: freePaid,
+                file_format: fileFormat,
+                two_dims: twoDimsParam,
+              })}
+              className={styles['pagination-button']}
+            >
               next <KeyboardBackspaceIcon style={{ transform: "rotate(180deg)" }} />
             </Link>
           )}

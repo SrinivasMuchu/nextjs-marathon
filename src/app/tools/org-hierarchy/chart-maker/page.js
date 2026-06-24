@@ -1,11 +1,12 @@
 import { ASSET_PREFIX_URL } from '@/config';
+import { PRIVATE_PAGE_ROBOTS } from '@/lib/seo/privatePageMetadata';
 
 export const metadata = {
   title: "Free Org Chart Creator | Best Online Organizational Chart Maker | Marathon OS",
   description:
     "Create professional organizational charts effortlessly with our free Org Chart Creator. Customize and visualize team structures with an easy-to-use online chart maker. Try it now!",
-    robots: "noindex, nofollow",
-    openGraph: {images: [
+  ...PRIVATE_PAGE_ROBOTS,
+  openGraph: {images: [
       {
         url: `${ASSET_PREFIX_URL}logo-1.png`,
         width: 1200,

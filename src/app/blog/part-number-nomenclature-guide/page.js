@@ -20,13 +20,31 @@ import Blogs from '@/Components/Blog/Blogs'
 import React from 'react'
 
 function Blog() {
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: "Part Number Nomenclature: A Complete Guide to Structured Part Identification",
+    description:
+      "Learn everything about Part Number Nomenclature, including its importance, best practices, common formats, and real-world examples.",
+    author: {
+      "@type": "Organization",
+      name: "Marathon OS",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Marathon OS",
+    },
+    mainEntityOfPage: "https://marathon-os.com/blog/part-number-nomenclature-guide",
+  };
 
   return (
-
-    <Blogs />
-
-
-
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <Blogs />
+    </>
   )
 }
 

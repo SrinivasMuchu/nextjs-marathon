@@ -6,7 +6,7 @@ import OurFeatures from '@/Components/OrganizationHome/OurFeatures/OurFeatures'
 import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadFileConversionHeader from './CadFileConversionHeader'
-import CadFileConversionHowItWorks from './CadFileConversionHowItWorks'
+import CadFileConversionHowItWorksServer from './CadFileConversionHowItWorksServer'
 import CoreBenefits from '../CadUpload/CoreBenefits'
 import TrustPrivacy from '../CadUpload/TrustPrivacy'
 import CadConverterTypes from './CadConverterTypes'
@@ -17,7 +17,7 @@ import ConversionQualityNotes from '../CadUpload/ConversionQualityNotes'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
-import { cadConverterFaqQuestions } from '@/data/cadToolFaqs'
+import { cadConverterFaqQuestions, getConverterFaqQuestions } from '@/data/cadToolFaqs'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 
 // Page heading structure: 1 h1 (CadFileConversionHeader); h2 (HowItWorks, CoreBenefits, CadConverterTypes); rest h3 (InterlinkingBlocks, TrustPrivacy, DesignHub, OrgFaq).
@@ -90,11 +90,17 @@ const featuresArray = [
 
 ]
 
-function CadFileConversionHome({ convert, conversionParams }) {
+function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = false }) {
+    const faqQuestions = convert && conversionParams
+        ? getConverterFaqQuestions(conversionParams)
+        : cadConverterFaqQuestions;
+    const faqDescription = convert && conversionParams
+        ? `Find answers about converting files with Marathon OS ${conversionParams.replace(/-/g, ' ')} converter.`
+        : 'Find answers to common questions about Marathon OS 3D CAD File Converter.';
 
     return (
         <>
-            <FaqPageJsonLd faqSchemaData={cadConverterFaqQuestions} />
+            {!skipPageJsonLd ? <FaqPageJsonLd faqSchemaData={faqQuestions} /> : null}
             {/* <HomeTopNav /> */}
             {!convert && (
                 <ActiveLastBreadcrumb
@@ -121,7 +127,7 @@ function CadFileConversionHome({ convert, conversionParams }) {
           
             {/* <OrgFeatures type='cad' /> */}
             <InterlinkingBlocks />
-            <CadFileConversionHowItWorks />
+            <CadFileConversionHowItWorksServer conversionParams={convert ? conversionParams : undefined} />
             <CoreBenefits
                 title="Why use Marathon OS 3D CAD File Converter"
                 benefits={converterBenefits}
@@ -136,8 +142,8 @@ function CadFileConversionHome({ convert, conversionParams }) {
             <CadConverterTypes />
             <DesignHub headingLevel={3} />
             <OrgFaq
-                faqQuestions={cadConverterFaqQuestions}
-                description="Find answers to common questions about Marathon OS 3D CAD File Converter."
+                faqQuestions={faqQuestions}
+                description={faqDescription}
             />
             <Footer />
         </>

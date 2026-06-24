@@ -3,6 +3,99 @@
  * Edit this file to change questions/answers sitewide for those pages.
  */
 
+function parseConversionParams(conversionParams) {
+  if (!conversionParams || typeof conversionParams !== 'string') return { from: '', to: '' };
+  const segment = conversionParams.split('/').filter(Boolean).pop() || conversionParams;
+  const parts = segment.split(/-to-|_to_|_/i);
+  const from = (parts[0] || '').replace(/\.\w+$/, '');
+  const to = (parts[1] || '').replace(/\.\w+$/, '');
+  return { from, to };
+}
+
+const FORMAT_EXTENSIONS = {
+  step: '.step or .stp',
+  stp: '.step or .stp',
+  iges: '.igs or .iges',
+  igs: '.igs or .iges',
+  stl: '.stl',
+  obj: '.obj',
+  ply: '.ply',
+  off: '.off',
+  brep: '.brp or .brep',
+  brp: '.brp or .brep',
+  dwg: '.dwg',
+  dxf: '.dxf',
+};
+
+function getFormatExtensions(format) {
+  const key = String(format || '').toLowerCase();
+  return FORMAT_EXTENSIONS[key] || `.${key}`;
+}
+
+const WHY_CONVERT_HINTS = {
+  'stl-step': 'STL mesh files are ideal for 3D printing but hard to edit in CAD. Converting STL to STEP gives you a solid model you can modify, dimension, and use in manufacturing workflows.',
+  'step-stl': 'STEP is the standard exchange format for CAD. Converting STEP to STL creates a mesh file ready for 3D printing, slicing, and rapid prototyping.',
+  'iges-step': 'IGES is a legacy surface-based format. Converting IGES to STEP improves compatibility with modern CAD systems and downstream manufacturing tools.',
+  'step-iges': 'Converting STEP to IGES helps share models with older CAD systems or suppliers that still require IGES exchange files.',
+  'obj-stl': 'OBJ meshes are common in rendering pipelines. Converting OBJ to STL prepares your model for 3D printing and slicer software.',
+  'stl-obj': 'Converting STL to OBJ can help when you need a widely supported mesh format for rendering, game engines, or visualization tools.',
+  'dwg-dxf': 'DWG is AutoCAD’s native format. Converting DWG to DXF improves interoperability with other 2D CAD and CAM tools.',
+  'dxf-dwg': 'Converting DXF to DWG is useful when you need a native AutoCAD file from a neutral 2D exchange format.',
+};
+
+function getWhyConvertAnswer(from, to) {
+  const key = `${from}-${to}`.toLowerCase();
+  if (WHY_CONVERT_HINTS[key]) return WHY_CONVERT_HINTS[key];
+  const fromUpper = from.toUpperCase();
+  const toUpper = to.toUpperCase();
+  return `Converting ${fromUpper} to ${toUpper} helps you move CAD data between tools, suppliers, and workflows without installing desktop software. Marathon OS handles the conversion in the cloud so you can download a ${toUpper} file in seconds.`;
+}
+
+/** Format-pair FAQs for /tools/convert-{from}-to-{to} pages (B5.2). Falls back to generic list. */
+export function getConverterFaqQuestions(conversionParams) {
+  if (!conversionParams) return cadConverterFaqQuestions;
+
+  const { from, to } = parseConversionParams(conversionParams);
+  if (!from || !to) return cadConverterFaqQuestions;
+
+  const fromUpper = from.toUpperCase();
+  const toUpper = to.toUpperCase();
+  const fromExt = getFormatExtensions(from);
+  const toExt = getFormatExtensions(to);
+
+  return [
+    {
+      question: `How do I convert ${fromUpper} to ${toUpper} online?`,
+      answer: `Upload your ${fromUpper} file (${fromExt}) to Marathon OS, choose ${toUpper} as the output format, and download the converted file in seconds — no software installation required.`,
+    },
+    {
+      question: `Why convert ${fromUpper} to ${toUpper}?`,
+      answer: getWhyConvertAnswer(from, to),
+    },
+    {
+      question: `What ${fromUpper} and ${toUpper} file extensions are supported?`,
+      answer: `This converter accepts ${fromExt} input files and outputs ${toExt}. Upload up to 300 MB per file.`,
+    },
+    {
+      question: `Is the ${fromUpper} to ${toUpper} converter free?`,
+      answer: `Yes — converting ${fromUpper} to ${toUpper} on Marathon OS is completely free with no usage limits or hidden costs.`,
+    },
+    {
+      question: 'How is my data stored and secured?',
+      answer:
+        'Your files are encrypted during upload, processed securely in the cloud, and automatically deleted after 24 hours.',
+    },
+    {
+      question: 'Do I need any special software or training?',
+      answer: `No — upload your ${fromUpper} file and download ${toUpper} directly in your browser. No plugins or desktop CAD tools required.`,
+    },
+    {
+      question: `Can I convert large ${fromUpper} models to ${toUpper}?`,
+      answer: `Yes — Marathon OS is optimized for large and complex CAD models. You can upload files up to 300 MB for ${fromUpper} to ${toUpper} conversion.`,
+    },
+  ];
+}
+
 export const cadConverterFaqQuestions = [
   {
     question: 'What is Marathon OS 3D CAD File Converter?',
