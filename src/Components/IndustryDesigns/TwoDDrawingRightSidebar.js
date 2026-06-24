@@ -81,7 +81,7 @@ export default function TwoDDrawingRightSidebar({
 
       </div>
 
-      {showUploadCta ? (
+      {/* {showUploadCta ? (
         <div className={styles.ctaCard}>
           <div className={styles.ctaEyebrow}>Generate Your Own</div>
           <h3 className={styles.ctaTitle}>
@@ -104,7 +104,7 @@ export default function TwoDDrawingRightSidebar({
             <span className={styles.metaItem}>📦 4 formats</span>
           </div>
         </div>
-      ) : null}
+      ) : null} */}
 
       {/* <div className={styles.card}>
         <div className={styles.cardBody}>
