@@ -91,10 +91,12 @@ function sheetPreviewCandidates(baseUrl, sheetNum, designId, outputS3Prefix = ""
   const id = String(designId || "").trim();
   const base = String(baseUrl || "").replace(/\/$/, "");
   if (isUserPipelineCdnBase(base)) {
-    return techdrawSheetPreviewUrls(id, n, {
+    const apiUrls = techdrawSheetPreviewUrls(id, n, {
       userPipeline: true,
       outputPrefix: outputS3Prefix,
     });
+    const direct = directSheetAssetUrls(base, n);
+    return [...apiUrls, direct.svg, direct.svgNodim];
   }
   const fromBase = base.split("/").pop() || "";
   const resolvedId = id || fromBase;

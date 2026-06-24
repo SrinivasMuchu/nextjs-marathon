@@ -55,6 +55,10 @@ function candidateSheetNums(geometryPerSheet) {
 }
 
 async function buildAvailabilityMap(baseUrl, geometryPerSheet) {
+  // CloudFront HEAD from the browser fails CORS — would mark every sheet false
+  // and hide all previews on dashboard (client-side bundle load).
+  if (typeof window !== "undefined") return null;
+
   const candidates = candidateSheetNums(geometryPerSheet);
   if (!candidates.length) return null;
   const results = await Promise.all(
@@ -65,7 +69,11 @@ async function buildAvailabilityMap(baseUrl, geometryPerSheet) {
   return map;
 }
 
-async function loadTechDrawBundleFromBaseUrl(baseUrl, isUserPipelineOutput) {
+async function loadTechDrawBundleFromBaseUrl(
+  baseUrl,
+  isUserPipelineOutput,
+  outputS3Prefix = "",
+) {
   if (!baseUrl) return null;
 
   const [geometryPerSheet, viewSelectionResponse, dimensionSpecs] = await Promise.all([
@@ -85,7 +93,7 @@ async function loadTechDrawBundleFromBaseUrl(baseUrl, isUserPipelineOutput) {
 
   return {
     baseUrl,
-    outputS3Prefix: prefix,
+    outputS3Prefix: String(outputS3Prefix || "").trim(),
     geometryPerSheet,
     viewSelectionResponse,
     dimensionSpecs,
@@ -96,9 +104,27 @@ async function loadTechDrawBundleFromBaseUrl(baseUrl, isUserPipelineOutput) {
   };
 }
 
-/** Load user pipeline outputs from CloudFront using the job id (not output_s3_prefix). */
-export async function fetchTechDrawBundleForJob(jobId) {
-  return loadTechDrawBundleFromBaseUrl(techDrawUserJobCdnBase(jobId), true);
+/** Load user pipeline outputs from CloudFront (prefers job output_s3_prefix when set). */
+export async function fetchTechDrawBundleForJob(jobId, outputS3Prefix = "") {
+  const id = String(jobId || "").trim();
+  if (!JOB_ID_RE.test(id)) return null;
+
+  const prefixCandidates = [];
+  const explicit = String(outputS3Prefix || "").trim();
+  if (explicit) prefixCandidates.push(explicit);
+  prefixCandidates.push(`qwen_tech_draw_designs/${id}`);
+  prefixCandidates.push(`${USER_TECHDRAW_FOLDER}/${id}`);
+
+  const seen = new Set();
+  for (const prefix of prefixCandidates) {
+    if (!prefix || seen.has(prefix)) continue;
+    seen.add(prefix);
+    const baseUrl = techDrawCdnBaseFromPrefix(prefix);
+    if (!baseUrl) continue;
+    const bundle = await loadTechDrawBundleFromBaseUrl(baseUrl, true, prefix);
+    if (bundle) return bundle;
+  }
+  return null;
 }
 
 /**
@@ -110,5 +136,6 @@ export async function fetchTechDrawBundleFromPrefix(outputS3Prefix) {
   return loadTechDrawBundleFromBaseUrl(
     baseUrl,
     baseUrl.includes(USER_TECHDRAW_FOLDER),
+    outputS3Prefix,
   );
 }

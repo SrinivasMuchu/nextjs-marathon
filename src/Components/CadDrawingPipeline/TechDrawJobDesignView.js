@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { getTechDrawJobStatus } from "@/api/cadDrawingPipelineApi";
 import Loading from "@/Components/CommonJsx/Loaders/Loading";
-import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
+import { techDrawDesignPath, techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
 import TechDrawJobLibraryResults from "./TechDrawJobLibraryResults";
 
 export default function TechDrawJobDesignView({

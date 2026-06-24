@@ -13,6 +13,7 @@ import TechDrawBillingBadge from "../CommonJsx/TechDrawBillingBadge";
 import { textLettersLimit } from "@/common.helper";
 import { getOrCreateTechDrawUuid } from "@/api/cadDrawingPipelineApi";
 import { techDrawJobHref } from "@/lib/techDraw/techDrawJobRoutes";
+import { techdrawJobPreviewCandidates } from "@/lib/techDraw/techdrawFileApi";
 import styles from "./FileHistory.module.css";
 
 function formatDate(dateString) {
@@ -36,12 +37,6 @@ function normalizeFileStatus(status) {
   if (["PROCESSING", "UPLOADING", "RUNNING", "QUEUED"].includes(s)) return "processing";
   if (s === "PENDING") return "pending";
   return "pending";
-}
-
-function previewSrc(job) {
-  const id = String(job?._id || "");
-  if (!id) return "";
-  return `/api/techdraw-file?designId=${encodeURIComponent(id)}&source=user&sheet=1&ext=svg`;
 }
 
 export default function TechDrawDashboardCards({
@@ -204,7 +199,7 @@ export default function TechDrawDashboardCards({
             const id = String(job._id || "");
             const href = techDrawJobHref(job);
             const title = jobTitle(job);
-            const src = previewSrc(job);
+            const previewCandidates = techdrawJobPreviewCandidates(job);
             const status = String(job.status || "").toUpperCase();
             const isCompleted = status === "COMPLETED";
 
@@ -240,7 +235,7 @@ export default function TechDrawDashboardCards({
                   <TechDrawBillingBadge billingType={job.billing_type} />
                 </div>
 
-                {isCompleted && src ? (
+                {isCompleted && previewCandidates.length > 0 ? (
                   <div
                     style={{
                       width: "100%",
@@ -254,7 +249,7 @@ export default function TechDrawDashboardCards({
                     }}
                   >
                     <FallbackImageClient
-                      src={src}
+                      candidates={previewCandidates}
                       alt={`${title} preview`}
                       className={styles.historyItemPreviewImg}
                     />
