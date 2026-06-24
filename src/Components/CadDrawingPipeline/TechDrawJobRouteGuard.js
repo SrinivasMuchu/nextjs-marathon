@@ -15,7 +15,14 @@ import {
  * pipeline — redirect to design when job is complete
  * design — redirect to pipeline status when job is not complete (incl. failed)
  */
-export default function TechDrawJobRouteGuard({ jobId, mode, children }) {
+export default function TechDrawJobRouteGuard({
+  jobId,
+  mode,
+  children,
+  fetchJobStatus = getTechDrawJobStatus,
+  getDesignPath = techDrawDesignPath,
+  getPipelineStatusPath = techDrawPipelineStatusPath,
+}) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
@@ -24,18 +31,18 @@ export default function TechDrawJobRouteGuard({ jobId, mode, children }) {
 
     (async () => {
       try {
-        const { job } = await getTechDrawJobStatus(jobId);
+        const { job } = await fetchJobStatus(jobId);
         if (cancelled) return;
 
         const complete = isTechDrawJobComplete(job);
 
         if (mode === "pipeline" && complete) {
-          router.replace(techDrawDesignPath(jobId));
+          router.replace(getDesignPath(jobId));
           return;
         }
 
         if (mode === "design" && !complete) {
-          router.replace(techDrawPipelineStatusPath(jobId));
+          router.replace(getPipelineStatusPath(jobId));
           return;
         }
 
@@ -48,7 +55,7 @@ export default function TechDrawJobRouteGuard({ jobId, mode, children }) {
     return () => {
       cancelled = true;
     };
-  }, [jobId, mode, router]);
+  }, [fetchJobStatus, getDesignPath, getPipelineStatusPath, jobId, mode, router]);
 
   if (!ready) {
     return <Loading smallScreen={true} />;

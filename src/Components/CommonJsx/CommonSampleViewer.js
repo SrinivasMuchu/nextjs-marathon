@@ -11,10 +11,10 @@ const SAMPLE_ICONS = [Car, Truck, Wrench, Radio]
 
 function CommonSampleViewer({ variant }) {
   const router = useRouter();
-  const handleViewFile = (fileId) => {
+  const handleViewFile = (designId) => {
     sendGAtagEvent({ event_name: 'viewer_sample_file_clicked', event_category: CAD_VIEWER_EVENT })
 
-    router.push(`/tools/cad-renderer?fileId=${fileId}&sample=true&glb=true`);
+    router.push(`/tools/cad-renderer?designId=${designId}&sample=true&glb=true`);
   }
 
   if (variant === 'dark') {

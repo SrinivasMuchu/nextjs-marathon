@@ -6,7 +6,7 @@ const CubeLoader = dynamic(() => import('@/Components/CommonJsx/Loaders/CubeLoad
 import axios from "axios";
 import IndustryCadViewer from "@/Components/IndustryDesigns/IndustryCadViewer";
 import { GlbExplodeViewer } from "@/Components/PDMViewer/GlbExplodeViewer";
-import { BASE_URL, DESIGN_GLB_PREFIX_URL } from "@/config";
+import { BASE_URL, DESIGN_GLB_PREFIX_URL, buildCadViewerGlbUrl, buildCadViewerMetaUrl } from "@/config";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
@@ -34,34 +34,30 @@ function DesignViewContent() {
   const designId = searchParams.get("designId");
   const fileId = searchParams.get("fileId") || searchParams.get("id") || searchParams.get("folderId");
   const targetId = designId || fileId;
-  // In cad-renderer route, GLB mode should only be driven by designId.
-  // Keep `glb=true` in URL for backward compatibility, but do not switch mode by it.
-  const useGlbMode = Boolean(designId);
+  // Library designs (designId) use design-glb CDN; CAD viewer uploads (fileId) use cad-output-files.
+  const useLibraryGlbCdn = Boolean(designId);
+  const useCadViewerOutput = Boolean(fileId && !designId);
   const cacheBust = searchParams.get("v") || searchParams.get("cb") || searchParams.get("ts");
 
   const encodedTargetId = useMemo(
     () => (targetId ? encodeURIComponent(targetId) : ""),
     [targetId]
   );
-  const glbUrl = useMemo(
-    () =>
-      encodedTargetId
-        ? `${DESIGN_GLB_PREFIX_URL}${encodedTargetId}/${encodedTargetId}.glb`
-        : "",
-    [encodedTargetId]
-  );
-  const metaUrl = useMemo(
-    () =>
-      encodedTargetId
-        ? `${DESIGN_GLB_PREFIX_URL}${encodedTargetId}/${encodedTargetId}.json`
-        : "",
-    [encodedTargetId]
-  );
+  const glbUrl = useMemo(() => {
+    if (!encodedTargetId) return "";
+    if (useCadViewerOutput) return buildCadViewerGlbUrl(targetId);
+    return `${DESIGN_GLB_PREFIX_URL}${encodedTargetId}/${encodedTargetId}.glb`;
+  }, [encodedTargetId, targetId, useCadViewerOutput]);
+  const metaUrl = useMemo(() => {
+    if (!encodedTargetId) return "";
+    if (useCadViewerOutput) return buildCadViewerMetaUrl(targetId);
+    return `${DESIGN_GLB_PREFIX_URL}${encodedTargetId}/${encodedTargetId}.json`;
+  }, [encodedTargetId, targetId, useCadViewerOutput]);
   const [status, setStatus] = useState(targetId ? "PENDING" : null);
   const [isGlbViewer, setIsGlbViewer] = useState(false);
 
   useEffect(() => {
-    if (!targetId || !useGlbMode) return;
+    if (!targetId || !useLibraryGlbCdn) return;
     if (isSample) {
       setStatus("COMPLETED");
       setIsGlbViewer(true);
@@ -111,10 +107,10 @@ function DesignViewContent() {
       cancelled = true;
       if (intervalId) clearInterval(intervalId);
     };
-  }, [targetId, useGlbMode, isSample, readyParam]);
+  }, [targetId, useLibraryGlbCdn, isSample, readyParam]);
 
   useEffect(() => {
-    if (!targetId || format || useGlbMode) return;
+    if (!targetId || format || useLibraryGlbCdn) return;
     if (isSample) {
       // Sample route is static: skip status polling/API entirely.
       setStatus("COMPLETED");
@@ -163,12 +159,12 @@ function DesignViewContent() {
       cancelled = true;
       if (intervalId) clearInterval(intervalId);
     };
-  }, [targetId, format, hasGlbParam, queryIsGlb, useGlbMode, isSample]);
+  }, [targetId, format, hasGlbParam, queryIsGlb, useLibraryGlbCdn, isSample]);
 
   if (!targetId) {
     return <PartDesignView />;
   }
-  if (useGlbMode) {
+  if (useLibraryGlbCdn) {
     if (status !== "COMPLETED") {
       return <CubeLoader uploadingMessage={status || "IN_QUEUE"} />;
     }

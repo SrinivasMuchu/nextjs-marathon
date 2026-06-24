@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import heroStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadViewerHero.module.css';
 import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css';

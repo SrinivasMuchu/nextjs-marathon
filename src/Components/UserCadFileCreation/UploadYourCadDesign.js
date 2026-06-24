@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect, useContext, useCallback } from 'rea
 import styles from './UserCadFileUpload.module.css';
 import Image from 'next/image';
 import axios from 'axios';
-import { BASE_URL, BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList, ASSET_PREFIX_URL } from '@/config';
+import { BASE_URL, CAD_INPUT_FILES_BUCKET, TITLELIMIT, DESCRIPTIONLIMIT, CAD_PUBLISH_EVENT, publishFilesList, ASSET_PREFIX_URL } from '@/config';
 import { fetchCadTagsPage, TAGS_PAGE_SIZE } from '@/api/cadTagsApi';
 import { toast } from 'react-toastify';
 import { contextState } from '../CommonJsx/ContextProvider';
@@ -18,6 +18,7 @@ import { createDropdownCustomStyles, sendGAtagEvent } from '@/common.helper';
 import { FaRupeeSign } from "react-icons/fa";
 import Kyc from '../KYC/Kyc';
 import Link from 'next/link';
+import PopupWrapper from '../CommonJsx/PopupWrapper';
 
 
 
@@ -34,6 +35,10 @@ function UploadYourCadDesign({
     cadFormState,
     setCadFormState
 }) {
+    const [localShowKyc, setLocalShowKyc] = useState(false);
+    const resolvedShowKyc = showKyc ?? localShowKyc;
+    const openKycModal = () => (setShowKyc ? setShowKyc(true) : setLocalShowKyc(true));
+    const closeKycModal = () => (setShowKyc ? setShowKyc(false) : setLocalShowKyc(false));
     console.log(editedDetails)
     const fileInputRef = useRef(null);
     const multipleFilesInputRef = useRef(null);
@@ -73,6 +78,42 @@ function UploadYourCadDesign({
     const [uploadMode, setUploadMode] = useState('single'); // 'single' or 'multiple'
     const [isUploadingMultiple, setIsUploadingMultiple] = useState(false);
     const [multipleUploadProgress, setMultipleUploadProgress] = useState({}); // Track progress for each file
+    const [hasValidSignature, setHasValidSignature] = useState(false);
+    const [showSignaturePad, setShowSignaturePad] = useState(false);
+    const pendingPublishRef = useRef(false);
+
+    const checkSellerSignature = useCallback(async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/v1/payment/get-seller-details`, {
+                headers: { 'user-uuid': localStorage.getItem('uuid') },
+            });
+            const signatureUrl = response.data?.data?.user_data?.signature_s3_url;
+            if (!signatureUrl) return false;
+
+            return await new Promise((resolve) => {
+                const img = new window.Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = signatureUrl;
+            });
+        } catch {
+            return false;
+        }
+    }, []);
+
+    useEffect(() => {
+        if (user?.kycStatus !== 'completed') {
+            setHasValidSignature(false);
+            return;
+        }
+        let cancelled = false;
+        checkSellerSignature().then((valid) => {
+            if (!cancelled) setHasValidSignature(valid);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [user?.kycStatus, checkSellerSignature]);
 
     useEffect(() => {
 
@@ -376,9 +417,10 @@ function UploadYourCadDesign({
             const { data: presignedRes } = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
-                    bucket_name: BUCKET,
+                    bucket_name: CAD_INPUT_FILES_BUCKET,
                     file: file.name,
                     category: "designs_upload",
+                    cad_input_type: "design-uploads",
                     filesize: fileSizeMB
                 },
                 { headers }
@@ -533,9 +575,10 @@ function UploadYourCadDesign({
             const { data: presignedRes } = await axios.post(
                 `${BASE_URL}/v1/cad/get-next-presigned-url`,
                 {
-                    bucket_name: BUCKET,
+                    bucket_name: CAD_INPUT_FILES_BUCKET,
                     file: file.name,
                     category: "designs_upload",
+                    cad_input_type: "design-uploads",
                     filesize: fileSizeMB
                 },
                 { headers }
@@ -1024,8 +1067,49 @@ function UploadYourCadDesign({
     };
 
     // KYC handlers
-    const handleVerifyBankDetails = () => setShowKyc(true);
-    const handleKycClose = () => setShowKyc(false);
+    const handleVerifyBankDetails = () => openKycModal();
+    const handleKycClose = () => closeKycModal();
+
+    const handleSignatureSaved = () => {
+        setHasValidSignature(true);
+        setShowSignaturePad(false);
+        if (pendingPublishRef.current) {
+            pendingPublishRef.current = false;
+            if (editedDetails) {
+                handleUpdateUserCadFileSubmit();
+            } else {
+                handleUserCadFileSubmit();
+            }
+        }
+    };
+
+    const handleSignaturePadClose = () => {
+        pendingPublishRef.current = false;
+        setShowSignaturePad(false);
+    };
+
+    const handlePublishRequest = async () => {
+        if (!validateForm()) return;
+
+        if (user.kycStatus === 'completed') {
+            let signatureOk = hasValidSignature;
+            if (!signatureOk) {
+                signatureOk = await checkSellerSignature();
+                if (signatureOk) setHasValidSignature(true);
+            }
+            if (!signatureOk) {
+                pendingPublishRef.current = true;
+                setShowSignaturePad(true);
+                return;
+            }
+        }
+
+        if (editedDetails) {
+            handleUpdateUserCadFileSubmit();
+        } else {
+            handleUserCadFileSubmit();
+        }
+    };
 
     // Sync isChecked (downloadable) when editing
     useEffect(() => {
@@ -1077,7 +1161,16 @@ function UploadYourCadDesign({
     return (
         <>
             {/* Render KYC modal when requested */}
-            {showKyc && <Kyc onClose={handleKycClose} />}
+            {resolvedShowKyc && <Kyc onClose={handleKycClose} setUser={setUser} />}
+            {showSignaturePad && (
+                <PopupWrapper>
+                    <Kyc
+                        signatureOnly
+                        onClose={handleSignaturePadClose}
+                        onSignatureSaved={handleSignatureSaved}
+                    />
+                </PopupWrapper>
+            )}
             {closeNotifyInfoPopUp && <CadFileNotifyInfoPopUp setClosePopUp={setCloseNotifyInfoPopUp} cad_type={'USER_CADS'} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} />}
             
@@ -1512,6 +1605,21 @@ function UploadYourCadDesign({
                                     </div>
                                 )}
 
+                                {user.kycStatus === 'completed' && !hasValidSignature && (
+                                    <div className={styles.kycCard}>
+                                        <p>
+                                            Add your digital signature before publishing. It is used on seller invoices.
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowSignaturePad(true)}
+                                            className={styles.kycButton}
+                                        >
+                                            Add signature
+                                        </button>
+                                    </div>
+                                )}
+
                                 {/* Price */}
                                 <div className={styles.field}>
                                     <label className={styles.fieldLabel}>Price</label>
@@ -1567,16 +1675,14 @@ function UploadYourCadDesign({
                                                 uploading ||
                                                 user.kycStatus !== 'completed'
                                             }
-                                            onClick={
-                                                editedDetails
-                                                    ? handleUpdateUserCadFileSubmit
-                                                    : handleUserCadFileSubmit
-                                            }
+                                            onClick={handlePublishRequest}
                                             title={
                                                 !termsAccepted
                                                     ? 'Please agree to the terms and conditions to upload your design.'
                                                     : user.kycStatus !== 'completed'
                                                     ? 'Please verify your bank details to upload your design.'
+                                                    : !hasValidSignature
+                                                    ? 'Please add your signature to publish your design.'
                                                     : ''
                                             }
                                         >

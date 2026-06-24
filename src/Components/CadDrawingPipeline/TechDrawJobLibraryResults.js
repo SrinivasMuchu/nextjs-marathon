@@ -4,15 +4,16 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import TwoDTechnicalDrawingPageClient from "@/Components/IndustryDesigns/TwoDTechnicalDrawingPageClient";
 import TwoDTechnicalDrawingContentClient from "@/Components/IndustryDesigns/TwoDTechnicalDrawingContentClient";
-import { fetchTechDrawBundleFromPrefix } from "@/lib/techDraw/fetchTechDrawBundleFromPrefix";
+import { fetchTechDrawBundleForJob } from "@/lib/techDraw/fetchTechDrawBundleFromPrefix";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
 import { getJobDisplayTitle } from "./pipelineConstants";
+import { adminHrefForTab } from "@/Components/AdminPannel/adminTabConfig";
 import {
   techDrawDesignPath,
   techDrawPipelineStatusPath,
 } from "@/lib/techDraw/techDrawJobRoutes";
 
-function mapUserJobToLibraryProps(jobId, job, bundle) {
+function mapUserJobToLibraryProps(jobId, job, bundle, { adminMode, getPipelineStatusPath, getDesignPath } = {}) {
   const mapped = mapTechDrawBundleToPageProps(jobId, {
     baseUrl: bundle.baseUrl,
     outputS3Prefix: bundle.outputS3Prefix,
@@ -28,20 +29,34 @@ function mapUserJobToLibraryProps(jobId, job, bundle) {
   });
 
   const title = getJobDisplayTitle(job);
+  const pipelinePath = getPipelineStatusPath?.(jobId) || techDrawPipelineStatusPath(jobId);
+  const designPath = getDesignPath?.(jobId) || techDrawDesignPath(jobId);
 
   return {
     ...mapped,
-    breadcrumbLinks: [
-      { label: "Drawing pipeline", href: "/tools/cad-drawing-pipeline" },
-      {
-        label: title,
-        href: techDrawPipelineStatusPath(jobId),
-      },
-      {
-        label: "2D Technical Drawings",
-        href: techDrawDesignPath(jobId),
-      },
-    ],
+    breadcrumbLinks: adminMode
+      ? [
+          { label: "Admin", href: adminHrefForTab("techdraw-jobs") },
+          {
+            label: title,
+            href: pipelinePath,
+          },
+          {
+            label: "2D Technical Drawings",
+            href: designPath,
+          },
+        ]
+      : [
+          { label: "Drawing pipeline", href: "/tools/cad-drawing-pipeline" },
+          {
+            label: title,
+            href: pipelinePath,
+          },
+          {
+            label: "2D Technical Drawings",
+            href: designPath,
+          },
+        ],
     heroProps: {
       ...mapped.heroProps,
       title: `${title} — 2D Technical Drawing Set (2D CAD drawings)`,
@@ -54,7 +69,13 @@ function mapUserJobToLibraryProps(jobId, job, bundle) {
   };
 }
 
-export default function TechDrawJobLibraryResults({ jobId, job }) {
+export default function TechDrawJobLibraryResults({
+  jobId,
+  job,
+  adminMode = false,
+  getPipelineStatusPath,
+  getDesignPath,
+}) {
   const [pageProps, setPageProps] = useState(null);
   const [loadError, setLoadError] = useState("");
 
@@ -63,7 +84,7 @@ export default function TechDrawJobLibraryResults({ jobId, job }) {
 
     (async () => {
       setLoadError("");
-      const bundle = await fetchTechDrawBundleFromPrefix(job?.output_s3_prefix);
+      const bundle = await fetchTechDrawBundleForJob(jobId);
       if (cancelled) return;
       if (!bundle) {
         setLoadError(
@@ -71,13 +92,19 @@ export default function TechDrawJobLibraryResults({ jobId, job }) {
         );
         return;
       }
-      setPageProps(mapUserJobToLibraryProps(jobId, job, bundle));
+      setPageProps(
+        mapUserJobToLibraryProps(jobId, job, bundle, {
+          adminMode,
+          getPipelineStatusPath,
+          getDesignPath,
+        }),
+      );
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [jobId, job]);
+  }, [adminMode, getDesignPath, getPipelineStatusPath, jobId, job]);
 
   if (loadError) {
     return (
@@ -90,7 +117,7 @@ export default function TechDrawJobLibraryResults({ jobId, job }) {
         }}
       >
         <p style={{ color: "#b91c1c", marginBottom: 12 }}>{loadError}</p>
-        <Link href={techDrawPipelineStatusPath(jobId)} style={{ color: "#5b21b6" }}>
+        <Link href={getPipelineStatusPath?.(jobId) || techDrawPipelineStatusPath(jobId)} style={{ color: "#5b21b6" }}>
           ← Back to pipeline status
         </Link>
       </div>

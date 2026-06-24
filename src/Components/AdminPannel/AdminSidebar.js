@@ -9,6 +9,7 @@ import { MdSearch } from "react-icons/md";
 import { MdStar } from "react-icons/md";
 import { MdFavorite } from "react-icons/md";
 import { MdEngineering } from "react-icons/md";
+import { MdDraw } from "react-icons/md";
 import { FaChevronLeft } from "react-icons/fa";
 
 
@@ -117,6 +118,15 @@ function AdminSidebar({ collapsed, activeTab, onToggle, onSelect }) {
         >
           <MdEngineering />
           {!collapsed && <span className={styles.label}>CAD Requests</span>}
+        </button>
+        <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'techdraw-jobs' ? styles.active : ''}`}
+          onClick={() => onSelect('techdraw-jobs')}
+          title="TechDraw Uploads"
+        >
+          <MdDraw />
+          {!collapsed && <span className={styles.label}>TechDraw</span>}
         </button>
       </nav>
     </aside>

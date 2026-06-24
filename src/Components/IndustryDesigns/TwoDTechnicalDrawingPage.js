@@ -13,13 +13,9 @@ import TechDrawPageViewTracker from "../CadDrawingPipeline/TechDrawPageViewTrack
 
 const defaultBreadcrumbLinks = [
   { label: "Library", href: "/library" },
+  { label: "2D Technical Drawings", href: "/library/2d-technical-drawings" },
   {
     label: "Industrial IP67 Ethernet M12 Angle Connector",
-    href: "/library/industrial-ip67-ethernet-m12-angle-conne-698ec00809bd85d18216b084",
-  },
-  {
-    label: "2D Technical Drawings",
-    href: "/library/2d-technical-drawings/industrial-ip67-ethernet-m12-angle-conne-698ec00809bd85d18216b084",
   },
 ];
 

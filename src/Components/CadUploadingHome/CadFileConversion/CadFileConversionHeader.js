@@ -2,7 +2,7 @@ import React from 'react'
 import cadHomeStyles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import CadFileConversionContent from './CadFileConversionContent'
-import CadDynamicContent from './CadDynamicContent'
+import ConvertPageHeroHeading from './ConvertPageHeroHeading'
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 import { Zap, Shield, Clock, HardDrive } from 'lucide-react'
 
@@ -20,7 +20,7 @@ function CadFileConversionHeader({ convert, conversionParams }) {
           <span>Free online tool</span>
         </div>
         {convert ? (
-          <CadDynamicContent conversionParams={conversionParams} heroTone="dark" />
+          <ConvertPageHeroHeading conversionParams={conversionParams} />
         ) : (
           <>
             <h1 className={heroStyles.title}>

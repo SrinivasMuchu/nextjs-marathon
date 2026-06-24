@@ -8,8 +8,8 @@ import SignPad from './SignPad';
 import ReactPhoneNumber from '../CommonJsx/ReactPhoneNumber';
 import BankLoader from '../CommonJsx/Loaders/BankLoader';
 
-function Kyc({ onClose, setUser }) {
-  const [currentStep, setCurrentStep] = useState(1);
+function Kyc({ onClose, setUser, signatureOnly = false, onSignatureSaved }) {
+  const [currentStep, setCurrentStep] = useState(signatureOnly ? 2 : 1);
   const [formData, setFormData] = useState({
     name: '',
     ifsc: '',
@@ -78,6 +78,65 @@ function Kyc({ onClose, setUser }) {
       signature: signatureData
     }));
   };
+
+  const handleSubmitSignature = async () => {
+    if (!formData.signature) {
+      toast.error('Please capture your signature first.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/v1/payment/upload-kyc-signature`,
+        { signature: formData.signature },
+        { headers: { 'user-uuid': localStorage.getItem('uuid') } }
+      );
+      if (response.data?.meta?.success) {
+        toast.success(response.data.meta.message || 'Signature saved successfully!');
+        onSignatureSaved?.();
+        onClose?.();
+      } else {
+        toast.error(response.data?.meta?.message || 'Failed to save signature.');
+      }
+    } catch (error) {
+      console.error('Signature submission error:', error);
+      toast.error(error.response?.data?.meta?.message || 'Failed to save signature.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (signatureOnly) {
+    return (
+      <div className={styles.popupContainer}>
+        <div className={styles.headerRow}>
+          <h2 className={styles.title}>Digital Signature</h2>
+          <button className={styles.closeBtn} onClick={onClose || (() => {})}>&times;</button>
+        </div>
+        <p className={styles.subtitle}>
+          Please sign in the box below. Your signature is used on seller invoices.
+        </p>
+        <div className={styles.signatureSection}>
+          <SignPad
+            onSignatureCapture={handleSignatureCapture}
+            signature={formData.signature ? formData.signature.dataURL : null}
+          />
+          {formData.signature && (
+            <div className={styles.signatureActions}>
+              <button
+                type="button"
+                onClick={handleSubmitSignature}
+                disabled={isSubmitting}
+                className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ''}`}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Signature'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
 
   // Polling function (only uses localStorage for uuid, not for step/signature)

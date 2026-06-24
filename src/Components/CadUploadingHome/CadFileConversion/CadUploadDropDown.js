@@ -185,7 +185,9 @@ function CadDropDown({
                 <div className={cadStyles["cad-conversion-format-label"]}>{displayLabel}</div>
               </div>
             </td>
-            <td data-label="Status">{uploadingMessage}</td>
+            <td data-label="Status">
+              {uploadingMessage || 'Ready'}
+            </td>
             <td data-label="Action">
               {isConvertButtonVisible && !uploadingMessage && (
                 <button

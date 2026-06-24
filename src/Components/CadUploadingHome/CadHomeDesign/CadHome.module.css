@@ -381,15 +381,44 @@
 /* cad-conversion-table */
 .cad-conversion-table {
     width: 100%;
+    max-width: 100%;
     border: 1px solid #610BEE;
     border-radius: 8px;
-    /* overflow: hidden */
+    overflow-x: auto;
+    box-sizing: border-box;
 }
 
 
 .cad-conversion-table table {
     width: 100%;
+    min-width: 560px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
 
+.cad-conversion-table th:nth-child(1),
+.cad-conversion-table td:nth-child(1) {
+    width: 28%;
+}
+
+.cad-conversion-table th:nth-child(2),
+.cad-conversion-table td:nth-child(2) {
+    width: 12%;
+}
+
+.cad-conversion-table th:nth-child(3),
+.cad-conversion-table td:nth-child(3) {
+    width: 22%;
+}
+
+.cad-conversion-table th:nth-child(4),
+.cad-conversion-table td:nth-child(4) {
+    width: 18%;
+}
+
+.cad-conversion-table th:nth-child(5),
+.cad-conversion-table td:nth-child(5) {
+    width: 20%;
 }
 
 
@@ -413,9 +442,12 @@
 .cad-conversion-table td {
     /* height: 64px; */
     box-sizing: border-box;
-    padding: 10px 20px;
+    padding: 10px 12px;
     text-align: left;
     color: #000;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     font-size: 16px;
     font-style: normal;
@@ -424,13 +456,16 @@
     letter-spacing: -0.192px;
 }
 
+.cad-conversion-table td:first-child {
+    white-space: nowrap;
+}
+
 /* Conversion file row on dark hero (readable text + header strip) */
 .cad-conversion-table--dark {
     border: 1px solid rgba(201, 168, 255, 0.35);
     background: rgba(12, 6, 22, 0.55);
-    /* Square corners — no rounding on header row / outer box */
     border-radius: 0;
-    overflow: visible;
+    overflow-x: auto;
 }
 
 .cad-conversion-table--dark table {
@@ -460,7 +495,7 @@
 .cad-conversion-format-slot {
     position: relative;
     width: 100%;
-    max-width: 280px;
+    max-width: 100%;
     min-width: 0;
     color-scheme: light;
     isolation: isolate;
@@ -525,8 +560,19 @@
 .cad-conversion-button {
     background: #610BEE;
     border-radius: 4px;
-    padding: 10px 20px;
+    padding: 8px 14px;
     color: white;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    text-decoration: none;
 }
 
 .cad-dropzone-sample-btns{

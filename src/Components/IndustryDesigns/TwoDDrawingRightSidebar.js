@@ -12,6 +12,7 @@ export default function TwoDDrawingRightSidebar({
   zipHref,
   showDownloadAllPdfs = true,
   showCadModelLink = true,
+  showUploadCta = true,
   drawingInfo = {
     viewsAnalysed: 6,
     sheetsGenerated: 9,
@@ -80,28 +81,30 @@ export default function TwoDDrawingRightSidebar({
 
       </div>
 
-      <div className={styles.ctaCard}>
-        <div className={styles.ctaEyebrow}>Generate Your Own</div>
-        <h3 className={styles.ctaTitle}>
-          Have a CAD file?
-          <br />
-          Get 2D drawings in 4 min.
-        </h3>
-        <p className={styles.ctaDesc}>
-          Upload any STEP or CAD file. AI analyses the geometry and generates a full 2D
-          drawing set — editable FCStd, PDF, SVG, DXF.
-        </p>
-        <div className={styles.priceRow}>
-          <span className={styles.priceBig}>$4</span>
-          <span className={styles.priceSub}>per drawing set</span>
+      {/* {showUploadCta ? (
+        <div className={styles.ctaCard}>
+          <div className={styles.ctaEyebrow}>Generate Your Own</div>
+          <h3 className={styles.ctaTitle}>
+            Have a CAD file?
+            <br />
+            Get 2D drawings in 4 min.
+          </h3>
+          <p className={styles.ctaDesc}>
+            Upload any STEP or CAD file. AI analyses the geometry and generates a full 2D
+            drawing set — editable FCStd, PDF, SVG, DXF.
+          </p>
+          <div className={styles.priceRow}>
+            <span className={styles.priceBig}>$4</span>
+            <span className={styles.priceSub}>per drawing set</span>
+          </div>
+          <TwoDDrawingUploadGenerateButton href={generateHref} />
+          <div className={styles.metaRow}>
+            <span className={styles.metaItem}>⏱ &lt;4 minutes</span>
+            <span className={styles.metaItem}>📄 {sheetWord}</span>
+            <span className={styles.metaItem}>📦 4 formats</span>
+          </div>
         </div>
-        <TwoDDrawingUploadGenerateButton href={generateHref} />
-        <div className={styles.metaRow}>
-          <span className={styles.metaItem}>⏱ &lt;4 minutes</span>
-          <span className={styles.metaItem}>📄 {sheetWord}</span>
-          <span className={styles.metaItem}>📦 4 formats</span>
-        </div>
-      </div>
+      ) : null} */}
 
       {/* <div className={styles.card}>
         <div className={styles.cardBody}>

@@ -3,9 +3,9 @@ import styles from '../CadUploadingHome/CadHomeDesign/CadHome.module.css'
 
 function IndustryDesignHead() {
     return (
-        <div className={styles['cad-landing-left-content']}> <h1 className={styles['cad-landing-heading']}>
+        <div className={styles['cad-landing-left-content']}> <h3 className={styles['cad-landing-heading']}>
             Free Online CAD Viewer –Secure, Fast & Cloud-Based
-        </h1>
+        </h3>
             <p className={styles['cad-landing-description']}>
                 A lightweight, online tool to convert 3D file formats—anytime, anywhere, without installing any software.
             </p></div>

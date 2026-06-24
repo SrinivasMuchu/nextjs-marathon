@@ -45,7 +45,14 @@ function isTransientStatusError(err) {
   return false;
 }
 
-export default function CadDrawingPipelineStatus({ jobId }) {
+export default function CadDrawingPipelineStatus({
+  jobId,
+  fetchJobStatus = getTechDrawJobStatus,
+  waitForJob = waitForTechDrawJob,
+  autoRedirectToDesign = true,
+  getDesignPath = techDrawDesignPath,
+  adminMode = false,
+}) {
   const router = useRouter();
   const { user } = useContext(contextState);
   const [loading, setLoading] = useState(true);
@@ -214,10 +221,12 @@ export default function CadDrawingPipelineStatus({ jobId }) {
         // Wait for the streaming terminal to finish revealing every line
         // before we navigate, otherwise the user sees the redirect happen
         // mid-stream.
-        afterLogsDrained(() => router.replace(techDrawDesignPath(jobId)));
+        if (autoRedirectToDesign) {
+          afterLogsDrained(() => router.replace(getDesignPath(jobId)));
+        }
       }
     },
-    [afterLogsDrained, appendLog, applyCompletedJob, jobId, router, syncConsoleStatuses],
+    [afterLogsDrained, appendLog, applyCompletedJob, autoRedirectToDesign, getDesignPath, jobId, router, syncConsoleStatuses],
   );
 
   const applyFailedJobFromApi = useCallback(
@@ -321,7 +330,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
     appendLog("info", "  → Watching pipeline progress…");
 
     try {
-      const { job } = await waitForTechDrawJob(jobId, onPhase);
+      const { job } = await waitForJob(jobId, onPhase);
       finishPipelineRun(job);
     } catch (err) {
       if (!handlePipelineError(err)) {
@@ -336,7 +345,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
     } finally {
       setLoading(false);
     }
-  }, [appendLog, currentJob, finishPipelineRun, handlePipelineError, jobId, markPipelineProgress, onPhase]);
+  }, [appendLog, currentJob, finishPipelineRun, handlePipelineError, jobId, markPipelineProgress, onPhase, waitForJob]);
 
   const continueWaitingForJob = useCallback(async () => {
     if (loading || needsPayment) return;
@@ -351,7 +360,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
 
     (async () => {
       try {
-        const { job } = await getTechDrawJobStatus(jobId);
+        const { job } = await fetchJobStatus(jobId);
         if (cancelled) return;
 
         appendLog("hdr", "========== JOB STATUS ==========");
@@ -407,7 +416,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
       cancelled = true;
       pollAbortRef.current?.abort();
     };
-  }, [appendLog, applyFailedJobFromApi, finishPipelineRun, handleJobStatusUpdate, jobId, markPipelineProgress, startPolling, syncConsoleStatuses]);
+  }, [appendLog, applyFailedJobFromApi, fetchJobStatus, finishPipelineRun, handleJobStatusUpdate, jobId, markPipelineProgress, startPolling, syncConsoleStatuses]);
 
   const jobForDisplay = currentJob || completedJob;
   const displayTitle = getJobDisplayTitle(jobForDisplay);
@@ -422,7 +431,7 @@ export default function CadDrawingPipelineStatus({ jobId }) {
         </h1>
         <p className={styles.pageDesc}>{pageSubtitle}</p>
 
-        {overallStatus !== "COMPLETED" && user?.email ? (
+        {overallStatus !== "COMPLETED" && user?.email && !adminMode ? (
           <div
             style={{
               display: "flex",

@@ -12,6 +12,11 @@ import { DEFAULT_2D_SHEETS } from "./twoDDrawingPageDefaults";
 import layoutStyles from "./TwoDDrawingMainLayout.module.css";
 import { Suspense } from "react";
 
+/** /library/2d-technical-drawings/man-tgs-8x8-heavy-duty-truck-cad-model-698ebb08c6bb4d464875f170 */
+const HIDE_SIDEBAR_UPLOAD_CTA_DESIGN_IDS = new Set([
+  "698ebb08c6bb4d464875f170",
+]);
+
 /**
  * Inline notice rendered when every candidate sheet was filtered out by
  * Layer B (blank projection or missing S3 file). Kept self-contained so we
@@ -112,6 +117,7 @@ export default function TwoDTechnicalDrawingContent({
             freecadHref={freecadHref}
             zipHref={zipHref}
             drawingInfo={drawingInfo}
+            showUploadCta={!HIDE_SIDEBAR_UPLOAD_CTA_DESIGN_IDS.has(currentDesignId)}
           />
         </div>
       ) : (
