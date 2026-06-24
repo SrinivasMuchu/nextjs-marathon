@@ -1,45 +1,41 @@
 "use client";
-import React, { useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { getCookie, setCookie } from 'cookies-next';
+
+import React, { useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { getCookie } from "cookies-next";
+import {
+  persistAnonymousSession,
+  persistVerifiedSession,
+  readVerifiedFromStorage,
+} from "@/lib/authSession";
 
 function CreateLocalStorage() {
   useEffect(() => {
-    // Get UUID from cookie and localStorage
-    const cookieUuid = getCookie('uuid');
-    const localStorageUuid = localStorage.getItem('uuid');
+    const { uuid: verifiedUuid, isVerified } = readVerifiedFromStorage();
+    if (isVerified && verifiedUuid) {
+      persistVerifiedSession(verifiedUuid);
+      return;
+    }
 
-    // Case 1: UUID exists in cookie
+    const cookieUuid = getCookie("uuid");
+    const localStorageUuid = localStorage.getItem("uuid");
+
     if (cookieUuid) {
-      // Sync to localStorage if not present or different
       if (!localStorageUuid || localStorageUuid !== cookieUuid) {
-        localStorage.setItem('uuid', cookieUuid);
+        localStorage.setItem("uuid", cookieUuid);
       }
+      return;
     }
-    // Case 2: UUID exists in localStorage but not in cookie (migration for existing users)
-    else if (localStorageUuid) {
-      // Migrate localStorage UUID to cookie
-      setCookie('uuid', localStorageUuid, {
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-        path: '/',
-        sameSite: 'lax'
-      });
+
+    if (localStorageUuid) {
+      persistAnonymousSession(localStorageUuid);
+      return;
     }
-    // Case 3: No UUID exists in either storage (new user)
-    else {
-      const newUuid = uuidv4();
-      // Set in both cookie and localStorage
-      setCookie('uuid', newUuid, {
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-        path: '/',
-        sameSite: 'lax'
-      });
-      localStorage.setItem('uuid', newUuid);
-    }
+
+    persistAnonymousSession(uuidv4());
   }, []);
-  // Return null to render nothing
+
   return null;
 }
-
 
 export default CreateLocalStorage;

@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import UserLoginPupUp from './UserLoginPupUp';
+import { persistAnonymousSession } from '@/lib/authSession';
 import { MdDashboard } from 'react-icons/md';
 import { FiLogOut } from 'react-icons/fi';
 
@@ -86,14 +87,9 @@ function TopNavProfileButton({isMobileMenu = false}) {
   };
 
   const handleLogout = () => {
-    // Clear localStorage
     localStorage.clear();
+    persistAnonymousSession(uuidv4());
     
-    // Generate new UUID and store in localStorage
-    const newUuid = uuidv4();
-    localStorage.setItem('uuid', newUuid);
-    
-    // Reset user state to initial empty state
     setUser({});
     
     // Reset profile complete state

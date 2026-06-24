@@ -5,6 +5,7 @@ import styles from './CommonStyles.module.css';
 import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import { persistVerifiedSession } from '@/lib/authSession';
 
 
 
@@ -112,14 +113,7 @@ function EmailOTP({ email, fullname, accessKey,
 
       if (res.data.meta.success) {
         const newUuid = res.data.data.uuid;
-
-        // Update only relevant keys in localStorage
-        localStorage.setItem('is_verified', 'true');
-        localStorage.setItem('uuid', newUuid);
-
-        // Mirror the same values in cookies
-        document.cookie = `is_verified=true; path=/; SameSite=Lax`;
-        document.cookie = `uuid=${newUuid}; path=/; SameSite=Lax`;
+        persistVerifiedSession(newUuid);
 
         toast.success('OTP verified successfully!');
         console.log("OTP verified successfully");

@@ -6,8 +6,6 @@ import { buildPageMetadata, buildTwoDDrawingMetadata, deriveTwoDDrawingMetaFromG
 import { fetchTechDrawBundle } from "@/lib/techDraw/fetchTechDrawBundle";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
-import Link from "next/link";
 
 async function fetchDesignByRoute(designRoute) {
   if (!BASE_URL) return null;
@@ -37,8 +35,7 @@ async function fetchGeometryPerSheet(designId) {
   }
 }
 
-async function fetchLightHeroStats(designId) {
-  const geo = await fetchGeometryPerSheet(designId);
+function deriveHeroStatsFromGeometry(geo) {
   if (!geo || typeof geo !== "object") return null;
   const entries = Object.values(geo);
   const views = new Set(
@@ -82,82 +79,6 @@ export async function generateMetadata({ params }) {
   });
 }
 
-async function TwoDTechnicalDrawingDeferredContent({ designId, cadModelHref }) {
-  const bundle = await fetchTechDrawBundle(designId);
-  if (!bundle.geometryPerSheet || typeof bundle.geometryPerSheet !== "object") {
-    notFound();
-  }
-  const props = mapTechDrawBundleToPageProps(designId, bundle);
-  const { baseUrl: _u, ...contentProps } = props;
-  return (
-    <TwoDTechnicalDrawingContent
-      {...contentProps}
-      cadModelHref={cadModelHref}
-      currentDesignId={designId}
-    />
-  );
-}
-
-function TwoDTechnicalDrawingInitialFallback({ designId, cadModelHref }) {
-  const firstSheet = `${TECH_DRAW_LIBRARY_PREFIX}/${designId}/svg/sheet_1.svg`;
-  return (
-    <div
-      style={{
-        border: "1px solid #e5e7eb",
-        borderRadius: 12,
-        padding: 16,
-        background: "#fff",
-        marginTop: 8,
-      }}
-    >
-      <div
-        style={{
-          color: "#6b7280",
-          fontSize: 14,
-          marginBottom: 10,
-        }}
-      >
-        Loading full drawing details...
-      </div>
-      {cadModelHref ? (
-        <div style={{ marginBottom: 12 }}>
-          <Link
-            href={cadModelHref}
-            prefetch
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              fontSize: 14,
-              fontWeight: 600,
-              color: "#5b21b6",
-              textDecoration: "none",
-            }}
-          >
-            ← Open 3D CAD model page
-          </Link>
-        </div>
-      ) : null}
-      <div
-        style={{
-          height: 320,
-          background: "#eef2f7",
-          borderRadius: 10,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-        }}
-      >
-        <img
-          src={firstSheet}
-          alt="Drawing preview"
-          style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", background: "#fff" }}
-        />
-      </div>
-    </div>
-  );
-}
-
 export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) {
   const designRoute = String(params?.designRoute || "").trim();
   if (!designRoute) notFound();
@@ -165,11 +86,19 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
   const design = await fetchDesignByRoute(designRoute);
   const designId = String(design?._id || "").trim();
   if (!/^[a-f0-9]{24}$/i.test(designId)) notFound();
-  const lightStats = await fetchLightHeroStats(designId);
+
+  const bundle = await fetchTechDrawBundle(designId);
+  if (!bundle.geometryPerSheet || typeof bundle.geometryPerSheet !== "object") {
+    notFound();
+  }
+
+  const props = mapTechDrawBundleToPageProps(designId, bundle);
+  const { baseUrl: _u, ...contentProps } = props;
+
+  const lightStats = deriveHeroStatsFromGeometry(bundle.geometryPerSheet);
   const title = String(design?.page_title || design?.part_name || "2D Technical Drawing Set").trim();
   const cadModelHref = `/library/${encodeURIComponent(designRoute)}`;
-  const geometryPerSheet = await fetchGeometryPerSheet(designId);
-  const { viewType, sectionDetailType } = deriveTwoDDrawingMetaFromGeometry(geometryPerSheet);
+  const { viewType, sectionDetailType } = deriveTwoDDrawingMetaFromGeometry(bundle.geometryPerSheet);
   const { description: pageDescription } = buildTwoDDrawingMetadata(title, {
     viewType,
     sectionDetailType,
@@ -201,14 +130,12 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
         pageTitle={title}
         description={pageDescription}
       />
-      <TwoDTechnicalDrawingPage breadcrumbLinks={breadcrumbLinks} heroProps={heroProps}>
-        <Suspense
-          fallback={
-            <TwoDTechnicalDrawingInitialFallback designId={designId} cadModelHref={cadModelHref} />
-          }
-        >
-          <TwoDTechnicalDrawingDeferredContent designId={designId} cadModelHref={cadModelHref} />
-        </Suspense>
+      <TwoDTechnicalDrawingPage breadcrumbLinks={breadcrumbLinks} heroProps={heroProps} designId={designId}>
+        <TwoDTechnicalDrawingContent
+          {...contentProps}
+          cadModelHref={cadModelHref}
+          currentDesignId={designId}
+        />
       </TwoDTechnicalDrawingPage>
     </>
   );
