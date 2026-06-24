@@ -16,6 +16,7 @@ import {
 function mapUserJobToLibraryProps(jobId, job, bundle, { adminMode, getPipelineStatusPath, getDesignPath } = {}) {
   const mapped = mapTechDrawBundleToPageProps(jobId, {
     baseUrl: bundle.baseUrl,
+    outputS3Prefix: bundle.outputS3Prefix,
     geometryPerSheet: bundle.geometryPerSheet,
     viewSelectionResponse: bundle.viewSelectionResponse,
     dimensionSpecs: bundle.dimensionSpecs,

@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { DESIGN_GLB_PREFIX_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
+import { resolveTechDrawCdnRoot } from "@/lib/techDraw/techDrawCdnRoots";
 
-const LIBRARY_PREFIX = TECH_DRAW_LIBRARY_PREFIX.replace(/\/$/, "");
-const USER_PREFIX = `${DESIGN_GLB_PREFIX_URL.replace(/\/$/, "")}/user-freecad-techdraw`;
 const DESIGN_ID_RE = /^[a-f0-9]{24}$/;
 
 const CDN_FETCH_INIT = {
@@ -80,6 +78,7 @@ export async function GET(request) {
   const source = String(url.searchParams.get("source") || "").trim().toLowerCase();
   const variant = String(url.searchParams.get("variant") || "").trim().toLowerCase();
   const file = String(url.searchParams.get("file") || "").trim();
+  const prefix = String(url.searchParams.get("prefix") || "").trim();
   const dispositionParam = String(url.searchParams.get("disposition") || "")
     .trim()
     .toLowerCase();
@@ -101,7 +100,7 @@ export async function GET(request) {
     }
   }
 
-  const root = cdnRoot(source, designId);
+  const root = resolveTechDrawCdnRoot({ designId, source, prefix });
   const urls = targetUrls(root, { sheet, ext, variant, file });
   if (!urls.length) {
     return NextResponse.json({ error: "invalid params" }, { status: 400 });

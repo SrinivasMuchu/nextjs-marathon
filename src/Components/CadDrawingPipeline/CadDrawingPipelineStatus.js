@@ -10,6 +10,8 @@ import {
   TechDrawPollError,
   waitForTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
+import { isFreeRetryAvailable } from "@/api/techDrawErrors";
+import TechDrawDimensionExtractionFailedModal from "./TechDrawDimensionExtractionFailedModal";
 import { consumeJobLogs, formatStatusConsoleLine } from "@/api/consoleStatus";
 import {
   derivePipelineStageUi,
@@ -59,6 +61,7 @@ export default function CadDrawingPipelineStatus({
   const [completedJob, setCompletedJob] = useState(null);
   const [currentJob, setCurrentJob] = useState(null);
   const [needsPayment, setNeedsPayment] = useState(false);
+  const [showDimensionFailureModal, setShowDimensionFailureModal] = useState(false);
 
   const [logs, setLogs] = useState(() => [
     { kind: "dim", text: `// Job ${jobId}` },
@@ -245,7 +248,11 @@ export default function CadDrawingPipelineStatus({
       setOverallStatus("FAILED");
       setStagesError(true);
       appendLog("err", `  ✗ ${text}`);
-      toast.error(text);
+      if (isFreeRetryAvailable(job)) {
+        setShowDimensionFailureModal(true);
+      } else {
+        toast.error(text);
+      }
       return true;
     },
     [appendLog, finishPipelineRun, handleJobStatusUpdate],
@@ -587,6 +594,13 @@ export default function CadDrawingPipelineStatus({
           </div>
         </div>
       </div>
+      {showDimensionFailureModal ? (
+        <TechDrawDimensionExtractionFailedModal
+          jobId={jobId}
+          job={currentJob}
+          onClose={() => setShowDimensionFailureModal(false)}
+        />
+      ) : null}
     </div>
   );
 }

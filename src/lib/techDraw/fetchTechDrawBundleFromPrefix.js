@@ -1,4 +1,5 @@
 import { DESIGN_GLB_PREFIX_URL } from "@/config";
+import { isUserPipelineCdnBase } from "./techDrawCdnRoots";
 
 const MIN_VALID_SVG_BYTES = 800;
 const USER_TECHDRAW_FOLDER = "user-freecad-techdraw";
@@ -84,6 +85,7 @@ async function loadTechDrawBundleFromBaseUrl(baseUrl, isUserPipelineOutput) {
 
   return {
     baseUrl,
+    outputS3Prefix: prefix,
     geometryPerSheet,
     viewSelectionResponse,
     dimensionSpecs,

@@ -1,15 +1,13 @@
 import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
 import JSZip from "jszip";
-import { DESIGN_GLB_PREFIX_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
+import { resolveTechDrawCdnRoot } from "@/lib/techDraw/techDrawCdnRoots";
 
 export const runtime = "nodejs";
 /** Allow long ZIP builds on Vercel Pro / similar (ignored elsewhere). */
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-const LIBRARY_PREFIX = TECH_DRAW_LIBRARY_PREFIX.replace(/\/$/, "");
-const USER_PREFIX = `${DESIGN_GLB_PREFIX_URL.replace(/\/$/, "")}/user-freecad-techdraw`;
 const DESIGN_ID_RE = /^[a-f0-9]{24}$/;
 
 const CDN_FETCH_INIT = {
@@ -20,9 +18,12 @@ const CDN_FETCH_INIT = {
   },
 };
 
-function cdnRoot(source, designId) {
-  if (source === "user") return `${USER_PREFIX}/${designId}`;
-  return `${LIBRARY_PREFIX}/${designId}`;
+function cdnRoot(source, designId, prefix) {
+  return resolveTechDrawCdnRoot({ designId, source, prefix });
+}
+
+function isUserPipelineSource(source, prefix) {
+  return Boolean(String(prefix || "").trim()) || source === "user";
 }
 
 async function fetchBytes(url) {
@@ -92,12 +93,14 @@ export async function GET(request) {
   const url = new URL(request.url);
   const designId = url.searchParams.get("designId");
   const source = String(url.searchParams.get("source") || "").trim().toLowerCase();
+  const prefix = String(url.searchParams.get("prefix") || "").trim();
 
   if (!designId || !DESIGN_ID_RE.test(designId)) {
     return NextResponse.json({ error: "Invalid designId" }, { status: 400 });
   }
 
-  const root = cdnRoot(source, designId);
+  const root = cdnRoot(source, designId, prefix);
+  const userPipeline = isUserPipelineSource(source, prefix);
 
   const geoBytes = await fetchBytes(`${root}/geometry_per_sheet.json`);
   if (!geoBytes) {
@@ -120,7 +123,7 @@ export async function GET(request) {
   const zip = new JSZip();
   zip.file("geometry_per_sheet.json", geoBytes);
 
-  for (const name of rootJsonFiles(source)) {
+  for (const name of rootJsonFiles(userPipeline ? "user" : source)) {
     const buf = await fetchBytes(`${root}/${name}`);
     if (buf) zip.file(name, buf);
   }
@@ -154,7 +157,7 @@ export async function GET(request) {
   });
 
   const webStream = Readable.toWeb(nodeStream);
-  const filenamePrefix = source === "user" ? "techdraw-user" : "techdraw";
+  const filenamePrefix = userPipeline ? "techdraw-user" : "techdraw";
 
   return new NextResponse(webStream, {
     status: 200,
