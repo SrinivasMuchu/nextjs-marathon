@@ -43,7 +43,9 @@ export default function CadDrawingPipelinePage() {
       <TechDrawPageViewTracker pageType="upload" />
       <div className={styles.root}>
         <CadDrawingPipelineHeroServer />
-        <CadDrawingPipelineView />
+        <Suspense fallback={<PipelineSectionFallback />}>
+          <CadDrawingPipelineView />
+        </Suspense>
 
         <div className={styles.page}>
           <Suspense fallback={<PipelineSectionFallback />}>
