@@ -6,11 +6,17 @@ export default function FallbackImageClient({
   className,
   src,
   fallbackSrc = "",
+  candidates,
   alt = "",
 }) {
-  const [currentSrc, setCurrentSrc] = useState(src || "");
-  const [fallbackTried, setFallbackTried] = useState(false);
+  const list =
+    Array.isArray(candidates) && candidates.length > 0
+      ? candidates.filter(Boolean)
+      : [src, fallbackSrc].filter(Boolean);
+  const [index, setIndex] = useState(0);
   const [hidden, setHidden] = useState(false);
+
+  const currentSrc = list[index] || "";
 
   if (hidden || !currentSrc) return null;
 
@@ -20,9 +26,8 @@ export default function FallbackImageClient({
       src={currentSrc}
       alt={alt}
       onError={() => {
-        if (!fallbackTried && fallbackSrc) {
-          setFallbackTried(true);
-          setCurrentSrc(fallbackSrc);
+        if (index + 1 < list.length) {
+          setIndex(index + 1);
           return;
         }
         setHidden(true);

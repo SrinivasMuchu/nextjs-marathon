@@ -84,7 +84,7 @@ export default function TechDrawJobLibraryResults({
 
     (async () => {
       setLoadError("");
-      const bundle = await fetchTechDrawBundleForJob(jobId);
+      const bundle = await fetchTechDrawBundleForJob(jobId, job?.output_s3_prefix);
       if (cancelled) return;
       if (!bundle) {
         setLoadError(
