@@ -20,10 +20,8 @@ export const CAD_CONVERTER_OUTPUT_PREFIX = 'converter';
 export const DESIGN_GLB_PREFIX_URL = 'https://d1d8a3050v4fu6.cloudfront.net/';
 export const USER_PROFILES_PREFIX_URL = 'https://marathon-user-profiles.s3.ap-south-1.amazonaws.com/';
 /** CDN folder for 2D technical drawing bundles (JSON + svg/ + dxf/ + screenshots/ + sheet PDFs). */
-// export const TECH_DRAW_LIBRARY_PREFIX =
-//   "https://d1d8a3050v4fu6.cloudfront.net/2d-technical-drawings";
 export const TECH_DRAW_LIBRARY_PREFIX =
-  "https://d1d8a3050v4fu6.cloudfront.net/qwen_tech_draw_designs";
+  "https://d1d8a3050v4fu6.cloudfront.net/2d-technical-drawings";
 export const IMAGEURLS = {
   logo: `${MARATHON_ASSET_PREFIX_URL}marathon-demo-logo.svg`,
   fileformat:`${MARATHON_ASSET_PREFIX_URL}3d-file-format.webp`,
