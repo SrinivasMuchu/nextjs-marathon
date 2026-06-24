@@ -10,6 +10,7 @@ import { contextState } from './ContextProvider';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import usePushNotifications from './usePushNotifications';
+import { persistVerifiedSession } from '@/lib/authSession';
 
 // Helper to convert VAPID key
 function urlBase64ToUint8Array(base64String) {
@@ -133,15 +134,7 @@ function UserLoginPupUp({ onClose, type }) {
             if (result.data.meta.success) {
                 console.log('✅ Google SSO login successful!');
 
-                // Save user email if needed
-
-
-                localStorage.clear();
-                // toast.success('OTP verified successfully!');
-                localStorage.setItem('is_verified', true);
-                console.log("OTP verified successfully");
-                localStorage.setItem('uuid', result.data.data.uuid);
-                // onClose()
+                persistVerifiedSession(result.data.data.uuid);
                 setUser({ ...user, email: googleEmail, name: userName })
 
                 // Register for push notifications after login
