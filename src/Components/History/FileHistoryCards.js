@@ -16,6 +16,7 @@ import CadConvertorFiles from './CadConvertorFiles';
 import CadPublishedFiles from './CadPublishedFiles';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 import { toast } from 'react-toastify';
+import { ensureConverterDownloadAccess } from './converterPayment';
 
 let cachedCadHistory = {};
 
@@ -219,23 +220,24 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
 
       setDownloading(prev => ({ ...prev, [index]: true }));
 
+      try {
+        await ensureConverterDownloadAccess({
+          converterFileId: file._id,
+          fileName: file.file_name,
+          userEmail: user.email,
+        });
+      } catch (payErr) {
+        if (payErr?.message === 'Payment cancelled') {
+          toast.info('Payment cancelled.');
+        } else {
+          toast.error(payErr?.message || 'Payment required to download this file.');
+        }
+        setDownloading(prev => ({ ...prev, [index]: false }));
+        return;
+      }
+
       const url = buildCadConverterOutputUrl(file._id, file.base_name, file.output_format);
 
-      // if (!file.sample_file || file.is_published) {
-      //   setUploadedFile({
-      //     url: `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`,
-      //     output_format: file.input_format,
-      //     file_name: file.file_name,
-      //     base_name: file.base_name,
-      //     _id: file._id,
-      //     cad_type: 'CAD_CONVERTER',
-      //   });
-
-      //   // Wait a bit to ensure context is updated
-      //   await new Promise(resolve => setTimeout(resolve, 100));
-      // }
-
-      // (file.sample_file || file.is_published) ? setPublishCad(false) : setPublishCad(true);
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -252,16 +254,15 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       document.body.appendChild(a);
       a.click();
 
-      // Cleanup
       document.body.removeChild(a);
       window.URL.revokeObjectURL(downloadUrl);
       
       sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT });
-      // router.push(`/tools/cad-renderer?fileId=${file._id}`);
       
       setDownloading(prev => ({ ...prev, [index]: false }));
     } catch (error) {
       console.error('Download error:', error);
+      toast.error('Download failed. Please try again.');
       setDownloading(prev => ({ ...prev, [index]: false }));
     }
   };
