@@ -75,7 +75,7 @@ export default function PartDesignView() {
         }
 
         // Uploads run on /tools/cad-uploading; bare /tools/cad-renderer without fileId → home viewer.
-        router.replace("/tools/3D-cad-viewer");
+        router.replace("/tools/3d-cad-viewer");
     }, [searchParams, router, setFile]);
 
     // Cleanup effect to reset file state when navigating away
@@ -94,7 +94,7 @@ export default function PartDesignView() {
         setError(null); // Clear any errors
         setIsLoading(false); // Reset loading state
         setUploadProgressPercent(null);
-        router.push("/tools/3D-cad-viewer");
+        router.push("/tools/3d-cad-viewer");
     };
 
     useEffect(() => {

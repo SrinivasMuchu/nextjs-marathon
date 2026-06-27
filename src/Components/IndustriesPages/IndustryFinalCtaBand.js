@@ -5,7 +5,7 @@ import Link from 'next/link';
 import DemoPopUp from '@/Components/HomePages/RequestDemo/DemoPopUp';
 import styles from './IndustryFinalCtaBand.module.css';
 
-const VIEWER_HREF = '/tools/3D-cad-viewer';
+const VIEWER_HREF = '/tools/3d-cad-viewer';
 
 /**
  * Final CTA band: upload + request demo (Section “Final CTA”).

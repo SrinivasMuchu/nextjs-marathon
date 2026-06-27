@@ -3,29 +3,26 @@ import axios from "axios";
 import Link from "next/link";
 import { BASE_URL } from "@/config";
 import styles from "./Library.module.css";
+import cardStyles from "./TwoDLibrary.module.css";
 import ServerBreadCrumbs from "../CommonJsx/ServerBreadCrumbs";
-import DesignStats from "../CommonJsx/DesignStats";
-import DesignDetailsStats from "../CommonJsx/DesignDetailsStats";
 import Footer from "../HomePages/Footer/Footer";
 import LibraryPageJsonLd from "../JsonLdSchemas/LibraryPageJsonLd";
-import FallbackImageClient from "../CommonJsx/FallbackImageClient";
 import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
 import LibraryHireCtaCard from "./LibraryHireCtaCard";
 import TechDrawPageViewTracker from "../CadDrawingPipeline/TechDrawPageViewTracker";
+import TwoDLibraryCard from "./TwoDLibraryCard";
+import TwoDLibraryLayoutWithFilters from "./TwoDLibraryLayoutWithFilters";
+import TwoDLibraryBottomSections from "./TwoDLibraryBottomSections";
+import {
+  TWO_D_LIBRARY_DESCRIPTION,
+  TWO_D_LIBRARY_H1,
+  TWO_D_LIBRARY_INTRO,
+  applyTwoDLibraryFilters,
+  buildTwoDLibraryHref,
+} from "@/data/twoDLibraryPage";
 
 const SITE_LIST_ORIGIN = "https://marathon-os.com";
-
-function build2dLibraryHref({
-  page,
-  search,
-  basePath = "/library/2d-technical-drawings",
-}) {
-  const qp = new URLSearchParams();
-  if (page && Number(page) > 1) qp.set("page", String(page));
-  if (search) qp.set("search", search);
-  const qs = qp.toString();
-  return qs ? `${basePath}?${qs}` : basePath;
-}
+const FIRST_GRID_SIZE = 6;
 
 export default async function TwoDLibrary({
   searchParams,
@@ -39,6 +36,7 @@ export default async function TwoDLibrary({
     page: String(page),
     limit: String(limit),
     ...(search ? { search } : {}),
+    ...(searchParams?.recently_generated === "1" ? { sort: "newest" } : {}),
   }).toString();
 
   const response = await axios.get(
@@ -47,10 +45,34 @@ export default async function TwoDLibrary({
   );
 
   const data = response?.data || {};
-  const designs = Array.isArray(data?.data) ? data.data : [];
+  const rawDesigns = Array.isArray(data?.data) ? data.data : [];
+  const designs = applyTwoDLibraryFilters(rawDesigns, searchParams);
   const pagination = data?.pagination || {};
-  const total = Number(pagination.total || designs.length || 0);
+  const total = Number(pagination.total || rawDesigns.length || 0);
   const totalPages = Number(pagination.total_pages || 1);
+
+  const renderGridItems = (items, startIndex = 0) =>
+    items.map((design, index) => {
+      const absoluteIndex = startIndex + index;
+      return (
+        <React.Fragment key={`2d-design-${design._id}`}>
+          {absoluteIndex === 0 && (
+            <div className={cardStyles.gridFullWidth}>
+              <LeftRightBanner adSlot="2408570633" />
+            </div>
+          )}
+          {absoluteIndex === 4 && (
+            <div className={`${cardStyles.gridFullWidth} ${styles.libraryHireCtaSlot}`}>
+              <LibraryHireCtaCard />
+            </div>
+          )}
+          <TwoDLibraryCard design={design} />
+        </React.Fragment>
+      );
+    });
+
+  const firstGrid = designs.slice(0, FIRST_GRID_SIZE);
+  const remainingGrid = designs.slice(FIRST_GRID_SIZE);
 
   return (
     <>
@@ -67,8 +89,8 @@ export default async function TwoDLibrary({
           page={page}
           limit={limit}
           listUrl={`${SITE_LIST_ORIGIN}${basePath}`}
-          listTitle="2D Technical Drawing Library"
-          listDescription="Browse free 2D technical drawings generated from 3D CAD models. Download engineering drawing sheets in PDF, SVG and DXF formats for mechanical, robotics, automotive and industrial designs."
+          listTitle={TWO_D_LIBRARY_H1}
+          listDescription={TWO_D_LIBRARY_DESCRIPTION}
           defaultItemName="2D Technical Drawing"
           scriptId="json-ld-2d-library-itemlist"
           getItemPath={(design) => {
@@ -87,141 +109,58 @@ export default async function TwoDLibrary({
             <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
             <span className={styles["library-hero-breadcrumb-current"]}>2D Library</span>
           </nav>
-          <h1 className={styles["library-hero-title"]}>
-            2D Technical Drawing Library — 2D CAD drawings
-          </h1>
-          <p className={styles["library-hero-description"]}>
-            Browse free 2D CAD drawings generated from 3D CAD models. Open each
-            technical drawing set and download PDF, SVG, and DXF formats.
-          </p>
+          <h1 className={styles["library-hero-title"]}>{TWO_D_LIBRARY_H1}</h1>
+          <p className={styles["library-hero-description"]}>{TWO_D_LIBRARY_INTRO}</p>
         </header>
 
         <div className={styles["library-below-hero"]}>
-          <div className={styles["library-content"]}>
-            <div className={styles["library-content-head"]}>
-              <span className={styles["library-resources-count"]}>
-                2D Designs ({total} results)
-              </span>
-            </div>
-
+          <TwoDLibraryLayoutWithFilters
+            basePath={basePath}
+            searchParams={searchParams}
+            total={designs.length || total}
+          >
             <div className={styles["library-designs"]}>
-              <div className={styles["library-designs-items"]}>
-                {designs.map((design, index) => (
-                  <React.Fragment key={`2d-design-${design._id}`}>
-                    {index === 0 && (
-                      <div
-                        className={styles["library-designs-items-container"]}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <LeftRightBanner adSlot="2408570633" />
-                      </div>
-                    )}
-                    {index === 6 && (
-                      <div
-                        className={styles["library-designs-items-container"]}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <LeftRightBanner adSlot="4799748492" />
-                      </div>
-                    )}
-                    {index === 4 && (
-                      <div
-                        className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
-                      >
-                        <LibraryHireCtaCard />
-                      </div>
-                    )}
-                    <div className={styles["library-designs-items-container"]}>
-                      {(() => {
-                        const route = String(design.route || "").trim();
-                        const href = route
-                          ? `/library/2d-technical-drawings/${encodeURIComponent(route)}`
-                          : `/library/2d-technical-drawings/${design._id}`;
-                        const previewSrc = design?._id
-                          ? `/api/techdraw-file?designId=${encodeURIComponent(
-                              design._id
-                            )}&sheet=1&ext=svg`
-                          : "";
-                        return (
-                          <Link
-                            href={href}
-                            className={styles["library-designs-primary-link"]}
-                            aria-label={design.page_title || design.part_name || "2D design"}
-                          >
-                            <div className={styles["two-d-library-preview-wrap"]}>
-                              {previewSrc ? (
-                                <FallbackImageClient
-                                  className={styles["two-d-library-preview-img"]}
-                                  src={previewSrc}
-                                  alt={`${
-                                    design.page_title || design.part_name || "2D design"
-                                  } preview`}
-                                />
-                              ) : (
-                                <div className={styles["two-d-library-preview-fallback"]}>
-                                  2D Preview
-                                </div>
-                              )}
-                            </div>
-                            <h6 title={design.page_title || design.part_name}>
-                              {design.page_title || design.part_name || "Untitled design"}
-                            </h6>
-                          </Link>
-                        );
-                      })()}
+              {designs.length === 0 ? (
+                <p className={styles["library-resources-count"]}>
+                  No 2D drawing sets match these filters. Try clearing filters or adjusting your search.
+                </p>
+              ) : (
+                <>
+                  <div className={cardStyles.grid}>{renderGridItems(firstGrid, 0)}</div>
 
-                      <div className={styles["design-title-wrapper"]}>
-                        <div
-                          className={styles["design-title-text"]}
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            alignItems: "center",
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <DesignDetailsStats text="2D Drawing" type="category" />
-                          {design.file_type ? (
-                            <DesignDetailsStats
-                              fileType={`.${String(design.file_type).toLowerCase()}`}
-                              text={`.${String(design.file_type).toUpperCase()}`}
-                            />
-                          ) : null}
-                          <div className={styles["design-stats-wrapper"]}>
-                            <DesignStats
-                              views={design.total_design_views ?? 0}
-                              downloads={design.total_design_downloads ?? 0}
-                            />
-                          </div>
-                        </div>
-                        <span className={styles["design-title-wrapper-price"]}>
-                          {design.price ? `$${design.price}` : "Free"}
-                        </span>
-                      </div>
+                  {firstGrid.length > 0 ? (
+                    <div className={cardStyles.gridFullWidth}>
+                      <TwoDLibraryBottomSections basePath={basePath} />
                     </div>
-                  </React.Fragment>
-                ))}
-                {designs.length > 0 && designs.length < 5 && (
-                  <div
-                    className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
-                  >
-                    <LibraryHireCtaCard />
-                  </div>
-                )}
-              </div>
+                  ) : null}
+
+                  {remainingGrid.length > 0 ? (
+                    <div className={cardStyles.grid}>{renderGridItems(remainingGrid, FIRST_GRID_SIZE)}</div>
+                  ) : null}
+
+                  {designs.length > 0 && designs.length < 5 && (
+                    <div className={`${cardStyles.gridFullWidth} ${styles.libraryHireCtaSlot}`}>
+                      <LibraryHireCtaCard />
+                    </div>
+                  )}
+                </>
+              )}
 
               <div className={styles["library-pagination"]}>
                 {page > 1 ? (
                   <Link
-                    href={build2dLibraryHref({ page: page - 1, search, basePath })}
+                    href={buildTwoDLibraryHref({
+                      page: page - 1,
+                      search,
+                      basePath,
+                      category: searchParams?.category,
+                      source_format: searchParams?.source_format,
+                      output_format: searchParams?.output_format,
+                      sheets: searchParams?.sheets,
+                      projection: searchParams?.projection,
+                      free_paid: searchParams?.free_paid,
+                      recently_generated: searchParams?.recently_generated,
+                    })}
                     className={styles["pagination-button"]}
                   >
                     prev
@@ -232,7 +171,18 @@ export default async function TwoDLibrary({
                 </span>
                 {page < totalPages ? (
                   <Link
-                    href={build2dLibraryHref({ page: page + 1, search, basePath })}
+                    href={buildTwoDLibraryHref({
+                      page: page + 1,
+                      search,
+                      basePath,
+                      category: searchParams?.category,
+                      source_format: searchParams?.source_format,
+                      output_format: searchParams?.output_format,
+                      sheets: searchParams?.sheets,
+                      projection: searchParams?.projection,
+                      free_paid: searchParams?.free_paid,
+                      recently_generated: searchParams?.recently_generated,
+                    })}
                     className={styles["pagination-button"]}
                   >
                     next
@@ -240,11 +190,10 @@ export default async function TwoDLibrary({
                 ) : null}
               </div>
             </div>
-          </div>
+          </TwoDLibraryLayoutWithFilters>
         </div>
       </div>
       <Footer />
     </>
   );
 }
-

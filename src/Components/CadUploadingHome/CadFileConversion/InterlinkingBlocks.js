@@ -8,7 +8,7 @@ const blocks = [
   {
     heading: 'Need to preview before converting?',
     ctaLabel: 'Open CAD Viewer',
-    href: '/tools/3D-cad-viewer',
+    href: '/tools/3d-cad-viewer',
     image: IMAGEURLS.freeTools1,
   },
   {

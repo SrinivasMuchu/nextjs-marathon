@@ -33,7 +33,7 @@ export async function POST(request) {
 
   if (!file || typeof file === "string") {
     return NextResponse.json(
-      { meta: { success: false, message: "STEP file is required." } },
+      { meta: { success: false, message: "CAD file is required." } },
       { status: 400 },
     );
   }
@@ -68,7 +68,14 @@ export async function POST(request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const s3Res = await fetch(put_url, {
       method: "PUT",
-      headers: { "Content-Type": "application/step" },
+      headers: {
+        "Content-Type":
+          /\.(iges|igs)$/i.test(fileName)
+            ? "application/iges"
+            : /\.fcstd$/i.test(fileName)
+              ? "application/octet-stream"
+              : "application/step",
+      },
       body: buffer,
     });
     if (!s3Res.ok) {

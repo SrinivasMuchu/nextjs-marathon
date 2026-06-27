@@ -78,7 +78,7 @@ function Industry({ industry, industryData }) {
         <div>
             {industryData && <>
                 <ActiveLastBreadcrumb links={[
-                    { label: 'CAD viewer', href: '/tools/3D-cad-viewer' },
+                    { label: 'CAD viewer', href: '/tools/3d-cad-viewer' },
                     { label: `${industryData.industry}`, href: `/industry/${industry}` },
                 ]} />
                 <IndustryDetails industryData={industryData} />

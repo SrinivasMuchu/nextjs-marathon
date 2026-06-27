@@ -4,16 +4,19 @@ import StickyCadStrip from '@/Components/CadServicesBanners/StickyCadStrip';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import React from 'react';
 
-const BASE_URL = 'https://marathon-os.com';
-const CANONICAL_PATH = '/tools/3d-cad-file-converter';
-const TITLE = 'Free Online 3D CAD File Converter (STEP, IGES, STL, OBJ) | Marathon OS';
+const CANONICAL_URL = 'https://marathon-os.com/tools/3d-cad-file-converter';
+const TITLE = 'Free Online CAD File Converter | STEP, STL, IGES, OBJ | Marathon OS';
 const DESCRIPTION =
-  'Convert CAD & 3D model files online in seconds on Marathon OS. Upload STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP. Fast, secure, cloud-based conversion. No software required.';
+  'Convert CAD and 3D files online between STEP, STL, IGES, OBJ, PLY, BREP, DWG and DXF. Secure browser-based conversion with 300 MB uploads and auto-delete in 24 hours.';
 
 export const metadata = buildPageMetadata({
   title: TITLE,
   description: DESCRIPTION,
-  canonicalPath: CANONICAL_PATH,
+  canonicalPath: '/tools/3d-cad-file-converter',
+  pageUrl: CANONICAL_URL,
+  extra: {
+    alternates: { canonical: CANONICAL_URL },
+  },
 });
 
 function page() {
@@ -21,8 +24,8 @@ function page() {
     <>
       <SoftwareApplicationJsonLd
         name="Free Online 3D CAD File Converter"
-        url={`${BASE_URL}${CANONICAL_PATH}`}
-        description="Convert STEP, IGES, STL, OBJ, PLY, OFF, and BREP files online with no software installation."
+        url={CANONICAL_URL}
+        description="Convert STEP, STL, IGES, OBJ, PLY, BREP, DWG and DXF files online with no software installation."
       />
       <CadFileConversionHome />
       <StickyCadStrip />

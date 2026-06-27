@@ -7,6 +7,7 @@ import {
   PIPELINE_DEMO_3D_SPRITE_URL,
   PIPELINE_DEMO_DESIGN_ID,
 } from "./pipelineConstants";
+import { CAD_DRAWING_PIPELINE_HOW_IT_WORKS_COPY } from "@/data/cadDrawingPipelinePage";
 import styles from "./CadDrawingPipeline.module.css";
 
 const demo2dSvgUrl = techdrawFileApiUrl(PIPELINE_DEMO_DESIGN_ID, {
@@ -22,8 +23,7 @@ export default function CadDrawingPipelineHowItWorks() {
         From 3D CAD to Engineering Drawings
       </h2>
       <p className={styles.howItWorksDesc}>
-        Upload any STEP, IGES, or FreeCAD file. Our AI analyzes the geometry, selects optimal
-        views, places dimensions, identifies components, and generates production-ready 2D sheets.
+        {CAD_DRAWING_PIPELINE_HOW_IT_WORKS_COPY}
       </p>
 
       <div className={styles.howItWorksCompare}>

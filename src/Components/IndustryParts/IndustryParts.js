@@ -78,7 +78,7 @@ function IndustryParts({ industry, part_name, industryData }) {
             {industryData && <>
                 <ActiveLastBreadcrumb
                     links={[
-                        { label: 'CAD viewer', href: '/tools/3D-cad-viewer' },
+                        { label: 'CAD viewer', href: '/tools/3d-cad-viewer' },
                         { label: `${industryData.industry}`, href: `/industry/${industry}` },
                         { label: `${industryData.part_name}`, href: `/industry/${industry}/${part_name}` },
                     ]}

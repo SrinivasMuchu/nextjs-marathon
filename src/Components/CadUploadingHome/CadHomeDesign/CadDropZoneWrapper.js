@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 import { Upload } from "lucide-react";
+import { applyAllowedFormatsForSlug } from "@/data/cadFormatViewerPages";
 
 function parseFormatFromPath(segment) {
   if (!segment || typeof segment !== 'string') return '';
@@ -22,7 +23,7 @@ function parseFormatFromPath(segment) {
   return match ? match[1].toLowerCase() : segment.toLowerCase();
 }
 
-function CadDropZoneWrapper({ children, isStyled, type, designVariant, dropzoneId }) {
+function CadDropZoneWrapper({ children, isStyled, type, cadType, designVariant, dropzoneId }) {
     const fileInputRef = useRef(null);
     const [checkLimit, setCheckLimit] = useState(false);
     const [uploading, setUploading] = useState(false)
@@ -33,38 +34,15 @@ function CadDropZoneWrapper({ children, isStyled, type, designVariant, dropzoneI
     const maxFileSizeMB = 300; // Max file size in MB
     const router = useRouter();
     const segment = pathname.split("/")[2] || '';
-    const cadFile = parseFormatFromPath(segment);
+    const cadFile = cadType || parseFormatFromPath(segment);
   
     useEffect(() => {
         if (type && cadFile) {
-            formateAcceptor(cadFile);
+            applyAllowedFormatsForSlug(setAllowedFormats, cadFile);
         } else {
             setAllowedFormats(allowedFilesList)
         }
     }, [type, cadFile]);
-    const formateAcceptor = (format) => {
-        if (format === 'step' || format === 'stp') {
-            setAllowedFormats([".step", ".stp"])
-        }
-        if (format === 'iges' || format === 'igs') {
-            setAllowedFormats([".igs", ".iges"])
-        }
-        if (format === 'stl') {
-            setAllowedFormats([".stl"])
-        }
-        if (format === 'ply') {
-            setAllowedFormats([".ply"])
-        }
-        if (format === 'off') {
-            setAllowedFormats([".off"])
-        }
-        if (format === 'brep' || format === 'brp') {
-            setAllowedFormats([".brp", ".brep"])
-        }
-        if (format === 'obj') {
-            setAllowedFormats([".obj"])
-        }
-    }
 
 
     const handleClick = () => {

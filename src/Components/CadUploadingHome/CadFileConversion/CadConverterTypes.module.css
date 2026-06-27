@@ -8,6 +8,18 @@
   border-radius: 0;
 }
 
+.sectionMuted {
+  background: #f8f8fa;
+}
+
+.sectionPurple {
+  background: linear-gradient(
+    180deg,
+    rgba(241, 237, 252, 0.98) 0%,
+    rgba(255, 255, 255, 0.98) 100%
+  );
+}
+
 .inner {
   width: 100%;
   max-width: 1120px;

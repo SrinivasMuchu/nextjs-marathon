@@ -4,16 +4,16 @@ import heroStyles from "./CadViewerHero.module.css";
 import CadDropZoneWrapper from "./CadDropZoneWrapper";
 import CommonSampleViewer from "@/Components/CommonJsx/CommonSampleViewer";
 import ToolsPageBanner from "@/Components/CadServicesBanners/ToolsPageBanner";
+import CadSupportedFormatsTable from "./CadSupportedFormatsTable";
+import { getSupportedInputFormatsLabel } from "@/data/cadFormatViewerPages";
 
-const DEFAULT_FORMATS_COPY =
-  "Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj)";
-
-function CadHomeDropZone({ isStyled, allowedFormats, type, designVariant, dropzoneId }) {
+function CadHomeDropZone({ isStyled, allowedFormats, type, cadType, designVariant, dropzoneId }) {
   const isHeroDark = designVariant === "heroDark";
-
-  const formatsLine = type && Array.isArray(allowedFormats)
-    ? `Supported formats:${allowedFormats.join(", ")}`
-    : DEFAULT_FORMATS_COPY;
+  const supportedInputLabel = type && cadType ? getSupportedInputFormatsLabel(cadType) : null;
+  const formatsLine = supportedInputLabel
+    || (type && Array.isArray(allowedFormats) && allowedFormats.length
+      ? `Supported input formats: ${allowedFormats.join(", ")}`
+      : null);
 
   const dropzoneInner = (
     <div
@@ -44,15 +44,19 @@ function CadHomeDropZone({ isStyled, allowedFormats, type, designVariant, dropzo
     <>
       {isHeroDark ? (
         <div className={heroStyles.uploadSection}>
-          <CadDropZoneWrapper isStyled={isStyled} type={type} designVariant={designVariant} dropzoneId={dropzoneId}>
+          <CadDropZoneWrapper isStyled={isStyled} type={type} cadType={cadType} designVariant={designVariant} dropzoneId={dropzoneId}>
             {dropzoneInner}
           </CadDropZoneWrapper>
-          <p className={heroStyles.formatsBelow}>{formatsLine}</p>
+          {formatsLine ? (
+            <p className={heroStyles.formatsBelow}>{formatsLine}</p>
+          ) : (
+            <CadSupportedFormatsTable />
+          )}
           <CommonSampleViewer variant="dark" />
         </div>
       ) : (
         <>
-          <CadDropZoneWrapper isStyled={isStyled} type={type} designVariant={designVariant} dropzoneId={dropzoneId}>
+          <CadDropZoneWrapper isStyled={isStyled} type={type} cadType={cadType} designVariant={designVariant} dropzoneId={dropzoneId}>
             {dropzoneInner}
           </CadDropZoneWrapper>
           <CommonSampleViewer />

@@ -11,6 +11,11 @@ import CoreBenefits from '../CadUpload/CoreBenefits'
 import TrustPrivacy from '../CadUpload/TrustPrivacy'
 import CadConverterTypes from './CadConverterTypes'
 import FeaturedConversions from './FeaturedConversions'
+import CadConversionToolLinks from './CadConversionToolLinks'
+import SupportedCadFormats from './SupportedCadFormats'
+import WhenToUseConverter from './WhenToUseConverter'
+import CadViewerCrossLink from '../CadUpload/CadViewerCrossLink'
+import CadServicesCrossLink from '../CadUpload/CadServicesCrossLink'
 import InterlinkingBlocks from './InterlinkingBlocks'
 import CadConverterFormateText from './CadConverterFormateText'
 import ConversionQualityNotes from '../CadUpload/ConversionQualityNotes'
@@ -122,6 +127,20 @@ function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = fal
                 />
             )}
             <CadFileConversionHeader convert={convert} conversionParams={conversionParams} />
+            {!convert ? (
+              <>
+                <CadConversionToolLinks />
+                <CadViewerCrossLink />
+                <CadServicesCrossLink />
+                <SupportedCadFormats />
+                <WhenToUseConverter />
+              </>
+            ) : (
+              <>
+                <CadViewerCrossLink />
+                <CadServicesCrossLink />
+              </>
+            )}
             <ConversionQualityNotes />
             <ToolsPageBanner />
           

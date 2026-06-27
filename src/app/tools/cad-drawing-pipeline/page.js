@@ -8,22 +8,29 @@ import CadDrawingPipelineTransparency from "@/Components/CadDrawingPipeline/CadD
 import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawingPipelineProcess";
 import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
 import CadDrawingPipelineHeroServer from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroServer";
+import CadDrawingPipelineInfoSections from "@/Components/CadDrawingPipeline/CadDrawingPipelineInfoSections";
 import SoftwareApplicationJsonLd from "@/Components/JsonLdSchemas/SoftwareApplicationJsonLd";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
 import TechDrawPageViewTracker from "@/Components/CadDrawingPipeline/TechDrawPageViewTracker";
 import { buildPageMetadata } from "@/lib/seo/pageMetadata";
+import {
+  CAD_DRAWING_PIPELINE_DESCRIPTION,
+  CAD_DRAWING_PIPELINE_TITLE,
+} from "@/data/cadDrawingPipelinePage";
+import { TECHDRAW_BASE_PRICE_USD } from "@/api/cadDrawingPipelineApi";
 
 const SITE = "https://marathon-os.com";
 const CANONICAL = "/tools/cad-drawing-pipeline";
-const TITLE = "CAD Drawing Pipeline (STEP to TechDraw) | Marathon OS";
-const DESCRIPTION =
-  "Upload a STEP file to generate AI-assisted technical drawing sheets in PDF, SVG, DXF, and PNG formats via the Marathon OS drawing pipeline.";
 
 export const metadata = buildPageMetadata({
-  title: TITLE,
-  description: DESCRIPTION,
+  title: CAD_DRAWING_PIPELINE_TITLE,
+  description: CAD_DRAWING_PIPELINE_DESCRIPTION,
   canonicalPath: CANONICAL,
+  pageUrl: `${SITE}${CANONICAL}`,
+  extra: {
+    alternates: { canonical: `${SITE}${CANONICAL}` },
+  },
 });
 
 function PipelineSectionFallback() {
@@ -34,10 +41,10 @@ export default function CadDrawingPipelinePage() {
   return (
     <>
       <SoftwareApplicationJsonLd
-        name="CAD Drawing Pipeline (STEP to TechDraw)"
+        name="3D CAD to 2D Technical Drawing Generator"
         url={`${SITE}${CANONICAL}`}
-        description="Upload a STEP file to generate AI-assisted technical drawing sheets in PDF, SVG, DXF, and PNG formats."
-        price="4"
+        description={CAD_DRAWING_PIPELINE_DESCRIPTION}
+        price={String(TECHDRAW_BASE_PRICE_USD)}
         priceCurrency="USD"
       />
       <TechDrawPageViewTracker pageType="upload" />
@@ -48,6 +55,7 @@ export default function CadDrawingPipelinePage() {
         </Suspense>
 
         <div className={styles.page}>
+          <CadDrawingPipelineInfoSections />
           <Suspense fallback={<PipelineSectionFallback />}>
             <CadDrawingPipelineSampleSheets />
           </Suspense>

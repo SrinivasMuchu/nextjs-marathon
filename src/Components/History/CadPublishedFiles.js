@@ -15,8 +15,6 @@ import axios from 'axios';
 import { RiEdit2Fill } from "react-icons/ri";
 import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
 
-
-
 function CadPublishedFiles({ loading, userCadFiles, type, searchTerm,
   setSearchTerm, selectedFilter, setSelectedFilter,
   setPublishCadPopUp, creatorId, handlePublishCad }) {

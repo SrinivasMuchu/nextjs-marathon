@@ -71,7 +71,7 @@ export default function IndustryPdmGlbViewerSection({ industryData }) {
         return;
       }
     }
-    router.push("/tools/3D-cad-viewer");
+    router.push("/tools/3d-cad-viewer");
   };
 
   return (
