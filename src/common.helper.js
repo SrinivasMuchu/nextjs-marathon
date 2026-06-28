@@ -320,15 +320,23 @@ export function resolveCategorySlugToName(slug, categories = []) {
 /**
  * Build library path (no query). Use for links.
  * - No category, no tag → /library
- * - Category only → /library/{categorySlug}
+ * - Category only → /library/category/{categorySlug}
  * - Tag only → /library/tag/{tagSlug}
  * - Category + tag → /library/{categorySlug}/{tagSlug}
  * categoryName/tagName are the raw names (e.g. from API); they are slugified for the path.
  */
+export function getLibraryCategoryPath(categorySlug) {
+  return `/library/category/${slugify(categorySlug)}`;
+}
+
+export function getLibraryFileFormatPath(formatSlug) {
+  return `/library/file-format/${slugify(formatSlug)}`;
+}
+
 export function getLibraryPath({ categoryName = null, tagName = null }) {
   const base = '/library';
   if (!categoryName && !tagName) return base;
-  if (categoryName && !tagName) return `${base}/${slugify(categoryName)}`;
+  if (categoryName && !tagName) return getLibraryCategoryPath(categoryName);
   if (!categoryName && tagName) return `${base}/tag/${slugify(tagName)}`;
   return `${base}/${slugify(categoryName)}/${slugify(tagName)}`;
 }
@@ -363,17 +371,14 @@ const LIBRARY_TRACKING_PARAMS = [
 
 /**
  * Canonical URL query for library pages:
- * - We only keep `page` so pagination is self-canonical:
- *   - /library        (page 1)
- *   - /library?page=N (page N)
- *   - /library/<category>[/<tag>]?page=N
- * - Filter params (search, recency, free_paid, sort, file_format, etc.) are
- *   NOT reflected in the canonical; sort/file_format/tracking variants get noindex.
+ * - Clean indexable paths keep self-canonical URLs.
+ * - Filtered /library query variants canonicalize to /library.
  */
 const LIBRARY_CANONICAL_QUERY_KEYS = ['page'];
 
-function buildLibraryCanonicalQuery(params) {
+function buildLibraryCanonicalQuery(params, { includePage = true } = {}) {
   const q = new URLSearchParams();
+  if (!includePage) return q;
   for (const key of LIBRARY_CANONICAL_QUERY_KEYS) {
     const value = params[key];
     if (value != null && String(value).trim() !== '') q.set(key, String(value).trim());
@@ -383,31 +388,60 @@ function buildLibraryCanonicalQuery(params) {
 
 /**
  * Build canonical path + query for library pages, robots, and prev/next for pagination.
- * - Canonical = path (+ ?page=N when N > 1). Filters are not encoded in canonical.
- * - Sort / file_format / tracking variants: noindex,follow + canonical to clean URL (no sort/file_format; page kept).
- * - Returns prevPath and nextPath for rel="prev" / rel="next" (same structure as current, page-1 / page+1).
- * @param {{ path: string, searchParams?: Record<string, string | undefined> }} opts
- * @returns {{ canonicalPath: string, robots?: string, prevPath?: string, nextPath?: string }}
  */
 export function getLibraryCanonicalAndRobots({ path, searchParams = {} }) {
   const params = searchParams || {};
   const currentPage = Math.max(1, parseInt(params.page, 10) || 1);
   const sort = (params.sort || '').trim();
   const hasSortVariant = sort && sort !== LIBRARY_DEFAULT_SORT;
-  const hasFreePaidVariant = (params.free_paid || '').trim() !== ''; // treat free/paid like a sort toggle
+  const hasFreePaidVariant = (params.free_paid || '').trim() !== '';
   const hasFileFormatVariant = (params.file_format || '').trim() !== '';
+  const hasSearchVariant = (params.search || '').trim() !== '';
+  const hasRecencyVariant = (params.recency || '').trim() !== '';
+  const hasTagsVariant = (params.tags || '').trim() !== '';
+  const hasPageVariant = currentPage > 1;
   const twoDimsRaw = (params.two_dims || '').trim().toLowerCase();
   const hasTwoDimsVariant = twoDimsRaw === '1' || twoDimsRaw === 'true' || twoDimsRaw === 'yes';
   const hasTrackingParams = Object.keys(params).some((k) =>
     LIBRARY_TRACKING_PARAMS.some((t) => k.toLowerCase() === t.toLowerCase())
   );
 
-  const canonicalQuery = buildLibraryCanonicalQuery(params);
-  const queryString = canonicalQuery.toString();
-  const canonicalPath = queryString ? `${path}?${queryString}` : path;
+  const isMainLibraryFiltered =
+    path === '/library' &&
+    (hasSortVariant ||
+      hasFreePaidVariant ||
+      hasFileFormatVariant ||
+      hasSearchVariant ||
+      hasRecencyVariant ||
+      hasTagsVariant ||
+      hasPageVariant ||
+      hasTwoDimsVariant ||
+      hasTrackingParams);
+
+  const isNestedLibraryFiltered =
+    path !== '/library' &&
+    (hasSortVariant ||
+      hasFreePaidVariant ||
+      hasSearchVariant ||
+      hasRecencyVariant ||
+      hasTagsVariant ||
+      hasPageVariant ||
+      hasTwoDimsVariant ||
+      hasTrackingParams);
+
+  let canonicalPath = path;
+  if (isMainLibraryFiltered) {
+    canonicalPath = '/library';
+  } else if (isNestedLibraryFiltered) {
+    canonicalPath = path;
+  } else {
+    const canonicalQuery = buildLibraryCanonicalQuery(params);
+    const queryString = canonicalQuery.toString();
+    canonicalPath = queryString ? `${path}?${queryString}` : path;
+  }
 
   let robots;
-  if (hasSortVariant || hasFreePaidVariant || hasFileFormatVariant || hasTwoDimsVariant || hasTrackingParams) {
+  if (isMainLibraryFiltered || isNestedLibraryFiltered || hasTrackingParams) {
     robots = 'noindex, follow';
   }
 

@@ -8,6 +8,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchBar from './SearchFilter';
 import styles from './Library.module.css';
 import { getLibraryPathWithQuery } from '@/common.helper';
+import { LIBRARY_FILE_FORMAT_FILTERS } from '@/data/libraryPage';
 
 const RECENCY_RADIO = [
   { value: '', label: 'All Time' },
@@ -21,21 +22,6 @@ const FREE_PAID_RADIO = [
   { value: '', label: 'All' },
   { value: 'free', label: 'Free' },
   { value: 'paid', label: 'Paid' },
-];
-
-const FILE_FORMAT_CHECKBOXES = [
-  { value: 'STEP', label: '.STEP' },
-  { value: 'STP', label: '.STP' },
-  { value: 'STL', label: '.STL' },
-  { value: 'PLY', label: '.PLY' },
-  { value: 'OFF', label: '.OFF' },
-  { value: 'IGS', label: '.IGS' },
-  { value: 'IGES', label: '.IGES' },
-  { value: 'BRP', label: '.BRP' },
-  { value: 'BREP', label: '.BREP' },
-  { value: 'OBJ', label: '.OBJ' },
-  { value: 'DXF', label: '.DXF' },
-  { value: 'DWG', label: '.DWG' },
 ];
 
 const TAGS_PAGE_SIZE = 10;
@@ -361,18 +347,40 @@ export default function LibraryFilters({
 
       <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>File Format</span>
-        <div className={styles['library-filters-checkbox-group']}>
-          {FILE_FORMAT_CHECKBOXES.map(({ value, label }) => (
-            <label key={value} className={styles['library-filters-checkbox-label']}>
-              <input
-                type="checkbox"
-                checked={selectedFormats.includes(value)}
-                onChange={(e) => toggleFileFormat(value, e.target.checked)}
-                className={styles['library-filters-checkbox']}
-              />
-              <span>{label}</span>
-            </label>
-          ))}
+        <div className={styles['library-filters-format-chips']}>
+          {LIBRARY_FILE_FORMAT_FILTERS.map(({ value, label }) => {
+            const isActive = selectedFormats.includes(value);
+            const nextFormats = isActive
+              ? selectedFormats.filter((f) => f !== value)
+              : [...selectedFormats, value];
+            const formatUrl = buildLibraryUrl({
+              file_format: nextFormats.length ? nextFormats.join(',') : undefined,
+            });
+            return inSheet ? (
+              <button
+                key={value}
+                type="button"
+                className={
+                  styles['library-filters-format-chip'] +
+                  (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')
+                }
+                onClick={() => toggleFileFormat(value, !isActive)}
+              >
+                {label}
+              </button>
+            ) : (
+              <Link
+                key={value}
+                href={formatUrl}
+                className={
+                  styles['library-filters-format-chip'] +
+                  (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')
+                }
+              >
+                {label}
+              </Link>
+            );
+          })}
         </div>
       </div>
 

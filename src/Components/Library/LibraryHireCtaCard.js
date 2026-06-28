@@ -13,14 +13,14 @@ function LibraryHireCtaCard() {
         <Users size={22} strokeWidth={1.75} className={styles.icon} aria-hidden />
       </div>
 
-      <h2 className={styles.title}>Don&apos;t see what you need?</h2>
+      <h2 className={styles.title}>Need a CAD file that is not in the library?</h2>
       <p className={styles.body}>
-        Get a custom CAD file built by a vetted specialist — delivered production-ready in 24
-        hours.
+        Share your requirement and Marathon OS will match you with a vetted CAD designer for
+        production-ready CAD files, edits and manufacturing documentation.
       </p>
 
-      <OpenCadFormButton className={styles.cta}>
-        Hire a Designer
+      <OpenCadFormButton className={styles.cta} href="/cad-services">
+        Get it Built
         <ArrowRight size={18} strokeWidth={2.25} aria-hidden />
       </OpenCadFormButton>
 

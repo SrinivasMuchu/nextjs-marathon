@@ -27,8 +27,15 @@ import { cookies } from 'next/headers';
 import LibraryPageJsonLd from '../JsonLdSchemas/LibraryPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
-import LibraryDesignPageBanner from '../CadServicesBanners/LibraryDesignPageBanner';
 import LibraryHireCtaCard from './LibraryHireCtaCard';
+import LibraryProductCard from './LibraryProductCard';
+import LibraryBottomSections from './LibraryBottomSections';
+import {
+  LIBRARY_DEFAULT_H1,
+  LIBRARY_DEFAULT_INTRO,
+} from '@/data/libraryPage';
+
+const FIRST_GRID_SIZE = 6;
 
 /** Build library URL (path for category/tag + query for search, page, sort, etc.). Limit is not included in URL. */
 function buildLibraryHref(params) {
@@ -45,7 +52,7 @@ function buildLibraryHref(params) {
   });
 }
 
-async function Library({ searchParams }) {
+async function Library({ searchParams, pageConfig = null }) {
   
   const searchQuery = searchParams?.search || '';
   const category = searchParams?.category || '';
@@ -142,21 +149,25 @@ async function Library({ searchParams }) {
     ) || null;
   const categoryLabel = activeCategory?.industry_category_label || category;
 
-  const heroTitle = categoryLabel && tagLabel
-    ? `${tagLabel} CAD Models in ${categoryLabel}`
-    : categoryLabel
-      ? `${categoryLabel} CAD Models`
-      : tagLabel
-        ? `${tagLabel} CAD Models`
-        : 'Engineering CAD Design Library';
+  const heroTitle = pageConfig?.h1
+    ? pageConfig.h1
+    : categoryLabel && tagLabel
+      ? `${tagLabel} CAD Models in ${categoryLabel}`
+      : categoryLabel
+        ? `${categoryLabel} CAD Models`
+        : tagLabel
+          ? `${tagLabel} CAD Models`
+          : LIBRARY_DEFAULT_H1;
 
-  const heroDescription = categoryLabel && tagLabel
-    ? `Browse ${tagLabel} CAD models within ${categoryLabel}. Preview online and download STEP/STP, IGES, STL and more. Filter by file type, price and popularity.`
-    : categoryLabel
-      ? `Explore ${categoryLabel} CAD models for engineering workflows. Preview online and download STEP/STP, IGES, STL and more. Filter by tags, file type, price and popularity.`
-      : tagLabel
-        ? `Browse ${tagLabel} CAD models used in real projects. Preview online and download STEP/STP, IGES, STL and more. Filter by category, file type, price and popularity.`
-        : 'Browse quality-checked 3D CAD models. Preview online and download STEP/STP, IGES, STL and more—filter by category, tags, file type, price and popularity.';
+  const heroDescription = pageConfig?.intro
+    ? pageConfig.intro
+    : categoryLabel && tagLabel
+      ? `Browse ${tagLabel} CAD models within ${categoryLabel}. Preview online and download STEP/STP, IGES, STL and more. Filter by file type, price and popularity.`
+      : categoryLabel
+        ? `Explore ${categoryLabel} CAD models for engineering workflows. Preview online and download STEP/STP, IGES, STL and more. Filter by tags, file type, price and popularity.`
+        : tagLabel
+          ? `Browse ${tagLabel} CAD models used in real projects. Preview online and download STEP/STP, IGES, STL and more. Filter by category, file type, price and popularity.`
+          : LIBRARY_DEFAULT_INTRO;
 
   const breadcrumbSchemaLinks = [{ label: 'Library', href: '/library' }];
   if (categoryLabel) {
@@ -294,7 +305,6 @@ async function Library({ searchParams }) {
               <div className={styles["library-designs-items"]}>
           {designs.map((design, index) => (
             <React.Fragment key={`design-${design._id}`}>
-              {/* Insert ad at position 1 (before first design) */}
               {index === 0 && (
                 <div
                   className={styles["library-designs-items-container"]}
@@ -304,7 +314,6 @@ async function Library({ searchParams }) {
                 </div>
               )}
 
-              {/* Insert ad after 7 grid slots (before 8th item = design index 6) */}
               {index === 6 && (
                 <div
                   className={styles["library-designs-items-container"]}
@@ -314,7 +323,6 @@ async function Library({ searchParams }) {
                 </div>
               )}
 
-              {/* Hire CTA card: 6th grid slot (after leading ad + first 4 designs) */}
               {index === 4 && (
                 <div
                   className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
@@ -323,39 +331,11 @@ async function Library({ searchParams }) {
                 </div>
               )}
 
-              <div className={styles["library-designs-items-container"]}>
-                <Link
-                  href={`/library/${design.route}`}
-                  className={styles["library-designs-primary-link"]}
-                  aria-label={design.page_title}
-                >
-                  <HoverImageSequence design={design} width={280} height={233} />
-                  <h6 title={design.page_title}>{design.page_title}</h6>
-                </Link>
+              <LibraryProductCard design={design} />
 
-                <div className={styles["design-title-wrapper"]}>
-                  {/* <p title={design.page_description}>{textLettersLimit(design.page_description, 120)}</p> */}
-                  <div className={styles["design-title-text"]} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    {/* {design.industry_name &&<DesignDetailsStats  text={design.industry_name} />} */}
-                    {design.category_labels && design.category_labels.map((label, index) => (
-                      <DesignDetailsStats key={index} text={label} type="category"/>
-                    ))}
-                    {/* send only 2 tags */}
-                    {design.tag_labels && design.tag_labels.slice(0, 2).map((label, index) => (
-                      <DesignDetailsStats key={index} text={label} type="tag"/>
-                    ))}
-                    <DesignDetailsStats fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'} text={design.file_type ? `.${design.file_type.toUpperCase()}` : '.STEP'} />
-                    <div className={styles["design-stats-wrapper"]}>
-                      <DesignStats
-                        views={design.total_design_views ?? 0}
-                        downloads={design.total_design_downloads ?? 0}
-                        // ratings={{ average: design.average_rating, total: design.rating_count }}
-                      />
-                    </div>
-                  </div>
-                  <span className={styles["design-title-wrapper-price"]}>{design.price ? `$${design.price}` : 'Free'}</span>
-                </div>
-              </div>
+              {index === FIRST_GRID_SIZE - 1 && !pageConfig && !categoryLabel && !tagLabel ? (
+                <LibraryBottomSections />
+              ) : null}
             </React.Fragment>
           ))}
           {/* Fewer than 5 designs: index 4 never runs — show CTA after last card */}
@@ -440,7 +420,6 @@ async function Library({ searchParams }) {
         </div>
       </div>
     
-      <LibraryDesignPageBanner />
       <Footer />
     </>
   );

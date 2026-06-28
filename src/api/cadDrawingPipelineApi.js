@@ -125,21 +125,13 @@ export async function getTechDrawUploadUrl(fileName, filesize) {
   return unwrap(data);
 }
 
-export function getTechDrawUploadContentType(fileName) {
-  const name = String(fileName || "").toLowerCase();
-  if (/\.(step|stp)$/.test(name)) return "application/step";
-  if (/\.(iges|igs)$/.test(name)) return "application/iges";
-  if (/\.fcstd$/.test(name)) return "application/octet-stream";
-  return "application/octet-stream";
-}
-
 export async function uploadStepToS3(putUrl, file) {
   if (!putUrl) {
     throw new Error("Upload URL missing from server.");
   }
   try {
     await axios.put(putUrl, file, {
-      headers: { "Content-Type": getTechDrawUploadContentType(file.name) },
+      headers: { "Content-Type": "application/step" },
       timeout: UPLOAD_TIMEOUT_MS,
       maxContentLength: Infinity,
       maxBodyLength: Infinity,

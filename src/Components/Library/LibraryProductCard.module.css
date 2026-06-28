@@ -1,0 +1,17 @@
+.quickLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 0 12px 12px;
+}
+
+.quickLink {
+  font-size: 11px;
+  font-weight: 600;
+  color: #610bee;
+  text-decoration: none;
+}
+
+.quickLink:hover {
+  text-decoration: underline;
+}

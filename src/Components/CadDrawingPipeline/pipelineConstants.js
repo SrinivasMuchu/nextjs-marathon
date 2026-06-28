@@ -11,7 +11,7 @@ export function getJobDisplayTitle(job, fallback = "Technical drawing") {
   const title = (job?.title || "").trim();
   if (title) return title;
   const file = (job?.file_name || "").trim();
-  if (file) return file.replace(/\.(step|stp|iges|igs|FCStd)$/i, "");
+  if (file) return file.replace(/\.(step|stp)$/i, "");
   return fallback;
 }
 

@@ -13,7 +13,7 @@ import {
 } from "@/api/cadDrawingPipelineApi";
 import { openTechDrawPayment } from "./techDrawPayment";
 import CadDrawingPipelineHowItWorks from "./CadDrawingPipelineHowItWorks";
-import { TECHDRAW_INPUT_EXT } from "@/data/cadDrawingPipelinePage";
+import { STEP_EXT } from "./pipelineConstants";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
 import { DIMENSION_EXTRACTION_FREE_RETRY_MSG } from "@/api/techDrawErrors";
 import {
@@ -120,9 +120,9 @@ export default function CadDrawingPipelineView() {
 
   const pickFile = useCallback((f) => {
     if (!f) return;
-    if (!TECHDRAW_INPUT_EXT.test(f.name)) {
+    if (!STEP_EXT.test(f.name)) {
       trackTechDrawFileRejected("invalid_extension");
-      toast.error("Only STEP, STP, IGES, or FreeCAD (.FCStd) files are allowed.");
+      toast.error("Only .step or .stp files are allowed.");
       return;
     }
     if (f.size > MAX_UPLOAD_BYTES) {
@@ -170,11 +170,11 @@ export default function CadDrawingPipelineView() {
     if (submitLockRef.current || submitting) return;
 
     if (!file) {
-      toast.error("Choose a STEP, STP, IGES, or FreeCAD file.");
+      toast.error("Choose a STEP or STP file.");
       return;
     }
-    if (!TECHDRAW_INPUT_EXT.test(file.name)) {
-      toast.error("Only STEP, STP, IGES, or FreeCAD (.FCStd) files are allowed.");
+    if (!STEP_EXT.test(file.name)) {
+      toast.error("Only .step or .stp files are allowed.");
       return;
     }
     if (file.size > MAX_UPLOAD_BYTES) {
@@ -392,7 +392,7 @@ export default function CadDrawingPipelineView() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".step,.stp,.igs,.iges,.FCStd"
+                  accept=".step,.stp"
                   className={styles.fileInputHidden}
                   onChange={onPickFile}
                   disabled={submitting}
@@ -403,7 +403,7 @@ export default function CadDrawingPipelineView() {
                   className={`${styles.uploadZone} ${dragOver ? styles.uploadZoneDrag : ""}`}
                   role="button"
                   tabIndex={0}
-                  aria-label="Choose STEP, STP, IGES, or FreeCAD file"
+                  aria-label="Choose STEP or STP file"
                   onClick={openFilePicker}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -419,9 +419,9 @@ export default function CadDrawingPipelineView() {
                   onDrop={onDrop}
                 >
                   <div className={styles.uploadIcon}>📦</div>
-                  <div className={styles.uploadLabel}>Drop STEP, STP, IGES or FreeCAD file here</div>
+                  <div className={styles.uploadLabel}>Drop STEP / STP here</div>
                   <div className={styles.uploadHint}>
-                    or click to browse · .step .stp .igs .iges .FCStd · max {MAX_UPLOAD_LABEL}
+                    or click to browse · .step .stp · max {MAX_UPLOAD_LABEL}
                   </div>
                   {file ? (
                     <div className={styles.uploadFileName}>

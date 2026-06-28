@@ -12,7 +12,7 @@ function TwoDLibraryPageJsonLd({ designs = [], pagination = {}, page = 1, limit 
     "@type": "ItemList",
     name: "2D Technical Drawing Library",
     description:
-      "Browse 2D technical drawings generated from 3D CAD models. Download engineering drawing sets with orthographic views, section cuts, PDF, SVG and DXF files.",
+      "Browse free 2D technical drawings generated from 3D CAD models. Download engineering drawing sheets in PDF, SVG and DXF formats for mechanical, robotics, automotive and industrial designs.",
     url: LIBRARY_URL,
     numberOfItems,
     itemListOrder: "https://schema.org/ItemListOrderUnordered",

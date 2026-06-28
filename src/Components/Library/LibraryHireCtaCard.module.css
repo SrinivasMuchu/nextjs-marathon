@@ -2,14 +2,16 @@
 .card {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
+  text-align: center;
   width: 100%;
   min-height: 100%;
   box-sizing: border-box;
-  padding: clamp(20px, 2.5vw, 28px);
+  padding: clamp(24px, 3vw, 32px) clamp(20px, 2.5vw, 28px);
   border-radius: 12px;
-  background: radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.35), transparent 55%),
-    linear-gradient(160deg, #0d0b1a 0%, #1a1033 45%, #120b24 100%);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.45) 0%, transparent 52%),
+    linear-gradient(155deg, #120a24 0%, #1a1033 42%, #0d0b18 100%);
   border: 1px solid rgba(124, 58, 237, 0.35);
   box-shadow: 0 12px 40px rgba(15, 23, 42, 0.35);
   color: #f9fafb;
@@ -23,8 +25,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
-  background: rgba(124, 58, 237, 0.12);
+  margin: 0 auto 16px;
+  background: rgba(124, 58, 237, 0.15);
 }
 
 .icon {
@@ -32,19 +34,22 @@
 }
 
 .title {
-  margin: 0 0 10px 0;
+  margin: 0 0 12px;
   font-size: clamp(17px, 2vw, 20px);
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.3;
   letter-spacing: -0.02em;
   color: #fff;
+  text-align: center;
 }
 
 .body {
-  margin: 0 0 18px 0;
+  margin: 0 0 20px;
   font-size: 14px;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.92);
+  text-align: center;
+  max-width: 280px;
 }
 
 .cta {
@@ -53,6 +58,7 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
+  max-width: 100%;
   padding: 12px 18px;
   border-radius: 10px;
   border: none;
@@ -70,24 +76,28 @@
 .cta:hover {
   background: #9b5cf6;
   transform: translateY(-1px);
+  color: #fff;
 }
 
 .divider {
+  width: 100%;
   height: 1px;
   background: rgba(148, 163, 184, 0.25);
-  margin: 18px 0 16px;
+  margin: 20px 0 16px;
 }
 
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+  width: 100%;
   text-align: center;
 }
 
 .stat {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
   min-width: 0;
 }
