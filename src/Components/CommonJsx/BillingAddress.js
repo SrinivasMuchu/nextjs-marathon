@@ -10,7 +10,16 @@ import ReactPhoneNumber from './ReactPhoneNumber';
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
-function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetails }) {
+function BillingAddress({
+  onClose,
+  onSave,
+  cadId,
+  designDetails,
+  productDetails,
+  createdFor = 'design_billing',
+  setBillerDetails,
+}) {
+  const summaryDetails = productDetails || designDetails;
   const [formData, setFormData] = useState({
     fullName: '',
     company: '',
@@ -133,8 +142,10 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
   const fetchAddresses = async () => {
     setLoading(true)
     try {
+      const params = createdFor ? { created_for: createdFor } : {}
       const res = await axios.get(`${BASE_URL}/v1/payment/get-billing`, {
-        headers: { "user-uuid": localStorage.getItem("uuid") }
+        headers: { "user-uuid": localStorage.getItem("uuid") },
+        params,
       })
       const list = Array.isArray(res?.data) ? res.data : (res?.data?.data || [])
       setAddresses(list)
@@ -151,7 +162,7 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
     }
   }
 
-  useEffect(() => { fetchAddresses() }, [])
+  useEffect(() => { fetchAddresses() }, [createdFor])
 
   // Auto-populate currency when country changes
   useEffect(() => {
@@ -280,7 +291,8 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
       postal_code: formData.postalCode,
       country: formData.country?.label || '',
       phone: formData.phone,
-      payment_billing_id: editAddressId
+      payment_billing_id: editAddressId,
+      ...(createdFor ? { created_for: createdFor } : {}),
     }
 
     try {
@@ -296,7 +308,7 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
           currency: formData.currency?.value,
           cadId: cadId
         })
-        setBillerDetails({
+        setBillerDetails?.({
           user_name: formData.fullName,
           phone_number: formData.phone
         })
@@ -372,7 +384,7 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
 
   // Calculate pricing breakdown
   const calculatePricing = () => {
-    const basePrice = pricingDetails?.basePrice || pricingDetails?.amount || designDetails?.price || 100
+    const basePrice = pricingDetails?.basePrice || pricingDetails?.amount || summaryDetails?.price || 100
     const gstRate = 18 // 18% GST
     const gstAmount = (basePrice * gstRate) / 100
     const totalAmount = basePrice + gstAmount
@@ -408,10 +420,10 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
             {/* Design Details */}
             <div style={{ marginBottom: '20px', padding: '15px', borderRadius: '8px' }}>
               <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>
-                {designDetails?.title || designDetails?.name || 'CAD Design File'}
+                {summaryDetails?.title || summaryDetails?.name || 'CAD Design File'}
               </h3>
               <p style={{ margin: '0', color: '#666', fontSize: '14px' }}>
-                {designDetails?.description || 'Professional CAD design file download'}
+                {summaryDetails?.description || 'Professional CAD design file download'}
               </p>
             </div>
 

@@ -419,7 +419,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       )}
       {openBillingDetails && <BillingAddress 
       onClose={() => setOpenBillingDetails(false)}  setBillerDetails={setBillerDetails}
-      onSave={handleDownload} cadId={folderId} designDetails={designDetails}/>}
+      onSave={handleDownload} cadId={folderId} designDetails={designDetails} createdFor="design_billing"/>}
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
       {openSupportingFiles && (
         <SupportingFilesPopup 

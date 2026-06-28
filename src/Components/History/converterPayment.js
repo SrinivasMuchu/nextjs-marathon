@@ -21,7 +21,7 @@ export function loadRazorpayScript() {
  * Ensures the user may download a converter file (free path or Razorpay checkout).
  * Resolves when payment is satisfied or not required.
  */
-export function ensureConverterDownloadAccess({ converterFileId, fileName, userEmail }) {
+export function ensureConverterDownloadAccess({ converterFileId, fileName, userEmail, billingId }) {
   return new Promise((resolve, reject) => {
     (async () => {
       try {
@@ -31,7 +31,12 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
           return;
         }
 
-        const order = await createConverterDownloadOrder(converterFileId);
+        if (!billingId) {
+          reject(new Error('Billing address is required before payment.'));
+          return;
+        }
+
+        const order = await createConverterDownloadOrder(converterFileId, billingId);
         if (!order.payment_required) {
           resolve({ free: true, reason: order.reason || "no_payment" });
           return;

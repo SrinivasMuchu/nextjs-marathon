@@ -26,10 +26,10 @@ export async function checkConverterDownload(converterFileId) {
   return unwrap(data);
 }
 
-export async function createConverterDownloadOrder(converterFileId) {
+export async function createConverterDownloadOrder(converterFileId, billingId) {
   const { data } = await axios.post(
     `${BASE_URL}${CONVERTER_API_BASE}/create-order`,
-    { converter_file_id: converterFileId },
+    { converter_file_id: converterFileId, billing_id: billingId },
     { headers: userUuidHeader(), timeout: 30_000 },
   );
   return unwrap(data);
