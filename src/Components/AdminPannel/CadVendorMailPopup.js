@@ -1,18 +1,13 @@
 "use client"
 
 import React, { useEffect, useMemo, useState } from 'react'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import Select from 'react-select'
 import PopupWrapper from '../CommonJsx/PopupWrapper'
 import popupStyles from '../CommonJsx/CommonStyles.module.css'
-import { BASE_URL } from '@/config'
+import { fetchCadVendorMailPreview, sendCadVendorMail } from '@/api/adminVendorsApi'
 import Loading from '../CommonJsx/Loaders/Loading'
 import styles from './CadVendorMailPopup.module.css'
-
-function getAdminHeaders() {
-  return { 'admin-uuid': localStorage.getItem('admin-uuid') }
-}
 
 const vendorSelectStyles = {
   control: (provided, state) => ({
@@ -68,15 +63,12 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
     const loadPreview = async () => {
       setIsLoading(true)
       try {
-        const response = await axios.get(
-          `${BASE_URL}/v1/admin-pannel/cad-vendor-mail-preview/${request._id}`,
-          { headers: getAdminHeaders() },
-        )
+        const response = await fetchCadVendorMailPreview(request._id)
 
-        if (response.data.meta.success) {
-          setPreview(response.data.data)
+        if (response.meta.success) {
+          setPreview(response.data)
         } else {
-          toast.error(response.data.meta.message || 'Failed to load mail preview')
+          toast.error(response.meta.message || 'Failed to load mail preview')
           onClose()
         }
       } catch (error) {
@@ -118,22 +110,18 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
 
     setIsSending(true)
     try {
-      const response = await axios.post(
-        `${BASE_URL}/v1/admin-pannel/send-cad-vendor-mail`,
-        {
-          request_id: request._id,
-          vendor_ids: selectedVendors.map((option) => option.value),
-          send_all: false,
-        },
-        { headers: getAdminHeaders() },
-      )
+      const response = await sendCadVendorMail({
+        request_id: request._id,
+        vendor_ids: selectedVendors.map((option) => option.value),
+        send_all: false,
+      })
 
-      if (response.data.meta.success) {
-        toast.success(response.data.meta.message || 'Email sent')
+      if (response.meta.success) {
+        toast.success(response.meta.message || 'Email sent')
         onSent?.()
         onClose()
       } else {
-        toast.error(response.data.meta.message || 'Failed to send email')
+        toast.error(response.meta.message || 'Failed to send email')
       }
     } catch (error) {
       console.error('Error sending vendor mail:', error)
@@ -151,21 +139,17 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
 
     setIsSending(true)
     try {
-      const response = await axios.post(
-        `${BASE_URL}/v1/admin-pannel/send-cad-vendor-mail`,
-        {
-          request_id: request._id,
-          send_all: true,
-        },
-        { headers: getAdminHeaders() },
-      )
+      const response = await sendCadVendorMail({
+        request_id: request._id,
+        send_all: true,
+      })
 
-      if (response.data.meta.success) {
-        toast.success(response.data.meta.message || 'Email sent to all active vendors')
+      if (response.meta.success) {
+        toast.success(response.meta.message || 'Email sent to all active vendors')
         onSent?.()
         onClose()
       } else {
-        toast.error(response.data.meta.message || 'Failed to send email')
+        toast.error(response.meta.message || 'Failed to send email')
       }
     } catch (error) {
       console.error('Error sending vendor mail:', error)

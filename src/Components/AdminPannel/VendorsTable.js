@@ -1,13 +1,17 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
-import { BASE_URL } from '@/config'
+import {
+  deleteVendor,
+  fetchVendorCategories,
+  fetchVendors,
+  updateVendor,
+} from '@/api/adminVendorsApi'
 import Pagenation from '@/Components/CommonJsx/Pagenation'
 import Loading from '../CommonJsx/Loaders/Loading'
 import styles from './AdminPannel.module.css'
@@ -19,10 +23,6 @@ const STATUS_OPTIONS = [
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' },
 ]
-
-function getAdminHeaders() {
-  return { 'admin-uuid': localStorage.getItem('admin-uuid') }
-}
 
 function formatCategoryNames(categories = []) {
   if (!categories.length) return '—'
@@ -47,28 +47,22 @@ function VendorsTable() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(
-        `${BASE_URL}/v1/admin-pannel/get-vendor-categories`,
-        { headers: getAdminHeaders() },
-      )
-      setCategories(response?.data?.data?.categories || [])
+      const response = await fetchVendorCategories()
+      setCategories(response?.data?.categories || [])
     } catch (error) {
       console.error('Error fetching vendor categories:', error)
     }
   }
 
-  const fetchVendors = async (page = 1, q = '', action = statusFilter) => {
+  const loadVendors = async (page = 1, q = '', action = statusFilter) => {
     setIsLoading(true)
     try {
       const params = { page, limit, q }
       if (action !== 'all') params.action = action
 
-      const response = await axios.get(`${BASE_URL}/v1/admin-pannel/get-vendors`, {
-        params,
-        headers: getAdminHeaders(),
-      })
+      const response = await fetchVendors(params)
 
-      const respData = response?.data?.data || {}
+      const respData = response?.data || {}
       setVendors(respData.vendors || [])
       setTotalPages(respData.totalPages || 1)
       setTotal(respData.total || 0)
@@ -91,7 +85,7 @@ function VendorsTable() {
   }, [])
 
   useEffect(() => {
-    fetchVendors(currentPage, searchTerm, statusFilter)
+    loadVendors(currentPage, searchTerm, statusFilter)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchTerm, statusFilter])
 
@@ -123,7 +117,7 @@ function VendorsTable() {
   }
 
   const handleSaved = () => {
-    fetchVendors(currentPage, searchTerm, statusFilter)
+    loadVendors(currentPage, searchTerm, statusFilter)
   }
 
   const handleStatusChange = async (vendor, nextStatus) => {
@@ -132,13 +126,9 @@ function VendorsTable() {
 
     setUpdatingStatusId(vendor._id)
     try {
-      const response = await axios.post(
-        `${BASE_URL}/v1/admin-pannel/update-vendor`,
-        { vendor_id: vendor._id, is_active: isActive },
-        { headers: getAdminHeaders() },
-      )
+      const response = await updateVendor({ vendor_id: vendor._id, is_active: isActive })
 
-      if (response.data.meta.success) {
+      if (response.meta.success) {
         toast.success('Vendor status updated')
         setVendors((prev) =>
           prev.map((item) =>
@@ -146,7 +136,7 @@ function VendorsTable() {
           ),
         )
       } else {
-        toast.error(response.data.meta.message || 'Failed to update status')
+        toast.error(response.meta.message || 'Failed to update status')
       }
     } catch (error) {
       console.error('Error updating vendor status:', error)
@@ -162,17 +152,13 @@ function VendorsTable() {
 
     setDeletingId(vendor._id)
     try {
-      const response = await axios.post(
-        `${BASE_URL}/v1/admin-pannel/delete-vendor`,
-        { vendor_id: vendor._id },
-        { headers: getAdminHeaders() },
-      )
+      const response = await deleteVendor(vendor._id)
 
-      if (response.data.meta.success) {
+      if (response.meta.success) {
         toast.success('Vendor deleted')
-        fetchVendors(currentPage, searchTerm, statusFilter)
+        loadVendors(currentPage, searchTerm, statusFilter)
       } else {
-        toast.error(response.data.meta.message || 'Failed to delete vendor')
+        toast.error(response.meta.message || 'Failed to delete vendor')
       }
     } catch (error) {
       console.error('Error deleting vendor:', error)

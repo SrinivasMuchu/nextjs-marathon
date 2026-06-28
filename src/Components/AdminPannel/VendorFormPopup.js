@@ -5,8 +5,7 @@ import PopupWrapper from '../CommonJsx/PopupWrapper'
 import popupStyles from '../CommonJsx/CommonStyles.module.css'
 import CreatableSelect from 'react-select/creatable'
 import { createDropdownCustomStyles } from '@/common.helper'
-import axios from 'axios'
-import { BASE_URL } from '@/config'
+import { createVendor, createVendorCategory, updateVendor } from '@/api/adminVendorsApi'
 import { toast } from 'react-toastify'
 import styles from './VendorFormPopup.module.css'
 
@@ -26,10 +25,6 @@ const vendorCategorySelectStyles = {
     marginBottom: 0,
     minHeight: '42px',
   }),
-}
-
-function getAdminHeaders() {
-  return { 'admin-uuid': localStorage.getItem('admin-uuid') }
 }
 
 function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesChange }) {
@@ -77,18 +72,14 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
 
     setIsCreatingCategory(true)
     try {
-      const response = await axios.post(
-        `${BASE_URL}/v1/admin-pannel/create-vendor-category`,
-        { name },
-        { headers: getAdminHeaders() },
-      )
+      const response = await createVendorCategory(name)
 
-      if (!response.data.meta.success) {
-        toast.error(response.data.meta.message || 'Failed to create category')
+      if (!response.meta.success) {
+        toast.error(response.meta.message || 'Failed to create category')
         return
       }
 
-      const category = response.data.data.category
+      const category = response.data.category
       onCategoriesChange([...categories, category])
       setSelectedCategories((prev) => [
         ...prev,
@@ -123,20 +114,16 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
         is_active: form.is_active,
       }
 
-      const url = isEdit
-        ? `${BASE_URL}/v1/admin-pannel/update-vendor`
-        : `${BASE_URL}/v1/admin-pannel/create-vendor`
+      const response = isEdit
+        ? await updateVendor({ vendor_id: vendor._id, ...payload })
+        : await createVendor(payload)
 
-      if (isEdit) payload.vendor_id = vendor._id
-
-      const response = await axios.post(url, payload, { headers: getAdminHeaders() })
-
-      if (response.data.meta.success) {
-        toast.success(response.data.meta.message || (isEdit ? 'Vendor updated' : 'Vendor created'))
-        onSaved(response.data.data.vendor)
+      if (response.meta.success) {
+        toast.success(response.meta.message || (isEdit ? 'Vendor updated' : 'Vendor created'))
+        onSaved(response.data.vendor)
         onClose()
       } else {
-        toast.error(response.data.meta.message || 'Failed to save vendor')
+        toast.error(response.meta.message || 'Failed to save vendor')
       }
     } catch (error) {
       console.error('Error saving vendor:', error)
