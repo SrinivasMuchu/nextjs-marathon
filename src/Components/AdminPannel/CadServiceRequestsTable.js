@@ -5,6 +5,7 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import SearchIcon from '@mui/icons-material/Search'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
+import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
 import { BASE_URL } from '@/config'
 import { formatDate } from '@/common.helper'
@@ -12,6 +13,7 @@ import Pagenation from '@/Components/CommonJsx/Pagenation'
 import Loading from '../CommonJsx/Loaders/Loading'
 import modalStyles from '../CommonJsx/AdminApprovalButtons.module.css'
 import styles from './CadServiceRequestsTable.module.css'
+import CadVendorMailPopup from './CadVendorMailPopup'
 import {
   CAD_SERVICE_STATUSES,
   getCadServiceStatusColor,
@@ -191,6 +193,7 @@ function CadServiceRequestsTable() {
   const [rejectionMessage, setRejectionMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [mailTarget, setMailTarget] = useState(null)
 
   const adminHeaders = () => ({
     'admin-uuid': localStorage.getItem('admin-uuid'),
@@ -434,13 +437,14 @@ function CadServiceRequestsTable() {
                   <th>Status</th>
                   <th>Submitted</th>
                   <th>View</th>
+                  <th>Send mail</th>
                   <th>Change status</th>
                 </tr>
               </thead>
               {isLoading ? (
                 <tbody>
                   <tr>
-                    <td colSpan={7} className={styles.emptyCell}>
+                    <td colSpan={8} className={styles.emptyCell}>
                       <Loading />
                     </td>
                   </tr>
@@ -449,7 +453,7 @@ function CadServiceRequestsTable() {
                 <tbody>
                   {requests.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className={styles.emptyCell}>
+                      <td colSpan={8} className={styles.emptyCell}>
                         No CAD service requests found
                       </td>
                     </tr>
@@ -473,6 +477,17 @@ function CadServiceRequestsTable() {
                             aria-label="View request"
                           >
                             <VisibilityOutlinedIcon fontSize="small" />
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className={styles.viewBtn}
+                            onClick={() => setMailTarget(request)}
+                            aria-label="Send vendor mail"
+                            title="Send mail to vendors"
+                          >
+                            <MailOutlineIcon fontSize="small" />
                           </button>
                         </td>
                         <td>
@@ -536,6 +551,15 @@ function CadServiceRequestsTable() {
               </div>
 
               <div className={styles.requestCardActions}>
+                <button
+                  type="button"
+                  className={styles.viewBtn}
+                  onClick={() => setMailTarget(request)}
+                  aria-label="Send vendor mail"
+                  title="Send mail to vendors"
+                >
+                  <MailOutlineIcon fontSize="small" />
+                </button>
                 <span className={styles.requestCardLabel}>Change status</span>
                 <RequestStatusSelect
                   request={request}
@@ -596,6 +620,13 @@ function CadServiceRequestsTable() {
             </div>
           </div>
         </div>
+      )}
+
+      {mailTarget && (
+        <CadVendorMailPopup
+          request={mailTarget}
+          onClose={() => setMailTarget(null)}
+        />
       )}
 
       {rejectTarget && (
