@@ -5,9 +5,10 @@ import CadDrawingPipelineFaq from "@/Components/CadDrawingPipeline/CadDrawingPip
 import Footer from "@/Components/HomePages/Footer/Footer";
 import CadDrawingPipelinePaidCta from "@/Components/CadDrawingPipeline/CadDrawingPipelinePaidCta";
 import CadDrawingPipelineTransparency from "@/Components/CadDrawingPipeline/CadDrawingPipelineTransparency";
+import CadDrawingPipelineHowItWorks from "@/Components/CadDrawingPipeline/CadDrawingPipelineHowItWorks";
 import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawingPipelineProcess";
 import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
-import CadDrawingPipelineHeroServer from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroServer";
+import CadDrawingPipelineHeroSection from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroSection";
 import SoftwareApplicationJsonLd from "@/Components/JsonLdSchemas/SoftwareApplicationJsonLd";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
@@ -37,17 +38,19 @@ export default function CadDrawingPipelinePage() {
         name="CAD Drawing Pipeline (STEP to TechDraw)"
         url={`${SITE}${CANONICAL}`}
         description="Upload a STEP file to generate AI-assisted technical drawing sheets in PDF, SVG, DXF, and PNG formats."
-        price="4"
+        price="4.99"
         priceCurrency="USD"
       />
       <TechDrawPageViewTracker pageType="upload" />
       <div className={styles.root}>
-        <CadDrawingPipelineHeroServer />
-        <Suspense fallback={<PipelineSectionFallback />}>
-          <CadDrawingPipelineView />
-        </Suspense>
+        <CadDrawingPipelineHeroSection>
+          <Suspense fallback={<PipelineSectionFallback />}>
+            <CadDrawingPipelineView />
+          </Suspense>
+        </CadDrawingPipelineHeroSection>
 
         <div className={styles.page}>
+          <CadDrawingPipelineHowItWorks />
           <Suspense fallback={<PipelineSectionFallback />}>
             <CadDrawingPipelineSampleSheets />
           </Suspense>

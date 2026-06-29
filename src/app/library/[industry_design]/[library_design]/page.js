@@ -3,7 +3,14 @@ import Library from '@/Components/Library/Library';
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import React from 'react';
 import axios from 'axios';
-import { resolveCategorySlugToName, tagSlugToName, getLibraryPath, getLibraryCanonicalAndRobots } from '@/common.helper';
+import { permanentRedirect } from 'next/navigation';
+import {
+  resolveCategorySlugToName,
+  normalizeLibraryTagSlug,
+  getInvalidLibraryTagRedirectPath,
+  getLibraryPath,
+  getLibraryCanonicalAndRobots,
+} from '@/common.helper';
 
 export async function generateMetadata({ params, searchParams }) {
   const { industry_design, library_design } = params;
@@ -25,14 +32,17 @@ export async function generateMetadata({ params, searchParams }) {
   const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }).catch(() => ({ data: {} }));
   const categories = categoriesRes.data?.data || [];
   const categoryName = resolveCategorySlugToName(industry_design, categories);
-  const tagValue = tagSlugToName(library_design); // raw cad_tag_name
-  const tagLabel = tagValue.replace(/-/g, ' ');
-  if (!categoryName && !tagValue) {
+  const tagSlug = normalizeLibraryTagSlug(library_design);
+  if (!tagSlug) {
+    permanentRedirect(getInvalidLibraryTagRedirectPath(industry_design));
+  }
+  const tagLabel = tagSlug.replace(/-/g, ' ');
+  if (!categoryName && !tagSlug) {
     return {
       title: 'CAD Design Library | Marathon OS',
       description: 'Browse Marathon OS\'s CAD Design Library.',
       metadataBase: new URL('https://marathon-os.com'),
-      alternates: { canonical: getLibraryPath({ categoryName: categoryName || undefined, tagName: tagValue || undefined }) },
+      alternates: { canonical: getLibraryPath({ categoryName: categoryName || undefined, tagName: tagSlug || undefined }) },
     };
   }
 
@@ -41,7 +51,7 @@ export async function generateMetadata({ params, searchParams }) {
     ? `${tagLabel} in ${categoryName} CAD Models | STEP, STL, IGES | Marathon OS${pageNum > 1 ? ` - Page ${pageNum}` : ''}`
     : [categoryName, tagLabel].filter(Boolean).join(' – ') + ' – Library | Marathon OS';
 
-  const path = getLibraryPath({ categoryName: categoryName || undefined, tagName: tagValue || undefined });
+  const path = getLibraryPath({ categoryName: categoryName || undefined, tagName: tagSlug || undefined });
   const { canonicalPath, robots, prevPath, nextPath } = getLibraryCanonicalAndRobots({
     path,
     searchParams: searchParams ?? {},
@@ -54,7 +64,7 @@ export async function generateMetadata({ params, searchParams }) {
   const base = 'https://marathon-os.com';
   const linkOther = [];
   if (prevPath) linkOther.push({ rel: 'prev', url: `${base}${prevPath}` });
-  linkOther.push({ rel: 'next', url: `${base}${nextPath}` });
+  if (nextPath) linkOther.push({ rel: 'next', url: `${base}${nextPath}` });
 
   return {
     title,
@@ -80,9 +90,12 @@ export default async function LibraryTwoSegmentPage({ params, searchParams }) {
   const categoriesRes = await axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }).catch(() => ({ data: {} }));
   const categories = categoriesRes.data?.data || [];
   const categoryName = resolveCategorySlugToName(industry_design, categories);
-  const tagValue = tagSlugToName(library_design); // raw for API
+  const tagSlug = normalizeLibraryTagSlug(library_design);
+  if (!tagSlug) {
+    permanentRedirect(getInvalidLibraryTagRedirectPath(industry_design));
+  }
 
-  const merged = { ...searchParams, category: categoryName || undefined, tags: tagValue || undefined };
+  const merged = { ...searchParams, category: categoryName || undefined, tags: tagSlug };
   return (
     <div>
       <Library searchParams={merged} />

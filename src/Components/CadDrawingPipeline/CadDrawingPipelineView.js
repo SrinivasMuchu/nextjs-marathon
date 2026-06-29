@@ -12,7 +12,6 @@ import {
   uploadAndSubmitTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
 import { openTechDrawPayment } from "./techDrawPayment";
-import CadDrawingPipelineHowItWorks from "./CadDrawingPipelineHowItWorks";
 import { STEP_EXT } from "./pipelineConstants";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
 import { DIMENSION_EXTRACTION_FREE_RETRY_MSG } from "@/api/techDrawErrors";
@@ -26,6 +25,7 @@ import {
   trackTechDrawUploadSuccess,
 } from "@/lib/techDraw/techDrawAnalytics";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
+import { ArrowRight, ArrowUp, Info } from "lucide-react";
 import styles from "./CadDrawingPipeline.module.css";
 
 function isUserVerified() {
@@ -81,18 +81,17 @@ export default function CadDrawingPipelineView() {
   const freeRetryFor = String(searchParams.get("freeRetryFor") || "").trim();
   const isFreeRetryFlow = Boolean(freeRetryFor);
   const [file, setFile] = useState(null);
+  const [formStep, setFormStep] = useState(1);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [uploadPhase, setUploadPhase] = useState("");
   const [error, setError] = useState("");
-  const [advOpen, setAdvOpen] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [eligibility, setEligibility] = useState(null);
   const [eligibilityLoading, setEligibilityLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
   const fileInputRef = useRef(null);
-  const uploadSectionRef = useRef(null);
   const submitLockRef = useRef(false);
   const pendingAfterLoginRef = useRef(false);
 
@@ -135,6 +134,7 @@ export default function CadDrawingPipelineView() {
     trackTechDrawFileSelected(f);
     setFile(f);
     setError("");
+    setFormStep(2);
   }, []);
 
   const onPickFile = (e) => {
@@ -147,6 +147,32 @@ export default function CadDrawingPipelineView() {
     if (submitting || submitLockRef.current) return;
     fileInputRef.current?.click();
   }, [submitting]);
+
+  const clearFile = useCallback(
+    (e) => {
+      e?.preventDefault?.();
+      e?.stopPropagation?.();
+      if (submitting || submitLockRef.current) return;
+      setFile(null);
+      setFormStep(1);
+      setError("");
+    },
+    [submitting],
+  );
+
+  const goToPreviousStep = useCallback(() => {
+    if (submitting || submitLockRef.current) return;
+    setFormStep(1);
+  }, [submitting]);
+
+  const goToDetailsStep = useCallback(() => {
+    if (submitting || submitLockRef.current) return;
+    if (!file) {
+      toast.error("Choose a STEP or STP file.");
+      return;
+    }
+    setFormStep(2);
+  }, [file, submitting]);
 
   const onDrop = (e) => {
     e.preventDefault();
@@ -168,6 +194,7 @@ export default function CadDrawingPipelineView() {
     e.preventDefault();
 
     if (submitLockRef.current || submitting) return;
+    if (formStep !== 2) return;
 
     if (!file) {
       toast.error("Choose a STEP or STP file.");
@@ -314,189 +341,272 @@ export default function CadDrawingPipelineView() {
 
   return (
     <>
-      <div className={styles.page}>
-        <section
-          id="cad-pipeline-upload"
-          ref={uploadSectionRef}
-          className={styles.uploadSection}
-          aria-labelledby="cad-pipeline-upload-title"
+      {!eligibilityLoading && eligibility && !llmAvailable ? (
+        <div
+          className={`${styles.resultBanner} ${styles.resultBannerErr}`}
+          style={{ marginBottom: 16, alignItems: "flex-start", gap: 12 }}
         >
-          {/* <h2 id="cad-pipeline-upload-title" className={styles.uploadSectionTitle}>
-            Free Online <span className={styles.pageTitleAccent}>CAD Viewer</span>
-          </h2>
-          <div className={styles.uploadSectionSubtitle}>
-            Secure, Fast &amp; Cloud-Based
-          </div>
-          <p className={styles.uploadSectionDesc}>
-            A lightweight, online CAD viewer to quickly preview 3D models — anytime, anywhere.
-          </p> */}
-
-        {!eligibilityLoading && eligibility && !llmAvailable ? (
-          <div
-            className={`${styles.resultBanner} ${styles.resultBannerErr}`}
-            style={{ marginBottom: 16, alignItems: "flex-start", gap: 12 }}
-          >
-            <span className={styles.resultIcon}>⚠</span>
-            <div style={{ flex: 1 }}>
-              <div className={styles.resultText}>AI service is unavailable</div>
-              <div className={styles.resultSub}>{llmDownMessage}</div>
-              <button
-                type="button"
-                onClick={refreshEligibility}
-                disabled={eligibilityLoading}
-                className={styles.runBtn}
-                style={{
-                  marginTop: 10,
-                  padding: "6px 14px",
-                  width: "auto",
-                  fontSize: 13,
-                }}
-              >
-                {eligibilityLoading ? "Checking…" : "Retry AI check"}
-              </button>
-            </div>
-          </div>
-        ) : null}
-
-        {isFreeRetryFlow ? (
-          <div
-            className={`${styles.resultBanner} ${styles.resultBannerWarn}`}
-            style={{ marginBottom: 16 }}
-          >
-            <span className={styles.resultIcon}>↻</span>
-            <div>
-              <div className={styles.resultText}>Free replacement upload</div>
-              <div className={styles.resultSub}>{DIMENSION_EXTRACTION_FREE_RETRY_MSG}</div>
-            </div>
-          </div>
-        ) : null}
-
-        {error ? (
-          <div className={`${styles.resultBanner} ${styles.resultBannerErr}`}>
-            <span className={styles.resultIcon}>✕</span>
-            <div>
-              <div className={styles.resultText}>Could not start job</div>
-              <div className={styles.resultSub}>{error}</div>
-            </div>
-          </div>
-        ) : null}
-
-        <div className={styles.uploadOnlyLayout}>
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div className={styles.cardIcon}>📐</div>
-              <div className={styles.cardTitle}>Input configuration</div>
-            </div>
-            <div className={styles.cardBody}>
-              <form id="cad-pipeline-submit-form" onSubmit={onSubmit}>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".step,.stp"
-                  className={styles.fileInputHidden}
-                  onChange={onPickFile}
-                  disabled={submitting}
-                  aria-hidden
-                  tabIndex={-1}
-                />
-                <div
-                  className={`${styles.uploadZone} ${dragOver ? styles.uploadZoneDrag : ""}`}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="Choose STEP or STP file"
-                  onClick={openFilePicker}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      openFilePicker();
-                    }
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOver(true);
-                  }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={onDrop}
-                >
-                  <div className={styles.uploadIcon}>📦</div>
-                  <div className={styles.uploadLabel}>Drop STEP / STP here</div>
-                  <div className={styles.uploadHint}>
-                    or click to browse · .step .stp · max {MAX_UPLOAD_LABEL}
-                  </div>
-                  {file ? (
-                    <div className={styles.uploadFileName}>
-                      ✓ {file.name} ({formatMb(file.size)})
-                    </div>
-                  ) : null}
-                </div>
-                {/* keep an warning or informative color for the following text */}
-                <p className={styles.uploadHint} style={{ color: "#ff0000"}}>*Providing a clear title and detailed description helps the AI generate more accurate 2D drawings, dimensions, section views, and manufacturing-ready measurements.</p>
-                <br />
-                <div className={styles.field}>
-                  <label className={styles.fieldLabel} htmlFor="cad-pipeline-title">
-                    Drawing title
-                  </label>
-                  <input
-                    id="cad-pipeline-title"
-                    className={styles.input}
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Detailed Frigate Ship Model with Realistic Dimensions"
-                    disabled={submitting}
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label className={styles.fieldLabel} htmlFor="cad-pipeline-desc">
-                    Description
-                  </label>
-                  <textarea
-                    id="cad-pipeline-desc"
-                    className={styles.textarea}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="e.g. Explore a highly detailed frigate ship model designed with dimensions closely matching an actual vessel. Ideal for maritime simulations and design projects."
-                    disabled={submitting}
-                  />
-                </div>
-
-                {uploadPhase ? (
-                  <p className={styles.uploadPhaseHint}>{uploadPhase}</p>
-                ) : null}
-
-                {needsPaidFlow ? (
-                  <p className={styles.uploadPhaseHint} style={{ marginBottom: 8 }}>
-                    You will pay <strong>{prices.baseLabel}</strong> + tax ({prices.totalLabel})
-                    first, then your file uploads.
-                  </p>
-                ) : null}
-
-                <button
-                  className={styles.runBtn}
-                  type="submit"
-                  disabled={submitting || !llmAvailable}
-                  title={!llmAvailable ? llmDownMessage : undefined}
-                >
-                  {submitting ? (
-                    <>
-                      <span className={styles.spinner} aria-hidden />
-                      {uploadPhase || "Working…"}
-                    </>
-                  ) : !llmAvailable ? (
-                    <>⚠ AI service unavailable</>
-                  ) : needsPaidFlow ? (
-                    <>▶ Pay {prices.baseLabel} & upload</>
-                  ) : (
-                    <>▶ Run drawing pipeline</>
-                  )}
-                </button>
-              </form>
-            </div>
+          <span className={styles.resultIcon}>⚠</span>
+          <div style={{ flex: 1 }}>
+            <div className={styles.resultText}>AI service is unavailable</div>
+            <div className={styles.resultSub}>{llmDownMessage}</div>
+            <button
+              type="button"
+              onClick={refreshEligibility}
+              disabled={eligibilityLoading}
+              className={styles.runBtn}
+              style={{
+                marginTop: 10,
+                padding: "6px 14px",
+                width: "auto",
+                fontSize: 13,
+              }}
+            >
+              {eligibilityLoading ? "Checking…" : "Retry AI check"}
+            </button>
           </div>
         </div>
-        </section>
+      ) : null}
 
-        <CadDrawingPipelineHowItWorks />
+      {isFreeRetryFlow ? (
+        <div
+          className={`${styles.resultBanner} ${styles.resultBannerWarn}`}
+          style={{ marginBottom: 16 }}
+        >
+          <span className={styles.resultIcon}>↻</span>
+          <div>
+            <div className={styles.resultText}>Free replacement upload</div>
+            <div className={styles.resultSub}>{DIMENSION_EXTRACTION_FREE_RETRY_MSG}</div>
+          </div>
+        </div>
+      ) : null}
+
+      {error ? (
+        <div className={`${styles.resultBanner} ${styles.resultBannerErr}`} style={{ marginBottom: 16 }}>
+          <span className={styles.resultIcon}>✕</span>
+          <div>
+            <div className={styles.resultText}>Could not start job</div>
+            <div className={styles.resultSub}>{error}</div>
+          </div>
+        </div>
+      ) : null}
+
+      <div className={styles.pipelineToolPanel}>
+        <form id="cad-pipeline-submit-form" className={styles.pipelineHeroForm} onSubmit={onSubmit}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".step,.stp"
+            className={styles.fileInputHidden}
+            onChange={onPickFile}
+            disabled={submitting}
+            aria-hidden
+            tabIndex={-1}
+          />
+
+          {formStep === 1 ? (
+            <>
+              <div className={styles.pipelineStepHeader}>
+                <span className={styles.pipelineStepNum} aria-hidden>
+                  1
+                </span>
+                <span className={styles.pipelineStepTitle}>Upload your model</span>
+              </div>
+
+              <div
+                className={`${styles.pipelineDropzone} ${dragOver ? styles.pipelineDropzoneDrag : ""} ${
+                  file ? styles.pipelineDropzoneFilled : ""
+                }`}
+                role="button"
+                tabIndex={0}
+                aria-label="Choose STEP or STP file"
+                onClick={openFilePicker}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openFilePicker();
+                  }
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={onDrop}
+              >
+                {file ? (
+                  <div className={styles.pipelineFileRow}>
+                    <span className={styles.pipelineFileBadge} aria-hidden>
+                      STP
+                    </span>
+                    <div className={styles.pipelineFileMeta}>
+                      <div className={styles.pipelineFileName}>{file.name}</div>
+                      <div className={styles.pipelineFileSize}>{formatMb(file.size)} · selected</div>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.pipelineFileRemove}
+                      onClick={clearFile}
+                      disabled={submitting}
+                      aria-label="Remove selected file"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles.pipelineDropzoneEmpty}>
+                    <span className={styles.pipelineDropzoneIcon} aria-hidden>
+                      <ArrowUp size={26} strokeWidth={1.9} />
+                    </span>
+                    <p className={styles.pipelineDropzoneHeadline}>Drag &amp; drop your STEP file</p>
+                    <p className={styles.pipelineDropzoneSubline}>
+                      or{" "}
+                      <span className={styles.pipelineDropzoneBrowse}>click to browse</span> from your
+                      computer
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <p className={styles.pipelineFormatsLine}>
+                Supports .step and .stp · max {MAX_UPLOAD_LABEL}
+              </p>
+
+              {file ? (
+                <button
+                  type="button"
+                  className={styles.pipelineContinueBtn}
+                  onClick={goToDetailsStep}
+                  disabled={submitting}
+                >
+                  Continue
+                  <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
+                </button>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <div className={styles.pipelineFileStrip}>
+                <span className={styles.pipelineFileStripBadge} aria-hidden>
+                  STP
+                </span>
+                <div className={styles.pipelineFileStripMeta}>
+                  <div className={styles.pipelineFileStripName}>{file?.name}</div>
+                  {file ? (
+                    <div className={styles.pipelineFileStripSize}>{formatMb(file.size)}</div>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  className={styles.pipelineFileStripRemove}
+                  onClick={clearFile}
+                  disabled={submitting}
+                  aria-label="Remove file and start over"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className={`${styles.pipelineStepHeader} ${styles.pipelineStepHeaderTight}`}>
+                <span className={styles.pipelineStepNum} aria-hidden>
+                  2
+                </span>
+                <span className={styles.pipelineStepTitle}>Describe what you need</span>
+              </div>
+
+              <div className={styles.pipelineInfoTip}>
+                <Info size={15} strokeWidth={1.9} aria-hidden />
+                <p>
+                  A clear title and description help the engine place dimensions, section views, and
+                  manufacturing-ready measurements more accurately.
+                </p>
+              </div>
+
+              <label className={styles.pipelineHeroFieldLabel} htmlFor="cad-pipeline-title">
+                Drawing title
+              </label>
+              <input
+                id="cad-pipeline-title"
+                className={styles.pipelineHeroInput}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Detailed frigate ship model with realistic dimensions"
+                disabled={submitting}
+              />
+
+              <label
+                className={`${styles.pipelineHeroFieldLabel} ${styles.pipelineHeroFieldLabelSpaced}`}
+                htmlFor="cad-pipeline-desc"
+              >
+                Description
+              </label>
+              <textarea
+                id="cad-pipeline-desc"
+                className={styles.pipelineHeroTextarea}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="e.g. A highly detailed frigate ship model designed with dimensions closely matching an actual vessel. Ideal for maritime simulations and design projects."
+                disabled={submitting}
+                rows={4}
+              />
+
+              {uploadPhase ? <p className={styles.uploadPhaseHint}>{uploadPhase}</p> : null}
+
+              {needsPaidFlow ? (
+                <p className={styles.uploadPhaseHint} style={{ marginTop: 16 }}>
+                  You will pay <strong>{prices.baseLabel}</strong> + tax ({prices.totalLabel}) before
+                  your file uploads.
+                </p>
+              ) : null}
+
+              <button
+                className={styles.pipelineHeroSubmitBtn}
+                type="submit"
+                disabled={submitting || !llmAvailable || !file}
+                title={!llmAvailable ? llmDownMessage : undefined}
+              >
+                {submitting ? (
+                  <>
+                    <span className={styles.spinner} aria-hidden />
+                    {uploadPhase || "Working…"}
+                  </>
+                ) : !llmAvailable ? (
+                  <>AI service unavailable</>
+                ) : needsPaidFlow ? (
+                  <>
+                    Pay {prices.baseLabel} &amp; generate drawings
+                    <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
+                  </>
+                ) : (
+                  <>
+                    Generate drawings
+                    <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                className={styles.pipelineBackStep}
+                onClick={goToPreviousStep}
+                disabled={submitting}
+              >
+                ← Go to previous step
+              </button>
+
+              <div className={styles.pipelineCtaMeta}>
+                <span className={styles.pipelineCtaMetaItem}>
+                  <span className={styles.pipelineCtaMetaDot} aria-hidden />
+                  {prices.baseLabel} per drawing set
+                </span>
+                <span className={styles.pipelineCtaMetaItem}>
+                  <span className={styles.pipelineCtaMetaDot} aria-hidden />
+                  Ready in under 4 minutes
+                </span>
+              </div>
+            </>
+          )}
+        </form>
       </div>
 
       {showLogin ? <UserLoginPupUp onClose={handleLoginClose} type="login" /> : null}

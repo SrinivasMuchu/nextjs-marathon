@@ -66,7 +66,567 @@
   box-sizing: border-box;
 }
 
-/* Landing hero (upload page) */
+/* Combined hero + upload (cad.html mockup) */
+.pipelineHeroShell {
+  background:
+    radial-gradient(900px 520px at 50% -8%, rgba(124, 58, 237, 0.3), transparent 62%),
+    radial-gradient(620px 420px at 88% 12%, rgba(139, 92, 246, 0.14), transparent 60%),
+    radial-gradient(560px 420px at 8% 30%, rgba(99, 49, 200, 0.12), transparent 60%),
+    #0a0712;
+}
+
+.pipelineHeroInner {
+  max-width: 840px;
+}
+
+.pipelineHeroIntro {
+  text-align: center;
+}
+
+.pipelineHeroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  background: rgba(139, 92, 246, 0.1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #b69bff;
+}
+
+.pipelineHeroBadgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  flex-shrink: 0;
+}
+
+.pipelineHeroTitle {
+  margin: 22px 0 0;
+  font-weight: 800;
+  font-size: clamp(33px, 6.2vw, 48px);
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+}
+
+.pipelineHeroTitleLine {
+  display: block;
+  color: #ffffff;
+}
+
+.pipelineHeroTitleAccent {
+  display: block;
+  color: #b69bff;
+}
+
+.pipelineHeroDescription {
+  margin: 20px auto 0;
+  max-width: 680px;
+  font-size: 16px;
+  line-height: 1.62;
+  color: #a8a2bb;
+}
+
+.pipelineValuePills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.pipelineValuePill {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 15px 10px 11px;
+  border-radius: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pipelineValuePillIcon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: rgba(139, 92, 246, 0.15);
+  color: #b69bff;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.pipelineValuePillLabel {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #e7e3f3;
+}
+
+.pipelineValuePillLabelMono {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #e7e3f3;
+}
+
+.pipelineUploadSlot {
+  width: 100%;
+  margin-top: 0;
+}
+
+.pipelineToolPanel {
+  margin-top: 34px;
+  padding: 26px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
+  box-shadow:
+    0 24px 60px rgba(10, 5, 25, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  text-align: left;
+}
+
+.pipelineStepHeader {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 15px;
+}
+
+.pipelineStepHeaderTight {
+  margin-bottom: 8px;
+}
+
+.pipelineStepNum {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  background: rgba(139, 92, 246, 0.16);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: #b69bff;
+}
+
+.pipelineStepTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.pipelineHeroForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pipelineDropzone {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 44px 24px;
+  border: 2px dashed rgba(139, 92, 246, 0.38);
+  border-radius: 16px;
+  background: radial-gradient(420px 200px at 50% 30%, rgba(124, 58, 237, 0.12), transparent 70%);
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.pipelineDropzone:hover,
+.pipelineDropzoneDrag {
+  border-color: rgba(139, 92, 246, 0.65);
+  background: radial-gradient(420px 200px at 50% 30%, rgba(124, 58, 237, 0.2), transparent 70%);
+}
+
+.pipelineDropzoneFilled {
+  padding: 24px 20px;
+  text-align: left;
+}
+
+.pipelineDropzoneEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pipelineDropzoneIcon {
+  width: 62px;
+  height: 62px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(140deg, #8b5cf6, #6d28d9);
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.45);
+}
+
+.pipelineDropzoneHeadline {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.pipelineDropzoneSubline {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #928ca6;
+}
+
+.pipelineDropzoneBrowse {
+  color: #b69bff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pipelineFileBadge {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: linear-gradient(140deg, #8b5cf6, #6d28d9);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: #ffffff;
+  box-shadow: 0 8px 22px rgba(124, 58, 237, 0.4);
+}
+
+.pipelineFileRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pipelineFileMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.pipelineFileName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pipelineFileSize {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #928ca6;
+}
+
+.pipelineFileRemove {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #cfc9dd;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.pipelineFileRemove:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.pipelineFileStrip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.pipelineFileStripBadge {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: linear-gradient(140deg, #8b5cf6, #6d28d9);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.pipelineFileStripMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.pipelineFileStripName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pipelineFileStripSize {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #928ca6;
+}
+
+.pipelineFileStripRemove {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #cfc9dd;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.pipelineFileStripRemove:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.pipelineFileStripRemove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pipelineContinueBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px 22px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(140deg, #8b5cf6, #6d28d9);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 14px 36px rgba(124, 58, 237, 0.45);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.pipelineContinueBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 42px rgba(124, 58, 237, 0.55);
+}
+
+.pipelineContinueBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pipelineBackStep {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: #b69bff;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.pipelineBackStep:hover:not(:disabled) {
+  color: #ffffff;
+}
+
+.pipelineBackStep:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pipelineFormatsLine {
+  margin: 13px 0 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: #6e6883;
+}
+
+.pipelineFormDivider {
+  height: 1px;
+  margin: 26px 0 24px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.pipelineInfoTip {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 20px;
+  padding-left: 1px;
+  color: #8b5cf6;
+}
+
+.pipelineInfoTip p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #8b8499;
+}
+
+.pipelineHeroFieldLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #cfc9dd;
+}
+
+.pipelineHeroInput,
+.pipelineHeroTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.pipelineHeroInput::placeholder,
+.pipelineHeroTextarea::placeholder {
+  color: #6b6580;
+}
+
+.pipelineHeroInput:focus,
+.pipelineHeroTextarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
+}
+
+.pipelineHeroFieldLabelSpaced {
+  margin-top: 18px;
+}
+
+.pipelineHeroTextarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.pipelineHeroSubmitBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  margin-top: 24px;
+  padding: 15px 22px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(140deg, #8b5cf6, #6d28d9);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 14px 36px rgba(124, 58, 237, 0.45);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.pipelineHeroSubmitBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 42px rgba(124, 58, 237, 0.55);
+}
+
+.pipelineHeroSubmitBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pipelineCtaMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 16px;
+  margin-top: 15px;
+  font-size: 12.5px;
+  color: #7b7591;
+}
+
+.pipelineCtaMetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pipelineCtaMetaDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #8b5cf6;
+}
+
+/* Landing hero (upload page) — legacy standalone hero */
 .hero {
   position: relative;
   z-index: 1;
@@ -372,6 +932,16 @@
   height: 100%;
   object-fit: contain;
   display: block;
+}
+
+/* 2D sheets include title block / margins — scale up so the part matches the 3D preview size */
+.howItWorksPreviewOutput {
+  overflow: hidden;
+}
+
+.howItWorksImg2d {
+  transform: scale(2);
+  transform-origin: center center;
 }
 
 .howItWorksArrow {

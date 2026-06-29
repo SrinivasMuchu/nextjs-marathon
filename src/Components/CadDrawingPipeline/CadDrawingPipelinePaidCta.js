@@ -33,7 +33,7 @@ const BENEFITS = [
 
 export default function CadDrawingPipelinePaidCta() {
   const prices = getTechDrawPriceDisplay();
-  const priceShort = `$${Math.floor(prices.base)}`;
+  const priceShort = prices.baseLabel;
 
   const scrollToUpload = useCallback(() => {
     const el = document.getElementById("cad-pipeline-upload");

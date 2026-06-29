@@ -50,9 +50,9 @@ export default function CadDrawingPipelineHowItWorks() {
             <span className={styles.howItWorksCardLabel}>AI-generated 2D drawing</span>
             <span className={styles.howItWorksBadge}>Output</span>
           </div>
-          <div className={styles.howItWorksPreview}>
+          <div className={`${styles.howItWorksPreview} ${styles.howItWorksPreviewOutput}`}>
             <FallbackImageClient
-              className={styles.howItWorksImg}
+              className={`${styles.howItWorksImg} ${styles.howItWorksImg2d}`}
               src={demo2dSvgUrl}
               alt="Example AI-generated 2D technical drawing sheet 1"
             />

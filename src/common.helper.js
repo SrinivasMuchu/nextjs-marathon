@@ -297,14 +297,52 @@ export function slugify(str) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-/**
- * Turn a tag slug back into the raw tag value used in the DB/API.
- * - We keep hyphens so the value matches `cad_tag_name` exactly (e.g. "103-linear-bearing").
- * - For nice display labels, format this value separately in the UI (e.g. replace '-' with ' ').
- */
+/** Turn a tag slug back into the raw tag value used in the DB/API. */
 export function tagSlugToName(slug) {
   if (slug == null || slug === '') return '';
-  return decodeURIComponent(String(slug)).trim();
+  try {
+    return decodeURIComponent(String(slug)).trim();
+  } catch {
+    return '';
+  }
+}
+
+/** Allowed library tag URL segment: lowercase letters, digits, hyphens (e.g. robotics, cnc-milling, 3d-printing). */
+export const LIBRARY_TAG_SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const LIBRARY_TAG_SLUG_MAX_LENGTH = 80;
+
+/**
+ * Normalize and validate a tag slug from the URL. Returns null for bot junk, encoded garbage, or objectId-like paths.
+ */
+export function normalizeLibraryTagSlug(rawSlug) {
+  if (rawSlug == null || rawSlug === '') return null;
+  let decoded = String(rawSlug).trim();
+  try {
+    decoded = decodeURIComponent(decoded);
+  } catch {
+    return null;
+  }
+  decoded = decoded.trim().toLowerCase();
+  if (!decoded || decoded.length > LIBRARY_TAG_SLUG_MAX_LENGTH) return null;
+  if (decoded.includes('%')) return null;
+  if (!LIBRARY_TAG_SLUG_RE.test(decoded)) return null;
+  if (decoded !== slugify(decoded)) return null;
+  /* Reject Mongo ObjectId–style bot paths (e.g. 697f1bece2eb5087a19c42a2step). */
+  if (/[a-f0-9]{20,}/i.test(decoded)) return null;
+  return decoded;
+}
+
+export function isValidLibraryTagSlug(rawSlug) {
+  return normalizeLibraryTagSlug(rawSlug) != null;
+}
+
+/** Redirect target when a tag segment is invalid (301/308 to library root or category). */
+export function getInvalidLibraryTagRedirectPath(categorySlugRaw = null) {
+  const categorySlug = categorySlugRaw ? slugify(tagSlugToName(categorySlugRaw)) : '';
+  if (categorySlug && LIBRARY_TAG_SLUG_RE.test(categorySlug) && !/[a-f0-9]{20,}/i.test(categorySlug)) {
+    return `/library/${categorySlug}`;
+  }
+  return '/library';
 }
 
 /** Resolve category slug to category name using categories list (from get-categories API) */
@@ -386,10 +424,10 @@ function buildLibraryCanonicalQuery(params) {
  * - Canonical = path (+ ?page=N when N > 1). Filters are not encoded in canonical.
  * - Sort / file_format / tracking variants: noindex,follow + canonical to clean URL (no sort/file_format; page kept).
  * - Returns prevPath and nextPath for rel="prev" / rel="next" (same structure as current, page-1 / page+1).
- * @param {{ path: string, searchParams?: Record<string, string | undefined> }} opts
+ * @param {{ path: string, searchParams?: Record<string, string | undefined>, hasNextPage?: boolean }} opts
  * @returns {{ canonicalPath: string, robots?: string, prevPath?: string, nextPath?: string }}
  */
-export function getLibraryCanonicalAndRobots({ path, searchParams = {} }) {
+export function getLibraryCanonicalAndRobots({ path, searchParams = {}, hasNextPage = false }) {
   const params = searchParams || {};
   const currentPage = Math.max(1, parseInt(params.page, 10) || 1);
   const sort = (params.sort || '').trim();
@@ -418,11 +456,13 @@ export function getLibraryCanonicalAndRobots({ path, searchParams = {} }) {
         return s ? `${path}?${s}` : path;
       })()
     : undefined;
-  const nextPath = (() => {
-    const q = buildLibraryCanonicalQuery({ ...params, page: String(currentPage + 1) });
-    const s = q.toString();
-    return s ? `${path}?${s}` : `${path}?page=2`;
-  })();
+  const nextPath = hasNextPage
+    ? (() => {
+        const q = buildLibraryCanonicalQuery({ ...params, page: String(currentPage + 1) });
+        const s = q.toString();
+        return s ? `${path}?${s}` : `${path}?page=2`;
+      })()
+    : undefined;
 
   return { canonicalPath, robots, prevPath, nextPath };
 }

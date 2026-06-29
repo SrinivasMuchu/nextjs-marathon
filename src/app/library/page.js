@@ -27,7 +27,7 @@ export async function generateMetadata({ searchParams }) {
   const base = 'https://marathon-os.com';
   const linkOther = [];
   if (prevPath) linkOther.push({ rel: 'prev', url: `${base}${prevPath}` });
-  linkOther.push({ rel: 'next', url: `${base}${nextPath}` });
+  if (nextPath) linkOther.push({ rel: 'next', url: `${base}${nextPath}` });
 
   return {
     title,

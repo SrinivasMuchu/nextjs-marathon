@@ -6,7 +6,7 @@ import styles from "./CadDrawingPipeline.module.css";
 
 export default function CadDrawingPipelineFinalCta() {
   const prices = getTechDrawPriceDisplay();
-  const priceShort = `$${Math.floor(prices.base)}`;
+  const priceShort = prices.baseLabel;
 
   const scrollToUpload = useCallback(() => {
     const el = document.getElementById("cad-pipeline-upload");

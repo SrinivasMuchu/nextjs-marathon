@@ -1,12 +1,15 @@
 import React from "react";
 import Link from "next/link";
+import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 import styles from "./CadDrawingPipeline.module.css";
+
+const { baseLabel: HERO_PRICE_LABEL } = getTechDrawPriceDisplay();
 
 const HERO_STATS = [
   { value: "15k+", label: "CAD files processed", accent: false },
   { value: "9 sheets", label: "Per drawing set", accent: true },
   { value: "4 min", label: "Average processing time", accent: true },
-  { value: "$4", label: "Per drawing set", accent: true },
+  { value: HERO_PRICE_LABEL, label: "Per drawing set", accent: true },
   { value: "4 formats", label: "PDF · SVG · DXF · PNG", accent: true },
 ];
 

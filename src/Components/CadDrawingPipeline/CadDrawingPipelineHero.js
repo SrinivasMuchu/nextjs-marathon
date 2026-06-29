@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 import styles from "./CadDrawingPipeline.module.css";
 
 const HERO_STATS = [
@@ -13,7 +14,7 @@ const HERO_STATS = [
 ];
 
 export default function CadDrawingPipelineHero({
-  priceShort = "$4",
+  priceShort = getTechDrawPriceDisplay().baseLabel,
   ctaLabel,
   onGenerateClick,
 }) {
