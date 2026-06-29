@@ -10,6 +10,7 @@ import { MdStar } from "react-icons/md";
 import { MdFavorite } from "react-icons/md";
 import { MdEngineering } from "react-icons/md";
 import { MdDraw } from "react-icons/md";
+import { MdStorefront } from "react-icons/md";
 import { FaChevronLeft } from "react-icons/fa";
 
 
@@ -127,6 +128,15 @@ function AdminSidebar({ collapsed, activeTab, onToggle, onSelect }) {
         >
           <MdDraw />
           {!collapsed && <span className={styles.label}>TechDraw</span>}
+        </button>
+        <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'vendors' ? styles.active : ''}`}
+          onClick={() => onSelect('vendors')}
+          title="Vendors"
+        >
+          <MdStorefront />
+          {!collapsed && <span className={styles.label}>Vendors</span>}
         </button>
       </nav>
     </aside>

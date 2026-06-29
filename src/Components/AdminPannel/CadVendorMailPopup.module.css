@@ -1,0 +1,165 @@
+.container {
+  width: min(920px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+.loadingWrap {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.metaBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.metaRow {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.metaLabel {
+  min-width: 72px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.metaValue {
+  color: #111827;
+  word-break: break-word;
+}
+
+.previewWrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: min(52vh, 520px);
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  background: #f3f4f6;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.previewContent {
+  background: #fff;
+  min-height: 100%;
+}
+
+.helperText {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.actionsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.sendToRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sendToLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.sendToControls {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.vendorSelect {
+  flex: 1;
+  min-width: 0;
+}
+
+.sendToBtn,
+.sendAllBtn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sendToBtn {
+  border: 1px solid #610bee;
+  background: #fff;
+  color: #610bee;
+}
+
+.sendToBtn:hover:not(:disabled) {
+  background: #f5f0ff;
+}
+
+.sendAllBtn {
+  border: none;
+  background: #610bee;
+  color: #fff;
+}
+
+.sendAllBtn:hover:not(:disabled) {
+  background: #4f09c7;
+}
+
+.sendToBtn:disabled,
+.sendAllBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.footerActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    max-height: calc(100vh - 24px);
+    padding: 16px;
+  }
+
+  .previewWrap {
+    max-height: 42vh;
+  }
+
+  .sendToControls {
+    flex-direction: column;
+  }
+
+  .sendToBtn,
+  .sendAllBtn {
+    width: 100%;
+  }
+}
