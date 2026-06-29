@@ -8,10 +8,11 @@ import CadDrawingPipelineTransparency from "@/Components/CadDrawingPipeline/CadD
 import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawingPipelineProcess";
 import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
 import CadDrawingPipelineHeroServer from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroServer";
-import SoftwareApplicationJsonLd from "@/Components/JsonLdSchemas/SoftwareApplicationJsonLd";
+import ToolPageJsonLd from "@/Components/JsonLdSchemas/ToolPageJsonLd";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
 import TechDrawPageViewTracker from "@/Components/CadDrawingPipeline/TechDrawPageViewTracker";
+import ToolLibraryCrossLinks from "@/Components/CommonJsx/CrossTemplateLinks/ToolLibraryCrossLinks";
 import { buildPageMetadata } from "@/lib/seo/pageMetadata";
 
 const SITE = "https://marathon-os.com";
@@ -33,12 +34,16 @@ function PipelineSectionFallback() {
 export default function CadDrawingPipelinePage() {
   return (
     <>
-      <SoftwareApplicationJsonLd
+      <ToolPageJsonLd
         name="CAD Drawing Pipeline (STEP to TechDraw)"
         url={`${SITE}${CANONICAL}`}
         description="Upload a STEP file to generate AI-assisted technical drawing sheets in PDF, SVG, DXF, and PNG formats."
         price="4"
         priceCurrency="USD"
+        breadcrumbLinks={[
+          { label: "Tools", href: "/tools" },
+          { label: "CAD Drawing Pipeline" },
+        ]}
       />
       <TechDrawPageViewTracker pageType="upload" />
       <div className={styles.root}>
@@ -56,6 +61,7 @@ export default function CadDrawingPipelinePage() {
           <CadDrawingPipelineTransparency />
           <CadDrawingPipelinePaidCta />
           <CadDrawingPipelineFaq />
+          <ToolLibraryCrossLinks variant="dark" />
         </div>
 
         <CadDrawingPipelineFinalCta />

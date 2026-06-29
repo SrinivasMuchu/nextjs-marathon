@@ -8,12 +8,16 @@ export default function TwoDDrawingDownloadButtons({
   onPdf,
   onZip,
   pdfHref,
+  svgHref,
+  dxfHref,
   freecadHref,
   zipHref,
   showPdfButton = true,
-  pdfLabel = "⬇ Download All PDFs",
-  freecadLabel = "🛠 Download FreeCAD (.FCStd)",
-  zipLabel = "📦 Download All Formats (.zip)",
+  pdfLabel = "Download all PDFs",
+  svgLabel = "Download all SVG files",
+  dxfLabel = "Download all DXF files",
+  freecadLabel = "Download FreeCAD source file",
+  zipLabel = "Download all formats as ZIP",
 }) {
   const trackDownloadClick = (eventName) => {
     sendGAtagEvent({
@@ -33,11 +37,30 @@ export default function TwoDDrawingDownloadButtons({
     else if (zipHref) window.open(zipHref, "_blank", "noopener,noreferrer");
   };
 
+  const handleSvg = () => {
+    trackDownloadClick("techdraw_download_svg_click");
+    if (svgHref) window.open(svgHref, "_blank", "noopener,noreferrer");
+  };
+  const handleDxf = () => {
+    trackDownloadClick("techdraw_download_dxf_click");
+    if (dxfHref) window.open(dxfHref, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <div className={styles.downloadActions}>
       {showPdfButton ? (
         <button type="button" className={styles.btnPrimary} onClick={handlePdf}>
           {pdfLabel}
+        </button>
+      ) : null}
+      {svgHref ? (
+        <button type="button" className={styles.btnSecondary} onClick={handleSvg}>
+          {svgLabel}
+        </button>
+      ) : null}
+      {dxfHref ? (
+        <button type="button" className={styles.btnSecondary} onClick={handleDxf}>
+          {dxfLabel}
         </button>
       ) : null}
       {freecadHref ? (

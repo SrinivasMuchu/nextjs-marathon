@@ -2,9 +2,13 @@ import TwoDTechnicalDrawingPage from "@/Components/IndustryDesigns/TwoDTechnical
 import TwoDTechnicalDrawingContent from "@/Components/IndustryDesigns/TwoDTechnicalDrawingContent";
 import TwoDTechnicalDrawingPageJsonLd from "@/Components/JsonLdSchemas/TwoDTechnicalDrawingPageJsonLd";
 import { BASE_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
-import { buildPageMetadata, buildTwoDDrawingMetadata, deriveTwoDDrawingMetaFromGeometry } from "@/lib/seo/pageMetadata";
+import { buildPageMetadata, buildTwoDDrawingMetadata } from "@/lib/seo/pageMetadata";
 import { fetchTechDrawBundle } from "@/lib/techDraw/fetchTechDrawBundle";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
+import {
+  buildTwoDDrawingHeroStatsFromGeometry,
+  buildTwoDDrawingHeroTitle,
+} from "@/lib/techDraw/twoDDrawingPageHelpers";
 import { notFound } from "next/navigation";
 
 async function fetchDesignByRoute(designRoute) {
@@ -35,24 +39,6 @@ async function fetchGeometryPerSheet(designId) {
   }
 }
 
-function deriveHeroStatsFromGeometry(geo) {
-  if (!geo || typeof geo !== "object") return null;
-  const entries = Object.values(geo);
-  const views = new Set(
-    entries.map((e) => String(e?.view_name || "").trim()).filter(Boolean)
-  ).size;
-  const sections = entries.filter((e) => {
-    const label = String(e?.label || "");
-    const view = String(e?.view_name || "");
-    return /section/i.test(label) || /^section/i.test(view);
-  }).length;
-  return {
-    sheets: entries.length,
-    views,
-    sections,
-  };
-}
-
 export async function generateMetadata({ params }) {
   const designRoute = String(params?.designRoute || "").trim();
   const design = await fetchDesignByRoute(designRoute);
@@ -62,14 +48,7 @@ export async function generateMetadata({ params }) {
       designRoute.replace(/-/g, " ").trim() ||
       "Product"
   ).trim();
-  const designId = String(design?._id || "").trim();
-  const geometryPerSheet =
-    /^[a-f0-9]{24}$/i.test(designId) ? await fetchGeometryPerSheet(designId) : null;
-  const { viewType, sectionDetailType } = deriveTwoDDrawingMetaFromGeometry(geometryPerSheet);
-  const { title, description } = buildTwoDDrawingMetadata(productName, {
-    viewType,
-    sectionDetailType,
-  });
+  const { title, description } = buildTwoDDrawingMetadata(productName);
   const canonicalPath = `/library/2d-technical-drawings/${encodeURIComponent(designRoute)}`;
 
   return buildPageMetadata({
@@ -95,30 +74,29 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
   const props = mapTechDrawBundleToPageProps(designId, bundle);
   const { baseUrl: _u, ...contentProps } = props;
 
-  const lightStats = deriveHeroStatsFromGeometry(bundle.geometryPerSheet);
   const title = String(design?.page_title || design?.part_name || "2D Technical Drawing Set").trim();
   const cadModelHref = `/library/${encodeURIComponent(designRoute)}`;
-  const { viewType, sectionDetailType } = deriveTwoDDrawingMetaFromGeometry(bundle.geometryPerSheet);
-  const { description: pageDescription } = buildTwoDDrawingMetadata(title, {
-    viewType,
-    sectionDetailType,
-  });
+  const { description: pageDescription } = buildTwoDDrawingMetadata(title);
   const breadcrumbLinks = [
     { label: "Library", href: "/library" },
     { label: "2D Technical Drawings", href: "/library/2d-technical-drawings" },
     { label: title },
   ];
 
+  const savedAtUtc =
+    bundle.viewSelectionResponse?.saved_at_utc ||
+    bundle.dimensionsResponse?.saved_at_utc ||
+    "";
+
   const heroProps = {
-    title: `${title} — 2D Technical Drawing Set (2D CAD drawings)`,
+    title: buildTwoDDrawingHeroTitle(title),
     tags: [],
-    stats: [
-      { value: String(lightStats?.sheets ?? "0"), label: "Drawing Sheets" },
-      { value: String(lightStats?.views ?? "0"), label: "Views Analysed" },
-      { value: "3", label: "Export Formats" },
-      { value: String(lightStats?.sections ?? "0"), label: "Section Cuts" },
-      { value: "1st Angle", label: "Projection" },
-    ],
+    stats: buildTwoDDrawingHeroStatsFromGeometry(bundle.geometryPerSheet, {
+      savedAtUtc,
+      sourceCadFormat: design?.file_type || bundle.designMeta?.file_type || "step",
+      sourceModelTitle: title,
+      sourceModelHref: cadModelHref,
+    }),
     showBadges: true,
   };
 
@@ -130,7 +108,12 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
         pageTitle={title}
         description={pageDescription}
       />
-      <TwoDTechnicalDrawingPage breadcrumbLinks={breadcrumbLinks} heroProps={heroProps} designId={designId}>
+      <TwoDTechnicalDrawingPage
+        breadcrumbLinks={breadcrumbLinks}
+        heroProps={heroProps}
+        designId={designId}
+        cadModelHref={cadModelHref}
+      >
         <TwoDTechnicalDrawingContent
           {...contentProps}
           cadModelHref={cadModelHref}
@@ -140,4 +123,3 @@ export default async function TwoDTechnicalDrawingByDesignRoutePage({ params }) 
     </>
   );
 }
-

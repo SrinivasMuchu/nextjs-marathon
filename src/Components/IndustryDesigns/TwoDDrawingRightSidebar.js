@@ -8,6 +8,8 @@ export default function TwoDDrawingRightSidebar({
   cadModelHref = "/library/industrial-ip67-ethernet-m12-angle-conne-698ec00809bd85d18216b084",
   generateHref = "/tools/cad-drawing-pipeline",
   pdfHref,
+  svgHref,
+  dxfHref,
   freecadHref,
   zipHref,
   showDownloadAllPdfs = true,
@@ -29,9 +31,11 @@ export default function TwoDDrawingRightSidebar({
     <aside className={styles.sidebar}>
       <div className={styles.card}>
         <div className={styles.cardBody}>
-          <div className={styles.cardTitle}>Download All Sheets</div>
+          <div className={styles.cardTitle}>Download all drawing sheets</div>
           <TwoDDrawingDownloadButtons
             pdfHref={pdfHref}
+            svgHref={svgHref}
+            dxfHref={dxfHref}
             freecadHref={freecadHref}
             zipHref={zipHref}
             showPdfButton={showDownloadAllPdfs}
@@ -56,7 +60,7 @@ export default function TwoDDrawingRightSidebar({
               <span className={styles.backLinkBtnIcon} aria-hidden>
                 🧊
               </span>
-              <span>Open 3D CAD model</span>
+              <span>Open source 3D CAD model</span>
               <span aria-hidden className={styles.backLinkBtnArrow}>
                 →
               </span>

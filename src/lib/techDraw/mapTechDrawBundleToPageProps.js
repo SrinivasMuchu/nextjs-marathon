@@ -14,6 +14,11 @@ import {
   directSheetAssetUrls,
   isUserPipelineCdnBase,
 } from "./techDrawCdnRoots";
+import {
+  buildTwoDDrawingHeroStats,
+  buildTwoDDrawingHeroTitle,
+  TWO_D_DRAWING_TRANSPARENCY_INTRO,
+} from "./twoDDrawingPageHelpers";
 
 function sortGeometryKeys(geometryPerSheet) {
   if (!geometryPerSheet || typeof geometryPerSheet !== "object") return [];
@@ -411,39 +416,16 @@ function buildTransparencyMeta(entries, dimensionsResponse, viewSelectionRespons
     : "—";
 
   return [
-    { value: String(uniqueViews(entries)), label: "Views Analysed" },
-    { value: String(entries.length), label: "Sheets Generated" },
-    { value: String(sections.length), label: "Section Cuts" },
-    // { value: String(bomRows?.length ?? 0), label: "BOM Items" },
-    { value: "3", label: "Export Formats" },
-    { value: dateDisplay, label: "Generated" },
+    { value: String(uniqueViews(entries)), label: "Views analysed" },
+    { value: String(entries.length), label: "Sheets generated" },
+    { value: String(sections.length), label: "Section cuts" },
+    { value: "3", label: "Export formats" },
+    { value: dateDisplay, label: "Generated date" },
   ];
 }
 
-function buildTransparencyIntro(
-  entries,
-  dimensionsResponse,
-  viewSelectionResponse,
-  dimensionSpecs,
-  totalDimIds
-) {
-  const meta = pipelineMeta(dimensionsResponse, viewSelectionResponse);
-  const stage = meta.stage || "pipeline";
-  const provider = meta.provider || "";
-  const model = meta.model || "";
-  const saved = meta.saved_at_utc || "";
-  const vsNote = "";
-  const analysedViews = uniqueViews(entries);
-  const sectionsCount = sectionEntries(entries).length;
-  const hasDetails = Array.isArray(viewSelectionResponse?.llm_data?.detail_views)
-    ? viewSelectionResponse.llm_data.detail_views.length > 0
-    : false;
-
-  return [
-    `The Marathon 3D→2D pipeline rendered ${analysedViews} views of the 3D CAD model and passed them through our AI analysis engine.${vsNote}`,
-    `The AI reasoned about the geometry, selected view candidates, and planned ${sectionsCount} section cut${sectionsCount === 1 ? "" : "s"} to expose critical internal features.${hasDetails ? " It also selected detail-view anchor points for local manufacturing-critical regions." : ""} The final drawing configuration was then generated automatically for sheet outputs in SVG, DXF, and PDF.`,
-    `${totalDimIds} dimension references were mapped across sheets, with per-sheet labels, views, and extracted edge geometry.`,
-  ];
+function buildTransparencyIntro() {
+  return TWO_D_DRAWING_TRANSPARENCY_INTRO;
 }
 
 function buildAiAnalysisSources(viewSelectionResponse, totalDimIds) {
@@ -512,23 +494,33 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
   const entries = filterRenderableEntries(rawEntries, availabilityBySheet);
   const totalDimIds = countDimensionIds(dimensionSpecs);
   const productTitle = resolveProductTitle(entries, designMeta);
-  const title = `${productTitle} — 2D Technical Drawing Set`;
+  const title = buildTwoDDrawingHeroTitle(productTitle);
   const designRoute = String(designMeta?.route || "").trim();
   const designLibraryHref = designRoute
     ? `/library/${encodeURIComponent(designRoute)}`
     : `/library/${designId}`;
+  const sourceCadFormat = String(designMeta?.file_type || "step").trim();
+  const meta = pipelineMeta(dimensionsResponse, viewSelectionResponse);
+  const generatedDate = meta.saved_at_utc
+    ? new Date(meta.saved_at_utc).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "—";
 
   const sectionCount = sectionEntries(entries).length;
   // const bomRows = normalizeBomRows(bom);
 
-  const stats = [
-    { value: String(entries.length), label: "Drawing Sheets" },
-    { value: String(uniqueViews(entries)), label: "Views Analysed" },
-    { value: "3", label: "Export Formats" },
-    { value: String(sectionCount), label: "Section Cuts" },
-    // { value: String(bomRows.length), label: "BOM Items" },
-    { value: "1st Angle", label: "Projection" },
-  ];
+  const stats = buildTwoDDrawingHeroStats({
+    sheetCount: entries.length,
+    viewCount: uniqueViews(entries),
+    sectionCount,
+    generatedDate,
+    sourceCadFormat,
+    sourceModelTitle: productTitle,
+    sourceModelHref: designLibraryHref,
+  });
 
   const userPipeline = isUserPipelineCdnBase(baseUrl);
   const sheets = entries.map((e) => {
@@ -580,14 +572,25 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     // Both library + user-pipeline pages CTA into the same upload flow.
     // (The legacy "/generate" route never existed and led to a 404.)
     generateHref: "/tools/cad-drawing-pipeline",
-    pdfHref: techdrawBundlePdfViewUrl(designId, {
-      userPipeline,
+    pdfHref: techdrawBundleZipUrl(designId, {
+      userPipeline: userPipeline && !outputS3Prefix,
       outputPrefix: outputS3Prefix || "",
+      format: "pdf",
     }),
     freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
     zipHref: techdrawBundleZipUrl(designId, {
       userPipeline: userPipeline && !outputS3Prefix,
       outputPrefix: outputS3Prefix || "",
+    }),
+    svgHref: techdrawBundleZipUrl(designId, {
+      userPipeline: userPipeline && !outputS3Prefix,
+      outputPrefix: outputS3Prefix || "",
+      format: "svg",
+    }),
+    dxfHref: techdrawBundleZipUrl(designId, {
+      userPipeline: userPipeline && !outputS3Prefix,
+      outputPrefix: outputS3Prefix || "",
+      format: "dxf",
     }),
     drawingInfo: buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse),
     // aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
@@ -604,12 +607,6 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
       dimensionsResponse,
       viewSelectionResponse /* , bomRows */
     ),
-    transparencyIntroParagraphs: buildTransparencyIntro(
-      entries,
-      dimensionsResponse,
-      viewSelectionResponse,
-      dimensionSpecs,
-      totalDimIds
-    ),
+    transparencyIntroParagraphs: buildTransparencyIntro(),
   };
 }

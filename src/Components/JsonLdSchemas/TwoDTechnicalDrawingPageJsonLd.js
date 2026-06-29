@@ -1,11 +1,9 @@
 import React from "react";
 import { TECH_DRAW_LIBRARY_PREFIX } from "@/config";
-
-const SITE_URL = "https://marathon-os.com";
+import { SITE_URL } from "@/lib/seo/schema";
 
 /**
- * WebPage JSON-LD for individual 2D technical drawing routes, matching the WebPage
- * node emitted alongside Product/3DModel on standard library design pages.
+ * CreativeWork + ImageObject JSON-LD for individual 2D technical drawing pages.
  */
 function TwoDTechnicalDrawingPageJsonLd({
   designRoute,
@@ -20,20 +18,41 @@ function TwoDTechnicalDrawingPageJsonLd({
       ? `${TECH_DRAW_LIBRARY_PREFIX}/${designId}/svg/sheet_1.svg`
       : undefined;
 
-  const webPageJsonLd = {
+  const graph = [
+    {
+      "@type": "CreativeWork",
+      "@id": `${pageUrl}#creativework`,
+      url: pageUrl,
+      name: pageTitle,
+      description,
+      encodingFormat: ["application/pdf", "image/svg+xml", "application/dxf"],
+      ...(previewImage
+        ? {
+            image: { "@id": `${pageUrl}#primary-image` },
+            thumbnailUrl: previewImage,
+          }
+        : {}),
+    },
+  ];
+
+  if (previewImage) {
+    graph.push({
+      "@type": "ImageObject",
+      "@id": `${pageUrl}#primary-image`,
+      contentUrl: previewImage,
+      name: `${pageTitle} — sheet preview`,
+    });
+  }
+
+  const structuredData = {
     "@context": "https://schema.org",
-    "@type": "WebPage",
-    "@id": pageUrl,
-    url: pageUrl,
-    name: `${pageTitle} — free 2D CAD drawings (PDF, SVG, DXF)`,
-    description,
-    ...(previewImage ? { image: previewImage } : {}),
+    "@graph": graph,
   };
 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
     />
   );
 }

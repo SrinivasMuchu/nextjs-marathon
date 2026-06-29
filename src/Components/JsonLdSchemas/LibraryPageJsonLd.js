@@ -38,9 +38,11 @@ function LibraryPageJsonLd({
     getItemPath ||
     ((design) => `/library/${design.route}`);
 
+  const itemListId = `${listUrl}#itemlist`;
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
+    '@id': itemListId,
     name: listTitle,
     description: listDescription,
     url: listUrl,

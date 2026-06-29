@@ -178,35 +178,7 @@ export const LIBRARY_CATEGORY_PAGES = {
   },
 };
 
-export function getLibraryQuickLinks(fileType) {
-  const key = String(fileType || 'step').toLowerCase();
-  if (key === 'step' || key === 'stp') {
-    return [
-      { label: 'Open STEP viewer', href: '/tools/step-file-viewer' },
-      { label: 'Convert STEP to STL', href: '/tools/convert-step-to-stl' },
-      { label: 'Generate 2D drawing', href: '/tools/cad-drawing-pipeline' },
-    ];
-  }
-  if (key === 'stl') {
-    return [
-      { label: 'Open STL viewer', href: '/tools/stl-file-viewer' },
-      { label: 'Convert STL to STEP', href: '/tools/convert-stl-to-step' },
-    ];
-  }
-  if (key === 'dxf') {
-    return [
-      { label: 'Open DXF viewer', href: '/tools/dxf-file-viewer' },
-      { label: 'Convert DXF to DWG', href: '/tools/convert-dxf-to-dwg' },
-    ];
-  }
-  if (key === 'dwg') {
-    return [
-      { label: 'Open DWG viewer', href: '/tools/dwg-file-viewer' },
-      { label: 'Convert DWG to DXF', href: '/tools/convert-dwg-to-dxf' },
-    ];
-  }
-  return [];
-}
+export { getLibraryQuickLinks } from './crossTemplateLinks';
 
 export function formatPrimaryFileFormat(fileType) {
   const key = String(fileType || 'step').toUpperCase();

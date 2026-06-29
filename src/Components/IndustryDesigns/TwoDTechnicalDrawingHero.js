@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "./TwoDTechnicalDrawingHero.module.css";
 
 /* Tag pills (not shown by default; pass `tags={[...]}` to render):
@@ -12,12 +13,11 @@ import styles from "./TwoDTechnicalDrawingHero.module.css";
 const defaultTags = [];
 
 const defaultStats = [
-  { value: "9", label: "Drawing Sheets" },
-  { value: "6", label: "Views Analysed" },
-  { value: "4", label: "Export Formats" },
-  { value: "2", label: "Section Cuts" },
-  // { value: "12", label: "BOM Items" },
-  { value: "1st Angle", label: "Projection" },
+  { value: "9", label: "Drawing sheets" },
+  { value: "6", label: "Views analysed" },
+  { value: "3", label: "Export formats" },
+  { value: "2", label: "Section cuts" },
+  { value: "1st Angle", label: "Projection type" },
 ];
 
 /**
@@ -61,7 +61,15 @@ export default function TwoDTechnicalDrawingHero({
       <div className={styles.statStrip} role="list">
         {stats.map((s) => (
           <div key={s.label} className={styles.statItem} role="listitem">
-            <div className={styles.statValue}>{s.value}</div>
+            <div className={styles.statValue}>
+              {s.href ? (
+                <Link href={s.href} className={styles.statLink}>
+                  {s.value}
+                </Link>
+              ) : (
+                s.value
+              )}
+            </div>
             <div className={styles.statKey}>{s.label}</div>
           </div>
         ))}

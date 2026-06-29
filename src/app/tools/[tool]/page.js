@@ -1,6 +1,7 @@
 import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDesign';
 import CadFileConversionHome from '@/Components/CadUploadingHome/CadFileConversion/CadFileConversionHome';
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd';
+import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
 import { getConverterFaqQuestions, cadViewerFaqQuestions } from '@/data/cadToolFaqs';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
@@ -73,15 +74,22 @@ export default function ToolPage({ params }) {
     const meta = getViewerPageMetadata(cadFile);
     if (!meta) return notFound();
 
+    const cadTypeLabel = `${String(cadFile).toUpperCase()} CAD Viewer`;
+
     return (
       <>
         <FaqPageJsonLd faqSchemaData={cadViewerFaqQuestions} />
-        <SoftwareApplicationJsonLd
+        <ToolPageJsonLd
           name={meta.h1.replace(/^Free Online /, '')}
           url={meta.canonicalUrl}
           description={meta.description}
+          breadcrumbLinks={[
+            { label: 'Tools', href: '/tools' },
+            { label: 'CAD Viewer', href: '/tools/3d-cad-viewer' },
+            { label: cadTypeLabel },
+          ]}
         />
-        <CadHomeDesign type={true} cadType={cadFile} skipPageJsonLd />
+        <CadHomeDesign type={true} cadType={cadFile} skipPageJsonLd skipBreadcrumbSchema />
       </>
     );
   }

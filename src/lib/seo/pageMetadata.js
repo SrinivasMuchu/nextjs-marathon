@@ -119,14 +119,9 @@ export function deriveTwoDDrawingMetaFromGeometry(geometryPerSheet) {
   };
 }
 
-export function buildTwoDDrawingMetadata(
-  productName,
-  { viewType, sectionDetailType } = {}
-) {
+export function buildTwoDDrawingMetadata(productName) {
   const name = String(productName || "Product").trim();
-  const views = viewType || "orthographic views";
-  const sections = sectionDetailType || "section and detail views";
-  const title = `${name} 2D CAD Drawing Sheets - PDF, DXF & SVG | Marathon OS`;
-  const description = `Download free ${name} 2D CAD drawing sheets with ${views} and ${sections}. Get PDF, DXF and SVG files created from a high-quality 3D CAD model.`;
+  const title = `${name} 2D Technical Drawing | PDF, SVG, DXF | Marathon OS`;
+  const description = `Download 2D technical drawings for ${name}. Includes orthographic views, section cuts and downloadable PDF, SVG and DXF files generated from the 3D CAD model.`;
   return { title, description, name };
 }

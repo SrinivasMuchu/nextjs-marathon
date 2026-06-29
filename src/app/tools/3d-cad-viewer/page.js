@@ -1,5 +1,5 @@
 import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDesign';
-import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
+import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import StickyCadStrip from '@/Components/CadServicesBanners/StickyCadStrip';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import React from 'react';
@@ -22,12 +22,16 @@ export const metadata = buildPageMetadata({
 function PartDesignViewer() {
   return (
     <>
-      <SoftwareApplicationJsonLd
+      <ToolPageJsonLd
         name="Free Online 3D CAD Viewer"
         url={CANONICAL_URL}
         description="Preview STEP, IGES, STL, OBJ, PLY, OFF, and BREP files online with no software installation."
+        breadcrumbLinks={[
+          { label: 'Tools', href: '/tools' },
+          { label: 'CAD Viewer', href: '/tools/3d-cad-viewer' },
+        ]}
       />
-      <CadHomeDesign />
+      <CadHomeDesign skipBreadcrumbSchema />
       <StickyCadStrip />
     </>
   );

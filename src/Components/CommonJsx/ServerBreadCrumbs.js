@@ -1,27 +1,8 @@
 import React from 'react';
+import { buildBreadcrumbListSchema } from '@/lib/seo/schema';
 
 function ServerBreadCrumbs({ links = [] }) {
-  const breadcrumbList = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "home",
-        "item": "https://marathon-os.com"
-      },
-      ...links.map((item, index) => {
-        const isLast = index === links.length - 1;
-        return {
-          "@type": "ListItem",
-          "position": index + 2,
-          "name": item.label,
-          ...(isLast ? {} : { "item": `https://marathon-os.com${item.href}` })
-        };
-      })
-    ]
-  };
+  const breadcrumbList = buildBreadcrumbListSchema(links);
 
   return (
     <script

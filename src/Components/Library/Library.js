@@ -24,7 +24,7 @@ import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 import { cookies } from 'next/headers';
-import LibraryPageJsonLd from '../JsonLdSchemas/LibraryPageJsonLd';
+import LibraryListingPageJsonLd from '../JsonLdSchemas/LibraryListingPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
 import LibraryHireCtaCard from './LibraryHireCtaCard';
@@ -33,7 +33,10 @@ import LibraryBottomSections from './LibraryBottomSections';
 import {
   LIBRARY_DEFAULT_H1,
   LIBRARY_DEFAULT_INTRO,
+  LIBRARY_DEFAULT_DESCRIPTION,
 } from '@/data/libraryPage';
+
+const SITE_LIST_ORIGIN = 'https://marathon-os.com';
 
 const FIRST_GRID_SIZE = 6;
 
@@ -186,11 +189,16 @@ async function Library({ searchParams, pageConfig = null }) {
 
   return (
     <>
-      <LibraryPageJsonLd
+      <LibraryListingPageJsonLd
+        collectionName={LIBRARY_DEFAULT_H1}
+        collectionUrl={`${SITE_LIST_ORIGIN}/library`}
+        collectionDescription={LIBRARY_DEFAULT_DESCRIPTION}
         designs={designs}
         pagination={pagination}
         page={page}
         limit={limit}
+        listTitle={LIBRARY_DEFAULT_H1}
+        listDescription={LIBRARY_DEFAULT_DESCRIPTION}
       />
       <ServerBreadCrumbs links={breadcrumbSchemaLinks} />
 

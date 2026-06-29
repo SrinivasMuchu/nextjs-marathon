@@ -7,7 +7,7 @@ import ServerBreadCrumbs from "../CommonJsx/ServerBreadCrumbs";
 import DesignStats from "../CommonJsx/DesignStats";
 import DesignDetailsStats from "../CommonJsx/DesignDetailsStats";
 import Footer from "../HomePages/Footer/Footer";
-import LibraryPageJsonLd from "../JsonLdSchemas/LibraryPageJsonLd";
+import LibraryListingPageJsonLd from "../JsonLdSchemas/LibraryListingPageJsonLd";
 import FallbackImageClient from "../CommonJsx/FallbackImageClient";
 import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
 import LibraryHireCtaCard from "./LibraryHireCtaCard";
@@ -61,12 +61,14 @@ export default async function TwoDLibrary({
         ]}
       />
       <div className={styles["library-page"]}>
-        <LibraryPageJsonLd
+        <LibraryListingPageJsonLd
           designs={designs}
           pagination={{ totalPages }}
           page={page}
           limit={limit}
-          listUrl={`${SITE_LIST_ORIGIN}${basePath}`}
+          collectionName="2D Technical Drawing Library"
+          collectionUrl={`${SITE_LIST_ORIGIN}${basePath}`}
+          collectionDescription="Browse free 2D technical drawings generated from 3D CAD models. Download engineering drawing sheets in PDF, SVG and DXF formats for mechanical, robotics, automotive and industrial designs."
           listTitle="2D Technical Drawing Library"
           listDescription="Browse free 2D technical drawings generated from 3D CAD models. Download engineering drawing sheets in PDF, SVG and DXF formats for mechanical, robotics, automotive and industrial designs."
           defaultItemName="2D Technical Drawing"

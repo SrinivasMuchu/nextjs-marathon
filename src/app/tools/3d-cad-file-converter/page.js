@@ -1,5 +1,5 @@
 import CadFileConversionHome from '@/Components/CadUploadingHome/CadFileConversion/CadFileConversionHome';
-import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
+import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import StickyCadStrip from '@/Components/CadServicesBanners/StickyCadStrip';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import React from 'react';
@@ -22,12 +22,16 @@ export const metadata = buildPageMetadata({
 function page() {
   return (
     <>
-      <SoftwareApplicationJsonLd
+      <ToolPageJsonLd
         name="Free Online 3D CAD File Converter"
         url={CANONICAL_URL}
         description="Convert STEP, STL, IGES, OBJ, PLY, BREP, DWG and DXF files online with no software installation."
+        breadcrumbLinks={[
+          { label: 'Tools', href: '/tools' },
+          { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
+        ]}
       />
-      <CadFileConversionHome />
+      <CadFileConversionHome skipBreadcrumbSchema />
       <StickyCadStrip />
     </>
   );

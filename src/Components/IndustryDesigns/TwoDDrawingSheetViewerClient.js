@@ -101,8 +101,9 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
       >
         <span aria-hidden style={{ fontSize: 16, lineHeight: 1 }}>⚠</span>
         <span>
-          SVG and PDF files may not accurately reflect the dimensions. Please download the{" "}
-          <strong>FCStd</strong> file for accurate details.
+          Verify critical dimensions against the source CAD model before using these drawings for
+          manufacturing or production release. Download the <strong>FCStd</strong> file where
+          available for the most accurate editable source.
         </span>
       </div>
 

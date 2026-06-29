@@ -94,6 +94,9 @@ export async function GET(request) {
   const designId = url.searchParams.get("designId");
   const source = String(url.searchParams.get("source") || "").trim().toLowerCase();
   const prefix = String(url.searchParams.get("prefix") || "").trim();
+  const formatFilter = String(url.searchParams.get("format") || "")
+    .trim()
+    .toLowerCase();
 
   if (!designId || !DESIGN_ID_RE.test(designId)) {
     return NextResponse.json({ error: "Invalid designId" }, { status: 400 });
@@ -121,32 +124,49 @@ export async function GET(request) {
   }
 
   const zip = new JSZip();
-  zip.file("geometry_per_sheet.json", geoBytes);
+  const includeAll = !formatFilter || formatFilter === "all";
+  const includePdf = includeAll || formatFilter === "pdf";
+  const includeSvg = includeAll || formatFilter === "svg";
+  const includeDxf = includeAll || formatFilter === "dxf";
 
-  for (const name of rootJsonFiles(userPipeline ? "user" : source)) {
-    const buf = await fetchBytes(`${root}/${name}`);
-    if (buf) zip.file(name, buf);
+  if (includeAll) {
+    zip.file("geometry_per_sheet.json", geoBytes);
+
+    for (const name of rootJsonFiles(userPipeline ? "user" : source)) {
+      const buf = await fetchBytes(`${root}/${name}`);
+      if (buf) zip.file(name, buf);
+    }
   }
 
-  const combinedPdf = await fetchFirstBytes([
-    `${root}/technical_drawing_simple.pdf`,
-    `${root}/drawing.pdf`,
-  ]);
-  if (combinedPdf) zip.file("technical_drawing_simple.pdf", combinedPdf);
+  if (includePdf) {
+    const combinedPdf = await fetchFirstBytes([
+      `${root}/technical_drawing_simple.pdf`,
+      `${root}/drawing.pdf`,
+    ]);
+    if (combinedPdf) zip.file("technical_drawing_simple.pdf", combinedPdf);
+  }
 
-  const fcstd = await fetchBytes(`${root}/technical_drawing_simple.FCStd`);
-  if (fcstd) zip.file("technical_drawing_simple.FCStd", fcstd);
+  if (includeAll) {
+    const fcstd = await fetchBytes(`${root}/technical_drawing_simple.FCStd`);
+    if (fcstd) zip.file("technical_drawing_simple.FCStd", fcstd);
+  }
 
   /* Sequential fetches reduce peak memory vs Promise.all (helps small serverless). */
   for (let i = 1; i <= nSheets; i++) {
-    const pdf = await fetchSheetPdf(root, i);
-    if (pdf) zip.file(`pdf/sheet_${i}.pdf`, pdf);
+    if (includePdf) {
+      const pdf = await fetchSheetPdf(root, i);
+      if (pdf) zip.file(`pdf/sheet_${i}.pdf`, pdf);
+    }
 
-    const svg = await fetchSheetSvg(root, i);
-    if (svg) zip.file(`svg/sheet_${i}.svg`, svg);
+    if (includeSvg) {
+      const svg = await fetchSheetSvg(root, i);
+      if (svg) zip.file(`svg/sheet_${i}.svg`, svg);
+    }
 
-    const dxf = await fetchSheetDxf(root, i);
-    if (dxf) zip.file(`dxf/sheet_${i}.dxf`, dxf);
+    if (includeDxf) {
+      const dxf = await fetchSheetDxf(root, i);
+      if (dxf) zip.file(`dxf/sheet_${i}.dxf`, dxf);
+    }
   }
 
   const nodeStream = zip.generateNodeStream({
@@ -158,12 +178,16 @@ export async function GET(request) {
 
   const webStream = Readable.toWeb(nodeStream);
   const filenamePrefix = userPipeline ? "techdraw-user" : "techdraw";
+  const formatSuffix =
+    formatFilter === "pdf" || formatFilter === "svg" || formatFilter === "dxf"
+      ? `-${formatFilter}`
+      : "";
 
   return new NextResponse(webStream, {
     status: 200,
     headers: {
       "Content-Type": "application/zip",
-      "Content-Disposition": `attachment; filename="${filenamePrefix}-${designId}.zip"`,
+      "Content-Disposition": `attachment; filename="${filenamePrefix}-${designId}${formatSuffix}.zip"`,
       "Cache-Control": "no-store",
     },
   });

@@ -16,7 +16,7 @@ import CadIndustry from './CadIndustry'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import CadViewerFormatSections from './CadViewerFormatSections'
 import CadViewerToolLinks from './CadViewerToolLinks'
-import CadServicesCrossLink from '../CadUpload/CadServicesCrossLink'
+import ToolLibraryCrossLinks from '@/Components/CommonJsx/CrossTemplateLinks/ToolLibraryCrossLinks'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { cadViewerFaqQuestions } from '@/data/cadToolFaqs'
@@ -146,7 +146,7 @@ const steps = [
     { title: 'Students opening CAD files without expensive software', description: 'opening CAD files without expensive software' },
     { title: '3D printing workflows inspecting STL/OBJ meshes', description: 'inspecting STL/OBJ meshes' },
   ];
-function CadHomeDesign({ type, cadType, skipPageJsonLd = false }) {
+function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSchema = false }) {
     const cadTypeLabel = cadType ? `${String(cadType).toUpperCase()} CAD Viewer` : 'CAD Viewer Type';
     const breadcrumbLinks = type
       ? [
@@ -165,20 +165,21 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false }) {
             {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
                       links={breadcrumbLinks}
+                      skipSchema={skipBreadcrumbSchema}
                     />
             {type?<CadUpload type={type} cadType={cadType}/>: <CadHeader type={type}/>}
             {type && cadType ? (
               <>
                 <CadViewerFormatSections cadType={cadType} />
                 <ConvertCrossLink />
-                <CadServicesCrossLink />
+                <ToolLibraryCrossLinks />
               </>
             ) : null}
             {!type ? (
               <>
                 <CadViewerToolLinks />
                 <ConvertCrossLink />
-                <CadServicesCrossLink />
+                <ToolLibraryCrossLinks />
               </>
             ) : null}
             {/* <OrgFeatures type='cad'/> */}

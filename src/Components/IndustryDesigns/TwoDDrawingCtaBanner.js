@@ -12,10 +12,10 @@ const defaultChecks = [
  */
 export default function TwoDDrawingCtaBanner({
   generateHref = "/tools/cad-drawing-pipeline",
-  eyebrow = "Paid Pipeline · $4.99 per set",
-  title = "Have your own CAD file? Get 2D drawings just like these.",
-  description = "Upload any STEP, IGES, or FreeCAD file. Our AI analyses the 3D geometry, selects the best views and section cuts, and delivers a complete 2D engineering drawing set in under 4 minutes.",
-  buttonLabel = "⚡ Upload CAD & Generate — $4.99",
+  eyebrow = "Paid Pipeline · $4.99 per drawing set",
+  title = "Have your own 3D CAD file?",
+  description = "Upload a STEP, STP, IGES or FreeCAD file and generate a 2D drawing set with PDF, SVG and DXF outputs.",
+  buttonLabel = "Generate my 2D drawing",
   price = "$4.99",
   priceSubtext = "per drawing set",
   turnaround = "4 min",

@@ -3,15 +3,14 @@ import Link from 'next/link';
 import ServerBreadCrumbs from './ServerBreadCrumbs';
 
 
-export default function ActiveLastBreadcrumb({ links = [], alignWithHeader = false }) {
+export default function ActiveLastBreadcrumb({ links = [], alignWithHeader = false, skipSchema = false }) {
   const navPad = alignWithHeader
     ? "px-0"
     : "px-16 max-lg:px-8";
 
   return (
     <>
-      
-     <ServerBreadCrumbs links={links}/>
+      {!skipSchema ? <ServerBreadCrumbs links={links}/> : null}
       <div className="py-2 bg-white text-sm">
         <nav aria-label="breadcrumb" className={`w-full box-border ${navPad}`}>
           <ol className="flex flex-wrap gap-2 justify-start">

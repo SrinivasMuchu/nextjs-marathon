@@ -1,11 +1,12 @@
 import React from "react";
 import { DESIGN_GLB_PREFIX_URL } from "@/config";
+import { SITE_URL, buildImageObjectSchemas } from "@/lib/seo/schema";
 
 function ProductStructuredData({
   designData,
   design,
   type,
-  cadReport
+  cadReport,
 }) {
   // Extract data from designData.response
   const productName = designData?.page_title || "CAD Design";
@@ -33,10 +34,14 @@ function ProductStructuredData({
     ? `/library/${design}/${designData._id}.${designData.file_type || 'step'}`
     : `/industry/${design.industry}/${design.part}/${design.design}/${designData._id}.${designData.file_type || 'step'}`;
 
-  // Generate page URL - fix the undefined issue
   const pageUrl = type
-    ? `/library/${design?.industry_design || design}`
-    : `/industry/${design.industry}/${design.part}/${design.design_id}`;
+    ? `${SITE_URL}/library/${design?.industry_design || design}`
+    : `${SITE_URL}/industry/${design.industry}/${design.part}/${design.design_id}`;
+
+  const imageObjects = buildImageObjectSchemas(imageUrls, productName).map((img, index) => ({
+    ...img,
+    '@id': index === 0 ? '#primary-image' : `#image-${index + 1}`,
+  }));
 
   // Extract dimensions from CAD report (similar to AboutCad.js)
   const safeGet = (obj, path, defaultVal = '') => {
@@ -141,6 +146,7 @@ function ProductStructuredData({
         "name": productName,
         "description": description,
         "image": imageUrls,
+        "primaryImageOfPage": { "@id": "#primary-image" },
         "mpn": mpn,
         "brand": {
           "@type": "Brand",
@@ -179,10 +185,12 @@ function ProductStructuredData({
       {
         "@type": "WebPage",
         "@id": pageUrl,
+        "url": pageUrl,
         "name": `${productName} – free ${normalizedFileType.toUpperCase()} download`,
-        "image": imageUrls[0],
+        "primaryImageOfPage": { "@id": "#primary-image" },
         "about": { "@id": "#product" }
-      }
+      },
+      ...imageObjects,
     ]
   };
 

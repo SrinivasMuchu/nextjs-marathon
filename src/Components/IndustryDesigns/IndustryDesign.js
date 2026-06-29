@@ -25,6 +25,7 @@ import RecentlyAddedDesigns from '../HomePages/RecentlyAddedDesigns/RecentlyAdde
 import LibraryDesignPageBanner from '../CadServicesBanners/LibraryDesignPageBanner';
 import StickyCadStrip from '../CadServicesBanners/StickyCadStrip';
 import TwoDDrawingCtaBanner from './TwoDDrawingCtaBanner';
+import ProductDetailToolLinks from '../CommonJsx/CrossTemplateLinks/ProductDetailToolLinks';
 
 // Page heading structure: 1 h1 (IndustryHeaderDetails), 2 h2s (AboutCad, first IndustryDesignsSuggestion), rest h3 (second IndustryDesignsSuggestion if present).
 function IndustryDesign({ design, designData, type }) {
@@ -86,6 +87,9 @@ function IndustryDesign({ design, designData, type }) {
               {/* <AdminApprovalButtons design_id={designData.response._id}/> */}
               <IndustryDesignHeader design={design} type={type} designData={designData.response} />
               <CadDesignDownload designId={designData.response._id} designTitle={designData.response.page_title}/>
+              {type === 'library' && (
+                <ProductDetailToolLinks fileType={designData.response.file_type} />
+              )}
 
               <div className={styles['industry-design-files-container']}>
                 <div className={styles['industry-design-files-head']}>
