@@ -18,6 +18,8 @@ const EMPTY_FORM = {
   is_active: true,
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 const vendorCategorySelectStyles = {
   ...createDropdownCustomStyles,
   control: (provided, state) => ({
@@ -31,6 +33,8 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
   const isEdit = Boolean(vendor?._id)
   const [form, setForm] = useState(EMPTY_FORM)
   const [selectedCategories, setSelectedCategories] = useState([])
+  const [errors, setErrors] = useState({})
+  const [formError, setFormError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCreatingCategory, setIsCreatingCategory] = useState(false)
 
@@ -38,6 +42,8 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
     if (!vendor) {
       setForm(EMPTY_FORM)
       setSelectedCategories([])
+      setErrors({})
+      setFormError('')
       return
     }
 
@@ -64,7 +70,32 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
 
   const handleChange = (field) => (event) => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }))
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }))
+    }
+    if (formError) setFormError('')
   }
+
+  const validateForm = () => {
+    const nextErrors = {}
+    const trimmedName = form.name.trim()
+    const trimmedEmail = form.email.trim()
+
+    if (!trimmedName) {
+      nextErrors.name = 'Name / Agency Name is required'
+    }
+
+    if (!trimmedEmail) {
+      nextErrors.email = 'Email is required'
+    } else if (!EMAIL_RE.test(trimmedEmail)) {
+      nextErrors.email = 'Please enter a valid email address'
+    }
+
+    return nextErrors
+  }
+
+  const FieldError = ({ message }) =>
+    message ? <span className={styles.errorText}>{message}</span> : null
 
   const handleCreateCategory = async (inputValue) => {
     const name = String(inputValue || '').trim()
@@ -96,18 +127,24 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    const trimmedName = form.name.trim()
-    if (!trimmedName) {
-      toast.error('Name / Agency Name is required')
+    setFormError('')
+
+    const validationErrors = validateForm()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
       return
     }
+
+    setErrors({})
+    const trimmedName = form.name.trim()
+    const trimmedEmail = form.email.trim()
 
     setIsSubmitting(true)
     try {
       const payload = {
         name: trimmedName,
         phone_number: form.phone_number.trim(),
-        email: form.email.trim(),
+        email: trimmedEmail,
         category_ids: selectedCategories.map((option) => option.value),
         whatsapp_group_link: form.whatsapp_group_link.trim(),
         website_link: form.website_link.trim(),
@@ -123,11 +160,11 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
         onSaved(response.data.vendor)
         onClose()
       } else {
-        toast.error(response.meta.message || 'Failed to save vendor')
+        setFormError(response.meta.message || 'Failed to save vendor')
       }
     } catch (error) {
       console.error('Error saving vendor:', error)
-      toast.error(error.response?.data?.meta?.message || 'Failed to save vendor')
+      setFormError(error.response?.data?.meta?.message || 'Failed to save vendor')
     } finally {
       setIsSubmitting(false)
     }
@@ -143,7 +180,9 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
           <button type="button" className={popupStyles.closeBtn} onClick={onClose}>&times;</button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
+          {formError ? <div className={styles.formError}>{formError}</div> : null}
+
           <div className={styles.formGrid}>
             <div className={styles.field}>
               <label className={styles.label} htmlFor="vendor-name">
@@ -155,10 +194,12 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
                 value={form.name}
                 onChange={handleChange('name')}
                 placeholder="Enter vendor or agency name"
-                className={styles.input}
+                className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
                 disabled={isSubmitting}
                 autoFocus
+                aria-invalid={Boolean(errors.name)}
               />
+              <FieldError message={errors.name} />
             </div>
 
             <div className={styles.field}>
@@ -178,7 +219,7 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="vendor-email">
-                Email
+                Email *
               </label>
               <input
                 id="vendor-email"
@@ -186,9 +227,11 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
                 value={form.email}
                 onChange={handleChange('email')}
                 placeholder="Enter vendor email"
-                className={styles.input}
+                className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
                 disabled={isSubmitting}
+                aria-invalid={Boolean(errors.email)}
               />
+              <FieldError message={errors.email} />
             </div>
 
             <div className={styles.field}>
@@ -273,7 +316,7 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
             <button
               type="submit"
               className={popupStyles.nextBtn}
-              disabled={!form.name.trim() || isSubmitting}
+              disabled={isSubmitting}
             >
               {isSubmitting ? 'Saving...' : isEdit ? 'Update Vendor' : 'Add Vendor'}
             </button>
