@@ -177,13 +177,6 @@ function VendorsTable() {
 
   return (
     <>
-      <div className={tableStyles.sectionHeader}>
-        <div className={tableStyles.sectionTitleWrap}>
-          <h3 className={tableStyles.sectionTitle}>All vendors</h3>
-          <span className={tableStyles.sectionSubtitle}>{total} vendors</span>
-        </div>
-      </div>
-
       <div className={tableStyles.toolbar}>
         <div className={styles.searchContainer} style={{ marginBottom: 0, flex: 1 }}>
           <form onSubmit={handleSearch} className={styles.searchForm}>
@@ -239,7 +232,7 @@ function VendorsTable() {
 
       {!searchTerm && total > 0 ? (
         <p className={tableStyles.resultsInfo}>
-          Showing {(currentPage - 1) * limit + 1}–{Math.min(currentPage * limit, total)} of {total} vendors
+          {total} vendor{total === 1 ? '' : 's'} · Showing {(currentPage - 1) * limit + 1}–{Math.min(currentPage * limit, total)}
         </p>
       ) : null}
 
