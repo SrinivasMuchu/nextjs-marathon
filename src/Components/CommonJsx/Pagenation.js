@@ -3,17 +3,18 @@ import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import React from 'react'
 import styles from './CommonStyles.module.css';
 
-function Pagenation({ currentPage, setCurrentPage, totalPages, noPages }) {
+function Pagenation({ currentPage, setCurrentPage, onPageChange, totalPages, noPages }) {
+  const changePage = onPageChange || setCurrentPage
 
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
-      setCurrentPage(newPage);
+      changePage?.(newPage);
     }
   };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+      changePage?.(currentPage + 1);
     }
   };
 
@@ -23,6 +24,7 @@ function Pagenation({ currentPage, setCurrentPage, totalPages, noPages }) {
 
         {/* Prev Button */}
         <button
+          type="button"
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className={styles.prevButton}
@@ -35,6 +37,7 @@ function Pagenation({ currentPage, setCurrentPage, totalPages, noPages }) {
         {!noPages && (
           Array.from({ length: totalPages }, (_, index) => (
             <button
+              type="button"
               key={index + 1}
               onClick={() => handlePageChange(index + 1)}
               className={`${styles.paginationButton} ${
@@ -48,6 +51,7 @@ function Pagenation({ currentPage, setCurrentPage, totalPages, noPages }) {
 
         {/* Next Button */}
         <button
+          type="button"
           onClick={handleNextPage}
           disabled={currentPage === totalPages}
           className={styles.nextButton}

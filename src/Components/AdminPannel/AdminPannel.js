@@ -97,7 +97,7 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
       case 'techdraw-jobs':
         return 'TechDraw Uploads'
       case 'vendors':
-        return 'Vendors'
+        return ''
       default:
         return 'Admin Panel'
     }

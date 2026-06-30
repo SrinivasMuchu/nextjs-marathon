@@ -75,6 +75,15 @@ export async function fetchCadVendorMailPreview(requestId) {
   return response.data
 }
 
+export async function previewCadVendorMail({ request_id, subject, content }) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/cad-vendor-mail`,
+    { action: 'preview', request_id, subject, content },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
 export async function sendCadVendorMail(payload) {
   const response = await axios.post(
     `${ADMIN_VENDORS_BASE}/cad-vendor-mail`,
