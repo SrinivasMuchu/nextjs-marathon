@@ -161,7 +161,15 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-bottom: clamp(40px, 6vw, 56px);
+  margin-bottom: 12px;
+}
+
+.heroPriceNote {
+  margin: 0 auto  clamp(32px, 5vw, 48px);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-light);
+  letter-spacing: 0.02em;
 }
 
 .heroCtaPrimary {
@@ -1188,8 +1196,178 @@
   margin-top: 48px;
 }
 
+.infoSections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 48px;
+}
+
+.infoBlock {
+  padding: clamp(20px, 3vw, 24px);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.infoBlockLabel {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-light);
+}
+
+.infoBlockTitle {
+  margin: 0 0 14px;
+  font-size: clamp(17px, 2vw, 20px);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.infoBlockList {
+  margin: 0;
+  padding: 0 0 0 18px;
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.infoBlockList li + li {
+  margin-top: 6px;
+}
+
+.infoBlockBody {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
+.pipelineLinks {
+  margin-top: 48px;
+  padding: clamp(24px, 4vw, 32px);
+  border-radius: 14px;
+  border: 1px solid var(--border-accent);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(97, 11, 238, 0.14) 0%, transparent 55%),
+    var(--surface2);
+}
+
+.pipelineLinksEyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-light);
+}
+
+.pipelineLinksTitle {
+  margin: 0 0 18px;
+  font-size: clamp(20px, 2.5vw, 24px);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pipelineLinksGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pipelineLinkCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.pipelineLinkCard:hover {
+  border-color: var(--border-accent);
+  box-shadow: 0 8px 24px rgba(97, 11, 238, 0.15);
+  transform: translateY(-2px);
+}
+
+.pipelineLinkIconWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--purple-subtle);
+  border: 1px solid var(--border-accent);
+  color: var(--accent-light);
+}
+
+.pipelineLinkIcon {
+  display: flex;
+  width: 22px;
+  height: 22px;
+}
+
+.pipelineLinkIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pipelineLinkBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pipelineLinkLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.pipelineLinkDesc {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.pipelineLinkArrow {
+  flex-shrink: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.pipelineLinkCard:hover .pipelineLinkArrow {
+  color: var(--accent-light);
+  transform: translateX(3px);
+}
+
 @media (max-width: 1024px) {
   .paidCtaCard {
+    grid-template-columns: 1fr;
+  }
+
+  .infoSections {
+    grid-template-columns: 1fr;
+  }
+
+  .pipelineLinksGrid {
     grid-template-columns: 1fr;
   }
 

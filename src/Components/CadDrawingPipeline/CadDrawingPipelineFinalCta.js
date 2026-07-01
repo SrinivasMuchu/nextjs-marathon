@@ -5,8 +5,7 @@ import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 import styles from "./CadDrawingPipeline.module.css";
 
 export default function CadDrawingPipelineFinalCta() {
-  const prices = getTechDrawPriceDisplay();
-  const priceShort = `$${Math.floor(prices.base)}`;
+  const { baseLabel, perSetLabel } = getTechDrawPriceDisplay();
 
   const scrollToUpload = useCallback(() => {
     const el = document.getElementById("cad-pipeline-upload");
@@ -19,11 +18,11 @@ export default function CadDrawingPipelineFinalCta() {
         Stop Waiting for Drawings.
       </h2>
       <p className={styles.finalCtaDesc}>
-        Upload your CAD file now. Get a complete drawing set in 4 minutes for {priceShort}.
+        Upload your CAD file now. Get a complete drawing set in 4 minutes for {baseLabel} ({perSetLabel}).
       </p>
       <button type="button" className={styles.finalCtaButton} onClick={scrollToUpload}>
         <span aria-hidden>⚡</span>
-        Start Generating — {priceShort}
+        Generate my 2D drawing — {baseLabel}
       </button>
     </section>
   );

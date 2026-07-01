@@ -419,7 +419,7 @@ export default function CadDrawingPipelineView() {
                   onDrop={onDrop}
                 >
                   <div className={styles.uploadIcon}>📦</div>
-                  <div className={styles.uploadLabel}>Drop STEP / STP here</div>
+                  <div className={styles.uploadLabel}>Drop STEP or STP file here</div>
                   <div className={styles.uploadHint}>
                     or click to browse · .step .stp · max {MAX_UPLOAD_LABEL}
                   </div>
@@ -487,7 +487,7 @@ export default function CadDrawingPipelineView() {
                   ) : needsPaidFlow ? (
                     <>▶ Pay {prices.baseLabel} & upload</>
                   ) : (
-                    <>▶ Run drawing pipeline</>
+                    <>▶ Generate my 2D drawing</>
                   )}
                 </button>
               </form>

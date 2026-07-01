@@ -8,22 +8,24 @@ import CadDrawingPipelineTransparency from "@/Components/CadDrawingPipeline/CadD
 import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawingPipelineProcess";
 import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
 import CadDrawingPipelineHeroServer from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroServer";
+import CadDrawingPipelineInfoSections from "@/Components/CadDrawingPipeline/CadDrawingPipelineInfoSections";
+import CadDrawingPipelineInternalLinks from "@/Components/CadDrawingPipeline/CadDrawingPipelineInternalLinks";
 import ToolPageJsonLd from "@/Components/JsonLdSchemas/ToolPageJsonLd";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
 import TechDrawPageViewTracker from "@/Components/CadDrawingPipeline/TechDrawPageViewTracker";
-import ToolLibraryCrossLinks from "@/Components/CommonJsx/CrossTemplateLinks/ToolLibraryCrossLinks";
 import { buildPageMetadata } from "@/lib/seo/pageMetadata";
+import {
+  PIPELINE_PAGE_DESCRIPTION,
+  PIPELINE_PAGE_TITLE,
+} from "@/data/cadDrawingPipelinePage";
 
 const SITE = "https://marathon-os.com";
 const CANONICAL = "/tools/cad-drawing-pipeline";
-const TITLE = "CAD Drawing Pipeline (STEP to TechDraw) | Marathon OS";
-const DESCRIPTION =
-  "Upload a STEP file to generate AI-assisted technical drawing sheets in PDF, SVG, DXF, and PNG formats via the Marathon OS drawing pipeline.";
 
 export const metadata = buildPageMetadata({
-  title: TITLE,
-  description: DESCRIPTION,
+  title: PIPELINE_PAGE_TITLE,
+  description: PIPELINE_PAGE_DESCRIPTION,
   canonicalPath: CANONICAL,
 });
 
@@ -35,14 +37,14 @@ export default function CadDrawingPipelinePage() {
   return (
     <>
       <ToolPageJsonLd
-        name="CAD Drawing Pipeline (STEP to TechDraw)"
+        name="3D CAD to 2D Technical Drawing Generator"
         url={`${SITE}${CANONICAL}`}
-        description="Upload a STEP file to generate AI-assisted technical drawing sheets in PDF, SVG, DXF, and PNG formats."
-        price="4"
+        description={PIPELINE_PAGE_DESCRIPTION}
+        price="4.99"
         priceCurrency="USD"
         breadcrumbLinks={[
           { label: "Tools", href: "/tools" },
-          { label: "CAD Drawing Pipeline" },
+          { label: "3D CAD to 2D Drawing Generator" },
         ]}
       />
       <TechDrawPageViewTracker pageType="upload" />
@@ -57,11 +59,12 @@ export default function CadDrawingPipelinePage() {
             <CadDrawingPipelineSampleSheets />
           </Suspense>
           <CadDrawingPipelineProcess />
+          <CadDrawingPipelineInfoSections />
           <CadDrawingPipelineOutputFormats />
           <CadDrawingPipelineTransparency />
           <CadDrawingPipelinePaidCta />
           <CadDrawingPipelineFaq />
-          <ToolLibraryCrossLinks variant="dark" />
+          <CadDrawingPipelineInternalLinks />
         </div>
 
         <CadDrawingPipelineFinalCta />
