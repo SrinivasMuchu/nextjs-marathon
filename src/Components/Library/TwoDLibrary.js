@@ -1,122 +1,327 @@
-import React from "react";
-import axios from "axios";
-import Link from "next/link";
-import { BASE_URL } from "@/config";
-import styles from "./Library.module.css";
-import ServerBreadCrumbs from "../CommonJsx/ServerBreadCrumbs";
-import DesignStats from "../CommonJsx/DesignStats";
-import DesignDetailsStats from "../CommonJsx/DesignDetailsStats";
-import Footer from "../HomePages/Footer/Footer";
-import LibraryListingPageJsonLd from "../JsonLdSchemas/LibraryListingPageJsonLd";
-import FallbackImageClient from "../CommonJsx/FallbackImageClient";
-import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
-import LibraryHireCtaCard from "./LibraryHireCtaCard";
-import TechDrawPageViewTracker from "../CadDrawingPipeline/TechDrawPageViewTracker";
+import React from 'react';
+import axios from 'axios';
+import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
+import Link from 'next/link';
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import { BASE_URL } from '@/config';
+import { fetchCadTagsPage } from '@/api/cadTagsApi';
+import { buildTwoDLibraryDesignsParams } from '@/api/twoDLibraryDesignsApi';
+import {
+  formatLibraryResultsCount,
+  getLibraryPaginationWindow,
+} from '@/utils/libraryPagination';
+import styles from './Library.module.css';
+import ServerBreadCrumbs from '../CommonJsx/ServerBreadCrumbs';
+import Footer from '../HomePages/Footer/Footer';
+import LibraryListingPageJsonLd from '../JsonLdSchemas/LibraryListingPageJsonLd';
+import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
+import LibraryHireCtaCard from './LibraryHireCtaCard';
+import LibraryLayoutWithFilters from './LibraryLayoutWithFilters';
+import SortBySelect from './SortBySelect';
+import TwoDLibraryCard from './TwoDLibraryCard';
+import TwoDLibraryBottomSections from './TwoDLibraryBottomSections';
+import TechDrawPageViewTracker from '../CadDrawingPipeline/TechDrawPageViewTracker';
+import {
+  TWO_D_LIBRARY_H1,
+  TWO_D_LIBRARY_INTRO,
+  TWO_D_LIBRARY_DESCRIPTION,
+  TWO_D_SOURCE_FORMAT_FILTER_OPTIONS,
+  get2DLibraryPathWithQuery,
+  hasTwoDLibraryNarrowingFilters,
+} from '@/data/twoDLibraryPage';
 
-const SITE_LIST_ORIGIN = "https://marathon-os.com";
+const SITE_LIST_ORIGIN = 'https://marathon-os.com';
+const FIRST_GRID_SIZE = 6;
 
-function build2dLibraryHref({
-  page,
-  search,
-  basePath = "/library/2d-technical-drawings",
-}) {
-  const qp = new URLSearchParams();
-  if (page && Number(page) > 1) qp.set("page", String(page));
-  if (search) qp.set("search", search);
-  const qs = qp.toString();
-  return qs ? `${basePath}?${qs}` : basePath;
+function build2dLibraryHref(params) {
+  return get2DLibraryPathWithQuery({
+    categoryName: params.category || null,
+    tagName: params.tags || null,
+    search: params.search,
+    page: params.page,
+    sort: params.sort,
+    recency: params.recency,
+    free_paid: params.free_paid,
+    file_format: params.file_format,
+    output_format: params.output_format,
+    sheet_count: params.sheet_count,
+    projection: params.projection,
+  });
 }
 
 export default async function TwoDLibrary({
   searchParams,
-  basePath = "/library/2d-technical-drawings",
+  basePath = '/library/2d-technical-drawings',
 }) {
-  const page = Math.max(1, parseInt(searchParams?.page, 10) || 1);
-  const limit = 24;
-  const search = (searchParams?.search || "").trim();
+  const searchQuery = searchParams?.search || '';
+  const category = searchParams?.category || '';
+  const page = parseInt(searchParams?.page, 10) || 1;
+  const limit = 22;
+  const tags = searchParams?.tags || '';
+  const tagLabel = tags ? tags.replace(/-/g, ' ') : '';
+  const sort = searchParams?.sort || '';
+  const recency = searchParams?.recency || '';
+  const freePaid = searchParams?.free_paid || '';
+  const fileFormat = searchParams?.file_format || '';
+  const outputFormat = searchParams?.output_format || '';
+  const sheetCount = searchParams?.sheet_count || '';
+  const projection = searchParams?.projection || '';
 
-  const queryString = new URLSearchParams({
-    page: String(page),
-    limit: String(limit),
-    ...(search ? { search } : {}),
-  }).toString();
+  const cookieStore = cookies();
+  const uuid = cookieStore.get('uuid')?.value || null;
 
-  const response = await axios.get(
-    `${BASE_URL}/v1/cad/get-2d-library-designs?${queryString}`,
-    { cache: "no-store" }
-  );
+  const apiParams = buildTwoDLibraryDesignsParams({
+    category,
+    tags,
+    search: searchQuery,
+    sort: sort || 'newest',
+    recency,
+    free_paid: freePaid,
+    file_format: fileFormat,
+    output_format: outputFormat,
+    sheet_count: sheetCount,
+    projection,
+    page,
+    limit,
+    uuid,
+  });
+  const queryString = new URLSearchParams(apiParams).toString();
 
-  const data = response?.data || {};
-  const designs = Array.isArray(data?.data) ? data.data : [];
-  const pagination = data?.pagination || {};
-  const total = Number(pagination.total || designs.length || 0);
-  const totalPages = Number(pagination.total_pages || 1);
+  const designsRequest = axios
+    .get(`${BASE_URL}/v1/cad/get-category-design?${queryString}`, { cache: 'no-store' })
+    .catch((err) => {
+      const status = err.response?.status;
+      const message = err.response?.data?.meta?.message;
+      if (status === 404 || message === 'Page not found') {
+        notFound();
+      }
+      throw err;
+    });
+
+  const [response, categoriesRes, tagsFirstPage] = await Promise.all([
+    designsRequest,
+    axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
+    fetchCadTagsPage(0, 10, null, category || null),
+  ]);
+
+  const allCategories = categoriesRes.data?.data || [];
+  const data = response.data;
+
+  if (data?.meta?.success === false && data?.meta?.message === 'Page not found') {
+    notFound();
+  }
+
+  const designs = data?.data?.designDetails || [];
+  const pagination = data?.data?.pagination || {};
+  const totalPages = pagination?.totalPages || 1;
+  const dataPage = pagination?.currentPage ?? page;
+  const initialTags = Array.isArray(tagsFirstPage?.data) ? tagsFirstPage.data : [];
+  const initialTagsHasMore = tagsFirstPage?.hasMore === true;
+  const hasFilters = hasTwoDLibraryNarrowingFilters({
+    category,
+    tags,
+    search: searchQuery,
+    recency,
+    free_paid: freePaid,
+    file_format: fileFormat,
+    output_format: outputFormat,
+    sheet_count: sheetCount,
+    projection,
+  });
+
+  const paginationWindow = getLibraryPaginationWindow({
+    currentPage: dataPage,
+    totalPages,
+    hasNextPage: pagination?.hasNextPage,
+    hasPrevPage: pagination?.hasPrevPage,
+    showCompactTotals: hasFilters,
+  });
+  const resultsCountLabel = formatLibraryResultsCount(pagination, designs?.length ?? 0);
+
+  const activeCategory =
+    allCategories.find(
+      (cat) =>
+        cat?.industry_category_name === category ||
+        cat?.industry_category_label === category
+    ) || null;
+  const categoryLabel = activeCategory?.industry_category_label || category;
+
+  const heroTitle =
+    categoryLabel && tagLabel
+      ? `${tagLabel} 2D drawings in ${categoryLabel}`
+      : categoryLabel
+        ? `${categoryLabel} 2D technical drawings`
+        : tagLabel
+          ? `${tagLabel} 2D technical drawings`
+          : TWO_D_LIBRARY_H1;
+
+  const heroDescription =
+    categoryLabel && tagLabel
+      ? `Browse ${tagLabel} 2D technical drawings in ${categoryLabel}. Download drawing sets with orthographic views, section cuts and PDF, SVG and DXF files.`
+      : categoryLabel
+        ? `Browse ${categoryLabel} 2D technical drawings generated from 3D CAD models. Download PDF, SVG and DXF drawing sets for engineering review.`
+        : tagLabel
+          ? `Browse ${tagLabel} 2D technical drawings. Download drawing sets with orthographic views, section cuts and PDF, SVG and DXF files.`
+          : TWO_D_LIBRARY_INTRO;
+
+  const breadcrumbSchemaLinks = [
+    { label: 'Library', href: '/library' },
+    { label: '2D Technical Drawings', href: basePath },
+  ];
+  if (categoryLabel) {
+    breadcrumbSchemaLinks.push({ label: categoryLabel });
+  } else if (tagLabel) {
+    breadcrumbSchemaLinks.push({ label: tagLabel });
+  }
 
   return (
     <>
       <TechDrawPageViewTracker pageType="library_list" />
-      <ServerBreadCrumbs
-        links={[
-          { label: "2D Library", href: basePath },
-        ]}
+      <LibraryListingPageJsonLd
+        collectionName={TWO_D_LIBRARY_H1}
+        collectionUrl={`${SITE_LIST_ORIGIN}${basePath}`}
+        collectionDescription={TWO_D_LIBRARY_DESCRIPTION}
+        designs={designs}
+        pagination={pagination}
+        page={page}
+        limit={limit}
+        listTitle={TWO_D_LIBRARY_H1}
+        listDescription={TWO_D_LIBRARY_DESCRIPTION}
+        defaultItemName="2D Technical Drawing"
+        scriptId="json-ld-2d-library-itemlist"
+        getItemPath={(design) => {
+          const route = String(design?.route || '').trim();
+          if (route) {
+            return `${basePath}/${encodeURIComponent(route)}`;
+          }
+          return `${basePath}/${design._id}`;
+        }}
       />
-      <div className={styles["library-page"]}>
-        <LibraryListingPageJsonLd
-          designs={designs}
-          pagination={{ totalPages }}
-          page={page}
-          limit={limit}
-          collectionName="2D Technical Drawing Library"
-          collectionUrl={`${SITE_LIST_ORIGIN}${basePath}`}
-          collectionDescription="Browse free 2D technical drawings generated from 3D CAD models. Download engineering drawing sheets in PDF, SVG and DXF formats for mechanical, robotics, automotive and industrial designs."
-          listTitle="2D Technical Drawing Library"
-          listDescription="Browse free 2D technical drawings generated from 3D CAD models. Download engineering drawing sheets in PDF, SVG and DXF formats for mechanical, robotics, automotive and industrial designs."
-          defaultItemName="2D Technical Drawing"
-          scriptId="json-ld-2d-library-itemlist"
-          getItemPath={(design) => {
-            const route = String(design?.route || "").trim();
-            if (route) {
-              return `${basePath}/${encodeURIComponent(route)}`;
-            }
-            return `${basePath}/${design._id}`;
-          }}
-        />
-        <header className={styles["library-hero"]}>
-          <nav className={styles["library-hero-breadcrumb"]} aria-label="Breadcrumb">
-            <Link href="/" className={styles["library-hero-breadcrumb-link"]}>
+      <ServerBreadCrumbs links={breadcrumbSchemaLinks} />
+
+      <div className={styles['library-page']}>
+        <header className={styles['library-hero']}>
+          <nav className={styles['library-hero-breadcrumb']} aria-label="Breadcrumb">
+            <Link href="/" className={styles['library-hero-breadcrumb-link']}>
               Home
             </Link>
-            <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
-            <span className={styles["library-hero-breadcrumb-current"]}>2D Library</span>
+            <span className={styles['library-hero-breadcrumb-sep']}>/</span>
+            <Link href="/library" className={styles['library-hero-breadcrumb-link']}>
+              Library
+            </Link>
+            <span className={styles['library-hero-breadcrumb-sep']}>/</span>
+            {categoryLabel || tagLabel ? (
+              <>
+                <Link href={basePath} className={styles['library-hero-breadcrumb-link']}>
+                  2D Library
+                </Link>
+                <span className={styles['library-hero-breadcrumb-sep']}>/</span>
+                <span className={styles['library-hero-breadcrumb-current']}>
+                  {categoryLabel || tagLabel}
+                </span>
+              </>
+            ) : (
+              <span className={styles['library-hero-breadcrumb-current']}>2D Library</span>
+            )}
           </nav>
-          <h1 className={styles["library-hero-title"]}>
-            2D Technical Drawing Library — 2D CAD drawings
-          </h1>
-          <p className={styles["library-hero-description"]}>
-            Browse free 2D CAD drawings generated from 3D CAD models. Open each
-            technical drawing set and download PDF, SVG, and DXF formats.
-          </p>
+          <h1 className={styles['library-hero-title']}>{heroTitle}</h1>
+          <p className={styles['library-hero-description']}>{heroDescription}</p>
         </header>
 
-        <div className={styles["library-below-hero"]}>
-          <div className={styles["library-content"]}>
-            <div className={styles["library-content-head"]}>
-              <span className={styles["library-resources-count"]}>
-                2D Designs ({total} results)
-              </span>
+        <div className={styles['library-below-hero']}>
+          <div className={styles['library-category-tags-wrap']}>
+            <div className={styles['library-category-tags']}>
+              <Link
+                href={basePath}
+                className={
+                  styles['library-category-tag'] +
+                  (!category ? ` ${styles['library-category-tag-active']}` : '')
+                }
+              >
+                All
+              </Link>
+              {(allCategories || []).map((cat) => (
+                <Link
+                  key={cat.industry_category_name}
+                  href={get2DLibraryPathWithQuery({
+                    categoryName: cat.industry_category_name,
+                  })}
+                  className={
+                    styles['library-category-tag'] +
+                    (category === cat.industry_category_name
+                      ? ` ${styles['library-category-tag-active']}`
+                      : '')
+                  }
+                >
+                  {cat.industry_category_label}
+                </Link>
+              ))}
             </div>
+          </div>
 
-            <div className={styles["library-designs"]}>
-              <div className={styles["library-designs-items"]}>
+          <LibraryLayoutWithFilters
+            filterProps={{
+              initialTags,
+              initialHasMore: initialTagsHasMore,
+              initialSearchQuery: searchQuery,
+              category,
+              tags,
+              allCategories,
+              initialSort: searchParams?.sort,
+              initialRecency: recency,
+              initialFreePaid: freePaid,
+              initialFileFormat: fileFormat,
+              initialOutputFormat: outputFormat,
+              initialSheetCount: sheetCount,
+              initialProjection: projection,
+              hasActiveFilters: hasFilters,
+              libraryListMode: '2d',
+              resetListHref: basePath,
+              fileFormatLabel: 'Source CAD format',
+              fileFormatOptions: TWO_D_SOURCE_FORMAT_FILTER_OPTIONS,
+              show2DExtraFilters: true,
+            }}
+            contentHead={
+              <>
+                <div className={styles['library-content-head-left']}>
+                  <span className={styles['library-resources-count']}>
+                    2D Designs ({resultsCountLabel} results)
+                    {hasFilters && totalPages > 1 && totalPages <= 5
+                      ? ` · Page ${dataPage} of ${totalPages}`
+                      : ''}
+                  </span>
+                  <Link
+                    href="/library"
+                    prefetch
+                    className={styles['library-toolbar-2d-library-cta']}
+                  >
+                    <span className={styles['library-toolbar-2d-library-cta-icon']} aria-hidden>
+                      📦
+                    </span>
+                    3D CAD model library
+                  </Link>
+                </div>
+                <div className={styles['library-content-sort']}>
+                  <SortBySelect
+                    initialSort={searchParams?.sort}
+                    className={styles['library-content-sort-select']}
+                  />
+                </div>
+              </>
+            }
+          >
+            <div className={styles['library-designs']}>
+              <div className={styles['library-designs-items']}>
                 {designs.map((design, index) => (
                   <React.Fragment key={`2d-design-${design._id}`}>
                     {index === 0 && (
                       <div
-                        className={styles["library-designs-items-container"]}
+                        className={styles['library-designs-items-container']}
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
                         <LeftRightBanner adSlot="2408570633" />
@@ -124,11 +329,11 @@ export default async function TwoDLibrary({
                     )}
                     {index === 6 && (
                       <div
-                        className={styles["library-designs-items-container"]}
+                        className={styles['library-designs-items-container']}
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
                         <LeftRightBanner adSlot="4799748492" />
@@ -136,117 +341,106 @@ export default async function TwoDLibrary({
                     )}
                     {index === 4 && (
                       <div
-                        className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
+                        className={`${styles['library-designs-items-container']} ${styles.libraryHireCtaSlot}`}
                       >
                         <LibraryHireCtaCard />
                       </div>
                     )}
-                    <div className={styles["library-designs-items-container"]}>
-                      {(() => {
-                        const route = String(design.route || "").trim();
-                        const href = route
-                          ? `/library/2d-technical-drawings/${encodeURIComponent(route)}`
-                          : `/library/2d-technical-drawings/${design._id}`;
-                        const previewSrc = design?._id
-                          ? `/api/techdraw-file?designId=${encodeURIComponent(
-                              design._id
-                            )}&sheet=1&ext=svg`
-                          : "";
-                        return (
-                          <Link
-                            href={href}
-                            className={styles["library-designs-primary-link"]}
-                            aria-label={design.page_title || design.part_name || "2D design"}
-                          >
-                            <div className={styles["two-d-library-preview-wrap"]}>
-                              {previewSrc ? (
-                                <FallbackImageClient
-                                  className={styles["two-d-library-preview-img"]}
-                                  src={previewSrc}
-                                  alt={`${
-                                    design.page_title || design.part_name || "2D design"
-                                  } preview`}
-                                />
-                              ) : (
-                                <div className={styles["two-d-library-preview-fallback"]}>
-                                  2D Preview
-                                </div>
-                              )}
-                            </div>
-                            <h6 title={design.page_title || design.part_name}>
-                              {design.page_title || design.part_name || "Untitled design"}
-                            </h6>
-                          </Link>
-                        );
-                      })()}
 
-                      <div className={styles["design-title-wrapper"]}>
-                        <div
-                          className={styles["design-title-text"]}
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            alignItems: "center",
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <DesignDetailsStats text="2D Drawing" type="category" />
-                          {design.file_type ? (
-                            <DesignDetailsStats
-                              fileType={`.${String(design.file_type).toLowerCase()}`}
-                              text={`.${String(design.file_type).toUpperCase()}`}
-                            />
-                          ) : null}
-                          <div className={styles["design-stats-wrapper"]}>
-                            <DesignStats
-                              views={design.total_design_views ?? 0}
-                              downloads={design.total_design_downloads ?? 0}
-                            />
-                          </div>
-                        </div>
-                        <span className={styles["design-title-wrapper-price"]}>
-                          {design.price ? `$${design.price}` : "Free"}
-                        </span>
-                      </div>
-                    </div>
+                    <TwoDLibraryCard design={design} />
+
+                    {index === FIRST_GRID_SIZE - 1 && !categoryLabel && !tagLabel ? (
+                      <TwoDLibraryBottomSections />
+                    ) : null}
                   </React.Fragment>
                 ))}
                 {designs.length > 0 && designs.length < 5 && (
                   <div
-                    className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
+                    className={`${styles['library-designs-items-container']} ${styles.libraryHireCtaSlot}`}
                   >
                     <LibraryHireCtaCard />
                   </div>
                 )}
               </div>
 
-              <div className={styles["library-pagination"]}>
-                {page > 1 ? (
+              <div className={styles['library-pagination']}>
+                {paginationWindow.hasPrev && (
                   <Link
-                    href={build2dLibraryHref({ page: page - 1, search, basePath })}
-                    className={styles["pagination-button"]}
+                    href={build2dLibraryHref({
+                      category,
+                      search: searchQuery,
+                      page: dataPage - 1,
+                      tags,
+                      sort,
+                      recency,
+                      free_paid: freePaid,
+                      file_format: fileFormat,
+                      output_format: outputFormat,
+                      sheet_count: sheetCount,
+                      projection,
+                    })}
+                    className={styles['pagination-button']}
                   >
-                    prev
+                    <KeyboardBackspaceIcon /> prev
                   </Link>
-                ) : null}
-                <span className={`${styles["pagination-button"]} ${styles.active}`}>
-                  {page}
-                </span>
-                {page < totalPages ? (
+                )}
+
+                {paginationWindow.showLeadingEllipsis && (
+                  <span className={styles.dots}>...</span>
+                )}
+
+                {paginationWindow.pages.map((p) => (
                   <Link
-                    href={build2dLibraryHref({ page: page + 1, search, basePath })}
-                    className={styles["pagination-button"]}
+                    key={p}
+                    href={build2dLibraryHref({
+                      category,
+                      search: searchQuery,
+                      page: p,
+                      tags,
+                      sort,
+                      recency,
+                      free_paid: freePaid,
+                      file_format: fileFormat,
+                      output_format: outputFormat,
+                      sheet_count: sheetCount,
+                      projection,
+                    })}
+                    className={`${styles['pagination-button']} ${dataPage === p ? styles.active : ''}`}
                   >
-                    next
+                    {p}
                   </Link>
-                ) : null}
+                ))}
+
+                {paginationWindow.showTrailingEllipsis && (
+                  <span className={styles.dots}>...</span>
+                )}
+
+                {paginationWindow.hasNext && (
+                  <Link
+                    href={build2dLibraryHref({
+                      category,
+                      search: searchQuery,
+                      page: dataPage + 1,
+                      tags,
+                      sort,
+                      recency,
+                      free_paid: freePaid,
+                      file_format: fileFormat,
+                      output_format: outputFormat,
+                      sheet_count: sheetCount,
+                      projection,
+                    })}
+                    className={styles['pagination-button']}
+                  >
+                    next <KeyboardBackspaceIcon style={{ transform: 'rotate(180deg)' }} />
+                  </Link>
+                )}
               </div>
             </div>
-          </div>
+          </LibraryLayoutWithFilters>
         </div>
       </div>
       <Footer />
     </>
   );
 }
-
