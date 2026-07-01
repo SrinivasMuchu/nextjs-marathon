@@ -102,3 +102,18 @@
   justify-content: center;
   padding: 48px 0;
 }
+
+.priceBreakdown {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.priceBreakdown p {
+  margin: 0;
+}

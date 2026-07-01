@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Switch from "@mui/material/Switch";
 import { toast } from "react-toastify";
 import Loading from "../CommonJsx/Loaders/Loading";
 import { getAdminControls, updateAdminControls } from "@/api/converterPaymentApi";
+import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 import styles from "./AdminControlsPanel.module.css";
 
 function AdminControlsPanel() {
@@ -12,6 +13,12 @@ function AdminControlsPanel() {
   const [saving, setSaving] = useState(false);
   const [conversionFree, setConversionFree] = useState(true);
   const [converterPrice, setConverterPrice] = useState("1");
+
+  const pricePreview = useMemo(() => {
+    const base = Number(converterPrice);
+    if (!Number.isFinite(base) || base < 0) return null;
+    return buildConverterPricingDisplay({ base_price: base, price: base });
+  }, [converterPrice]);
 
   const loadControls = useCallback(async () => {
     setLoading(true);
@@ -78,7 +85,7 @@ function AdminControlsPanel() {
     <div className={styles.panel}>
       <p className={styles.lead}>
         Configure CAD converter download pricing. Each user&apos;s first converted file is always free.
-        From the second conversion onward, these settings apply.
+        Sample files are always free. From the second conversion onward, these settings apply.
       </p>
 
       <div className={styles.card}>
@@ -100,9 +107,9 @@ function AdminControlsPanel() {
       </div>
 
       <div className={styles.card}>
-        <h3 className={styles.rowTitle}>Converter download price (USD)</h3>
+        <h3 className={styles.rowTitle}>Converter download base price (USD)</h3>
         <p className={styles.rowHint}>
-          Charged per converted file when free downloads are disabled. Tax is added at checkout.
+          Base price before 18% GST. Charged per converted file download when free downloads are disabled.
         </p>
         <form className={styles.priceForm} onSubmit={handleSavePrice}>
           <div className={styles.priceInputWrap}>
@@ -125,6 +132,13 @@ function AdminControlsPanel() {
             Save price
           </button>
         </form>
+        {pricePreview && !conversionFree && (
+          <div className={styles.priceBreakdown}>
+            <p>Base Price: {pricePreview.baseLabel}</p>
+            <p>Tax 18%: {pricePreview.gstLabel}</p>
+            <p><strong>Total: {pricePreview.totalLabel}</strong></p>
+          </div>
+        )}
         {conversionFree && (
           <p className={styles.note}>Price is ignored while free downloads are enabled.</p>
         )}

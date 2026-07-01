@@ -17,6 +17,14 @@ function unwrap(data) {
   return data.data;
 }
 
+export async function getConverterPricingInfo() {
+  const { data } = await axios.get(
+    `${BASE_URL}${CONVERTER_API_BASE}/pricing-info`,
+    { headers: userUuidHeader(), timeout: 30_000 },
+  );
+  return unwrap(data);
+}
+
 export async function checkConverterDownload(converterFileId) {
   const { data } = await axios.post(
     `${BASE_URL}${CONVERTER_API_BASE}/check-download`,

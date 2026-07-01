@@ -259,6 +259,22 @@
   text-align: center;
 }
 
+.heroUploadPricingNote {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(244, 240, 255, 0.72);
+  text-align: center;
+  max-width: 520px;
+}
+
+.heroUploadPricingNote strong {
+  color: #c9a8ff;
+  font-weight: 600;
+}
+
 .heroDynamicBlock {
   display: flex;
   flex-direction: column;

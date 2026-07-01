@@ -291,7 +291,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       setConverterBillingDetails({
         title: `CAD Converter (${file.input_format} → ${file.output_format})`,
         description: file.file_name || 'Converted CAD file download',
-        price: access.price,
+        price: access.pricing?.base_price ?? access.price,
+        pricing: access.pricing,
       });
       setOpenConverterBilling(true);
     } catch (error) {

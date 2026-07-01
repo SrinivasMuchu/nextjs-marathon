@@ -376,14 +376,23 @@ function BillingAddress({
     return error ? <span style={{ color: '#dc3545', fontSize: '14px', marginTop: '4px', display: 'block' }}>{error}</span> : null
   }
 
-  // Format currency display
-  const formatCurrency = (amount) => {
-    
-    return `$ ${parseFloat(amount).toFixed(2)}`
-  }
-
   // Calculate pricing breakdown
   const calculatePricing = () => {
+    if (productDetails?.pricing) {
+      const p = productDetails.pricing;
+      const basePrice = Number(p.base_price ?? p.price ?? 0);
+      const gstRate = Math.round((p.gst_rate ?? 0.18) * 100);
+      const gstAmount = Number(p.gst_amount ?? basePrice * (gstRate / 100));
+      const totalAmount = Number(p.total ?? p.price_with_gst ?? basePrice + gstAmount);
+      return {
+        basePrice,
+        gstRate,
+        gstAmount,
+        totalAmount,
+        currency: p.currency || 'USD',
+      };
+    }
+
     const basePrice = pricingDetails?.basePrice || pricingDetails?.amount || summaryDetails?.price || 100
     const gstRate = 18 // 18% GST
     const gstAmount = (basePrice * gstRate) / 100
@@ -395,6 +404,19 @@ function BillingAddress({
       gstAmount,
       totalAmount,
       currency: formData.currency?.value || 'INR'
+    }
+  }
+
+  // Format currency display
+  const formatCurrency = (amount) => {
+    const pricing = calculatePricing();
+    const currency = pricing.currency || 'USD';
+    const n = parseFloat(amount);
+    if (!Number.isFinite(n)) return '';
+    try {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(n);
+    } catch {
+      return `$ ${n.toFixed(2)}`;
     }
   }
 
