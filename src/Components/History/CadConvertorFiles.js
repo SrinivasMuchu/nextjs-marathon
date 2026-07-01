@@ -12,7 +12,6 @@ import Link from 'next/link';
 import {
   buildConverterPricingDisplay,
   fetchConverterPricingInfo,
-  formatConverterPriceBreakdownLines,
 } from '@/lib/converterPricing';
 
 function DashboardPricingCell({ converterPricing }) {
@@ -20,13 +19,9 @@ function DashboardPricingCell({ converterPricing }) {
     return <span className={styles.converterPriceBadgeFree}>Free</span>;
   }
 
-  const lines = formatConverterPriceBreakdownLines(converterPricing);
+  const display = buildConverterPricingDisplay(converterPricing);
   return (
-    <div className={styles.converterPriceBreakdown}>
-      <span>{lines.baseLine}</span>
-      <span>{lines.taxLine}</span>
-      <span className={styles.converterPriceTotal}>{lines.totalLine}</span>
-    </div>
+    <span className={styles.converterPriceTotal}>{display.totalLabel}</span>
   );
 }
 

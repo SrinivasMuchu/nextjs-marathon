@@ -2,10 +2,7 @@
 
 import React from "react";
 import cadStyles from "../CadHomeDesign/CadHome.module.css";
-import {
-  buildConverterPricingDisplay,
-  formatConverterPriceBreakdownLines,
-} from "@/lib/converterPricing";
+import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 
 function ConverterPricingBadge({ isFree, pricing, variant = "dark" }) {
   if (isFree) {
@@ -18,17 +15,15 @@ function ConverterPricingBadge({ isFree, pricing, variant = "dark" }) {
     );
   }
 
-  const lines = formatConverterPriceBreakdownLines(pricing);
+  const display = buildConverterPricingDisplay(pricing);
   return (
-    <div
-      className={`${cadStyles["cad-conversion-price-breakdown"]} ${
+    <span
+      className={`${cadStyles["cad-conversion-price-total"]} ${
         variant === "dark" ? cadStyles["cad-conversion-price-breakdown--dark"] : ""
       }`}
     >
-      <span>{lines.baseLine}</span>
-      <span>{lines.taxLine}</span>
-      <span className={cadStyles["cad-conversion-price-total"]}>{lines.totalLine}</span>
-    </div>
+      {display.totalLabel}
+    </span>
   );
 }
 
@@ -58,7 +53,7 @@ function ConverterPricingBanner({ isFree, pricing, isSampleFile }) {
       <span className={cadStyles["cad-conversion-banner-icon"]} aria-hidden>ℹ️</span>
       <span>
         You&apos;ve used your free conversion. This one is{" "}
-        <strong>{display.totalLabel}</strong> (incl. tax).
+        <strong>{display.totalLabel}</strong>.
       </span>
     </div>
   );

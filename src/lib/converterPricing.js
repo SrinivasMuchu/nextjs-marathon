@@ -28,18 +28,6 @@ export function buildConverterPricingDisplay(pricing, currency = "USD") {
   };
 }
 
-/** Multi-line breakdown for tooltips / detail rows. */
-export function formatConverterPriceBreakdownLines(pricing, currency = "USD") {
-  const d = buildConverterPricingDisplay(pricing, currency);
-  const gstPct = Math.round(d.gstRate * 100);
-  return {
-    baseLine: `Base Price: ${d.baseLabel}`,
-    taxLine: `Tax ${gstPct}%: ${d.gstLabel}`,
-    totalLine: `Total: ${d.totalLabel}`,
-    ...d,
-  };
-}
-
 /** Whether this conversion row should show as free before download. */
 export function isConverterConversionFree({
   pricingInfo,

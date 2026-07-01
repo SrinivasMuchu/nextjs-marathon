@@ -242,9 +242,9 @@ export default function CadDrawingPipelineView() {
       let jobId;
 
       if (needsPaymentNow) {
-        setUploadPhase(`Pay ${prices.baseLabel} + tax (${prices.totalLabel})…`);
+        setUploadPhase(`Pay ${prices.totalLabel}…`);
         const payment = await openTechDrawPayment({
-          description: `2D technical drawing — ${prices.baseLabel}`,
+          description: `2D technical drawing — ${prices.totalLabel}`,
         });
         setUploadPhase("Payment received — uploading STEP file…");
         jobId = await uploadAndSubmitTechDrawJob({
@@ -466,8 +466,7 @@ export default function CadDrawingPipelineView() {
 
                 {needsPaidFlow ? (
                   <p className={styles.uploadPhaseHint} style={{ marginBottom: 8 }}>
-                    You will pay <strong>{prices.baseLabel}</strong> + tax ({prices.totalLabel})
-                    first, then your file uploads.
+                    You will pay <strong>{prices.totalLabel}</strong> first, then your file uploads.
                   </p>
                 ) : null}
 
@@ -485,7 +484,7 @@ export default function CadDrawingPipelineView() {
                   ) : !llmAvailable ? (
                     <>⚠ AI service unavailable</>
                   ) : needsPaidFlow ? (
-                    <>▶ Pay {prices.baseLabel} & upload</>
+                    <>▶ Pay {prices.totalLabel} & upload</>
                   ) : (
                     <>▶ Run drawing pipeline</>
                   )}

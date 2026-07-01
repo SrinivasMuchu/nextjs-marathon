@@ -48,9 +48,8 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
           return;
         }
 
-        const baseLabel = formatConverterPrice(order.price);
         const totalLabel = formatConverterPrice(order.price_with_gst ?? order.amount);
-        const chargeLabel = `CAD conversion download — ${baseLabel} + tax (${totalLabel} total)`;
+        const chargeLabel = `CAD conversion download — ${totalLabel}`;
 
         const razorpayAmount =
           Number(order.razorpay_amount) > 0

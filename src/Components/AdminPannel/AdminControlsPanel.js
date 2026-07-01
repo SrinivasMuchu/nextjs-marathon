@@ -134,9 +134,7 @@ function AdminControlsPanel() {
         </form>
         {pricePreview && !conversionFree && (
           <div className={styles.priceBreakdown}>
-            <p>Base Price: {pricePreview.baseLabel}</p>
-            <p>Tax 18%: {pricePreview.gstLabel}</p>
-            <p><strong>Total: {pricePreview.totalLabel}</strong></p>
+            <p><strong>Price: {pricePreview.totalLabel}</strong></p>
           </div>
         )}
         {conversionFree && (

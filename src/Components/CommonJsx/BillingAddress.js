@@ -449,30 +449,16 @@ function BillingAddress({
               </p>
             </div>
 
-            {/* Pricing Breakdown */}
+            {/* Price */}
             <div style={{ marginBottom: '20px' }}>
-              <h4 style={{ margin: '0 0 15px 0', color: '#333' }}>Price Breakdown</h4>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <span>Base Price:</span>
-                <span>{formatCurrency(pricing.basePrice)}</span>
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <span>GST ({pricing.gstRate}%):</span>
-                <span>{formatCurrency(pricing.gstAmount)}</span>
-              </div>
-              
-              <hr style={{ margin: '15px 0', border: '1px solid #ddd' }} />
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                fontWeight: 'bold', 
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontWeight: 'bold',
                 fontSize: '16px',
-                color: '#333'
+                color: '#333',
               }}>
-                <span>Total Amount:</span>
+                <span>Price:</span>
                 <span>{formatCurrency(pricing.totalAmount)}</span>
               </div>
             </div>
