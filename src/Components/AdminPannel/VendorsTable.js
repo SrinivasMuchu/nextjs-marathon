@@ -29,6 +29,13 @@ function formatCategoryNames(categories = []) {
   return categories.map((category) => category.name).join(', ')
 }
 
+function ensureExternalUrl(url) {
+  const trimmed = String(url || '').trim()
+  if (!trimmed) return ''
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  return `https://${trimmed}`
+}
+
 function VendorsTable() {
   const [vendors, setVendors] = useState([])
   const [categories, setCategories] = useState([])
@@ -223,6 +230,12 @@ function VendorsTable() {
         </p>
       )}
 
+      {!searchTerm && total > 0 ? (
+        <p className={tableStyles.resultsInfo}>
+          {total} vendor{total === 1 ? '' : 's'} · Showing {(currentPage - 1) * limit + 1}–{Math.min(currentPage * limit, total)}
+        </p>
+      ) : null}
+
       <div className={styles.tableWrap} style={{ width: '100%' }}>
         <table className={styles.table}>
           <thead>
@@ -263,7 +276,7 @@ function VendorsTable() {
                     <td>
                       {vendor.whatsapp_group_link ? (
                         <a
-                          href={vendor.whatsapp_group_link}
+                          href={ensureExternalUrl(vendor.whatsapp_group_link)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={tableStyles.link}
@@ -277,7 +290,7 @@ function VendorsTable() {
                     <td>
                       {vendor.website_link ? (
                         <a
-                          href={vendor.website_link}
+                          href={ensureExternalUrl(vendor.website_link)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={tableStyles.link}
@@ -333,8 +346,8 @@ function VendorsTable() {
       {totalPages > 1 && (
         <Pagenation
           currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
         />
       )}
 

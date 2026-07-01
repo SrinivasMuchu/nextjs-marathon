@@ -1,13 +1,38 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import Select from 'react-select'
 import PopupWrapper from '../CommonJsx/PopupWrapper'
 import popupStyles from '../CommonJsx/CommonStyles.module.css'
-import { fetchCadVendorMailPreview, sendCadVendorMail } from '@/api/adminVendorsApi'
+import {
+  fetchCadVendorMailPreview,
+  previewCadVendorMail,
+  sendCadVendorMail,
+} from '@/api/adminVendorsApi'
 import Loading from '../CommonJsx/Loaders/Loading'
 import styles from './CadVendorMailPopup.module.css'
+
+const EMPTY_CONTENT = {
+  project_type: '',
+  model_use: '',
+  software_format: '',
+  requirement: '',
+}
+
+const BRIEF_MIN_HEIGHT = 220
+const BRIEF_MAX_HEIGHT = 420
+
+function adjustBriefHeight(textarea) {
+  if (!textarea) return
+  textarea.style.height = 'auto'
+  const nextHeight = Math.min(
+    Math.max(textarea.scrollHeight, BRIEF_MIN_HEIGHT),
+    BRIEF_MAX_HEIGHT,
+  )
+  textarea.style.height = `${nextHeight}px`
+  textarea.style.overflowY = textarea.scrollHeight > BRIEF_MAX_HEIGHT ? 'auto' : 'hidden'
+}
 
 const vendorSelectStyles = {
   control: (provided, state) => ({
@@ -56,8 +81,21 @@ const vendorSelectStyles = {
 function CadVendorMailPopup({ request, onClose, onSent }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
+  const [isRefreshingPreview, setIsRefreshingPreview] = useState(false)
   const [preview, setPreview] = useState(null)
   const [selectedVendors, setSelectedVendors] = useState([])
+  const [subject, setSubject] = useState('')
+  const [mailContent, setMailContent] = useState(EMPTY_CONTENT)
+  const [defaultContent, setDefaultContent] = useState(EMPTY_CONTENT)
+  const [previewHtml, setPreviewHtml] = useState('')
+  const [showPreview, setShowPreview] = useState(false)
+  const [subjectError, setSubjectError] = useState('')
+  const [contentErrors, setContentErrors] = useState({})
+  const briefRef = useRef(null)
+
+  useEffect(() => {
+    adjustBriefHeight(briefRef.current)
+  }, [mailContent.requirement])
 
   useEffect(() => {
     const loadPreview = async () => {
@@ -66,7 +104,18 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
         const response = await fetchCadVendorMailPreview(request._id)
 
         if (response.meta.success) {
+          const content = response.data.content || {}
+          const editableContent = {
+            project_type: content.project_type || '',
+            model_use: content.model_use || '',
+            software_format: content.software_format || '',
+            requirement: content.requirement || '',
+          }
           setPreview(response.data)
+          setSubject(response.data.subject || '')
+          setMailContent(editableContent)
+          setDefaultContent(editableContent)
+          setPreviewHtml(response.data.html || '')
         } else {
           toast.error(response.meta.message || 'Failed to load mail preview')
           onClose()
@@ -82,6 +131,34 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
 
     loadPreview()
   }, [request._id, onClose])
+
+  const refreshPreview = useCallback(async (nextSubject, nextContent) => {
+    setIsRefreshingPreview(true)
+    try {
+      const response = await previewCadVendorMail({
+        request_id: request._id,
+        subject: nextSubject,
+        content: nextContent,
+      })
+      if (response.meta.success) {
+        setPreviewHtml(response.data.html || '')
+      }
+    } catch (error) {
+      console.error('Error refreshing mail preview:', error)
+    } finally {
+      setIsRefreshingPreview(false)
+    }
+  }, [request._id])
+
+  useEffect(() => {
+    if (!showPreview || isLoading) return undefined
+
+    const timer = setTimeout(() => {
+      refreshPreview(subject, mailContent)
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, [subject, mailContent, showPreview, isLoading, refreshPreview])
 
   const vendorOptions = useMemo(
     () =>
@@ -102,19 +179,68 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
     [vendorOptions],
   )
 
+  const handleContentChange = (field) => (event) => {
+    const value = event.target.value
+    setMailContent((prev) => ({ ...prev, [field]: value }))
+    if (contentErrors[field]) {
+      setContentErrors((prev) => ({ ...prev, [field]: '' }))
+    }
+  }
+
+  const handleRequirementChange = (event) => {
+    handleContentChange('requirement')(event)
+    adjustBriefHeight(event.target)
+  }
+
+  const validateMailContent = () => {
+    const nextSubjectError = subject.trim() ? '' : 'Subject is required'
+    const nextContentErrors = {}
+    if (!mailContent.project_type.trim()) {
+      nextContentErrors.project_type = 'Project type is required'
+    }
+    if (!mailContent.requirement.trim()) {
+      nextContentErrors.requirement = 'Project brief is required'
+    }
+    setSubjectError(nextSubjectError)
+    setContentErrors(nextContentErrors)
+    return !nextSubjectError && Object.keys(nextContentErrors).length === 0
+  }
+
+  const buildSendPayload = (extra = {}) => ({
+    request_id: request._id,
+    subject: subject.trim(),
+    content: {
+      project_type: mailContent.project_type.trim(),
+      model_use: mailContent.model_use.trim(),
+      software_format: mailContent.software_format.trim(),
+      requirement: mailContent.requirement.trim(),
+    },
+    ...extra,
+  })
+
+  const handleResetFields = () => {
+    setSubject(preview?.subject || '')
+    setMailContent(defaultContent)
+    setSubjectError('')
+    setContentErrors({})
+    toast.info('Fields reset to original request values.')
+  }
+
   const handleSendSelected = async () => {
     if (!selectedVendors.length) {
       toast.error('Select at least one vendor')
       return
     }
+    if (!validateMailContent()) return
 
     setIsSending(true)
     try {
-      const response = await sendCadVendorMail({
-        request_id: request._id,
-        vendor_ids: selectedVendors.map((option) => option.value),
-        send_all: false,
-      })
+      const response = await sendCadVendorMail(
+        buildSendPayload({
+          vendor_ids: selectedVendors.map((option) => option.value),
+          send_all: false,
+        }),
+      )
 
       if (response.meta.success) {
         toast.success(response.meta.message || 'Email sent')
@@ -136,13 +262,11 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
       toast.error('No active vendors with email addresses found')
       return
     }
+    if (!validateMailContent()) return
 
     setIsSending(true)
     try {
-      const response = await sendCadVendorMail({
-        request_id: request._id,
-        send_all: true,
-      })
+      const response = await sendCadVendorMail(buildSendPayload({ send_all: true }))
 
       if (response.meta.success) {
         toast.success(response.meta.message || 'Email sent to all active vendors')
@@ -173,28 +297,132 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
           </div>
         ) : (
           <>
-            <div className={styles.metaBlock}>
-              <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Subject</span>
-                <span className={styles.metaValue}>{preview?.subject}</span>
+            <div className={styles.bodyScroll}>
+              <div className={styles.metaBlock}>
+                <div className={styles.metaRow}>
+                  <span className={styles.metaLabel}>From</span>
+                  <span className={styles.metaValue}>
+                    {preview?.from_name} &lt;{preview?.from}&gt;
+                  </span>
+                </div>
+                <div className={styles.metaRow}>
+                  <span className={styles.metaLabel}>Reply to</span>
+                  <span className={styles.metaValue}>{preview?.reply_to}</span>
+                </div>
               </div>
-              <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>From</span>
-                <span className={styles.metaValue}>
-                  {preview?.from_name} &lt;{preview?.from}&gt;
-                </span>
-              </div>
-              <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Reply to</span>
-                <span className={styles.metaValue}>{preview?.reply_to}</span>
-              </div>
-            </div>
 
-            <div className={styles.previewWrap}>
-              <div
-                className={styles.previewContent}
-                dangerouslySetInnerHTML={{ __html: preview?.html || '' }}
-              />
+              <div className={styles.editSection}>
+                <div className={styles.editSectionHeader}>
+                  <span className={styles.bodyTitle}>Edit email content</span>
+                  <button
+                    type="button"
+                    className={styles.resetBtn}
+                    onClick={handleResetFields}
+                    disabled={isSending}
+                  >
+                    Reset fields
+                  </button>
+                </div>
+
+                <p className={styles.editHint}>
+                  Edit the fields below. Email layout and styling stay fixed on send.
+                </p>
+
+                <div className={styles.formGrid}>
+                  <div className={`${styles.formField} ${styles.formFieldFull}`}>
+                    <label className={styles.fieldLabel} htmlFor="vendor-mail-subject">Subject *</label>
+                    <input
+                      id="vendor-mail-subject"
+                      type="text"
+                      className={`${styles.textInput} ${subjectError ? styles.inputError : ''}`}
+                      value={subject}
+                      onChange={(e) => {
+                        setSubject(e.target.value)
+                        if (subjectError) setSubjectError('')
+                      }}
+                      disabled={isSending}
+                    />
+                    {subjectError ? <span className={styles.errorText}>{subjectError}</span> : null}
+                  </div>
+
+                  <div className={styles.formField}>
+                    <label className={styles.fieldLabel} htmlFor="vendor-mail-project-type">Project type *</label>
+                    <input
+                      id="vendor-mail-project-type"
+                      type="text"
+                      className={`${styles.textInput} ${contentErrors.project_type ? styles.inputError : ''}`}
+                      value={mailContent.project_type}
+                      onChange={handleContentChange('project_type')}
+                      disabled={isSending}
+                    />
+                    {contentErrors.project_type ? (
+                      <span className={styles.errorText}>{contentErrors.project_type}</span>
+                    ) : null}
+                  </div>
+
+                  <div className={styles.formField}>
+                    <label className={styles.fieldLabel} htmlFor="vendor-mail-model-use">Model use</label>
+                    <input
+                      id="vendor-mail-model-use"
+                      type="text"
+                      className={styles.textInput}
+                      value={mailContent.model_use}
+                      onChange={handleContentChange('model_use')}
+                      disabled={isSending}
+                    />
+                  </div>
+
+                  <div className={styles.formField}>
+                    <label className={styles.fieldLabel} htmlFor="vendor-mail-software">Software</label>
+                    <input
+                      id="vendor-mail-software"
+                      type="text"
+                      className={styles.textInput}
+                      value={mailContent.software_format}
+                      onChange={handleContentChange('software_format')}
+                      disabled={isSending}
+                    />
+                  </div>
+
+                  <div className={`${styles.formField} ${styles.formFieldFull}`}>
+                    <label className={styles.fieldLabel} htmlFor="vendor-mail-requirement">Project brief *</label>
+                    <textarea
+                      ref={briefRef}
+                      id="vendor-mail-requirement"
+                      className={`${styles.textArea} ${styles.briefArea} ${contentErrors.requirement ? styles.inputError : ''}`}
+                      value={mailContent.requirement}
+                      onChange={handleRequirementChange}
+                      disabled={isSending}
+                      rows={10}
+                      placeholder="Describe the project requirements..."
+                    />
+                    {contentErrors.requirement ? (
+                      <span className={styles.errorText}>{contentErrors.requirement}</span>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.previewToggleSection}>
+                <button
+                  type="button"
+                  className={styles.previewToggleBtn}
+                  onClick={() => setShowPreview((value) => !value)}
+                  disabled={isSending}
+                >
+                  {showPreview ? 'Hide email preview' : 'Show email preview'}
+                  {isRefreshingPreview && showPreview ? ' (updating…)' : ''}
+                </button>
+
+                {showPreview ? (
+                  <div className={styles.previewWrap}>
+                    <div
+                      className={styles.previewContent}
+                      dangerouslySetInnerHTML={{ __html: previewHtml || '' }}
+                    />
+                  </div>
+                ) : null}
+              </div>
             </div>
 
             <div className={styles.actionsBlock}>
