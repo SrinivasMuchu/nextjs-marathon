@@ -6,6 +6,7 @@ import Link from 'next/link';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { BASE_URL } from '@/config';
 import { fetchCadTagsPage } from '@/api/cadTagsApi';
+import { fetchTwoDLibraryCategories } from '@/api/twoDLibraryDesignsApi';
 import { buildTwoDLibraryDesignsParams } from '@/api/twoDLibraryDesignsApi';
 import {
   formatLibraryResultsCount,
@@ -16,7 +17,6 @@ import ServerBreadCrumbs from '../CommonJsx/ServerBreadCrumbs';
 import Footer from '../HomePages/Footer/Footer';
 import LibraryListingPageJsonLd from '../JsonLdSchemas/LibraryListingPageJsonLd';
 import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
-import LibraryHireCtaCard from './LibraryHireCtaCard';
 import LibraryLayoutWithFilters from './LibraryLayoutWithFilters';
 import SortBySelect from './SortBySelect';
 import TwoDLibraryCard from './TwoDLibraryCard';
@@ -26,7 +26,7 @@ import {
   TWO_D_LIBRARY_H1,
   TWO_D_LIBRARY_INTRO,
   TWO_D_LIBRARY_DESCRIPTION,
-  TWO_D_SOURCE_FORMAT_FILTER_OPTIONS,
+  TWO_D_LIBRARY_BASE,
   get2DLibraryPathWithQuery,
   hasTwoDLibraryNarrowingFilters,
 } from '@/data/twoDLibraryPage';
@@ -45,15 +45,15 @@ function build2dLibraryHref(params) {
     free_paid: params.free_paid,
     file_format: params.file_format,
     output_format: params.output_format,
-    sheet_count: params.sheet_count,
     projection: params.projection,
   });
 }
 
 export default async function TwoDLibrary({
   searchParams,
-  basePath = '/library/2d-technical-drawings',
+  basePath = TWO_D_LIBRARY_BASE,
 }) {
+  const listRootPath = TWO_D_LIBRARY_BASE;
   const searchQuery = searchParams?.search || '';
   const category = searchParams?.category || '';
   const page = parseInt(searchParams?.page, 10) || 1;
@@ -65,7 +65,6 @@ export default async function TwoDLibrary({
   const freePaid = searchParams?.free_paid || '';
   const fileFormat = searchParams?.file_format || '';
   const outputFormat = searchParams?.output_format || '';
-  const sheetCount = searchParams?.sheet_count || '';
   const projection = searchParams?.projection || '';
 
   const cookieStore = cookies();
@@ -80,7 +79,6 @@ export default async function TwoDLibrary({
     free_paid: freePaid,
     file_format: fileFormat,
     output_format: outputFormat,
-    sheet_count: sheetCount,
     projection,
     page,
     limit,
@@ -99,13 +97,11 @@ export default async function TwoDLibrary({
       throw err;
     });
 
-  const [response, categoriesRes, tagsFirstPage] = await Promise.all([
+  const [response, allCategories, tagsFirstPage] = await Promise.all([
     designsRequest,
-    axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
-    fetchCadTagsPage(0, 10, null, category || null),
+    fetchTwoDLibraryCategories(),
+    fetchCadTagsPage(0, 10, null, category || null, true),
   ]);
-
-  const allCategories = categoriesRes.data?.data || [];
   const data = response.data;
 
   if (data?.meta?.success === false && data?.meta?.message === 'Page not found') {
@@ -126,7 +122,6 @@ export default async function TwoDLibrary({
     free_paid: freePaid,
     file_format: fileFormat,
     output_format: outputFormat,
-    sheet_count: sheetCount,
     projection,
   });
 
@@ -167,7 +162,7 @@ export default async function TwoDLibrary({
 
   const breadcrumbSchemaLinks = [
     { label: 'Library', href: '/library' },
-    { label: '2D Technical Drawings', href: basePath },
+    { label: '2D Technical Drawings', href: listRootPath },
   ];
   if (categoryLabel) {
     breadcrumbSchemaLinks.push({ label: categoryLabel });
@@ -193,9 +188,9 @@ export default async function TwoDLibrary({
         getItemPath={(design) => {
           const route = String(design?.route || '').trim();
           if (route) {
-            return `${basePath}/${encodeURIComponent(route)}`;
+            return `${listRootPath}/${encodeURIComponent(route)}`;
           }
-          return `${basePath}/${design._id}`;
+          return `${listRootPath}/${design._id}`;
         }}
       />
       <ServerBreadCrumbs links={breadcrumbSchemaLinks} />
@@ -213,7 +208,7 @@ export default async function TwoDLibrary({
             <span className={styles['library-hero-breadcrumb-sep']}>/</span>
             {categoryLabel || tagLabel ? (
               <>
-                <Link href={basePath} className={styles['library-hero-breadcrumb-link']}>
+                <Link href={listRootPath} className={styles['library-hero-breadcrumb-link']}>
                   2D Library
                 </Link>
                 <span className={styles['library-hero-breadcrumb-sep']}>/</span>
@@ -233,7 +228,7 @@ export default async function TwoDLibrary({
           <div className={styles['library-category-tags-wrap']}>
             <div className={styles['library-category-tags']}>
               <Link
-                href={basePath}
+                href={listRootPath}
                 className={
                   styles['library-category-tag'] +
                   (!category ? ` ${styles['library-category-tag-active']}` : '')
@@ -273,14 +268,12 @@ export default async function TwoDLibrary({
               initialFreePaid: freePaid,
               initialFileFormat: fileFormat,
               initialOutputFormat: outputFormat,
-              initialSheetCount: sheetCount,
               initialProjection: projection,
               hasActiveFilters: hasFilters,
               libraryListMode: '2d',
-              resetListHref: basePath,
-              fileFormatLabel: 'Source CAD format',
-              fileFormatOptions: TWO_D_SOURCE_FORMAT_FILTER_OPTIONS,
-              show2DExtraFilters: true,
+              library2d: true,
+              resetListHref: listRootPath,
+              show2DExtraFilters: false,
             }}
             contentHead={
               <>
@@ -339,14 +332,6 @@ export default async function TwoDLibrary({
                         <LeftRightBanner adSlot="4799748492" />
                       </div>
                     )}
-                    {index === 4 && (
-                      <div
-                        className={`${styles['library-designs-items-container']} ${styles.libraryHireCtaSlot}`}
-                      >
-                        <LibraryHireCtaCard />
-                      </div>
-                    )}
-
                     <TwoDLibraryCard design={design} />
 
                     {index === FIRST_GRID_SIZE - 1 && !categoryLabel && !tagLabel ? (
@@ -354,13 +339,6 @@ export default async function TwoDLibrary({
                     ) : null}
                   </React.Fragment>
                 ))}
-                {designs.length > 0 && designs.length < 5 && (
-                  <div
-                    className={`${styles['library-designs-items-container']} ${styles.libraryHireCtaSlot}`}
-                  >
-                    <LibraryHireCtaCard />
-                  </div>
-                )}
               </div>
 
               <div className={styles['library-pagination']}>
@@ -376,7 +354,6 @@ export default async function TwoDLibrary({
                       free_paid: freePaid,
                       file_format: fileFormat,
                       output_format: outputFormat,
-                      sheet_count: sheetCount,
                       projection,
                     })}
                     className={styles['pagination-button']}
@@ -402,7 +379,6 @@ export default async function TwoDLibrary({
                       free_paid: freePaid,
                       file_format: fileFormat,
                       output_format: outputFormat,
-                      sheet_count: sheetCount,
                       projection,
                     })}
                     className={`${styles['pagination-button']} ${dataPage === p ? styles.active : ''}`}
@@ -427,7 +403,6 @@ export default async function TwoDLibrary({
                       free_paid: freePaid,
                       file_format: fileFormat,
                       output_format: outputFormat,
-                      sheet_count: sheetCount,
                       projection,
                     })}
                     className={styles['pagination-button']}

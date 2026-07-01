@@ -31,7 +31,14 @@ export async function generateMetadata({ params, searchParams }) {
 
         if (design) {
           const productName = design.page_title || design.part_name || '3D CAD Model';
-          const { title, description } = buildLibraryDetailMetadata(productName);
+          const { title, description } = buildLibraryDetailMetadata(
+            productName,
+            design.file_type,
+            {
+              categoryLabels: design.category_labels,
+              tagLabels: design.tag_labels,
+            }
+          );
 
           return buildPageMetadata({
             title,

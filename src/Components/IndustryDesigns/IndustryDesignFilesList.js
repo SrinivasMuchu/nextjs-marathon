@@ -2,9 +2,12 @@ import React from 'react'
 import styles from './IndustryDesign.module.css'
 
 import DownloadClientButton from '../CommonJsx/DownloadClientButton';
+import {
+  formatLibraryFileType,
+  getFormatDownloadLabel,
+} from '@/lib/seo/libraryProductDetail';
 
-function IndustryDesignFilesList({ designData }) {
-    // Static view names with their corresponding view directions
+function IndustryDesignFilesList({ designData, isLibraryDetail = false }) {
     const viewDirections = [
         { name: "Front View", x: 0, y: 0 },
         { name: "Top View", x: 0, y: 90 },
@@ -17,13 +20,16 @@ function IndustryDesignFilesList({ designData }) {
     const isDxfOrDwg = designData?.file_type &&
         ['dxf', 'dwg'].includes(String(designData.file_type).toLowerCase());
 
-    // Get the file ID from designData (assuming designData has at least one file)
+    const fileType = designData.file_type ? designData.file_type : 'step';
+    const formatLabel = formatLibraryFileType(fileType);
+    const designFileDownloadLabel = isLibraryDetail
+      ? getFormatDownloadLabel(fileType)
+      : undefined;
 
     return (
         <div className={styles['industry-design-files']}>
 
             <div className={styles['industry-design-files-bottom']}>
-                {/* <span className={styles['industry-design-files-count']}>Files {viewDirections.length+1}</span> */}
                 <table className={styles['industry-design-files-list']}>
                     <thead>
                         <tr>
@@ -35,15 +41,20 @@ function IndustryDesignFilesList({ designData }) {
                     <tbody>
                         <tr>
                             <td data-label="View Name"><span className={styles['industry-design-files-cell-content']}>Design file</span></td>
-                            <td data-label="Extension"><span className={styles['industry-design-files-cell-content']}>{designData.file_type ? designData.file_type : 'step'}</span></td>
+                            <td data-label="Extension">
+                              <span className={styles['industry-design-files-cell-content']}>
+                                {isLibraryDetail ? `Format: ${formatLabel}` : fileType}
+                              </span>
+                            </td>
                             <td data-label="Action">
 
                                 <DownloadClientButton folderId={designData._id} isDownladable={designData.is_downloadable} step={true}
-                                    filetype={designData.file_type} designDetails={{
-                                        title: designData.page_title, // You can pass actual design title here
-                                        description: designData.page_description, // You can pass actual design description here
-                                        price: designData.price, // Use the designPrice prop
-                                        // Add other design details as needed
+                                    filetype={fileType}
+                                    downloadButtonLabel={designFileDownloadLabel}
+                                    designDetails={{
+                                        title: designData.page_title,
+                                        description: designData.page_description,
+                                        price: designData.price,
                                     }} />
 
                             </td>

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import React from 'react'
+import { cleanLibraryProductName } from '@/lib/seo/libraryProductDetail'
 import styles from './IndustryDesign.module.css'
 import { FaStar, FaRegStar } from 'react-icons/fa'
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats'
@@ -7,8 +8,11 @@ import NameProfile from '../CommonJsx/NameProfile'
 import IndustryDetailsEditButton from './IndustryDetailsEditButton'
 import DesignLike from './DesignLike'
 
-function IndustryHeaderDetails({ designData }) {
+function IndustryHeaderDetails({ designData, isLibraryDetail = false }) {
   const res = designData?.response || {}
+  const displayTitle = isLibraryDetail
+    ? cleanLibraryProductName(res.page_title || res.part_name)
+    : res.page_title
   const averageRating = res.average_rating != null ? Number(res.average_rating) : null
   const ratingCount = res.rating_count != null ? Number(res.rating_count) : 0
   const fullStars = averageRating != null ? Math.round(averageRating) : 0
@@ -26,7 +30,7 @@ function IndustryHeaderDetails({ designData }) {
   return (
     <div className={styles.industryDesignHeaderDetails}>
       <div className={styles.industryDesignHeaderDetailsTitleRow}>
-        <h1>{res.page_title}</h1>
+        <h1>{displayTitle}</h1>
         <DesignLike designId={res._id} />
       </div>
 

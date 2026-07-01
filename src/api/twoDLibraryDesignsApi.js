@@ -1,6 +1,16 @@
+import axios from 'axios';
+import { BASE_URL } from '@/config';
 import { LIBRARY_PARAMS } from './libraryDesignsApi';
 
 export const TWO_D_LIBRARY_ENDPOINT = '/v1/cad/get-category-design';
+
+/** Categories for 2D library — sourced from Elasticsearch via API. */
+export async function fetchTwoDLibraryCategories() {
+  const { data } = await axios.get(`${BASE_URL}/v1/cad/get-categories?library_2d=1`, {
+    cache: 'no-store',
+  });
+  return Array.isArray(data?.data) ? data.data : [];
+}
 
 export function buildTwoDLibraryDesignsParams(filters) {
   const {
@@ -12,7 +22,6 @@ export function buildTwoDLibraryDesignsParams(filters) {
     free_paid = '',
     file_format = '',
     output_format = '',
-    sheet_count = '',
     projection = '',
     page = 1,
     limit = 22,
@@ -30,7 +39,6 @@ export function buildTwoDLibraryDesignsParams(filters) {
   params[LIBRARY_PARAMS.two_dims] = '1';
   params.library_2d = '1';
   if (output_format) params.output_format = output_format;
-  if (sheet_count) params.sheet_count = sheet_count;
   if (projection) params.projection = projection;
   params[LIBRARY_PARAMS.page] = String(page);
   params[LIBRARY_PARAMS.limit] = String(limit);

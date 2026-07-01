@@ -4,7 +4,6 @@ import Footer from "../HomePages/Footer/Footer";
 import DesignHub from "../HomePages/DesignHub/DesignHub";
 import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
 import TwoDSourceCadModelBlock from "./TwoDSourceCadModelBlock";
-import LibraryDesignPageBanner from "../CadServicesBanners/LibraryDesignPageBanner";
 import StickyCadStrip from "../CadServicesBanners/StickyCadStrip";
 import TwoDTechnicalDrawingHero from "./TwoDTechnicalDrawingHero";
 import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
@@ -57,7 +56,6 @@ export default function TwoDTechnicalDrawingPage({
       <DesignHub headingLevel={3} />
       <RecentlyAddedDesigns />
       <TwoDSourceCadModelBlock cadModelHref={cadModelHref} />
-      <LibraryDesignPageBanner />
       <StickyCadStrip />
       <Footer />
     </>

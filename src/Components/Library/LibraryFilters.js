@@ -11,7 +11,6 @@ import { getLibraryPathWithQuery } from '@/common.helper';
 import { LIBRARY_FILE_FORMAT_FILTERS } from '@/data/libraryPage';
 import {
   TWO_D_OUTPUT_FORMAT_FILTER_OPTIONS,
-  TWO_D_SHEET_COUNT_FILTERS,
   TWO_D_PROJECTION_FILTERS,
   get2DLibraryPathWithQuery,
 } from '@/data/twoDLibraryPage';
@@ -56,7 +55,6 @@ export default function LibraryFilters({
   fileFormatOptions = LIBRARY_FILE_FORMAT_FILTERS,
   show2DExtraFilters = false,
   initialOutputFormat = '',
-  initialSheetCount = '',
   initialProjection = '',
   hasActiveFilters,
   tagsHasMore,
@@ -85,7 +83,6 @@ export default function LibraryFilters({
   const [localOutputFormats, setLocalOutputFormats] = useState(() =>
     (initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean)
   );
-  const [localSheetCount, setLocalSheetCount] = useState(initialSheetCount || '');
   const [localProjection, setLocalProjection] = useState(initialProjection || '');
   const prevSheetOpenRef = React.useRef(false);
 
@@ -100,11 +97,10 @@ export default function LibraryFilters({
       setLocalCategory(category || '');
       setLocalTag(tags || '');
       setLocalOutputFormats((initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean));
-      setLocalSheetCount(initialSheetCount || '');
       setLocalProjection(initialProjection || '');
     }
     prevSheetOpenRef.current = !!sheetOpen;
-  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, initialOutputFormat, initialSheetCount, initialProjection, category, tags]);
+  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, initialOutputFormat, initialProjection, category, tags]);
 
   const tagSearch = typeof onTagSearchChange === 'function' ? (tagSearchProp ?? '') : tagSearchLocal;
   const setTagSearch = typeof onTagSearchChange === 'function' ? onTagSearchChange : setTagSearchLocal;
@@ -123,7 +119,6 @@ export default function LibraryFilters({
       file_format: initialFileFormat,
       two_dims: initialTwoDims,
       output_format: initialOutputFormat,
-      sheet_count: initialSheetCount,
       projection: initialProjection,
       page: 1,
     };
@@ -139,7 +134,6 @@ export default function LibraryFilters({
     initialFileFormat,
     initialTwoDims,
     initialOutputFormat,
-    initialSheetCount,
     initialProjection,
     libraryListMode,
   ]);
@@ -153,7 +147,6 @@ export default function LibraryFilters({
   const displayTag = inSheet ? localTag : tags;
   const displayRecency = inSheet ? localRecency : initialRecency;
   const displayFreePaid = inSheet ? localFreePaid : initialFreePaid;
-  const displaySheetCount = inSheet ? localSheetCount : initialSheetCount;
   const displayProjection = inSheet ? localProjection : initialProjection;
 
   /* URL for Apply Filters – used as Link href on mobile so navigation is a real link */
@@ -168,7 +161,6 @@ export default function LibraryFilters({
         free_paid: localFreePaid || undefined,
         file_format: localFormats.length ? localFormats.join(',') : undefined,
         output_format: localOutputFormats.length ? localOutputFormats.join(',') : undefined,
-        sheet_count: localSheetCount || undefined,
         projection: localProjection || undefined,
         two_dims: libraryListMode === '3d' ? initialTwoDims || undefined : undefined,
         page: 1,
@@ -183,7 +175,6 @@ export default function LibraryFilters({
       localFreePaid,
       localFormats,
       localOutputFormats,
-      localSheetCount,
       localProjection,
       initialTwoDims,
       libraryListMode,
@@ -423,6 +414,8 @@ export default function LibraryFilters({
         </div>
       </div>
 
+      {/* Source CAD format — hidden on 2D library for now */}
+      {libraryListMode !== '2d' && (
       <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>{fileFormatLabel}</span>
         <div className={styles['library-filters-format-chips']}>
@@ -461,8 +454,10 @@ export default function LibraryFilters({
           })}
         </div>
       </div>
+      )}
 
-      {show2DExtraFilters && (
+      {/* Output format + projection type — hidden on 2D library for now */}
+      {false && show2DExtraFilters && (
         <>
           <div className={styles['library-filters-section']}>
             <span className={styles['library-filters-label']}>Output format</span>
@@ -497,38 +492,6 @@ export default function LibraryFilters({
                     }
                   >
                     {label}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className={styles['library-filters-section']}>
-            <span className={styles['library-filters-label']}>Number of sheets</span>
-            <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Number of sheets">
-              {TWO_D_SHEET_COUNT_FILTERS.map(({ value, label }) => {
-                const isActive = (displaySheetCount || '') === value;
-                const url = buildLibraryUrl({ sheet_count: value || undefined });
-                return inSheet ? (
-                  <label key={value || 'any-sheets'} className={styles['library-filters-radio-label']}>
-                    <input
-                      type="radio"
-                      name="sheet-count"
-                      checked={isActive}
-                      onChange={() => setLocalSheetCount(value)}
-                      className={styles['library-filters-radio']}
-                    />
-                    <span>{label}</span>
-                  </label>
-                ) : (
-                  <Link
-                    key={value || 'any-sheets'}
-                    href={url}
-                    className={styles['library-filters-radio-label'] + (isActive ? ` ${styles['library-filters-radio-active']}` : '')}
-                    aria-checked={isActive}
-                    role="radio"
-                  >
-                    <span>{label}</span>
                   </Link>
                 );
               })}

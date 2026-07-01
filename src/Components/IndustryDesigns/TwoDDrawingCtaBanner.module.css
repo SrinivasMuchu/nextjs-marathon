@@ -61,6 +61,13 @@
   gap: 20px 24px;
 }
 
+.ctaButtons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
 .btnWhite {
   display: inline-flex;
   align-items: center;
@@ -83,6 +90,34 @@
 }
 
 .btnWhite:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.btnOutline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 11px 20px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btnOutline:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #fff;
+}
+
+.btnOutline:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 3px;
 }

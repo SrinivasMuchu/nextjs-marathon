@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { TWO_D_POPULAR_CATEGORIES } from '@/data/twoDLibraryPage';
+import { TWO_D_POPULAR_CATEGORIES, get2DLibraryPath } from '@/data/twoDLibraryPage';
 import gridStyles from './Library.module.css';
 import hireStyles from './LibraryHireCtaCard.module.css';
 import styles from './LibraryBottomSections.module.css';
@@ -32,7 +32,7 @@ export default function TwoDLibraryBottomSections() {
         id="popular-2d-categories"
         title="Popular 2D drawing categories"
         items={TWO_D_POPULAR_CATEGORIES}
-        getHref={(item) => `/library/2d-technical-drawings?category=${encodeURIComponent(item.slug)}`}
+        getHref={(item) => get2DLibraryPath({ categoryName: item.slug })}
       />
       <div className={`${gridStyles['library-designs-items-container']} ${gridStyles.libraryHireCtaSlot}`}>
         <div className={`${hireStyles.card} ${styles.browseCard}`}>

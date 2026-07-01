@@ -1,10 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
-import { getProductDetailToolLinks } from '@/data/crossTemplateLinks';
+import { getLibraryProductDetailToolLinks } from '@/lib/seo/libraryProductDetail';
 import styles from './CrossTemplateLinks.module.css';
 
-export default function ProductDetailToolLinks({ fileType }) {
-  const links = getProductDetailToolLinks(fileType);
+export default function ProductDetailToolLinks({
+  fileType,
+  hasTwoDDrawings = false,
+  twoDDrawingHref = '',
+}) {
+  const links = getLibraryProductDetailToolLinks(fileType, {
+    hasTwoDDrawings,
+    twoDDrawingHref,
+  });
   if (!links.length) return null;
 
   return (

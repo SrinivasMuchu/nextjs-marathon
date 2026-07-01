@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import FallbackImageClient from '../CommonJsx/FallbackImageClient';
+import DesignStats from '../CommonJsx/DesignStats';
+import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import {
   TWO_D_DEFAULT_OUTPUT_FORMATS,
   TWO_D_DEFAULT_PROJECTION,
@@ -8,7 +10,7 @@ import {
   TWO_D_DRAWING_TYPE,
 } from '@/data/twoDLibraryPage';
 import styles from './Library.module.css';
-import cardStyles from './TwoDLibraryCard.module.css';
+import cardStyles from './LibraryProductCard.module.css';
 
 function sheetLabel(design) {
   const n = Number(design?.two_d_sheet_count);
@@ -20,7 +22,7 @@ function sheetLabel(design) {
 
 function sectionCutsLabel(design) {
   const n = Number(design?.two_d_section_cuts);
-  if (Number.isFinite(n) && n >= 0) {
+  if (Number.isFinite(n) && n > 0) {
     return n === 1 ? '1 section cut' : `${n} section cuts`;
   }
   return 'Section cuts included';
@@ -36,7 +38,9 @@ export default function TwoDLibraryCard({ design }) {
   const previewSrc = design?._id
     ? `/api/techdraw-file?designId=${encodeURIComponent(design._id)}&sheet=1&ext=svg`
     : '';
-  const sourceFormat = String(design.file_type || 'step').toUpperCase();
+  const sourceFormat = String(design.file_type || 'step').toLowerCase();
+  const outputFormats = design.two_d_output_formats || TWO_D_DEFAULT_OUTPUT_FORMATS;
+  const projection = design.two_d_projection || TWO_D_DEFAULT_PROJECTION;
   const priceLabel = design.price ? `$${design.price}` : 'Free';
 
   return (
@@ -60,44 +64,41 @@ export default function TwoDLibraryCard({ design }) {
         <h6 title={title}>{title}</h6>
       </Link>
 
-      <dl className={cardStyles.metaGrid}>
-        <div className={cardStyles.metaRow}>
-          <dt>Drawing type</dt>
-          <dd>{TWO_D_DRAWING_TYPE}</dd>
+      <div className={styles['design-title-wrapper']}>
+        <div
+          className={styles['design-title-text']}
+          style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}
+        >
+          <DesignDetailsStats text={TWO_D_DRAWING_TYPE} type="category" />
+          {design.category_labels?.slice(0, 1).map((label, index) => (
+            <DesignDetailsStats key={`cat-${index}`} text={label} type="category" />
+          ))}
+          <DesignDetailsStats
+            fileType={`.${sourceFormat}`}
+            text={`.${sourceFormat.toUpperCase()}`}
+          />
+          <DesignDetailsStats text={sheetLabel(design)} type="tag" />
+          <DesignDetailsStats text={projection} type="tag" />
+          <div className={styles['design-stats-wrapper']}>
+            <DesignStats
+              views={design.total_design_views ?? 0}
+              downloads={design.total_design_downloads ?? 0}
+            />
+          </div>
         </div>
-        <div className={cardStyles.metaRow}>
-          <dt>Source CAD format</dt>
-          <dd>{sourceFormat}</dd>
-        </div>
-        <div className={cardStyles.metaRow}>
-          <dt>Number of sheets</dt>
-          <dd>{sheetLabel(design)}</dd>
-        </div>
-        <div className={cardStyles.metaRow}>
-          <dt>Available formats</dt>
-          <dd>{design.two_d_output_formats || TWO_D_DEFAULT_OUTPUT_FORMATS}</dd>
-        </div>
-        <div className={cardStyles.metaRow}>
-          <dt>Section cuts</dt>
-          <dd>{sectionCutsLabel(design)}</dd>
-        </div>
-        <div className={cardStyles.metaRow}>
-          <dt>Projection type</dt>
-          <dd>{design.two_d_projection || TWO_D_DEFAULT_PROJECTION}</dd>
-        </div>
-        <div className={cardStyles.metaRow}>
-          <dt>Free or paid</dt>
-          <dd>{priceLabel}</dd>
-        </div>
-      </dl>
+        <span className={styles['design-title-wrapper-price']}>{priceLabel}</span>
+      </div>
 
-      <div className={cardStyles.actions}>
-        <Link href={drawingHref} className={cardStyles.primaryBtn}>
+      <div className={cardStyles.quickLinks}>
+        <Link href={drawingHref} className={cardStyles.quickLink}>
           Open drawing set
         </Link>
-        <Link href={source3dHref} className={cardStyles.secondaryBtn}>
+        <Link href={source3dHref} className={cardStyles.quickLink}>
           Open source 3D CAD
         </Link>
+        <span className={cardStyles.quickLinkMeta}>
+          {outputFormats} · {sectionCutsLabel(design)}
+        </span>
       </div>
     </div>
   );

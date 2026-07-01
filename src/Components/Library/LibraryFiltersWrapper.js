@@ -16,6 +16,7 @@ export default function LibraryFiltersWrapper({
   initialSearchQuery = '',
   category = '',
   tags: selectedTag,
+  library2d = false,
   inSheet,
   sheetOpen,
   onCloseSheet,
@@ -53,7 +54,7 @@ export default function LibraryFiltersWrapper({
     const t = setTimeout(() => {
       const search = tagSearchRef.current.trim() || null;
       const cat = categoryRef.current?.trim() || null;
-      fetchCadTagsPage(0, TAGS_PAGE_SIZE, search, cat)
+      fetchCadTagsPage(0, TAGS_PAGE_SIZE, search, cat, library2d)
         .then(({ data, hasMore }) => {
           setAllTags(data);
           setHasMoreTags(hasMore);
@@ -64,12 +65,12 @@ export default function LibraryFiltersWrapper({
         });
     }, 300);
     return () => clearTimeout(t);
-  }, [tagSearch]);
+  }, [tagSearch, library2d]);
 
   /* When category changes, refetch first page of tags for the new category */
   useEffect(() => {
     const cat = (category || '').trim() || null;
-    fetchCadTagsPage(0, TAGS_PAGE_SIZE, tagSearchRef.current.trim() || null, cat)
+    fetchCadTagsPage(0, TAGS_PAGE_SIZE, tagSearchRef.current.trim() || null, cat, library2d)
       .then(({ data, hasMore }) => {
         setAllTags(data);
         setHasMoreTags(hasMore);
@@ -78,7 +79,7 @@ export default function LibraryFiltersWrapper({
         setAllTags([]);
         setHasMoreTags(false);
       });
-  }, [category]);
+  }, [category, library2d]);
 
   const onLoadMoreTags = useCallback(async () => {
     if (loadingTags || !hasMoreTags) return;
@@ -87,7 +88,7 @@ export default function LibraryFiltersWrapper({
       const offset = allTags.length;
       const search = tagSearchRef.current.trim() || null;
       const cat = categoryRef.current?.trim() || null;
-      const { data: next, hasMore } = await fetchCadTagsPage(offset, TAGS_PAGE_SIZE, search, cat);
+      const { data: next, hasMore } = await fetchCadTagsPage(offset, TAGS_PAGE_SIZE, search, cat, library2d);
       setAllTags((prev) => [...prev, ...next]);
       setHasMoreTags(hasMore);
     } catch (err) {
@@ -95,7 +96,7 @@ export default function LibraryFiltersWrapper({
     } finally {
       setLoadingTags(false);
     }
-  }, [allTags.length, hasMoreTags, loadingTags]);
+  }, [allTags.length, hasMoreTags, loadingTags, library2d]);
 
   return (
     <LibraryFilters

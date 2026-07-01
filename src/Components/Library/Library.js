@@ -27,7 +27,6 @@ import { cookies } from 'next/headers';
 import LibraryListingPageJsonLd from '../JsonLdSchemas/LibraryListingPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
-import LibraryHireCtaCard from './LibraryHireCtaCard';
 import LibraryProductCard from './LibraryProductCard';
 import LibraryBottomSections from './LibraryBottomSections';
 import {
@@ -331,14 +330,6 @@ async function Library({ searchParams, pageConfig = null }) {
                 </div>
               )}
 
-              {index === 4 && (
-                <div
-                  className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
-                >
-                  <LibraryHireCtaCard />
-                </div>
-              )}
-
               <LibraryProductCard design={design} />
 
               {index === FIRST_GRID_SIZE - 1 && !pageConfig && !categoryLabel && !tagLabel ? (
@@ -346,14 +337,6 @@ async function Library({ searchParams, pageConfig = null }) {
               ) : null}
             </React.Fragment>
           ))}
-          {/* Fewer than 5 designs: index 4 never runs — show CTA after last card */}
-          {designs.length > 0 && designs.length < 5 && (
-            <div
-              className={`${styles["library-designs-items-container"]} ${styles.libraryHireCtaSlot}`}
-            >
-              <LibraryHireCtaCard />
-            </div>
-          )}
         </div>
 
         <div className={styles["library-pagination"]}>
