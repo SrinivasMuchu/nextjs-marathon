@@ -94,7 +94,24 @@ function HomeTopNav() {
         >
           Dashboard
         </Link>
-        <Link href="/library" onMouseEnter={() => handleNavHover(null)}>Library</Link>
+        <div
+          style={{ position: "relative" }}
+          onMouseEnter={() => handleNavHover("library")}
+        >
+          <Link
+            href="/library"
+            className={styles["nav-dropdown-trigger"]}
+            onClick={() => setOpenDropdown(null)}
+          >
+            Library <span aria-hidden>▼</span>
+          </Link>
+          {openDropdown === "library" && (
+            <div className={styles["dropdown-menu"]}>
+              <Link href="/library" onClick={() => setOpenDropdown(false)}>3D Library</Link>
+              <Link href="/library/2d-technical-drawings" onClick={() => setOpenDropdown(false)}>2D Library</Link>
+            </div>
+          )}
+        </div>
         <Link
           href="/cad-services"
           className={styles.topCta}

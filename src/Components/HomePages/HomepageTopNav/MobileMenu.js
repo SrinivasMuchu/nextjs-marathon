@@ -93,7 +93,17 @@ function MobileMenu({ onClose, styles }) {
          <Link rel="nofollow" href="/dashboard" onClick={handleDashboardClick}>
            Dashboard
          </Link>
-        <Link href="/library" onClick={handleCloseMenu}>Library</Link>
+        <div className={styles["menu-dropdown"]}>
+          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("library")}>
+            Library ▼
+          </span>
+          {openDropdown === "library" && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Link href="/library" onClick={handleCloseMenu}>3D Library</Link>
+              <Link href="/library/2d-technical-drawings" onClick={handleCloseMenu}>2D Library</Link>
+            </div>
+          )}
+        </div>
         <Link
           href="/cad-services"
           onClick={handleCloseMenu}
