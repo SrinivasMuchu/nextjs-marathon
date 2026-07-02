@@ -63,7 +63,7 @@ function IndustryHowItWorksSection({ industryName }) {
         </div>
 
         <div className={styles.ctaRow}>
-          <Link href="/tools/3D-cad-viewer" className={styles.primaryBtn}>
+          <Link href="/tools/3d-cad-viewer" className={styles.primaryBtn}>
             Upload CAD File
           </Link>
           <Link href="/tools/3d-cad-file-converter" className={styles.secondaryBtn}>

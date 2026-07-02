@@ -50,7 +50,7 @@ export function openTechDrawPayment({ description, jobId } = {}) {
 
         const chargeLabel =
           description ||
-          `2D technical drawing — ${prices.baseLabel} + tax (${prices.totalLabel} total)`;
+          `2D technical drawing — ${prices.totalLabel}`;
 
         const razorpayAmount =
           Number(order.razorpay_amount) > 0

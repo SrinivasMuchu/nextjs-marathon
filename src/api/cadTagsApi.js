@@ -18,12 +18,20 @@ export const TAGS_PAGE_SIZE = 10;
  * @param {number} [limit=10] - Page size
  * @param {string} [search] - Optional search filter
  * @param {string} [category] - Optional category name; when set, returns tags for that category
+ * @param {boolean} [library2d=false] - When true, tags are resolved from Elasticsearch for 2D library
  * @returns {Promise<{ data: Array, total: number, hasMore: boolean }>}
  */
-export async function fetchCadTagsPage(offset = 0, limit = TAGS_PAGE_SIZE, search = null, category = null) {
+export async function fetchCadTagsPage(
+  offset = 0,
+  limit = TAGS_PAGE_SIZE,
+  search = null,
+  category = null,
+  library2d = false
+) {
   const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
   if (search && search.trim()) params.set('search', search.trim());
   if (category && String(category).trim()) params.set('category', String(category).trim());
+  if (library2d) params.set('library_2d', '1');
   const { data } = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`, {
     cache: 'no-store',
   });

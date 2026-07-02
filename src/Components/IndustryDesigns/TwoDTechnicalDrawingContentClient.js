@@ -73,6 +73,8 @@ export default function TwoDTechnicalDrawingContentClient({
   cadModelHref,
   generateHref,
   pdfHref,
+  svgHref,
+  dxfHref,
   freecadHref,
   zipHref,
   showDownloadAllPdfs = true,
@@ -97,6 +99,8 @@ export default function TwoDTechnicalDrawingContentClient({
             cadModelHref={cadModelHref}
             generateHref={generateHref}
             pdfHref={pdfHref}
+            svgHref={svgHref}
+            dxfHref={dxfHref}
             freecadHref={freecadHref}
             zipHref={zipHref}
             showDownloadAllPdfs={showDownloadAllPdfs}

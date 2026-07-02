@@ -1,63 +1,25 @@
 "use client"
-import React,{useState,useEffect} from 'react'
+import React from 'react'
 import cadStyles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
-import { usePathname } from "next/navigation";
+import { getCadViewerFormatConfig, getViewerHeroCopy } from '@/data/cadFormatViewerPages'
 
-function parseFormatFromPath(segment) {
-  if (!segment || typeof segment !== 'string') return '';
-  const match = segment.match(/^(.+)-file-viewer$/);
-  return match ? match[1].toLowerCase() : segment.toLowerCase();
-}
+function CadUploadHeadings({ variant, cadType }) {
+    const config = getCadViewerFormatConfig(cadType)
+    const h1 = config?.h1 || 'Free Online CAD File Viewer'
+    const heroCopy = getViewerHeroCopy(cadType) || ''
+    const isDark = variant === 'dark'
 
-function CadUploadHeadings({ variant }) {
-    const [allowedFormats, setAllowedFormats] = useState([".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj"])
-    const pathname = usePathname();
-    const segment = pathname.split("/")[2] || '';
-    const cadFile = parseFormatFromPath(segment);
-
-    useEffect(() => {
-        if (cadFile) {
-            formateAcceptor(cadFile);
-        }
-    }, [cadFile]);
-    const formateAcceptor = (format) => {
-        if (format === 'step' || format === 'stp') {
-            setAllowedFormats([".step", ".stp"])
-        }
-        if (format === 'iges' || format === 'igs') {
-            setAllowedFormats([".igs", ".iges"])
-        }
-        if (format === 'stl') {
-            setAllowedFormats([".stl"])
-        }
-        if (format === 'ply') {
-            setAllowedFormats([".ply"])
-        }
-        if (format === 'off') {
-            setAllowedFormats([".off"])
-        }
-        if (format === 'brep' || format === 'brp') {
-            setAllowedFormats([".brp", ".brep"])
-        }
-        if (format === 'obj') {
-            setAllowedFormats([".obj"])
-        }
-        // if (cadFile === 'glb') {
-        //     setAllowedFormats([".glb"])
-        // }
-    }
-
-    const formatLabel = cadFile ? cadFile.toUpperCase() : 'CAD';
-    const isDark = variant === 'dark';
     return (
         <div className={isDark ? heroStyles.heroDynamicBlock : cadStyles['cad-landing-left-content']}>
             <h1 className={isDark ? heroStyles.title : cadStyles['cad-landing-heading']}>
-              {formatLabel} File Viewer – Instantly Open &amp; Explore {formatLabel} Files
+              {h1}
             </h1>
-            <p className={isDark ? heroStyles.description : cadStyles['cad-landing-description']}>
-              Effortlessly view and inspect {formatLabel} ({allowedFormats.join(", ")}) files online. Marathon OS CAD Viewer delivers fast, secure, and high-performance rendering with no downloads needed.
-            </p>
+            {heroCopy ? (
+              <p className={isDark ? heroStyles.description : cadStyles['cad-landing-description']}>
+                {heroCopy}
+              </p>
+            ) : null}
         </div>
     )
 }

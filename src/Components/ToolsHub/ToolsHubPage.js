@@ -25,7 +25,7 @@ const HERO_FEATURES = [
 
 const QUICK_TOOLS_CARDS = [
   {
-    href: '/tools/3D-cad-viewer',
+    href: '/tools/3d-cad-viewer',
     title: 'CAD Viewer',
     description:
       'Open and inspect any CAD file instantly in your browser. View STEP, IGES, STL, OBJ, PLY, and more without installing software.',
@@ -91,7 +91,7 @@ const CAD_VIEWER_CARDS = [
     tags: ['Surface', 'Wireframe', 'Legacy'],
   },
   {
-    href: '/tools/3D-cad-viewer',
+    href: '/tools/3d-cad-viewer',
     title: '3MF Viewer',
     description: 'Preview 3MF files optimized for additive manufacturing.',
     tags: ['3D Printing', 'Manufacturing', 'Color'],
@@ -210,7 +210,7 @@ export default function ToolsHubPage() {
               ))}
             </ul>
             <div className={styles.heroActions}>
-              <Link href="/tools/3D-cad-viewer" className={styles.heroPrimaryBtn}>
+              <Link href="/tools/3d-cad-viewer" className={styles.heroPrimaryBtn}>
                 Open CAD Viewer
               </Link>
               <Link href="/tools/3d-cad-file-converter" className={styles.heroSecondaryBtn}>
@@ -369,7 +369,7 @@ export default function ToolsHubPage() {
             converting, and sharing.
           </p>
           <div className={styles.lastCtaActions}>
-            <Link href="/tools/3D-cad-viewer" className={styles.lastCtaPrimary}>
+            <Link href="/tools/3d-cad-viewer" className={styles.lastCtaPrimary}>
               Try Marathon OS Free
             </Link>
             <Link href="/cad-services" className={styles.lastCtaSecondary}>

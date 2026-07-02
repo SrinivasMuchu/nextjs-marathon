@@ -71,6 +71,10 @@ export default function IndustryDesignHeader({ design, designData, type }) {
     }
   };
 
+  const fileType = designData.file_type ? designData.file_type : "step";
+  const primaryDownloadLabel =
+    type === "library" ? "Download CAD model" : undefined;
+
   return (
     
      
@@ -89,8 +93,9 @@ export default function IndustryDesignHeader({ design, designData, type }) {
               folderId={designData._id}
               isDownladable={designData.is_downloadable}
               step={true}
-              filetype={designData.file_type ? designData.file_type : "step"}
+              filetype={fileType}
               designPrice={designData?.price}
+              downloadButtonLabel={primaryDownloadLabel}
               designDetails={{
                 title: designData.page_title,
                 description: designData.page_description,
@@ -116,7 +121,7 @@ export default function IndustryDesignHeader({ design, designData, type }) {
                 <span className={styles.viewerButtonIcon} aria-hidden>
                   🧊
                 </span>
-                {isRequestingViewer ? "Opening" : "Open 3D viewer"}
+                {isRequestingViewer ? "Opening" : type === "library" ? "Open in 3D CAD viewer" : "Open 3D viewer"}
               </button>
             )}
             {showTwoDButton && (

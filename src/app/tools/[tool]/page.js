@@ -1,13 +1,18 @@
 import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDesign';
 import CadFileConversionHome from '@/Components/CadUploadingHome/CadFileConversion/CadFileConversionHome';
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd';
+import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
 import { getConverterFaqQuestions, cadViewerFaqQuestions } from '@/data/cadToolFaqs';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import { converterTypes } from '@/common.helper';
+import {
+  CAD_VIEWER_FORMAT_SLUGS,
+  getViewerPageMetadata,
+  isCadViewerFormatSlug,
+} from '@/data/cadFormatViewerPages';
 import { notFound } from 'next/navigation';
 
-const ALLOWED_CAD_FILES = ['step', 'brep', 'stp', 'off', 'obj', 'iges', 'igs', 'stl', 'brp', 'ply'];
 const BASE_URL = 'https://marathon-os.com';
 
 function parseCadFileFromSegment(segment) {
@@ -24,14 +29,18 @@ export async function generateMetadata({ params }) {
 
   if (isViewer) {
     const cadFile = parseCadFileFromSegment(segment);
-    if (!cadFile || !ALLOWED_CAD_FILES.includes(cadFile)) return { title: 'Not Found' };
-    const cadUpper = cadFile.toUpperCase();
-    const title = `${cadUpper} File Viewer – Instantly Open & Explore ${cadUpper} Files`;
-    const description = `View ${cadUpper} (${cadFile}) files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds.`;
+    if (!cadFile || !isCadViewerFormatSlug(cadFile)) return { title: 'Not Found' };
+    const meta = getViewerPageMetadata(cadFile);
+    if (!meta) return { title: 'Not Found' };
+
     return buildPageMetadata({
-      title,
-      description,
-      canonicalPath: `/tools/${cadFile}-file-viewer`,
+      title: meta.title,
+      description: meta.description,
+      canonicalPath: meta.canonicalPath,
+      pageUrl: meta.canonicalUrl,
+      extra: {
+        alternates: { canonical: meta.canonicalUrl },
+      },
     });
   }
 
@@ -61,20 +70,26 @@ export default function ToolPage({ params }) {
 
   if (isViewer) {
     const cadFile = parseCadFileFromSegment(segment);
-    if (!cadFile || !ALLOWED_CAD_FILES.includes(cadFile)) return notFound();
-    const cadUpper = cadFile.toUpperCase();
-    const softwareName = `${cadUpper} File Viewer`;
-    const softwareUrl = `${BASE_URL}/tools/${cadFile}-file-viewer`;
+    if (!cadFile || !CAD_VIEWER_FORMAT_SLUGS.includes(cadFile)) return notFound();
+    const meta = getViewerPageMetadata(cadFile);
+    if (!meta) return notFound();
+
+    const cadTypeLabel = `${String(cadFile).toUpperCase()} CAD Viewer`;
 
     return (
       <>
         <FaqPageJsonLd faqSchemaData={cadViewerFaqQuestions} />
-        <SoftwareApplicationJsonLd
-          name={softwareName}
-          url={softwareUrl}
-          description={`View ${cadUpper} files online with Marathon OS. No software installation required.`}
+        <ToolPageJsonLd
+          name={meta.h1.replace(/^Free Online /, '')}
+          url={meta.canonicalUrl}
+          description={meta.description}
+          breadcrumbLinks={[
+            { label: 'Tools', href: '/tools' },
+            { label: 'CAD Viewer', href: '/tools/3d-cad-viewer' },
+            { label: cadTypeLabel },
+          ]}
         />
-        <CadHomeDesign type={true} cadType={cadFile} skipPageJsonLd />
+        <CadHomeDesign type={true} cadType={cadFile} skipPageJsonLd skipBreadcrumbSchema />
       </>
     );
   }

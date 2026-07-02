@@ -1,6 +1,7 @@
 export const ADMIN_TABS = [
   'designs',
   'payments',
+  'controls',
   'viewed-list',
   'downloaded-list',
   'searched-list',

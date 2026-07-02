@@ -6,6 +6,7 @@ import TwoDTechnicalDrawingPageClient from "@/Components/IndustryDesigns/TwoDTec
 import TwoDTechnicalDrawingContentClient from "@/Components/IndustryDesigns/TwoDTechnicalDrawingContentClient";
 import { fetchTechDrawBundleForJob } from "@/lib/techDraw/fetchTechDrawBundleFromPrefix";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
+import { buildTwoDDrawingHeroTitle } from "@/lib/techDraw/twoDDrawingPageHelpers";
 import { getJobDisplayTitle } from "./pipelineConstants";
 import { adminHrefForTab } from "@/Components/AdminPannel/adminTabConfig";
 import {
@@ -59,7 +60,7 @@ function mapUserJobToLibraryProps(jobId, job, bundle, { adminMode, getPipelineSt
         ],
     heroProps: {
       ...mapped.heroProps,
-      title: `${title} — 2D Technical Drawing Set (2D CAD drawings)`,
+      title: buildTwoDDrawingHeroTitle(title),
       showFreeDownloadBadge: false,
     },
     cadModelHref: "/tools/cad-drawing-pipeline",

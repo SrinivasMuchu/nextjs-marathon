@@ -10,6 +10,7 @@ import { MdStar } from "react-icons/md";
 import { MdFavorite } from "react-icons/md";
 import { MdEngineering } from "react-icons/md";
 import { MdDraw } from "react-icons/md";
+import { MdTune } from "react-icons/md";
 import { MdStorefront } from "react-icons/md";
 import { FaChevronLeft } from "react-icons/fa";
 
@@ -65,6 +66,15 @@ function AdminSidebar({ collapsed, activeTab, onToggle, onSelect }) {
         >
           <MdOutlinePayments />
           {!collapsed && <span className={styles.label}>Payments</span>}
+        </button>
+        <button
+          type="button"
+          className={`${styles.navItem} ${activeTab === 'controls' ? styles.active : ''}`}
+          onClick={() => onSelect('controls')}
+          title="Controls"
+        >
+          <MdTune />
+          {!collapsed && <span className={styles.label}>Controls</span>}
         </button>
           <button
           type="button"

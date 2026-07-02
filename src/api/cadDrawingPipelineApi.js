@@ -37,6 +37,7 @@ export function getTechDrawPriceDisplay() {
     currency,
     baseLabel: formatTechDrawPrice(base, currency),
     totalLabel: formatTechDrawPrice(total, currency),
+    perSetLabel: `${formatTechDrawPrice(base, currency)} per drawing set`,
   };
 }
 

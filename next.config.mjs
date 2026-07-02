@@ -46,7 +46,7 @@ const nextConfig = {
     return [
       {
         source: '/tools/cad-viewer',
-        destination: '/tools/3D-cad-viewer',
+        destination: '/tools/3d-cad-viewer',
         permanent: true,
       },
       {

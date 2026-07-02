@@ -4,8 +4,9 @@ import { contextState } from '../CommonJsx/ContextProvider';
 import Image from 'next/image';
 import { BASE_URL, IMAGEURLS, USER_PROFILES_PREFIX_URL } from '@/config';
 import styles from './Creators.module.css';
-import axios from 'axios';
+import cadHomeStyles from '../CadUploadingHome/CadHomeDesign/CadHome.module.css';
 import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
+import axios from 'axios';
 
 function CreatorCoverPage({ creatorId, setIsVerified }) {
   
@@ -80,6 +81,13 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
             adSlot="9148469534"
           />
       <div>
+        {!creatorId && (
+          <div className={cadHomeStyles['cad-ad-bar']}>
+            <div className={cadHomeStyles['cad-ad-bar-inner']}>
+              <LeftRightBanner adSlot="9148469534" />
+            </div>
+          </div>
+        )}
         <div className={styles.coverPhotoCont}>
           {/* Always render the input so fileInputRef works */}
           <input

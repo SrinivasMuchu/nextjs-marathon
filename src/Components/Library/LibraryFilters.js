@@ -7,7 +7,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchBar from './SearchFilter';
 import styles from './Library.module.css';
-import { getLibraryPathWithQuery } from '@/common.helper';
+import { getLibraryPathWithQuery, isValidLibraryTagSlug } from '@/common.helper';
+import { LIBRARY_FILE_FORMAT_FILTERS } from '@/data/libraryPage';
+import {
+  TWO_D_OUTPUT_FORMAT_FILTER_OPTIONS,
+  TWO_D_PROJECTION_FILTERS,
+  get2DLibraryPathWithQuery,
+} from '@/data/twoDLibraryPage';
 
 const RECENCY_RADIO = [
   { value: '', label: 'All Time' },
@@ -23,22 +29,14 @@ const FREE_PAID_RADIO = [
   { value: 'paid', label: 'Paid' },
 ];
 
-const FILE_FORMAT_CHECKBOXES = [
-  { value: 'STEP', label: '.STEP' },
-  { value: 'STP', label: '.STP' },
-  { value: 'STL', label: '.STL' },
-  { value: 'PLY', label: '.PLY' },
-  { value: 'OFF', label: '.OFF' },
-  { value: 'IGS', label: '.IGS' },
-  { value: 'IGES', label: '.IGES' },
-  { value: 'BRP', label: '.BRP' },
-  { value: 'BREP', label: '.BREP' },
-  { value: 'OBJ', label: '.OBJ' },
-  { value: 'DXF', label: '.DXF' },
-  { value: 'DWG', label: '.DWG' },
-];
-
 const TAGS_PAGE_SIZE = 10;
+
+function buildFiltersListUrl(libraryListMode, params) {
+  if (libraryListMode === '2d') {
+    return get2DLibraryPathWithQuery(params);
+  }
+  return getLibraryPathWithQuery(params);
+}
 
 export default function LibraryFilters({
   category,
@@ -51,6 +49,13 @@ export default function LibraryFilters({
   initialFreePaid,
   initialFileFormat,
   initialTwoDims = '',
+  libraryListMode = '3d',
+  resetListHref = '/library',
+  fileFormatLabel = 'File Format',
+  fileFormatOptions = LIBRARY_FILE_FORMAT_FILTERS,
+  show2DExtraFilters = false,
+  initialOutputFormat = '',
+  initialProjection = '',
   hasActiveFilters,
   tagsHasMore,
   onLoadMoreTags,
@@ -75,6 +80,10 @@ export default function LibraryFilters({
   );
   const [localCategory, setLocalCategory] = useState(category || '');
   const [localTag, setLocalTag] = useState(tags || '');
+  const [localOutputFormats, setLocalOutputFormats] = useState(() =>
+    (initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean)
+  );
+  const [localProjection, setLocalProjection] = useState(initialProjection || '');
   const prevSheetOpenRef = React.useRef(false);
 
   /* Sync local state from URL when sheet opens (mobile) */
@@ -87,9 +96,11 @@ export default function LibraryFilters({
       setLocalFormats((initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean));
       setLocalCategory(category || '');
       setLocalTag(tags || '');
+      setLocalOutputFormats((initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean));
+      setLocalProjection(initialProjection || '');
     }
     prevSheetOpenRef.current = !!sheetOpen;
-  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, category, tags]);
+  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, initialOutputFormat, initialProjection, category, tags]);
 
   const tagSearch = typeof onTagSearchChange === 'function' ? (tagSearchProp ?? '') : tagSearchLocal;
   const setTagSearch = typeof onTagSearchChange === 'function' ? onTagSearchChange : setTagSearchLocal;
@@ -97,32 +108,51 @@ export default function LibraryFilters({
   const useTagsApiPagination = typeof onLoadMoreTags === 'function';
 
   /* Desktop: build URL from current URL state (props). Sheet: use local state. */
-  const buildLibraryUrl = useMemo(
-    () => (overrides = {}) =>
-      getLibraryPathWithQuery({
-        categoryName: category || null,
-        tagName: tags || null,
-        search: initialSearchQuery,
-        sort: initialSort,
-        recency: initialRecency,
-        free_paid: initialFreePaid,
-        file_format: initialFileFormat,
-        two_dims: initialTwoDims,
-        page: 1,
-        ...overrides,
-      }),
-    [category, tags, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims]
-  );
+  const buildListUrl = useMemo(() => {
+    const baseParams = {
+      categoryName: category || null,
+      tagName: tags || null,
+      search: initialSearchQuery,
+      sort: initialSort,
+      recency: initialRecency,
+      free_paid: initialFreePaid,
+      file_format: initialFileFormat,
+      two_dims: initialTwoDims,
+      output_format: initialOutputFormat,
+      projection: initialProjection,
+      page: 1,
+    };
+    return (overrides = {}) =>
+      buildFiltersListUrl(libraryListMode, { ...baseParams, ...overrides });
+  }, [
+    category,
+    tags,
+    initialSearchQuery,
+    initialSort,
+    initialRecency,
+    initialFreePaid,
+    initialFileFormat,
+    initialTwoDims,
+    initialOutputFormat,
+    initialProjection,
+    libraryListMode,
+  ]);
+
+  const buildLibraryUrl = buildListUrl;
 
   const selectedFormats = inSheet ? localFormats : (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+  const selectedOutputFormats = inSheet
+    ? localOutputFormats
+    : (initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
   const displayTag = inSheet ? localTag : tags;
   const displayRecency = inSheet ? localRecency : initialRecency;
   const displayFreePaid = inSheet ? localFreePaid : initialFreePaid;
+  const displayProjection = inSheet ? localProjection : initialProjection;
 
   /* URL for Apply Filters – used as Link href on mobile so navigation is a real link */
   const applyFiltersUrl = useMemo(
     () =>
-      getLibraryPathWithQuery({
+      buildFiltersListUrl(libraryListMode, {
         categoryName: (localCategory || category) || null,
         tagName: localTag || null,
         search: (localSearch || '').trim() || undefined,
@@ -130,10 +160,25 @@ export default function LibraryFilters({
         recency: localRecency || undefined,
         free_paid: localFreePaid || undefined,
         file_format: localFormats.length ? localFormats.join(',') : undefined,
-        two_dims: initialTwoDims || undefined,
+        output_format: localOutputFormats.length ? localOutputFormats.join(',') : undefined,
+        projection: localProjection || undefined,
+        two_dims: libraryListMode === '3d' ? initialTwoDims || undefined : undefined,
         page: 1,
       }),
-    [category, localCategory, localTag, localSearch, localSort, localRecency, localFreePaid, localFormats, initialTwoDims]
+    [
+      category,
+      localCategory,
+      localTag,
+      localSearch,
+      localSort,
+      localRecency,
+      localFreePaid,
+      localFormats,
+      localOutputFormats,
+      localProjection,
+      initialTwoDims,
+      libraryListMode,
+    ]
   );
 
   /* Normalize tags array (backend may not return count; we only need the list) */
@@ -176,13 +221,23 @@ export default function LibraryFilters({
     router.push(buildLibraryUrl({ file_format: next.length ? next.join(',') : undefined }));
   };
 
+  const toggleOutputFormat = (formatValue, checked) => {
+    const current = selectedOutputFormats;
+    const next = checked ? [...current, formatValue] : current.filter((f) => f !== formatValue);
+    if (inSheet) {
+      setLocalOutputFormats(next);
+      return;
+    }
+    router.push(buildLibraryUrl({ output_format: next.length ? next.join(',') : undefined }));
+  };
+
   return (
     <div className={styles['library-filters-inner']}>
       {!inSheet && (
         <div className={styles['library-filters-head']}>
           <h2 className={styles['library-filters-title']}>Filters</h2>
           {hasActiveFilters && (
-            <Link href="/library" className={styles['library-filters-reset']}>
+            <Link href={resetListHref} className={styles['library-filters-reset']}>
               Reset filters
             </Link>
           )}
@@ -289,7 +344,8 @@ export default function LibraryFilters({
         <div className={styles['library-filters-tags-scroll']}>
           <div className={styles['library-filters-tag-pills']}>
             {tagsToShow.map((tag) => {
-              const tagValue = tag?.cad_tag_name ?? tag?.name ?? tag?._id ?? '';
+              const tagValue = tag?.cad_tag_name ?? tag?.name ?? '';
+              if (!tagValue || !isValidLibraryTagSlug(tagValue)) return null;
               const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
               const isActive = displayTag === tagValue;
               /* With category: /library/categoryname/tagname; without: /library/tag/tagname */
@@ -359,22 +415,123 @@ export default function LibraryFilters({
         </div>
       </div>
 
+      {/* Source CAD format — hidden on 2D library for now */}
+      {libraryListMode !== '2d' && (
       <div className={styles['library-filters-section']}>
-        <span className={styles['library-filters-label']}>File Format</span>
-        <div className={styles['library-filters-checkbox-group']}>
-          {FILE_FORMAT_CHECKBOXES.map(({ value, label }) => (
-            <label key={value} className={styles['library-filters-checkbox-label']}>
-              <input
-                type="checkbox"
-                checked={selectedFormats.includes(value)}
-                onChange={(e) => toggleFileFormat(value, e.target.checked)}
-                className={styles['library-filters-checkbox']}
-              />
-              <span>{label}</span>
-            </label>
-          ))}
+        <span className={styles['library-filters-label']}>{fileFormatLabel}</span>
+        <div className={styles['library-filters-format-chips']}>
+          {fileFormatOptions.map(({ value, label }) => {
+            const isActive = selectedFormats.includes(value);
+            const nextFormats = isActive
+              ? selectedFormats.filter((f) => f !== value)
+              : [...selectedFormats, value];
+            const formatUrl = buildLibraryUrl({
+              file_format: nextFormats.length ? nextFormats.join(',') : undefined,
+            });
+            return inSheet ? (
+              <button
+                key={value}
+                type="button"
+                className={
+                  styles['library-filters-format-chip'] +
+                  (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')
+                }
+                onClick={() => toggleFileFormat(value, !isActive)}
+              >
+                {label}
+              </button>
+            ) : (
+              <Link
+                key={value}
+                href={formatUrl}
+                className={
+                  styles['library-filters-format-chip'] +
+                  (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')
+                }
+              >
+                {label}
+              </Link>
+            );
+          })}
         </div>
       </div>
+      )}
+
+      {/* Output format + projection type — hidden on 2D library for now */}
+      {false && show2DExtraFilters && (
+        <>
+          <div className={styles['library-filters-section']}>
+            <span className={styles['library-filters-label']}>Output format</span>
+            <div className={styles['library-filters-format-chips']}>
+              {TWO_D_OUTPUT_FORMAT_FILTER_OPTIONS.map(({ value, label }) => {
+                const isActive = selectedOutputFormats.includes(value);
+                const nextFormats = isActive
+                  ? selectedOutputFormats.filter((f) => f !== value)
+                  : [...selectedOutputFormats, value];
+                const formatUrl = buildLibraryUrl({
+                  output_format: nextFormats.length ? nextFormats.join(',') : undefined,
+                });
+                return inSheet ? (
+                  <button
+                    key={value}
+                    type="button"
+                    className={
+                      styles['library-filters-format-chip'] +
+                      (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')
+                    }
+                    onClick={() => toggleOutputFormat(value, !isActive)}
+                  >
+                    {label}
+                  </button>
+                ) : (
+                  <Link
+                    key={value}
+                    href={formatUrl}
+                    className={
+                      styles['library-filters-format-chip'] +
+                      (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')
+                    }
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className={styles['library-filters-section']}>
+            <span className={styles['library-filters-label']}>Projection type</span>
+            <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Projection type">
+              {TWO_D_PROJECTION_FILTERS.map(({ value, label }) => {
+                const isActive = (displayProjection || '') === value;
+                const url = buildLibraryUrl({ projection: value || undefined });
+                return inSheet ? (
+                  <label key={value || 'any-projection'} className={styles['library-filters-radio-label']}>
+                    <input
+                      type="radio"
+                      name="projection-type"
+                      checked={isActive}
+                      onChange={() => setLocalProjection(value)}
+                      className={styles['library-filters-radio']}
+                    />
+                    <span>{label}</span>
+                  </label>
+                ) : (
+                  <Link
+                    key={value || 'any-projection'}
+                    href={url}
+                    className={styles['library-filters-radio-label'] + (isActive ? ` ${styles['library-filters-radio-active']}` : '')}
+                    aria-checked={isActive}
+                    role="radio"
+                  >
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
 
       {inSheet && (
         <div className={styles['library-filters-sheet-footer']}>

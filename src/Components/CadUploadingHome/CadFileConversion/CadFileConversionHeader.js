@@ -17,42 +17,46 @@ function CadFileConversionHeader({ convert, conversionParams }) {
       <div className={heroStyles.heroInner}>
         <div className={heroStyles.badge}>
           <Zap size={16} strokeWidth={2.2} aria-hidden />
-          <span>Free online tool</span>
+          <span>First conversion free</span>
         </div>
         {convert ? (
           <ConvertPageHeroHeading conversionParams={conversionParams} />
         ) : (
           <>
-            <h1 className={heroStyles.title}>
-              Free Online 3D CAD{' '}
-              <span className={heroStyles.titleAccent}>File Converter</span>
-            </h1>
+            <h1 className={heroStyles.title}>Free Online 3D CAD File Converter</h1>
             <p className={heroStyles.description}>
-              Secure, lightweight online converter to change CAD &amp; 3D file formats instantly.
-              Anytime, anywhere.
+              Convert CAD and 3D files between common engineering formats in your browser. Upload
+              securely and convert STEP, STL, IGES, OBJ, PLY, BREP, DWG and DXF files without installing
+              desktop CAD software.
+            </p>
+            <p className={heroStyles.benefitStrip}>
+              Free online converter | STEP, STL, IGES, OBJ, PLY, DWG, DXF | Up to 300 MB | Auto-delete in
+              24 hours
             </p>
           </>
         )}
-        <div className={heroStyles.trustRow} role="list">
-          <div className={heroStyles.trustItem} role="listitem">
-            <span className={heroStyles.trustIcon} aria-hidden>
-              <Shield size={18} strokeWidth={2.2} />
-            </span>
-            Encrypted uploads
+        {convert ? (
+          <div className={heroStyles.trustRow} role="list">
+            <div className={heroStyles.trustItem} role="listitem">
+              <span className={heroStyles.trustIcon} aria-hidden>
+                <Shield size={18} strokeWidth={2.2} />
+              </span>
+              Encrypted uploads
+            </div>
+            <div className={heroStyles.trustItem} role="listitem">
+              <span className={heroStyles.trustIcon} aria-hidden>
+                <Clock size={18} strokeWidth={2.2} />
+              </span>
+              Auto-delete in 24hrs
+            </div>
+            <div className={heroStyles.trustItem} role="listitem">
+              <span className={heroStyles.trustIcon} aria-hidden>
+                <HardDrive size={18} strokeWidth={2.2} />
+              </span>
+              Up to 300 MB
+            </div>
           </div>
-          <div className={heroStyles.trustItem} role="listitem">
-            <span className={heroStyles.trustIcon} aria-hidden>
-              <Clock size={18} strokeWidth={2.2} />
-            </span>
-            Auto-delete in 24hrs
-          </div>
-          <div className={heroStyles.trustItem} role="listitem">
-            <span className={heroStyles.trustIcon} aria-hidden>
-              <HardDrive size={18} strokeWidth={2.2} />
-            </span>
-            Up to 300 MB
-          </div>
-        </div>
+        ) : null}
         <CadFileConversionContent
           convert={convert}
           conversionParams={conversionParams}

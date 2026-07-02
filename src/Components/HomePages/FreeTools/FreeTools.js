@@ -20,7 +20,7 @@ const toolsData = [
     image: IMAGEURLS.freeTools1,
     title: 'CAD Viewer',
     description: 'Preview 3D CAD files online to inspect geometry and structure (powered by the Marathon-OS proprietary CAD viewer)',
-    route: '/tools//3D-cad-viewer',
+    route: '/tools/3d-cad-viewer',
     linkText: 'Preview CAD files'
   },
   {

@@ -115,11 +115,16 @@ export function techdrawBundlePdfViewUrl(
   return `/api/techdraw-pdf-bundle?designId=${encodeURIComponent(designId)}`;
 }
 
-export function techdrawBundleZipUrl(designId, { userPipeline = false, outputPrefix = "" } = {}) {
+export function techdrawBundleZipUrl(
+  designId,
+  { userPipeline = false, outputPrefix = "", format } = {},
+) {
   const id = String(designId || "").trim();
   const params = new URLSearchParams({ designId: id });
   const prefix = String(outputPrefix || "").trim();
   if (prefix) params.set("prefix", prefix);
   else if (userPipeline) params.set("source", "user");
+  const fmt = String(format || "").trim().toLowerCase();
+  if (fmt === "pdf" || fmt === "svg" || fmt === "dxf") params.set("format", fmt);
   return `/api/techdraw-bundle-zip?${params}`;
 }

@@ -36,7 +36,7 @@ export default function CadFileConversionHowItWorks() {
       mainHeading="No downloads. No plugins. Works right from your browser."
       steps={converterSteps}
       primaryCta={{ label: 'Upload CAD File', href: '/tools/3d-cad-file-converter' }}
-      secondaryCta={{ label: 'Open CAD Viewer', href: '/tools/3D-cad-viewer' }}
+      secondaryCta={{ label: 'Open CAD Viewer', href: '/tools/3d-cad-viewer' }}
     />
   );
 }

@@ -3,7 +3,7 @@ import heroStyles from './CadViewerHero.module.css'
 import cadHomeStyles from './CadHome.module.css'
 import CadDropZoneContent from './CadDropZoneContent'
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
-import { Eye, Shield, Clock, HardDrive } from 'lucide-react'
+import { Eye } from 'lucide-react'
 
 function CadHeader({ type }) {
   return (
@@ -18,31 +18,17 @@ function CadHeader({ type }) {
           <Eye size={16} strokeWidth={2.2} aria-hidden />
           <span>Free online tool</span>
         </div>
-        <h1 className={heroStyles.title}>Free Online CAD Viewer</h1>
-        <p className={heroStyles.subtitle}>Secure, Fast &amp; Cloud-Based</p>
+        <h1 className={heroStyles.title}>Free Online 3D CAD Viewer</h1>
         <p className={heroStyles.description}>
-          A lightweight, online CAD viewer to quickly preview 3D models — anytime, anywhere.
+          Open STEP, IGES, STL, OBJ, PLY, OFF and BREP files online without installing CAD software.
         </p>
-        <div className={heroStyles.trustRow} role="list">
-          <div className={heroStyles.trustItem} role="listitem">
-            <span className={heroStyles.trustIcon} aria-hidden>
-              <Shield size={18} strokeWidth={2.2} />
-            </span>
-            Private uploads
-          </div>
-          <div className={heroStyles.trustItem} role="listitem">
-            <span className={heroStyles.trustIcon} aria-hidden>
-              <Clock size={18} strokeWidth={2.2} />
-            </span>
-            Auto-delete in 24hrs
-          </div>
-          <div className={heroStyles.trustItem} role="listitem">
-            <span className={heroStyles.trustIcon} aria-hidden>
-              <HardDrive size={18} strokeWidth={2.2} />
-            </span>
-            Up to 300 MB
-          </div>
-        </div>
+        <p className={heroStyles.description}>
+          Upload securely, inspect your model in 3D and convert files when needed.
+        </p>
+        <p className={heroStyles.benefitStrip}>
+          Free online viewer | STEP, IGES, STL, OBJ, PLY, OFF, BREP | Up to 300 MB | Auto-delete in
+          24 hours | No CAD software needed
+        </p>
         <CadDropZoneContent isStyled={false} type={type} designVariant="heroDark" />
       </div>
     </div>

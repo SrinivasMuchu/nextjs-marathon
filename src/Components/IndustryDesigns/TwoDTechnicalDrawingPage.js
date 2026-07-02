@@ -3,8 +3,7 @@ import ActiveLastBreadcrumb from "../CommonJsx/BreadCrumbs";
 import Footer from "../HomePages/Footer/Footer";
 import DesignHub from "../HomePages/DesignHub/DesignHub";
 import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
-import IndustryDesignDropZone from "./IndustryDesignDropZone";
-import LibraryDesignPageBanner from "../CadServicesBanners/LibraryDesignPageBanner";
+import TwoDSourceCadModelBlock from "./TwoDSourceCadModelBlock";
 import StickyCadStrip from "../CadServicesBanners/StickyCadStrip";
 import TwoDTechnicalDrawingHero from "./TwoDTechnicalDrawingHero";
 import LeftRightBanner from "../CommonJsx/Adsense/AdsBanner";
@@ -28,6 +27,7 @@ export default function TwoDTechnicalDrawingPage({
   heroProps = {},
   children = null,
   designId = "",
+  cadModelHref = "",
 }) {
   return (
     <>
@@ -55,8 +55,7 @@ export default function TwoDTechnicalDrawingPage({
       </div>
       <DesignHub headingLevel={3} />
       <RecentlyAddedDesigns />
-      <IndustryDesignDropZone />
-      <LibraryDesignPageBanner />
+      <TwoDSourceCadModelBlock cadModelHref={cadModelHref} />
       <StickyCadStrip />
       <Footer />
     </>

@@ -8,6 +8,7 @@ import TwoDDrawingTransparencyBlock from "./TwoDDrawingTransparencyBlock";
 import TwoDDrawingPreviewPanel from "./TwoDDrawingPreviewPanel";
 import TwoDDrawingRightSidebar from "./TwoDDrawingRightSidebar";
 import TwoDMoreDesignsSection from "./TwoDMoreDesignsSection";
+import TwoDDrawingCrossLinks from "../CommonJsx/CrossTemplateLinks/TwoDDrawingCrossLinks";
 import { DEFAULT_2D_SHEETS } from "./twoDDrawingPageDefaults";
 import layoutStyles from "./TwoDDrawingMainLayout.module.css";
 import { Suspense } from "react";
@@ -84,6 +85,8 @@ export default function TwoDTechnicalDrawingContent({
   cadModelHref,
   generateHref,
   pdfHref,
+  svgHref,
+  dxfHref,
   freecadHref,
   zipHref,
   drawingInfo,
@@ -114,6 +117,8 @@ export default function TwoDTechnicalDrawingContent({
             cadModelHref={cadModelHref}
             generateHref={generateHref}
             pdfHref={pdfHref}
+            svgHref={svgHref}
+            dxfHref={dxfHref}
             freecadHref={freecadHref}
             zipHref={zipHref}
             drawingInfo={drawingInfo}
@@ -137,6 +142,7 @@ export default function TwoDTechnicalDrawingContent({
         metaStats={transparencyMetaStats}
         introParagraphs={transparencyIntroParagraphs}
       />
+      <TwoDDrawingCrossLinks cadModelHref={cadModelHref} />
       <Suspense fallback={null}>
         <TwoDMoreDesignsSection currentDesignId={currentDesignId} />
       </Suspense>

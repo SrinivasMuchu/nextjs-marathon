@@ -6,7 +6,7 @@ import styles from './CadConverterTypes.module.css';
 
 function CadConverterTypes() {
   return (
-    <section className={styles.section} aria-labelledby="cad-converter-types-heading">
+    <section className={`${styles.section} ${styles.sectionPurple}`} aria-labelledby="cad-converter-types-heading">
       <div className={styles.inner}>
         <p className={styles.label}>Popular conversions.</p>
         <h2 id="cad-converter-types-heading" className={styles.mainHeading}>

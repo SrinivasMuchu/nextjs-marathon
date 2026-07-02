@@ -3,6 +3,7 @@
 import React from "react";
 import FallbackImageClient from "@/Components/CommonJsx/FallbackImageClient";
 import { techdrawFileApiUrl } from "@/lib/techDraw/techdrawFileApi";
+import { PIPELINE_HOW_IT_WORKS_COPY } from "@/data/cadDrawingPipelinePage";
 import {
   PIPELINE_DEMO_3D_SPRITE_URL,
   PIPELINE_DEMO_DESIGN_ID,
@@ -21,10 +22,7 @@ export default function CadDrawingPipelineHowItWorks() {
       <h2 id="cad-pipeline-how-title" className={styles.howItWorksTitle}>
         From 3D CAD to Engineering Drawings
       </h2>
-      <p className={styles.howItWorksDesc}>
-        Upload any STEP, IGES, or FreeCAD file. Our AI analyzes the geometry, selects optimal
-        views, places dimensions, identifies components, and generates production-ready 2D sheets.
-      </p>
+      <p className={styles.howItWorksDesc}>{PIPELINE_HOW_IT_WORKS_COPY}</p>
 
       <div className={styles.howItWorksCompare}>
         <article className={styles.howItWorksCard}>
@@ -50,9 +48,9 @@ export default function CadDrawingPipelineHowItWorks() {
             <span className={styles.howItWorksCardLabel}>AI-generated 2D drawing</span>
             <span className={styles.howItWorksBadge}>Output</span>
           </div>
-          <div className={styles.howItWorksPreview}>
+          <div className={`${styles.howItWorksPreview} ${styles.howItWorksPreviewOutput}`}>
             <FallbackImageClient
-              className={styles.howItWorksImg}
+              className={`${styles.howItWorksImg} ${styles.howItWorksImg2d}`}
               src={demo2dSvgUrl}
               alt="Example AI-generated 2D technical drawing sheet 1"
             />

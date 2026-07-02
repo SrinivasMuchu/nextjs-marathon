@@ -43,12 +43,30 @@ export function buildPageMetadata({
   };
 }
 
-/** Manager spec: {CAD Model Name} CAD Model Download | Marathon OS */
-export function buildLibraryDetailMetadata(productName) {
-  const name = String(productName || "3D CAD Model").trim();
-  const title = `${name} CAD Model Download | Marathon OS`;
-  const description = `Download the ${name} CAD model from Marathon OS. Preview, access and use engineering-ready CAD files for product design, prototyping and manufacturing workflows.`;
-  return { title, description, name };
+import {
+  buildLibraryDetailMetaDescription,
+  buildLibraryDetailTitle,
+  cleanLibraryProductName,
+  isPhoneAccessoryProduct,
+} from "./libraryProductDetail";
+
+/** {Clean Name} {FORMAT} CAD Model Download | Marathon OS */
+export function buildLibraryDetailMetadata(productName, fileType, options = {}) {
+  const name = cleanLibraryProductName(productName);
+  const isPhoneAccessory =
+    options.isPhoneAccessory ??
+    isPhoneAccessoryProduct({
+      pageTitle: productName,
+      categoryLabels: options.categoryLabels,
+      tagLabels: options.tagLabels,
+    });
+
+  const title = buildLibraryDetailTitle(productName, fileType);
+  const description = buildLibraryDetailMetaDescription(productName, fileType, {
+    isPhoneAccessory,
+  });
+
+  return { title, description, name, isPhoneAccessory };
 }
 
 /** Manager spec: {Product Name} 2D CAD Drawing Sheets - PDF, DXF & SVG | Marathon OS */
@@ -119,14 +137,9 @@ export function deriveTwoDDrawingMetaFromGeometry(geometryPerSheet) {
   };
 }
 
-export function buildTwoDDrawingMetadata(
-  productName,
-  { viewType, sectionDetailType } = {}
-) {
+export function buildTwoDDrawingMetadata(productName) {
   const name = String(productName || "Product").trim();
-  const views = viewType || "orthographic views";
-  const sections = sectionDetailType || "section and detail views";
-  const title = `${name} 2D CAD Drawing Sheets - PDF, DXF & SVG | Marathon OS`;
-  const description = `Download free ${name} 2D CAD drawing sheets with ${views} and ${sections}. Get PDF, DXF and SVG files created from a high-quality 3D CAD model.`;
+  const title = `${name} 2D Technical Drawing | PDF, SVG, DXF | Marathon OS`;
+  const description = `Download 2D technical drawings for ${name}. Includes orthographic views, section cuts and downloadable PDF, SVG and DXF files generated from the 3D CAD model.`;
   return { title, description, name };
 }

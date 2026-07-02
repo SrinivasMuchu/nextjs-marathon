@@ -24,7 +24,7 @@ export default function CadUploadingView() {
 
   const goBack = useCallback(() => {
     setFile(null);
-    router.replace("/tools/3D-cad-viewer");
+    router.replace("/tools/3d-cad-viewer");
   }, [setFile, router]);
 
   useEffect(() => {

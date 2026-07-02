@@ -11,7 +11,7 @@ function buildLlmsTxt() {
 - ${SITE_ORIGIN}/library
 - ${SITE_ORIGIN}/library/2d-technical-drawings
 - ${SITE_ORIGIN}/tools/3d-cad-file-converter
-- ${SITE_ORIGIN}/tools/3D-cad-viewer
+- ${SITE_ORIGIN}/tools/3d-cad-viewer
 - ${SITE_ORIGIN}/cad-services
 
 ## Free CAD Tools
@@ -20,7 +20,7 @@ function buildLlmsTxt() {
 - ${SITE_ORIGIN}/tools/convert-stl-to-step
 - ${SITE_ORIGIN}/tools/convert-step-to-stl
 - ${SITE_ORIGIN}/tools/convert-iges-to-step
-- ${SITE_ORIGIN}/tools/3D-cad-viewer
+- ${SITE_ORIGIN}/tools/3d-cad-viewer
 - ${SITE_ORIGIN}/tools/cad-drawing-pipeline
 
 ## CAD Library

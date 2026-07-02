@@ -25,7 +25,7 @@ function loadRazorpayScript() {
 }
 
 function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, 
-  step, filetype, custumDownload,designDetails,supportingFileUrl }) {
+  step, filetype, custumDownload, designDetails, supportingFileUrl, downloadButtonLabel }) {
     console.log(designDetails)
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [isDownloadingMainFile, setIsDownloadingMainFile] = useState(false);
@@ -297,6 +297,9 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
     ? undefined
     : billingHandler;
 
+  const defaultCtaLabel = custumDownload ? 'Download 3D design' : 'Download';
+  const ctaLabel = downloadButtonLabel || defaultCtaLabel;
+
   return (
     <>
       {custumDownload ? (
@@ -346,7 +349,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
                     boxSizing: 'border-box'
                   }}
                 >
-                  Download 3D design
+                  {ctaLabel}
                 </button>
               </span>
             </Tooltip>
@@ -370,7 +373,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
               className="rounded bg-[#610BEE] h-12"
               onClick={downloadHandler}
             >
-              {isDownLoading ? 'Processing...' : 'Download 3D design'}
+              {isDownLoading ? 'Processing...' : ctaLabel}
             </button>
           )}
         </span>
@@ -402,7 +405,7 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
                   className={styles['industry-design-files-btn']}
                   style={{ opacity: 0.6, cursor: 'not-allowed' }}
                 >
-                  Download
+                  {ctaLabel}
                 </button>
               </span>
             </Tooltip>
@@ -412,14 +415,14 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
               className={styles['industry-design-files-btn']}
               onClick={downloadHandler}
             >
-              {isDownLoading ? 'Processing...' : 'Download'}
+              {isDownLoading ? 'Processing...' : ctaLabel}
             </button>
           )}
         </>
       )}
       {openBillingDetails && <BillingAddress 
       onClose={() => setOpenBillingDetails(false)}  setBillerDetails={setBillerDetails}
-      onSave={handleDownload} cadId={folderId} designDetails={designDetails}/>}
+      onSave={handleDownload} cadId={folderId} designDetails={designDetails} createdFor="design_billing"/>}
       {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
       {openSupportingFiles && (
         <SupportingFilesPopup 

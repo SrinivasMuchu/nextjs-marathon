@@ -105,7 +105,7 @@ function CadFileConversionHowItWorksServer({ conversionParams }) {
             <Upload size={18} strokeWidth={2.2} aria-hidden />
             Upload CAD File
           </Link>
-          <Link href="/tools/3D-cad-viewer" className={styles.cadViewerSecondaryCta}>
+          <Link href="/tools/3d-cad-viewer" className={styles.cadViewerSecondaryCta}>
             Open CAD Viewer
             <span className={styles.cadViewerSecondaryArrow} aria-hidden>
               →

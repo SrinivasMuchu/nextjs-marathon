@@ -183,6 +183,49 @@
   font-weight: 500;
 }
 
+.benefitStrip {
+  margin: 0;
+  max-width: 100%;
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: rgba(244, 240, 255, 0.88);
+}
+
+.formatsTableWrap {
+  width: 100%;
+  max-width: 720px;
+}
+
+.formatsTable table {
+  min-width: 0;
+}
+
+.formatsTable th:nth-child(1),
+.formatsTable td:nth-child(1) {
+  width: 18%;
+}
+
+.formatsTable th:nth-child(2),
+.formatsTable td:nth-child(2) {
+  width: 28%;
+}
+
+.formatsTable th:nth-child(3),
+.formatsTable td:nth-child(3) {
+  width: 54%;
+}
+
+.formatsTableLink {
+  color: #c9a8ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.formatsTableLink:hover {
+  color: #e9ddff;
+}
+
 /* Split primary / accent in one heading (e.g. CAD File | Converter) */
 .titleAccent {
   color: #c9a8ff;
@@ -257,6 +300,22 @@
   font-weight: 450;
   color: rgba(244, 240, 255, 0.72);
   text-align: center;
+}
+
+.heroUploadPricingNote {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(244, 240, 255, 0.72);
+  text-align: center;
+  max-width: 520px;
+}
+
+.heroUploadPricingNote strong {
+  color: #c9a8ff;
+  font-weight: 600;
 }
 
 .heroDynamicBlock {

@@ -60,7 +60,7 @@ function FloatingButton() {
         >
 
           <Link
-            href="/tools/3D-cad-viewer"
+            href="/tools/3d-cad-viewer"
               onClick={() => {
                 sendGAtagEvent({ event_name: 'floating_button_view_click', event_category: CAD_FLOATING_BUTTON_EVENT });
                 setShowOptions(false);

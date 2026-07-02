@@ -95,11 +95,20 @@
   line-height: 1.2;
 }
 
+.statLink {
+  color: #6d28d9;
+  text-decoration: none;
+}
+
+.statLink:hover {
+  text-decoration: underline;
+}
+
 .statKey {
   font-size: 10px;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  text-transform: none;
+  letter-spacing: 0.02em;
   color: #9ca3af;
   margin-top: 4px;
 }
@@ -110,16 +119,16 @@
   }
 
   .statItem {
-    flex: 1 1 50%;
+    flex: 1 1 33%;
     border-bottom: 1px solid #e5e7eb;
     border-right: 1px solid #e5e7eb;
   }
 
-  .statItem:nth-child(2n) {
+  .statItem:nth-child(3n) {
     border-right: none;
   }
 
-  .statItem:nth-last-child(-n + 2) {
+  .statItem:nth-last-child(-n + 3) {
     border-bottom: none;
   }
 }

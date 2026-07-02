@@ -14,7 +14,9 @@ import TrustPrivacy from '../CadUpload/TrustPrivacy'
 import ConvertCrossLink from '../CadUpload/ConvertCrossLink'
 import CadIndustry from './CadIndustry'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
-import CadViewrTypes from './CadViewrTypes'
+import CadViewerFormatSections from './CadViewerFormatSections'
+import CadViewerToolLinks from './CadViewerToolLinks'
+import ToolLibraryCrossLinks from '@/Components/CommonJsx/CrossTemplateLinks/ToolLibraryCrossLinks'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { cadViewerFaqQuestions } from '@/data/cadToolFaqs'
@@ -144,17 +146,17 @@ const steps = [
     { title: 'Students opening CAD files without expensive software', description: 'opening CAD files without expensive software' },
     { title: '3D printing workflows inspecting STL/OBJ meshes', description: 'inspecting STL/OBJ meshes' },
   ];
-function CadHomeDesign({ type, cadType, skipPageJsonLd = false }) {
+function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSchema = false }) {
     const cadTypeLabel = cadType ? `${String(cadType).toUpperCase()} CAD Viewer` : 'CAD Viewer Type';
     const breadcrumbLinks = type
       ? [
           { label: 'tools', href: '/tools' },
-          { label: 'CAD Viewer', href: '/tools/3D-cad-viewer' },
+          { label: 'CAD Viewer', href: '/tools/3d-cad-viewer' },
           { label: cadTypeLabel },
         ]
       : [
           { label: 'tools', href: '/tools' },
-          { label: 'CAD Viewer', href: '/tools/3D-cad-viewer' },
+          { label: 'CAD Viewer', href: '/tools/3d-cad-viewer' },
         ];
    
     return (
@@ -163,9 +165,23 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false }) {
             {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
                       links={breadcrumbLinks}
+                      skipSchema={skipBreadcrumbSchema}
                     />
-            {type?<CadUpload type={type}/>: <CadHeader type={type}/>}
-            
+            {type?<CadUpload type={type} cadType={cadType}/>: <CadHeader type={type}/>}
+            {type && cadType ? (
+              <>
+                <CadViewerFormatSections cadType={cadType} />
+                <ConvertCrossLink />
+                <ToolLibraryCrossLinks />
+              </>
+            ) : null}
+            {!type ? (
+              <>
+                <CadViewerToolLinks />
+                <ConvertCrossLink />
+                <ToolLibraryCrossLinks />
+              </>
+            ) : null}
             {/* <OrgFeatures type='cad'/> */}
             <HowItWorks
                 variant="cadViewer"
@@ -173,7 +189,7 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false }) {
                 title="How to view CAD files online"
                 mainHeading="No downloads. No plugins. Works right from your browser."
                 steps={steps}
-                primaryCta={{ label: 'Upload CAD File', href: '/tools/3D-cad-viewer' }}
+                primaryCta={{ label: 'Upload CAD File', href: '/tools/3d-cad-viewer' }}
                 secondaryCta={{ label: 'Open Converter Tool', href: '/tools/3d-cad-file-converter' }}
             />
             <CoreBenefits
@@ -182,11 +198,9 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false }) {
                 title="Why use Marathon OS CAD Viewer"
             />
            
-            <CadViewrTypes/>
             <DesignHub headingLevel={3} />
             <UseCases useCases={useCases} title="Who this CAD viewer is for" />
             <TrustPrivacy items={items} title="Privacy and file handling" />
-            <ConvertCrossLink />
             <CadIndustry/>
             {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails}/> */}

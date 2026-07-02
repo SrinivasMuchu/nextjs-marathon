@@ -368,6 +368,42 @@
   text-decoration: underline;
 }
 
+.library-filters-format-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.library-filters-format-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.library-filters-format-chip:hover {
+  border-color: #ddd6fe;
+  background: #f5f3ff;
+  color: #610bee;
+}
+
+.library-filters-format-chip-active {
+  border-color: rgba(97, 11, 238, 0.35);
+  background: rgba(97, 11, 238, 0.1);
+  color: #610bee;
+}
+
 /* Designs: Show more button (infinite scroll) */
 .library-show-more-wrap {
   margin-top: 24px;
@@ -852,9 +888,12 @@
 
 .library-designs-items-container.libraryHireCtaSlot h2 {
   color: #fff;
+  text-align: center;
+  width: 100%;
 }
 .library-designs-items-container.libraryHireCtaSlot p {
-  color: #fff;
+  color: rgba(255, 255, 255, 0.92);
+  text-align: center;
 }
 
 @media (max-width: 500px) {

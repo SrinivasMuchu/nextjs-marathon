@@ -120,7 +120,7 @@ function HomeTopNav() {
               <Link href="/tools" onClick={()=>setOpenDropdown(false)}>All tools</Link>
               <Link href="/tools/industries" onClick={()=>setOpenDropdown(false)}>All industries</Link>
               <Link href="/tools/org-hierarchy" onClick={()=>setOpenDropdown(false)}>Org Hierarchy</Link>
-              <Link href="/tools/3D-cad-viewer" onClick={()=>setOpenDropdown(false)}>CAD Viewer</Link>
+              <Link href="/tools/3d-cad-viewer" onClick={()=>setOpenDropdown(false)}>CAD Viewer</Link>
               <Link href="/tools/3d-cad-file-converter" onClick={()=>setOpenDropdown(false)}>CAD File Convert</Link>
               <Link href="/tools/cad-drawing-pipeline" onClick={()=>setOpenDropdown(false)}>3D to 2D Drawing Pipeline</Link>
               {/* <Link href="/tools/upload-cad-file">upload cad file</Link> */}

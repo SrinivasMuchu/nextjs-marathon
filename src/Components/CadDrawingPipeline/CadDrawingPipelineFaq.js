@@ -1,4 +1,7 @@
 import styles from "./CadDrawingPipeline.module.css";
+import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
+
+const { baseLabel: PRICE_LABEL } = getTechDrawPriceDisplay();
 
 const FAQ_ITEMS = [
   {
@@ -33,7 +36,7 @@ const FAQ_ITEMS = [
       <p>
         After uploading, our system: (1) <strong>renders 6 standard views</strong> of your model
         (front, back, top, bottom, left, right, isometric, with hidden lines); (2){" "}
-        <strong>sends these to Claude AI</strong> which analyses the geometry and writes a complete
+        <strong>sends these for AI analysis</strong> which reviews the geometry and writes a complete
         drawing plan including view selection, section cuts, and dimension placement; (3){" "}
         <strong>drives FreeCAD TechDraw</strong> to generate all sheets per the AI&apos;s plan; and
         (4) <strong>exports all formats</strong> simultaneously. You receive a download link when
@@ -54,12 +57,12 @@ const FAQ_ITEMS = [
     ),
   },
   {
-    question: "Why is it $4? How does that compare to hiring a draftsperson?",
+    question: `Why is it ${PRICE_LABEL}? How does that compare to hiring a draftsperson?`,
     answer: (
       <p>
         A professional draftsperson typically charges <strong>$50–$150/hour</strong> and a
         multi-sheet drawing set can take 4–8 hours, costing $200–$1,200. Our pipeline delivers an
-        equivalent first draft in 4 minutes for $4 — a <strong>50–300× cost reduction</strong>. Use
+        equivalent first draft in 4 minutes for {PRICE_LABEL} — a <strong>50–300× cost reduction</strong>. Use
         the time saved to focus on design iteration and engineering decisions rather than manual
         drafting.
       </p>
@@ -69,7 +72,7 @@ const FAQ_ITEMS = [
     question: 'What is included in a "drawing set"?',
     answer: (
       <p>
-        Each $4 drawing set includes: <strong>up to 9 sheets</strong> covering orthographic views
+        Each {PRICE_LABEL} drawing set includes: <strong>up to 9 sheets</strong> covering orthographic views
         (front, top, side), isometric view, section views (typically 2 cuts), detail views of
         critical features, and a bill of materials sheet. All sheets are delivered in PDF, SVG, DXF,
         and high-resolution PNG formats — that&apos;s up to 36 files in total.

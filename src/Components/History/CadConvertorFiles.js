@@ -1,5 +1,5 @@
 "use client";
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from './FileHistory.module.css';
 import { IMAGEURLS } from '@/config';
 import Image from 'next/image';
@@ -9,9 +9,39 @@ import { textLettersLimit } from '@/common.helper';
 import FileStatus from '../CommonJsx/FileStatus';
 import { SiConvertio } from "react-icons/si";
 import Link from 'next/link';
+import {
+  buildConverterPricingDisplay,
+  fetchConverterPricingInfo,
+} from '@/lib/converterPricing';
+
+function DashboardPricingCell({ converterPricing }) {
+  if (!converterPricing || converterPricing.is_free) {
+    return <span className={styles.converterPriceBadgeFree}>Free</span>;
+  }
+
+  const display = buildConverterPricingDisplay(converterPricing);
+  return (
+    <span className={styles.converterPriceTotal}>{display.totalLabel}</span>
+  );
+}
 
 function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownload,searchTerm, setSearchTerm}) {
+  const [pricingNoteTotal, setPricingNoteTotal] = useState('');
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const info = await fetchConverterPricingInfo();
+        if (cancelled) return;
+        const display = buildConverterPricingDisplay(info?.pricing);
+        setPricingNoteTotal(display.totalLabel);
+      } catch {
+        if (!cancelled) setPricingNoteTotal('');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   function formatTime(value) {
     if (value === null || value === undefined || isNaN(value)) {
@@ -104,18 +134,19 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                       <table className={styles['industry-design-files-list']}>
                         <thead>
                           <tr>
-                            <th style={{ width: '25%' }}>File Name</th>
-                            <th style={{ width: '20%' }}>Conversion</th>
-                            <th style={{ width: '15%' }}>Status</th>
-                            <th style={{ width: '20%' }}>Created</th>
-                            <th style={{ width: '20%' }}>Time to convert</th>
-                            <th style={{ width: '20%' }}>Action</th>
+                            <th style={{ width: '20%' }}>File name</th>
+                            <th style={{ width: '15%' }}>Conversion</th>
+                            <th style={{ width: '18%' }}>Pricing</th>
+                            <th style={{ width: '12%' }}>Status</th>
+                            <th style={{ width: '13%' }}>Created</th>
+                            <th style={{ width: '12%' }}>Time</th>
+                            <th style={{ width: '10%' }}>Action</th>
                           </tr>
                         </thead>
                         <tbody>
                           {cadConverterFileHistory.map((file, index) => (
                             <tr key={index}>
-                              <td data-label="File Name">
+                              <td data-label="File name">
                                 {textLettersLimit(file.file_name, 20)}
                               </td>
                               <td data-label="Conversion">
@@ -125,13 +156,16 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                                   <span>{file.output_format}</span>
                                 </div>
                               </td>
+                              <td data-label="Pricing">
+                                <DashboardPricingCell converterPricing={file.converter_pricing} />
+                              </td>
                               <td data-label="Status">
                                 <FileStatus status={file.status} />
                               </td>
                               <td data-label="Created">
                                 {file.createdAtFormatted}
                               </td>
-                               <td data-label="Time to convert">
+                               <td data-label="Time">
                                 {formatTime(file.time_taken_seconds)}
                               </td>
                               <td data-label="Action">
@@ -160,6 +194,11 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                           ))}
                         </tbody>
                       </table>
+                      <p className={styles.converterPricingFootnote}>
+                        <span aria-hidden>ℹ️</span>
+                        Your first conversion on Marathon is free. Every conversion after that — new file or re-run — is{' '}
+                        {pricingNoteTotal || 'a small fee'}.
+                      </p>
                     </div>
                   </div>
 

@@ -11,6 +11,11 @@ import CoreBenefits from '../CadUpload/CoreBenefits'
 import TrustPrivacy from '../CadUpload/TrustPrivacy'
 import CadConverterTypes from './CadConverterTypes'
 import FeaturedConversions from './FeaturedConversions'
+import CadConversionToolLinks from './CadConversionToolLinks'
+import SupportedCadFormats from './SupportedCadFormats'
+import WhenToUseConverter from './WhenToUseConverter'
+import CadViewerCrossLink from '../CadUpload/CadViewerCrossLink'
+import ToolLibraryCrossLinks from '@/Components/CommonJsx/CrossTemplateLinks/ToolLibraryCrossLinks'
 import InterlinkingBlocks from './InterlinkingBlocks'
 import CadConverterFormateText from './CadConverterFormateText'
 import ConversionQualityNotes from '../CadUpload/ConversionQualityNotes'
@@ -90,7 +95,7 @@ const featuresArray = [
 
 ]
 
-function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = false }) {
+function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = false, skipBreadcrumbSchema = false }) {
     const faqQuestions = convert && conversionParams
         ? getConverterFaqQuestions(conversionParams)
         : cadConverterFaqQuestions;
@@ -109,6 +114,7 @@ function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = fal
                         { label: 'tools', href: '/tools' },
                         { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
                     ]}
+                    skipSchema={skipBreadcrumbSchema}
                 />
             )}
             {convert && (
@@ -119,9 +125,24 @@ function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = fal
                         { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
                         { label: `${conversionParams}`, href: `/tools/convert-${conversionParams}` },
                     ]}
+                    skipSchema={skipBreadcrumbSchema}
                 />
             )}
             <CadFileConversionHeader convert={convert} conversionParams={conversionParams} />
+            {!convert ? (
+              <>
+                <CadConversionToolLinks />
+                <CadViewerCrossLink />
+                <ToolLibraryCrossLinks />
+                <SupportedCadFormats />
+                <WhenToUseConverter />
+              </>
+            ) : (
+              <>
+                <CadViewerCrossLink />
+                <ToolLibraryCrossLinks />
+              </>
+            )}
             <ConversionQualityNotes />
             <ToolsPageBanner />
           
