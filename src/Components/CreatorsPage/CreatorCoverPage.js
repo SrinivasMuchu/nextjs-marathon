@@ -77,9 +77,7 @@ function CreatorCoverPage({ creatorId, setIsVerified }) {
 
   return (
     <>
-     <LeftRightBanner
-            adSlot="9148469534"
-          />
+     
       <div>
         {!creatorId && (
           <div className={cadHomeStyles['cad-ad-bar']}>
