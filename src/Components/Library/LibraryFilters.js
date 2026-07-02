@@ -7,7 +7,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchBar from './SearchFilter';
 import styles from './Library.module.css';
-import { getLibraryPathWithQuery } from '@/common.helper';
+import { getLibraryPathWithQuery, isValidLibraryTagSlug } from '@/common.helper';
 import { LIBRARY_FILE_FORMAT_FILTERS } from '@/data/libraryPage';
 import {
   TWO_D_OUTPUT_FORMAT_FILTER_OPTIONS,
@@ -344,7 +344,8 @@ export default function LibraryFilters({
         <div className={styles['library-filters-tags-scroll']}>
           <div className={styles['library-filters-tag-pills']}>
             {tagsToShow.map((tag) => {
-              const tagValue = tag?.cad_tag_name ?? tag?.name ?? tag?._id ?? '';
+              const tagValue = tag?.cad_tag_name ?? tag?.name ?? '';
+              if (!tagValue || !isValidLibraryTagSlug(tagValue)) return null;
               const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
               const isActive = displayTag === tagValue;
               /* With category: /library/categoryname/tagname; without: /library/tag/tagname */

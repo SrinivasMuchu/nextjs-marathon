@@ -1,22 +1,27 @@
+import { permanentRedirect } from 'next/navigation';
 import Library from '@/Components/Library/Library';
 import { ASSET_PREFIX_URL } from '@/config';
-import { tagSlugToName, getLibraryCanonicalAndRobots } from '@/common.helper';
+import {
+  normalizeLibraryTagSlug,
+  getLibraryPath,
+  getLibraryCanonicalAndRobots,
+} from '@/common.helper';
+
+function requireValidTagSlug(rawSlug) {
+  const slug = normalizeLibraryTagSlug(rawSlug);
+  if (!slug) permanentRedirect('/library');
+  return slug;
+}
 
 export async function generateMetadata({ params, searchParams }) {
-  const tagSlug = params?.tag || '';
-  const tagValue = tagSlugToName(tagSlug); // raw cad_tag_name (keeps hyphens)
-  const tagLabel = tagValue.replace(/-/g, ' '); // nicer display for meta
+  const tagSlug = requireValidTagSlug(params?.tag || '');
+  const tagLabel = tagSlug.replace(/-/g, ' ');
   const page = parseInt(searchParams?.page) || 1;
 
-  const title = tagLabel
-    ? `${tagLabel} CAD Models | STEP, STL, IGES Downloads | Marathon OS${page > 1 ? ` - Page ${page}` : ''}`
-    : `CAD Design Library${page > 1 ? ` - Page ${page}` : ''} | Marathon OS`;
+  const title = `${tagLabel} CAD Models | STEP, STL, IGES Downloads | Marathon OS${page > 1 ? ` - Page ${page}` : ''}`;
+  const description = `Explore ${tagLabel} 3D CAD models and download STEP/STP, IGES, STL and more. Filter by category, file type, price & popularity. Preview online.`;
 
-  const description = tagLabel
-    ? `Explore ${tagLabel} 3D CAD models and download STEP/STP, IGES, STL and more. Filter by category, file type, price & popularity. Preview online.`
-    : 'Browse Marathon OS\'s CAD Design Library. Search and filter by category or tags.';
-
-  const path = tagSlug ? `/library/tag/${encodeURIComponent(tagSlug)}` : '/library';
+  const path = getLibraryPath({ tagName: tagSlug });
   const { canonicalPath, robots, prevPath, nextPath } = getLibraryCanonicalAndRobots({
     path,
     searchParams: searchParams ?? {},
@@ -25,7 +30,7 @@ export async function generateMetadata({ params, searchParams }) {
   const base = 'https://marathon-os.com';
   const linkOther = [];
   if (prevPath) linkOther.push({ rel: 'prev', url: `${base}${prevPath}` });
-  linkOther.push({ rel: 'next', url: `${base}${nextPath}` });
+  if (nextPath) linkOther.push({ rel: 'next', url: `${base}${nextPath}` });
 
   return {
     title,
@@ -41,9 +46,8 @@ export async function generateMetadata({ params, searchParams }) {
 }
 
 export default function LibraryTagPage({ params, searchParams }) {
-  const tagSlug = params?.tag || '';
-  const tagValue = tagSlugToName(tagSlug); // raw cad_tag_name
-  const merged = { ...searchParams, tags: tagValue || undefined };
+  const tagSlug = requireValidTagSlug(params?.tag || '');
+  const merged = { ...searchParams, tags: tagSlug };
   return (
     <div>
       <Library searchParams={merged} />
