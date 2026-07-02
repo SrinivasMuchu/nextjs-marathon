@@ -1,9 +1,9 @@
 
-
 import React from "react";
 import styles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import CadFileConversionWrapper from './CadFileConversionWrapper'
+import ConverterUploadPricingNote from './ConverterUploadPricingNote'
 
 function CadFileUploads({ convert, allowedFormats, initialAllowedFormats = [], designVariant }) {
     // Use initialAllowedFormats on first paint (from server params) to avoid CLS when context hydrates
@@ -19,7 +19,7 @@ function CadFileUploads({ convert, allowedFormats, initialAllowedFormats = [], d
         <p className={isConverterHero ? heroStyles.heroUploadPanelHead : styles['cad-dropzone-head']}>
           Drag &amp; drop your 3D{' '}
           <span className={isConverterHero ? heroStyles.heroUploadPanelFile : styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>
-            files
+            file
           </span>{' '}
           here to convert
         </p>
@@ -30,6 +30,7 @@ function CadFileUploads({ convert, allowedFormats, initialAllowedFormats = [], d
             {formatsText}
           </p>
         )}
+        {isConverterHero ? <ConverterUploadPricingNote /> : null}
       </div>
     );
 
@@ -55,4 +56,3 @@ function CadFileUploads({ convert, allowedFormats, initialAllowedFormats = [], d
 }
 
 export default CadFileUploads;
-

@@ -269,9 +269,9 @@ export default function CadDrawingPipelineView() {
       let jobId;
 
       if (needsPaymentNow) {
-        setUploadPhase(`Pay ${prices.baseLabel} + tax (${prices.totalLabel})…`);
+        setUploadPhase(`Pay ${prices.totalLabel}…`);
         const payment = await openTechDrawPayment({
-          description: `2D technical drawing — ${prices.baseLabel}`,
+          description: `2D technical drawing — ${prices.totalLabel}`,
         });
         setUploadPhase("Payment received — uploading STEP file…");
         jobId = await uploadAndSubmitTechDrawJob({

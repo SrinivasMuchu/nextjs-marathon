@@ -16,6 +16,9 @@ import CadConvertorFiles from './CadConvertorFiles';
 import CadPublishedFiles from './CadPublishedFiles';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 import { toast } from 'react-toastify';
+import { checkConverterDownload } from '@/api/converterPaymentApi';
+import { ensureConverterDownloadAccess } from './converterPayment';
+import BillingAddress from '../CommonJsx/BillingAddress';
 
 let cachedCadHistory = {};
 
@@ -34,6 +37,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   const [isUserVerified, setIsUserVerified] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [publishCadPopUp, setPublishCadPopUp] = useState(null);
+  const [openConverterBilling, setOpenConverterBilling] = useState(false);
+  const [pendingConverterDownload, setPendingConverterDownload] = useState(null);
+  const [converterBillingDetails, setConverterBillingDetails] = useState(null);
   // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
   const { user,cadDetailsUpdate } = useContext(contextState);
@@ -205,6 +211,61 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     }
   };
 
+  const performConverterFileDownload = async (file, index) => {
+    const url = buildCadConverterOutputUrl(file._id, file.base_name, file.output_format);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = downloadUrl;
+    a.download = `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`;
+
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(downloadUrl);
+
+    sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT });
+    setDownloading(prev => ({ ...prev, [index]: false }));
+  };
+
+  const handleConverterBillingComplete = async (converterFileId, billingId) => {
+    const pending = pendingConverterDownload;
+    if (!pending) return;
+
+    const { file, index } = pending;
+    setOpenConverterBilling(false);
+    setDownloading(prev => ({ ...prev, [index]: true }));
+
+    try {
+      await ensureConverterDownloadAccess({
+        converterFileId,
+        fileName: file.file_name,
+        userEmail: user.email,
+        billingId,
+      });
+      await performConverterFileDownload(file, index);
+    } catch (payErr) {
+      if (payErr?.message === 'Payment cancelled') {
+        toast.info('Payment cancelled.');
+      } else {
+        toast.error(payErr?.message || 'Payment required to download this file.');
+      }
+      setDownloading(prev => ({ ...prev, [index]: false }));
+    } finally {
+      setPendingConverterDownload(null);
+      setConverterBillingDetails(null);
+    }
+  };
+
   const handleDownload = async (file, index) => {
     try {
       if (!localStorage.getItem("is_verified")) {
@@ -219,49 +280,24 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
 
       setDownloading(prev => ({ ...prev, [index]: true }));
 
-      const url = buildCadConverterOutputUrl(file._id, file.base_name, file.output_format);
-
-      // if (!file.sample_file || file.is_published) {
-      //   setUploadedFile({
-      //     url: `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`,
-      //     output_format: file.input_format,
-      //     file_name: file.file_name,
-      //     base_name: file.base_name,
-      //     _id: file._id,
-      //     cad_type: 'CAD_CONVERTER',
-      //   });
-
-      //   // Wait a bit to ensure context is updated
-      //   await new Promise(resolve => setTimeout(resolve, 100));
-      // }
-
-      // (file.sample_file || file.is_published) ? setPublishCad(false) : setPublishCad(true);
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const access = await checkConverterDownload(file._id);
+      if (access.can_download) {
+        await performConverterFileDownload(file, index);
+        return;
       }
 
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-
-      a.href = downloadUrl;
-      a.download = `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`;
-
-      document.body.appendChild(a);
-      a.click();
-
-      // Cleanup
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(downloadUrl);
-      
-      sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT });
-      // router.push(`/tools/cad-renderer?fileId=${file._id}`);
-      
       setDownloading(prev => ({ ...prev, [index]: false }));
+      setPendingConverterDownload({ file, index });
+      setConverterBillingDetails({
+        title: `CAD Converter (${file.input_format} → ${file.output_format})`,
+        description: file.file_name || 'Converted CAD file download',
+        price: access.pricing?.base_price ?? access.price,
+        pricing: access.pricing,
+      });
+      setOpenConverterBilling(true);
     } catch (error) {
       console.error('Download error:', error);
+      toast.error('Download failed. Please try again.');
       setDownloading(prev => ({ ...prev, [index]: false }));
     }
   };
@@ -348,6 +384,19 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       {publishCadPopUp && <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
         <PublishCadPopUp onClose={() => setPublishCadPopUp(false)} editedDetails={editDetails} />
       </div>}
+      {openConverterBilling && pendingConverterDownload && (
+        <BillingAddress
+          onClose={() => {
+            setOpenConverterBilling(false);
+            setPendingConverterDownload(null);
+            setConverterBillingDetails(null);
+          }}
+          onSave={handleConverterBillingComplete}
+          cadId={pendingConverterDownload.file._id}
+          productDetails={converterBillingDetails}
+          createdFor="converter"
+        />
+      )}
     </>
   );
 }

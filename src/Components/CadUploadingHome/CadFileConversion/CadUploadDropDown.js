@@ -3,6 +3,14 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import cadStyles from "../CadHomeDesign/CadHome.module.css";
 import { textLettersLimit } from "./../../../common.helper";
 import Link from "next/link";
+import {
+  fetchConverterPricingInfo,
+  isConverterConversionFree,
+} from "@/lib/converterPricing";
+import {
+  ConverterPricingBadge,
+  ConverterPricingBanner,
+} from "./ConverterPricingDisplay";
 
 const FORMAT_ALIASES = {
   stp: "step",
@@ -29,8 +37,29 @@ function CadDropDown({
   disableSelect,
   to,
   s3Url,
+  isSampleFile = false,
   setDisableSelect,
 }) {
+  const [pricingInfo, setPricingInfo] = React.useState(null);
+
+  const loadPricing = useCallback(async () => {
+    try {
+      const info = await fetchConverterPricingInfo();
+      setPricingInfo(info);
+    } catch {
+      setPricingInfo(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPricing();
+  }, [loadPricing]);
+
+  const isFreeConversion = isConverterConversionFree({
+    pricingInfo,
+    isSampleFile,
+  });
+
   const formatOptions = useMemo(
     () => [
       { value: "step", label: ".step" },
@@ -144,74 +173,89 @@ function CadDropDown({
   const isConvertButtonVisible = !!selectValueAttr;
 
   return (
-    <div className={`${cadStyles["cad-conversion-table"]} ${cadStyles["cad-conversion-table--dark"]}`}>
-      <table>
-        <thead>
-          <tr>
-            <th>File Name</th>
-            <th>File Format</th>
-            <th>Convert To</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td data-label="File Name">{textLettersLimit(file?.name, 35)}</td>
-            <td data-label="File Format">
-              {file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}
-            </td>
-            <td data-label="Convert To">
-              <div
-                className={`${cadStyles["cad-conversion-format-slot"]} ${
-                  isSelectDisabled ? cadStyles["cad-conversion-format-slotDisabled"] : ""
-                }`}
-              >
-                <select
-                  key={file?.name ? `fmt-${file.name}` : "fmt"}
-                  className={cadStyles["cad-conversion-format-select"]}
-                  value={selectValueAttr}
-                  onChange={handleNativeChange}
-                  disabled={isSelectDisabled}
-                  aria-label={`Output file format. ${displayLabel}`}
+    <div className={cadStyles["cad-conversion-upload-wrap"]}>
+      <ConverterPricingBanner
+        isFree={isFreeConversion}
+        pricing={pricingInfo?.pricing}
+        isSampleFile={isSampleFile}
+      />
+      <div className={`${cadStyles["cad-conversion-table"]} ${cadStyles["cad-conversion-table--dark"]}`}>
+        <table>
+          <thead>
+            <tr>
+              <th>File name</th>
+              <th>Format</th>
+              <th>Convert to</th>
+              <th>Pricing</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="File name">{textLettersLimit(file?.name, 35)}</td>
+              <td data-label="Format">
+                {file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}
+              </td>
+              <td data-label="Convert to">
+                <div
+                  className={`${cadStyles["cad-conversion-format-slot"]} ${
+                    isSelectDisabled ? cadStyles["cad-conversion-format-slotDisabled"] : ""
+                  }`}
                 >
-                  <option value="">Select format…</option>
-                  {optionsForSelect.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-                <div className={cadStyles["cad-conversion-format-label"]}>{displayLabel}</div>
-              </div>
-            </td>
-            <td data-label="Status">
-              {uploadingMessage || 'Ready'}
-            </td>
-            <td data-label="Action">
-              {isConvertButtonVisible && !uploadingMessage && (
-                <button
-                  type="button"
-                  className={cadStyles["cad-conversion-button"]}
-                  onClick={handleConvert}
-                  disabled={isConvertButtonDisabled}
-                >
-                  Convert
-                </button>
-              )}
+                  <select
+                    key={file?.name ? `fmt-${file.name}` : "fmt"}
+                    className={cadStyles["cad-conversion-format-select"]}
+                    value={selectValueAttr}
+                    onChange={handleNativeChange}
+                    disabled={isSelectDisabled}
+                    aria-label={`Output file format. ${displayLabel}`}
+                  >
+                    <option value="">Select format…</option>
+                    {optionsForSelect.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className={cadStyles["cad-conversion-format-label"]}>{displayLabel}</div>
+                </div>
+              </td>
+              <td data-label="Pricing">
+                <ConverterPricingBadge
+                  isFree={isFreeConversion}
+                  pricing={pricingInfo?.pricing}
+                  variant="dark"
+                />
+              </td>
+              <td data-label="Status">
+                {uploadingMessage || "Ready"}
+              </td>
+              <td data-label="Action">
+                {isConvertButtonVisible && !uploadingMessage && (
+                  <button
+                    type="button"
+                    className={cadStyles["cad-conversion-button"]}
+                    onClick={handleConvert}
+                    disabled={isConvertButtonDisabled}
+                  >
+                    Convert
+                  </button>
+                )}
 
-              {uploadingMessage === "COMPLETED" && (
-                <Link
-                  href="/dashboard?cad_type=CAD_CONVERTER"
-                  className={cadStyles["cad-conversion-button"]}
-                >
-                  Download from dashboard
-                </Link>
-              )}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                {uploadingMessage === "COMPLETED" && (
+                  <Link
+                    href="/dashboard?cad_type=CAD_CONVERTER"
+                    className={cadStyles["cad-conversion-button"]}
+                  >
+                    Download from dashboard
+                  </Link>
+                )}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

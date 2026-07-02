@@ -31,6 +31,7 @@ import { Upload } from "lucide-react";
 function CadFileConversionWrapper({ children, convert, designVariant, heroFormatsLine }) {
     const fileInputRef = useRef(null);
     const [s3Url, setS3Url] = useState('');
+    const [isSampleFile, setIsSampleFile] = useState(false);
     const [baseName, setBaseName] = useState('');
     const [folderId, setFolderId] = useState('');
     const [checkLimit, setCheckLimit] = useState(false);
@@ -203,6 +204,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         }
         if (!file) return;
 
+        setIsSampleFile(false);
         const fileExtension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
         const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
         if (fileSizeMB < 5) {
@@ -370,7 +372,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
                     s3_link: url,
-                    sample_file:s3Url?true:false,
+                    sample_file: isSampleFile,
                     input_format: fileConvert.name.split('.').pop(),
                     output_format: selectedFileFormate,
                     file_name: fileConvert.name,
@@ -523,6 +525,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         setFileConvert({ name: file.name })
         setDisableSelect(false)
         setS3Url(file.url)
+        setIsSampleFile(true)
 
         setUploading(true)
     }
@@ -563,7 +566,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                 {uploading ?
                     <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
                         setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
-                        folderId={folderId} baseName={baseName} s3Url={s3Url}
+                        folderId={folderId} baseName={baseName} s3Url={s3Url} isSampleFile={isSampleFile}
                         uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed} />
                     : (() => {
                         const isConverterHero = designVariant === 'converterHero';

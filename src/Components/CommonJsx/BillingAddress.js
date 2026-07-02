@@ -10,7 +10,16 @@ import ReactPhoneNumber from './ReactPhoneNumber';
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
-function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetails }) {
+function BillingAddress({
+  onClose,
+  onSave,
+  cadId,
+  designDetails,
+  productDetails,
+  createdFor = 'design_billing',
+  setBillerDetails,
+}) {
+  const summaryDetails = productDetails || designDetails;
   const [formData, setFormData] = useState({
     fullName: '',
     company: '',
@@ -133,8 +142,10 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
   const fetchAddresses = async () => {
     setLoading(true)
     try {
+      const params = createdFor ? { created_for: createdFor } : {}
       const res = await axios.get(`${BASE_URL}/v1/payment/get-billing`, {
-        headers: { "user-uuid": localStorage.getItem("uuid") }
+        headers: { "user-uuid": localStorage.getItem("uuid") },
+        params,
       })
       const list = Array.isArray(res?.data) ? res.data : (res?.data?.data || [])
       setAddresses(list)
@@ -151,7 +162,7 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
     }
   }
 
-  useEffect(() => { fetchAddresses() }, [])
+  useEffect(() => { fetchAddresses() }, [createdFor])
 
   // Auto-populate currency when country changes
   useEffect(() => {
@@ -280,7 +291,8 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
       postal_code: formData.postalCode,
       country: formData.country?.label || '',
       phone: formData.phone,
-      payment_billing_id: editAddressId
+      payment_billing_id: editAddressId,
+      ...(createdFor ? { created_for: createdFor } : {}),
     }
 
     try {
@@ -296,7 +308,7 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
           currency: formData.currency?.value,
           cadId: cadId
         })
-        setBillerDetails({
+        setBillerDetails?.({
           user_name: formData.fullName,
           phone_number: formData.phone
         })
@@ -364,15 +376,24 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
     return error ? <span style={{ color: '#dc3545', fontSize: '14px', marginTop: '4px', display: 'block' }}>{error}</span> : null
   }
 
-  // Format currency display
-  const formatCurrency = (amount) => {
-    
-    return `$ ${parseFloat(amount).toFixed(2)}`
-  }
-
   // Calculate pricing breakdown
   const calculatePricing = () => {
-    const basePrice = pricingDetails?.basePrice || pricingDetails?.amount || designDetails?.price || 100
+    if (productDetails?.pricing) {
+      const p = productDetails.pricing;
+      const basePrice = Number(p.base_price ?? p.price ?? 0);
+      const gstRate = Math.round((p.gst_rate ?? 0.18) * 100);
+      const gstAmount = Number(p.gst_amount ?? basePrice * (gstRate / 100));
+      const totalAmount = Number(p.total ?? p.price_with_gst ?? basePrice + gstAmount);
+      return {
+        basePrice,
+        gstRate,
+        gstAmount,
+        totalAmount,
+        currency: p.currency || 'USD',
+      };
+    }
+
+    const basePrice = pricingDetails?.basePrice || pricingDetails?.amount || summaryDetails?.price || 100
     const gstRate = 18 // 18% GST
     const gstAmount = (basePrice * gstRate) / 100
     const totalAmount = basePrice + gstAmount
@@ -383,6 +404,19 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
       gstAmount,
       totalAmount,
       currency: formData.currency?.value || 'INR'
+    }
+  }
+
+  // Format currency display
+  const formatCurrency = (amount) => {
+    const pricing = calculatePricing();
+    const currency = pricing.currency || 'USD';
+    const n = parseFloat(amount);
+    if (!Number.isFinite(n)) return '';
+    try {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(n);
+    } catch {
+      return `$ ${n.toFixed(2)}`;
     }
   }
 
@@ -408,37 +442,23 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
             {/* Design Details */}
             <div style={{ marginBottom: '20px', padding: '15px', borderRadius: '8px' }}>
               <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>
-                {designDetails?.title || designDetails?.name || 'CAD Design File'}
+                {summaryDetails?.title || summaryDetails?.name || 'CAD Design File'}
               </h3>
               <p style={{ margin: '0', color: '#666', fontSize: '14px' }}>
-                {designDetails?.description || 'Professional CAD design file download'}
+                {summaryDetails?.description || 'Professional CAD design file download'}
               </p>
             </div>
 
-            {/* Pricing Breakdown */}
+            {/* Price */}
             <div style={{ marginBottom: '20px' }}>
-              <h4 style={{ margin: '0 0 15px 0', color: '#333' }}>Price Breakdown</h4>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <span>Base Price:</span>
-                <span>{formatCurrency(pricing.basePrice)}</span>
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <span>GST ({pricing.gstRate}%):</span>
-                <span>{formatCurrency(pricing.gstAmount)}</span>
-              </div>
-              
-              <hr style={{ margin: '15px 0', border: '1px solid #ddd' }} />
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                fontWeight: 'bold', 
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontWeight: 'bold',
                 fontSize: '16px',
-                color: '#333'
+                color: '#333',
               }}>
-                <span>Total Amount:</span>
+                <span>Price:</span>
                 <span>{formatCurrency(pricing.totalAmount)}</span>
               </div>
             </div>

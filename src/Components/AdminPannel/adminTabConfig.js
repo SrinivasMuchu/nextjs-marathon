@@ -1,6 +1,7 @@
 export const ADMIN_TABS = [
   'designs',
   'payments',
+  'controls',
   'viewed-list',
   'downloaded-list',
   'searched-list',
@@ -8,6 +9,7 @@ export const ADMIN_TABS = [
   'likes-list',
   'cad-service-requests',
   'techdraw-jobs',
+  'vendors',
 ];
 
 export const DEFAULT_ADMIN_TAB = 'designs';

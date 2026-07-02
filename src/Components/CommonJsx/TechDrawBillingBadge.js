@@ -4,7 +4,7 @@ import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 /** Free vs paid TechDraw job (dashboard cards). Paid jobs show list price (e.g. $4.99). */
 export default function TechDrawBillingBadge({ billingType }) {
   const isPaid = String(billingType || "").toLowerCase() === "paid";
-  const paidLabel = getTechDrawPriceDisplay().baseLabel;
+  const paidLabel = getTechDrawPriceDisplay().totalLabel;
 
   return (
     <div

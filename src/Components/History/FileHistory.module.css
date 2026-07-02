@@ -537,3 +537,42 @@
     flex: 1 1 auto;
   }
 }
+
+.converterPriceBadgeFree {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.converterPriceBreakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #495057;
+}
+
+.converterPriceTotal {
+  font-weight: 700;
+}
+
+.converterPricingFootnote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6c757d;
+}

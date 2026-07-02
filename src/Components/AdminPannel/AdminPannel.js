@@ -11,6 +11,8 @@ import RatingsList from './RatingsList'
 import LikesList from './LikesList'
 import CadServiceRequestsTable from './CadServiceRequestsTable'
 import TechDrawJobsTable from './TechDrawJobsTable'
+import AdminControlsPanel from './AdminControlsPanel'
+import VendorsTable from './VendorsTable'
 import styles from './AdminPannel.module.css'
 import AdminPannelAuthentication from './AdminPannelAuthentication'
 import {
@@ -81,6 +83,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
         return 'Designs'
       case 'payments':
         return 'Payments'
+      case 'controls':
+        return 'Controls'
       case 'viewed-list':
         return 'Top Viewed'
       case 'downloaded-list':
@@ -95,6 +99,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
         return ''
       case 'techdraw-jobs':
         return 'TechDraw Uploads'
+      case 'vendors':
+        return 'Vendors'
       default:
         return 'Admin Panel'
     }
@@ -106,6 +112,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
         return <DesignTable />
       case 'payments':
         return <PaymentsTable />
+      case 'controls':
+        return <AdminControlsPanel />
       case 'viewed-list':
         return <ViewedList />
       case 'downloaded-list':
@@ -120,6 +128,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
         return <CadServiceRequestsTable />
       case 'techdraw-jobs':
         return <TechDrawJobsTable />
+      case 'vendors':
+        return <VendorsTable />
       default:
         return <DesignTable />
     }
