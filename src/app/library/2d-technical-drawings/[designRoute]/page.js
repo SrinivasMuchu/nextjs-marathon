@@ -176,6 +176,24 @@ export default async function TwoDLibrarySegmentPage({ params, searchParams }) {
   }
 
   const queryParams = searchParams ?? {};
+  const tagsParam = queryParams.tags;
+  if (tagsParam) {
+    redirect(
+      get2DLibraryPathWithQuery({
+        categoryName,
+        tagName: tagsParam,
+        search: queryParams.search,
+        page: queryParams.page,
+        sort: queryParams.sort,
+        recency: queryParams.recency,
+        free_paid: queryParams.free_paid,
+        file_format: queryParams.file_format,
+        output_format: queryParams.output_format,
+        projection: queryParams.projection,
+      })
+    );
+  }
+
   const queryCategory = queryParams.category;
   if (queryCategory) {
     const resolvedQueryCategory = resolveCategorySlugToName(queryCategory, categories);

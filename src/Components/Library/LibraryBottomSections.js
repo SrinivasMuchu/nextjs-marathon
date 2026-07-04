@@ -42,7 +42,7 @@ export default function LibraryBottomSections() {
         id="browse-by-category"
         title="Browse CAD models by category"
         items={LIBRARY_BROWSE_CATEGORIES}
-        getHref={(item) => `/library/category/${item.slug}`}
+        getHref={(item) => `/library/${item.slug}`}
       />
     </>
   );

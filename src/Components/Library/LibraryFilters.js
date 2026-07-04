@@ -348,7 +348,7 @@ export default function LibraryFilters({
               if (!tagValue || !isValidLibraryTagSlug(tagValue)) return null;
               const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
               const isActive = displayTag === tagValue;
-              /* With category: /library/categoryname/tagname; without: /library/tag/tagname */
+              /* With category: /library/{categorySlug}/{tagSlug}; without: /library/tag/{tagSlug} */
               const tagUrl = buildLibraryUrl({ categoryName: category || null, tagName: isActive ? null : tagValue });
               return inSheet ? (
                 <button

@@ -18,19 +18,24 @@ export const metadata = {
 
 export default async function TwoDLibraryListPage({ searchParams }) {
   const categoryParam = searchParams?.category;
-  if (categoryParam) {
-    const categories = await fetchTwoDLibraryCategories();
-    const categoryName = resolveCategorySlugToName(categoryParam, categories);
+  const tagsParam = searchParams?.tags;
 
-    if (categoryName) {
+  if (categoryParam || tagsParam) {
+    const categories = await fetchTwoDLibraryCategories();
+    const categoryName = categoryParam
+      ? resolveCategorySlugToName(categoryParam, categories)
+      : null;
+
+    if (tagsParam || categoryName) {
       const {
         category: _category,
+        tags: _tags,
         ...rest
       } = searchParams ?? {};
       redirect(
         get2DLibraryPathWithQuery({
-          categoryName,
-          tagName: rest.tags || null,
+          categoryName: categoryName || null,
+          tagName: tagsParam || null,
           search: rest.search,
           page: rest.page,
           sort: rest.sort,
