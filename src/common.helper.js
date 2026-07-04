@@ -358,13 +358,13 @@ export function resolveCategorySlugToName(slug, categories = []) {
 /**
  * Build library path (no query). Use for links.
  * - No category, no tag → /library
- * - Category only → /library/category/{categorySlug}
+ * - Category only → /library/{categorySlug}
  * - Tag only → /library/tag/{tagSlug}
  * - Category + tag → /library/{categorySlug}/{tagSlug}
  * categoryName/tagName are the raw names (e.g. from API); they are slugified for the path.
  */
 export function getLibraryCategoryPath(categorySlug) {
-  return `/library/category/${slugify(categorySlug)}`;
+  return `/library/${slugify(categorySlug)}`;
 }
 
 export function getLibraryFileFormatPath(formatSlug) {

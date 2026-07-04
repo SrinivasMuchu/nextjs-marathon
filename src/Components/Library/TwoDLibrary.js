@@ -27,6 +27,7 @@ import {
   TWO_D_LIBRARY_INTRO,
   TWO_D_LIBRARY_DESCRIPTION,
   TWO_D_LIBRARY_BASE,
+  get2DLibraryPath,
   get2DLibraryPathWithQuery,
   hasTwoDLibraryNarrowingFilters,
 } from '@/data/twoDLibraryPage';
@@ -165,7 +166,15 @@ export default async function TwoDLibrary({
     { label: '2D Technical Drawings', href: listRootPath },
   ];
   if (categoryLabel) {
-    breadcrumbSchemaLinks.push({ label: categoryLabel });
+    if (tagLabel) {
+      breadcrumbSchemaLinks.push({
+        label: categoryLabel,
+        href: get2DLibraryPath({ categoryName: category }),
+      });
+      breadcrumbSchemaLinks.push({ label: tagLabel });
+    } else {
+      breadcrumbSchemaLinks.push({ label: categoryLabel });
+    }
   } else if (tagLabel) {
     breadcrumbSchemaLinks.push({ label: tagLabel });
   }
@@ -212,9 +221,26 @@ export default async function TwoDLibrary({
                   2D Library
                 </Link>
                 <span className={styles['library-hero-breadcrumb-sep']}>/</span>
-                <span className={styles['library-hero-breadcrumb-current']}>
-                  {categoryLabel || tagLabel}
-                </span>
+                {categoryLabel ? (
+                  <>
+                    {tagLabel ? (
+                      <>
+                        <Link
+                          href={get2DLibraryPath({ categoryName: category })}
+                          className={styles['library-hero-breadcrumb-link']}
+                        >
+                          {categoryLabel}
+                        </Link>
+                        <span className={styles['library-hero-breadcrumb-sep']}>/</span>
+                        <span className={styles['library-hero-breadcrumb-current']}>{tagLabel}</span>
+                      </>
+                    ) : (
+                      <span className={styles['library-hero-breadcrumb-current']}>{categoryLabel}</span>
+                    )}
+                  </>
+                ) : (
+                  <span className={styles['library-hero-breadcrumb-current']}>{tagLabel}</span>
+                )}
               </>
             ) : (
               <span className={styles['library-hero-breadcrumb-current']}>2D Library</span>
@@ -239,9 +265,7 @@ export default async function TwoDLibrary({
               {(allCategories || []).map((cat) => (
                 <Link
                   key={cat.industry_category_name}
-                  href={get2DLibraryPathWithQuery({
-                    categoryName: cat.industry_category_name,
-                  })}
+                  href={get2DLibraryPath({ categoryName: cat.industry_category_name })}
                   className={
                     styles['library-category-tag'] +
                     (category === cat.industry_category_name

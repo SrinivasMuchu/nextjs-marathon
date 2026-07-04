@@ -65,6 +65,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/library/category/:slug',
+        destination: '/library/:slug',
+        permanent: true,
+      },
+      {
         source: '/industry/aerospace-and-defence/:slug*',
         destination: '/industry/aerospace-and-aviation/:slug*',
         permanent: true,

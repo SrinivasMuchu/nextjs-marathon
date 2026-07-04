@@ -58,10 +58,16 @@ export function isTwoDDesignRoute(segment) {
   return typeof segment === 'string' && /[a-f0-9]{24}/i.test(segment);
 }
 
-/** Path for 2D library listing; category is a path segment, not a query param. */
-export function get2DLibraryPath({ categoryName = null } = {}) {
-  if (!categoryName) return TWO_D_LIBRARY_BASE;
-  return `${TWO_D_LIBRARY_BASE}/${slugify(categoryName)}`;
+/** Path for 2D library listing (category/tag in path, same pattern as 3D library). */
+export function get2DLibraryPath({ categoryName = null, tagName = null } = {}) {
+  if (!categoryName && !tagName) return TWO_D_LIBRARY_BASE;
+  if (categoryName && !tagName) {
+    return `${TWO_D_LIBRARY_BASE}/${slugify(categoryName)}`;
+  }
+  if (!categoryName && tagName) {
+    return `${TWO_D_LIBRARY_BASE}/tag/${slugify(tagName)}`;
+  }
+  return `${TWO_D_LIBRARY_BASE}/${slugify(categoryName)}/${slugify(tagName)}`;
 }
 
 export function get2DLibraryPathWithQuery({
@@ -76,9 +82,8 @@ export function get2DLibraryPathWithQuery({
   output_format,
   projection,
 } = {}) {
-  const path = get2DLibraryPath({ categoryName });
+  const path = get2DLibraryPath({ categoryName, tagName });
   const params = new URLSearchParams();
-  if (tagName) params.set('tags', tagName);
   if (search) params.set('search', search);
   if (page && page > 1) params.set('page', String(page));
   if (sort) params.set('sort', sort);

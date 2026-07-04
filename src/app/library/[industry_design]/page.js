@@ -4,6 +4,7 @@ import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import { notFound } from 'next/navigation';
 import { resolveCategorySlugToName, getLibraryPath, getLibraryCanonicalAndRobots } from '@/common.helper';
 import { buildLibraryDetailMetadata, buildPageMetadata } from '@/lib/seo/pageMetadata';
+import { LIBRARY_CATEGORY_PAGES } from '@/data/libraryPage';
 import axios from 'axios';
 
 export const revalidate = 60;
@@ -58,8 +59,14 @@ export async function generateMetadata({ params, searchParams }) {
   if (!categoryName) notFound();
 
   const page = parseInt(searchParams?.page, 10) || 1;
-  const title = `${categoryName} CAD Models | STEP, STL, IGES Downloads | Marathon OS${page > 1 ? ` - Page ${page}` : ''}`;
-  const description = `Download ${categoryName} 3D CAD models in STEP/STP, IGES, STL and more. Filter by tags, file type, price & popularity. Preview online.`;
+  const pageConfig = LIBRARY_CATEGORY_PAGES[segment];
+  const title =
+    (pageConfig?.title ||
+      `${categoryName} CAD Models | STEP, STL, IGES Downloads | Marathon OS`) +
+    (page > 1 ? ` - Page ${page}` : '');
+  const description =
+    pageConfig?.description ||
+    `Download ${categoryName} 3D CAD models in STEP/STP, IGES, STL and more. Filter by tags, file type, price & popularity. Preview online.`;
 
   const path = getLibraryPath({ categoryName });
   const { canonicalPath, robots, prevPath, nextPath } = getLibraryCanonicalAndRobots({
@@ -110,11 +117,17 @@ export default async function LibrarySegmentPage({ params, searchParams }) {
   if (!categoryName) notFound();
 
   // Merge URL query params with category from path (path segment is not in searchParams)
+  const pageConfig = LIBRARY_CATEGORY_PAGES[segment];
   const queryParams = searchParams ?? {};
-  const merged = { ...queryParams, category: categoryName };
+  const merged = {
+    ...queryParams,
+    category: categoryName,
+    libraryPageVariant: pageConfig ? 'category' : undefined,
+    libraryPageSlug: pageConfig ? segment : undefined,
+  };
   return (
     <div>
-      <Library searchParams={merged} />
+      <Library searchParams={merged} pageConfig={pageConfig || null} />
     </div>
   );
 }
