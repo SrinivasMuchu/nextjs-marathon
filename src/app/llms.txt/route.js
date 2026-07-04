@@ -1,5 +1,4 @@
-const DEFAULT_SITE_ORIGIN =
-  process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://marathon-os.com";
+const DEFAULT_SITE_ORIGIN = "https://marathon-os.com";
 
 function resolveSiteOrigin(request) {
   if (!request) return DEFAULT_SITE_ORIGIN;
