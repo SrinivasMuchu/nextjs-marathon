@@ -13,11 +13,12 @@ const step = 30;
 
 // Define angle views (constant, outside component)
 const ANGLE_VIEWS = [
-  { x: 0,   y: 0, type: 'angle' },
-  { x: 0,   y: 60, type: 'angle' },
-  { x: 0,   y: 120, type: 'angle' },
-  { x: 30,  y: 0, type: 'angle' },
-  { x: 330, y: 0, type: 'angle' },
+  { x: 0,   y: 0,   type: 'angle' },
+  { x: 0,   y: 90,  type: 'angle' },
+  { x: 0,   y: 270, type: 'angle' },
+  { x: 90,  y: 0,   type: 'angle' },
+  { x: 270, y: 0,   type: 'angle' },
+  { x: 60,  y: 30,  type: 'angle' },
 ];
 
 export default function DesignViewer({
@@ -29,6 +30,7 @@ export default function DesignViewer({
   initialY = 0,
 }) {
   let isDxf = designData?.file_type?.toLowerCase() === 'dxf' || designData?.file_type?.toLowerCase() === 'dwg';
+  const isGlb = Boolean(designData?.is_glb);
   // Filter supported image files (png, jpg, jpeg, webp - match IndustryDesignSupportFileList)
   const supportedImages = useMemo(() => {
     const files = designData?.supporting_files || [];
@@ -592,58 +594,60 @@ export default function DesignViewer({
               />
             </div>
             <div className={styles.controls}>
-              <div className={styles.dpad}>
-                <button 
-                  type="button"
-                  aria-label="Rotate view up"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setXDeg((prev) => wrapDeg(prev + step));
-                  }} 
-                  className={styles.button}
-                >
-                  <IoIosArrowUp />
-                </button>
-                <div className={styles.h}>
+              {!isGlb ? (
+                <div className={styles.dpad}>
                   <button 
                     type="button"
-                    aria-label="Rotate view left"
+                    aria-label="Rotate view up"
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      setYDeg((prev) => wrapDeg(prev - step));
+                      setXDeg((prev) => wrapDeg(prev + step));
                     }} 
                     className={styles.button}
                   >
-                    <IoIosArrowBack />
+                    <IoIosArrowUp />
                   </button>
+                  <div className={styles.h}>
+                    <button 
+                      type="button"
+                      aria-label="Rotate view left"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setYDeg((prev) => wrapDeg(prev - step));
+                      }} 
+                      className={styles.button}
+                    >
+                      <IoIosArrowBack />
+                    </button>
+                    <button 
+                      type="button"
+                      aria-label="Rotate view right"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setYDeg((prev) => wrapDeg(prev + step));
+                      }} 
+                      className={styles.button}
+                    >
+                      <IoIosArrowForward />
+                    </button>
+                  </div>
                   <button 
                     type="button"
-                    aria-label="Rotate view right"
+                    aria-label="Rotate view down"
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      setYDeg((prev) => wrapDeg(prev + step));
+                      setXDeg((prev) => wrapDeg(prev - step));
                     }} 
                     className={styles.button}
                   >
-                    <IoIosArrowForward />
+                    <IoIosArrowDown />
                   </button>
                 </div>
-                <button 
-                  type="button"
-                  aria-label="Rotate view down"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setXDeg((prev) => wrapDeg(prev - step));
-                  }} 
-                  className={styles.button}
-                >
-                  <IoIosArrowDown />
-                </button>
-              </div>
+              ) : null}
               <div className={styles.zoom}>
                 <button
                   type="button"

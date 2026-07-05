@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BASE_URL } from "@/config";
+import { getTwoDPriceLabel } from "@/data/twoDLibraryPage";
 import styles from "./TwoDMoreDesignsSection.module.css";
 import FallbackImageClient from "../CommonJsx/FallbackImageClient";
 
@@ -69,7 +70,7 @@ export default async function TwoDMoreDesignsSection({ currentDesignId }) {
               <div className={styles.cardTitle}>{title}</div>
               <div className={styles.cardMeta}>
                 <span>2D Drawing</span>
-                <span>{design?.price ? `$${design.price}` : "Free"}</span>
+                <span>{getTwoDPriceLabel(design)}</span>
               </div>
             </Link>
           );
