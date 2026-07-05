@@ -5,8 +5,16 @@ import PopupWrapper from './PopupWrapper'
 import styles from './CommonStyles.module.css'
 import axios from 'axios'
 import { BASE_URL } from '@/config';
+import { COUNTRIES } from '@/data/countries';
 import { GoPencil } from "react-icons/go";
 import ReactPhoneNumber from './ReactPhoneNumber';
+
+const DEFAULT_CURRENCY = {
+  value: 'USD',
+  label: 'USD - ($)',
+  symbol: '$',
+  name: 'US Dollar',
+};
 
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
@@ -25,7 +33,6 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
     currency: ''
   })
 
-  const [countries, setCountries] = useState([])
   const [loading, setLoading] = useState(false)
   const [addresses, setAddresses] = useState([])
   const [editAddressId, setEditAddressId] = useState(null)
@@ -104,7 +111,7 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
   // Map saved address to form fields
   const fillFormFromAddress = (addr) => {
     const selectedCountry =
-      countries.find(c => c.label === addr.country || c.value === addr.country) || null;
+      COUNTRIES.find(c => c.label === addr.country || c.value === addr.country) || null;
 
     setEditAddressId(addr._id);
     setFormData({
@@ -125,11 +132,6 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
   // Fetch pricing details for billing summary
  
 
-  // Fetch countries on component mount
-  useEffect(() => {
-    fetchCountries()
-  }, [])
-  
   const fetchAddresses = async () => {
     setLoading(true)
     try {
@@ -156,80 +158,12 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
   // Auto-populate currency when country changes
   useEffect(() => {
     if (formData.country?.value) {
-      getCurrencyByCountry(formData.country.value)
+      setFormData(prev => ({
+        ...prev,
+        currency: DEFAULT_CURRENCY,
+      }))
     }
   }, [formData.country])
-
-  const fetchCountries = async () => {
-    try {
-      const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2')
-      const data = await response.json()
-      const countryOptions = data.map(country => ({
-        value: country.cca2,
-        label: country.name.common
-      })).sort((a, b) => a.label.localeCompare(b.label))
-      setCountries(countryOptions)
-    } catch (error) {
-      console.error('Error fetching countries:', error)
-      // Fallback countries
-      setCountries([
-        { value: 'US', label: 'United States' },
-        { value: 'IN', label: 'India' },
-        { value: 'GB', label: 'United Kingdom' },
-        { value: 'CA', label: 'Canada' },
-        { value: 'AU', label: 'Australia' }
-      ])
-    }
-  }
-
-  const getCurrencyByCountry = async (countryCode) => {
-    try {
-      const response = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`)
-      const data = await response.json()
-      const currencies = data[0].currencies
-
-      for (let key in currencies) {
-        const currencyData = {
-          value: key,
-          label: `${key} - (${currencies[key].symbol})`,
-          symbol: currencies[key].symbol,
-          name: currencies[key].name
-        }
-        
-        // Auto-populate the currency field
-        setFormData(prev => ({
-          ...prev,
-          currency: currencyData
-        }))
-        
-        return { code: key, symbol: currencies[key].symbol, name: currencies[key].name }
-      }
-    } catch (error) {
-      console.error('Error fetching currency for country:', error)
-      
-      // Fallback currency mapping with symbols
-      const fallbackCurrencies = {
-        'US': { code: 'USD', symbol: '$', name: 'US Dollar' },
-        'IN': { code: 'USD', symbol: '$', name: 'US Dollar' }, // Changed from INR to USD
-        'GB': { code: 'USD', symbol: '$', name: 'US Dollar' },
-        'CA': { code: 'USD', symbol: '$', name: 'US Dollar' },
-        'AU': { code: 'USD', symbol: '$', name: 'US Dollar' }
-      }
-      
-      const fallbackCurrency = fallbackCurrencies[countryCode]
-      if (fallbackCurrency) {
-        setFormData(prev => ({
-          ...prev,
-          currency: {
-            value: fallbackCurrency.code,
-            label: `${fallbackCurrency.code} - (${fallbackCurrency.symbol})`,
-            symbol: fallbackCurrency.symbol,
-            name: fallbackCurrency.name
-          }
-        }))
-      }
-    }
-  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -612,7 +546,7 @@ function BillingAddress({  onClose, onSave, cadId, designDetails, setBillerDetai
                 name="country"
                 value={formData.country}
                 onChange={handleSelectChange}
-                options={countries}
+                options={COUNTRIES}
                 styles={customSelectStyles}
                 placeholder="Select Country"
                 isSearchable
