@@ -8,13 +8,6 @@ import { BASE_URL } from '@/config';
 import { GoPencil } from "react-icons/go";
 import ReactPhoneNumber from './ReactPhoneNumber';
 
-const DEFAULT_CURRENCY = {
-  value: 'USD',
-  label: 'USD - ($)',
-  symbol: '$',
-  name: 'US Dollar',
-};
-
 // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
 function BillingAddress({
@@ -37,8 +30,7 @@ function BillingAddress({
     postalCode: '',
     country: '',
     phone: '',
-    gstNumber: '',
-    currency: ''
+    gstNumber: ''
   })
 
   const [loading, setLoading] = useState(false)
@@ -111,8 +103,7 @@ function BillingAddress({
       postalCode: '',
       country: '',
       phone: '',
-      gstNumber: '',
-      currency: ''
+      gstNumber: ''
     })
     setErrors({})
   }
@@ -132,8 +123,7 @@ function BillingAddress({
       postalCode: addr.postal_code || "",
       country: selectedCountry,
       phone: addr.phone || "",
-      gstNumber: addr.gstNumber || "",
-      currency: addr.currency || ""
+      gstNumber: addr.gstNumber || ""
     });
     setErrors({})
   }
@@ -188,16 +178,6 @@ function BillingAddress({
       setFormData(prev => ({ ...prev, country: selectedCountry }))
     }
   }, [countries, selectedId, addresses])
-
-  // Auto-populate currency when country changes
-  useEffect(() => {
-    if (formData.country?.value) {
-      setFormData(prev => ({
-        ...prev,
-        currency: DEFAULT_CURRENCY,
-      }))
-    }
-  }, [formData.country])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -262,7 +242,6 @@ function BillingAddress({
         // Save billing data for summary
         setSavedBillingData({
           billingId: response.data.data._id,
-          currency: formData.currency?.value,
           cadId: cadId
         })
         setBillerDetails?.({
@@ -270,7 +249,7 @@ function BillingAddress({
           phone_number: formData.phone
         })
         // Fetch pricing details
-        // await fetchPricingDetails(response.data.data._id, formData.currency?.value)
+        // await fetchPricingDetails(response.data.data._id)
         
         // Show billing summary instead of directly calling onSave
         setShowBillingSummary(true)
@@ -286,7 +265,7 @@ function BillingAddress({
   // Handle proceed to payment from billing summary
   const handleProceedToPayment = () => {
     if (savedBillingData && onSave) {
-      onSave(savedBillingData.cadId, savedBillingData.billingId, savedBillingData.currency)
+      onSave(savedBillingData.cadId, savedBillingData.billingId)
       onClose && onClose()
     }
   }
@@ -360,7 +339,6 @@ function BillingAddress({
       gstRate,
       gstAmount,
       totalAmount,
-      currency: formData.currency?.value || 'INR'
     }
   }
 
