@@ -5,7 +5,6 @@ import PopupWrapper from './PopupWrapper'
 import styles from './CommonStyles.module.css'
 import axios from 'axios'
 import { BASE_URL } from '@/config';
-import { COUNTRIES } from '@/data/countries';
 import { GoPencil } from "react-icons/go";
 import ReactPhoneNumber from './ReactPhoneNumber';
 
@@ -50,6 +49,7 @@ function BillingAddress({
   const [showBillingSummary, setShowBillingSummary] = useState(false)
   const [pricingDetails, setPricingDetails] = useState(null)
   const [savedBillingData, setSavedBillingData] = useState(null)
+  const [countries, setCountries] = useState([])
 
   // Validation function
   const validateForm = () => {
@@ -120,7 +120,7 @@ function BillingAddress({
   // Map saved address to form fields
   const fillFormFromAddress = (addr) => {
     const selectedCountry =
-      COUNTRIES.find(c => c.label === addr.country || c.value === addr.country) || null;
+      countries.find(c => c.label === addr.country || c.value === addr.country) || null;
 
     setEditAddressId(addr._id);
     setFormData({
@@ -164,7 +164,30 @@ function BillingAddress({
     }
   }
 
+  const fetchCountries = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/v1/payment/countries`)
+      const list = Array.isArray(res?.data?.data) ? res.data.data : []
+      setCountries(list)
+    } catch (e) {
+      console.error('Failed to fetch countries:', e)
+    }
+  }
+
   useEffect(() => { fetchAddresses() }, [createdFor])
+  useEffect(() => { fetchCountries() }, [])
+
+  // Re-match saved country once countries list has loaded
+  useEffect(() => {
+    if (!selectedId || countries.length === 0) return
+    const addr = addresses.find(a => a._id === selectedId)
+    if (!addr || formData.country) return
+    const selectedCountry =
+      countries.find(c => c.label === addr.country || c.value === addr.country) || null
+    if (selectedCountry) {
+      setFormData(prev => ({ ...prev, country: selectedCountry }))
+    }
+  }, [countries, selectedId, addresses])
 
   // Auto-populate currency when country changes
   useEffect(() => {
@@ -566,7 +589,7 @@ function BillingAddress({
                 name="country"
                 value={formData.country}
                 onChange={handleSelectChange}
-                options={COUNTRIES}
+                options={countries}
                 styles={customSelectStyles}
                 placeholder="Select Country"
                 isSearchable
