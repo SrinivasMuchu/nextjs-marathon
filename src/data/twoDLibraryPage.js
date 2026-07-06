@@ -53,6 +53,12 @@ export const TWO_D_PROJECTION_FILTERS = [
   { value: '3rd-angle', label: '3rd Angle' },
 ];
 
+/** Price label for 2D library cards — uses 2d_price when set, otherwise Free. */
+export function getTwoDPriceLabel(design) {
+  const price = design?.['2d_price'];
+  return price ? `$${price}` : 'Free';
+}
+
 /** Design routes contain a MongoDB ObjectId (24 hex chars); category slugs do not. */
 export function isTwoDDesignRoute(segment) {
   return typeof segment === 'string' && /[a-f0-9]{24}/i.test(segment);

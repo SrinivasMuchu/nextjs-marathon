@@ -8,6 +8,7 @@ import {
   TWO_D_DEFAULT_PROJECTION,
   TWO_D_DEFAULT_SHEET_LABEL,
   TWO_D_DRAWING_TYPE,
+  getTwoDPriceLabel,
 } from '@/data/twoDLibraryPage';
 import styles from './Library.module.css';
 import cardStyles from './LibraryProductCard.module.css';
@@ -41,7 +42,7 @@ export default function TwoDLibraryCard({ design }) {
   const sourceFormat = String(design.file_type || 'step').toLowerCase();
   const outputFormats = design.two_d_output_formats || TWO_D_DEFAULT_OUTPUT_FORMATS;
   const projection = design.two_d_projection || TWO_D_DEFAULT_PROJECTION;
-  const priceLabel = design.price ? `$${design.price}` : 'Free';
+  const priceLabel = getTwoDPriceLabel(design);
 
   return (
     <div className={styles['library-designs-items-container']}>

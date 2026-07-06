@@ -30,11 +30,9 @@ function BillingAddress({
     postalCode: '',
     country: '',
     phone: '',
-    gstNumber: '',
-    currency: ''
+    gstNumber: ''
   })
 
-  const [countries, setCountries] = useState([])
   const [loading, setLoading] = useState(false)
   const [addresses, setAddresses] = useState([])
   const [editAddressId, setEditAddressId] = useState(null)
@@ -43,6 +41,7 @@ function BillingAddress({
   const [showBillingSummary, setShowBillingSummary] = useState(false)
   const [pricingDetails, setPricingDetails] = useState(null)
   const [savedBillingData, setSavedBillingData] = useState(null)
+  const [countries, setCountries] = useState([])
 
   // Validation function
   const validateForm = () => {
@@ -104,8 +103,7 @@ function BillingAddress({
       postalCode: '',
       country: '',
       phone: '',
-      gstNumber: '',
-      currency: ''
+      gstNumber: ''
     })
     setErrors({})
   }
@@ -125,8 +123,7 @@ function BillingAddress({
       postalCode: addr.postal_code || "",
       country: selectedCountry,
       phone: addr.phone || "",
-      gstNumber: addr.gstNumber || "",
-      currency: addr.currency || ""
+      gstNumber: addr.gstNumber || ""
     });
     setErrors({})
   }
@@ -134,11 +131,6 @@ function BillingAddress({
   // Fetch pricing details for billing summary
  
 
-  // Fetch countries on component mount
-  useEffect(() => {
-    fetchCountries()
-  }, [])
-  
   const fetchAddresses = async () => {
     setLoading(true)
     try {
@@ -162,85 +154,30 @@ function BillingAddress({
     }
   }
 
-  useEffect(() => { fetchAddresses() }, [createdFor])
-
-  // Auto-populate currency when country changes
-  useEffect(() => {
-    if (formData.country?.value) {
-      getCurrencyByCountry(formData.country.value)
-    }
-  }, [formData.country])
-
   const fetchCountries = async () => {
     try {
-      const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2')
-      const data = await response.json()
-      const countryOptions = data.map(country => ({
-        value: country.cca2,
-        label: country.name.common
-      })).sort((a, b) => a.label.localeCompare(b.label))
-      setCountries(countryOptions)
-    } catch (error) {
-      console.error('Error fetching countries:', error)
-      // Fallback countries
-      setCountries([
-        { value: 'US', label: 'United States' },
-        { value: 'IN', label: 'India' },
-        { value: 'GB', label: 'United Kingdom' },
-        { value: 'CA', label: 'Canada' },
-        { value: 'AU', label: 'Australia' }
-      ])
+      const res = await axios.get(`${BASE_URL}/v1/payment/countries`)
+      const list = Array.isArray(res?.data?.data) ? res.data.data : []
+      setCountries(list)
+    } catch (e) {
+      console.error('Failed to fetch countries:', e)
     }
   }
 
-  const getCurrencyByCountry = async (countryCode) => {
-    try {
-      const response = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`)
-      const data = await response.json()
-      const currencies = data[0].currencies
+  useEffect(() => { fetchAddresses() }, [createdFor])
+  useEffect(() => { fetchCountries() }, [])
 
-      for (let key in currencies) {
-        const currencyData = {
-          value: key,
-          label: `${key} - (${currencies[key].symbol})`,
-          symbol: currencies[key].symbol,
-          name: currencies[key].name
-        }
-        
-        // Auto-populate the currency field
-        setFormData(prev => ({
-          ...prev,
-          currency: currencyData
-        }))
-        
-        return { code: key, symbol: currencies[key].symbol, name: currencies[key].name }
-      }
-    } catch (error) {
-      console.error('Error fetching currency for country:', error)
-      
-      // Fallback currency mapping with symbols
-      const fallbackCurrencies = {
-        'US': { code: 'USD', symbol: '$', name: 'US Dollar' },
-        'IN': { code: 'USD', symbol: '$', name: 'US Dollar' }, // Changed from INR to USD
-        'GB': { code: 'USD', symbol: '$', name: 'US Dollar' },
-        'CA': { code: 'USD', symbol: '$', name: 'US Dollar' },
-        'AU': { code: 'USD', symbol: '$', name: 'US Dollar' }
-      }
-      
-      const fallbackCurrency = fallbackCurrencies[countryCode]
-      if (fallbackCurrency) {
-        setFormData(prev => ({
-          ...prev,
-          currency: {
-            value: fallbackCurrency.code,
-            label: `${fallbackCurrency.code} - (${fallbackCurrency.symbol})`,
-            symbol: fallbackCurrency.symbol,
-            name: fallbackCurrency.name
-          }
-        }))
-      }
+  // Re-match saved country once countries list has loaded
+  useEffect(() => {
+    if (!selectedId || countries.length === 0) return
+    const addr = addresses.find(a => a._id === selectedId)
+    if (!addr || formData.country) return
+    const selectedCountry =
+      countries.find(c => c.label === addr.country || c.value === addr.country) || null
+    if (selectedCountry) {
+      setFormData(prev => ({ ...prev, country: selectedCountry }))
     }
-  }
+  }, [countries, selectedId, addresses])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -305,7 +242,6 @@ function BillingAddress({
         // Save billing data for summary
         setSavedBillingData({
           billingId: response.data.data._id,
-          currency: formData.currency?.value,
           cadId: cadId
         })
         setBillerDetails?.({
@@ -313,7 +249,7 @@ function BillingAddress({
           phone_number: formData.phone
         })
         // Fetch pricing details
-        // await fetchPricingDetails(response.data.data._id, formData.currency?.value)
+        // await fetchPricingDetails(response.data.data._id)
         
         // Show billing summary instead of directly calling onSave
         setShowBillingSummary(true)
@@ -329,7 +265,7 @@ function BillingAddress({
   // Handle proceed to payment from billing summary
   const handleProceedToPayment = () => {
     if (savedBillingData && onSave) {
-      onSave(savedBillingData.cadId, savedBillingData.billingId, savedBillingData.currency)
+      onSave(savedBillingData.cadId, savedBillingData.billingId)
       onClose && onClose()
     }
   }
@@ -403,7 +339,6 @@ function BillingAddress({
       gstRate,
       gstAmount,
       totalAmount,
-      currency: formData.currency?.value || 'INR'
     }
   }
 
