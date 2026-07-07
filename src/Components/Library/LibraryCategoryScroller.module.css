@@ -1,0 +1,118 @@
+.scrollerWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: clamp(16px, 2vw, 20px);
+}
+
+.scrollerTrack {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 2px;
+}
+
+.scrollerTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  background: #fff;
+  color: #6b7280;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.scrollButton:hover:not(:disabled) {
+  border-color: #c4b5fd;
+  color: #6226d9;
+}
+
+.scrollButton:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.categoryChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.categoryChip:hover {
+  border-color: #ddd6fe;
+  color: #6226d9;
+  text-decoration: none;
+}
+
+.categoryChipActive {
+  border-color: transparent;
+  background: linear-gradient(90deg, #5019b8 0%, #7c3aed 55%, #8b5cf6 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(98, 38, 217, 0.28);
+}
+
+.categoryChipActive:hover {
+  color: #fff;
+  border-color: transparent;
+}
+
+.categoryIcon {
+  font-size: 18px !important;
+  color: #7c3aed;
+}
+
+.categoryChipActive .categoryIcon {
+  color: #fff;
+}
+
+.categoryIconImage {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.categoryChipActive .categoryIconImage {
+  filter: brightness(0) invert(1);
+}
+
+@media (max-width: 640px) {
+  .scrollButton {
+    width: 32px;
+    height: 32px;
+  }
+
+  .categoryChip {
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+}

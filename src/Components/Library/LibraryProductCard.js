@@ -1,64 +1,133 @@
 import React from 'react';
 import Link from 'next/link';
+import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import SwapHorizOutlinedIcon from '@mui/icons-material/SwapHorizOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
-import DesignStats from '../CommonJsx/DesignStats';
-import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import { getLibraryQuickLinks } from '@/data/libraryPage';
 import styles from './Library.module.css';
 import cardStyles from './LibraryProductCard.module.css';
 
+function formatDownloadCount(count) {
+  const num = Number(count) || 0;
+  if (num >= 1_000_000) {
+    return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  }
+  if (num >= 1000) {
+    return `${(num / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+  }
+  return String(num);
+}
+
+function getCardFileFormats(design) {
+  const formats = new Set();
+  const primary = String(design?.file_type || 'step').toUpperCase();
+  if (primary) formats.add(primary);
+
+  (design?.supporting_files || []).forEach((file) => {
+    const name = file?.name || file?.fileName || '';
+    const match = name.match(/\.([a-z0-9]+)$/i);
+    if (match) formats.add(match[1].toUpperCase());
+  });
+
+  return Array.from(formats).slice(0, 4);
+}
+
+function buildTagsLine(design) {
+  const parts = [];
+  const category = design?.category_labels?.[0];
+  const tag = design?.tag_labels?.[0] || design?.cad_tag_names?.[0];
+
+  if (category) parts.push(String(category).toUpperCase());
+  if (tag) parts.push(String(tag).toUpperCase());
+
+  return parts.join(' · ');
+}
+
 export default function LibraryProductCard({ design }) {
-  const title = design.page_title || 'Untitled design';
+  const title = design.page_title || design.part_name || 'Untitled design';
   const productHref = `/library/${design.route}`;
-  const quickLinks = getLibraryQuickLinks(design.file_type);
+  const quickLinks = getLibraryQuickLinks(design.file_type).slice(0, 2);
+  const fileFormats = getCardFileFormats(design);
+  const tagsLine = buildTagsLine(design);
+  const priceLabel = design.price ? `$${design.price}` : 'Free';
+  const isFree = !design.price;
+  const downloads = formatDownloadCount(design.total_design_downloads ?? 0);
 
   return (
-    <div className={styles['library-designs-items-container']}>
-      <Link
-        href={productHref}
-        className={styles['library-designs-primary-link']}
-        aria-label={title}
-      >
-        <HoverImageSequence design={design} width={280} height={233} />
-        <h6 title={title}>{title}</h6>
-      </Link>
-
-      <div className={styles['design-title-wrapper']}>
-        <div
-          className={styles['design-title-text']}
-          style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}
+    <article className={`${styles['library-designs-items-container']} ${cardStyles.card}`}>
+      <div className={cardStyles.previewWrap}>
+        <span
+          className={`${cardStyles.priceBadge} ${
+            isFree ? cardStyles.priceBadgeFree : cardStyles.priceBadgePaid
+          }`}
         >
-          {design.category_labels?.map((label, index) => (
-            <DesignDetailsStats key={`cat-${index}`} text={label} type="category" />
-          ))}
-          {design.tag_labels?.slice(0, 2).map((label, index) => (
-            <DesignDetailsStats key={`tag-${index}`} text={label} type="tag" />
-          ))}
-          <DesignDetailsStats
-            fileType={design.file_type ? `.${design.file_type.toLowerCase()}` : '.STEP'}
-            text={design.file_type ? `.${design.file_type.toUpperCase()}` : '.STEP'}
-          />
-          <div className={styles['design-stats-wrapper']}>
-            <DesignStats
-              views={design.total_design_views ?? 0}
-              downloads={design.total_design_downloads ?? 0}
-            />
-          </div>
-        </div>
-        <span className={styles['design-title-wrapper-price']}>
-          {design.price ? `$${design.price}` : 'Free'}
+          {priceLabel}
         </span>
+        <HoverImageSequence
+          design={design}
+          width={260}
+          height={200}
+          containerClassName={styles['library-card-preview-img']}
+        />
       </div>
 
-      {quickLinks.length > 0 ? (
-        <div className={cardStyles.quickLinks}>
-          {quickLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={cardStyles.quickLink}>
-              {link.label}
+      <div className={cardStyles.body}>
+        {tagsLine ? (
+          <div className={cardStyles.tagsRow}>
+            <WbSunnyOutlinedIcon className={cardStyles.tagsIcon} aria-hidden />
+            <span>{tagsLine}</span>
+          </div>
+        ) : null}
+
+        <h3 className={cardStyles.title}>
+          <Link href={productHref} className={cardStyles.titleLink}>
+            {title}
+          </Link>
+        </h3>
+
+        {fileFormats.length > 0 ? (
+          <div className={cardStyles.formatRow}>
+            {fileFormats.map((format) => (
+              <span key={format} className={cardStyles.formatChip}>
+                .{format}
+              </span>
+            ))}
+          </div>
+        ) : null}
+
+        {quickLinks.length > 0 ? (
+          <div className={cardStyles.quickLinks}>
+            {quickLinks.map((link, index) => (
+              <Link key={link.href} href={link.href} className={cardStyles.quickLink}>
+                {index === 0 ? (
+                  <VisibilityOutlinedIcon className={cardStyles.quickLinkIcon} aria-hidden />
+                ) : (
+                  <SwapHorizOutlinedIcon className={cardStyles.quickLinkIcon} aria-hidden />
+                )}
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        ) : null}
+
+        <div className={cardStyles.footer}>
+          <span className={cardStyles.downloads}>
+            <FileDownloadOutlinedIcon className={cardStyles.downloadsIcon} aria-hidden />
+            {downloads} downloads
+          </span>
+          <div className={cardStyles.footerActions}>
+            <Link href={productHref} className={cardStyles.previewButton}>
+              <VisibilityOutlinedIcon fontSize="small" aria-hidden />
+              Preview
             </Link>
-          ))}
+            <Link href={productHref} className={cardStyles.getButton}>
+              Get
+            </Link>
+          </div>
         </div>
-      ) : null}
-    </div>
+      </div>
+    </article>
   );
 }

@@ -7,16 +7,125 @@
   padding: 0 clamp(32px, 5vw, 64px);
 }
 
-/* Dark purple hero header: full width, inner padding aligned with Marathon logo, no fillets */
+/* Dark purple hero header: full width, grid overlay, inner padding aligned with Marathon logo */
 .library-hero {
-  background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 50%, #6d28d9 100%);
+  background-color: #6226d9;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
   color: #fff;
   margin-left: calc(-1 * clamp(32px, 5vw, 64px));
   margin-right: calc(-1 * clamp(32px, 5vw, 64px));
-  padding: clamp(16px, 2.5vw, 24px) clamp(32px, 5vw, 64px) clamp(20px, 3vw, 28px);
-  margin-bottom: clamp(16px, 2vw, 20px);
+  padding: clamp(16px, 2.5vw, 24px) clamp(32px, 5vw, 64px) clamp(28px, 3.5vw, 40px);
+  margin-bottom: 0;
   border-radius: 0;
   box-sizing: border-box;
+}
+
+.library-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: clamp(12px, 1.5vw, 16px);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.library-hero-search {
+  max-width: 760px;
+  margin-top: clamp(4px, 0.5vw, 8px);
+}
+
+.library-hero-search-form {
+  width: 100%;
+}
+
+.library-hero-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 6px 6px 18px;
+  background: #fff;
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.library-hero-search-icon {
+  color: #9ca3af;
+  font-size: 22px !important;
+  flex-shrink: 0;
+}
+
+.library-hero-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: clamp(0.875rem, 1.1vw, 0.9375rem);
+  color: #111827;
+}
+
+.library-hero-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.library-hero-search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 9999px;
+}
+
+.library-hero-search-clear:hover {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.library-hero-search-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 9999px;
+  background: #6226d9;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+@media (max-width: 600px) {
+  .library-hero-search-bar {
+    padding-left: 14px;
+  }
+
+  .library-hero-search-button {
+    padding: 10px 14px;
+    font-size: 0;
+    gap: 0;
+  }
+
+  .library-hero-search-button svg {
+    font-size: 20px !important;
+  }
 }
 
 .library-hero-breadcrumb {
@@ -47,19 +156,21 @@
 }
 
 .library-hero-title {
-  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-size: clamp(1.875rem, 4.2vw, 2.5rem);
   font-weight: 700;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
   letter-spacing: -0.02em;
   color: #fff;
+  max-width: 720px;
+  line-height: 1.15;
 }
 
 .library-hero-description {
   font-size: clamp(0.9375rem, 1.2vw, 1rem);
-  line-height: 1.5;
+  line-height: 1.55;
   color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 clamp(16px, 2.5vw, 24px) 0;
-  max-width: 640px;
+  margin: 0 0 clamp(18px, 2.5vw, 24px) 0;
+  max-width: 720px;
 }
 
 .library-category-tags {
@@ -92,19 +203,9 @@
   border-color: #fff;
 }
 
-/* Categories row - outside header, on light background */
+/* Category scroller replaces the old wrap on library pages */
 .library-category-tags-wrap {
-  width: 100%;
-  margin-bottom: clamp(16px, 2vw, 20px);
-  padding: 0;
-}
-
-/* On small screens, hide the category row under the hero;
-   categories are shown inside the Filters sheet instead. */
-@media (max-width: 900px) {
-  .library-category-tags-wrap {
-    display: none;
-  }
+  display: none;
 }
 
 .library-category-tags-wrap .library-category-tags {
@@ -133,7 +234,7 @@
 
 /* Content area below hero - padding */
 .library-below-hero {
-  padding: 0 clamp(4px, 1vw, 8px) clamp(4px, 1vw, 8px);
+  padding: clamp(16px, 2vw, 20px) clamp(4px, 1vw, 8px) clamp(4px, 1vw, 8px);
   box-sizing: border-box;
 }
 
@@ -157,6 +258,20 @@
 
 .library-global-search .search-button {
   flex-shrink: 0;
+}
+
+/* Full-width content layout — filters open in toggle panel, not sidebar */
+.library-layout-full {
+  display: block;
+  width: 100%;
+}
+
+.library-toolbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-right: 10px;
 }
 
 /* Two-column layout */
@@ -625,7 +740,6 @@
   gap: 8px;
   font-size: 14px;
   color: #374151;
-  margin-right: 10px;
 }
 
 .library-content-sort-label {
@@ -867,6 +981,7 @@
   border-radius: 12px;
   position: relative;
   box-sizing: border-box;
+  padding: 0;
 }
 
 /* Hire CTA card: avoid .library-designs-items-container p/h* forcing dark library text */
@@ -921,10 +1036,14 @@
 .two-d-library-preview-wrap {
   width: 100%;
   height: 190px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e9d5ff;
   border-radius: 10px;
   overflow: hidden;
-  background: #eef2f7;
+  background-color: #f3e8ff;
+  background-image:
+    linear-gradient(rgba(124, 58, 237, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.07) 1px, transparent 1px);
+  background-size: 20px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -935,10 +1054,8 @@
   height: 100%;
   object-fit: contain;
   object-position: center;
-  transform: scale(1.14);
-  transform-origin: center;
   display: block;
-  background: #fff;
+  background: transparent;
 }
 
 .two-d-library-preview-fallback {
@@ -1027,6 +1144,27 @@
     justify-content:center;
     /* background:grey; */
     /* object-fit: cover;      Ensures the image covers the area */
+}
+
+/* Library product card preview — purple grid + contained model (not zoomed/cropped) */
+.library-card-preview-img {
+  width: 100%;
+  height: 220px;
+  padding: 18px;
+  box-sizing: border-box;
+  background-color: #ebe0ff;
+  background-image:
+    linear-gradient(rgba(98, 38, 217, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(98, 38, 217, 0.16) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.library-card-preview-img img {
+  width: auto !important;
+  max-width: 76% !important;
+  height: auto !important;
+  max-height: 76% !important;
+  object-fit: contain !important;
 }
 
 /* Mobile: When used inside home container, make it responsive */

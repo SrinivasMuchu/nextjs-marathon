@@ -6,8 +6,52 @@ export const LIBRARY_DEFAULT_DESCRIPTION =
 
 export const LIBRARY_DEFAULT_H1 = 'Engineering CAD Design Library';
 
+export const LIBRARY_HUB_H1 = 'The CAD library that thinks in parts, not just files.';
+
+export const LIBRARY_HUB_INTRO =
+  'Browse quality-checked 3D CAD models for engineering, product design and manufacturing. Every model carries specs, standards and mating parts — preview online and download in STEP, STL, IGES, OBJ, DWG and DXF.';
+
+export const LIBRARY_HUB_SEARCH_PLACEHOLDER =
+  'Search by part, standard or spec — "M8", "NEMA 17", "608 bea..."';
+
 export const LIBRARY_DEFAULT_INTRO =
   'Browse quality-checked 3D CAD models for engineering, product design, prototyping and manufacturing. Preview models online and download files in STEP, STP, IGES, STL, OBJ, PLY, DWG, DXF and more.';
+
+export const LIBRARY_3D_HUB_CARDS = [
+  {
+    id: 'solids',
+    title: 'Edit & Manufacture',
+    formats: 'STEP • IGES • BREP',
+    description: 'Exact solids to drop into assemblies, run CAM/CNC and simulate.',
+    browseLabel: 'Browse solid files',
+    href: '/library/file-format/step',
+    accent: 'purple',
+    icon: 'cube',
+    count: '3,240 solids',
+  },
+  {
+    id: 'meshes',
+    title: 'Print & Visualize',
+    formats: 'STL • OBJ • PLY',
+    description: 'Watertight meshes ready to slice, print and render.',
+    browseLabel: 'Browse mesh files',
+    href: '/library/file-format/stl',
+    accent: 'teal',
+    icon: 'mesh',
+    count: '5,188 meshes',
+  },
+  {
+    id: 'drawings',
+    title: 'Cut & Document',
+    formats: 'DXF • DWG',
+    description: 'Flat profiles for laser, waterjet, router — plus shop drawings.',
+    browseLabel: 'Browse 2d files',
+    href: '/library/2d-technical-drawings',
+    accent: 'orange',
+    icon: 'drawing',
+    count: '1,860 drawings',
+  },
+];
 
 export const LIBRARY_FILE_FORMAT_FILTERS = [
   { value: 'STEP', label: 'STEP' },

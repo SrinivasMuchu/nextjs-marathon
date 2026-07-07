@@ -20,6 +20,9 @@ export default function LibraryFiltersWrapper({
   inSheet,
   sheetOpen,
   onCloseSheet,
+  variant,
+  panelOpen,
+  onClosePanel,
   ...libraryFiltersProps
 }) {
   const [allTags, setAllTags] = useState(Array.isArray(initialTags) ? initialTags : []);
@@ -113,6 +116,9 @@ export default function LibraryFiltersWrapper({
       inSheet={inSheet}
       sheetOpen={sheetOpen}
       onCloseSheet={onCloseSheet}
+      variant={variant}
+      panelOpen={panelOpen}
+      onClosePanel={onClosePanel}
     />
   );
 }

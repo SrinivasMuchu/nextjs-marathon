@@ -21,12 +21,19 @@ import LibraryLayoutWithFilters from './LibraryLayoutWithFilters';
 import SortBySelect from './SortBySelect';
 import TwoDLibraryCard from './TwoDLibraryCard';
 import TwoDLibraryBottomSections from './TwoDLibraryBottomSections';
+import LibraryHeroSearch from './LibraryHeroSearch';
+// import LibraryHubCards from './LibraryHubCards';
+// import LibraryCategoryScroller from './LibraryCategoryScroller';
 import TechDrawPageViewTracker from '../CadDrawingPipeline/TechDrawPageViewTracker';
 import {
   TWO_D_LIBRARY_H1,
   TWO_D_LIBRARY_INTRO,
   TWO_D_LIBRARY_DESCRIPTION,
   TWO_D_LIBRARY_BASE,
+  TWO_D_LIBRARY_HUB_H1,
+  TWO_D_LIBRARY_HUB_INTRO,
+  TWO_D_LIBRARY_HUB_SEARCH_PLACEHOLDER,
+  TWO_D_LIBRARY_HUB_CARDS,
   get2DLibraryPath,
   get2DLibraryPathWithQuery,
   hasTwoDLibraryNarrowingFilters,
@@ -143,6 +150,13 @@ export default async function TwoDLibrary({
     ) || null;
   const categoryLabel = activeCategory?.industry_category_label || category;
 
+  // const showHubExperience =
+  //   !categoryLabel && !tagLabel && !searchQuery && !outputFormat && !projection;
+  const showHubExperience = false;
+  // const drawingsCountLabel = pagination?.totalItems
+  //   ? `${Number(pagination.totalItems).toLocaleString()}+ drawing sets`
+  //   : '1,000+ drawing sets';
+
   const heroTitle =
     categoryLabel && tagLabel
       ? `${tagLabel} 2D drawings in ${categoryLabel}`
@@ -150,7 +164,11 @@ export default async function TwoDLibrary({
         ? `${categoryLabel} 2D technical drawings`
         : tagLabel
           ? `${tagLabel} 2D technical drawings`
-          : TWO_D_LIBRARY_H1;
+          : showHubExperience
+            ? TWO_D_LIBRARY_HUB_H1
+            : searchQuery
+              ? `Search results for "${searchQuery}"`
+              : TWO_D_LIBRARY_H1;
 
   const heroDescription =
     categoryLabel && tagLabel
@@ -159,7 +177,9 @@ export default async function TwoDLibrary({
         ? `Browse ${categoryLabel} 2D technical drawings generated from 3D CAD models. Download PDF, SVG and DXF drawing sets for engineering review.`
         : tagLabel
           ? `Browse ${tagLabel} 2D technical drawings. Download drawing sets with orthographic views, section cuts and PDF, SVG and DXF files.`
-          : TWO_D_LIBRARY_INTRO;
+          : showHubExperience
+            ? TWO_D_LIBRARY_HUB_INTRO
+            : TWO_D_LIBRARY_INTRO;
 
   const breadcrumbSchemaLinks = [
     { label: 'Library', href: '/library' },
@@ -246,38 +266,29 @@ export default async function TwoDLibrary({
               <span className={styles['library-hero-breadcrumb-current']}>2D Library</span>
             )}
           </nav>
+          {/* {showHubExperience ? (
+            <div className={styles['library-hero-badge']} aria-label="Library quality">
+              ✓ Quality-checked • {drawingsCountLabel}
+            </div>
+          ) : null} */}
           <h1 className={styles['library-hero-title']}>{heroTitle}</h1>
           <p className={styles['library-hero-description']}>{heroDescription}</p>
+          <div className={styles['library-hero-search']}>
+            <LibraryHeroSearch
+              initialSearchQuery={searchQuery}
+              placeholder={TWO_D_LIBRARY_HUB_SEARCH_PLACEHOLDER}
+            />
+          </div>
         </header>
 
+        {/* {showHubExperience ? <LibraryHubCards cards={TWO_D_LIBRARY_HUB_CARDS} /> : null} */}
+
         <div className={styles['library-below-hero']}>
-          <div className={styles['library-category-tags-wrap']}>
-            <div className={styles['library-category-tags']}>
-              <Link
-                href={listRootPath}
-                className={
-                  styles['library-category-tag'] +
-                  (!category ? ` ${styles['library-category-tag-active']}` : '')
-                }
-              >
-                All
-              </Link>
-              {(allCategories || []).map((cat) => (
-                <Link
-                  key={cat.industry_category_name}
-                  href={get2DLibraryPath({ categoryName: cat.industry_category_name })}
-                  className={
-                    styles['library-category-tag'] +
-                    (category === cat.industry_category_name
-                      ? ` ${styles['library-category-tag-active']}`
-                      : '')
-                  }
-                >
-                  {cat.industry_category_label}
-                </Link>
-              ))}
-            </div>
-          </div>
+          {/* <LibraryCategoryScroller
+            categories={allCategories}
+            activeCategory={category}
+            libraryMode="2d"
+          /> */}
 
           <LibraryLayoutWithFilters
             filterProps={{
@@ -299,33 +310,28 @@ export default async function TwoDLibrary({
               resetListHref: listRootPath,
               show2DExtraFilters: false,
             }}
-            contentHead={
-              <>
-                <div className={styles['library-content-head-left']}>
-                  <span className={styles['library-resources-count']}>
-                    2D Designs ({resultsCountLabel} results)
-                    {hasFilters && totalPages > 1 && totalPages <= 5
-                      ? ` · Page ${dataPage} of ${totalPages}`
-                      : ''}
+            toolbarLeft={
+              <div className={styles['library-content-head-left']}>
+                <span className={styles['library-resources-count']}>
+                  {resultsCountLabel} drawing sets
+                </span>
+                <Link
+                  href="/library"
+                  prefetch
+                  className={styles['library-toolbar-2d-library-cta']}
+                >
+                  <span className={styles['library-toolbar-2d-library-cta-icon']} aria-hidden>
+                    📦
                   </span>
-                  <Link
-                    href="/library"
-                    prefetch
-                    className={styles['library-toolbar-2d-library-cta']}
-                  >
-                    <span className={styles['library-toolbar-2d-library-cta-icon']} aria-hidden>
-                      📦
-                    </span>
-                    3D CAD model library
-                  </Link>
-                </div>
-                <div className={styles['library-content-sort']}>
-                  <SortBySelect
-                    initialSort={searchParams?.sort}
-                    className={styles['library-content-sort-select']}
-                  />
-                </div>
-              </>
+                  3D models
+                </Link>
+              </div>
+            }
+            toolbarSort={
+              <SortBySelect
+                initialSort={searchParams?.sort}
+                className={styles['library-content-sort-select']}
+              />
             }
           >
             <div className={styles['library-designs']}>

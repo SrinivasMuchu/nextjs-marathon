@@ -10,8 +10,52 @@ export const TWO_D_LIBRARY_DESCRIPTION =
 
 export const TWO_D_LIBRARY_H1 = '2D Technical Drawing Library';
 
+export const TWO_D_LIBRARY_HUB_H1 = 'The 2D drawing library built from real 3D CAD models.';
+
+export const TWO_D_LIBRARY_HUB_INTRO =
+  'Browse engineering drawing sets generated from quality-checked 3D models. Every bundle includes orthographic views, section cuts and downloadable PDF, SVG and DXF files for review and documentation.';
+
+export const TWO_D_LIBRARY_HUB_SEARCH_PLACEHOLDER =
+  'Search by part, standard or drawing set — "bearing housing", "NEMA 17", "M8..."';
+
 export const TWO_D_LIBRARY_INTRO =
   'Browse 2D technical drawings generated from 3D CAD models. Download drawing sets with orthographic views, section cuts and PDF, SVG and DXF files for engineering review and documentation.';
+
+export const TWO_D_LIBRARY_HUB_CARDS = [
+  {
+    id: 'pdf-sets',
+    title: 'Review & Approve',
+    formats: 'PDF • PNG',
+    description: 'Complete drawing packages for engineering review, sign-off and shop-floor reference.',
+    browseLabel: 'Browse PDF drawing sets',
+    href: '/library/2d-technical-drawings?output_format=PDF',
+    accent: 'purple',
+    icon: 'pdf',
+    count: '1,240 PDF sets',
+  },
+  {
+    id: 'vector-dxf',
+    title: 'Cut & Profile',
+    formats: 'DXF • SVG',
+    description: 'Vector sheets and flat profiles ready for laser, waterjet, router and CAM workflows.',
+    browseLabel: 'Browse DXF & SVG files',
+    href: '/library/2d-technical-drawings?output_format=DXF',
+    accent: 'teal',
+    icon: 'dxf',
+    count: '860 vector files',
+  },
+  {
+    id: 'source-3d',
+    title: 'Source from 3D',
+    formats: 'STEP • IGES • STL',
+    description: 'Start from the 3D CAD model library — every drawing set traces back to a real part.',
+    browseLabel: 'Browse 3D CAD models',
+    href: '/library',
+    accent: 'orange',
+    icon: 'cube',
+    count: '10,000+ parts',
+  },
+];
 
 export const TWO_D_DEFAULT_SHEET_LABEL = 'Up to 5 sheets';
 export const TWO_D_DEFAULT_PROJECTION = '1st Angle';

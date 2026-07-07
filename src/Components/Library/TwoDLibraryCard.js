@@ -90,7 +90,7 @@ export default function TwoDLibraryCard({ design }) {
         <span className={styles['design-title-wrapper-price']}>{priceLabel}</span>
       </div>
 
-      <div className={cardStyles.quickLinks}>
+      <div className={cardStyles.quickLinksRow}>
         <Link href={drawingHref} className={cardStyles.quickLink}>
           Open drawing set
         </Link>
