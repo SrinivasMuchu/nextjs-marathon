@@ -84,8 +84,8 @@ function AdminControlsPanel() {
   return (
     <div className={styles.panel}>
       <p className={styles.lead}>
-        Configure CAD converter download pricing. Each user&apos;s first converted file is always free.
-        Sample files are always free. From the second conversion onward, these settings apply.
+        Configure CAD converter download pricing. Files under 5 MB are always free to download.
+        Sample files are always free. For larger files, these settings apply.
       </p>
 
       <div className={styles.card}>
@@ -93,7 +93,7 @@ function AdminControlsPanel() {
           <div>
             <h3 className={styles.rowTitle}>Free converter downloads</h3>
             <p className={styles.rowHint}>
-              When enabled, users can download converted files without payment (after their first free file).
+              When enabled, users can download all converted files without payment.
             </p>
           </div>
           <Switch

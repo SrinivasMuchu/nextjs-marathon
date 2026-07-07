@@ -4,6 +4,8 @@ import {
 } from "@/api/converterPaymentApi";
 
 export const CONVERTER_GST_RATE = 0.18;
+export const CONVERTER_FREE_SIZE_LIMIT_BYTES = 5 * 1024 * 1024;
+export const CONVERTER_FREE_SIZE_LIMIT_MB = 5;
 
 /** Build display labels from API pricing object or base amount. */
 export function buildConverterPricingDisplay(pricing, currency = "USD") {
@@ -28,15 +30,20 @@ export function buildConverterPricingDisplay(pricing, currency = "USD") {
   };
 }
 
-/** Whether this conversion row should show as free before download. */
+/** Whether this conversion should show as free before download. */
 export function isConverterConversionFree({
   pricingInfo,
   isSampleFile = false,
+  inputFileSizeBytes,
 }) {
   if (isSampleFile) return true;
   if (!pricingInfo) return false;
   if (pricingInfo.conversion_free) return true;
-  return Boolean(pricingInfo.first_conversion_available);
+  const size = Number(inputFileSizeBytes);
+  if (!Number.isFinite(size) || size <= 0) return false;
+  const limitMb = Number(pricingInfo.free_size_limit_mb ?? CONVERTER_FREE_SIZE_LIMIT_MB);
+  const limitBytes = limitMb * 1024 * 1024;
+  return size < limitBytes;
 }
 
 export async function fetchConverterPricingInfo() {

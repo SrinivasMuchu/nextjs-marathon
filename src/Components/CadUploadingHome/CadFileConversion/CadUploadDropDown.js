@@ -58,6 +58,7 @@ function CadDropDown({
   const isFreeConversion = isConverterConversionFree({
     pricingInfo,
     isSampleFile,
+    inputFileSizeBytes: file?.size,
   });
 
   const formatOptions = useMemo(

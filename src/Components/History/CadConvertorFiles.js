@@ -196,8 +196,8 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                       </table>
                       <p className={styles.converterPricingFootnote}>
                         <span aria-hidden>ℹ️</span>
-                        Your first conversion on Marathon is free. Every conversion after that — new file or re-run — is{' '}
-                        {pricingNoteTotal || 'a small fee'}.
+                        Files under 5 MB download free. Files 5 MB and above are{' '}
+                        {pricingNoteTotal || 'a small fee'} per conversion.
                       </p>
                     </div>
                   </div>
