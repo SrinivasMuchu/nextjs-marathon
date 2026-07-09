@@ -3,7 +3,7 @@ import React from 'react';
 import axios from 'axios';
 import { notFound } from 'next/navigation';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
-import { fetchCadTagsPage } from '@/api/cadTagsApi';
+import { fetchCadTagsPage, fetchCadTagsByRank } from '@/api/cadTagsApi';
 import { buildLibraryDesignsParams } from '@/api/libraryDesignsApi';
 import {
   formatLibraryResultsCount,
@@ -31,7 +31,8 @@ import LibraryProductCard from './LibraryProductCard';
 import LibraryBottomSections from './LibraryBottomSections';
 import LibraryHeroSearch from './LibraryHeroSearch';
 // import LibraryHubCards from './LibraryHubCards';
-// import LibraryCategoryScroller from './LibraryCategoryScroller';
+import LibraryCategoryScroller from './LibraryCategoryScroller';
+import LibraryDiscoverySections from './LibraryDiscoverySections';
 import {
   LIBRARY_DEFAULT_H1,
   LIBRARY_DEFAULT_INTRO,
@@ -83,6 +84,9 @@ async function Library({ searchParams, pageConfig = null }) {
   const cookieStore = cookies();
   const uuid = cookieStore.get('uuid')?.value || null;
 
+  const isHubPage =
+    !pageConfig && !category && !tags && !searchQuery && !fileFormat;
+
   // Build query parameters for get-category-design API (see docs/BACKEND_LIBRARY_API_SPEC.md)
   const apiParams = buildLibraryDesignsParams({
     category,
@@ -111,10 +115,11 @@ async function Library({ searchParams, pageConfig = null }) {
       throw err;
     });
 
-  const [response, categoriesRes, tagsFirstPage] = await Promise.all([
+  const [response, categoriesRes, tagsFirstPage, rankedBrowseTags] = await Promise.all([
     designsRequest,
     axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
     fetchCadTagsPage(0, 10, null, category || null),
+    isHubPage ? fetchCadTagsByRank(100) : Promise.resolve([]),
   ]);
 
   const allCategories = categoriesRes.data?.data || [];
@@ -160,6 +165,8 @@ async function Library({ searchParams, pageConfig = null }) {
 
   // const showHubExperience =
   //   !pageConfig && !categoryLabel && !tagLabel && !searchQuery && !fileFormat;
+  const showDiscoverySections = isHubPage;
+
   const showHubExperience = false;
   // const partsCountLabel = pagination?.totalItems
   //   ? `${Number(pagination.totalItems).toLocaleString()}+ parts`
@@ -279,11 +286,15 @@ async function Library({ searchParams, pageConfig = null }) {
         {/* {showHubExperience ? <LibraryHubCards cards={LIBRARY_3D_HUB_CARDS} /> : null} */}
 
         <div className={styles["library-below-hero"]}>
-        {/* <LibraryCategoryScroller
+        <LibraryCategoryScroller
           categories={allCategories}
           activeCategory={category}
           libraryMode="3d"
-        /> */}
+        />
+
+        {showDiscoverySections ? (
+          <LibraryDiscoverySections browsePartsTags={rankedBrowseTags} />
+        ) : null}
 
         <LibraryLayoutWithFilters
           filterProps={{
@@ -327,8 +338,7 @@ async function Library({ searchParams, pageConfig = null }) {
             <React.Fragment key={`design-${design._id}`}>
               {index === 0 && (
                 <div
-                  className={styles["library-designs-items-container"]}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  className={`${styles['library-designs-items-container']} ${styles.libraryAdSlot}`}
                 >
                   <LeftRightBanner adSlot="2408570633" />
                 </div>
@@ -336,8 +346,7 @@ async function Library({ searchParams, pageConfig = null }) {
 
               {index === 6 && (
                 <div
-                  className={styles["library-designs-items-container"]}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  className={`${styles['library-designs-items-container']} ${styles.libraryAdSlot}`}
                 >
                   <LeftRightBanner adSlot="4799748492" />
                 </div>

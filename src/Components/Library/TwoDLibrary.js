@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { BASE_URL } from '@/config';
-import { fetchCadTagsPage } from '@/api/cadTagsApi';
+import { fetchCadTagsPage, fetchCadTagsByRank } from '@/api/cadTagsApi';
 import { fetchTwoDLibraryCategories } from '@/api/twoDLibraryDesignsApi';
 import { buildTwoDLibraryDesignsParams } from '@/api/twoDLibraryDesignsApi';
 import {
@@ -23,7 +23,8 @@ import TwoDLibraryCard from './TwoDLibraryCard';
 import TwoDLibraryBottomSections from './TwoDLibraryBottomSections';
 import LibraryHeroSearch from './LibraryHeroSearch';
 // import LibraryHubCards from './LibraryHubCards';
-// import LibraryCategoryScroller from './LibraryCategoryScroller';
+import LibraryCategoryScroller from './LibraryCategoryScroller';
+import LibraryDiscoverySections from './LibraryDiscoverySections';
 import TechDrawPageViewTracker from '../CadDrawingPipeline/TechDrawPageViewTracker';
 import {
   TWO_D_LIBRARY_H1,
@@ -78,6 +79,9 @@ export default async function TwoDLibrary({
   const cookieStore = cookies();
   const uuid = cookieStore.get('uuid')?.value || null;
 
+  const isHubPage =
+    !category && !tags && !searchQuery && !outputFormat && !projection;
+
   const apiParams = buildTwoDLibraryDesignsParams({
     category,
     tags,
@@ -105,10 +109,11 @@ export default async function TwoDLibrary({
       throw err;
     });
 
-  const [response, allCategories, tagsFirstPage] = await Promise.all([
+  const [response, allCategories, tagsFirstPage, rankedBrowseTags] = await Promise.all([
     designsRequest,
     fetchTwoDLibraryCategories(),
     fetchCadTagsPage(0, 10, null, category || null, true),
+    isHubPage ? fetchCadTagsByRank(100, true) : Promise.resolve([]),
   ]);
   const data = response.data;
 
@@ -149,6 +154,8 @@ export default async function TwoDLibrary({
         cat?.industry_category_label === category
     ) || null;
   const categoryLabel = activeCategory?.industry_category_label || category;
+
+  const showDiscoverySections = isHubPage;
 
   // const showHubExperience =
   //   !categoryLabel && !tagLabel && !searchQuery && !outputFormat && !projection;
@@ -284,11 +291,18 @@ export default async function TwoDLibrary({
         {/* {showHubExperience ? <LibraryHubCards cards={TWO_D_LIBRARY_HUB_CARDS} /> : null} */}
 
         <div className={styles['library-below-hero']}>
-          {/* <LibraryCategoryScroller
+          <LibraryCategoryScroller
             categories={allCategories}
             activeCategory={category}
             libraryMode="2d"
-          /> */}
+          />
+
+          {showDiscoverySections ? (
+            <LibraryDiscoverySections
+              browsePartsTags={rankedBrowseTags}
+              libraryMode="2d"
+            />
+          ) : null}
 
           <LibraryLayoutWithFilters
             filterProps={{
@@ -340,24 +354,14 @@ export default async function TwoDLibrary({
                   <React.Fragment key={`2d-design-${design._id}`}>
                     {index === 0 && (
                       <div
-                        className={styles['library-designs-items-container']}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
+                        className={`${styles['library-designs-items-container']} ${styles.libraryAdSlot}`}
                       >
                         <LeftRightBanner adSlot="2408570633" />
                       </div>
                     )}
                     {index === 6 && (
                       <div
-                        className={styles['library-designs-items-container']}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
+                        className={`${styles['library-designs-items-container']} ${styles.libraryAdSlot}`}
                       >
                         <LeftRightBanner adSlot="4799748492" />
                       </div>

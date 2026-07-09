@@ -946,6 +946,20 @@
   gap: clamp(16px, 2.5vw, 24px);
   width: 100%;
   justify-content: center;
+  --library-card-height: 540px;
+  --library-preview-ratio: 413 / 257;
+}
+
+@media (min-width: 1450px) {
+  .library-designs-items {
+    align-items: stretch;
+  }
+
+  .library-designs-items-container,
+  .library-designs-items-container.libraryHireCtaSlot,
+  .library-designs-items-container.libraryAdSlot {
+    height: 100%;
+  }
 }
 
 /* Desktop: 3 columns in a row; from 1200px use grid, below that flex wrap */
@@ -984,12 +998,45 @@
   padding: 0;
 }
 
-/* Hire CTA card: avoid .library-designs-items-container p/h* forcing dark library text */
-.library-designs-items-container.libraryHireCtaSlot {
+/* Ad slots — reserve grid space without card chrome */
+.library-designs-items-container.libraryAdSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  min-height: var(--library-card-height, 500px);
+  height: 100%;
   background: transparent;
   border: none;
+  border-radius: 0;
+  box-shadow: none;
   padding: 0;
   overflow: visible;
+}
+
+/* Hire / browse promo cards — match product card footprint in the grid */
+.library-designs-items-container.libraryHireCtaSlot {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: var(--library-card-height, 500px);
+  height: 100%;
+  padding: 24px 16px;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.45) 0%, transparent 52%),
+    linear-gradient(155deg, #120a24 0%, #1a1033 42%, #0d0b18 100%);
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.35);
+  color: #f9fafb;
 }
 
 .library-designs-items-container.libraryHireCtaSlot p {
@@ -1036,14 +1083,10 @@
 .two-d-library-preview-wrap {
   width: 100%;
   height: 190px;
-  border: 1px solid #e9d5ff;
+  border: 1px solid #e5e7eb;
   border-radius: 10px;
   overflow: hidden;
-  background-color: #f3e8ff;
-  background-image:
-    linear-gradient(rgba(124, 58, 237, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124, 58, 237, 0.07) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-color: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1055,7 +1098,31 @@
   object-fit: contain;
   object-position: center;
   display: block;
+  background: #fff;
+}
+
+.two-d-library-card-preview {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
   background: transparent;
+}
+
+.two-d-library-card-preview-img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  background: #fff;
 }
 
 .two-d-library-preview-fallback {
@@ -1135,6 +1202,41 @@
   margin-top: auto; /* This pushes it to the bottom */
 }
 
+/* Library product card preview — 413×257 reference ratio, image above grid */
+.library-card-preview-img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100% !important;
+  min-height: 0;
+  padding: 16px;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.library-card-preview-img span {
+  position: relative;
+  z-index: 1;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+  line-height: 0;
+}
+
+.library-card-preview-img img {
+  position: relative;
+  z-index: 1;
+  width: auto !important;
+  max-width: 88% !important;
+  height: auto !important;
+  max-height: 88% !important;
+  object-fit: contain !important;
+  background: transparent !important;
+}
+
 .library-designs-items-container-img{
     width:100%;
     /* height:250px; */
@@ -1144,27 +1246,6 @@
     justify-content:center;
     /* background:grey; */
     /* object-fit: cover;      Ensures the image covers the area */
-}
-
-/* Library product card preview — purple grid + contained model (not zoomed/cropped) */
-.library-card-preview-img {
-  width: 100%;
-  height: 220px;
-  padding: 18px;
-  box-sizing: border-box;
-  background-color: #ebe0ff;
-  background-image:
-    linear-gradient(rgba(98, 38, 217, 0.16) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(98, 38, 217, 0.16) 1px, transparent 1px);
-  background-size: 18px 18px;
-}
-
-.library-card-preview-img img {
-  width: auto !important;
-  max-width: 76% !important;
-  height: auto !important;
-  max-height: 76% !important;
-  object-fit: contain !important;
 }
 
 /* Mobile: When used inside home container, make it responsive */
@@ -1203,13 +1284,11 @@
     height: 240px;
   }
 }
-.library-designs-items-container-img img{
+.library-designs-items-container-img:not(.library-card-preview-img) img {
     width:100%;
-   
-    /* background:grey; */
     object-fit: cover;   
-    
 }
+
 .library-designs-items-container-img-1 img{
   width:298px;
   height:298px;

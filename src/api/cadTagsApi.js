@@ -12,6 +12,19 @@ import { BASE_URL } from '@/config';
 
 export const TAGS_PAGE_SIZE = 10;
 
+/** Keep only tags with a positive rank; sort highest rank first. */
+export function normalizeRankedCadTags(tags) {
+  return (Array.isArray(tags) ? tags : [])
+    .filter((tag) => Number(tag?.rank) > 0)
+    .sort((a, b) => {
+      const rankDiff = Number(b.rank) - Number(a.rank);
+      if (rankDiff !== 0) return rankDiff;
+      return String(a.cad_tag_label || a.cad_tag_name || '').localeCompare(
+        String(b.cad_tag_label || b.cad_tag_name || '')
+      );
+    });
+}
+
 /**
  * Fetch a page of tags. Use for Show more / infinite scroll.
  * @param {number} offset - Number of tags to skip (0-based)
@@ -49,4 +62,28 @@ export async function fetchCadTagsPage(
 export async function fetchAllCadTags() {
   const { data } = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags`, { cache: 'no-store' });
   return Array.isArray(data?.data) ? data.data : [];
+}
+
+/**
+ * Hub browse parts — live tags with rank > 0, sorted highest rank first.
+ * @param {number} [limit=100]
+ * @returns {Promise<Array>}
+ */
+export async function fetchCadTagsByRank(limit = 100, library2d = false) {
+  const params = new URLSearchParams({
+    sort: 'rank',
+    limit: String(limit),
+  });
+  if (library2d) {
+    params.set('library_2d', '1');
+  }
+  const { data } = await axios.get(`${BASE_URL}/v1/cad/get-cad-tags?${params.toString()}`, {
+    cache: 'no-store',
+  });
+  return normalizeRankedCadTags(data?.data);
+}
+
+/** All ranked tags for /library/tags and /library/2d-technical-drawings/tags. */
+export async function fetchAllRankedCadTags(library2d = false) {
+  return fetchCadTagsByRank(10000, library2d);
 }

@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: var(--library-card-height, 540px);
+  height: 100%;
   background: #fff;
   border: 1px solid #ececf1;
   border-radius: 16px;
@@ -17,11 +19,21 @@
 
 .previewWrap {
   position: relative;
+  flex-shrink: 0;
   overflow: hidden;
+  width: 100%;
+  aspect-ratio: 413 / 257;
+  background-color: #ebe0ff;
+  background-image:
+    linear-gradient(rgba(98, 38, 217, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(98, 38, 217, 0.18) 1px, transparent 1px);
+  background-size: 16px 16px;
 }
 
-.previewInner {
-  width: 100%;
+/* 2D cards — same size as 3D, no grid background */
+.previewWrapNoGrid {
+  background-color: #f8fafc;
+  background-image: none;
 }
 
 .priceBadge {
@@ -54,6 +66,8 @@
   flex-direction: column;
   gap: 10px;
   padding: 14px 16px 16px;
+  flex: 1;
+  min-height: 0;
 }
 
 .tagsRow {
@@ -158,7 +172,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 6px;
+  margin-top: auto;
   padding-top: 12px;
   border-top: 1px solid #f1f2f4;
 }

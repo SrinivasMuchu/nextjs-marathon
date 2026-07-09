@@ -6,7 +6,7 @@ import { DESIGN_GLB_PREFIX_URL } from '@/config';
 import StaticDesign from './StaticDesign';
 
 
-const HoverImageSequence = ({ design, width, height, loading, containerClassName = '', imageClassName = '' }) => {
+const HoverImageSequence = ({ design, width, height, loading, containerClassName = '' }) => {
   // Supported preview images coming from supporting_files (only image formats)
   const supportingImages = (design?.supporting_files || []).filter((f) => {
     const name = f.name || f.fileName || '';
@@ -89,6 +89,8 @@ const HoverImageSequence = ({ design, width, height, loading, containerClassName
     .filter(Boolean)
     .join(' ');
 
+  const containerStyle = containerClassName ? { height: '100%' } : { height };
+
   // For DXF/DWG files only, cycle through supporting images on hover
   if (isDxfOrDwg && hasSupportingImages) {
     const imageCount = supportingImages.length;
@@ -98,7 +100,7 @@ const HoverImageSequence = ({ design, width, height, loading, containerClassName
     return (
       <div
         ref={containerRef}
-        style={{ height }}
+        style={containerStyle}
         className={containerClass}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -111,7 +113,6 @@ const HoverImageSequence = ({ design, width, height, loading, containerClassName
             height={height}
             loading={loading}
             priority={loading !== 'lazy'}
-            className={imageClassName || undefined}
           />
         )}
       </div>
@@ -122,7 +123,7 @@ const HoverImageSequence = ({ design, width, height, loading, containerClassName
   return (
     <div
       ref={containerRef}
-      style={{ height }}
+      style={containerStyle}
       className={containerClass}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -135,16 +136,9 @@ const HoverImageSequence = ({ design, width, height, loading, containerClassName
           height={height}
           loading={loading}
           priority={loading !== 'lazy'}
-          className={imageClassName || undefined}
         />
       ) : (
-        <StaticDesign
-          design={design}
-          width={width}
-          height={height}
-          loading={loading}
-          imageClassName={imageClassName}
-        />
+        <StaticDesign design={design} width={width} height={height} loading={loading} />
       )}
     </div>
   );

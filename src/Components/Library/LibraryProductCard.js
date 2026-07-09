@@ -67,8 +67,8 @@ export default function LibraryProductCard({ design }) {
         </span>
         <HoverImageSequence
           design={design}
-          width={260}
-          height={200}
+          width={413}
+          height={257}
           containerClassName={styles['library-card-preview-img']}
         />
       </div>
