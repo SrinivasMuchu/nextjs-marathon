@@ -179,7 +179,7 @@ function CadDropDown({
   const isSelectDisabled =
     uploadingMessage || disableSelect || (isDxfOrDwg && filteredOptions.length === 1);
   const isConvertButtonDisabled = uploadingMessage || disableSelect;
-  const isConvertButtonVisible = !!selectValueAttr;
+  const isConvertButtonVisible = !!selectedKey;
 
   return (
     <div className={cadStyles["cad-conversion-upload-wrap"]}>
