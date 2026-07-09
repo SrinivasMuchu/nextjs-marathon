@@ -28,6 +28,14 @@ function DashboardPricingCell({ converterPricing }) {
 function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownload,searchTerm, setSearchTerm}) {
   const [pricingNoteTotal, setPricingNoteTotal] = useState('');
 
+  function formatFileSize(bytes) {
+    const size = Number(bytes);
+    if (!Number.isFinite(size) || size <= 0) return "-";
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -134,13 +142,15 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                       <table className={styles['industry-design-files-list']}>
                         <thead>
                           <tr>
-                            <th style={{ width: '20%' }}>File name</th>
-                            <th style={{ width: '15%' }}>Conversion</th>
-                            <th style={{ width: '18%' }}>Pricing</th>
-                            <th style={{ width: '12%' }}>Status</th>
-                            <th style={{ width: '13%' }}>Created</th>
-                            <th style={{ width: '12%' }}>Time</th>
-                            <th style={{ width: '10%' }}>Action</th>
+                            <th style={{ width: '16%' }}>File name</th>
+                            <th style={{ width: '14%' }}>Conversion</th>
+                            <th style={{ width: '10%' }}>Input Size</th>
+                            <th style={{ width: '11%' }}>Converted Size</th>
+                            <th style={{ width: '12%' }}>Pricing</th>
+                            <th style={{ width: '10%' }}>Status</th>
+                            <th style={{ width: '10%' }}>Created</th>
+                            <th style={{ width: '8%' }}>Time</th>
+                            <th style={{ width: '9%' }}>Action</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -155,6 +165,12 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                                   <EastIcon style={{ fontSize: '16px', color: '#6c757d' }} />
                                   <span>{file.output_format}</span>
                                 </div>
+                              </td>
+                              <td data-label="Input Size">
+                                {formatFileSize(file.input_file_size_bytes)}
+                              </td>
+                              <td data-label="Converted Size">
+                                {formatFileSize(file.converted_file_size_bytes)}
                               </td>
                               <td data-label="Pricing">
                                 <DashboardPricingCell converterPricing={file.converter_pricing} />
