@@ -143,14 +143,13 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                         <thead>
                           <tr>
                             <th style={{ width: '16%' }}>File name</th>
-                            <th style={{ width: '14%' }}>Conversion</th>
-                            <th style={{ width: '10%' }}>Input Size</th>
-                            <th style={{ width: '11%' }}>Converted Size</th>
-                            <th style={{ width: '12%' }}>Pricing</th>
-                            <th style={{ width: '10%' }}>Status</th>
-                            <th style={{ width: '10%' }}>Created</th>
-                            <th style={{ width: '8%' }}>Time</th>
-                            <th style={{ width: '9%' }}>Action</th>
+                            <th style={{ width: '16%' }}>Conversion</th>
+                            <th style={{ width: '12%' }}>Input Size</th>
+                            <th style={{ width: '14%' }}>Pricing</th>
+                            <th style={{ width: '11%' }}>Status</th>
+                            <th style={{ width: '11%' }}>Created</th>
+                            <th style={{ width: '10%' }}>Time</th>
+                            <th style={{ width: '10%' }}>Action</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -168,9 +167,6 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                               </td>
                               <td data-label="Input Size">
                                 {formatFileSize(file.input_file_size_bytes)}
-                              </td>
-                              <td data-label="Converted Size">
-                                {formatFileSize(file.converted_file_size_bytes)}
                               </td>
                               <td data-label="Pricing">
                                 <DashboardPricingCell converterPricing={file.converter_pricing} />
