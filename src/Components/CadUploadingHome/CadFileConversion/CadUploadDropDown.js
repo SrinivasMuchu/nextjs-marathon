@@ -42,6 +42,14 @@ function CadDropDown({
 }) {
   const [pricingInfo, setPricingInfo] = React.useState(null);
 
+  const formatFileSize = useCallback((bytes) => {
+    const size = Number(bytes);
+    if (!Number.isFinite(size) || size <= 0) return "-";
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  }, []);
+
   const loadPricing = useCallback(async () => {
     try {
       const info = await fetchConverterPricingInfo();
@@ -58,6 +66,7 @@ function CadDropDown({
   const isFreeConversion = isConverterConversionFree({
     pricingInfo,
     isSampleFile,
+    inputFileSizeBytes: file?.size,
   });
 
   const formatOptions = useMemo(
@@ -170,7 +179,7 @@ function CadDropDown({
   const isSelectDisabled =
     uploadingMessage || disableSelect || (isDxfOrDwg && filteredOptions.length === 1);
   const isConvertButtonDisabled = uploadingMessage || disableSelect;
-  const isConvertButtonVisible = !!selectValueAttr;
+  const isConvertButtonVisible = !!selectedKey;
 
   return (
     <div className={cadStyles["cad-conversion-upload-wrap"]}>
@@ -185,6 +194,7 @@ function CadDropDown({
             <tr>
               <th>File name</th>
               <th>Format</th>
+              <th>Input size</th>
               <th>Convert to</th>
               <th>Pricing</th>
               <th>Status</th>
@@ -197,6 +207,7 @@ function CadDropDown({
               <td data-label="Format">
                 {file?.name?.slice(file.name.lastIndexOf(".")).toLowerCase()}
               </td>
+              <td data-label="Input size">{formatFileSize(file?.size)}</td>
               <td data-label="Convert to">
                 <div
                   className={`${cadStyles["cad-conversion-format-slot"]} ${

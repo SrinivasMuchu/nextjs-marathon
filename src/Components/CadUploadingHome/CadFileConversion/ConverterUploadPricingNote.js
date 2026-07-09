@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import heroStyles from "../CadHomeDesign/CadViewerHero.module.css";
 import {
   buildConverterPricingDisplay,
+  CONVERTER_FREE_SIZE_LIMIT_MB,
   fetchConverterPricingInfo,
 } from "@/lib/converterPricing";
 
@@ -29,14 +30,14 @@ function ConverterUploadPricingNote() {
 
   return (
     <p className={heroStyles.heroUploadPricingNote}>
-      Your first conversion is on us.
+      Files under {CONVERTER_FREE_SIZE_LIMIT_MB} MB convert and download free.
       {totalLabel ? (
         <>
           {" "}
-          After that, it&apos;s <strong>{totalLabel}</strong> per conversion — new file or re-run.
+          Larger files are <strong>{totalLabel}</strong> per conversion — new file or re-run.
         </>
       ) : (
-        <> After that, a small fee applies per conversion — new file or re-run.</>
+        <> Larger files require a small fee per conversion — new file or re-run.</>
       )}
     </p>
   );

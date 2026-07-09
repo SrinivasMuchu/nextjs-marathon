@@ -376,6 +376,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                     input_format: fileConvert.name.split('.').pop(),
                     output_format: selectedFileFormate,
                     file_name: fileConvert.name,
+                    input_file_size_bytes: fileConvert.size,
                     uuid: localStorage.getItem('uuid'),
                 }, {
                 headers: {

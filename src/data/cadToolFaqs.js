@@ -78,7 +78,7 @@ export function getConverterFaqQuestions(conversionParams) {
     },
     {
       question: `Is the ${fromUpper} to ${toUpper} converter free?`,
-      answer: `Yes — converting ${fromUpper} to ${toUpper} on Marathon OS is completely free with no usage limits or hidden costs.`,
+      answer: `Files under 5 MB are free to convert and download on Marathon OS. Larger files may require a small fee per conversion.`,
     },
     {
       question: 'How is my data stored and secured?',
@@ -109,7 +109,7 @@ export const cadConverterFaqQuestions = [
   },
   {
     question: 'Is Marathon OS 3D File Converter free to use?',
-    answer: 'Yes! It’s completely free with no usage limits or hidden costs. Just drag, drop, and convert.',
+    answer: 'Files under 5 MB are free to convert and download. Larger files may require a small fee per conversion.',
   },
   {
     question: 'How is my data stored and secured?',

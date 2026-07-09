@@ -28,6 +28,14 @@ function DashboardPricingCell({ converterPricing }) {
 function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownload,searchTerm, setSearchTerm}) {
   const [pricingNoteTotal, setPricingNoteTotal] = useState('');
 
+  function formatFileSize(bytes) {
+    const size = Number(bytes);
+    if (!Number.isFinite(size) || size <= 0) return "-";
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -134,12 +142,13 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                       <table className={styles['industry-design-files-list']}>
                         <thead>
                           <tr>
-                            <th style={{ width: '20%' }}>File name</th>
-                            <th style={{ width: '15%' }}>Conversion</th>
-                            <th style={{ width: '18%' }}>Pricing</th>
-                            <th style={{ width: '12%' }}>Status</th>
-                            <th style={{ width: '13%' }}>Created</th>
-                            <th style={{ width: '12%' }}>Time</th>
+                            <th style={{ width: '16%' }}>File name</th>
+                            <th style={{ width: '16%' }}>Conversion</th>
+                            <th style={{ width: '12%' }}>Input Size</th>
+                            <th style={{ width: '14%' }}>Pricing</th>
+                            <th style={{ width: '11%' }}>Status</th>
+                            <th style={{ width: '11%' }}>Created</th>
+                            <th style={{ width: '10%' }}>Time</th>
                             <th style={{ width: '10%' }}>Action</th>
                           </tr>
                         </thead>
@@ -155,6 +164,9 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                                   <EastIcon style={{ fontSize: '16px', color: '#6c757d' }} />
                                   <span>{file.output_format}</span>
                                 </div>
+                              </td>
+                              <td data-label="Input Size">
+                                {formatFileSize(file.input_file_size_bytes)}
                               </td>
                               <td data-label="Pricing">
                                 <DashboardPricingCell converterPricing={file.converter_pricing} />
@@ -196,8 +208,8 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                       </table>
                       <p className={styles.converterPricingFootnote}>
                         <span aria-hidden>ℹ️</span>
-                        Your first conversion on Marathon is free. Every conversion after that — new file or re-run — is{' '}
-                        {pricingNoteTotal || 'a small fee'}.
+                        Files under 5 MB download free. Files 5 MB and above are{' '}
+                        {pricingNoteTotal || 'a small fee'} per conversion.
                       </p>
                     </div>
                   </div>

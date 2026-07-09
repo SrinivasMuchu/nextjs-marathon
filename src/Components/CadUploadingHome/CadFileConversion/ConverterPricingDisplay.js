@@ -43,7 +43,7 @@ function ConverterPricingBanner({ isFree, pricing, isSampleFile }) {
     return (
       <div className={`${cadStyles["cad-conversion-banner"]} ${cadStyles["cad-conversion-banner--free"]}`}>
         <span className={cadStyles["cad-conversion-banner-icon"]} aria-hidden>🎁</span>
-        <span>This is your free conversion — nothing to pay.</span>
+        <span>This file is under 5 MB — convert and download free.</span>
       </div>
     );
   }
@@ -52,8 +52,8 @@ function ConverterPricingBanner({ isFree, pricing, isSampleFile }) {
     <div className={`${cadStyles["cad-conversion-banner"]} ${cadStyles["cad-conversion-banner--paid"]}`}>
       <span className={cadStyles["cad-conversion-banner-icon"]} aria-hidden>ℹ️</span>
       <span>
-        You&apos;ve used your free conversion. This one is{" "}
-        <strong>{display.totalLabel}</strong>.
+        Files 5 MB and above are{" "}
+        <strong>{display.totalLabel}</strong> (incl. tax) to download.
       </span>
     </div>
   );

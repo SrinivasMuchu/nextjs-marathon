@@ -17,7 +17,7 @@ function CadFileConversionHeader({ convert, conversionParams }) {
       <div className={heroStyles.heroInner}>
         <div className={heroStyles.badge}>
           <Zap size={16} strokeWidth={2.2} aria-hidden />
-          <span>First conversion free</span>
+          <span>Files under 5 MB free</span>
         </div>
         {convert ? (
           <ConvertPageHeroHeading conversionParams={conversionParams} />

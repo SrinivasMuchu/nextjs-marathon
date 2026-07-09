@@ -392,31 +392,30 @@
     max-width: 100%;
     border: 1px solid #610BEE;
     border-radius: 8px;
-    overflow-x: auto;
+    overflow-x: hidden;
     box-sizing: border-box;
 }
 
 
 .cad-conversion-table table {
     width: 100%;
-    min-width: 560px;
     table-layout: fixed;
     border-collapse: collapse;
 }
 
 .cad-conversion-table th:nth-child(1),
 .cad-conversion-table td:nth-child(1) {
-    width: 28%;
+    width: 22%;
 }
 
 .cad-conversion-table th:nth-child(2),
 .cad-conversion-table td:nth-child(2) {
-    width: 12%;
+    width: 9%;
 }
 
 .cad-conversion-table th:nth-child(3),
 .cad-conversion-table td:nth-child(3) {
-    width: 22%;
+    width: 13%;
 }
 
 .cad-conversion-table th:nth-child(4),
@@ -426,7 +425,7 @@
 
 .cad-conversion-table th:nth-child(5),
 .cad-conversion-table td:nth-child(5) {
-    width: 20%;
+    width: 10%;
 }
 
 
@@ -435,11 +434,11 @@
     border-bottom: 1px solid #610BEE;
     background: linear-gradient(0deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.96) 100%), #610BEE;
     height: 48px;
-    padding: 0px 20px;
+    padding: 0px 10px;
     text-align: left;
     color: #000;
 
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
     font-weight: 500;
     line-height: 24px;
@@ -450,14 +449,14 @@
 .cad-conversion-table td {
     /* height: 64px; */
     box-sizing: border-box;
-    padding: 10px 12px;
+    padding: 10px 8px;
     text-align: left;
     color: #000;
     vertical-align: middle;
     overflow: hidden;
     text-overflow: ellipsis;
 
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
     font-weight: 500;
     line-height: 24px;
@@ -473,7 +472,7 @@
     border: 1px solid rgba(201, 168, 255, 0.35);
     background: rgba(12, 6, 22, 0.55);
     border-radius: 0;
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 
 .cad-conversion-table--dark table {
@@ -652,7 +651,14 @@
 
 .cad-conversion-table th:nth-child(6),
 .cad-conversion-table td:nth-child(6) {
-    width: 14%;
+    width: 12%;
+}
+
+.cad-conversion-table th:nth-child(7),
+.cad-conversion-table td:nth-child(7) {
+    width: 16%;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 .cad-dropzone-sample-btns{
