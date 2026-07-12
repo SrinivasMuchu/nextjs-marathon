@@ -20,45 +20,14 @@ export const LIBRARY_BUILD_KITS_META = {
   title: 'Build kits',
   subtitle:
     'Curated systems with verified mating parts — download the whole assembly at once.',
-  seeAllHref: '/library',
+  seeAllHref: '/library/clusters',
   seeAllLabel: 'All collections',
 };
 
-export const LIBRARY_BUILD_KITS = [
-  {
-    id: 'nema-17-motion-kit',
-    kitType: 'MOTION KIT',
-    title: 'NEMA 17 Motion Kit',
-    description:
-      'Motor, coupler, shafts & mounts for tabletop CNC, 3D printer & robotics builds.',
-    partCount: 5,
-    extraParts: 1,
-    pairsVerified: true,
-    href: '/library',
-    // partLogos: [],
-  },
-  {
-    id: 'nema-23-motion-kit',
-    kitType: 'MOTION KIT',
-    title: 'NEMA 23 Motion Kit',
-    description:
-      'Heavier stepper, coupler, shafts & brackets for larger CNC routers & automation rigs.',
-    partCount: 5,
-    extraParts: 2,
-    pairsVerified: true,
-    href: '/library',
-    // partLogos: [],
-  },
-  {
-    id: 'm5-hardware-kit',
-    kitType: 'HARDWARE KIT',
-    title: 'M5 Hardware Kit',
-    description:
-      'Bolts, nuts, washers & standoffs sized for NEMA mounts, extrusions & plate assemblies.',
-    partCount: 8,
-    extraParts: 37,
-    pairsVerified: true,
-    href: '/library',
-    // partLogos: [],
-  },
-];
+export const TWO_D_BUILD_KITS_META = {
+  title: 'Build kits',
+  subtitle:
+    'Curated systems with verified mating parts — browse the 2D drawing sets for each kit.',
+  seeAllHref: '/library/2d-technical-drawings/clusters',
+  seeAllLabel: 'All collections',
+};

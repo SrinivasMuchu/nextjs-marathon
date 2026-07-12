@@ -381,85 +381,143 @@ export default function LibraryFilters({
 
     return (
       <div className={panelStyles.panelInner}>
-        <div className={panelStyles.panelSection}>
-          <span className={panelStyles.panelLabel}>Price</span>
-          <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Price">
-            {FREE_PAID_RADIO.map(({ value, label }) => {
-              const isActive = (displayFreePaid || '') === value;
-              return (
-                <button
-                  key={value || 'all-price'}
-                  type="button"
-                  className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
-                  onClick={() => setLocalFreePaid(value)}
-                >
-                  {label}
-                </button>
-              );
-            })}
+        <div className={panelStyles.panelGrid}>
+          <div className={panelStyles.panelSection}>
+            <span className={panelStyles.panelLabel}>Price</span>
+            <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Price">
+              {FREE_PAID_RADIO.map(({ value, label }) => {
+                const isActive = (displayFreePaid || '') === value;
+                return (
+                  <button
+                    key={value || 'all-price'}
+                    type="button"
+                    className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
+                    onClick={() => setLocalFreePaid(value)}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className={panelStyles.panelSection}>
-          <span className={panelStyles.panelLabel}>Uploaded</span>
-          <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Uploaded">
-            {RECENCY_RADIO.map(({ value, label }) => {
-              const isActive = (displayRecency || '') === value;
-              return (
-                <button
-                  key={value || 'all-time'}
-                  type="button"
-                  className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
-                  onClick={() => setLocalRecency(value)}
-                >
-                  {label}
-                </button>
-              );
-            })}
+          <div className={panelStyles.panelSection}>
+            <span className={panelStyles.panelLabel}>Uploaded</span>
+            <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Uploaded">
+              {RECENCY_RADIO.map(({ value, label }) => {
+                const isActive = (displayRecency || '') === value;
+                return (
+                  <button
+                    key={value || 'all-time'}
+                    type="button"
+                    className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
+                    onClick={() => setLocalRecency(value)}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className={panelStyles.panelSection}>
-          <span className={panelStyles.panelLabel}>Output</span>
-          <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Output">
-            {outputOptions.map(({ value, label }) => {
-              const isActive = (displayOutputType || '') === value;
-              return (
-                <button
-                  key={value || 'all-output'}
-                  type="button"
-                  className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
-                  onClick={() => handleOutputTypeChange(value)}
-                >
-                  {label}
-                </button>
-              );
-            })}
+          <div className={panelStyles.panelSection}>
+            <span className={panelStyles.panelLabel}>Output</span>
+            <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Output">
+              {outputOptions.map(({ value, label }) => {
+                const isActive = (displayOutputType || '') === value;
+                return (
+                  <button
+                    key={value || 'all-output'}
+                    type="button"
+                    className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
+                    onClick={() => handleOutputTypeChange(value)}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className={panelStyles.panelSection}>
-          <span className={panelStyles.panelLabel}>File format</span>
-          <div className={panelStyles.formatRow}>
-            {formatOptions.map(({ value, label }) => {
-              const isActive = selectedPanelFormats.includes(value);
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  className={`${panelStyles.formatChip} ${isActive ? panelStyles.formatChipActive : ''}`}
-                  onClick={() => {
-                    if (libraryListMode === '2d') {
-                      toggleOutputFormat(value, !isActive);
-                      return;
-                    }
-                    toggleFileFormat(value, !isActive);
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
+          <div className={`${panelStyles.panelSection} ${panelStyles.panelSectionSpan2}`}>
+            <span className={panelStyles.panelLabel}>File format</span>
+            <div className={panelStyles.formatRow}>
+              {formatOptions.map(({ value, label }) => {
+                const isActive = selectedPanelFormats.includes(value);
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    className={`${panelStyles.formatChip} ${isActive ? panelStyles.formatChipActive : ''}`}
+                    onClick={() => {
+                      if (libraryListMode === '2d') {
+                        toggleOutputFormat(value, !isActive);
+                        return;
+                      }
+                      toggleFileFormat(value, !isActive);
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className={`${panelStyles.panelSection} ${panelStyles.panelSectionFull}`}>
+            <span className={panelStyles.panelLabel}>Tags</span>
+            <div className={panelStyles.tagSearch}>
+              <SearchIcon className={panelStyles.tagSearchIcon} fontSize="small" aria-hidden />
+              <input
+                type="text"
+                placeholder="Search tags..."
+                value={tagSearch}
+                onChange={(e) => setTagSearch(e.target.value)}
+                className={panelStyles.tagSearchInput}
+                aria-label="Search tags"
+              />
+            </div>
+            <div className={panelStyles.tagsRow}>
+              <button
+                type="button"
+                className={`${panelStyles.formatChip} ${!displayTag ? panelStyles.formatChipActive : ''}`}
+                onClick={() => setLocalTag('')}
+              >
+                All tags
+              </button>
+              {tagsToShow.map((tag) => {
+                const tagValue = tag?.cad_tag_name ?? tag?.name ?? '';
+                if (!tagValue || !isValidLibraryTagSlug(tagValue)) return null;
+                const tagLabel =
+                  tag?.cad_tag_label ??
+                  tag?.cad_tag_name ??
+                  tag?.label ??
+                  tag?.name ??
+                  String(tagValue);
+                const isActive = displayTag === tagValue;
+                return (
+                  <button
+                    key={tagValue}
+                    type="button"
+                    className={`${panelStyles.formatChip} ${isActive ? panelStyles.formatChipActive : ''}`}
+                    onClick={() => setLocalTag(isActive ? '' : tagValue)}
+                  >
+                    {tagLabel}
+                  </button>
+                );
+              })}
+            </div>
+            {hasMoreTags ? (
+              <button
+                type="button"
+                className={panelStyles.showMoreTags}
+                onClick={loadMoreTags}
+                disabled={loadingTags}
+              >
+                {loadingTags ? 'Loading...' : 'Show more tags'}
+                <ExpandMoreIcon fontSize="small" />
+              </button>
+            ) : null}
           </div>
         </div>
 

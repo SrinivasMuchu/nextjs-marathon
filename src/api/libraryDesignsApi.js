@@ -18,6 +18,8 @@ export const LIBRARY_PARAMS = {
   file_format: 'file_format',
   /** When set to "1", API returns only designs with is_two_dims true */
   two_dims: 'two_dims',
+  /** When set, API returns only designs linked to this cluster_id (e.g. CL-001) */
+  cluster_id: 'cluster_id',
   page: 'page',
   limit: 'limit',
   uuid: 'uuid',
@@ -46,6 +48,7 @@ export function buildLibraryDesignsParams(filters) {
     free_paid = '',
     file_format = '',
     two_dims = '',
+    cluster_id = '',
     page = 1,
     limit = 20,
     uuid = null,
@@ -60,6 +63,7 @@ export function buildLibraryDesignsParams(filters) {
   if (free_paid) params[LIBRARY_PARAMS.free_paid] = free_paid;
   if (file_format) params[LIBRARY_PARAMS.file_format] = file_format;
   if (two_dims) params[LIBRARY_PARAMS.two_dims] = two_dims;
+  if (cluster_id) params[LIBRARY_PARAMS.cluster_id] = cluster_id;
   params[LIBRARY_PARAMS.page] = String(page);
   params[LIBRARY_PARAMS.limit] = String(limit);
   if (uuid) params[LIBRARY_PARAMS.uuid] = uuid;

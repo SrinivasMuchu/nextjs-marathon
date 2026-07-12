@@ -137,9 +137,6 @@ export default function TwoDLibraryCard({ design }) {
               <VisibilityOutlinedIcon fontSize="small" aria-hidden />
               Preview
             </Link>
-            <Link href={drawingHref} className={cardStyles.getButton}>
-              Get
-            </Link>
           </div>
         </div>
       </div>

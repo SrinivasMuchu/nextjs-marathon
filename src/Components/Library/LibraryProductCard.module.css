@@ -23,14 +23,11 @@
   overflow: hidden;
   width: 100%;
   aspect-ratio: 413 / 257;
-  background-color: #ebe0ff;
-  background-image:
-    linear-gradient(rgba(98, 38, 217, 0.18) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(98, 38, 217, 0.18) 1px, transparent 1px);
-  background-size: 16px 16px;
+  background-color: #f8fafc;
+  background-image: none;
 }
 
-/* 2D cards — same size as 3D, no grid background */
+/* Kept for callers that still pass previewWrapNoGrid */
 .previewWrapNoGrid {
   background-color: #f8fafc;
   background-image: none;
@@ -217,24 +214,4 @@
 .previewButton:hover {
   background: #f3e8ff;
   color: #5019b8;
-}
-
-.getButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(90deg, #5019b8 0%, #7c3aed 100%);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.getButton:hover {
-  color: #fff;
-  opacity: 0.92;
 }

@@ -9,6 +9,7 @@ import LibraryBuildKitsSection from './LibraryBuildKitsSection';
 /** Server-only hub discovery blocks below the category scroller. */
 export default function LibraryDiscoverySections({
   browsePartsTags = [],
+  buildKitClusters = [],
   libraryMode = '3d',
 }) {
   const partsMeta = libraryMode === '2d' ? TWO_D_BROWSE_PARTS_META : LIBRARY_BROWSE_PARTS_META;
@@ -23,7 +24,12 @@ export default function LibraryDiscoverySections({
         seeAllLabel={partsMeta.seeAllLabel}
         libraryMode={libraryMode}
       />
-      {libraryMode === '3d' ? <LibraryBuildKitsSection /> : null}
+      {buildKitClusters.length > 0 ? (
+        <LibraryBuildKitsSection
+          clusters={buildKitClusters}
+          libraryMode={libraryMode}
+        />
+      ) : null}
     </>
   );
 }

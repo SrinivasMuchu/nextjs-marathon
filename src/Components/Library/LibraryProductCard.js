@@ -122,9 +122,6 @@ export default function LibraryProductCard({ design }) {
               <VisibilityOutlinedIcon fontSize="small" aria-hidden />
               Preview
             </Link>
-            <Link href={productHref} className={cardStyles.getButton}>
-              Get
-            </Link>
           </div>
         </div>
       </div>

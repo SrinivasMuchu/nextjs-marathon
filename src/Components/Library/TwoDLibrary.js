@@ -6,6 +6,7 @@ import Link from 'next/link';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { BASE_URL } from '@/config';
 import { fetchCadTagsPage, fetchCadTagsByRank } from '@/api/cadTagsApi';
+import { fetchLibraryClusters } from '@/api/libraryClustersApi';
 import { fetchTwoDLibraryCategories } from '@/api/twoDLibraryDesignsApi';
 import { buildTwoDLibraryDesignsParams } from '@/api/twoDLibraryDesignsApi';
 import {
@@ -79,8 +80,8 @@ export default async function TwoDLibrary({
   const cookieStore = cookies();
   const uuid = cookieStore.get('uuid')?.value || null;
 
-  const isHubPage =
-    !category && !tags && !searchQuery && !outputFormat && !projection;
+  // Keep browse parts + build kits visible even when filters are applied
+  const showDiscoverySections = true;
 
   const apiParams = buildTwoDLibraryDesignsParams({
     category,
@@ -109,11 +110,12 @@ export default async function TwoDLibrary({
       throw err;
     });
 
-  const [response, allCategories, tagsFirstPage, rankedBrowseTags] = await Promise.all([
+  const [response, allCategories, tagsFirstPage, rankedBrowseTags, buildKitClusters] = await Promise.all([
     designsRequest,
     fetchTwoDLibraryCategories(),
     fetchCadTagsPage(0, 10, null, category || null, true),
-    isHubPage ? fetchCadTagsByRank(100, true) : Promise.resolve([]),
+    showDiscoverySections ? fetchCadTagsByRank(100, true) : Promise.resolve([]),
+    showDiscoverySections ? fetchLibraryClusters({ limit: 3, twoDims: true }) : Promise.resolve([]),
   ]);
   const data = response.data;
 
@@ -154,8 +156,6 @@ export default async function TwoDLibrary({
         cat?.industry_category_label === category
     ) || null;
   const categoryLabel = activeCategory?.industry_category_label || category;
-
-  const showDiscoverySections = isHubPage;
 
   // const showHubExperience =
   //   !categoryLabel && !tagLabel && !searchQuery && !outputFormat && !projection;
@@ -284,6 +284,8 @@ export default async function TwoDLibrary({
             <LibraryHeroSearch
               initialSearchQuery={searchQuery}
               placeholder={TWO_D_LIBRARY_HUB_SEARCH_PLACEHOLDER}
+              libraryMode="2d"
+              browseCards={TWO_D_LIBRARY_HUB_CARDS}
             />
           </div>
         </header>
@@ -300,6 +302,7 @@ export default async function TwoDLibrary({
           {showDiscoverySections ? (
             <LibraryDiscoverySections
               browsePartsTags={rankedBrowseTags}
+              buildKitClusters={buildKitClusters}
               libraryMode="2d"
             />
           ) : null}

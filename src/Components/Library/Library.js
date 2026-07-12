@@ -4,6 +4,7 @@ import axios from 'axios';
 import { notFound } from 'next/navigation';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
 import { fetchCadTagsPage, fetchCadTagsByRank } from '@/api/cadTagsApi';
+import { fetchLibraryClusters } from '@/api/libraryClustersApi';
 import { buildLibraryDesignsParams } from '@/api/libraryDesignsApi';
 import {
   formatLibraryResultsCount,
@@ -28,6 +29,7 @@ import LibraryListingPageJsonLd from '../JsonLdSchemas/LibraryListingPageJsonLd'
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
 import LibraryProductCard from './LibraryProductCard';
+import LibraryHireCtaCard from './LibraryHireCtaCard';
 import LibraryBottomSections from './LibraryBottomSections';
 import LibraryHeroSearch from './LibraryHeroSearch';
 // import LibraryHubCards from './LibraryHubCards';
@@ -84,8 +86,8 @@ async function Library({ searchParams, pageConfig = null }) {
   const cookieStore = cookies();
   const uuid = cookieStore.get('uuid')?.value || null;
 
-  const isHubPage =
-    !pageConfig && !category && !tags && !searchQuery && !fileFormat;
+  // Keep browse parts + build kits visible with filters or category selected
+  const showDiscoverySections = true;
 
   // Build query parameters for get-category-design API (see docs/BACKEND_LIBRARY_API_SPEC.md)
   const apiParams = buildLibraryDesignsParams({
@@ -115,12 +117,14 @@ async function Library({ searchParams, pageConfig = null }) {
       throw err;
     });
 
-  const [response, categoriesRes, tagsFirstPage, rankedBrowseTags] = await Promise.all([
-    designsRequest,
-    axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
-    fetchCadTagsPage(0, 10, null, category || null),
-    isHubPage ? fetchCadTagsByRank(100) : Promise.resolve([]),
-  ]);
+  const [response, categoriesRes, tagsFirstPage, rankedBrowseTags, buildKitClusters] =
+    await Promise.all([
+      designsRequest,
+      axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
+      fetchCadTagsPage(0, 10, null, category || null),
+      showDiscoverySections ? fetchCadTagsByRank(100) : Promise.resolve([]),
+      showDiscoverySections ? fetchLibraryClusters({ limit: 3 }) : Promise.resolve([]),
+    ]);
 
   const allCategories = categoriesRes.data?.data || [];
   const data = response.data;
@@ -165,7 +169,6 @@ async function Library({ searchParams, pageConfig = null }) {
 
   // const showHubExperience =
   //   !pageConfig && !categoryLabel && !tagLabel && !searchQuery && !fileFormat;
-  const showDiscoverySections = isHubPage;
 
   const showHubExperience = false;
   // const partsCountLabel = pagination?.totalItems
@@ -279,6 +282,8 @@ async function Library({ searchParams, pageConfig = null }) {
             <LibraryHeroSearch
               initialSearchQuery={searchQuery}
               placeholder={LIBRARY_HUB_SEARCH_PLACEHOLDER}
+              libraryMode="3d"
+              browseCards={LIBRARY_3D_HUB_CARDS}
             />
           </div>
         </header>
@@ -293,7 +298,10 @@ async function Library({ searchParams, pageConfig = null }) {
         />
 
         {showDiscoverySections ? (
-          <LibraryDiscoverySections browsePartsTags={rankedBrowseTags} />
+          <LibraryDiscoverySections
+            browsePartsTags={rankedBrowseTags}
+            buildKitClusters={buildKitClusters}
+          />
         ) : null}
 
         <LibraryLayoutWithFilters
@@ -352,6 +360,14 @@ async function Library({ searchParams, pageConfig = null }) {
                 </div>
               )}
 
+              {index === 4 && (
+                <div
+                  className={`${styles['library-designs-items-container']} ${styles.libraryHireCtaSlot}`}
+                >
+                  <LibraryHireCtaCard />
+                </div>
+              )}
+
               <LibraryProductCard design={design} />
 
               {index === FIRST_GRID_SIZE - 1 && !pageConfig && !categoryLabel && !tagLabel ? (
@@ -359,6 +375,13 @@ async function Library({ searchParams, pageConfig = null }) {
               ) : null}
             </React.Fragment>
           ))}
+          {designs.length > 0 && designs.length < 5 && (
+            <div
+              className={`${styles['library-designs-items-container']} ${styles.libraryHireCtaSlot}`}
+            >
+              <LibraryHireCtaCard />
+            </div>
+          )}
         </div>
 
         <div className={styles["library-pagination"]}>

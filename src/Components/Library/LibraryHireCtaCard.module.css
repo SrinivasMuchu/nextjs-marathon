@@ -1,4 +1,4 @@
-/* Same footprint as library cards: 340px column, 12px radius, boxed like .library-designs-items-container */
+/* Same footprint as library cards: fills grid column, 12px radius, boxed like .library-designs-items-container */
 .card {
   display: flex;
   flex-direction: column;
