@@ -1,5 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { sendGAtagEvent } from '@/common.helper';
+import { CAD_LIBRARY_EVENT } from '@/config';
 import LibraryPartTagCard from './LibraryPartTagCard';
 import styles from './LibraryDiscoverySections.module.css';
 
@@ -27,7 +31,17 @@ export default function LibraryBrowsePartsSection({
           <p className={styles.sectionSubtitle}>{subtitle}</p>
         </div>
         {seeAllHref ? (
-          <Link href={seeAllHref} className={styles.sectionLink}>
+          <Link
+            href={seeAllHref}
+            className={styles.sectionLink}
+            onClick={() => {
+              sendGAtagEvent({
+                event_name: 'library_tags_see_all_click',
+                event_category: CAD_LIBRARY_EVENT,
+                library_mode: libraryMode,
+              });
+            }}
+          >
             {seeAllLabel} →
           </Link>
         ) : null}

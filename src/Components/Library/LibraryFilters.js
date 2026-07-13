@@ -8,7 +8,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchBar from './SearchFilter';
 import styles from './Library.module.css';
 import panelStyles from './LibraryFiltersPanel.module.css';
-import { getLibraryPathWithQuery, isValidLibraryTagSlug } from '@/common.helper';
+import { getLibraryPathWithQuery, isValidLibraryTagSlug, sendGAtagEvent } from '@/common.helper';
+import { CAD_LIBRARY_EVENT } from '@/config';
 import { LIBRARY_FILE_FORMAT_FILTERS } from '@/data/libraryPage';
 import {
   TWO_D_OUTPUT_FORMAT_FILTER_OPTIONS,
@@ -16,6 +17,17 @@ import {
   get2DLibraryPathWithQuery,
 } from '@/data/twoDLibraryPage';
 import { getLibraryClusterPath } from '@/api/libraryClustersApi';
+
+function trackLibraryFilterTagClick({ tagValue, tagLabel, isClear, libraryListMode }) {
+  sendGAtagEvent({
+    event_name: isClear ? 'library_tag_clear_click' : 'library_tag_click',
+    event_category: CAD_LIBRARY_EVENT,
+    event_label: tagLabel || tagValue || 'all',
+    tag_name: tagValue || '',
+    library_mode: libraryListMode,
+    source: 'filters',
+  });
+}
 
 const RECENCY_RADIO = [
   { value: '', label: 'All time' },
@@ -276,9 +288,14 @@ export default function LibraryFilters({
         sort: localSort || undefined,
         recency: localRecency || undefined,
         free_paid: localFreePaid || undefined,
-        file_format: localFormats.length ? localFormats.join(',') : undefined,
-        output_format: localOutputFormats.length ? localOutputFormats.join(',') : undefined,
-        projection: localProjection || undefined,
+        file_format:
+          libraryListMode === '2d'
+            ? undefined
+            : localFormats.length
+              ? localFormats.join(',')
+              : undefined,
+        output_format: undefined,
+        projection: libraryListMode === '2d' ? undefined : localProjection || undefined,
         cluster_id: localClusterId || undefined,
         cluster_slug: localClusterSlug || undefined,
         two_dims:
@@ -373,13 +390,8 @@ export default function LibraryFilters({
           libraryListMode === '3d' && resolvedApplyFormats.length
             ? resolvedApplyFormats.join(',')
             : undefined,
-        output_format:
-          libraryListMode === '2d'
-            ? (localOutputFormats.length
-                ? localOutputFormats.join(',')
-                : formatsForOutputType(localOutputType, libraryListMode).join(',') || undefined)
-            : undefined,
-        projection: localProjection || undefined,
+        output_format: undefined,
+        projection: libraryListMode === '2d' ? undefined : localProjection || undefined,
         cluster_id: localClusterId || undefined,
         cluster_slug: localClusterSlug || undefined,
         two_dims: libraryListMode === '3d' && localOutputType === '2d' ? '1' : undefined,
@@ -424,6 +436,7 @@ export default function LibraryFilters({
         : PANEL_FILE_FORMATS_3D;
     const selectedPanelFormats =
       libraryListMode === '2d' ? selectedOutputFormats : selectedFormats;
+    const showOutputAndFormatFilters = libraryListMode !== '2d';
 
     return (
       <div className={panelStyles.panelInner}>
@@ -466,49 +479,53 @@ export default function LibraryFilters({
             </div>
           </div>
 
-          <div className={panelStyles.panelSection}>
-            <span className={panelStyles.panelLabel}>Output</span>
-            <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Output">
-              {outputOptions.map(({ value, label }) => {
-                const isActive = (displayOutputType || '') === value;
-                return (
-                  <button
-                    key={value || 'all-output'}
-                    type="button"
-                    className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
-                    onClick={() => handleOutputTypeChange(value)}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {showOutputAndFormatFilters ? (
+            <>
+              <div className={panelStyles.panelSection}>
+                <span className={panelStyles.panelLabel}>Output</span>
+                <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Output">
+                  {outputOptions.map(({ value, label }) => {
+                    const isActive = (displayOutputType || '') === value;
+                    return (
+                      <button
+                        key={value || 'all-output'}
+                        type="button"
+                        className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
+                        onClick={() => handleOutputTypeChange(value)}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          <div className={`${panelStyles.panelSection} ${panelStyles.panelSectionSpan2}`}>
-            <span className={panelStyles.panelLabel}>File format</span>
-            <div className={panelStyles.formatRow}>
-              {formatOptions.map(({ value, label }) => {
-                const isActive = selectedPanelFormats.includes(value);
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    className={`${panelStyles.formatChip} ${isActive ? panelStyles.formatChipActive : ''}`}
-                    onClick={() => {
-                      if (libraryListMode === '2d') {
-                        toggleOutputFormat(value, !isActive);
-                        return;
-                      }
-                      toggleFileFormat(value, !isActive);
-                    }}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+              <div className={`${panelStyles.panelSection} ${panelStyles.panelSectionSpan2}`}>
+                <span className={panelStyles.panelLabel}>File format</span>
+                <div className={panelStyles.formatRow}>
+                  {formatOptions.map(({ value, label }) => {
+                    const isActive = selectedPanelFormats.includes(value);
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        className={`${panelStyles.formatChip} ${isActive ? panelStyles.formatChipActive : ''}`}
+                        onClick={() => {
+                          if (libraryListMode === '2d') {
+                            toggleOutputFormat(value, !isActive);
+                            return;
+                          }
+                          toggleFileFormat(value, !isActive);
+                        }}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          ) : null}
 
           <div className={`${panelStyles.panelSection} ${panelStyles.panelSectionFull}`}>
             <span className={panelStyles.panelLabel}>Tags</span>
@@ -527,7 +544,15 @@ export default function LibraryFilters({
               <button
                 type="button"
                 className={`${panelStyles.formatChip} ${!displayTag ? panelStyles.formatChipActive : ''}`}
-                onClick={() => setLocalTag('')}
+                onClick={() => {
+                  trackLibraryFilterTagClick({
+                    tagValue: '',
+                    tagLabel: 'All tags',
+                    isClear: true,
+                    libraryListMode,
+                  });
+                  setLocalTag('');
+                }}
               >
                 All tags
               </button>
@@ -546,7 +571,15 @@ export default function LibraryFilters({
                     key={tagValue}
                     type="button"
                     className={`${panelStyles.formatChip} ${isActive ? panelStyles.formatChipActive : ''}`}
-                    onClick={() => setLocalTag(isActive ? '' : tagValue)}
+                    onClick={() => {
+                      trackLibraryFilterTagClick({
+                        tagValue,
+                        tagLabel,
+                        isClear: isActive,
+                        libraryListMode,
+                      });
+                      setLocalTag(isActive ? '' : tagValue);
+                    }}
                   >
                     {tagLabel}
                   </button>
@@ -707,7 +740,15 @@ export default function LibraryFilters({
                   key={tagValue}
                   type="button"
                   className={styles['library-filters-tag-pill'] + (isActive ? ` ${styles['library-filters-tag-pill-active']}` : '')}
-                  onClick={() => setLocalTag(isActive ? '' : tagValue)}
+                  onClick={() => {
+                    trackLibraryFilterTagClick({
+                      tagValue,
+                      tagLabel,
+                      isClear: isActive,
+                      libraryListMode,
+                    });
+                    setLocalTag(isActive ? '' : tagValue);
+                  }}
                 >
                   {tagLabel}
                 </button>
@@ -716,6 +757,14 @@ export default function LibraryFilters({
                   key={tagValue}
                   href={tagUrl}
                   className={styles['library-filters-tag-pill'] + (isActive ? ` ${styles['library-filters-tag-pill-active']}` : '')}
+                  onClick={() => {
+                    trackLibraryFilterTagClick({
+                      tagValue,
+                      tagLabel,
+                      isClear: isActive,
+                      libraryListMode,
+                    });
+                  }}
                 >
                   {tagLabel}
                 </Link>

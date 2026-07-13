@@ -1,7 +1,10 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
-import { getLibraryPath } from '@/common.helper';
+import { getLibraryPath, sendGAtagEvent } from '@/common.helper';
+import { CAD_LIBRARY_EVENT } from '@/config';
 import { get2DLibraryPath } from '@/data/twoDLibraryPage';
 import styles from './LibraryTagsPage.module.css';
 
@@ -34,11 +37,23 @@ export default function LibraryPartTagCard({
     return null;
   }
 
+  const trackTagClick = () => {
+    sendGAtagEvent({
+      event_name: isActive ? 'library_tag_clear_click' : 'library_tag_click',
+      event_category: CAD_LIBRARY_EVENT,
+      event_label: label || tagName,
+      tag_name: tagName,
+      library_mode: libraryMode,
+      source: 'browse',
+    });
+  };
+
   return (
     <Link
       href={isActive ? getClearTagHref(libraryMode, categoryName) : getTagHref(tagName, libraryMode, categoryName)}
       className={`${styles.tagCard} ${isActive ? styles.tagCardActive : ''}`}
       aria-current={isActive ? 'page' : undefined}
+      onClick={trackTagClick}
     >
       <span className={styles.tagIconWrap} aria-hidden>
         <LocalOfferOutlinedIcon className={styles.tagIcon} />

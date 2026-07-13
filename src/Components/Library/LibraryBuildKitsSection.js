@@ -4,7 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { getLibraryPathWithQuery } from '@/common.helper';
+import { getLibraryPathWithQuery, sendGAtagEvent } from '@/common.helper';
+import { CAD_LIBRARY_EVENT } from '@/config';
 import { get2DLibraryPathWithQuery } from '@/data/twoDLibraryPage';
 import { getLibraryClusterPath } from '@/api/libraryClustersApi';
 import {
@@ -59,7 +60,17 @@ export default function LibraryBuildKitsSection({
             <p className={styles.sectionSubtitle}>{meta.subtitle}</p>
           </div>
           {meta.seeAllHref ? (
-            <Link href={meta.seeAllHref} className={styles.sectionLink}>
+            <Link
+              href={meta.seeAllHref}
+              className={styles.sectionLink}
+              onClick={() => {
+                sendGAtagEvent({
+                  event_name: 'library_clusters_see_all_click',
+                  event_category: CAD_LIBRARY_EVENT,
+                  library_mode: libraryMode,
+                });
+              }}
+            >
               {meta.seeAllLabel} →
             </Link>
           ) : null}
@@ -79,6 +90,7 @@ export default function LibraryBuildKitsSection({
           const href = isActive
             ? clearHref
             : getLibraryClusterPath(cluster, libraryMode);
+          const clusterName = cluster?.cluster_name || clusterId;
 
           return (
             <Link
@@ -86,6 +98,18 @@ export default function LibraryBuildKitsSection({
               href={href}
               className={`${styles.kitCard} ${isActive ? styles.kitCardActive : ''}`}
               aria-current={isActive ? 'page' : undefined}
+              onClick={() => {
+                sendGAtagEvent({
+                  event_name: isActive
+                    ? 'library_cluster_clear_click'
+                    : 'library_cluster_click',
+                  event_category: CAD_LIBRARY_EVENT,
+                  event_label: clusterName,
+                  cluster_id: clusterId,
+                  cluster_slug: cluster?.cluster_slug || '',
+                  library_mode: libraryMode,
+                });
+              }}
             >
               <div className={styles.kitTypeRow}>
                 <AutoAwesomeOutlinedIcon className={styles.kitTypeIcon} aria-hidden />
