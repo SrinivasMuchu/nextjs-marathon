@@ -49,6 +49,14 @@ const QUICK_TOOLS_CARDS = [
     Icon: PenTool,
   },
   {
+    href: '/tools/gdt-pipeline',
+    title: 'STEP → GD&T',
+    description:
+      'Apply geometric dimensioning and tolerancing to a STEP part. Set datums and tolerances yourself, or let Qwen suggest them.',
+    tags: ['GD&T', 'Datums', 'AI Tolerances'],
+    Icon: Layers,
+  },
+  {
     href: '/tools/industries',
     title: 'Industries',
     description:
