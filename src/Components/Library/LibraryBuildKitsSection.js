@@ -40,6 +40,8 @@ export default function LibraryBuildKitsSection({
   libraryMode = '3d',
   activeClusterId = '',
   filterState = {},
+  /** 'scroll' = library hub horizontal scroller; 'grid' = /library/clusters page */
+  layout = 'scroll',
 }) {
   const meta = libraryMode === '2d' ? TWO_D_BUILD_KITS_META : LIBRARY_BUILD_KITS_META;
 
@@ -48,6 +50,7 @@ export default function LibraryBuildKitsSection({
   }
 
   const clearHref = buildClearClusterHref(libraryMode, filterState);
+  const listClassName = layout === 'grid' ? styles.kitsGrid : styles.kitsScrollerTrack;
 
   return (
     <section className={styles.section} aria-labelledby="library-build-kits-title">
@@ -77,7 +80,7 @@ export default function LibraryBuildKitsSection({
         </div>
       )}
 
-      <div className={styles.kitsScrollerTrack}>
+      <div className={listClassName}>
         {clusters.map((cluster) => {
           const clusterId = cluster?.cluster_id;
           if (!clusterId) return null;

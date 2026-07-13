@@ -36,6 +36,7 @@ export default function LibraryDiscoverySections({
           libraryMode={libraryMode}
           activeClusterId={activeClusterId}
           filterState={filterState}
+          layout="scroll"
         />
       ) : null}
     </>

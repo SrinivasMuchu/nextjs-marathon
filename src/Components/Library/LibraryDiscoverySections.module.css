@@ -172,6 +172,12 @@
   gap: 16px;
 }
 
+.kitsGrid .kitCard {
+  flex: unset;
+  width: auto;
+  min-width: 0;
+}
+
 .kitCard {
   display: flex;
   flex-direction: column;
@@ -324,7 +330,7 @@
 
 @media (max-width: 1100px) {
   .kitsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -342,7 +348,11 @@
     display: none;
   }
 
-  .kitCard {
+  .kitsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .kitsScrollerTrack .kitCard {
     flex: 0 0 min(280px, 82vw);
     width: min(280px, 82vw);
     min-height: 200px;
