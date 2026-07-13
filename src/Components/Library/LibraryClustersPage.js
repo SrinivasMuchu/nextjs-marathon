@@ -40,6 +40,7 @@ export default async function LibraryClustersPage({ libraryMode = '3d' }) {
             clusters={clusters}
             hideSectionHead
             libraryMode={libraryMode}
+            filterState={{}}
           />
         ) : (
           <p className={styles.empty}>

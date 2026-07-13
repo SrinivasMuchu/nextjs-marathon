@@ -131,6 +131,7 @@ export function get2DLibraryPathWithQuery({
   file_format,
   output_format,
   projection,
+  cluster_id,
 } = {}) {
   const path = get2DLibraryPath({ categoryName, tagName });
   const params = new URLSearchParams();
@@ -142,6 +143,7 @@ export function get2DLibraryPathWithQuery({
   if (file_format) params.set('file_format', file_format);
   if (output_format) params.set('output_format', output_format);
   if (projection) params.set('projection', projection);
+  if (cluster_id) params.set('cluster_id', String(cluster_id).trim());
   const q = params.toString();
   return q ? `${path}?${q}` : path;
 }
@@ -155,6 +157,7 @@ export function hasTwoDLibraryNarrowingFilters({
   file_format,
   output_format,
   projection,
+  cluster_id,
 }) {
   return Boolean(
     (category && String(category).trim()) ||
@@ -164,6 +167,7 @@ export function hasTwoDLibraryNarrowingFilters({
       (free_paid && String(free_paid).trim()) ||
       (file_format && String(file_format).trim()) ||
       (output_format && String(output_format).trim()) ||
-      (projection && String(projection).trim())
+      (projection && String(projection).trim()) ||
+      (cluster_id && String(cluster_id).trim())
   );
 }

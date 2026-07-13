@@ -5,24 +5,41 @@ import { getLibraryPath } from '@/common.helper';
 import { get2DLibraryPath } from '@/data/twoDLibraryPage';
 import styles from './LibraryTagsPage.module.css';
 
-function getTagHref(tagName, libraryMode) {
+function getTagHref(tagName, libraryMode, categoryName = null) {
   if (libraryMode === '2d') {
-    return get2DLibraryPath({ tagName });
+    return get2DLibraryPath({ categoryName, tagName });
   }
-  return getLibraryPath({ tagName });
+  return getLibraryPath({ categoryName, tagName });
 }
 
-export default function LibraryPartTagCard({ tag, libraryMode = '3d' }) {
+function getClearTagHref(libraryMode, categoryName = null) {
+  if (libraryMode === '2d') {
+    return get2DLibraryPath({ categoryName: categoryName || null, tagName: null });
+  }
+  return getLibraryPath({ categoryName: categoryName || null, tagName: null });
+}
+
+export default function LibraryPartTagCard({
+  tag,
+  libraryMode = '3d',
+  activeTag = '',
+  categoryName = null,
+}) {
   const tagName = tag?.cad_tag_name || '';
   const label = tag?.cad_tag_label || tagName;
   const partCount = Number(tag?.product_count) || 0;
+  const isActive = Boolean(activeTag && tagName && activeTag === tagName);
 
   if (!tagName) {
     return null;
   }
 
   return (
-    <Link href={getTagHref(tagName, libraryMode)} className={styles.tagCard}>
+    <Link
+      href={isActive ? getClearTagHref(libraryMode, categoryName) : getTagHref(tagName, libraryMode, categoryName)}
+      className={`${styles.tagCard} ${isActive ? styles.tagCardActive : ''}`}
+      aria-current={isActive ? 'page' : undefined}
+    >
       <span className={styles.tagIconWrap} aria-hidden>
         <LocalOfferOutlinedIcon className={styles.tagIcon} />
       </span>

@@ -15,6 +15,7 @@ import {
   TWO_D_PROJECTION_FILTERS,
   get2DLibraryPathWithQuery,
 } from '@/data/twoDLibraryPage';
+import { getLibraryClusterPath } from '@/api/libraryClustersApi';
 
 const RECENCY_RADIO = [
   { value: '', label: 'All time' },
@@ -92,10 +93,37 @@ const FREE_PAID_RADIO = [
 const TAGS_PAGE_SIZE = 10;
 
 function buildFiltersListUrl(libraryListMode, params) {
-  if (libraryListMode === '2d') {
-    return get2DLibraryPathWithQuery(params);
+  const {
+    cluster_slug,
+    cluster_id: _clusterId,
+    categoryName,
+    tagName,
+    ...queryParams
+  } = params || {};
+
+  if (cluster_slug) {
+    const path = getLibraryClusterPath({ cluster_slug }, libraryListMode);
+    const searchParams = new URLSearchParams();
+    if (queryParams.search) searchParams.set('search', queryParams.search);
+    if (queryParams.page && queryParams.page > 1) {
+      searchParams.set('page', String(queryParams.page));
+    }
+    if (queryParams.sort) searchParams.set('sort', queryParams.sort);
+    if (queryParams.recency) searchParams.set('recency', queryParams.recency);
+    if (queryParams.free_paid) searchParams.set('free_paid', queryParams.free_paid);
+    if (queryParams.file_format) searchParams.set('file_format', queryParams.file_format);
+    if (queryParams.output_format) searchParams.set('output_format', queryParams.output_format);
+    if (queryParams.projection) searchParams.set('projection', queryParams.projection);
+    const td = String(queryParams.two_dims || '').trim().toLowerCase();
+    if (td === '1' || td === 'true' || td === 'yes') searchParams.set('two_dims', '1');
+    const qs = searchParams.toString();
+    return qs ? `${path}?${qs}` : path;
   }
-  return getLibraryPathWithQuery(params);
+
+  if (libraryListMode === '2d') {
+    return get2DLibraryPathWithQuery({ categoryName, tagName, ...queryParams });
+  }
+  return getLibraryPathWithQuery({ categoryName, tagName, ...queryParams });
 }
 
 export default function LibraryFilters({
@@ -116,6 +144,8 @@ export default function LibraryFilters({
   show2DExtraFilters = false,
   initialOutputFormat = '',
   initialProjection = '',
+  initialClusterId = '',
+  initialClusterSlug = '',
   hasActiveFilters,
   tagsHasMore,
   onLoadMoreTags,
@@ -147,6 +177,8 @@ export default function LibraryFilters({
     (initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean)
   );
   const [localProjection, setLocalProjection] = useState(initialProjection || '');
+  const [localClusterId, setLocalClusterId] = useState(initialClusterId || '');
+  const [localClusterSlug, setLocalClusterSlug] = useState(initialClusterSlug || '');
   const [localOutputType, setLocalOutputType] = useState(() =>
     deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat)
   );
@@ -170,13 +202,15 @@ export default function LibraryFilters({
       setLocalTag(tags || '');
       setLocalOutputFormats((initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean));
       setLocalProjection(initialProjection || '');
+      setLocalClusterId(initialClusterId || '');
+      setLocalClusterSlug(initialClusterSlug || '');
       setLocalOutputType(
         deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat)
       );
     }
     prevSheetOpenRef.current = !!sheetOpen;
     prevPanelOpenRef.current = !!panelOpen;
-  }, [inSheet, sheetOpen, variant, panelOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, initialOutputFormat, initialProjection, category, tags, libraryListMode]);
+  }, [inSheet, sheetOpen, variant, panelOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, initialOutputFormat, initialProjection, initialClusterId, initialClusterSlug, category, tags, libraryListMode]);
 
   const tagSearch = typeof onTagSearchChange === 'function' ? (tagSearchProp ?? '') : tagSearchLocal;
   const setTagSearch = typeof onTagSearchChange === 'function' ? onTagSearchChange : setTagSearchLocal;
@@ -196,6 +230,8 @@ export default function LibraryFilters({
       two_dims: initialTwoDims,
       output_format: initialOutputFormat,
       projection: initialProjection,
+      cluster_id: initialClusterId || undefined,
+      cluster_slug: initialClusterSlug || undefined,
       page: 1,
     };
     return (overrides = {}) =>
@@ -211,6 +247,8 @@ export default function LibraryFilters({
     initialTwoDims,
     initialOutputFormat,
     initialProjection,
+    initialClusterId,
+    initialClusterSlug,
     libraryListMode,
   ]);
 
@@ -241,6 +279,8 @@ export default function LibraryFilters({
         file_format: localFormats.length ? localFormats.join(',') : undefined,
         output_format: localOutputFormats.length ? localOutputFormats.join(',') : undefined,
         projection: localProjection || undefined,
+        cluster_id: localClusterId || undefined,
+        cluster_slug: localClusterSlug || undefined,
         two_dims:
           libraryListMode === '3d' && localOutputType === '2d'
             ? '1'
@@ -258,6 +298,8 @@ export default function LibraryFilters({
       localFormats,
       localOutputFormats,
       localProjection,
+      localClusterId,
+      localClusterSlug,
       localOutputType,
       libraryListMode,
     ]
@@ -338,6 +380,8 @@ export default function LibraryFilters({
                 : formatsForOutputType(localOutputType, libraryListMode).join(',') || undefined)
             : undefined,
         projection: localProjection || undefined,
+        cluster_id: localClusterId || undefined,
+        cluster_slug: localClusterSlug || undefined,
         two_dims: libraryListMode === '3d' && localOutputType === '2d' ? '1' : undefined,
         page: 1,
       }),
@@ -352,6 +396,8 @@ export default function LibraryFilters({
       resolvedApplyFormats,
       localOutputFormats,
       localProjection,
+      localClusterId,
+      localClusterSlug,
       localOutputType,
       libraryListMode,
     ]

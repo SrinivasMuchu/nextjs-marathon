@@ -62,6 +62,32 @@
   text-decoration: none;
 }
 
+.tagCardActive {
+  border-color: transparent;
+  background: linear-gradient(90deg, #5019b8 0%, #7c3aed 55%, #8b5cf6 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(98, 38, 217, 0.28);
+}
+
+.tagCardActive:hover {
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(98, 38, 217, 0.32);
+}
+
+.tagCardActive .tagLabel,
+.tagCardActive .tagCount {
+  color: #fff;
+}
+
+.tagCardActive .tagIconWrap {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tagCardActive .tagIcon {
+  color: #fff;
+}
+
 .tagIconWrap {
   display: flex;
   align-items: center;

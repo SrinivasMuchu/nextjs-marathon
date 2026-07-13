@@ -15,14 +15,20 @@ import styles from './Library.module.css';
 import cardStyles from './LibraryProductCard.module.css';
 
 function formatDownloadCount(count) {
-  const num = Number(count) || 0;
+  if (count == null || count === '') return '0';
+  // API often returns privacy bucket labels (e.g. "<100", "1 k – 4.9 k")
+  if (typeof count === 'string' && Number.isNaN(Number(count.trim()))) {
+    return count.trim();
+  }
+  const num = Number(count);
+  if (!Number.isFinite(num) || num < 0) return '0';
   if (num >= 1_000_000) {
     return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
   }
   if (num >= 1000) {
     return `${(num / 1000).toFixed(1).replace(/\.0$/, '')}k`;
   }
-  return String(num);
+  return String(Math.floor(num));
 }
 
 function sheetLabel(design) {

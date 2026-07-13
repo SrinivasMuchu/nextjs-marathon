@@ -3,7 +3,7 @@ import React from 'react';
 import axios from 'axios';
 import { notFound } from 'next/navigation';
 import { BASE_URL, DESIGN_GLB_PREFIX_URL } from '@/config';
-import { fetchCadTagsPage, fetchCadTagsByRank } from '@/api/cadTagsApi';
+import { fetchCadTagsByRank, fetchLibraryFiltersTagsPage, TAGS_PAGE_SIZE } from '@/api/cadTagsApi';
 import { fetchLibraryClusters } from '@/api/libraryClustersApi';
 import { buildLibraryDesignsParams } from '@/api/libraryDesignsApi';
 import {
@@ -35,6 +35,7 @@ import LibraryHeroSearch from './LibraryHeroSearch';
 // import LibraryHubCards from './LibraryHubCards';
 import LibraryCategoryScroller from './LibraryCategoryScroller';
 import LibraryDiscoverySections from './LibraryDiscoverySections';
+import { getLibraryClusterPath } from '@/api/libraryClustersApi';
 import {
   LIBRARY_DEFAULT_H1,
   LIBRARY_DEFAULT_INTRO,
@@ -49,11 +50,9 @@ const SITE_LIST_ORIGIN = 'https://marathon-os.com';
 
 const FIRST_GRID_SIZE = 6;
 
-/** Build library URL (path for category/tag + query for search, page, sort, etc.). Limit is not included in URL. */
+/** Build library URL (path for category/tag/cluster + query for search, page, sort, etc.). */
 function buildLibraryHref(params) {
-  return getLibraryPathWithQuery({
-    categoryName: params.category || null,
-    tagName: params.tags || null,
+  const query = {
     search: params.search,
     page: params.page,
     sort: params.sort,
@@ -61,6 +60,30 @@ function buildLibraryHref(params) {
     free_paid: params.free_paid,
     file_format: params.file_format,
     two_dims: params.two_dims,
+  };
+
+  if (params.cluster_slug) {
+    const path = getLibraryClusterPath(
+      { cluster_slug: params.cluster_slug },
+      '3d'
+    );
+    const searchParams = new URLSearchParams();
+    if (query.search) searchParams.set('search', query.search);
+    if (query.page && query.page > 1) searchParams.set('page', String(query.page));
+    if (query.sort) searchParams.set('sort', query.sort);
+    if (query.recency) searchParams.set('recency', query.recency);
+    if (query.free_paid) searchParams.set('free_paid', query.free_paid);
+    if (query.file_format) searchParams.set('file_format', query.file_format);
+    const td = String(query.two_dims || '').trim().toLowerCase();
+    if (td === '1' || td === 'true' || td === 'yes') searchParams.set('two_dims', '1');
+    const qs = searchParams.toString();
+    return qs ? `${path}?${qs}` : path;
+  }
+
+  return getLibraryPathWithQuery({
+    categoryName: params.category || null,
+    tagName: params.tags || null,
+    ...query,
   });
 }
 
@@ -81,6 +104,8 @@ async function Library({ searchParams, pageConfig = null }) {
     String(rawTwoDims || '').trim().toLowerCase()
   );
   const twoDimsParam = twoDimsOn ? '1' : '';
+  const clusterId = (searchParams?.cluster_id || '').trim();
+  const clusterSlug = (searchParams?.cluster_slug || '').trim();
 
   // Read UUID from cookies (server-side)
   const cookieStore = cookies();
@@ -100,6 +125,7 @@ async function Library({ searchParams, pageConfig = null }) {
     free_paid: freePaid,
     file_format: fileFormat,
     two_dims: twoDimsParam,
+    cluster_id: clusterId,
     page,
     limit,
     uuid,
@@ -121,9 +147,9 @@ async function Library({ searchParams, pageConfig = null }) {
     await Promise.all([
       designsRequest,
       axios.get(`${BASE_URL}/v1/cad/get-categories`, { cache: 'no-store' }),
-      fetchCadTagsPage(0, 10, null, category || null),
+      fetchLibraryFiltersTagsPage(0, TAGS_PAGE_SIZE, null, category || null),
       showDiscoverySections ? fetchCadTagsByRank(100) : Promise.resolve([]),
-      showDiscoverySections ? fetchLibraryClusters({ limit: 3 }) : Promise.resolve([]),
+      showDiscoverySections ? fetchLibraryClusters({ limit: 50 }) : Promise.resolve([]),
     ]);
 
   const allCategories = categoriesRes.data?.data || [];
@@ -148,6 +174,7 @@ async function Library({ searchParams, pageConfig = null }) {
     free_paid: freePaid,
     file_format: fileFormat,
     two_dims: twoDimsParam,
+    cluster_id: clusterId,
   });
 
   const paginationWindow = getLibraryPaginationWindow({
@@ -301,6 +328,19 @@ async function Library({ searchParams, pageConfig = null }) {
           <LibraryDiscoverySections
             browsePartsTags={rankedBrowseTags}
             buildKitClusters={buildKitClusters}
+            activeTag={tags}
+            activeClusterId={clusterId}
+            categoryName={category || null}
+            filterState={{
+              category,
+              tags,
+              search: searchQuery,
+              sort,
+              recency,
+              free_paid: freePaid,
+              file_format: fileFormat,
+              two_dims: twoDimsParam,
+            }}
           />
         ) : null}
 
@@ -317,6 +357,8 @@ async function Library({ searchParams, pageConfig = null }) {
             initialFreePaid: searchParams?.free_paid,
             initialFileFormat: searchParams?.file_format,
             initialTwoDims: twoDimsParam,
+            initialClusterId: clusterId,
+            initialClusterSlug: clusterSlug,
             hasActiveFilters: Object.keys(searchParams || {}).length > 0,
           }}
           toolbarLeft={
@@ -397,6 +439,7 @@ async function Library({ searchParams, pageConfig = null }) {
                 free_paid: freePaid,
                 file_format: fileFormat,
                 two_dims: twoDimsParam,
+                cluster_slug: clusterSlug,
               })}
               className={styles['pagination-button']}
             >
@@ -421,6 +464,7 @@ async function Library({ searchParams, pageConfig = null }) {
                 free_paid: freePaid,
                 file_format: fileFormat,
                 two_dims: twoDimsParam,
+                cluster_slug: clusterSlug,
               })}
               className={`${styles['pagination-button']} ${dataPage === p ? styles.active : ''}`}
             >
@@ -444,6 +488,7 @@ async function Library({ searchParams, pageConfig = null }) {
                 free_paid: freePaid,
                 file_format: fileFormat,
                 two_dims: twoDimsParam,
+                cluster_slug: clusterSlug,
               })}
               className={styles['pagination-button']}
             >

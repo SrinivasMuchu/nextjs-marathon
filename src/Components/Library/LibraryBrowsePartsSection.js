@@ -10,6 +10,8 @@ export default function LibraryBrowsePartsSection({
   seeAllHref,
   seeAllLabel = 'See all parts',
   libraryMode = '3d',
+  activeTag = '',
+  categoryName = null,
 }) {
   if (!tags.length) {
     return null;
@@ -34,7 +36,12 @@ export default function LibraryBrowsePartsSection({
       <div className={styles.partsRow}>
         {tags.map((tag) => (
           <div key={tag?._id || tag?.cad_tag_name} className={styles.partCardSlot}>
-            <LibraryPartTagCard tag={tag} libraryMode={libraryMode} />
+            <LibraryPartTagCard
+              tag={tag}
+              libraryMode={libraryMode}
+              activeTag={activeTag}
+              categoryName={categoryName}
+            />
           </div>
         ))}
       </div>

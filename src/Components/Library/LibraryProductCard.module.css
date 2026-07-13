@@ -202,9 +202,9 @@
   gap: 6px;
   padding: 8px 12px;
   border-radius: 10px;
-  border: 1px solid #e9d5ff;
-  background: #faf5ff;
-  color: #6226d9;
+  border: 1px solid #610bee;
+  background: #610bee;
+  color: #fff;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -212,6 +212,7 @@
 }
 
 .previewButton:hover {
-  background: #f3e8ff;
-  color: #5019b8;
+  background: #530bd4;
+  border-color: #530bd4;
+  color: #fff;
 }

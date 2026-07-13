@@ -5,8 +5,8 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { BASE_URL } from '@/config';
-import { fetchCadTagsPage, fetchCadTagsByRank } from '@/api/cadTagsApi';
-import { fetchLibraryClusters } from '@/api/libraryClustersApi';
+import { fetchCadTagsByRank, fetchLibraryFiltersTagsPage, TAGS_PAGE_SIZE } from '@/api/cadTagsApi';
+import { fetchLibraryClusters, getLibraryClusterPath } from '@/api/libraryClustersApi';
 import { fetchTwoDLibraryCategories } from '@/api/twoDLibraryDesignsApi';
 import { buildTwoDLibraryDesignsParams } from '@/api/twoDLibraryDesignsApi';
 import {
@@ -45,9 +45,7 @@ const SITE_LIST_ORIGIN = 'https://marathon-os.com';
 const FIRST_GRID_SIZE = 6;
 
 function build2dLibraryHref(params) {
-  return get2DLibraryPathWithQuery({
-    categoryName: params.category || null,
-    tagName: params.tags || null,
+  const query = {
     search: params.search,
     page: params.page,
     sort: params.sort,
@@ -56,6 +54,30 @@ function build2dLibraryHref(params) {
     file_format: params.file_format,
     output_format: params.output_format,
     projection: params.projection,
+  };
+
+  if (params.cluster_slug) {
+    const path = getLibraryClusterPath(
+      { cluster_slug: params.cluster_slug },
+      '2d'
+    );
+    const searchParams = new URLSearchParams();
+    if (query.search) searchParams.set('search', query.search);
+    if (query.page && query.page > 1) searchParams.set('page', String(query.page));
+    if (query.sort) searchParams.set('sort', query.sort);
+    if (query.recency) searchParams.set('recency', query.recency);
+    if (query.free_paid) searchParams.set('free_paid', query.free_paid);
+    if (query.file_format) searchParams.set('file_format', query.file_format);
+    if (query.output_format) searchParams.set('output_format', query.output_format);
+    if (query.projection) searchParams.set('projection', query.projection);
+    const qs = searchParams.toString();
+    return qs ? `${path}?${qs}` : path;
+  }
+
+  return get2DLibraryPathWithQuery({
+    categoryName: params.category || null,
+    tagName: params.tags || null,
+    ...query,
   });
 }
 
@@ -76,6 +98,8 @@ export default async function TwoDLibrary({
   const fileFormat = searchParams?.file_format || '';
   const outputFormat = searchParams?.output_format || '';
   const projection = searchParams?.projection || '';
+  const clusterId = (searchParams?.cluster_id || '').trim();
+  const clusterSlug = (searchParams?.cluster_slug || '').trim();
 
   const cookieStore = cookies();
   const uuid = cookieStore.get('uuid')?.value || null;
@@ -93,6 +117,7 @@ export default async function TwoDLibrary({
     file_format: fileFormat,
     output_format: outputFormat,
     projection,
+    cluster_id: clusterId,
     page,
     limit,
     uuid,
@@ -113,9 +138,9 @@ export default async function TwoDLibrary({
   const [response, allCategories, tagsFirstPage, rankedBrowseTags, buildKitClusters] = await Promise.all([
     designsRequest,
     fetchTwoDLibraryCategories(),
-    fetchCadTagsPage(0, 10, null, category || null, true),
+    fetchLibraryFiltersTagsPage(0, TAGS_PAGE_SIZE, null, category || null, true),
     showDiscoverySections ? fetchCadTagsByRank(100, true) : Promise.resolve([]),
-    showDiscoverySections ? fetchLibraryClusters({ limit: 3, twoDims: true }) : Promise.resolve([]),
+    showDiscoverySections ? fetchLibraryClusters({ limit: 50, twoDims: true }) : Promise.resolve([]),
   ]);
   const data = response.data;
 
@@ -138,6 +163,7 @@ export default async function TwoDLibrary({
     file_format: fileFormat,
     output_format: outputFormat,
     projection,
+    cluster_id: clusterId,
   });
 
   const paginationWindow = getLibraryPaginationWindow({
@@ -304,6 +330,20 @@ export default async function TwoDLibrary({
               browsePartsTags={rankedBrowseTags}
               buildKitClusters={buildKitClusters}
               libraryMode="2d"
+              activeTag={tags}
+              activeClusterId={clusterId}
+              categoryName={category || null}
+              filterState={{
+                category,
+                tags,
+                search: searchQuery,
+                sort,
+                recency,
+                free_paid: freePaid,
+                file_format: fileFormat,
+                output_format: outputFormat,
+                projection,
+              }}
             />
           ) : null}
 
@@ -321,6 +361,8 @@ export default async function TwoDLibrary({
               initialFileFormat: fileFormat,
               initialOutputFormat: outputFormat,
               initialProjection: projection,
+              initialClusterId: clusterId,
+              initialClusterSlug: clusterSlug,
               hasActiveFilters: hasFilters,
               libraryListMode: '2d',
               library2d: true,
@@ -392,6 +434,7 @@ export default async function TwoDLibrary({
                       file_format: fileFormat,
                       output_format: outputFormat,
                       projection,
+                      cluster_slug: clusterSlug,
                     })}
                     className={styles['pagination-button']}
                   >
@@ -417,6 +460,7 @@ export default async function TwoDLibrary({
                       file_format: fileFormat,
                       output_format: outputFormat,
                       projection,
+                      cluster_slug: clusterSlug,
                     })}
                     className={`${styles['pagination-button']} ${dataPage === p ? styles.active : ''}`}
                   >
@@ -441,6 +485,7 @@ export default async function TwoDLibrary({
                       file_format: fileFormat,
                       output_format: outputFormat,
                       projection,
+                      cluster_slug: clusterSlug,
                     })}
                     className={styles['pagination-button']}
                   >

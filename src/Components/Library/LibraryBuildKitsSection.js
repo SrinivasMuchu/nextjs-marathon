@@ -1,7 +1,11 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { getLibraryPathWithQuery } from '@/common.helper';
+import { get2DLibraryPathWithQuery } from '@/data/twoDLibraryPage';
 import { getLibraryClusterPath } from '@/api/libraryClustersApi';
 import {
   LIBRARY_BUILD_KITS_META,
@@ -9,16 +13,40 @@ import {
 } from '@/data/libraryHubSections';
 import styles from './LibraryDiscoverySections.module.css';
 
+function buildClearClusterHref(libraryMode, filters = {}) {
+  const base = {
+    categoryName: filters.category || null,
+    tagName: filters.tags || null,
+    search: filters.search || undefined,
+    sort: filters.sort || undefined,
+    recency: filters.recency || undefined,
+    free_paid: filters.free_paid || undefined,
+    file_format: filters.file_format || undefined,
+    two_dims: filters.two_dims || undefined,
+    output_format: filters.output_format || undefined,
+    projection: filters.projection || undefined,
+    page: 1,
+  };
+
+  return libraryMode === '2d'
+    ? get2DLibraryPathWithQuery(base)
+    : getLibraryPathWithQuery(base);
+}
+
 export default function LibraryBuildKitsSection({
   clusters = [],
   hideSectionHead = false,
   libraryMode = '3d',
+  activeClusterId = '',
+  filterState = {},
 }) {
   const meta = libraryMode === '2d' ? TWO_D_BUILD_KITS_META : LIBRARY_BUILD_KITS_META;
 
   if (!clusters.length) {
     return null;
   }
+
+  const clearHref = buildClearClusterHref(libraryMode, filterState);
 
   return (
     <section className={styles.section} aria-labelledby="library-build-kits-title">
@@ -30,24 +58,34 @@ export default function LibraryBuildKitsSection({
             </h2>
             <p className={styles.sectionSubtitle}>{meta.subtitle}</p>
           </div>
-          <Link href={meta.seeAllHref} className={styles.sectionLink}>
-            {meta.seeAllLabel} →
-          </Link>
+          {meta.seeAllHref ? (
+            <Link href={meta.seeAllHref} className={styles.sectionLink}>
+              {meta.seeAllLabel} →
+            </Link>
+          ) : null}
         </div>
       )}
 
-      <div className={styles.kitsGrid}>
+      <div className={styles.kitsScrollerTrack}>
         {clusters.map((cluster) => {
+          const clusterId = cluster?.cluster_id;
+          if (!clusterId) return null;
+
           const partCount = Number(cluster?.part_count) || 0;
           const categoryLabel = String(cluster?.cluster_category || 'Build kit').toUpperCase();
           const description =
             cluster?.cluster_description || cluster?.cluster_use_case || '';
+          const isActive = activeClusterId === clusterId;
+          const href = isActive
+            ? clearHref
+            : getLibraryClusterPath(cluster, libraryMode);
 
           return (
             <Link
-              key={cluster?._id || cluster?.cluster_id}
-              href={getLibraryClusterPath(cluster, libraryMode)}
-              className={styles.kitCard}
+              key={cluster?._id || clusterId}
+              href={href}
+              className={`${styles.kitCard} ${isActive ? styles.kitCardActive : ''}`}
+              aria-current={isActive ? 'page' : undefined}
             >
               <div className={styles.kitTypeRow}>
                 <AutoAwesomeOutlinedIcon className={styles.kitTypeIcon} aria-hidden />

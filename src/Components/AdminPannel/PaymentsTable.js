@@ -369,6 +369,7 @@ function PaymentsTable() {
               <th>Order ID</th>
               <th>Amount</th>
               <th>Razorpay ID</th>
+              <th>Conversion</th>
               <th>Status</th>
               <th>Date</th>
               <th>Actions</th>
@@ -382,7 +383,7 @@ function PaymentsTable() {
             <tbody>
               {payments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: 20 }}>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: 20 }}>
                     {searchTerm ? 'No payments found for your search' : 'No payments found'}
                   </td>
                 </tr>
@@ -398,6 +399,7 @@ function PaymentsTable() {
                       <td>{p.razorpay_order_id}</td>
                       <td>${p.amount}</td>
                       <td>{p.razorpay_payment_id}</td>
+                      <td>{p.conversion || '—'}</td>
                       <td><span className={statusBadge(p.transfered_to_publisher)}>{getStatusDisplayText(p.transfered_to_publisher)}</span></td>
                       <td>{formatDate(p.createdAt)}</td>
                       <td>

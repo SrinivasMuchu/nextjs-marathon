@@ -6,11 +6,15 @@ import {
 import LibraryBrowsePartsSection from './LibraryBrowsePartsSection';
 import LibraryBuildKitsSection from './LibraryBuildKitsSection';
 
-/** Server-only hub discovery blocks below the category scroller. */
+/** Hub discovery blocks below the category scroller. */
 export default function LibraryDiscoverySections({
   browsePartsTags = [],
   buildKitClusters = [],
   libraryMode = '3d',
+  activeTag = '',
+  activeClusterId = '',
+  categoryName = null,
+  filterState = {},
 }) {
   const partsMeta = libraryMode === '2d' ? TWO_D_BROWSE_PARTS_META : LIBRARY_BROWSE_PARTS_META;
 
@@ -23,11 +27,15 @@ export default function LibraryDiscoverySections({
         seeAllHref={partsMeta.seeAllHref}
         seeAllLabel={partsMeta.seeAllLabel}
         libraryMode={libraryMode}
+        activeTag={activeTag}
+        categoryName={categoryName}
       />
       {buildKitClusters.length > 0 ? (
         <LibraryBuildKitsSection
           clusters={buildKitClusters}
           libraryMode={libraryMode}
+          activeClusterId={activeClusterId}
+          filterState={filterState}
         />
       ) : null}
     </>

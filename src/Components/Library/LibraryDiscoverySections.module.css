@@ -137,7 +137,35 @@
   color: #9ca3af;
 }
 
-/* Build kits */
+/* Build kits — original cards in a horizontal scroller (no side buttons) */
+.kitsScrollerTrack {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 2px 8px;
+}
+
+.kitsScrollerTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.kitsScrollerWrap {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+
+.kitsScrollButton {
+  display: none;
+}
+
 .kitsGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -148,6 +176,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 0 0 min(320px, 78vw);
+  width: min(320px, 78vw);
   padding: 20px;
   border: 1px solid #ececf1;
   border-radius: 16px;
@@ -155,7 +185,7 @@
   text-decoration: none;
   color: inherit;
   min-height: 220px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 
 .kitCard:hover {
@@ -165,6 +195,34 @@
   text-decoration: none;
 }
 
+.kitCardActive {
+  border-color: transparent;
+  background: linear-gradient(155deg, #5019b8 0%, #7c3aed 55%, #8b5cf6 100%);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(98, 38, 217, 0.28);
+}
+
+.kitCardActive:hover {
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 10px 28px rgba(98, 38, 217, 0.34);
+}
+
+.kitCardActive .kitTypeIcon,
+.kitCardActive .kitTypeLabel,
+.kitCardActive .kitTitle,
+.kitCardActive .kitDescription,
+.kitCardActive .kitPartCount,
+.kitCardActive .kitVerified,
+.kitCardActive .kitVerifiedIcon {
+  color: #fff;
+}
+
+.kitCardActive .kitDescription,
+.kitCardActive .kitPartCount {
+  color: rgba(255, 255, 255, 0.88);
+}
+
 .kitTypeRow {
   display: flex;
   align-items: center;
@@ -172,7 +230,7 @@
 }
 
 .kitTypeIcon {
-  font-size: 14px;
+  font-size: 14px !important;
   line-height: 1;
   color: #7c3aed;
 }
@@ -200,6 +258,10 @@
   line-height: 1.55;
   color: #6b7280;
   flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .kitPartIcons {
@@ -274,6 +336,16 @@
 
   .sectionLink {
     align-self: flex-start;
+  }
+
+  .kitsScrollButton {
+    display: none;
+  }
+
+  .kitCard {
+    flex: 0 0 min(280px, 82vw);
+    width: min(280px, 82vw);
+    min-height: 200px;
   }
 
   .partCardSlot {
