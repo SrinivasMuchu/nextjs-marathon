@@ -7,16 +7,127 @@
   padding: 0 clamp(32px, 5vw, 64px);
 }
 
-/* Dark purple hero header: full width, inner padding aligned with Marathon logo, no fillets */
+/* Dark purple hero header: full width, grid overlay, inner padding aligned with Marathon logo */
 .library-hero {
-  background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 50%, #6d28d9 100%);
+  background-color: #6226d9;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
   color: #fff;
   margin-left: calc(-1 * clamp(32px, 5vw, 64px));
   margin-right: calc(-1 * clamp(32px, 5vw, 64px));
-  padding: clamp(16px, 2.5vw, 24px) clamp(32px, 5vw, 64px) clamp(20px, 3vw, 28px);
-  margin-bottom: clamp(16px, 2vw, 20px);
+  padding: clamp(16px, 2.5vw, 24px) clamp(32px, 5vw, 64px) clamp(28px, 3.5vw, 40px);
+  margin-bottom: 0;
   border-radius: 0;
   box-sizing: border-box;
+}
+
+.library-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: clamp(12px, 1.5vw, 16px);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.library-hero-search {
+  position: relative;
+  z-index: 5;
+  max-width: 760px;
+  margin-top: clamp(4px, 0.5vw, 8px);
+}
+
+.library-hero-search-form {
+  width: 100%;
+}
+
+.library-hero-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 6px 6px 18px;
+  background: #fff;
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.library-hero-search-icon {
+  color: #9ca3af;
+  font-size: 22px !important;
+  flex-shrink: 0;
+}
+
+.library-hero-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: clamp(0.875rem, 1.1vw, 0.9375rem);
+  color: #111827;
+}
+
+.library-hero-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.library-hero-search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 9999px;
+}
+
+.library-hero-search-clear:hover {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.library-hero-search-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 9999px;
+  background: #6226d9;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+@media (max-width: 600px) {
+  .library-hero-search-bar {
+    padding-left: 14px;
+  }
+
+  .library-hero-search-button {
+    padding: 10px 14px;
+    font-size: 0;
+    gap: 0;
+  }
+
+  .library-hero-search-button svg {
+    font-size: 20px !important;
+  }
 }
 
 .library-hero-breadcrumb {
@@ -47,19 +158,21 @@
 }
 
 .library-hero-title {
-  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-size: clamp(1.875rem, 4.2vw, 2.5rem);
   font-weight: 700;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
   letter-spacing: -0.02em;
   color: #fff;
+  max-width: 720px;
+  line-height: 1.15;
 }
 
 .library-hero-description {
   font-size: clamp(0.9375rem, 1.2vw, 1rem);
-  line-height: 1.5;
+  line-height: 1.55;
   color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 clamp(16px, 2.5vw, 24px) 0;
-  max-width: 640px;
+  margin: 0 0 clamp(18px, 2.5vw, 24px) 0;
+  max-width: 720px;
 }
 
 .library-category-tags {
@@ -92,19 +205,9 @@
   border-color: #fff;
 }
 
-/* Categories row - outside header, on light background */
+/* Category scroller replaces the old wrap on library pages */
 .library-category-tags-wrap {
-  width: 100%;
-  margin-bottom: clamp(16px, 2vw, 20px);
-  padding: 0;
-}
-
-/* On small screens, hide the category row under the hero;
-   categories are shown inside the Filters sheet instead. */
-@media (max-width: 900px) {
-  .library-category-tags-wrap {
-    display: none;
-  }
+  display: none;
 }
 
 .library-category-tags-wrap .library-category-tags {
@@ -133,7 +236,7 @@
 
 /* Content area below hero - padding */
 .library-below-hero {
-  padding: 0 clamp(4px, 1vw, 8px) clamp(4px, 1vw, 8px);
+  padding: clamp(16px, 2vw, 20px) clamp(4px, 1vw, 8px) clamp(4px, 1vw, 8px);
   box-sizing: border-box;
 }
 
@@ -157,6 +260,20 @@
 
 .library-global-search .search-button {
   flex-shrink: 0;
+}
+
+/* Full-width content layout — filters open in toggle panel, not sidebar */
+.library-layout-full {
+  display: block;
+  width: 100%;
+}
+
+.library-toolbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-right: 10px;
 }
 
 /* Two-column layout */
@@ -625,7 +742,6 @@
   gap: 8px;
   font-size: 14px;
   color: #374151;
-  margin-right: 10px;
 }
 
 .library-content-sort-label {
@@ -827,26 +943,31 @@
 }
 
 .library-designs-items {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: clamp(16px, 2.5vw, 24px);
   width: 100%;
-  justify-content: center;
+  justify-content: stretch;
+  align-items: stretch;
+  --library-card-height: 540px;
+  --library-preview-ratio: 413 / 257;
 }
 
-/* Desktop: 3 columns in a row; from 1200px use grid, below that flex wrap */
-@media (min-width: 1450px) {
+.library-designs-items-container,
+.library-designs-items-container.libraryHireCtaSlot,
+.library-designs-items-container.libraryAdSlot {
+  width: 100%;
+  max-width: 100%;
+  flex: none;
+  height: 100%;
+}
+
+@media (max-width: 900px) {
   .library-designs-items {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    justify-content: stretch;
-  }
-  .library-designs-items-container {
-    width: 100%;
-    max-width: 100%;
-    flex: none;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 }
+
 .library-designs-filters{
   display: flex;
   align-items: center;
@@ -857,9 +978,8 @@
   padding:10px
 }
 .library-designs-items-container {
-  /* Constant card width on larger screens; wrap to multiple rows */
-  flex: 0 0 340px;
-  width: 340px;
+  /* Fill grid column — no fixed 340px shrink */
+  width: 100%;
   max-width: 100%;
   background: white;
   overflow: hidden;
@@ -867,14 +987,48 @@
   border-radius: 12px;
   position: relative;
   box-sizing: border-box;
+  padding: 0;
 }
 
-/* Hire CTA card: avoid .library-designs-items-container p/h* forcing dark library text */
-.library-designs-items-container.libraryHireCtaSlot {
+/* Ad slots — reserve grid space without card chrome */
+.library-designs-items-container.libraryAdSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  min-height: var(--library-card-height, 500px);
+  height: 100%;
   background: transparent;
   border: none;
+  border-radius: 0;
+  box-shadow: none;
   padding: 0;
   overflow: visible;
+}
+
+/* Hire / browse promo cards — match product card footprint in the grid */
+.library-designs-items-container.libraryHireCtaSlot {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: var(--library-card-height, 500px);
+  height: 100%;
+  padding: 24px 16px;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.45) 0%, transparent 52%),
+    linear-gradient(155deg, #120a24 0%, #1a1033 42%, #0d0b18 100%);
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.35);
+  color: #f9fafb;
 }
 
 .library-designs-items-container.libraryHireCtaSlot p {
@@ -921,10 +1075,10 @@
 .two-d-library-preview-wrap {
   width: 100%;
   height: 190px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e9d5ff;
   border-radius: 10px;
   overflow: hidden;
-  background: #eef2f7;
+  background-color: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -935,8 +1089,30 @@
   height: 100%;
   object-fit: contain;
   object-position: center;
-  transform: scale(1.14);
-  transform-origin: center;
+  display: block;
+  background: #fff;
+}
+
+.two-d-library-card-preview {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.two-d-library-card-preview-img {
+  width: auto;
+  max-width: 96%;
+  height: auto;
+  max-height: 96%;
+  object-fit: contain;
+  object-position: center;
   display: block;
   background: #fff;
 }
@@ -1018,6 +1194,41 @@
   margin-top: auto; /* This pushes it to the bottom */
 }
 
+/* Library product card preview — 413×257 reference ratio, image above grid */
+.library-card-preview-img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100% !important;
+  min-height: 0;
+  padding: 16px;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.library-card-preview-img span {
+  position: relative;
+  z-index: 1;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+  line-height: 0;
+}
+
+.library-card-preview-img img {
+  position: relative;
+  z-index: 1;
+  width: auto !important;
+  max-width: 88% !important;
+  height: auto !important;
+  max-height: 88% !important;
+  object-fit: contain !important;
+  background: transparent !important;
+}
+
 .library-designs-items-container-img{
     width:100%;
     /* height:250px; */
@@ -1065,13 +1276,11 @@
     height: 240px;
   }
 }
-.library-designs-items-container-img img{
+.library-designs-items-container-img:not(.library-card-preview-img) img {
     width:100%;
-   
-    /* background:grey; */
     object-fit: cover;   
-    
 }
+
 .library-designs-items-container-img-1 img{
   width:298px;
   height:298px;
@@ -1338,8 +1547,12 @@
 }
 
 @media screen and (max-width: 500px) {
+  .library-designs-items {
+    grid-template-columns: 1fr;
+  }
+
   .library-designs-items-container {
-    min-width: 200px;
-    width: min(95%, 320px);
+    min-width: 0;
+    width: 100%;
   }
 }

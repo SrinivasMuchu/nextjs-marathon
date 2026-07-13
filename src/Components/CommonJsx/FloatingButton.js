@@ -1,11 +1,44 @@
 "use client";
 import { sendGAtagEvent } from '@/common.helper';
 import { CAD_FLOATING_BUTTON_EVENT } from '@/config';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Eye, ArrowLeftRight, Download, Box, ShieldCheck, ChevronUp } from 'lucide-react';
 import { contextState } from './ContextProvider';
 import { useCadForm } from '../CadServicePages/CadFormContext';
+import styles from './FloatingButton.module.css';
+
+const ACTIONS = [
+  {
+    href: '/tools/3d-cad-viewer',
+    title: 'View CAD',
+    subtitle: 'Open the online model viewer',
+    Icon: Eye,
+    eventName: 'floating_button_view_click',
+  },
+  {
+    href: '/tools/3d-cad-file-converter',
+    title: 'Convert CAD',
+    subtitle: 'STEP ⇄ STL ⇄ IGES ⇄ DXF',
+    Icon: ArrowLeftRight,
+    eventName: 'floating_button_convert_click',
+  },
+  {
+    href: '/publish-cad',
+    title: 'Publish CAD',
+    subtitle: 'Upload & share your model',
+    Icon: Download,
+    eventName: 'floating_button_publish_click',
+  },
+  {
+    href: '/library',
+    title: 'My Library',
+    subtitle: 'Manage your saved models',
+    Icon: Box,
+    eventName: 'floating_button_library_click',
+  },
+];
 
 function FloatingButton() {
   const pathname = usePathname();
@@ -14,6 +47,7 @@ function FloatingButton() {
   const [showOptions, setShowOptions] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isStickyStripVisible, setIsStickyStripVisible] = useState(false);
+  const rootRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -43,84 +77,89 @@ function FloatingButton() {
 
   useEffect(() => {
     setIsStickyStripVisible(false);
+    setShowOptions(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!showOptions) return;
+
+    const handlePointerDown = (event) => {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setShowOptions(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setShowOptions(false);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showOptions]);
 
   if (showPopup) return null;
   if (isMobile && isStickyStripVisible) return null;
 
-  return (
-    <div>
-      {showOptions && (
-        <div
-          className="fixed flex flex-col gap-2 z-[9999]"
-          style={{
-            right: 'max(12px, env(safe-area-inset-right, 0px))',
-            bottom: anchorAds ? 'max(150px, calc(80px + env(safe-area-inset-bottom, 0px)))' : 'max(80px, calc(20px + env(safe-area-inset-bottom, 0px)))',
-          }}
-        >
+  const bottom = anchorAds
+    ? 'max(95px, calc(20px + env(safe-area-inset-bottom, 0px)))'
+    : 'max(20px, env(safe-area-inset-bottom, 0px))';
 
-          <Link
-            href="/tools/3d-cad-viewer"
+  return (
+    <div className={styles.wrap} style={{ bottom }} ref={rootRef}>
+      {showOptions && (
+        <div className={styles.menu} role="menu" aria-label="CAD actions">
+          {ACTIONS.map(({ href, title, subtitle, Icon, eventName }) => (
+            <Link
+              key={href}
+              href={href}
+              role="menuitem"
+              className={styles.card}
               onClick={() => {
-                sendGAtagEvent({ event_name: 'floating_button_view_click', event_category: CAD_FLOATING_BUTTON_EVENT });
+                sendGAtagEvent({
+                  event_name: eventName,
+                  event_category: CAD_FLOATING_BUTTON_EVENT,
+                });
                 setShowOptions(false);
               }}
-            className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
-          >
-            View CAD
-          </Link>
-          <Link
-            href="/tools/3d-cad-file-converter"
-              onClick={() => {
-                sendGAtagEvent({ event_name: 'floating_button_convert_click', event_category: CAD_FLOATING_BUTTON_EVENT });
-                setShowOptions(false);
-              }}
-            className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
-          >
-            Convert CAD
-          </Link>
-          <Link
-            href="/publish-cad"
-            onClick={() =>{
-              sendGAtagEvent({ event_name: 'floating_button_publish_click', event_category: CAD_FLOATING_BUTTON_EVENT });
-              setShowOptions(false);
-            }}
-            className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
-          >
-            Publish CAD
-          </Link>
-          <Link
-            href="/library"
-            // onClick={() =>
-            //   sendGAtagEvent({ event_name: 'floating_button_library_click', event_category: CAD_FLOATING_BUTTON_EVENT })
-            // }
-            onClick={() => {
-              sendGAtagEvent({
-                event_name: 'floating_button_library_click',
-                event_category: CAD_FLOATING_BUTTON_EVENT
-              });
-              setShowOptions(false); // Call your other function here
-            }}
-            className="bg-white text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-100"
-          >
-            Library
-          </Link>
+            >
+              <span className={styles.iconBox} aria-hidden="true">
+                <Icon size={20} strokeWidth={2} />
+              </span>
+              <span className={styles.cardText}>
+                <span className={styles.title}>{title}</span>
+                <span className={styles.subtitle}>{subtitle}</span>
+              </span>
+            </Link>
+          ))}
         </div>
       )}
 
-      {/* Floating Main Button */}
       <button
         type="button"
-        onClick={() => setShowOptions(!showOptions)}
-        className="fixed bg-[#610bee] text-white px-4 py-3 sm:px-5 rounded-full shadow-lg transition z-[9999] text-sm sm:text-base"
-        style={{
-          right: 'max(12px, env(safe-area-inset-right, 0px))',
-          bottom: anchorAds
-            ? 'max(95px, calc(20px + env(safe-area-inset-bottom, 0px)))'
-            : 'max(20px, env(safe-area-inset-bottom, 0px))',
-        }}
+        className={`${styles.trigger}${showOptions ? ` ${styles.triggerOpen}` : ''}`}
+        aria-expanded={showOptions}
+        aria-haspopup="menu"
+        onClick={() => setShowOptions((open) => !open)}
       >
-        CAD Actions
+        <span className={styles.dot} aria-hidden="true" />
+        <ShieldCheck
+          size={17}
+          strokeWidth={2.25}
+          aria-hidden="true"
+          className={styles.triggerIcon}
+        />
+        <span className={styles.triggerLabel}>CAD Actions</span>
+        <ChevronUp
+          size={16}
+          strokeWidth={2.5}
+          aria-hidden="true"
+          className={`${styles.chevron}${showOptions ? ` ${styles.chevronOpen}` : ''}`}
+        />
       </button>
     </div>
   );

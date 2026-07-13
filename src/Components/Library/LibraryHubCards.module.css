@@ -1,0 +1,141 @@
+.hubSection {
+  position: relative;
+  z-index: 2;
+  margin: clamp(-28px, -3vw, -20px) 0 clamp(20px, 2.5vw, 28px);
+}
+
+.hubGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1.5vw, 20px);
+}
+
+.hubCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: clamp(18px, 2vw, 24px);
+  background: #fff;
+  border: 1px solid #e8e8ec;
+  border-radius: 16px;
+  border-left-width: 4px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-height: 100%;
+}
+
+.hubCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+  text-decoration: none;
+}
+
+.hubCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hubCardIconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.hubCardIcon {
+  font-size: 22px !important;
+}
+
+.hubCardCount {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.hubCardTitle {
+  margin: 0;
+  font-size: clamp(1rem, 1.2vw, 1.125rem);
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.hubCardFormats {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hubCardDescription {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6b7280;
+  flex: 1;
+}
+
+.hubCardLink {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.accent-purple {
+  border-left-color: #7c3aed;
+}
+
+.accent-purple .hubCardIconWrap {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.accent-purple .hubCardFormats {
+  color: #7c3aed;
+}
+
+.accent-teal {
+  border-left-color: #14b8a6;
+}
+
+.accent-teal .hubCardIconWrap {
+  background: #ccfbf1;
+  color: #0d9488;
+}
+
+.accent-teal .hubCardFormats {
+  color: #0d9488;
+}
+
+.accent-orange {
+  border-left-color: #f59e0b;
+}
+
+.accent-orange .hubCardIconWrap {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.accent-orange .hubCardFormats {
+  color: #d97706;
+}
+
+@media (max-width: 900px) {
+  .hubGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .hubSection {
+    margin-top: 0;
+  }
+}

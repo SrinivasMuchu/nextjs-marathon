@@ -8,6 +8,7 @@ export function hasLibraryNarrowingFilters({
   free_paid,
   file_format,
   two_dims,
+  cluster_id,
 }) {
   return Boolean(
     (category && String(category).trim()) ||
@@ -16,7 +17,8 @@ export function hasLibraryNarrowingFilters({
       (recency && String(recency).trim()) ||
       (free_paid && String(free_paid).trim()) ||
       (file_format && String(file_format).trim()) ||
-      ['1', 'true', 'yes'].includes(String(two_dims || '').trim().toLowerCase())
+      ['1', 'true', 'yes'].includes(String(two_dims || '').trim().toLowerCase()) ||
+      (cluster_id && String(cluster_id).trim())
   );
 }
 

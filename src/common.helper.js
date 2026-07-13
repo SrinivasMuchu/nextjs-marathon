@@ -382,7 +382,7 @@ export function getLibraryPath({ categoryName = null, tagName = null }) {
 /**
  * Append query string for search, page, sort, etc. (everything except category/tag which are in path).
  */
-export function getLibraryPathWithQuery({ categoryName = null, tagName = null, search, page, limit, sort, recency, free_paid, file_format, two_dims }) {
+export function getLibraryPathWithQuery({ categoryName = null, tagName = null, search, page, limit, sort, recency, free_paid, file_format, two_dims, cluster_id }) {
   const path = getLibraryPath({ categoryName, tagName });
   const params = new URLSearchParams();
   if (search) params.set('search', search);
@@ -394,6 +394,7 @@ export function getLibraryPathWithQuery({ categoryName = null, tagName = null, s
   if (file_format) params.set('file_format', file_format);
   const td = String(two_dims || '').trim().toLowerCase();
   if (td === '1' || td === 'true' || td === 'yes') params.set('two_dims', '1');
+  if (cluster_id) params.set('cluster_id', String(cluster_id).trim());
   const q = params.toString();
   return q ? `${path}?${q}` : path;
 }

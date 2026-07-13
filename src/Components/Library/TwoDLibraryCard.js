@@ -1,32 +1,63 @@
 import React from 'react';
 import Link from 'next/link';
+import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import ArchitectureOutlinedIcon from '@mui/icons-material/ArchitectureOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import FallbackImageClient from '../CommonJsx/FallbackImageClient';
-import DesignStats from '../CommonJsx/DesignStats';
-import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import {
   TWO_D_DEFAULT_OUTPUT_FORMATS,
   TWO_D_DEFAULT_PROJECTION,
   TWO_D_DEFAULT_SHEET_LABEL,
-  TWO_D_DRAWING_TYPE,
   getTwoDPriceLabel,
 } from '@/data/twoDLibraryPage';
 import styles from './Library.module.css';
 import cardStyles from './LibraryProductCard.module.css';
 
+function formatDownloadCount(count) {
+  if (count == null || count === '') return '0';
+  // API often returns privacy bucket labels (e.g. "<100", "1 k – 4.9 k")
+  if (typeof count === 'string' && Number.isNaN(Number(count.trim()))) {
+    return count.trim();
+  }
+  const num = Number(count);
+  if (!Number.isFinite(num) || num < 0) return '0';
+  if (num >= 1_000_000) {
+    return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  }
+  if (num >= 1000) {
+    return `${(num / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+  }
+  return String(Math.floor(num));
+}
+
 function sheetLabel(design) {
   const n = Number(design?.two_d_sheet_count);
   if (Number.isFinite(n) && n > 0) {
-    return n === 1 ? '1 sheet' : `${n} sheets`;
+    return n === 1 ? '1 SHEET' : `${n} SHEETS`;
   }
-  return TWO_D_DEFAULT_SHEET_LABEL;
+  return String(TWO_D_DEFAULT_SHEET_LABEL).toUpperCase();
 }
 
-function sectionCutsLabel(design) {
-  const n = Number(design?.two_d_section_cuts);
-  if (Number.isFinite(n) && n > 0) {
-    return n === 1 ? '1 section cut' : `${n} section cuts`;
-  }
-  return 'Section cuts included';
+function buildTagsLine(design) {
+  const parts = [];
+  const category = design?.category_labels?.[0];
+  const tag = design?.tag_labels?.[0] || design?.cad_tag_names?.[0];
+
+  if (category) parts.push(String(category).toUpperCase());
+  if (tag) parts.push(String(tag).toUpperCase());
+  if (!parts.length) parts.push('2D DRAWING');
+
+  return parts.join(' · ');
+}
+
+function getOutputFormatChips(design) {
+  const raw = design?.two_d_output_formats || TWO_D_DEFAULT_OUTPUT_FORMATS;
+  return String(raw)
+    .split(/[,·|/]+/)
+    .map((part) => part.trim().toUpperCase())
+    .filter(Boolean)
+    .slice(0, 4);
 }
 
 export default function TwoDLibraryCard({ design }) {
@@ -39,22 +70,27 @@ export default function TwoDLibraryCard({ design }) {
   const previewSrc = design?._id
     ? `/api/techdraw-file?designId=${encodeURIComponent(design._id)}&sheet=1&ext=svg`
     : '';
-  const sourceFormat = String(design.file_type || 'step').toLowerCase();
-  const outputFormats = design.two_d_output_formats || TWO_D_DEFAULT_OUTPUT_FORMATS;
+  const tagsLine = buildTagsLine(design);
+  const formatChips = getOutputFormatChips(design);
   const projection = design.two_d_projection || TWO_D_DEFAULT_PROJECTION;
   const priceLabel = getTwoDPriceLabel(design);
+  const isFree = !design?.['2d_price'];
+  const downloads = formatDownloadCount(design.total_design_downloads ?? 0);
 
   return (
-    <div className={styles['library-designs-items-container']}>
-      <Link
-        href={drawingHref}
-        className={styles['library-designs-primary-link']}
-        aria-label={title}
-      >
-        <div className={styles['two-d-library-preview-wrap']}>
+    <article className={`${styles['library-designs-items-container']} ${cardStyles.card}`}>
+      <div className={`${cardStyles.previewWrap} ${cardStyles.previewWrapNoGrid}`}>
+        <span
+          className={`${cardStyles.priceBadge} ${
+            isFree ? cardStyles.priceBadgeFree : cardStyles.priceBadgePaid
+          }`}
+        >
+          {priceLabel}
+        </span>
+        <div className={styles['two-d-library-card-preview']}>
           {previewSrc ? (
             <FallbackImageClient
-              className={styles['two-d-library-preview-img']}
+              className={styles['two-d-library-card-preview-img']}
               src={previewSrc}
               alt={`${title} preview`}
             />
@@ -62,45 +98,54 @@ export default function TwoDLibraryCard({ design }) {
             <div className={styles['two-d-library-preview-fallback']}>2D Preview</div>
           )}
         </div>
-        <h6 title={title}>{title}</h6>
-      </Link>
+      </div>
 
-      <div className={styles['design-title-wrapper']}>
-        <div
-          className={styles['design-title-text']}
-          style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}
-        >
-          <DesignDetailsStats text={TWO_D_DRAWING_TYPE} type="category" />
-          {design.category_labels?.slice(0, 1).map((label, index) => (
-            <DesignDetailsStats key={`cat-${index}`} text={label} type="category" />
+      <div className={cardStyles.body}>
+        <div className={cardStyles.tagsRow}>
+          <WbSunnyOutlinedIcon className={cardStyles.tagsIcon} aria-hidden />
+          <span>{tagsLine}</span>
+        </div>
+
+        <h3 className={cardStyles.title}>
+          <Link href={drawingHref} className={cardStyles.titleLink}>
+            {title}
+          </Link>
+        </h3>
+
+        <div className={cardStyles.formatRow}>
+          {formatChips.map((format) => (
+            <span key={format} className={cardStyles.formatChip}>
+              {format.startsWith('.') ? format : `.${format}`}
+            </span>
           ))}
-          <DesignDetailsStats
-            fileType={`.${sourceFormat}`}
-            text={`.${sourceFormat.toUpperCase()}`}
-          />
-          <DesignDetailsStats text={sheetLabel(design)} type="tag" />
-          <DesignDetailsStats text={projection} type="tag" />
-          <div className={styles['design-stats-wrapper']}>
-            <DesignStats
-              views={design.total_design_views ?? 0}
-              downloads={design.total_design_downloads ?? 0}
-            />
+          <span className={cardStyles.formatChip}>{sheetLabel(design)}</span>
+          <span className={cardStyles.formatChip}>{String(projection).toUpperCase()}</span>
+        </div>
+
+        <div className={cardStyles.quickLinks}>
+          <Link href={drawingHref} className={cardStyles.quickLink}>
+            <VisibilityOutlinedIcon className={cardStyles.quickLinkIcon} aria-hidden />
+            Open drawing set
+          </Link>
+          <Link href={source3dHref} className={cardStyles.quickLink}>
+            <ArchitectureOutlinedIcon className={cardStyles.quickLinkIcon} aria-hidden />
+            Open source 3D CAD
+          </Link>
+        </div>
+
+        <div className={cardStyles.footer}>
+          <span className={cardStyles.downloads}>
+            <FileDownloadOutlinedIcon className={cardStyles.downloadsIcon} aria-hidden />
+            {downloads} downloads
+          </span>
+          <div className={cardStyles.footerActions}>
+            <Link href={drawingHref} className={cardStyles.previewButton}>
+              <VisibilityOutlinedIcon fontSize="small" aria-hidden />
+              Preview
+            </Link>
           </div>
         </div>
-        <span className={styles['design-title-wrapper-price']}>{priceLabel}</span>
       </div>
-
-      <div className={cardStyles.quickLinks}>
-        <Link href={drawingHref} className={cardStyles.quickLink}>
-          Open drawing set
-        </Link>
-        <Link href={source3dHref} className={cardStyles.quickLink}>
-          Open source 3D CAD
-        </Link>
-        <span className={cardStyles.quickLinkMeta}>
-          {outputFormats} · {sectionCutsLabel(design)}
-        </span>
-      </div>
-    </div>
+    </article>
   );
 }

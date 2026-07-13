@@ -7,21 +7,94 @@ import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchBar from './SearchFilter';
 import styles from './Library.module.css';
-import { getLibraryPathWithQuery, isValidLibraryTagSlug } from '@/common.helper';
+import panelStyles from './LibraryFiltersPanel.module.css';
+import { getLibraryPathWithQuery, isValidLibraryTagSlug, sendGAtagEvent } from '@/common.helper';
+import { CAD_LIBRARY_EVENT } from '@/config';
 import { LIBRARY_FILE_FORMAT_FILTERS } from '@/data/libraryPage';
 import {
   TWO_D_OUTPUT_FORMAT_FILTER_OPTIONS,
   TWO_D_PROJECTION_FILTERS,
   get2DLibraryPathWithQuery,
 } from '@/data/twoDLibraryPage';
+import { getLibraryClusterPath } from '@/api/libraryClustersApi';
+
+function trackLibraryFilterTagClick({ tagValue, tagLabel, isClear, libraryListMode }) {
+  sendGAtagEvent({
+    event_name: isClear ? 'library_tag_clear_click' : 'library_tag_click',
+    event_category: CAD_LIBRARY_EVENT,
+    event_label: tagLabel || tagValue || 'all',
+    tag_name: tagValue || '',
+    library_mode: libraryListMode,
+    source: 'filters',
+  });
+}
 
 const RECENCY_RADIO = [
-  { value: '', label: 'All Time' },
-  { value: '24h', label: 'Last 24h' },
-  { value: 'week', label: 'Last Week' },
-  { value: 'month', label: 'Last Month' },
-  { value: 'year', label: 'Last Year' },
+  { value: '', label: 'All time' },
+  { value: '24h', label: '24h' },
+  { value: 'week', label: 'week' },
+  { value: 'month', label: 'month' },
+  { value: 'year', label: 'year' },
 ];
+
+const OUTPUT_RADIO_3D = [
+  { value: '', label: 'All' },
+  { value: 'solids', label: 'Solids' },
+  { value: 'meshes', label: 'Meshes' },
+  { value: '2d', label: '2D' },
+];
+
+const OUTPUT_RADIO_2D = [
+  { value: '', label: 'All' },
+  { value: 'pdf', label: 'PDF' },
+  { value: 'vector', label: 'Vector' },
+];
+
+const PANEL_FILE_FORMATS_3D = [
+  { value: 'STEP', label: '.STEP' },
+  { value: 'STL', label: '.STL' },
+  { value: 'IGES', label: '.IGES' },
+  { value: 'OBJ', label: '.OBJ' },
+  { value: 'DWG', label: '.DWG' },
+  { value: 'DXF', label: '.DXF' },
+];
+
+const SOLID_FORMATS = ['STEP', 'STP', 'IGES', 'IGS', 'BREP', 'BRP'];
+const MESH_FORMATS = ['STL', 'OBJ', 'PLY', 'OFF'];
+
+function deriveOutputType(twoDims, fileFormat, libraryListMode, outputFormat = '') {
+  if (libraryListMode === '2d') {
+    const formats = (outputFormat || '')
+      .split(',')
+      .map((f) => f.trim().toUpperCase())
+      .filter(Boolean);
+    if (formats.length === 1 && formats[0] === 'PDF') return 'pdf';
+    if (formats.some((f) => ['SVG', 'DXF'].includes(f))) return 'vector';
+    return '';
+  }
+
+  if (['1', 'true', 'yes'].includes(String(twoDims || '').trim().toLowerCase())) {
+    return '2d';
+  }
+
+  const formats = (fileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+  if (!formats.length) return '';
+  if (formats.every((f) => SOLID_FORMATS.includes(f))) return 'solids';
+  if (formats.every((f) => MESH_FORMATS.includes(f))) return 'meshes';
+  return '';
+}
+
+function formatsForOutputType(outputType, libraryListMode) {
+  if (libraryListMode === '2d') {
+    if (outputType === 'pdf') return ['PDF'];
+    if (outputType === 'vector') return ['SVG', 'DXF'];
+    return [];
+  }
+
+  if (outputType === 'solids') return ['STEP', 'IGES', 'BREP'];
+  if (outputType === 'meshes') return ['STL', 'OBJ', 'PLY'];
+  return [];
+}
 
 const FREE_PAID_RADIO = [
   { value: '', label: 'All' },
@@ -32,10 +105,37 @@ const FREE_PAID_RADIO = [
 const TAGS_PAGE_SIZE = 10;
 
 function buildFiltersListUrl(libraryListMode, params) {
-  if (libraryListMode === '2d') {
-    return get2DLibraryPathWithQuery(params);
+  const {
+    cluster_slug,
+    cluster_id: _clusterId,
+    categoryName,
+    tagName,
+    ...queryParams
+  } = params || {};
+
+  if (cluster_slug) {
+    const path = getLibraryClusterPath({ cluster_slug }, libraryListMode);
+    const searchParams = new URLSearchParams();
+    if (queryParams.search) searchParams.set('search', queryParams.search);
+    if (queryParams.page && queryParams.page > 1) {
+      searchParams.set('page', String(queryParams.page));
+    }
+    if (queryParams.sort) searchParams.set('sort', queryParams.sort);
+    if (queryParams.recency) searchParams.set('recency', queryParams.recency);
+    if (queryParams.free_paid) searchParams.set('free_paid', queryParams.free_paid);
+    if (queryParams.file_format) searchParams.set('file_format', queryParams.file_format);
+    if (queryParams.output_format) searchParams.set('output_format', queryParams.output_format);
+    if (queryParams.projection) searchParams.set('projection', queryParams.projection);
+    const td = String(queryParams.two_dims || '').trim().toLowerCase();
+    if (td === '1' || td === 'true' || td === 'yes') searchParams.set('two_dims', '1');
+    const qs = searchParams.toString();
+    return qs ? `${path}?${qs}` : path;
   }
-  return getLibraryPathWithQuery(params);
+
+  if (libraryListMode === '2d') {
+    return get2DLibraryPathWithQuery({ categoryName, tagName, ...queryParams });
+  }
+  return getLibraryPathWithQuery({ categoryName, tagName, ...queryParams });
 }
 
 export default function LibraryFilters({
@@ -56,6 +156,8 @@ export default function LibraryFilters({
   show2DExtraFilters = false,
   initialOutputFormat = '',
   initialProjection = '',
+  initialClusterId = '',
+  initialClusterSlug = '',
   hasActiveFilters,
   tagsHasMore,
   onLoadMoreTags,
@@ -65,6 +167,9 @@ export default function LibraryFilters({
   inSheet,
   sheetOpen,
   onCloseSheet,
+  variant = 'sidebar',
+  panelOpen,
+  onClosePanel,
 }) {
   const router = useRouter();
   const [tagSearchLocal, setTagSearchLocal] = useState('');
@@ -84,11 +189,22 @@ export default function LibraryFilters({
     (initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean)
   );
   const [localProjection, setLocalProjection] = useState(initialProjection || '');
+  const [localClusterId, setLocalClusterId] = useState(initialClusterId || '');
+  const [localClusterSlug, setLocalClusterSlug] = useState(initialClusterSlug || '');
+  const [localOutputType, setLocalOutputType] = useState(() =>
+    deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat)
+  );
   const prevSheetOpenRef = React.useRef(false);
+  const prevPanelOpenRef = React.useRef(false);
+  const isDeferredApply = inSheet || variant === 'panel';
 
-  /* Sync local state from URL when sheet opens (mobile) */
+  /* Sync local state from URL when sheet/panel opens */
   useEffect(() => {
-    if (inSheet && sheetOpen && !prevSheetOpenRef.current) {
+    const shouldSync =
+      (inSheet && sheetOpen && !prevSheetOpenRef.current) ||
+      (variant === 'panel' && panelOpen && !prevPanelOpenRef.current);
+
+    if (shouldSync) {
       setLocalSearch(initialSearchQuery || '');
       setLocalSort(initialSort || 'newest');
       setLocalRecency(initialRecency || '');
@@ -98,9 +214,15 @@ export default function LibraryFilters({
       setLocalTag(tags || '');
       setLocalOutputFormats((initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean));
       setLocalProjection(initialProjection || '');
+      setLocalClusterId(initialClusterId || '');
+      setLocalClusterSlug(initialClusterSlug || '');
+      setLocalOutputType(
+        deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat)
+      );
     }
     prevSheetOpenRef.current = !!sheetOpen;
-  }, [inSheet, sheetOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, initialOutputFormat, initialProjection, category, tags]);
+    prevPanelOpenRef.current = !!panelOpen;
+  }, [inSheet, sheetOpen, variant, panelOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, initialOutputFormat, initialProjection, initialClusterId, initialClusterSlug, category, tags, libraryListMode]);
 
   const tagSearch = typeof onTagSearchChange === 'function' ? (tagSearchProp ?? '') : tagSearchLocal;
   const setTagSearch = typeof onTagSearchChange === 'function' ? onTagSearchChange : setTagSearchLocal;
@@ -120,6 +242,8 @@ export default function LibraryFilters({
       two_dims: initialTwoDims,
       output_format: initialOutputFormat,
       projection: initialProjection,
+      cluster_id: initialClusterId || undefined,
+      cluster_slug: initialClusterSlug || undefined,
       page: 1,
     };
     return (overrides = {}) =>
@@ -135,19 +259,24 @@ export default function LibraryFilters({
     initialTwoDims,
     initialOutputFormat,
     initialProjection,
+    initialClusterId,
+    initialClusterSlug,
     libraryListMode,
   ]);
 
   const buildLibraryUrl = buildListUrl;
 
-  const selectedFormats = inSheet ? localFormats : (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
-  const selectedOutputFormats = inSheet
+  const selectedFormats = isDeferredApply ? localFormats : (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+  const selectedOutputFormats = isDeferredApply
     ? localOutputFormats
     : (initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
-  const displayTag = inSheet ? localTag : tags;
-  const displayRecency = inSheet ? localRecency : initialRecency;
-  const displayFreePaid = inSheet ? localFreePaid : initialFreePaid;
-  const displayProjection = inSheet ? localProjection : initialProjection;
+  const displayTag = isDeferredApply ? localTag : tags;
+  const displayRecency = isDeferredApply ? localRecency : initialRecency;
+  const displayFreePaid = isDeferredApply ? localFreePaid : initialFreePaid;
+  const displayProjection = isDeferredApply ? localProjection : initialProjection;
+  const displayOutputType = isDeferredApply
+    ? localOutputType
+    : deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat);
 
   /* URL for Apply Filters – used as Link href on mobile so navigation is a real link */
   const applyFiltersUrl = useMemo(
@@ -159,10 +288,20 @@ export default function LibraryFilters({
         sort: localSort || undefined,
         recency: localRecency || undefined,
         free_paid: localFreePaid || undefined,
-        file_format: localFormats.length ? localFormats.join(',') : undefined,
-        output_format: localOutputFormats.length ? localOutputFormats.join(',') : undefined,
-        projection: localProjection || undefined,
-        two_dims: libraryListMode === '3d' ? initialTwoDims || undefined : undefined,
+        file_format:
+          libraryListMode === '2d'
+            ? undefined
+            : localFormats.length
+              ? localFormats.join(',')
+              : undefined,
+        output_format: undefined,
+        projection: libraryListMode === '2d' ? undefined : localProjection || undefined,
+        cluster_id: localClusterId || undefined,
+        cluster_slug: localClusterSlug || undefined,
+        two_dims:
+          libraryListMode === '3d' && localOutputType === '2d'
+            ? '1'
+            : undefined,
         page: 1,
       }),
     [
@@ -176,7 +315,9 @@ export default function LibraryFilters({
       localFormats,
       localOutputFormats,
       localProjection,
-      initialTwoDims,
+      localClusterId,
+      localClusterSlug,
+      localOutputType,
       libraryListMode,
     ]
   );
@@ -214,7 +355,7 @@ export default function LibraryFilters({
   const toggleFileFormat = (formatValue, checked) => {
     const current = selectedFormats;
     const next = checked ? [...current, formatValue] : current.filter((f) => f !== formatValue);
-    if (inSheet) {
+    if (isDeferredApply) {
       setLocalFormats(next);
       return;
     }
@@ -224,12 +365,256 @@ export default function LibraryFilters({
   const toggleOutputFormat = (formatValue, checked) => {
     const current = selectedOutputFormats;
     const next = checked ? [...current, formatValue] : current.filter((f) => f !== formatValue);
-    if (inSheet) {
+    if (isDeferredApply) {
       setLocalOutputFormats(next);
       return;
     }
     router.push(buildLibraryUrl({ output_format: next.length ? next.join(',') : undefined }));
   };
+
+  const resolvedApplyFormats = useMemo(() => {
+    if (localFormats.length) return localFormats;
+    return formatsForOutputType(localOutputType, libraryListMode);
+  }, [localFormats, localOutputType, libraryListMode]);
+
+  const panelApplyUrl = useMemo(
+    () =>
+      buildFiltersListUrl(libraryListMode, {
+        categoryName: (localCategory || category) || null,
+        tagName: localTag || null,
+        search: (localSearch || '').trim() || undefined,
+        sort: localSort || undefined,
+        recency: localRecency || undefined,
+        free_paid: localFreePaid || undefined,
+        file_format:
+          libraryListMode === '3d' && resolvedApplyFormats.length
+            ? resolvedApplyFormats.join(',')
+            : undefined,
+        output_format: undefined,
+        projection: libraryListMode === '2d' ? undefined : localProjection || undefined,
+        cluster_id: localClusterId || undefined,
+        cluster_slug: localClusterSlug || undefined,
+        two_dims: libraryListMode === '3d' && localOutputType === '2d' ? '1' : undefined,
+        page: 1,
+      }),
+    [
+      category,
+      localCategory,
+      localTag,
+      localSearch,
+      localSort,
+      localRecency,
+      localFreePaid,
+      resolvedApplyFormats,
+      localOutputFormats,
+      localProjection,
+      localClusterId,
+      localClusterSlug,
+      localOutputType,
+      libraryListMode,
+    ]
+  );
+
+  const handleOutputTypeChange = (value) => {
+    setLocalOutputType(value);
+    const nextFormats = formatsForOutputType(value, libraryListMode);
+    if (libraryListMode === '2d') {
+      setLocalOutputFormats(nextFormats);
+      return;
+    }
+    setLocalFormats(nextFormats);
+  };
+
+  if (variant === 'panel') {
+    const outputOptions = libraryListMode === '2d' ? OUTPUT_RADIO_2D : OUTPUT_RADIO_3D;
+    const formatOptions =
+      libraryListMode === '2d'
+        ? TWO_D_OUTPUT_FORMAT_FILTER_OPTIONS.map(({ value, label }) => ({
+            value,
+            label: `.${label}`,
+          }))
+        : PANEL_FILE_FORMATS_3D;
+    const selectedPanelFormats =
+      libraryListMode === '2d' ? selectedOutputFormats : selectedFormats;
+    const showOutputAndFormatFilters = libraryListMode !== '2d';
+
+    return (
+      <div className={panelStyles.panelInner}>
+        <div className={panelStyles.panelGrid}>
+          <div className={panelStyles.panelSection}>
+            <span className={panelStyles.panelLabel}>Price</span>
+            <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Price">
+              {FREE_PAID_RADIO.map(({ value, label }) => {
+                const isActive = (displayFreePaid || '') === value;
+                return (
+                  <button
+                    key={value || 'all-price'}
+                    type="button"
+                    className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
+                    onClick={() => setLocalFreePaid(value)}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className={panelStyles.panelSection}>
+            <span className={panelStyles.panelLabel}>Uploaded</span>
+            <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Uploaded">
+              {RECENCY_RADIO.map(({ value, label }) => {
+                const isActive = (displayRecency || '') === value;
+                return (
+                  <button
+                    key={value || 'all-time'}
+                    type="button"
+                    className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
+                    onClick={() => setLocalRecency(value)}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {showOutputAndFormatFilters ? (
+            <>
+              <div className={panelStyles.panelSection}>
+                <span className={panelStyles.panelLabel}>Output</span>
+                <div className={panelStyles.segmentRow} role="radiogroup" aria-label="Output">
+                  {outputOptions.map(({ value, label }) => {
+                    const isActive = (displayOutputType || '') === value;
+                    return (
+                      <button
+                        key={value || 'all-output'}
+                        type="button"
+                        className={`${panelStyles.segmentButton} ${isActive ? panelStyles.segmentButtonActive : ''}`}
+                        onClick={() => handleOutputTypeChange(value)}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className={`${panelStyles.panelSection} ${panelStyles.panelSectionSpan2}`}>
+                <span className={panelStyles.panelLabel}>File format</span>
+                <div className={panelStyles.formatRow}>
+                  {formatOptions.map(({ value, label }) => {
+                    const isActive = selectedPanelFormats.includes(value);
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        className={`${panelStyles.formatChip} ${isActive ? panelStyles.formatChipActive : ''}`}
+                        onClick={() => {
+                          if (libraryListMode === '2d') {
+                            toggleOutputFormat(value, !isActive);
+                            return;
+                          }
+                          toggleFileFormat(value, !isActive);
+                        }}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          ) : null}
+
+          <div className={`${panelStyles.panelSection} ${panelStyles.panelSectionFull}`}>
+            <span className={panelStyles.panelLabel}>Tags</span>
+            <div className={panelStyles.tagSearch}>
+              <SearchIcon className={panelStyles.tagSearchIcon} fontSize="small" aria-hidden />
+              <input
+                type="text"
+                placeholder="Search tags..."
+                value={tagSearch}
+                onChange={(e) => setTagSearch(e.target.value)}
+                className={panelStyles.tagSearchInput}
+                aria-label="Search tags"
+              />
+            </div>
+            <div className={panelStyles.tagsRow}>
+              <button
+                type="button"
+                className={`${panelStyles.formatChip} ${!displayTag ? panelStyles.formatChipActive : ''}`}
+                onClick={() => {
+                  trackLibraryFilterTagClick({
+                    tagValue: '',
+                    tagLabel: 'All tags',
+                    isClear: true,
+                    libraryListMode,
+                  });
+                  setLocalTag('');
+                }}
+              >
+                All tags
+              </button>
+              {tagsToShow.map((tag) => {
+                const tagValue = tag?.cad_tag_name ?? tag?.name ?? '';
+                if (!tagValue || !isValidLibraryTagSlug(tagValue)) return null;
+                const tagLabel =
+                  tag?.cad_tag_label ??
+                  tag?.cad_tag_name ??
+                  tag?.label ??
+                  tag?.name ??
+                  String(tagValue);
+                const isActive = displayTag === tagValue;
+                return (
+                  <button
+                    key={tagValue}
+                    type="button"
+                    className={`${panelStyles.formatChip} ${isActive ? panelStyles.formatChipActive : ''}`}
+                    onClick={() => {
+                      trackLibraryFilterTagClick({
+                        tagValue,
+                        tagLabel,
+                        isClear: isActive,
+                        libraryListMode,
+                      });
+                      setLocalTag(isActive ? '' : tagValue);
+                    }}
+                  >
+                    {tagLabel}
+                  </button>
+                );
+              })}
+            </div>
+            {hasMoreTags ? (
+              <button
+                type="button"
+                className={panelStyles.showMoreTags}
+                onClick={loadMoreTags}
+                disabled={loadingTags}
+              >
+                {loadingTags ? 'Loading...' : 'Show more tags'}
+                <ExpandMoreIcon fontSize="small" />
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        <div className={panelStyles.panelFooter}>
+          <Link href={resetListHref} className={panelStyles.clearLink}>
+            ↺ Clear all filters
+          </Link>
+          <Link
+            href={panelApplyUrl}
+            className={panelStyles.doneButton}
+            onClick={() => typeof onClosePanel === 'function' && onClosePanel()}
+          >
+            ✓ Done
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles['library-filters-inner']}>
@@ -355,7 +740,15 @@ export default function LibraryFilters({
                   key={tagValue}
                   type="button"
                   className={styles['library-filters-tag-pill'] + (isActive ? ` ${styles['library-filters-tag-pill-active']}` : '')}
-                  onClick={() => setLocalTag(isActive ? '' : tagValue)}
+                  onClick={() => {
+                    trackLibraryFilterTagClick({
+                      tagValue,
+                      tagLabel,
+                      isClear: isActive,
+                      libraryListMode,
+                    });
+                    setLocalTag(isActive ? '' : tagValue);
+                  }}
                 >
                   {tagLabel}
                 </button>
@@ -364,6 +757,14 @@ export default function LibraryFilters({
                   key={tagValue}
                   href={tagUrl}
                   className={styles['library-filters-tag-pill'] + (isActive ? ` ${styles['library-filters-tag-pill-active']}` : '')}
+                  onClick={() => {
+                    trackLibraryFilterTagClick({
+                      tagValue,
+                      tagLabel,
+                      isClear: isActive,
+                      libraryListMode,
+                    });
+                  }}
                 >
                   {tagLabel}
                 </Link>

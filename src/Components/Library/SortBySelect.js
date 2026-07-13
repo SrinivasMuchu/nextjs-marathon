@@ -50,7 +50,7 @@ export default function SortBySelect({ initialSort = 'newest', className }) {
         aria-haspopup="listbox"
         aria-label="Sort by"
       >
-        Sort by: {selected.label}
+        {selected.label}
         <ExpandMoreIcon sx={{ fontSize: 18 }} />
       </button>
       {menuOpen && (

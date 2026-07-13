@@ -6,7 +6,7 @@ import { DESIGN_GLB_PREFIX_URL } from '@/config';
 import StaticDesign from './StaticDesign';
 
 
-const HoverImageSequence = ({ design, width, height, loading }) => {
+const HoverImageSequence = ({ design, width, height, loading, containerClassName = '' }) => {
   // Supported preview images coming from supporting_files (only image formats)
   const supportingImages = (design?.supporting_files || []).filter((f) => {
     const name = f.name || f.fileName || '';
@@ -82,6 +82,15 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
   };
 
 
+  const containerClass = [
+    styles['library-designs-items-container-img'],
+    containerClassName,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const containerStyle = containerClassName ? { height: '100%' } : { height };
+
   // For DXF/DWG files only, cycle through supporting images on hover
   if (isDxfOrDwg && hasSupportingImages) {
     const imageCount = supportingImages.length;
@@ -91,8 +100,8 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
     return (
       <div
         ref={containerRef}
-        style={{ height }}
-        className={styles['library-designs-items-container-img']}
+        style={containerStyle}
+        className={containerClass}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -114,8 +123,8 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
   return (
     <div
       ref={containerRef}
-      style={{ height }}
-      className={styles['library-designs-items-container-img']}
+      style={containerStyle}
+      className={containerClass}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -125,11 +134,11 @@ const HoverImageSequence = ({ design, width, height, loading }) => {
           alt={design.page_title}
           width={width}
           height={height}
-          loading={loading} // 'lazy' or 'eager'
+          loading={loading}
           priority={loading !== 'lazy'}
         />
       ) : (
-        <StaticDesign design={design} width={width} height={height} loading={loading}/>
+        <StaticDesign design={design} width={width} height={height} loading={loading} />
       )}
     </div>
   );

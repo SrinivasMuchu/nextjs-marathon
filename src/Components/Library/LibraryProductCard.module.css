@@ -1,4 +1,136 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: var(--library-card-height, 540px);
+  height: 100%;
+  background: #fff;
+  border: 1px solid #ececf1;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(98, 38, 217, 0.1);
+  transform: translateY(-1px);
+}
+
+.previewWrap {
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 413 / 257;
+  background-color: #f8fafc;
+  background-image: none;
+}
+
+/* Kept for callers that still pass previewWrapNoGrid */
+.previewWrapNoGrid {
+  background-color: #f8fafc;
+  background-image: none;
+}
+
+.priceBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.priceBadgeFree {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.priceBadgePaid {
+  background: #fff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.tagsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7c3aed;
+  line-height: 1.3;
+}
+
+.tagsIcon {
+  font-size: 14px !important;
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #111827;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.titleLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.titleLink:hover {
+  color: #6226d9;
+}
+
+.formatRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.formatChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #f3e8ff;
+  color: #7c3aed;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .quickLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.quickLinksRow {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 12px;
@@ -7,9 +139,12 @@
 }
 
 .quickLink {
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
   font-weight: 600;
-  color: #610bee;
+  color: #6226d9;
   text-decoration: none;
 }
 
@@ -23,4 +158,61 @@
   font-weight: 500;
   color: #6b7280;
   line-height: 1.4;
+}
+
+.quickLinkIcon {
+  font-size: 16px !important;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #f1f2f4;
+}
+
+.downloads {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  min-width: 0;
+  flex: 1;
+}
+
+.downloadsIcon {
+  font-size: 14px !important;
+}
+
+.footerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.previewButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #610bee;
+  background: #610bee;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.previewButton:hover {
+  background: #530bd4;
+  border-color: #530bd4;
+  color: #fff;
 }

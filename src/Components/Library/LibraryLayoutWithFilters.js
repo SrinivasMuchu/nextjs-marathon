@@ -1,100 +1,62 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import LibraryFiltersWrapper from './LibraryFiltersWrapper';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import CloseIcon from '@mui/icons-material/Close';
 import styles from './Library.module.css';
-
-const COLUMN_BREAKPOINT = 900;
-
-function useIsColumn() {
-  const [isColumn, setIsColumn] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${COLUMN_BREAKPOINT}px)`);
-    const update = () => setIsColumn(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-
-  return isColumn;
-}
+import panelStyles from './LibraryFiltersPanel.module.css';
 
 export default function LibraryLayoutWithFilters({
   filterProps,
-  contentHead,
+  toolbarLeft,
+  toolbarSort,
   children,
 }) {
-  const isColumn = useIsColumn();
-  const [sheetOpen, setSheetOpen] = useState(false);
-
-  useEffect(() => {
-    if (!sheetOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, [sheetOpen]);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   return (
-    <div className={styles['library-layout']}>
-      {!isColumn && (
-        <aside className={styles['library-filters']}>
-          <LibraryFiltersWrapper {...filterProps} />
-        </aside>
-      )}
-
+    <div className={styles['library-layout-full']}>
       <main className={styles['library-content']}>
         <div className={styles['library-content-head']}>
-          {isColumn && (
+          {toolbarLeft}
+          <div className={styles['library-toolbar-actions']}>
             <button
               type="button"
-              className={styles['library-filters-mobile-trigger']}
-              onClick={() => setSheetOpen(true)}
-              aria-label="Open filters"
+              className={`${panelStyles.filtersTrigger} ${panelOpen ? panelStyles.filtersTriggerActive : ''}`}
+              onClick={() => setPanelOpen((open) => !open)}
+              aria-expanded={panelOpen}
+              aria-controls="library-filters-panel"
             >
               <FilterListIcon fontSize="small" aria-hidden />
               <span>Filters</span>
             </button>
-          )}
-          {contentHead}
+            {toolbarSort ? (
+              <div className={styles['library-content-sort']}>
+                <span className={styles['library-content-sort-label']}>Sort by:</span>
+                {toolbarSort}
+              </div>
+            ) : null}
+          </div>
         </div>
+
+        {panelOpen ? (
+          <div
+            id="library-filters-panel"
+            className={panelStyles.filtersPanel}
+            role="region"
+            aria-label="Library filters"
+          >
+            <LibraryFiltersWrapper
+              {...filterProps}
+              variant="panel"
+              panelOpen={panelOpen}
+              onClosePanel={() => setPanelOpen(false)}
+            />
+          </div>
+        ) : null}
+
         {children}
       </main>
-
-      {isColumn && (
-        <>
-          <div
-            className={`${styles['library-filters-sheet-backdrop']} ${sheetOpen ? styles['library-filters-sheet-backdrop-open'] : ''}`}
-            aria-hidden
-            onClick={() => setSheetOpen(false)}
-          />
-          <div
-            className={`${styles['library-filters-sheet-panel']} ${sheetOpen ? styles['library-filters-sheet-panel-open'] : ''}`}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="library-filters-sheet-title"
-          >
-            <div className={styles['library-filters-sheet-header']}>
-              <h2 id="library-filters-sheet-title" className={styles['library-filters-sheet-title']}>
-                Filters
-              </h2>
-              <button
-                type="button"
-                className={styles['library-filters-sheet-close']}
-                onClick={() => setSheetOpen(false)}
-                aria-label="Close filters"
-              >
-                <CloseIcon fontSize="medium" />
-              </button>
-            </div>
-            <div className={styles['library-filters-sheet-body']}>
-              <LibraryFiltersWrapper {...filterProps} inSheet sheetOpen={sheetOpen} onCloseSheet={() => setSheetOpen(false)} />
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 }

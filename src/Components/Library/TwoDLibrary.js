@@ -5,7 +5,8 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { BASE_URL } from '@/config';
-import { fetchCadTagsPage } from '@/api/cadTagsApi';
+import { fetchCadTagsByRank, fetchLibraryFiltersTagsPage, TAGS_PAGE_SIZE } from '@/api/cadTagsApi';
+import { fetchLibraryClusters, getLibraryClusterPath } from '@/api/libraryClustersApi';
 import { fetchTwoDLibraryCategories } from '@/api/twoDLibraryDesignsApi';
 import { buildTwoDLibraryDesignsParams } from '@/api/twoDLibraryDesignsApi';
 import {
@@ -21,12 +22,20 @@ import LibraryLayoutWithFilters from './LibraryLayoutWithFilters';
 import SortBySelect from './SortBySelect';
 import TwoDLibraryCard from './TwoDLibraryCard';
 import TwoDLibraryBottomSections from './TwoDLibraryBottomSections';
+import LibraryHeroSearch from './LibraryHeroSearch';
+// import LibraryHubCards from './LibraryHubCards';
+import LibraryCategoryScroller from './LibraryCategoryScroller';
+import LibraryDiscoverySections from './LibraryDiscoverySections';
 import TechDrawPageViewTracker from '../CadDrawingPipeline/TechDrawPageViewTracker';
 import {
   TWO_D_LIBRARY_H1,
   TWO_D_LIBRARY_INTRO,
   TWO_D_LIBRARY_DESCRIPTION,
   TWO_D_LIBRARY_BASE,
+  TWO_D_LIBRARY_HUB_H1,
+  TWO_D_LIBRARY_HUB_INTRO,
+  TWO_D_LIBRARY_HUB_SEARCH_PLACEHOLDER,
+  TWO_D_LIBRARY_HUB_CARDS,
   get2DLibraryPath,
   get2DLibraryPathWithQuery,
   hasTwoDLibraryNarrowingFilters,
@@ -36,9 +45,7 @@ const SITE_LIST_ORIGIN = 'https://marathon-os.com';
 const FIRST_GRID_SIZE = 6;
 
 function build2dLibraryHref(params) {
-  return get2DLibraryPathWithQuery({
-    categoryName: params.category || null,
-    tagName: params.tags || null,
+  const query = {
     search: params.search,
     page: params.page,
     sort: params.sort,
@@ -47,6 +54,30 @@ function build2dLibraryHref(params) {
     file_format: params.file_format,
     output_format: params.output_format,
     projection: params.projection,
+  };
+
+  if (params.cluster_slug) {
+    const path = getLibraryClusterPath(
+      { cluster_slug: params.cluster_slug },
+      '2d'
+    );
+    const searchParams = new URLSearchParams();
+    if (query.search) searchParams.set('search', query.search);
+    if (query.page && query.page > 1) searchParams.set('page', String(query.page));
+    if (query.sort) searchParams.set('sort', query.sort);
+    if (query.recency) searchParams.set('recency', query.recency);
+    if (query.free_paid) searchParams.set('free_paid', query.free_paid);
+    if (query.file_format) searchParams.set('file_format', query.file_format);
+    if (query.output_format) searchParams.set('output_format', query.output_format);
+    if (query.projection) searchParams.set('projection', query.projection);
+    const qs = searchParams.toString();
+    return qs ? `${path}?${qs}` : path;
+  }
+
+  return get2DLibraryPathWithQuery({
+    categoryName: params.category || null,
+    tagName: params.tags || null,
+    ...query,
   });
 }
 
@@ -67,9 +98,14 @@ export default async function TwoDLibrary({
   const fileFormat = searchParams?.file_format || '';
   const outputFormat = searchParams?.output_format || '';
   const projection = searchParams?.projection || '';
+  const clusterId = (searchParams?.cluster_id || '').trim();
+  const clusterSlug = (searchParams?.cluster_slug || '').trim();
 
   const cookieStore = cookies();
   const uuid = cookieStore.get('uuid')?.value || null;
+
+  // Keep browse parts + build kits visible even when filters are applied
+  const showDiscoverySections = true;
 
   const apiParams = buildTwoDLibraryDesignsParams({
     category,
@@ -81,6 +117,7 @@ export default async function TwoDLibrary({
     file_format: fileFormat,
     output_format: outputFormat,
     projection,
+    cluster_id: clusterId,
     page,
     limit,
     uuid,
@@ -98,10 +135,12 @@ export default async function TwoDLibrary({
       throw err;
     });
 
-  const [response, allCategories, tagsFirstPage] = await Promise.all([
+  const [response, allCategories, tagsFirstPage, rankedBrowseTags, buildKitClusters] = await Promise.all([
     designsRequest,
     fetchTwoDLibraryCategories(),
-    fetchCadTagsPage(0, 10, null, category || null, true),
+    fetchLibraryFiltersTagsPage(0, TAGS_PAGE_SIZE, null, category || null, true),
+    showDiscoverySections ? fetchCadTagsByRank(100, true) : Promise.resolve([]),
+    showDiscoverySections ? fetchLibraryClusters({ limit: 50, twoDims: true }) : Promise.resolve([]),
   ]);
   const data = response.data;
 
@@ -124,6 +163,7 @@ export default async function TwoDLibrary({
     file_format: fileFormat,
     output_format: outputFormat,
     projection,
+    cluster_id: clusterId,
   });
 
   const paginationWindow = getLibraryPaginationWindow({
@@ -143,6 +183,13 @@ export default async function TwoDLibrary({
     ) || null;
   const categoryLabel = activeCategory?.industry_category_label || category;
 
+  // const showHubExperience =
+  //   !categoryLabel && !tagLabel && !searchQuery && !outputFormat && !projection;
+  const showHubExperience = false;
+  // const drawingsCountLabel = pagination?.totalItems
+  //   ? `${Number(pagination.totalItems).toLocaleString()}+ drawing sets`
+  //   : '1,000+ drawing sets';
+
   const heroTitle =
     categoryLabel && tagLabel
       ? `${tagLabel} 2D drawings in ${categoryLabel}`
@@ -150,7 +197,11 @@ export default async function TwoDLibrary({
         ? `${categoryLabel} 2D technical drawings`
         : tagLabel
           ? `${tagLabel} 2D technical drawings`
-          : TWO_D_LIBRARY_H1;
+          : showHubExperience
+            ? TWO_D_LIBRARY_HUB_H1
+            : searchQuery
+              ? `Search results for "${searchQuery}"`
+              : TWO_D_LIBRARY_H1;
 
   const heroDescription =
     categoryLabel && tagLabel
@@ -159,7 +210,9 @@ export default async function TwoDLibrary({
         ? `Browse ${categoryLabel} 2D technical drawings generated from 3D CAD models. Download PDF, SVG and DXF drawing sets for engineering review.`
         : tagLabel
           ? `Browse ${tagLabel} 2D technical drawings. Download drawing sets with orthographic views, section cuts and PDF, SVG and DXF files.`
-          : TWO_D_LIBRARY_INTRO;
+          : showHubExperience
+            ? TWO_D_LIBRARY_HUB_INTRO
+            : TWO_D_LIBRARY_INTRO;
 
   const breadcrumbSchemaLinks = [
     { label: 'Library', href: '/library' },
@@ -246,38 +299,53 @@ export default async function TwoDLibrary({
               <span className={styles['library-hero-breadcrumb-current']}>2D Library</span>
             )}
           </nav>
+          {/* {showHubExperience ? (
+            <div className={styles['library-hero-badge']} aria-label="Library quality">
+              ✓ Quality-checked • {drawingsCountLabel}
+            </div>
+          ) : null} */}
           <h1 className={styles['library-hero-title']}>{heroTitle}</h1>
           <p className={styles['library-hero-description']}>{heroDescription}</p>
+          <div className={styles['library-hero-search']}>
+            <LibraryHeroSearch
+              initialSearchQuery={searchQuery}
+              placeholder={TWO_D_LIBRARY_HUB_SEARCH_PLACEHOLDER}
+              libraryMode="2d"
+              browseCards={TWO_D_LIBRARY_HUB_CARDS}
+            />
+          </div>
         </header>
 
+        {/* {showHubExperience ? <LibraryHubCards cards={TWO_D_LIBRARY_HUB_CARDS} /> : null} */}
+
         <div className={styles['library-below-hero']}>
-          <div className={styles['library-category-tags-wrap']}>
-            <div className={styles['library-category-tags']}>
-              <Link
-                href={listRootPath}
-                className={
-                  styles['library-category-tag'] +
-                  (!category ? ` ${styles['library-category-tag-active']}` : '')
-                }
-              >
-                All
-              </Link>
-              {(allCategories || []).map((cat) => (
-                <Link
-                  key={cat.industry_category_name}
-                  href={get2DLibraryPath({ categoryName: cat.industry_category_name })}
-                  className={
-                    styles['library-category-tag'] +
-                    (category === cat.industry_category_name
-                      ? ` ${styles['library-category-tag-active']}`
-                      : '')
-                  }
-                >
-                  {cat.industry_category_label}
-                </Link>
-              ))}
-            </div>
-          </div>
+          <LibraryCategoryScroller
+            categories={allCategories}
+            activeCategory={category}
+            libraryMode="2d"
+          />
+
+          {showDiscoverySections ? (
+            <LibraryDiscoverySections
+              browsePartsTags={rankedBrowseTags}
+              buildKitClusters={buildKitClusters}
+              libraryMode="2d"
+              activeTag={tags}
+              activeClusterId={clusterId}
+              categoryName={category || null}
+              filterState={{
+                category,
+                tags,
+                search: searchQuery,
+                sort,
+                recency,
+                free_paid: freePaid,
+                file_format: fileFormat,
+                output_format: outputFormat,
+                projection,
+              }}
+            />
+          ) : null}
 
           <LibraryLayoutWithFilters
             filterProps={{
@@ -293,39 +361,36 @@ export default async function TwoDLibrary({
               initialFileFormat: fileFormat,
               initialOutputFormat: outputFormat,
               initialProjection: projection,
+              initialClusterId: clusterId,
+              initialClusterSlug: clusterSlug,
               hasActiveFilters: hasFilters,
               libraryListMode: '2d',
               library2d: true,
               resetListHref: listRootPath,
               show2DExtraFilters: false,
             }}
-            contentHead={
-              <>
-                <div className={styles['library-content-head-left']}>
-                  <span className={styles['library-resources-count']}>
-                    2D Designs ({resultsCountLabel} results)
-                    {hasFilters && totalPages > 1 && totalPages <= 5
-                      ? ` · Page ${dataPage} of ${totalPages}`
-                      : ''}
+            toolbarLeft={
+              <div className={styles['library-content-head-left']}>
+                <span className={styles['library-resources-count']}>
+                  {resultsCountLabel} drawing sets
+                </span>
+                <Link
+                  href="/library"
+                  prefetch
+                  className={styles['library-toolbar-2d-library-cta']}
+                >
+                  <span className={styles['library-toolbar-2d-library-cta-icon']} aria-hidden>
+                    📦
                   </span>
-                  <Link
-                    href="/library"
-                    prefetch
-                    className={styles['library-toolbar-2d-library-cta']}
-                  >
-                    <span className={styles['library-toolbar-2d-library-cta-icon']} aria-hidden>
-                      📦
-                    </span>
-                    3D CAD model library
-                  </Link>
-                </div>
-                <div className={styles['library-content-sort']}>
-                  <SortBySelect
-                    initialSort={searchParams?.sort}
-                    className={styles['library-content-sort-select']}
-                  />
-                </div>
-              </>
+                  3D models
+                </Link>
+              </div>
+            }
+            toolbarSort={
+              <SortBySelect
+                initialSort={searchParams?.sort}
+                className={styles['library-content-sort-select']}
+              />
             }
           >
             <div className={styles['library-designs']}>
@@ -334,24 +399,14 @@ export default async function TwoDLibrary({
                   <React.Fragment key={`2d-design-${design._id}`}>
                     {index === 0 && (
                       <div
-                        className={styles['library-designs-items-container']}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
+                        className={`${styles['library-designs-items-container']} ${styles.libraryAdSlot}`}
                       >
                         <LeftRightBanner adSlot="2408570633" />
                       </div>
                     )}
                     {index === 6 && (
                       <div
-                        className={styles['library-designs-items-container']}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
+                        className={`${styles['library-designs-items-container']} ${styles.libraryAdSlot}`}
                       >
                         <LeftRightBanner adSlot="4799748492" />
                       </div>
@@ -379,6 +434,7 @@ export default async function TwoDLibrary({
                       file_format: fileFormat,
                       output_format: outputFormat,
                       projection,
+                      cluster_slug: clusterSlug,
                     })}
                     className={styles['pagination-button']}
                   >
@@ -404,6 +460,7 @@ export default async function TwoDLibrary({
                       file_format: fileFormat,
                       output_format: outputFormat,
                       projection,
+                      cluster_slug: clusterSlug,
                     })}
                     className={`${styles['pagination-button']} ${dataPage === p ? styles.active : ''}`}
                   >
@@ -428,6 +485,7 @@ export default async function TwoDLibrary({
                       file_format: fileFormat,
                       output_format: outputFormat,
                       projection,
+                      cluster_slug: clusterSlug,
                     })}
                     className={styles['pagination-button']}
                   >

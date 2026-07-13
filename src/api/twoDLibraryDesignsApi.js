@@ -23,6 +23,7 @@ export function buildTwoDLibraryDesignsParams(filters) {
     file_format = '',
     output_format = '',
     projection = '',
+    cluster_id = '',
     page = 1,
     limit = 22,
     uuid = null,
@@ -40,6 +41,7 @@ export function buildTwoDLibraryDesignsParams(filters) {
   params.library_2d = '1';
   if (output_format) params.output_format = output_format;
   if (projection) params.projection = projection;
+  if (cluster_id) params[LIBRARY_PARAMS.cluster_id] = cluster_id;
   params[LIBRARY_PARAMS.page] = String(page);
   params[LIBRARY_PARAMS.limit] = String(limit);
   if (uuid) params[LIBRARY_PARAMS.uuid] = uuid;
