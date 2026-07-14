@@ -25,6 +25,7 @@ const FORMAT_EXTENSIONS = {
   brp: '.brp or .brep',
   dwg: '.dwg',
   dxf: '.dxf',
+  '3dm': '.3dm',
 };
 
 function getFormatExtensions(format) {
@@ -41,6 +42,10 @@ const WHY_CONVERT_HINTS = {
   'stl-obj': 'Converting STL to OBJ can help when you need a widely supported mesh format for rendering, game engines, or visualization tools.',
   'dwg-dxf': 'DWG is AutoCAD’s native format. Converting DWG to DXF improves interoperability with other 2D CAD and CAM tools.',
   'dxf-dwg': 'Converting DXF to DWG is useful when you need a native AutoCAD file from a neutral 2D exchange format.',
+  '3dm-step': '3DM is Rhino’s native format. Converting 3DM to STEP makes your NURBS model usable in mainstream CAD and manufacturing workflows.',
+  'step-3dm': 'Converting STEP to 3DM lets you bring solid CAD models into Rhino for surface modeling, design iteration, and NURBS editing.',
+  '3dm-stl': 'Converting 3DM to STL creates a mesh ready for 3D printing and slicer software from a Rhino model.',
+  'stl-3dm': 'Converting STL to 3DM helps bring mesh geometry into Rhino for further modeling and cleanup.',
 };
 
 function getWhyConvertAnswer(from, to) {
@@ -105,7 +110,7 @@ export const cadConverterFaqQuestions = [
   {
     question: 'What file formats are supported?',
     answer:
-      'STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), DWG (.dwg), DXF (.dxf).',
+      'STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), DWG (.dwg), DXF (.dxf).',
   },
   {
     question: 'Is Marathon OS 3D File Converter free to use?',

@@ -46,7 +46,7 @@ const converterTrustItems = [
 const features = [
     {
         title: 'Seamless CAD File Conversion',
-        description: 'Convert STEP, IGES, STL, BREP, OBJ, PLY, OFF and more—instantly and without setup delays.'
+        description: 'Convert STEP, IGES, STL, BREP, OBJ, PLY, OFF, 3DM and more—instantly and without setup delays.'
     },
     {
         title: 'Handles Large & Complex Models',
@@ -86,7 +86,7 @@ const featuresArray = [
     },
     {
         title: 'Supports Multiple Formats',
-        description: "Convert between STEP, IGES, STL, OBJ, PLY, OFF, and BREP formats—all from a single, unified interface."
+        description: "Convert between STEP, IGES, STL, OBJ, PLY, OFF, BREP, and 3DM formats—all from a single, unified interface."
     },
     {
         title: 'Cloud-Based & Private',

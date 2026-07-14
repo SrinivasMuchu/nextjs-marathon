@@ -231,6 +231,23 @@ export const converterTypes = [
   { label: 'BREP to PLY', path: '/brep-to-ply', oneLiner: 'Convert BREP to PLY for 3D printing and slicing.' },
   { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for 3D printing and slicing.' },
   { label: 'BREP to OFF', path: '/brep-to-off', oneLiner: 'Convert BREP to OFF for 3D printing and slicing.' },
+  { label: 'BREP to 3DM', path: '/brep-to-3dm', oneLiner: 'Convert BREP to 3DM for Rhino and NURBS workflows.' },
+
+  { label: 'STEP to 3DM', path: '/step-to-3dm', oneLiner: 'Convert STEP to 3DM for Rhino and NURBS workflows.' },
+  { label: 'IGES to 3DM', path: '/iges-to-3dm', oneLiner: 'Convert IGES to 3DM for Rhino and NURBS workflows.' },
+  { label: 'OBJ to 3DM', path: '/obj-to-3dm', oneLiner: 'Convert OBJ to 3DM for Rhino and NURBS workflows.' },
+  { label: 'PLY to 3DM', path: '/ply-to-3dm', oneLiner: 'Convert PLY to 3DM for Rhino and NURBS workflows.' },
+  { label: 'STL to 3DM', path: '/stl-to-3dm', oneLiner: 'Convert STL to 3DM for Rhino and NURBS workflows.' },
+  { label: 'OFF to 3DM', path: '/off-to-3dm', oneLiner: 'Convert OFF to 3DM for Rhino and NURBS workflows.' },
+
+  { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Convert 3DM to STEP for CAD exchange and manufacturing.' },
+  { label: '3DM to IGES', path: '/3dm-to-iges', oneLiner: 'Convert 3DM to IGES for CAD exchange workflows.' },
+  { label: '3DM to OBJ', path: '/3dm-to-obj', oneLiner: 'Convert 3DM to OBJ for rendering and visualization.' },
+  { label: '3DM to PLY', path: '/3dm-to-ply', oneLiner: 'Convert 3DM to PLY for mesh and scanning workflows.' },
+  { label: '3DM to STL', path: '/3dm-to-stl', oneLiner: 'Convert 3DM to STL for 3D printing and slicing.' },
+  { label: '3DM to OFF', path: '/3dm-to-off', oneLiner: 'Convert 3DM to OFF for geometric mesh exchange.' },
+  { label: '3DM to BREP', path: '/3dm-to-brep', oneLiner: 'Convert 3DM to BREP for solid CAD workflows.' },
+
   { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 3D printing and slicing.' },
   { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 3D printing and slicing.' },
 
@@ -269,6 +286,8 @@ export const featuredConversions = [
   { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for mesh export and 3D printing.' },
   { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 2D CAD exchange.' },
   { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 2D CAD exchange.' },
+  { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Convert Rhino 3DM to STEP for CAD exchange.' },
+  { label: 'STEP to 3DM', path: '/step-to-3dm', oneLiner: 'Convert STEP to Rhino 3DM for NURBS workflows.' },
 ];
 
 // export const allowedFilesList = [ ".stp",  ,  ".igs", , ".brp", ]

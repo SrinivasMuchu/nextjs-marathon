@@ -53,6 +53,18 @@ const CONVERSION_TOOLS = [
     href: '/tools/convert-stl-to-obj',
     description: 'For game engines and 3D rendering',
   },
+  {
+    from: '3DM',
+    to: 'STEP',
+    href: '/tools/convert-3dm-to-step',
+    description: 'Convert Rhino 3DM to STEP for CAD exchange',
+  },
+  {
+    from: 'STEP',
+    to: '3DM',
+    href: '/tools/convert-step-to-3dm',
+    description: 'Convert STEP to Rhino 3DM for NURBS workflows',
+  },
 ];
 
 function CadConversionToolLinks() {

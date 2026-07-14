@@ -56,7 +56,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
     // Debugging: Log the full pathname
     useEffect(() => {
         if (!convert) {
-            // Include DWG and DXF for converter (even on general converter page)
+            // Include DWG, DXF, and 3DM for converter (even on general converter page)
             setAllowedFormats([...allowedFilesList, ".dwg", ".dxf"])
             return
         }
