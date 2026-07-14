@@ -16,11 +16,19 @@ export async function fetchLibraryClusters({ limit, slug, clusterId, twoDims } =
   if (twoDims) params.set('two_dims', 'true');
 
   const qs = params.toString();
-  const { data } = await axios.get(
-    `${BASE_URL}/v1/cad/get-library-clusters${qs ? `?${qs}` : ''}`,
-    { cache: 'no-store' }
-  );
-  return Array.isArray(data?.data) ? data.data : [];
+  try {
+    const { data } = await axios.get(
+      `${BASE_URL}/v1/cad/get-library-clusters${qs ? `?${qs}` : ''}`,
+      { cache: 'no-store' }
+    );
+    return Array.isArray(data?.data) ? data.data : [];
+  } catch (error) {
+    const status = error?.response?.status;
+    if (status === 404 || status === 502 || status === 503) {
+      return [];
+    }
+    throw error;
+  }
 }
 
 export function getLibraryClustersPath(libraryMode = '3d') {
