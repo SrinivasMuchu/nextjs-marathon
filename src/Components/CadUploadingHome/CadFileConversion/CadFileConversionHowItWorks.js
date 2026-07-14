@@ -16,7 +16,7 @@ const converterSteps = [
   },
   {
     title: 'Choose the output format',
-    description: 'STEP, IGES, STL, OBJ, PLY, OFF, or BREP',
+    description: 'STEP, IGES, STL, OBJ, PLY, OFF, BREP, or 3DM',
     icon: MdOutlineSwapHoriz,
   },
   {

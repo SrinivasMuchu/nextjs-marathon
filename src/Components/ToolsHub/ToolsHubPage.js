@@ -125,10 +125,10 @@ const CAD_CONVERTER_CARDS = [
     tags: ['Legacy', 'Migration', 'Engineering'],
   },
   {
-    href: '/tools/3d-cad-file-converter',
-    title: '3MF to STL Converter',
-    description: 'Convert 3MF additive manufacturing files to STL.',
-    tags: ['Manufacturing', 'Mesh', 'Export'],
+    href: '/tools/convert-step-to-3dm',
+    title: 'STEP to 3DM Converter',
+    description: 'Convert STEP solids to Rhino .3dm for OpenNURBS workflows.',
+    tags: ['Rhino', 'CAD Exchange', 'Mesh'],
   },
   {
     href: '/tools/convert-ply-to-obj',

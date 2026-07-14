@@ -78,6 +78,7 @@ function CadDropDown({
       { value: "ply", label: ".ply" },
       { value: "stl", label: ".stl" },
       { value: "off", label: ".off" },
+      { value: "3dm", label: ".3dm" },
       { value: "dxf", label: ".dxf" },
       { value: "dwg", label: ".dwg" },
     ],

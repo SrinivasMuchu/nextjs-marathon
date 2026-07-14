@@ -48,6 +48,14 @@ const FORMAT_ROWS = [
     extensions: '.brp, .brep',
     actions: [{ label: 'View BREP files', href: '/tools/brep-file-viewer' }],
   },
+  {
+    format: '3DM',
+    extensions: '.3dm',
+    actions: [
+      { label: 'convert STEP to 3DM', href: '/tools/convert-step-to-3dm' },
+      { label: 'convert 3DM to STEP', href: '/tools/convert-3dm-to-step' },
+    ],
+  },
 ];
 
 function CadSupportedFormatsTable() {
