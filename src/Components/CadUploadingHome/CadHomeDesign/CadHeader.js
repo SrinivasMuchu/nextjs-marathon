@@ -20,13 +20,13 @@ function CadHeader({ type }) {
         </div>
         <h1 className={heroStyles.title}>Free Online 3D CAD Viewer</h1>
         <p className={heroStyles.description}>
-          Open STEP, IGES, STL, OBJ, PLY, OFF and BREP files online without installing CAD software.
+          Open STEP, IGES, STL, OBJ, PLY, OFF, BREP and 3DM files online without installing CAD software.
         </p>
         <p className={heroStyles.description}>
           Upload securely, inspect your model in 3D and convert files when needed.
         </p>
         <p className={heroStyles.benefitStrip}>
-          Free online viewer | STEP, IGES, STL, OBJ, PLY, OFF, BREP | Up to 300 MB | Auto-delete in
+          Free online viewer | STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM | Up to 300 MB | Auto-delete in
           24 hours | No CAD software needed
         </p>
         <CadDropZoneContent isStyled={false} type={type} designVariant="heroDark" />

@@ -52,6 +52,7 @@ const FORMAT_ROWS = [
     format: '3DM',
     extensions: '.3dm',
     actions: [
+      { label: 'View 3DM files', href: '/tools/3dm-file-viewer' },
       { label: 'convert STEP to 3DM', href: '/tools/convert-step-to-3dm' },
       { label: 'convert 3DM to STEP', href: '/tools/convert-3dm-to-step' },
     ],

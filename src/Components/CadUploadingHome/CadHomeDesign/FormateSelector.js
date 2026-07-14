@@ -15,6 +15,7 @@ function FormateSelector() {
         { label: "OFF", extensions: [".off"] },
         { label: "BREP", extensions: [".brp", ".brep"] },
         { label: "OBJ", extensions: [".obj"] },
+        { label: "3DM", extensions: [".3dm"] },
         
         //  { label: "GLB", extensions: [".glb"] },
     ];

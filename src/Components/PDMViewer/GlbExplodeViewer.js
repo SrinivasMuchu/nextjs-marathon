@@ -1624,6 +1624,8 @@ export function GlbExplodeViewer({
    * Without this, the same path can keep serving an old merged GLB while JSON updates.
    */
   cacheBust,
+  /** Original uploaded CAD file name (e.g. "Silla. avance.3dm") for Assembly Tree labels. */
+  originalFileName,
 }) {
   const resolvedGlbUrl = useMemo(
     () => withAssetCacheBust(glbUrl, cacheBust),
@@ -1815,9 +1817,48 @@ export function GlbExplodeViewer({
 
   // Human label shown in the UI.
   const sidebarPartLabel = (p) => {
+    const originalStem = (() => {
+      const n = String(originalFileName || "").trim();
+      if (!n) return "";
+      const i = n.lastIndexOf(".");
+      return (i > 0 ? n.slice(0, i) : n).trim();
+    })();
+
+    const looksLikeUploadKey = (s) =>
+      !s
+        ? false
+        : /_viewer_upload_|_converter_upload_|_designs_upload_/.test(s) ||
+          /^[a-f0-9]{20,}(_viewer|_converter)?/i.test(s);
+
     // Prefer the human-friendly CAD name when available.
     const rawName = p.name || "";
     const rawExport = p.exportName || "";
+
+    const stripUploadNoise = (s) => {
+      if (!s) return s;
+      for (const marker of [
+        "_viewer_upload_",
+        "_converter_upload_",
+        "_designs_upload_",
+      ]) {
+        const uploadIdx = s.indexOf(marker);
+        if (uploadIdx !== -1) {
+          const after = s.slice(uploadIdx + marker.length);
+          const cleaned = after
+            .replace(/^\d+_\d+_/, "")
+            .replace(/_\d{10,}(_[a-z0-9]+)?$/i, "");
+          if (
+            cleaned &&
+            cleaned.length > 2 &&
+            !/^[a-f0-9]{16,}/i.test(cleaned)
+          ) {
+            return cleaned;
+          }
+          return null;
+        }
+      }
+      return s.replace(/_\d{10,}(_[a-z0-9]+)?$/i, "");
+    };
 
     // If backend hasn't yet separated name/exportName and they are identical,
     // derive something shorter from the exportName (e.g. keep just "(solid 3)").
@@ -1826,16 +1867,25 @@ export function GlbExplodeViewer({
       if (solidIdx !== -1) {
         return rawExport.slice(solidIdx).trim();
       }
-      // Fallback: strip common upload prefix noise if present.
-      const uploadIdx = rawExport.indexOf("_designs_upload_");
-      if (uploadIdx > 0) {
-        return rawExport.slice(uploadIdx + "_designs_upload_".length);
-      }
+      if (looksLikeUploadKey(rawExport) && originalStem) return originalStem;
+      const cleaned = stripUploadNoise(rawExport);
+      if (cleaned) return cleaned;
+      return originalStem || "Model";
     }
 
-    if (rawName) return rawName;
-    if (rawExport) return rawExport;
-    return p.id != null ? `Part ${p.id}` : "";
+    if (rawName) {
+      if (looksLikeUploadKey(rawName) && originalStem) return originalStem;
+      const cleaned = stripUploadNoise(rawName);
+      if (cleaned && cleaned !== rawName) return cleaned;
+      if (looksLikeUploadKey(rawName)) return originalStem || "Model";
+      return rawName;
+    }
+    if (rawExport) {
+      if (looksLikeUploadKey(rawExport) && originalStem) return originalStem;
+      const cleaned = stripUploadNoise(rawExport);
+      return cleaned || originalStem || "Model";
+    }
+    return p.id != null ? `Part ${p.id}` : originalStem || "";
   };
 
   const allModelsVisible =

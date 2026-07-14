@@ -91,6 +91,12 @@ const CAD_VIEWER_CARDS = [
     tags: ['Surface', 'Wireframe', 'Legacy'],
   },
   {
+    href: '/tools/3dm-file-viewer',
+    title: '3DM Viewer',
+    description: 'Preview Rhino 3DM NURBS and mesh models in your browser.',
+    tags: ['Rhino', 'NURBS', 'OpenNURBS'],
+  },
+  {
     href: '/tools/3d-cad-viewer',
     title: '3MF Viewer',
     description: 'Preview 3MF files optimized for additive manufacturing.',

@@ -152,7 +152,7 @@ export const cadViewerFaqQuestions = [
   },
   {
     question: 'Which file formats are supported?',
-    answer: 'STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP.',
+    answer: 'STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP, 3DM.',
   },
   {
     question: 'Is this CAD viewer free?',
