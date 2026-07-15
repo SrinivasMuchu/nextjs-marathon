@@ -27,6 +27,23 @@
   text-align: center;
 }
 
+.formatsSection {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto 24px;
+  padding: 0 clamp(16px, 3vw, 24px);
+  box-sizing: border-box;
+}
+
+.formatsInner {
+  padding: clamp(22px, 3vw, 32px) clamp(16px, 3vw, 28px);
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-sizing: border-box;
+  text-align: center;
+}
+
 .heading {
   margin: 0 0 clamp(20px, 3vw, 28px);
   font-size: clamp(24px, 3.5vw, 32px);
@@ -55,11 +72,19 @@
 .formatPill {
   display: inline-flex;
   align-items: center;
-  padding: 10px 18px;
-  border-radius: 999px;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
-  background: #f9fafb;
-  font-size: 15px;
+  background: #ffffff;
+  font-size: 14px;
   font-weight: 700;
   color: #374151;
+}
+
+.formatIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #610bee;
 }

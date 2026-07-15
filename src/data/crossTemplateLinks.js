@@ -3,9 +3,24 @@
  */
 
 export const TOOL_LIBRARY_CROSS_LINKS = [
-  { label: 'Browse CAD models', href: '/library' },
-  { label: 'Browse 2D technical drawings', href: '/library/2d-technical-drawings' },
-  { label: 'Get CAD design support', href: '/cad-services' },
+  {
+    label: 'Browse CAD models',
+    description: 'Explore 3D models in various formats.',
+    href: '/library',
+    icon: 'box',
+  },
+  {
+    label: 'Browse 2D technical drawings',
+    description: 'Find and download technical drawings.',
+    href: '/library/2d-technical-drawings',
+    icon: 'file',
+  },
+  {
+    label: 'Get CAD design support',
+    description: 'Connect with experts for design assistance.',
+    href: '/cad-services',
+    icon: 'headset',
+  },
 ];
 
 export const TWO_D_SOURCE_MODEL_LINK = {
