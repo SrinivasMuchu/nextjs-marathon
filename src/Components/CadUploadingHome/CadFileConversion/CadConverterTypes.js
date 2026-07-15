@@ -1,8 +1,8 @@
-import React from 'react';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { popularCadConverterTypes } from '@/common.helper';
-import styles from './CadConverterTypes.module.css';
+import React from 'react'
+import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
+import { popularCadConverterTypes } from '@/common.helper'
+import styles from './CadConverterTypes.module.css'
 
 function CadConverterTypes() {
   return (
@@ -33,7 +33,7 @@ function CadConverterTypes() {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-export default CadConverterTypes;
+export default CadConverterTypes

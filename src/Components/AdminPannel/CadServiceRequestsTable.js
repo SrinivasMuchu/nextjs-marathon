@@ -74,20 +74,24 @@ function DetailRow({ label, value, isLink }) {
   )
 }
 
-function VendorMailHistory({ logs = [] }) {
-  if (!Array.isArray(logs) || !logs.length) return null
+function VendorMailHistory({ logs = [], title = 'Vendor mail history', showTitle = true }) {
+  if (!Array.isArray(logs) || !logs.length) {
+    return <p className={styles.logsEmptyText}>No mail logs found for this request.</p>
+  }
 
   const ordered = [...logs]
 
   return (
     <div className={styles.vendorMailHistory}>
-      <h4 className={styles.vendorMailHistoryTitle}>Vendor mail history</h4>
+      {showTitle ? <h4 className={styles.vendorMailHistoryTitle}>{title}</h4> : null}
       {ordered.map((log, index) => (
         <div key={log._id || `${log.sent_at}-${index}`} className={styles.vendorMailLog}>
           <div className={styles.vendorMailLogHeader}>
-            <span>Sent {formatDate(log.sent_at || log.createdAt)}</span>
             <span>
-              {(log.vendor_emails || []).length} email{(log.vendor_emails || []).length === 1 ? '' : 's'}
+              Send #{ordered.length - index} · {formatDate(log.sent_at || log.createdAt)}
+            </span>
+            <span>
+              {(log.vendor_emails || []).length} recipient{(log.vendor_emails || []).length === 1 ? '' : 's'}
               {log.send_all ? ' · all active' : ''}
             </span>
           </div>
@@ -97,7 +101,7 @@ function VendorMailHistory({ logs = [] }) {
           <DetailRow label="Software" value={log.content?.software_format} />
           <DetailRow label="Project brief" value={log.content?.requirement} />
           <DetailRow
-            label="Vendor emails"
+            label="Mails received by"
             value={(log.vendor_emails || []).join('\n') || null}
           />
         </div>
@@ -226,6 +230,8 @@ function CadServiceRequestsTable() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [mailTarget, setMailTarget] = useState(null)
+  const [logsTarget, setLogsTarget] = useState(null)
+  const [logsLoading, setLogsLoading] = useState(false)
 
   const adminHeaders = () => ({
     'admin-uuid': localStorage.getItem('admin-uuid'),
@@ -352,6 +358,39 @@ function CadServiceRequestsTable() {
     }
   }
 
+  const openMailLogs = async (request) => {
+    const mailCount = Number(request.vendor_mail_count) || 0
+    if (mailCount <= 0) return
+
+    setLogsLoading(true)
+    setLogsTarget({
+      request,
+      logs: [],
+    })
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/v1/admin-pannel/get-cad-service-request/${request._id}`,
+        { headers: adminHeaders() }
+      )
+      if (response.data?.meta?.success) {
+        const detail = response.data.data.request || {}
+        setLogsTarget({
+          request: detail,
+          logs: detail.vendor_mails || [],
+        })
+      } else {
+        toast.error(response.data?.meta?.message || 'Failed to load mail logs')
+        setLogsTarget(null)
+      }
+    } catch (error) {
+      console.error('Error fetching mail logs:', error)
+      toast.error('Failed to load mail logs')
+      setLogsTarget(null)
+    } finally {
+      setLogsLoading(false)
+    }
+  }
+
   const getFilterCount = (filterValue) => {
     if (filterValue === 'all') return totalCount
     return statusCounts[filterValue] || 0
@@ -470,13 +509,14 @@ function CadServiceRequestsTable() {
                   <th>Submitted</th>
                   <th>View</th>
                   <th>Send mail</th>
+                  <th>Logs</th>
                   <th>Change status</th>
                 </tr>
               </thead>
               {isLoading ? (
                 <tbody>
                   <tr>
-                    <td colSpan={8} className={styles.emptyCell}>
+                    <td colSpan={9} className={styles.emptyCell}>
                       <Loading />
                     </td>
                   </tr>
@@ -485,12 +525,14 @@ function CadServiceRequestsTable() {
                 <tbody>
                   {requests.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className={styles.emptyCell}>
+                      <td colSpan={9} className={styles.emptyCell}>
                         No CAD service requests found
                       </td>
                     </tr>
                   ) : (
-                    requests.map((request) => (
+                    requests.map((request) => {
+                      const mailCount = Number(request.vendor_mail_count) || 0
+                      return (
                       <tr key={request._id}>
                         <td>{request.full_name || '—'}</td>
                         <td>{request.email || '—'}</td>
@@ -523,6 +565,21 @@ function CadServiceRequestsTable() {
                           </button>
                         </td>
                         <td>
+                          {mailCount > 0 ? (
+                            <button
+                              type="button"
+                              className={styles.logsBtn}
+                              onClick={() => openMailLogs(request)}
+                              aria-label={`View ${mailCount} mail log${mailCount === 1 ? '' : 's'}`}
+                              title="View mail logs"
+                            >
+                              {mailCount} sent
+                            </button>
+                          ) : (
+                            <span className={styles.logsEmpty}>—</span>
+                          )}
+                        </td>
+                        <td>
                           <RequestStatusSelect
                             request={request}
                             isSubmitting={isSubmitting}
@@ -531,7 +588,8 @@ function CadServiceRequestsTable() {
                           />
                         </td>
                       </tr>
-                    ))
+                      )
+                    })
                   )}
                 </tbody>
               )}
@@ -583,15 +641,28 @@ function CadServiceRequestsTable() {
               </div>
 
               <div className={styles.requestCardActions}>
-                <button
-                  type="button"
-                  className={styles.viewBtn}
-                  onClick={() => setMailTarget(request)}
-                  aria-label="Send vendor mail"
-                  title="Send mail to vendors"
-                >
-                  <MailOutlineIcon fontSize="small" />
-                </button>
+                <div className={styles.requestCardActionRow}>
+                  <button
+                    type="button"
+                    className={styles.viewBtn}
+                    onClick={() => setMailTarget(request)}
+                    aria-label="Send vendor mail"
+                    title="Send mail to vendors"
+                  >
+                    <MailOutlineIcon fontSize="small" />
+                  </button>
+                  {(Number(request.vendor_mail_count) || 0) > 0 ? (
+                    <button
+                      type="button"
+                      className={styles.logsBtn}
+                      onClick={() => openMailLogs(request)}
+                      aria-label={`View ${request.vendor_mail_count} mail log${Number(request.vendor_mail_count) === 1 ? '' : 's'}`}
+                      title="View mail logs"
+                    >
+                      {request.vendor_mail_count} sent
+                    </button>
+                  ) : null}
+                </div>
                 <span className={styles.requestCardLabel}>Change status</span>
                 <RequestStatusSelect
                   request={request}
@@ -641,7 +712,9 @@ function CadServiceRequestsTable() {
                 <DetailRow label="Rejection reason" value={viewRequest.rejected_message} />
               ) : null}
             </div>
-            <VendorMailHistory logs={viewRequest.vendor_mails} />
+            {Array.isArray(viewRequest.vendor_mails) && viewRequest.vendor_mails.length > 0 ? (
+              <VendorMailHistory logs={viewRequest.vendor_mails} />
+            ) : null}
             <div className={modalStyles.modalActions}>
               <button
                 type="button"
@@ -661,6 +734,41 @@ function CadServiceRequestsTable() {
           onClose={() => setMailTarget(null)}
           onSent={() => fetchRequests(currentPage, searchTerm, statusFilter)}
         />
+      )}
+
+      {logsTarget && (
+        <div className={modalStyles.modalOverlay} onClick={() => !logsLoading && setLogsTarget(null)}>
+          <div className={styles.viewModal} onClick={(e) => e.stopPropagation()}>
+            <h3 className={modalStyles.modalTitle}>Mail logs</h3>
+            <p className={modalStyles.modalDescription}>
+              {logsTarget.request?.full_name || logsTarget.request?.email || 'Request'}
+              {logsTarget.logs?.length
+                ? ` · Sent ${logsTarget.logs.length} time${logsTarget.logs.length === 1 ? '' : 's'}`
+                : ''}
+            </p>
+            {logsLoading ? (
+              <div className={styles.logsLoading}>
+                <Loading />
+              </div>
+            ) : (
+              <VendorMailHistory
+                logs={logsTarget.logs}
+                title="Sent mail history"
+                showTitle={false}
+              />
+            )}
+            <div className={modalStyles.modalActions}>
+              <button
+                type="button"
+                className={`${modalStyles.button} ${modalStyles.cancel}`}
+                onClick={() => setLogsTarget(null)}
+                disabled={logsLoading}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {rejectTarget && (

@@ -297,6 +297,44 @@
   color: #610bee;
 }
 
+.logsBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #c4b5fd;
+  background: #f5f3ff;
+  color: #610bee;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.logsBtn:hover {
+  border-color: #610bee;
+  background: #ede9fe;
+}
+
+.logsEmpty {
+  color: #9ca3af;
+}
+
+.logsLoading {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+  margin-bottom: 12px;
+}
+
+.requestCardActionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .statusSelect {
   width: 100%;
   max-width: 180px;
@@ -470,17 +508,23 @@
   word-break: break-all;
 }
 
+.logsEmptyText {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
 .vendorMailHistory {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 20px;
-  padding-top: 4px;
-  border-top: 1px solid #e5e7eb;
 }
 
 .vendorMailHistoryTitle {
-  margin: 8px 0 0;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
   font-size: 14px;
   font-weight: 600;
   color: #111827;

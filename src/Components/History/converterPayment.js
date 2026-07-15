@@ -56,6 +56,11 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
             ? Math.round(Number(order.razorpay_amount))
             : Math.round(Number(order.amount) * 100);
 
+        const prefill = {
+          ...(order.prefill || {}),
+        };
+        if (!prefill.email && userEmail) prefill.email = userEmail;
+
         const options = {
           key: RAZORPAY_KEY_ID,
           amount: razorpayAmount,
@@ -77,7 +82,8 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
               reject(err);
             }
           },
-          prefill: userEmail ? { email: userEmail } : {},
+          prefill,
+          ...(order.notes && Object.keys(order.notes).length ? { notes: order.notes } : {}),
           theme: { color: MARATHONDETAILS.theme },
           modal: {
             ondismiss: () => reject(new Error("Payment cancelled")),

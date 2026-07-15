@@ -187,11 +187,17 @@ export async function submitTechDrawJob({
 }
 
 /** Razorpay checkout only — no job row until submit after payment. */
-export async function createTechDrawOrder(jobId) {
+export async function createTechDrawOrder(jobId, billingId) {
   assertUuid();
+  if (!billingId) {
+    throw new Error("Billing address is required before payment.");
+  }
   const { data } = await axios.post(
     `${BASE_URL}${TECHDRAW_API_BASE}/create-order`,
-    jobId ? { job_id: jobId } : {},
+    {
+      billing_id: billingId,
+      ...(jobId ? { job_id: jobId } : {}),
+    },
     { headers: userUuidHeader(), timeout: 30_000 },
   );
   return unwrap(data);

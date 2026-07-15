@@ -25,6 +25,7 @@ import {
   trackTechDrawUploadSuccess,
 } from "@/lib/techDraw/techDrawAnalytics";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
+import BillingAddress from "@/Components/CommonJsx/BillingAddress";
 import { ArrowRight, ArrowUp, Info } from "lucide-react";
 import styles from "./CadDrawingPipeline.module.css";
 
@@ -91,9 +92,12 @@ export default function CadDrawingPipelineView() {
   const [eligibility, setEligibility] = useState(null);
   const [eligibilityLoading, setEligibilityLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
+  const [openTechDrawBilling, setOpenTechDrawBilling] = useState(false);
+  const [techDrawBillingProduct, setTechDrawBillingProduct] = useState(null);
   const fileInputRef = useRef(null);
   const submitLockRef = useRef(false);
   const pendingAfterLoginRef = useRef(false);
+  const billingWaiterRef = useRef(null);
 
   const prices = getTechDrawPriceDisplay();
 
@@ -269,9 +273,26 @@ export default function CadDrawingPipelineView() {
       let jobId;
 
       if (needsPaymentNow) {
+        setUploadPhase("Enter billing details…");
+        setTechDrawBillingProduct({
+          title: "2D Technical Drawing",
+          description: file?.name || "TechDraw pipeline",
+          price: prices.base,
+          pricing: {
+            base_price: prices.base,
+            price: prices.base,
+            price_with_gst: prices.total,
+            currency: prices.currency,
+          },
+        });
+        const billingId = await new Promise((resolve, reject) => {
+          billingWaiterRef.current = { resolve, reject };
+          setOpenTechDrawBilling(true);
+        });
         setUploadPhase(`Pay ${prices.totalLabel}…`);
         const payment = await openTechDrawPayment({
           description: `2D technical drawing — ${prices.totalLabel}`,
+          billingId,
         });
         setUploadPhase("Payment received — uploading STEP file…");
         jobId = await uploadAndSubmitTechDrawJob({
@@ -338,6 +359,22 @@ export default function CadDrawingPipelineView() {
       }, 200);
     }
   }, [refreshEligibility]);
+
+  const handleTechDrawBillingSave = useCallback((_cadId, billingId) => {
+    const waiter = billingWaiterRef.current;
+    billingWaiterRef.current = null;
+    setOpenTechDrawBilling(false);
+    setTechDrawBillingProduct(null);
+    if (waiter) waiter.resolve(billingId);
+  }, []);
+
+  const handleTechDrawBillingClose = useCallback(() => {
+    const waiter = billingWaiterRef.current;
+    billingWaiterRef.current = null;
+    setOpenTechDrawBilling(false);
+    setTechDrawBillingProduct(null);
+    if (waiter) waiter.reject(new Error("Payment cancelled"));
+  }, []);
 
   return (
     <>
@@ -610,6 +647,14 @@ export default function CadDrawingPipelineView() {
       </div>
 
       {showLogin ? <UserLoginPupUp onClose={handleLoginClose} type="login" /> : null}
+      {openTechDrawBilling ? (
+        <BillingAddress
+          onClose={handleTechDrawBillingClose}
+          onSave={handleTechDrawBillingSave}
+          productDetails={techDrawBillingProduct}
+          createdFor="techdraw"
+        />
+      ) : null}
     </>
   );
 }
