@@ -27,14 +27,22 @@ export function loadRazorpayScript() {
 
 /**
  * Pay first (no DB job). Resolves with Razorpay ids for submit after upload.
- * @param {string} [jobId] — only for legacy dashboard jobs that were created before pay
+ * @param {object} opts
+ * @param {string} opts.billingId — required for chargeback / customer data on the order
+ * @param {string} [opts.description]
+ * @param {string} [opts.jobId] — only for legacy dashboard jobs that were created before pay
  */
-export function openTechDrawPayment({ description, jobId } = {}) {
+export function openTechDrawPayment({ description, jobId, billingId } = {}) {
   return new Promise((resolve, reject) => {
     (async () => {
       try {
+        if (!billingId) {
+          reject(new Error("Billing address is required before payment."));
+          return;
+        }
+
         trackTechDrawPaymentInitiated({ jobId });
-        const order = await createTechDrawOrder(jobId);
+        const order = await createTechDrawOrder(jobId, billingId);
         trackTechDrawPaymentOrderCreated({
           orderId: order.orderId,
           amount: order.razorpay_amount ?? order.amount,
@@ -92,6 +100,8 @@ export function openTechDrawPayment({ description, jobId } = {}) {
               reject(err);
             }
           },
+          prefill: order.prefill || {},
+          ...(order.notes && Object.keys(order.notes).length ? { notes: order.notes } : {}),
           theme: { color: MARATHONDETAILS.theme },
           modal: {
             ondismiss: () => {

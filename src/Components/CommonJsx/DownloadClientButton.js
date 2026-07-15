@@ -203,10 +203,13 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           }
         },
         prefill: {
-          name: billerDetails.user_name,
-          email: user.email,
-          contact: billerDetails.phone_number,
+          name: res.data.data?.prefill?.name || billerDetails.user_name,
+          email: res.data.data?.prefill?.email || user.email,
+          contact: res.data.data?.prefill?.contact || billerDetails.phone_number,
         },
+        ...(res.data.data?.notes && Object.keys(res.data.data.notes).length
+          ? { notes: res.data.data.notes }
+          : {}),
         theme: { color: MARATHONDETAILS.theme },
         modal: {
           ondismiss: () => setIsDownLoading(false)
