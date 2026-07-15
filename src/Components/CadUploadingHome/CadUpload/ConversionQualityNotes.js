@@ -4,7 +4,7 @@ import styles from './ConversionQualityNotes.module.css';
 
 const bullets = [
   <>
-    <strong>CAD → Mesh</strong> (STEP/IGES/BREP → STL/OBJ/PLY): may lose parametric features; output becomes triangles.
+    <strong>CAD → Mesh</strong> (STEP/IGES/BREP → STL/OBJ/PLY/3DM): may lose parametric features; output becomes triangles.
   </>,
   <>
     <strong>Mesh → CAD</strong> (STL/OBJ/PLY → STEP/IGES/BREP): may produce surfaces/approximations depending on engine.

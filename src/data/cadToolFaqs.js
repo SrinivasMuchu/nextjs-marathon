@@ -23,6 +23,7 @@ const FORMAT_EXTENSIONS = {
   off: '.off',
   brep: '.brp or .brep',
   brp: '.brp or .brep',
+  '3dm': '.3dm',
   dwg: '.dwg',
   dxf: '.dxf',
 };
@@ -41,6 +42,10 @@ const WHY_CONVERT_HINTS = {
   'stl-obj': 'Converting STL to OBJ can help when you need a widely supported mesh format for rendering, game engines, or visualization tools.',
   'dwg-dxf': 'DWG is AutoCAD’s native format. Converting DWG to DXF improves interoperability with other 2D CAD and CAM tools.',
   'dxf-dwg': 'Converting DXF to DWG is useful when you need a native AutoCAD file from a neutral 2D exchange format.',
+  'step-3dm': 'STEP is the standard CAD exchange format. Converting STEP to 3DM produces a Rhino-compatible mesh you can open in Rhinoceros without a STEP import plugin.',
+  '3dm-step': 'Converting 3DM to STEP helps move Rhino models into CAD/CAM and manufacturing workflows that expect STEP exchange files.',
+  'stl-3dm': 'Converting STL to 3DM lets you bring printable meshes into Rhino for surfacing, editing, and visualization.',
+  '3dm-stl': 'Converting 3DM to STL prepares Rhino models for 3D printing, slicing, and mesh-based review.',
 };
 
 function getWhyConvertAnswer(from, to) {
@@ -105,7 +110,7 @@ export const cadConverterFaqQuestions = [
   {
     question: 'What file formats are supported?',
     answer:
-      'STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), DWG (.dwg), DXF (.dxf).',
+      'STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), DWG (.dwg), DXF (.dxf).',
   },
   {
     question: 'Is Marathon OS 3D File Converter free to use?',
@@ -147,7 +152,7 @@ export const cadViewerFaqQuestions = [
   },
   {
     question: 'Which file formats are supported?',
-    answer: 'STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP.',
+    answer: 'STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP, 3DM.',
   },
   {
     question: 'Is this CAD viewer free?',

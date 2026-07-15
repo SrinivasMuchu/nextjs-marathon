@@ -325,9 +325,11 @@ export const popularCadConverterTypes = converterTypes.map((item) => {
 /** Featured conversion cards for topical authority and internal linking (each links to /tools/convert{path}) */
 export const featuredConversions = [
   { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'Convert STEP to STL for 3D printing and slicing.' },
+  { label: 'STEP to 3DM', path: '/step-to-3dm', oneLiner: 'Convert STEP to Rhino 3DM for Rhino workflows.' },
   { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'Convert IGES to STEP for manufacturing handoff.' },
   { label: 'OBJ to STL', path: '/obj-to-stl', oneLiner: 'Convert OBJ to STL for mesh workflows and 3D printing.' },
   { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'Convert STL to STEP for CAD compatibility and import.' },
+  { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Convert Rhino 3DM to STEP for CAD/CAM exchange.' },
   { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for mesh export and 3D printing.' },
   { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 2D CAD exchange.' },
   { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 2D CAD exchange.' },
@@ -343,6 +345,7 @@ export const cadViewTypes = [
   { label: 'BREP viewer', path: '/brep', oneLiner: 'Open BREP boundary representation models in the browser.' },
   { label: 'STEP viewer', path: '/step', oneLiner: 'Open STEP/STP assemblies and 3D geometry online.' },
   { label: 'STP viewer', path: '/stp', oneLiner: 'View STP (STEP) CAD files instantly—no install needed.' },
+  { label: '3DM viewer', path: '/3dm', oneLiner: 'Preview Rhino 3DM NURBS and mesh models in your browser.' },
   { label: 'BRP viewer', path: '/brp', oneLiner: 'Inspect BRP (BREP) solid models for design review.' },
   { label: 'IGS viewer', path: '/igs', oneLiner: 'Check IGS/IGES exchange files for collaboration.' },
 ];

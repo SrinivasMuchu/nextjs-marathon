@@ -12,6 +12,18 @@ const CONVERSION_TOOLS = [
     description: 'For 3D printing and rapid prototyping',
   },
   {
+    from: 'STEP',
+    to: '3DM',
+    href: '/tools/convert-step-to-3dm',
+    description: 'For Rhino / OpenNURBS workflows',
+  },
+  {
+    from: '3DM',
+    to: 'STEP',
+    href: '/tools/convert-3dm-to-step',
+    description: 'Move Rhino models into CAD/CAM',
+  },
+  {
     from: 'STL',
     to: 'STEP',
     href: '/tools/convert-stl-to-step',

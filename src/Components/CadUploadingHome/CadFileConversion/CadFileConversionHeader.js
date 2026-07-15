@@ -26,11 +26,11 @@ function CadFileConversionHeader({ convert, conversionParams }) {
             <h1 className={heroStyles.title}>Free Online 3D CAD File Converter</h1>
             <p className={heroStyles.description}>
               Convert CAD and 3D files between common engineering formats in your browser. Upload
-              securely and convert STEP, STL, IGES, OBJ, PLY, BREP, DWG and DXF files without installing
+              securely and convert STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF files without installing
               desktop CAD software.
             </p>
             <p className={heroStyles.benefitStrip}>
-              Free online converter | STEP, STL, IGES, OBJ, PLY, DWG, DXF | Up to 300 MB | Auto-delete in
+              Free online converter | STEP, STL, IGES, OBJ, PLY, 3DM, DWG, DXF | Up to 300 MB | Auto-delete in
               24 hours
             </p>
           </>

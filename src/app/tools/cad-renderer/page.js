@@ -55,6 +55,7 @@ function DesignViewContent() {
   }, [encodedTargetId, targetId, useCadViewerOutput]);
   const [status, setStatus] = useState(targetId ? "PENDING" : null);
   const [isGlbViewer, setIsGlbViewer] = useState(false);
+  const [originalFileName, setOriginalFileName] = useState("");
 
   useEffect(() => {
     if (!targetId || !useLibraryGlbCdn) return;
@@ -134,6 +135,9 @@ function DesignViewContent() {
         if (cancelled) return;
         setStatus(nextStatus);
         setIsGlbViewer(hasGlb);
+        if (response?.data?.data?.file_name) {
+          setOriginalFileName(response.data.data.file_name);
+        }
         if (nextStatus === "COMPLETED" || nextStatus === "FAILED") {
           if (intervalId) {
             clearInterval(intervalId);
@@ -192,6 +196,7 @@ function DesignViewContent() {
       glbUrl={glbUrl}
       metaUrl={metaUrl}
       cacheBust={cacheBust || targetId}
+      originalFileName={originalFileName}
     />
   );
 }

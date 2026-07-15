@@ -9,6 +9,7 @@ export const CAD_VIEWER_FORMAT_SLUGS = [
   'igs',
   'brep',
   'brp',
+  '3dm',
   'dxf',
   'dwg',
 ];
@@ -178,6 +179,22 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-brep-to-stl', label: 'BREP to STL Converter' },
       { href: '/tools/brep-file-viewer', label: 'BREP File Viewer' },
       { href: '/tools/stl-file-viewer', label: 'STL File Viewer' },
+      { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
+    ],
+  },
+  '3dm': {
+    formatName: '3DM',
+    previewPhrase: 'Rhino 3DM NURBS and mesh models',
+    supportedInputLabel: '3DM (.3dm)',
+    extensions: ['.3dm'],
+    title: '3DM File Viewer | Open Rhino 3DM Files Online | Marathon OS',
+    description:
+      'Open and inspect Rhino 3DM files online without installing Rhinoceros. Preview NURBS and mesh models securely in your browser with private uploads and 24-hour auto-delete.',
+    h1: 'Free Online 3DM File Viewer',
+    relatedTools: [
+      { href: '/tools/convert-3dm-to-step', label: '3DM to STEP Converter' },
+      { href: '/tools/convert-step-to-3dm', label: 'STEP to 3DM Converter' },
+      { href: '/tools/step-file-viewer', label: 'STEP File Viewer' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
     ],
   },
