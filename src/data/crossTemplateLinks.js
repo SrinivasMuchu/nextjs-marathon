@@ -85,6 +85,11 @@ const PRODUCT_TOOL_LINKS = {
     { label: 'Open OFF file viewer', href: '/tools/off-file-viewer' },
     { label: 'Open CAD file converter', href: '/tools/3d-cad-file-converter' },
   ],
+  '3dm': [
+    { label: 'Open 3DM file viewer', href: '/tools/3dm-file-viewer' },
+    { label: 'Convert 3DM to STEP', href: '/tools/convert-3dm-to-step' },
+    { label: 'Convert STEP to 3DM', href: '/tools/convert-step-to-3dm' },
+  ],
   dxf: [
     { label: 'Open DXF file viewer', href: '/tools/dxf-file-viewer' },
     { label: 'Convert DXF to DWG', href: '/tools/convert-dxf-to-dwg' },

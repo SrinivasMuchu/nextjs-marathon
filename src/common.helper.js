@@ -183,6 +183,7 @@ export const converterTypes = [
   { label: 'STEP to PLY', path: '/step-to-ply', oneLiner: 'Convert STEP to PLY for 3D printing and slicing.' },
   { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'Convert STEP to STL for 3D printing and slicing.' },
   { label: 'STEP to OFF', path: '/step-to-off', oneLiner: 'Convert STEP to OFF for 3D printing and slicing.' },
+  { label: 'STEP to 3DM', path: '/step-to-3dm', oneLiner: 'Convert STEP to Rhino 3DM for Rhino workflows.' },
   // { label: 'STEP to GLB', path: '/step-to-glb' },
 
   { label: 'IGES to BREP', path: '/iges-to-brep', oneLiner: 'Convert IGES to BREP for 3D printing and slicing.' },
@@ -191,6 +192,7 @@ export const converterTypes = [
   { label: 'IGES to PLY', path: '/iges-to-ply', oneLiner: 'Convert IGES to PLY for 3D printing and slicing.' },
   { label: 'IGES to STL', path: '/iges-to-stl', oneLiner: 'Convert IGES to STL for 3D printing and slicing.' },
   { label: 'IGES to OFF', path: '/iges-to-off', oneLiner: 'Convert IGES to OFF for 3D printing and slicing.' },
+  { label: 'IGES to 3DM', path: '/iges-to-3dm', oneLiner: 'Convert IGES to Rhino 3DM for Rhino workflows.' },
   // { label: 'IGES to GLB', path: '/iges-to-glb' },
 
   { label: 'OBJ to BREP', path: '/obj-to-brep', oneLiner: 'Convert OBJ to BREP for 3D printing and slicing.' },
@@ -199,6 +201,7 @@ export const converterTypes = [
   { label: 'OBJ to PLY', path: '/obj-to-ply', oneLiner: 'Convert OBJ to PLY for 3D printing and slicing.' },
   { label: 'OBJ to STL', path: '/obj-to-stl', oneLiner: 'Convert OBJ to STL for 3D printing and slicing.' },
   { label: 'OBJ to OFF', path: '/obj-to-off', oneLiner: 'Convert OBJ to OFF for 3D printing and slicing.' },
+  { label: 'OBJ to 3DM', path: '/obj-to-3dm', oneLiner: 'Convert OBJ to Rhino 3DM for Rhino workflows.' },
   // { label: 'OBJ to GLB', path: '/obj-to-glb' },
 
   { label: 'PLY to BREP', path: '/ply-to-brep', oneLiner: 'Convert PLY to BREP for 3D printing and slicing.' },
@@ -207,6 +210,7 @@ export const converterTypes = [
   { label: 'PLY to STEP', path: '/ply-to-step', oneLiner: 'Convert PLY to STEP for 3D printing and slicing.' },
   { label: 'PLY to STL', path: '/ply-to-stl', oneLiner: 'Convert PLY to STL for 3D printing and slicing.' },
   { label: 'PLY to OFF', path: '/ply-to-off', oneLiner: 'Convert PLY to OFF for 3D printing and slicing.' },
+  { label: 'PLY to 3DM', path: '/ply-to-3dm', oneLiner: 'Convert PLY to Rhino 3DM for Rhino workflows.' },
   // { label: 'PLY to GLB', path: '/ply-to-glb' },
 
   { label: 'STL to BREP', path: '/stl-to-brep', oneLiner: 'Convert STL to BREP for 3D printing and slicing.' },
@@ -215,6 +219,7 @@ export const converterTypes = [
   { label: 'STL to PLY', path: '/stl-to-ply', oneLiner: 'Convert STL to PLY for 3D printing and slicing.' },
   { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'Convert STL to STEP for 3D printing and slicing.' },
   { label: 'STL to OFF', path: '/stl-to-off', oneLiner: 'Convert STL to OFF for 3D printing and slicing.' },
+  { label: 'STL to 3DM', path: '/stl-to-3dm', oneLiner: 'Convert STL to Rhino 3DM for Rhino workflows.' },
   // { label: 'STL to GLB', path: '/stl-to-glb' },
 
   { label: 'OFF to BREP', path: '/off-to-brep', oneLiner: 'Convert OFF to BREP for 3D printing and slicing.' },
@@ -223,6 +228,7 @@ export const converterTypes = [
   { label: 'OFF to PLY', path: '/off-to-ply', oneLiner: 'Convert OFF to PLY for 3D printing and slicing.' },
   { label: 'OFF to STL', path: '/off-to-stl', oneLiner: 'Convert OFF to STL for 3D printing and slicing.' },
   { label: 'OFF to STEP', path: '/off-to-step', oneLiner: 'Convert OFF to STEP for 3D printing and slicing.' },
+  { label: 'OFF to 3DM', path: '/off-to-3dm', oneLiner: 'Convert OFF to Rhino 3DM for Rhino workflows.' },
   // { label: 'OFF to GLB', path: '/off-to-glb' },
 
   { label: 'BREP to STEP', path: '/brep-to-step', oneLiner: 'Convert BREP to STEP for 3D printing and slicing.' },
@@ -231,6 +237,16 @@ export const converterTypes = [
   { label: 'BREP to PLY', path: '/brep-to-ply', oneLiner: 'Convert BREP to PLY for 3D printing and slicing.' },
   { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for 3D printing and slicing.' },
   { label: 'BREP to OFF', path: '/brep-to-off', oneLiner: 'Convert BREP to OFF for 3D printing and slicing.' },
+  { label: 'BREP to 3DM', path: '/brep-to-3dm', oneLiner: 'Convert BREP to Rhino 3DM for Rhino workflows.' },
+
+  { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Convert Rhino 3DM to STEP for CAD/CAM exchange.' },
+  { label: '3DM to IGES', path: '/3dm-to-iges', oneLiner: 'Convert Rhino 3DM to IGES for legacy CAD exchange.' },
+  { label: '3DM to BREP', path: '/3dm-to-brep', oneLiner: 'Convert Rhino 3DM to BREP for solid workflows.' },
+  { label: '3DM to STL', path: '/3dm-to-stl', oneLiner: 'Convert Rhino 3DM to STL for 3D printing.' },
+  { label: '3DM to OBJ', path: '/3dm-to-obj', oneLiner: 'Convert Rhino 3DM to OBJ for rendering pipelines.' },
+  { label: '3DM to PLY', path: '/3dm-to-ply', oneLiner: 'Convert Rhino 3DM to PLY for mesh exchange.' },
+  { label: '3DM to OFF', path: '/3dm-to-off', oneLiner: 'Convert Rhino 3DM to OFF for mesh exchange.' },
+
   { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 3D printing and slicing.' },
   { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 3D printing and slicing.' },
 
@@ -252,20 +268,22 @@ export const popularCadConverterTypes = [
   { from: 'STEP', to: 'STL', path: '/step-to-stl', description: 'For 3D printing and rapid prototyping' },
   { from: 'STEP', to: 'IGES', path: '/step-to-iges', description: 'For cross-platform CAD exchange' },
   { from: 'STEP', to: 'OBJ', path: '/step-to-obj', description: 'For rendering and visualization' },
+  { from: 'STEP', to: '3DM', path: '/step-to-3dm', description: 'For Rhino / OpenNURBS workflows' },
   { from: 'IGES', to: 'STEP', path: '/iges-to-step', description: 'For modern CAD compatibility' },
   { from: 'IGES', to: 'STL', path: '/iges-to-stl', description: 'For 3D printing from legacy files' },
   { from: 'STL', to: 'STEP', path: '/stl-to-step', description: 'For reverse engineering workflows' },
   { from: 'OBJ', to: 'STEP', path: '/obj-to-step', description: 'For CAD editing from mesh files' },
-  { from: 'BREP', to: 'STL', path: '/brep-to-stl', description: 'For additive manufacturing' },
-  { from: 'STL', to: 'OBJ', path: '/stl-to-obj', description: 'For game engines and 3D rendering' },
+  { from: '3DM', to: 'STEP', path: '/3dm-to-step', description: 'Move Rhino models into CAD/CAM' },
 ];
 
 /** Featured conversion cards for topical authority and internal linking (each links to /tools/convert{path}) */
 export const featuredConversions = [
   { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'Convert STEP to STL for 3D printing and slicing.' },
+  { label: 'STEP to 3DM', path: '/step-to-3dm', oneLiner: 'Convert STEP to Rhino 3DM for Rhino workflows.' },
   { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'Convert IGES to STEP for manufacturing handoff.' },
   { label: 'OBJ to STL', path: '/obj-to-stl', oneLiner: 'Convert OBJ to STL for mesh workflows and 3D printing.' },
   { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'Convert STL to STEP for CAD compatibility and import.' },
+  { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Convert Rhino 3DM to STEP for CAD/CAM exchange.' },
   { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for mesh export and 3D printing.' },
   { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 2D CAD exchange.' },
   { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 2D CAD exchange.' },
@@ -281,6 +299,7 @@ export const cadViewTypes = [
   { label: 'BREP viewer', path: '/brep', oneLiner: 'Open BREP boundary representation models in the browser.' },
   { label: 'STEP viewer', path: '/step', oneLiner: 'Open STEP/STP assemblies and 3D geometry online.' },
   { label: 'STP viewer', path: '/stp', oneLiner: 'View STP (STEP) CAD files instantly—no install needed.' },
+  { label: '3DM viewer', path: '/3dm', oneLiner: 'Preview Rhino 3DM NURBS and mesh models in your browser.' },
   { label: 'BRP viewer', path: '/brp', oneLiner: 'Inspect BRP (BREP) solid models for design review.' },
   { label: 'IGS viewer', path: '/igs', oneLiner: 'Check IGS/IGES exchange files for collaboration.' },
 ];

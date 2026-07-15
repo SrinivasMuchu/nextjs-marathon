@@ -12,7 +12,8 @@ const fileFormats = [
   { name: 'PLY', extensions: '.ply' },
   { name: 'OFF', extensions: '.off' },
   { name: 'BREP', extensions: '.brp, .brep' },
-  { name: 'OBJ', extensions: '.obj' }
+  { name: 'OBJ', extensions: '.obj' },
+  { name: '3DM', extensions: '.3dm' },
 ]
 
 const toolsData = [

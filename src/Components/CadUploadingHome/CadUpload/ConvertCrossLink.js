@@ -9,7 +9,7 @@ function ConvertCrossLink() {
         <h3>Need to convert a CAD file?</h3>
         <p>
           If you need the file in another format, use Marathon OS CAD Converter to convert between
-          STEP, STL, IGES, OBJ, PLY, BREP, DWG and DXF.
+          STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF.
         </p>
         <Link href="/tools/3d-cad-file-converter" className={cadStyles['cad-conversion-button']} style={{ display: 'inline-block', marginTop: 16, textDecoration: 'none', color: 'white' }}>
           Convert 3D CAD Files →

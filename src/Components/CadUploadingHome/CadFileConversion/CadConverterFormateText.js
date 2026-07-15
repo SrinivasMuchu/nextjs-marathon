@@ -48,6 +48,11 @@ function CadConverterFormateText({ conversionParams }) {
       route: 'dxf',
       description: 'DXF is a file format used by AutoCAD, a popular CAD software application. It is a text-based file format that stores 2D and 3D design data, including geometric shapes, layers, and attributes. DXF files are widely used in the architecture, engineering, and construction industries for representing and exchanging design information.'
     },
+    {
+      label: '3DM',
+      route: '3dm',
+      description: '3DM is the native file format of Rhinoceros (Rhino), based on the openNURBS toolkit. It stores 3D geometry such as NURBS surfaces, polysurfaces, meshes, and related object data, and is widely used in industrial design, architecture, jewelry, and manufacturing pipelines.'
+    },
     // {label: 'GLB',
     //   route: 'glb',
     //   description:'Polygon File Format is a widely used file format for representing 3D data, particularly polygonal meshes, in the fields of computer graphics, 3D scanning, and point cloud data. It was originally developed to store data from 3D scanners and has since gained popularity in both academic and commercial applications due to its flexibility in handling a variety of data types.'

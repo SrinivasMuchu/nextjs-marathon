@@ -45,6 +45,12 @@ const VIEWER_TOOLS = [
     pill: 'BREP',
     description: 'Open BREP boundary representation models in the browser.',
   },
+  {
+    label: '3DM File Viewer',
+    href: '/tools/3dm-file-viewer',
+    pill: '3DM',
+    description: 'Preview Rhino 3DM NURBS and mesh models online.',
+  },
 ];
 
 function CadViewerToolLinks() {

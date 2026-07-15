@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './CadConverterSections.module.css';
 
-const FORMATS = ['STEP', 'STL', 'IGES', 'OBJ', 'PLY', 'BREP', 'DWG', 'DXF'];
+const FORMATS = ['STEP', 'STL', 'IGES', 'OBJ', 'PLY', 'BREP', '3DM', 'DWG', 'DXF'];
 
 function SupportedCadFormats() {
   return (

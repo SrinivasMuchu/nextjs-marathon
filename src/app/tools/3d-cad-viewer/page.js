@@ -5,9 +5,9 @@ import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import React from 'react';
 
 const CANONICAL_URL = 'https://marathon-os.com/tools/3d-cad-viewer';
-const TITLE = 'Free Online 3D CAD Viewer | STEP, IGES, STL, OBJ | Marathon OS';
+const TITLE = 'Free Online 3D CAD Viewer | STEP, IGES, STL, OBJ, 3DM | Marathon OS';
 const DESCRIPTION =
-  'Preview CAD & 3D model files online in seconds on Marathon OS. Upload STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP. Fast, secure, cloud-based viewer. No software required.';
+  'Preview CAD & 3D model files online in seconds on Marathon OS. Upload STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP, 3DM. Fast, secure, cloud-based viewer. No software required.';
 
 export const metadata = buildPageMetadata({
   title: TITLE,
@@ -25,7 +25,7 @@ function PartDesignViewer() {
       <ToolPageJsonLd
         name="Free Online 3D CAD Viewer"
         url={CANONICAL_URL}
-        description="Preview STEP, IGES, STL, OBJ, PLY, OFF, and BREP files online with no software installation."
+        description="Preview STEP, IGES, STL, OBJ, PLY, OFF, BREP, and 3DM files online with no software installation."
         breadcrumbLinks={[
           { label: 'Tools', href: '/tools' },
           { label: 'CAD Viewer', href: '/tools/3d-cad-viewer' },
