@@ -74,6 +74,38 @@ function DetailRow({ label, value, isLink }) {
   )
 }
 
+function VendorMailHistory({ logs = [] }) {
+  if (!Array.isArray(logs) || !logs.length) return null
+
+  const ordered = [...logs]
+
+  return (
+    <div className={styles.vendorMailHistory}>
+      <h4 className={styles.vendorMailHistoryTitle}>Vendor mail history</h4>
+      {ordered.map((log, index) => (
+        <div key={log._id || `${log.sent_at}-${index}`} className={styles.vendorMailLog}>
+          <div className={styles.vendorMailLogHeader}>
+            <span>Sent {formatDate(log.sent_at || log.createdAt)}</span>
+            <span>
+              {(log.vendor_emails || []).length} email{(log.vendor_emails || []).length === 1 ? '' : 's'}
+              {log.send_all ? ' · all active' : ''}
+            </span>
+          </div>
+          <DetailRow label="Subject" value={log.subject} />
+          <DetailRow label="Project type" value={log.content?.project_type} />
+          <DetailRow label="Model use" value={log.content?.model_use} />
+          <DetailRow label="Software" value={log.content?.software_format} />
+          <DetailRow label="Project brief" value={log.content?.requirement} />
+          <DetailRow
+            label="Vendor emails"
+            value={(log.vendor_emails || []).join('\n') || null}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function getServiceLabel(request) {
   return SERVICE_LABELS[request.what_do_you_need] || request.what_do_you_need || ''
 }
@@ -609,6 +641,7 @@ function CadServiceRequestsTable() {
                 <DetailRow label="Rejection reason" value={viewRequest.rejected_message} />
               ) : null}
             </div>
+            <VendorMailHistory logs={viewRequest.vendor_mails} />
             <div className={modalStyles.modalActions}>
               <button
                 type="button"
@@ -626,6 +659,7 @@ function CadServiceRequestsTable() {
         <CadVendorMailPopup
           request={mailTarget}
           onClose={() => setMailTarget(null)}
+          onSent={() => fetchRequests(currentPage, searchTerm, statusFilter)}
         />
       )}
 
