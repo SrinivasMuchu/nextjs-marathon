@@ -23,7 +23,7 @@ import CadFileNotifyPopUp from "@/Components/CommonJsx/CadFileNotifyPopUp";
 import { unstable_useId } from "@mui/material";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopUp";
-import { convertedFiles, sendGAtagEvent } from "@/common.helper";
+import { convertedFiles, sendClarityEvent, sendGAtagEvent } from "@/common.helper";
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
 import { Upload } from "lucide-react";
@@ -53,6 +53,12 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
   const router = useRouter();
     const [fromFormate, setFromFormate] = useState('')
+
+    // Clarity: tag sessions that land on the converter
+    useEffect(() => {
+        sendClarityEvent("converter_visit", { converter_funnel: "visit" });
+    }, []);
+
     // Debugging: Log the full pathname
     useEffect(() => {
         if (!convert) {
@@ -166,6 +172,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
             if (response.data.meta.success) {
                 if (response.data.data.status === 'COMPLETED') {
                     sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
+                    sendClarityEvent("converter_conversion_success", { converter_funnel: "converted" })
                     setUploadingMessage(response.data.data.status)
                     setBaseName(response.data.data.base_name)
                     router.push('/dashboard?cad_type=CAD_CONVERTER')
@@ -174,6 +181,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                
                 } else if (response.data.data.status === 'FAILED') {
                     sendGAtagEvent({ event_name: 'converter_conversion_failure', event_category: CAD_CONVERTER_EVENT })
+                    sendClarityEvent("converter_conversion_failure", { converter_funnel: "failed" })
                     setUploading(false)
                     setUploadingMessage(response.data.data.status)
                     toast.error(response.data.data.status)
