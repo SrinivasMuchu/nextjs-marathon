@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import SearchIcon from '@mui/icons-material/Search'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
+import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined'
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
 import { BASE_URL } from '@/config'
 import { formatDate } from '@/common.helper'
@@ -14,6 +15,14 @@ import Loading from '../CommonJsx/Loaders/Loading'
 import modalStyles from '../CommonJsx/AdminApprovalButtons.module.css'
 import styles from './CadServiceRequestsTable.module.css'
 import CadVendorMailPopup from './CadVendorMailPopup'
+import AddQuotationPopup, {
+  QuotationHistoryList,
+} from './AddQuotationPopup'
+import {
+  addCadServiceNote,
+  fetchCadServiceActivity,
+  fetchCadServiceQuotations,
+} from '@/api/adminVendorsApi'
 import {
   CAD_SERVICE_STATUSES,
   getCadServiceStatusColor,
@@ -106,6 +115,77 @@ function VendorMailHistory({ logs = [], title = 'Vendor mail history', showTitle
           />
         </div>
       ))}
+    </div>
+  )
+}
+
+const ACTIVITY_LABELS = {
+  request_created: 'Request',
+  status_changed: 'Status',
+  vendor_mail_sent: 'Email',
+  quotation_created: 'Quotation',
+  note_added: 'Note',
+}
+
+function ActivityTimeline({ activities = [] }) {
+  if (!Array.isArray(activities) || activities.length === 0) {
+    return <p className={styles.logsEmptyText}>No activity found for this request.</p>
+  }
+
+  return (
+    <div className={styles.activityTimeline}>
+      {activities.map((activity) => {
+        const vendorNames = activity.metadata?.vendor_names || []
+        const vendorEmails = activity.metadata?.vendor_emails || []
+        return (
+          <div key={activity._id} className={styles.activityItem}>
+            <span className={styles.activityDot} />
+            <div className={styles.activityCard}>
+              <div className={styles.activityHeader}>
+                <div className={styles.activityTitleRow}>
+                  <span className={styles.activityType}>
+                    {ACTIVITY_LABELS[activity.event_type] || 'Activity'}
+                  </span>
+                  <strong>{activity.title}</strong>
+                </div>
+                <span className={styles.activityDate}>
+                  {activity.createdAt ? new Date(activity.createdAt).toLocaleString() : ''}
+                </span>
+              </div>
+              {activity.from_status || activity.to_status ? (
+                <div className={styles.activityStatus}>
+                  {activity.from_status
+                    ? getCadServiceStatusLabel(activity.from_status)
+                    : 'New'}
+                  {' → '}
+                  {getCadServiceStatusLabel(activity.to_status)}
+                </div>
+              ) : null}
+              {activity.description ? (
+                <p className={styles.activityDescription}>{activity.description}</p>
+              ) : null}
+              {vendorNames.length || vendorEmails.length ? (
+                <p className={styles.activityMeta}>
+                  Vendors: {(vendorNames.length ? vendorNames : vendorEmails).join(', ')}
+                </p>
+              ) : null}
+              {activity.metadata?.subject ? (
+                <p className={styles.activityMeta}>Subject: {activity.metadata.subject}</p>
+              ) : null}
+              {activity.metadata?.attachment_count ? (
+                <p className={styles.activityMeta}>
+                  Attachments: {activity.metadata.attachment_count}
+                </p>
+              ) : null}
+              {activity.actor_admin_email || activity.actor_admin_uuid ? (
+                <p className={styles.activityActor}>
+                  By {activity.actor_admin_email || activity.actor_admin_uuid}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -230,6 +310,13 @@ function CadServiceRequestsTable() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [mailTarget, setMailTarget] = useState(null)
+  const [quotationTarget, setQuotationTarget] = useState(null)
+  const [quotesTarget, setQuotesTarget] = useState(null)
+  const [quotesLoading, setQuotesLoading] = useState(false)
+  const [activityTarget, setActivityTarget] = useState(null)
+  const [activityLoading, setActivityLoading] = useState(false)
+  const [noteText, setNoteText] = useState('')
+  const [noteSaving, setNoteSaving] = useState(false)
   const [logsTarget, setLogsTarget] = useState(null)
   const [logsLoading, setLogsLoading] = useState(false)
 
@@ -391,6 +478,85 @@ function CadServiceRequestsTable() {
     }
   }
 
+  const openQuotations = async (request) => {
+    const quotationCount = Number(request.quotation_count) || 0
+    if (quotationCount <= 0) return
+
+    setQuotesLoading(true)
+    setQuotesTarget({
+      request,
+      quotations: [],
+    })
+    try {
+      const response = await fetchCadServiceQuotations(request._id)
+      if (response?.meta?.success) {
+        setQuotesTarget({
+          request,
+          quotations: response.data?.quotations || [],
+        })
+      } else {
+        toast.error(response?.meta?.message || 'Failed to load quotations')
+        setQuotesTarget(null)
+      }
+    } catch (error) {
+      console.error('Error fetching quotations:', error)
+      toast.error('Failed to load quotations')
+      setQuotesTarget(null)
+    } finally {
+      setQuotesLoading(false)
+    }
+  }
+
+  const openActivity = async (request) => {
+    setNoteText('')
+    setActivityLoading(true)
+    setActivityTarget({ request, activities: [] })
+    try {
+      const response = await fetchCadServiceActivity(request._id)
+      if (response?.meta?.success) {
+        setActivityTarget({
+          request,
+          activities: response.data?.activities || [],
+        })
+      } else {
+        toast.error(response?.meta?.message || 'Failed to load activity logs')
+        setActivityTarget(null)
+      }
+    } catch (error) {
+      console.error('Error fetching activity logs:', error)
+      toast.error('Failed to load activity logs')
+      setActivityTarget(null)
+    } finally {
+      setActivityLoading(false)
+    }
+  }
+
+  const handleAddNote = async () => {
+    const trimmedNote = noteText.trim()
+    if (!trimmedNote || !activityTarget?.request?._id) return
+
+    setNoteSaving(true)
+    try {
+      const response = await addCadServiceNote(activityTarget.request._id, trimmedNote)
+      if (!response?.meta?.success) {
+        throw new Error(response?.meta?.message || 'Failed to add note')
+      }
+
+      setActivityTarget((current) => ({
+        ...current,
+        activities: [response.data.activity, ...(current?.activities || [])],
+      }))
+      setNoteText('')
+      toast.success(response.meta.message || 'Note added')
+      refreshList()
+    } catch (error) {
+      console.error('Error adding request note:', error)
+      toast.error(error.response?.data?.meta?.message || error.message || 'Failed to add note')
+    } finally {
+      setNoteSaving(false)
+    }
+  }
+
   const getFilterCount = (filterValue) => {
     if (filterValue === 'all') return totalCount
     return statusCounts[filterValue] || 0
@@ -509,14 +675,16 @@ function CadServiceRequestsTable() {
                   <th>Submitted</th>
                   <th>View</th>
                   <th>Send mail</th>
-                  <th>Logs</th>
+                  <th>Add quote</th>
+                  <th>Quotations</th>
+                  <th>Activity logs</th>
                   <th>Change status</th>
                 </tr>
               </thead>
               {isLoading ? (
                 <tbody>
                   <tr>
-                    <td colSpan={9} className={styles.emptyCell}>
+                    <td colSpan={11} className={styles.emptyCell}>
                       <Loading />
                     </td>
                   </tr>
@@ -525,13 +693,14 @@ function CadServiceRequestsTable() {
                 <tbody>
                   {requests.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className={styles.emptyCell}>
+                      <td colSpan={11} className={styles.emptyCell}>
                         No CAD service requests found
                       </td>
                     </tr>
                   ) : (
                     requests.map((request) => {
-                      const mailCount = Number(request.vendor_mail_count) || 0
+                      const quotationCount = Number(request.quotation_count) || 0
+                      const activityCount = Number(request.activity_count) || 0
                       return (
                       <tr key={request._id}>
                         <td>{request.full_name || '—'}</td>
@@ -565,19 +734,41 @@ function CadServiceRequestsTable() {
                           </button>
                         </td>
                         <td>
-                          {mailCount > 0 ? (
+                          <button
+                            type="button"
+                            className={styles.viewBtn}
+                            onClick={() => setQuotationTarget(request)}
+                            aria-label="Add quotation"
+                            title="Add quotation"
+                          >
+                            <RequestQuoteOutlinedIcon fontSize="small" />
+                          </button>
+                        </td>
+                        <td>
+                          {quotationCount > 0 ? (
                             <button
                               type="button"
                               className={styles.logsBtn}
-                              onClick={() => openMailLogs(request)}
-                              aria-label={`View ${mailCount} mail log${mailCount === 1 ? '' : 's'}`}
-                              title="View mail logs"
+                              onClick={() => openQuotations(request)}
+                              aria-label={`View ${quotationCount} quotation${quotationCount === 1 ? '' : 's'}`}
+                              title="View quotations"
                             >
-                              {mailCount} sent
+                              {quotationCount} saved
                             </button>
                           ) : (
                             <span className={styles.logsEmpty}>—</span>
                           )}
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className={styles.logsBtn}
+                            onClick={() => openActivity(request)}
+                            aria-label="View request activity"
+                            title="View all activity"
+                          >
+                            {activityCount > 0 ? `${activityCount} events` : 'View'}
+                          </button>
                         </td>
                         <td>
                           <RequestStatusSelect
@@ -651,17 +842,37 @@ function CadServiceRequestsTable() {
                   >
                     <MailOutlineIcon fontSize="small" />
                   </button>
-                  {(Number(request.vendor_mail_count) || 0) > 0 ? (
+                  <button
+                    type="button"
+                    className={styles.viewBtn}
+                    onClick={() => setQuotationTarget(request)}
+                    aria-label="Add quotation"
+                    title="Add quotation"
+                  >
+                    <RequestQuoteOutlinedIcon fontSize="small" />
+                  </button>
+                  {(Number(request.quotation_count) || 0) > 0 ? (
                     <button
                       type="button"
                       className={styles.logsBtn}
-                      onClick={() => openMailLogs(request)}
-                      aria-label={`View ${request.vendor_mail_count} mail log${Number(request.vendor_mail_count) === 1 ? '' : 's'}`}
-                      title="View mail logs"
+                      onClick={() => openQuotations(request)}
+                      aria-label={`View ${request.quotation_count} quotation${Number(request.quotation_count) === 1 ? '' : 's'}`}
+                      title="View quotations"
                     >
-                      {request.vendor_mail_count} sent
+                      {request.quotation_count} saved
                     </button>
                   ) : null}
+                  <button
+                    type="button"
+                    className={styles.logsBtn}
+                    onClick={() => openActivity(request)}
+                    aria-label="View request activity"
+                    title="View all activity"
+                  >
+                    {(Number(request.activity_count) || 0) > 0
+                      ? `${request.activity_count} events`
+                      : 'Activity'}
+                  </button>
                 </div>
                 <span className={styles.requestCardLabel}>Change status</span>
                 <RequestStatusSelect
@@ -715,6 +926,18 @@ function CadServiceRequestsTable() {
             {Array.isArray(viewRequest.vendor_mails) && viewRequest.vendor_mails.length > 0 ? (
               <VendorMailHistory logs={viewRequest.vendor_mails} />
             ) : null}
+            {Array.isArray(viewRequest.quotations) && viewRequest.quotations.length > 0 ? (
+              <div className={styles.vendorMailHistory}>
+                <h4 className={styles.vendorMailHistoryTitle}>Quotations</h4>
+                <QuotationHistoryList quotations={viewRequest.quotations} />
+              </div>
+            ) : null}
+            {Array.isArray(viewRequest.activity_logs) && viewRequest.activity_logs.length > 0 ? (
+              <div className={styles.vendorMailHistory}>
+                <h4 className={styles.vendorMailHistoryTitle}>Activity</h4>
+                <ActivityTimeline activities={viewRequest.activity_logs} />
+              </div>
+            ) : null}
             <div className={modalStyles.modalActions}>
               <button
                 type="button"
@@ -734,6 +957,110 @@ function CadServiceRequestsTable() {
           onClose={() => setMailTarget(null)}
           onSent={() => fetchRequests(currentPage, searchTerm, statusFilter)}
         />
+      )}
+
+      {quotationTarget && (
+        <AddQuotationPopup
+          request={quotationTarget}
+          onClose={() => setQuotationTarget(null)}
+          onSaved={() => fetchRequests(currentPage, searchTerm, statusFilter)}
+        />
+      )}
+
+      {quotesTarget && (
+        <div className={modalStyles.modalOverlay} onClick={() => !quotesLoading && setQuotesTarget(null)}>
+          <div className={styles.viewModal} onClick={(e) => e.stopPropagation()}>
+            <h3 className={modalStyles.modalTitle}>Quotations</h3>
+            <p className={modalStyles.modalDescription}>
+              {quotesTarget.request?.full_name || quotesTarget.request?.email || 'Request'}
+              {quotesTarget.quotations?.length
+                ? ` · ${quotesTarget.quotations.length} quotation${quotesTarget.quotations.length === 1 ? '' : 's'}`
+                : ''}
+            </p>
+            {quotesLoading ? (
+              <div className={styles.logsLoading}>
+                <Loading />
+              </div>
+            ) : (
+              <QuotationHistoryList quotations={quotesTarget.quotations} />
+            )}
+            <div className={modalStyles.modalActions}>
+              <button
+                type="button"
+                className={`${modalStyles.button} ${modalStyles.cancel}`}
+                onClick={() => setQuotesTarget(null)}
+                disabled={quotesLoading}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activityTarget && (
+        <div
+          className={modalStyles.modalOverlay}
+          onClick={() => !activityLoading && !noteSaving && setActivityTarget(null)}
+        >
+          <div className={styles.viewModal} onClick={(event) => event.stopPropagation()}>
+            <h3 className={modalStyles.modalTitle}>Activity logs</h3>
+            <p className={modalStyles.modalDescription}>
+              {activityTarget.request?.full_name || activityTarget.request?.email || 'Request'}
+              {activityTarget.activities?.length
+                ? ` · ${activityTarget.activities.length} event${activityTarget.activities.length === 1 ? '' : 's'}`
+                : ''}
+            </p>
+            <div className={styles.noteComposer}>
+              <label className={styles.noteLabel} htmlFor="cad-request-note">
+                Add comment / note
+              </label>
+              <textarea
+                id="cad-request-note"
+                className={modalStyles.textarea}
+                value={noteText}
+                onChange={(event) => setNoteText(event.target.value)}
+                placeholder="Write an internal note about this request..."
+                maxLength={2000}
+                rows={3}
+                disabled={noteSaving}
+              />
+              <div className={styles.noteFooter}>
+                <span className={modalStyles.characterCount}>
+                  {noteText.length}/2000
+                </span>
+                <button
+                  type="button"
+                  className={`${modalStyles.button} ${styles.addNoteBtn}`}
+                  onClick={handleAddNote}
+                  disabled={noteSaving || !noteText.trim()}
+                >
+                  {noteSaving ? 'Adding...' : 'Add note'}
+                </button>
+              </div>
+            </div>
+            {activityLoading ? (
+              <div className={styles.logsLoading}>
+                <Loading />
+              </div>
+            ) : (
+              <ActivityTimeline activities={activityTarget.activities} />
+            )}
+            <div className={modalStyles.modalActions}>
+              <button
+                type="button"
+                className={`${modalStyles.button} ${modalStyles.cancel}`}
+                onClick={() => {
+                  setActivityTarget(null)
+                  setNoteText('')
+                }}
+                disabled={activityLoading || noteSaving}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {logsTarget && (

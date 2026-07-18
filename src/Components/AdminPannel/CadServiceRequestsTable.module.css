@@ -550,6 +550,150 @@
   color: #4b5563;
 }
 
+.activityTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 8px 0 20px;
+}
+
+.activityItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  padding-bottom: 14px;
+}
+
+.activityItem:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 13px;
+  bottom: -1px;
+  width: 2px;
+  background: #e5e7eb;
+}
+
+.activityDot {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #610bee;
+  border: 3px solid #f3e8ff;
+  box-sizing: border-box;
+}
+
+.activityCard {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.activityHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.activityTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 14px;
+  color: #111827;
+}
+
+.activityType {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #ede9fe;
+  color: #6d28d9;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.activityDate {
+  flex-shrink: 0;
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.activityStatus {
+  margin-top: 7px;
+  color: #610bee;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.activityDescription,
+.activityMeta,
+.activityActor {
+  margin: 6px 0 0;
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.activityMeta {
+  color: #374151;
+}
+
+.activityActor {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.noteComposer {
+  margin-bottom: 18px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.noteLabel {
+  display: block;
+  margin-bottom: 7px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.noteFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.noteFooter > span {
+  margin: 0;
+}
+
+.addNoteBtn {
+  flex: 0 0 auto;
+  min-width: 110px;
+  background: #610bee;
+  border-color: #610bee;
+}
+
+.addNoteBtn:hover:not(:disabled) {
+  background: #4f09c7;
+  border-color: #4f09c7;
+}
+
 @media (max-width: 900px) {
   .sectionHeader {
     flex-direction: column;
@@ -571,6 +715,11 @@
 }
 
 @media (max-width: 768px) {
+  .activityHeader {
+    flex-direction: column;
+    gap: 5px;
+  }
+
   .sectionTitle {
     font-size: 18px;
   }

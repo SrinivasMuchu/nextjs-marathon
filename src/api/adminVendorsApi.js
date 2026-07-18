@@ -92,3 +92,76 @@ export async function sendCadVendorMail(payload) {
   )
   return response.data
 }
+
+export async function fetchCadServiceQuotations(requestId, vendorId) {
+  const params = { request_id: requestId }
+  if (vendorId) params.vendor_id = vendorId
+
+  const response = await axios.get(`${ADMIN_VENDORS_BASE}/cad-service-quotations`, {
+    params,
+    headers: adminHeaders(),
+  })
+  return response.data
+}
+
+export async function getQuotationPresignedUrl({ file, filesize, content_type, request_id }) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/get-quotation-presigned-url`,
+    { file, filesize, content_type, request_id },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
+export async function uploadQuotationFile(file, requestId, signal) {
+  const presigned = await getQuotationPresignedUrl({
+    file: file.name,
+    filesize: file.size,
+    content_type: file.type || 'application/octet-stream',
+    request_id: requestId,
+  })
+
+  if (!presigned?.meta?.success || !presigned?.data?.url) {
+    throw new Error(presigned?.meta?.message || 'Failed to get quotation upload URL')
+  }
+
+  const { url, key, file_url, content_type } = presigned.data
+  await axios.put(url, file, {
+    headers: { 'Content-Type': content_type || file.type || 'application/octet-stream' },
+    signal,
+  })
+
+  return {
+    name: file.name,
+    type: content_type || file.type || 'application/octet-stream',
+    size: file.size,
+    key,
+    url: file_url,
+  }
+}
+
+export async function createCadServiceQuotation(payload) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/cad-service-quotations`,
+    { action: 'create', ...payload },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
+export async function fetchCadServiceActivity(requestId) {
+  const response = await axios.get(`${ADMIN_VENDORS_BASE}/cad-service-activity`, {
+    params: { request_id: requestId },
+    headers: adminHeaders(),
+  })
+  return response.data
+}
+
+export async function addCadServiceNote(requestId, note) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/cad-service-activity`,
+    { request_id: requestId, note },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
