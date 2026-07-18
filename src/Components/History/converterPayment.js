@@ -4,6 +4,7 @@ import {
   formatConverterPrice,
   verifyConverterDownloadPayment,
 } from "@/api/converterPaymentApi";
+import { sendClarityEvent } from "@/common.helper";
 import { MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
 
 export function loadRazorpayScript() {
@@ -61,6 +62,8 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
         };
         if (!prefill.email && userEmail) prefill.email = userEmail;
 
+        sendClarityEvent("converter_payment_opened", { converter_funnel: "payment_opened" });
+
         const options = {
           key: RAZORPAY_KEY_ID,
           amount: razorpayAmount,
@@ -77,8 +80,10 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
               });
+              sendClarityEvent("converter_payment_success", { converter_funnel: "paid" });
               resolve({ free: false, paid: true });
             } catch (err) {
+              sendClarityEvent("converter_payment_failed", { converter_funnel: "payment_failed" });
               reject(err);
             }
           },
@@ -86,7 +91,10 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
           ...(order.notes && Object.keys(order.notes).length ? { notes: order.notes } : {}),
           theme: { color: MARATHONDETAILS.theme },
           modal: {
-            ondismiss: () => reject(new Error("Payment cancelled")),
+            ondismiss: () => {
+              sendClarityEvent("converter_payment_cancelled", { converter_funnel: "payment_cancelled" });
+              reject(new Error("Payment cancelled"));
+            },
           },
         };
 

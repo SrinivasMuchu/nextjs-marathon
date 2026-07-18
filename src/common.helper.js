@@ -43,6 +43,24 @@ export function sendGAtagEvent(eventData) {
   window.gtag("event", event_name, eventParams);
 }
 
+/**
+ * Microsoft Clarity custom event (+ optional session tags for filtering).
+ * Events show under Clarity → Filters → Custom events / Custom tags.
+ */
+export function sendClarityEvent(eventName, tags) {
+  if (typeof window === "undefined" || typeof window.clarity !== "function" || !eventName) {
+    return;
+  }
+  window.clarity("event", eventName);
+  if (tags && typeof tags === "object") {
+    Object.entries(tags).forEach(([key, value]) => {
+      if (key && value != null) {
+        window.clarity("set", key, String(value));
+      }
+    });
+  }
+}
+
 export function formatDate(dateString) {
   const date = new Date(dateString);
   const options = { day: 'numeric', month: 'short', year: 'numeric' };
