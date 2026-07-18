@@ -12,17 +12,27 @@ import Link from 'next/link';
 import {
   buildConverterPricingDisplay,
   fetchConverterPricingInfo,
+  CONVERTER_FREE_SIZE_LIMIT_BYTES,
 } from '@/lib/converterPricing';
 
-function DashboardPricingCell({ converterPricing }) {
-  if (!converterPricing || converterPricing.is_free) {
+function DashboardPricingCell({ converterPricing, inputFileSizeBytes }) {
+  const size = Number(inputFileSizeBytes);
+  const isLargeFile = Number.isFinite(size) && size >= CONVERTER_FREE_SIZE_LIMIT_BYTES;
+
+  // 1) The user has actually paid for this file -> show "Paid".
+  if (converterPricing?.paid) {
+    return <span className={styles.converterPriceBadgePaid}>Paid</span>;
+  }
+
+  // 2) Free download (sample file, under the size limit, or globally free).
+  const isFree = converterPricing?.is_free ? true : !isLargeFile;
+  if (isFree) {
     return <span className={styles.converterPriceBadgeFree}>Free</span>;
   }
 
-  const display = buildConverterPricingDisplay(converterPricing);
-  return (
-    <span className={styles.converterPriceTotal}>{display.totalLabel}</span>
-  );
+  // 3) Payment required but not paid yet -> show the price, NOT "Paid".
+  const priceLabel = buildConverterPricingDisplay(converterPricing).totalLabel;
+  return <span className={styles.converterPriceBadgePayable}>{priceLabel}</span>;
 }
 
 function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownload,searchTerm, setSearchTerm}) {
@@ -169,7 +179,10 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                                 {formatFileSize(file.input_file_size_bytes)}
                               </td>
                               <td data-label="Pricing">
-                                <DashboardPricingCell converterPricing={file.converter_pricing} />
+                                <DashboardPricingCell
+                                  converterPricing={file.converter_pricing}
+                                  inputFileSizeBytes={file.input_file_size_bytes}
+                                />
                               </td>
                               <td data-label="Status">
                                 <FileStatus status={file.status} />

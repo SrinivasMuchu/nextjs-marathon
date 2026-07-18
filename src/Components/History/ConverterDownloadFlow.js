@@ -99,7 +99,6 @@ function ConverterDownloadFlow({
     Promise.allSettled([
       axios.get(`${BASE_URL}/v1/payment/get-billing`, {
         headers,
-        params: { created_for: "converter" },
       }),
       axios.get(`${BASE_URL}/v1/payment/countries`),
     ]).then(([addressResponse, countryResponse]) => {
@@ -140,6 +139,22 @@ function ConverterDownloadFlow({
     setError("");
   };
 
+  const openBillingForm = () => {
+    if (selectedAddress) {
+      setForm({
+        fullName: selectedAddress.name || user?.name || "",
+        address: [selectedAddress.street_address, selectedAddress.appartment_address]
+          .filter(Boolean)
+          .join(", "),
+        city: selectedAddress.city || "",
+        postalCode: selectedAddress.postal_code || "",
+        country: selectedAddress.country || "",
+      });
+    }
+    setError("");
+    setStep("billing");
+  };
+
   const saveBillingAddress = async (event) => {
     event.preventDefault();
     if (!form.fullName.trim() || !form.address.trim() || !form.city.trim() ||
@@ -172,9 +187,25 @@ function ConverterDownloadFlow({
         throw new Error(response?.data?.meta?.message || "Could not save your billing address.");
       }
 
-      const saved = response.data.data;
-      setSelectedAddress(saved);
-      setAddresses((current) => [saved, ...current.filter((item) => item._id !== saved._id)]);
+      const savedData = response.data.data || {};
+      const mergedAddress = {
+        ...(selectedAddress || {}),
+        name: form.fullName.trim(),
+        street_address: form.address.trim(),
+        appartment_address: "",
+        city: form.city.trim(),
+        state: selectedAddress?.state || "",
+        postal_code: form.postalCode.trim(),
+        country: form.country,
+        phone: selectedAddress?.phone || "",
+        ...savedData,
+        _id: savedData._id || selectedAddress?._id,
+      };
+      setSelectedAddress(mergedAddress);
+      setAddresses((current) => [
+        mergedAddress,
+        ...current.filter((item) => item._id !== mergedAddress._id),
+      ]);
       setStep("review");
     } catch (saveError) {
       setError(
@@ -326,7 +357,7 @@ function ConverterDownloadFlow({
 
         <div className={styles.billingHeading}>
           <span>Billing for your tax invoice</span>
-          <button type="button" onClick={() => setStep("billing")}>Change</button>
+          <button type="button" onClick={openBillingForm}>Change</button>
         </div>
         <div className={styles.selectedAddress}>
           <span>✓</span>

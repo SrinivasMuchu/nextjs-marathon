@@ -567,7 +567,15 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                <CubeLoader uploadingMessage={uploadingMessage} type='convert' uploadProgressPercent={uploadProgressPercent ?? undefined} />
+                <CubeLoader
+                    uploadingMessage={uploadingMessage}
+                    type='convert'
+                    uploadProgressPercent={uploadProgressPercent ?? undefined}
+                    fileName={fileConvert?.name}
+                    outputFormat={selectedFileFormate}
+                    fileSize={fileConvert?.size}
+                    isSampleFile={isSampleFile}
+                />
             </div> :
         <>
            

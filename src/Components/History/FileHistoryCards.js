@@ -248,15 +248,14 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     const { file, index } = pending;
     setDownloading(prev => ({ ...prev, [index]: true }));
 
+    let paymentResult;
     try {
-      const paymentResult = await ensureConverterDownloadAccess({
+      paymentResult = await ensureConverterDownloadAccess({
         converterFileId: file._id,
         fileName: file.file_name,
         userEmail: user.email,
         billingId,
       });
-      await performConverterFileDownload(file, index);
-      return paymentResult;
     } catch (payErr) {
       if (payErr?.message === 'Payment cancelled') {
         toast.info('Payment cancelled.');
@@ -264,6 +263,17 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       setDownloading(prev => ({ ...prev, [index]: false }));
       throw payErr;
     }
+
+    // Payment is done — kick off the download in the background (do NOT await it)
+    // so the payment-success popup shows immediately instead of staying on the
+    // "Download your file" screen until the file finishes downloading.
+    performConverterFileDownload(file, index).catch((downloadErr) => {
+      console.error('Converter download after payment failed:', downloadErr);
+      toast.error('Payment successful. Your download will retry — use "Download again".');
+      setDownloading(prev => ({ ...prev, [index]: false }));
+    });
+
+    return paymentResult;
   };
 
   const closeConverterDownloadFlow = () => {
