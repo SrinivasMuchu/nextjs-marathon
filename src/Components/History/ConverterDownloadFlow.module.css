@@ -1,0 +1,383 @@
+.modal {
+  position: relative;
+  width: min(590px, calc(100vw - 32px));
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 34px 32px 28px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(19, 16, 32, 0.28);
+  color: #181622;
+  font-family: "Instrument Sans", "Segoe UI", sans-serif;
+}
+
+.modal h2 {
+  margin: 0 0 3px;
+  font-size: 25px;
+  line-height: 1.2;
+  font-weight: 750;
+}
+
+.subtitle {
+  margin: 0 0 22px;
+  color: #8a8791;
+  font-size: 15px;
+}
+
+.closeButton {
+  position: absolute;
+  z-index: 2;
+  top: 24px;
+  right: 26px;
+  border: 0;
+  background: transparent;
+  color: #aaa8af;
+  cursor: pointer;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.closeButton:hover {
+  color: #5e5b65;
+}
+
+.fileSummary {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 78px;
+  margin: 10px 0 24px;
+  padding: 0 18px;
+  border: 1px solid #eceaf0;
+  border-radius: 14px;
+  background: #faf9fd;
+  box-sizing: border-box;
+}
+
+.fileSummaryCompact {
+  min-height: 84px;
+  margin-top: 28px;
+}
+
+.fileType {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 11px;
+  background: #f2edff;
+  color: #6d24d9;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.fileDetails {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fileDetails strong {
+  overflow: hidden;
+  color: #25222c;
+  font-size: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileDetails span {
+  overflow: hidden;
+  color: #93909a;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.price {
+  color: #16131c;
+  font-size: 18px;
+}
+
+.billingHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 10px;
+}
+
+.billingHeading span {
+  color: #716e77;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.billingHeading button,
+.successLinks button,
+.successLinks a {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #6823bb;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+}
+
+.selectedAddress {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  border: 1px solid #e6e3e9;
+  border-radius: 10px;
+}
+
+.selectedAddress span {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 5px;
+  background: #7124d9;
+  color: #fff;
+  font-size: 15px;
+}
+
+.selectedAddress p {
+  margin: 0;
+  overflow: hidden;
+  color: #5f5b65;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.savedNote {
+  margin: 9px 0 22px;
+  color: #aaa7af;
+  font-size: 12px;
+}
+
+.primaryButton {
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(90deg, #7323dc, #6715df);
+  color: #fff;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 700;
+  transition: filter 0.2s, transform 0.2s;
+}
+
+.primaryButton:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.paymentTrust {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 25px;
+  color: #99969f;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.paymentTrust strong {
+  color: #4f4b55;
+}
+
+.billingModal {
+  width: min(690px, calc(100vw - 32px));
+}
+
+.billingForm {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.billingForm label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #3c3942;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.billingForm input,
+.billingForm select {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid #ddd9e1;
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+  box-sizing: border-box;
+  color: #2e2b34;
+  font: inherit;
+  font-weight: 400;
+}
+
+.billingForm input:focus,
+.billingForm select:focus {
+  border-color: #7124d9;
+  box-shadow: 0 0 0 3px rgba(113, 36, 217, 0.12);
+}
+
+.billingForm label small {
+  color: #aaa7af;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.billingGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.85fr 0.9fr;
+  gap: 14px;
+}
+
+.secureNote {
+  display: block;
+  margin-top: 22px;
+  color: #aaa7af;
+  text-align: center;
+}
+
+.error {
+  margin: -4px 0 10px;
+  color: #c72e45;
+  font-size: 13px;
+}
+
+.successModal {
+  width: min(530px, calc(100vw - 32px));
+  padding: 38px 30px 28px;
+  text-align: center;
+}
+
+.successIcon {
+  display: grid;
+  width: 66px;
+  height: 66px;
+  margin: 0 auto 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e2faec;
+  color: #16a665;
+  font-size: 37px;
+  font-weight: 300;
+}
+
+.successModal h2 {
+  margin-bottom: 8px;
+  font-size: 22px;
+}
+
+.successModal p {
+  margin: 2px 0;
+  color: #8f8c95;
+  font-size: 13px;
+}
+
+.successModal .primaryButton {
+  min-height: 49px;
+  margin-top: 22px;
+  font-size: 15px;
+}
+
+.successLinks {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 17px 0;
+  font-size: 13px;
+}
+
+.successModal > small {
+  color: #b0adb5;
+  font-size: 11px;
+}
+
+.loadingModal {
+  display: grid;
+  min-height: 180px;
+  place-items: center;
+}
+
+.spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid #eee9f4;
+  border-top-color: #7124d9;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 620px) {
+  .modal {
+    padding: 28px 20px 22px;
+    border-radius: 16px;
+  }
+
+  .modal h2 {
+    padding-right: 30px;
+    font-size: 22px;
+  }
+
+  .closeButton {
+    top: 20px;
+    right: 18px;
+  }
+
+  .fileSummary {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .fileType {
+    width: 42px;
+    height: 42px;
+  }
+
+  .fileDetails strong {
+    font-size: 14px;
+  }
+
+  .price {
+    font-size: 15px;
+  }
+
+  .billingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .paymentTrust {
+    gap: 8px;
+    font-size: 10px;
+  }
+}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { BASE_URL, buildCadConverterOutputUrl, CAD_CONVERTER_EVENT } from '@/config';
 import styles from './FileHistory.module.css';
@@ -18,7 +18,7 @@ import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 import { toast } from 'react-toastify';
 import { checkConverterDownload } from '@/api/converterPaymentApi';
 import { ensureConverterDownloadAccess } from './converterPayment';
-import BillingAddress from '../CommonJsx/BillingAddress';
+import ConverterDownloadFlow from './ConverterDownloadFlow';
 
 let cachedCadHistory = {};
 
@@ -40,7 +40,6 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   const [openConverterBilling, setOpenConverterBilling] = useState(false);
   const [pendingConverterDownload, setPendingConverterDownload] = useState(null);
   const [converterBillingDetails, setConverterBillingDetails] = useState(null);
-  const converterBillingCompletedRef = useRef(false);
   // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
   const { user,cadDetailsUpdate } = useContext(contextState);
@@ -238,37 +237,54 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     setDownloading(prev => ({ ...prev, [index]: false }));
   };
 
-  const handleConverterBillingComplete = async (converterFileId, billingId) => {
+  const handleConverterPayment = async (billingId) => {
     const pending = pendingConverterDownload;
-    if (!pending) return;
+    if (!pending) throw new Error('No converter download is selected.');
 
     sendClarityEvent("converter_billing_address_completed", {
       converter_funnel: "billing_completed",
     });
-    converterBillingCompletedRef.current = true;
 
     const { file, index } = pending;
-    setOpenConverterBilling(false);
     setDownloading(prev => ({ ...prev, [index]: true }));
 
     try {
-      await ensureConverterDownloadAccess({
-        converterFileId,
+      const paymentResult = await ensureConverterDownloadAccess({
+        converterFileId: file._id,
         fileName: file.file_name,
         userEmail: user.email,
         billingId,
       });
       await performConverterFileDownload(file, index);
+      return paymentResult;
     } catch (payErr) {
       if (payErr?.message === 'Payment cancelled') {
         toast.info('Payment cancelled.');
-      } else {
-        toast.error(payErr?.message || 'Payment required to download this file.');
       }
       setDownloading(prev => ({ ...prev, [index]: false }));
-    } finally {
-      setPendingConverterDownload(null);
-      setConverterBillingDetails(null);
+      throw payErr;
+    }
+  };
+
+  const closeConverterDownloadFlow = () => {
+    sendClarityEvent("converter_billing_address_closed", {
+      converter_funnel: "billing_closed",
+    });
+    setOpenConverterBilling(false);
+    setPendingConverterDownload(null);
+    setConverterBillingDetails(null);
+  };
+
+  const downloadConverterFileAgain = async () => {
+    const pending = pendingConverterDownload;
+    if (!pending) return;
+    const { file, index } = pending;
+    setDownloading(prev => ({ ...prev, [index]: true }));
+    try {
+      await performConverterFileDownload(file, index);
+    } catch (error) {
+      toast.error(error?.message || 'Download failed. Please try again.');
+      setDownloading(prev => ({ ...prev, [index]: false }));
     }
   };
 
@@ -394,22 +410,16 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         <PublishCadPopUp onClose={() => setPublishCadPopUp(false)} editedDetails={editDetails} />
       </div>}
       {openConverterBilling && pendingConverterDownload && (
-        <BillingAddress
-          onClose={() => {
-            if (!converterBillingCompletedRef.current) {
-              sendClarityEvent("converter_billing_address_closed", {
-                converter_funnel: "billing_closed",
-              });
-            }
-            converterBillingCompletedRef.current = false;
-            setOpenConverterBilling(false);
-            setPendingConverterDownload(null);
-            setConverterBillingDetails(null);
+        <ConverterDownloadFlow
+          file={pendingConverterDownload.file}
+          pricing={converterBillingDetails?.pricing || {
+            price: converterBillingDetails?.price,
+            currency: 'USD',
           }}
-          onSave={handleConverterBillingComplete}
-          cadId={pendingConverterDownload.file._id}
-          productDetails={converterBillingDetails}
-          createdFor="converter"
+          user={user}
+          onClose={closeConverterDownloadFlow}
+          onPay={handleConverterPayment}
+          onDownloadAgain={downloadConverterFileAgain}
         />
       )}
     </>

@@ -74,14 +74,20 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
           order_id: order.orderId,
           handler: async (response) => {
             try {
-              await verifyConverterDownloadPayment({
+              const verification = await verifyConverterDownloadPayment({
                 converter_file_id: converterFileId,
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
               });
               sendClarityEvent("converter_payment_success", { converter_funnel: "paid" });
-              resolve({ free: false, paid: true });
+              resolve({
+                free: false,
+                paid: true,
+                paymentId: response.razorpay_payment_id,
+                orderId: response.razorpay_order_id,
+                verification,
+              });
             } catch (err) {
               sendClarityEvent("converter_payment_failed", { converter_funnel: "payment_failed" });
               reject(err);
