@@ -30,7 +30,7 @@ const VIEWER_GRID_ICONS = {
   monitorSmartphone: MonitorSmartphone,
 };
 
-function CoreBenefits({ benefits, title, variant }) {
+function CoreBenefits({ benefits, title, variant, eyebrow, description }) {
   if (!benefits?.length) return null;
 
   if (variant === 'viewerGrid') {
@@ -62,9 +62,13 @@ function CoreBenefits({ benefits, title, variant }) {
   if (variant === 'cardGrid') {
     return (
       <section className={styles.cardGridSection} aria-labelledby="core-benefits-heading">
-        <h2 id="core-benefits-heading" className={styles.cardGridHeading}>
-          {title}
-        </h2>
+        <div className={styles.cardGridHeader}>
+          {eyebrow ? <p className={styles.cardGridEyebrow}>{eyebrow}</p> : null}
+          <h2 id="core-benefits-heading" className={styles.cardGridHeading}>
+            {title}
+          </h2>
+          {description ? <p className={styles.cardGridDescription}>{description}</p> : null}
+        </div>
         <div className={styles.cardGrid}>
           {benefits.map((item, index) => {
             const Icon = (item.icon && CARD_GRID_ICONS[item.icon]) || Zap;
@@ -73,6 +77,7 @@ function CoreBenefits({ benefits, title, variant }) {
                 <div className={styles.benefitCardIconBox} aria-hidden>
                   <Icon size={22} strokeWidth={2.2} className={styles.benefitCardIconSvg} />
                 </div>
+                {item.label ? <p className={styles.benefitCardLabel}>{item.label}</p> : null}
                 <h3 className={styles.benefitCardTitle}>{item.title}</h3>
                 <p className={styles.benefitCardDescription}>{item.description}</p>
               </article>

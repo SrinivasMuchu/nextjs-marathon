@@ -2,6 +2,7 @@
 
 import React from "react";
 import cadStyles from "../CadHomeDesign/CadHome.module.css";
+import heroStyles from "../CadHomeDesign/CadViewerHero.module.css";
 import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 
 function ConverterPricingBadge({ isFree, pricing, variant = "dark" }) {
@@ -27,12 +28,23 @@ function ConverterPricingBadge({ isFree, pricing, variant = "dark" }) {
   );
 }
 
-function ConverterPricingBanner({ isFree, pricing, isSampleFile }) {
+function ConverterPricingBanner({ isFree, pricing, isSampleFile, variant }) {
   const display = buildConverterPricingDisplay(pricing);
+  const bannerClass = variant === "converterHero"
+    ? `${heroStyles.converterPriceBanner} ${
+        isFree || isSampleFile
+          ? heroStyles.converterPriceBannerFree
+          : heroStyles.converterPriceBannerPaid
+      }`
+    : `${cadStyles["cad-conversion-banner"]} ${
+        isFree || isSampleFile
+          ? cadStyles["cad-conversion-banner--free"]
+          : cadStyles["cad-conversion-banner--paid"]
+      }`;
 
   if (isSampleFile) {
     return (
-      <div className={`${cadStyles["cad-conversion-banner"]} ${cadStyles["cad-conversion-banner--free"]}`}>
+      <div className={bannerClass}>
         <span className={cadStyles["cad-conversion-banner-icon"]} aria-hidden>🎁</span>
         <span>Sample file — convert and download free, no payment needed.</span>
       </div>
@@ -41,7 +53,7 @@ function ConverterPricingBanner({ isFree, pricing, isSampleFile }) {
 
   if (isFree) {
     return (
-      <div className={`${cadStyles["cad-conversion-banner"]} ${cadStyles["cad-conversion-banner--free"]}`}>
+      <div className={bannerClass}>
         <span className={cadStyles["cad-conversion-banner-icon"]} aria-hidden>🎁</span>
         <span>This file is under 5 MB — convert and download free.</span>
       </div>
@@ -49,7 +61,7 @@ function ConverterPricingBanner({ isFree, pricing, isSampleFile }) {
   }
 
   return (
-    <div className={`${cadStyles["cad-conversion-banner"]} ${cadStyles["cad-conversion-banner--paid"]}`}>
+    <div className={bannerClass}>
       <span className={cadStyles["cad-conversion-banner-icon"]} aria-hidden>ℹ️</span>
       <span>
         Files 5 MB and above are{" "}

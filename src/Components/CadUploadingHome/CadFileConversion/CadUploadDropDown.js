@@ -1,8 +1,10 @@
 "use client";
 import React, { useCallback, useEffect, useMemo } from "react";
 import cadStyles from "../CadHomeDesign/CadHome.module.css";
+import heroStyles from "../CadHomeDesign/CadViewerHero.module.css";
 import { textLettersLimit } from "./../../../common.helper";
 import Link from "next/link";
+import { ArrowLeftRight, Info } from "lucide-react";
 import {
   fetchConverterPricingInfo,
   isConverterConversionFree,
@@ -39,6 +41,7 @@ function CadDropDown({
   s3Url,
   isSampleFile = false,
   setDisableSelect,
+  designVariant,
 }) {
   const [pricingInfo, setPricingInfo] = React.useState(null);
 
@@ -96,14 +99,28 @@ function CadDropDown({
   }, [to, selectedKey, setSelectedFileFormate]);
 
   useEffect(() => {
-    if (file) {
-      const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
-      if ((fileExt === "dxf" || fileExt === "dwg") && !selectedKey) {
-        const otherFormat = fileExt === "dxf" ? "dwg" : "dxf";
-        setSelectedFileFormate(otherFormat);
-      }
+    if (designVariant !== "converterHero" || to) return;
+
+    if (!file && !selectedKey) {
+      setSelectedFileFormate("stl");
+      return;
     }
-  }, [file, selectedKey, setSelectedFileFormate]);
+
+    if (!file) return;
+    const fileExt = normalizeFormatKey(
+      file.name.slice(file.name.lastIndexOf(".") + 1)
+    );
+
+    if (fileExt === "dxf" || fileExt === "dwg") {
+      const requiredTarget = fileExt === "dxf" ? "dwg" : "dxf";
+      if (selectedKey !== requiredTarget) setSelectedFileFormate(requiredTarget);
+      return;
+    }
+
+    if (!selectedKey || selectedKey === fileExt) {
+      setSelectedFileFormate(fileExt === "stl" ? "step" : "stl");
+    }
+  }, [designVariant, file, selectedKey, setSelectedFileFormate, to]);
 
   const getFilteredOptions = useCallback(() => {
     if (!file) return formatOptions;
@@ -181,6 +198,77 @@ function CadDropDown({
     uploadingMessage || disableSelect || (isDxfOrDwg && filteredOptions.length === 1);
   const isConvertButtonDisabled = uploadingMessage || disableSelect;
   const isConvertButtonVisible = !!selectedKey;
+
+  if (designVariant === "converterHero") {
+    const inputFormatLabel = fileExt ? normalizeFormatKey(fileExt).toUpperCase() : "Auto-detect";
+    const outputFormatLabel = displayLabel.replace(".", "").toUpperCase();
+    const modernButtonDisabled =
+      !file || !selectValueAttr || Boolean(uploadingMessage) || disableSelect;
+
+    return (
+      <div className={heroStyles.converterControls}>
+        <div className={heroStyles.converterFormatRow}>
+          <label className={heroStyles.converterFormatField}>
+            <span>Input format</span>
+            <div className={heroStyles.converterInputFormat}>
+              <strong>{inputFormatLabel}</strong>
+              {file?.name ? <small>{textLettersLimit(file.name, 28)}</small> : null}
+            </div>
+          </label>
+
+          <span className={heroStyles.converterSwapButton} aria-hidden>
+            <ArrowLeftRight size={17} strokeWidth={2} />
+          </span>
+
+          <label className={heroStyles.converterFormatField}>
+            <span>Output format</span>
+            <select
+              className={heroStyles.converterOutputSelect}
+              value={selectValueAttr}
+              onChange={handleNativeChange}
+              disabled={isSelectDisabled}
+              aria-label={`Output file format. ${displayLabel}`}
+            >
+              <option value="">Select format…</option>
+              {optionsForSelect.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label.replace(".", "").toUpperCase()}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <button
+          type="button"
+          className={heroStyles.converterActionButton}
+          onClick={handleConvert}
+          disabled={modernButtonDisabled}
+        >
+          {file
+            ? `Convert ${textLettersLimit(file.name, 22)} to ${outputFormatLabel}`
+            : `Choose a file to convert to ${outputFormatLabel || "your format"}`}
+        </button>
+
+        <div className={heroStyles.converterPricingStatus}>
+          {file ? (
+            <ConverterPricingBanner
+              isFree={isFreeConversion}
+              pricing={pricingInfo?.pricing}
+              isSampleFile={isSampleFile}
+              variant="converterHero"
+            />
+          ) : (
+            <p>
+              <Info size={16} aria-hidden />
+              Files under 5 MB convert and download free. Larger files require a small fee per
+              conversion, including a new file or re-run.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cadStyles["cad-conversion-upload-wrap"]}>

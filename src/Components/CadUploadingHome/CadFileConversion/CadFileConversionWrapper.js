@@ -23,10 +23,18 @@ import CadFileNotifyPopUp from "@/Components/CommonJsx/CadFileNotifyPopUp";
 import { unstable_useId } from "@mui/material";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopUp";
-import { convertedFiles, sendClarityEvent, sendGAtagEvent } from "@/common.helper";
+import { convertedFiles, sendClarityEvent, sendGAtagEvent, textLettersLimit } from "@/common.helper";
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
-import { Upload } from "lucide-react";
+import { Upload, X, FileText } from "lucide-react";
+
+function formatSelectedFileSize(bytes) {
+    const size = Number(bytes);
+    if (!Number.isFinite(size) || size <= 0) return "";
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+}
 
 function CadFileConversionWrapper({ children, convert, designVariant, heroFormatsLine }) {
     const fileInputRef = useRef(null);
@@ -538,6 +546,25 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
 
         setUploading(true)
     }
+
+    const clearSelectedFile = () => {
+        setUploading(false);
+        setFileConvert('');
+        setS3Url('');
+        setIsSampleFile(false);
+        setDisableSelect(false);
+        setUploadingMessage('');
+        setFolderId('');
+        setBaseName('');
+        setUploadProgressPercent(null);
+        if (!toFormate || (Array.isArray(toFormate) && !toFormate.length)) {
+            setSelectedFileFormate('');
+        }
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
     return (
         <>
          <div style={{
@@ -572,12 +599,50 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         <>
            
             {(!isApiSlow || !checkLimit) && <>
-                {uploading ?
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    accept={allowedFormats.join(", ")}
+                    onChange={handleFileChange}
+                />
+                {uploading && designVariant !== 'converterHero' ?
                     <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
                         setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
                         folderId={folderId} baseName={baseName} s3Url={s3Url} isSampleFile={isSampleFile}
                         uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed} />
-                    : (() => {
+                    : null}
+                {designVariant === 'converterHero' && uploading && fileConvert ? (
+                    <div className={heroStyles.converterSelectedFile}>
+                        <span className={heroStyles.converterSelectedFileIcon} aria-hidden>
+                            <FileText size={18} strokeWidth={2} />
+                        </span>
+                        <div className={heroStyles.converterSelectedFileMeta}>
+                            <strong title={fileConvert.name}>
+                                {textLettersLimit(fileConvert.name, 42)}
+                            </strong>
+                            <span>
+                                {[
+                                    fileConvert.name?.slice(fileConvert.name.lastIndexOf(".")).toLowerCase(),
+                                    formatSelectedFileSize(fileConvert.size),
+                                    isSampleFile ? "Sample" : null,
+                                ]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                            </span>
+                        </div>
+                        <button
+                            type="button"
+                            className={heroStyles.converterSelectedFileClear}
+                            onClick={clearSelectedFile}
+                            aria-label="Remove selected file"
+                            disabled={Boolean(uploadingMessage) || disableSelect}
+                        >
+                            <X size={16} strokeWidth={2.4} />
+                        </button>
+                    </div>
+                ) : null}
+                {!uploading ? (() => {
                         const isConverterHero = designVariant === 'converterHero';
                         const dropClass = isConverterHero ? heroStyles.heroUploadPanelDark : styles["cad-dropzone"];
                         return (
@@ -587,13 +652,6 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                         onDragOver={handleDragOver}
                         onClick={handleClick}
                     >
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: "none" }}
-                            accept={allowedFormats.join(", ")}
-                            onChange={handleFileChange}
-                        />
                         {isConverterHero ? (
                             <div className={heroStyles.heroUploadPanelInner}>
                                 <span className={heroStyles.heroUploadIconGlyph} aria-hidden>
@@ -615,10 +673,29 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                         )}
                     </div>
                         );
-                    })()}
+                    })() : null}
+                {designVariant === 'converterHero' ? (
+                    <CadUploadDropDown
+                        file={uploading ? fileConvert : null}
+                        setDisableSelect={setDisableSelect}
+                        selectedFileFormate={selectedFileFormate}
+                        disableSelect={disableSelect}
+                        setSelectedFileFormate={setSelectedFileFormate}
+                        CadFileConversion={CadFileConversion}
+                        to={toFormate}
+                        folderId={folderId}
+                        baseName={baseName}
+                        s3Url={s3Url}
+                        isSampleFile={isSampleFile}
+                        uploadingMessage={uploadingMessage}
+                        setUploadingMessage={setUploadingMessage}
+                        handleFileConvert={checkingCadFileUploadLimitExceed}
+                        designVariant={designVariant}
+                    />
+                ) : null}
 
             </>}
-            {!uploading && designVariant === 'converterHero' && heroFormatsLine ? (
+            {!uploading && designVariant !== 'converterHero' && heroFormatsLine ? (
                 <p className={heroStyles.formatsBelow}>{heroFormatsLine}</p>
             ) : null}
             {!uploading && (() => {

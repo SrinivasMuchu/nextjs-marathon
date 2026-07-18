@@ -29,12 +29,10 @@ import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 // “How it works” with react-icons lives in CadFileConversionHowItWorks (client) so icon components are not passed from this Server Component.
 
 const converterBenefits = [
-    { icon: 'zap', title: 'Lightning-fast conversion', description: 'Convert in seconds with our cloud-based engine. No waiting.' },
-    { icon: 'monitorSmartphone', title: 'No installation required', description: 'Works in your browser — no downloads or plugins needed.' },
-    { icon: 'cpu', title: 'Handles large & complex models', description: 'Optimized for large and intricate CAD files up to 300 MB.' },
-    { icon: 'shield', title: 'Secure & private', description: 'Encrypted uploads. Files automatically deleted after 24 hours.' },
-    { icon: 'lock', title: 'Your files, your IP', description: 'Full file ownership stays with you. We never share your data.' },
-    { icon: 'clock', title: 'Available 24/7', description: 'Convert files anytime, anywhere — no restrictions.' },
+    { icon: 'zap', label: 'Speed', title: 'Lightning-fast conversion', description: 'Cloud-based processing converts common CAD and mesh files in seconds.' },
+    { icon: 'monitorSmartphone', label: 'Browser-based', title: 'No installation required', description: 'Use the converter in your browser without desktop software or plugins.' },
+    { icon: 'cpu', label: 'File capacity', title: 'Large and complex models', description: 'Upload intricate engineering files up to 300 MB.' },
+    { icon: 'shield', label: 'Privacy', title: 'Your files, your IP', description: 'Ownership stays with you. Files are never added to the public library.' },
 ];
 
 const converterTrustItems = [
@@ -129,12 +127,19 @@ function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = fal
                 />
             )}
             <CadFileConversionHeader convert={convert} conversionParams={conversionParams} />
+            <CoreBenefits
+                eyebrow="Built for real CAD workflows"
+                title="Why convert files with Marathon OS?"
+                description="Fast, secure and browser-based CAD conversion designed for everyday engineering workflows."
+                benefits={converterBenefits}
+                variant="cardGrid"
+            />
             {!convert ? (
               <>
                 <CadConversionToolLinks />
-                <CadViewerCrossLink />
-                <ToolLibraryCrossLinks />
+                <CadViewerCrossLink variant="compact" />
                 <SupportedCadFormats />
+                <ToolLibraryCrossLinks />
                 <WhenToUseConverter />
               </>
             ) : (
@@ -149,11 +154,6 @@ function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = fal
             {/* <OrgFeatures type='cad' /> */}
             <InterlinkingBlocks />
             <CadFileConversionHowItWorksServer conversionParams={convert ? conversionParams : undefined} />
-            <CoreBenefits
-                title="Why use Marathon OS 3D CAD File Converter"
-                benefits={converterBenefits}
-                variant="cardGrid"
-            />
           
             <TrustPrivacy title="Privacy and file handling" items={converterTrustItems} />
             {conversionParams && <CadConverterFormateText conversionParams={conversionParams} />}
