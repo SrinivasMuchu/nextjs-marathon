@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { BASE_URL, buildCadConverterOutputUrl, CAD_CONVERTER_EVENT } from '@/config';
 import styles from './FileHistory.module.css';
 import Pagenation from '../CommonJsx/Pagenation';
-import { sendGAtagEvent } from "@/common.helper";
+import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
 import ConvertedFileUploadPopup from '../CommonJsx/ConvertedFileUploadPopup';
 import { contextState } from '../CommonJsx/ContextProvider';
 import EmailOTP from '../CommonJsx/EmailOTP';
@@ -40,6 +40,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   const [openConverterBilling, setOpenConverterBilling] = useState(false);
   const [pendingConverterDownload, setPendingConverterDownload] = useState(null);
   const [converterBillingDetails, setConverterBillingDetails] = useState(null);
+  const converterBillingCompletedRef = useRef(false);
   // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
   const { user,cadDetailsUpdate } = useContext(contextState);
@@ -241,6 +242,11 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     const pending = pendingConverterDownload;
     if (!pending) return;
 
+    sendClarityEvent("converter_billing_address_completed", {
+      converter_funnel: "billing_completed",
+    });
+    converterBillingCompletedRef.current = true;
+
     const { file, index } = pending;
     setOpenConverterBilling(false);
     setDownloading(prev => ({ ...prev, [index]: true }));
@@ -293,6 +299,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         description: file.file_name || 'Converted CAD file download',
         price: access.pricing?.base_price ?? access.price,
         pricing: access.pricing,
+      });
+      sendClarityEvent("converter_billing_address_opened", {
+        converter_funnel: "billing_opened",
       });
       setOpenConverterBilling(true);
     } catch (error) {
@@ -387,6 +396,12 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       {openConverterBilling && pendingConverterDownload && (
         <BillingAddress
           onClose={() => {
+            if (!converterBillingCompletedRef.current) {
+              sendClarityEvent("converter_billing_address_closed", {
+                converter_funnel: "billing_closed",
+              });
+            }
+            converterBillingCompletedRef.current = false;
             setOpenConverterBilling(false);
             setPendingConverterDownload(null);
             setConverterBillingDetails(null);
