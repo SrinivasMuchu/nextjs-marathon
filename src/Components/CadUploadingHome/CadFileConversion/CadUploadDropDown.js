@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import cadStyles from "../CadHomeDesign/CadHome.module.css";
 import heroStyles from "../CadHomeDesign/CadViewerHero.module.css";
 import { textLettersLimit } from "./../../../common.helper";
@@ -38,12 +38,14 @@ function CadDropDown({
   handleFileConvert,
   disableSelect,
   to,
+  from,
   s3Url,
   isSampleFile = false,
   setDisableSelect,
   designVariant,
 }) {
   const [pricingInfo, setPricingInfo] = React.useState(null);
+  const pairDefaultAppliedRef = useRef(false);
 
   const formatFileSize = useCallback((bytes) => {
     const size = Number(bytes);
@@ -89,17 +91,23 @@ function CadDropDown({
   );
 
   const selectedKey = normalizeFormatKey(selectedFileFormate);
+  const pairTarget = normalizeFormatKey(Array.isArray(to) ? to[0] : to);
+  const pairSource = normalizeFormatKey(from);
 
+  // Individual pair pages: default output to the URL target (e.g. BREP on step-to-brep).
   useEffect(() => {
-    if (to && !selectedKey) {
-      const raw = Array.isArray(to) ? to[0] : to;
-      const targetFormat = normalizeFormatKey(raw);
-      if (targetFormat) setSelectedFileFormate(targetFormat);
+    if (!pairTarget) {
+      pairDefaultAppliedRef.current = false;
+      return;
     }
-  }, [to, selectedKey, setSelectedFileFormate]);
+    if (pairDefaultAppliedRef.current) return;
+    setSelectedFileFormate(pairTarget);
+    pairDefaultAppliedRef.current = true;
+  }, [pairTarget, setSelectedFileFormate]);
 
+  // General converter hero only: auto-pick a sensible output when no pair target exists.
   useEffect(() => {
-    if (designVariant !== "converterHero" || to) return;
+    if (designVariant !== "converterHero" || pairTarget) return;
 
     if (!file && !selectedKey) {
       setSelectedFileFormate("stl");
@@ -120,7 +128,7 @@ function CadDropDown({
     if (!selectedKey || selectedKey === fileExt) {
       setSelectedFileFormate(fileExt === "stl" ? "step" : "stl");
     }
-  }, [designVariant, file, selectedKey, setSelectedFileFormate, to]);
+  }, [designVariant, file, selectedKey, setSelectedFileFormate, pairTarget]);
 
   const getFilteredOptions = useCallback(() => {
     if (!file) return formatOptions;
@@ -200,7 +208,11 @@ function CadDropDown({
   const isConvertButtonVisible = !!selectedKey;
 
   if (designVariant === "converterHero") {
-    const inputFormatLabel = fileExt ? normalizeFormatKey(fileExt).toUpperCase() : "Auto-detect";
+    const inputFormatLabel = fileExt
+      ? normalizeFormatKey(fileExt).toUpperCase()
+      : pairSource
+        ? pairSource.toUpperCase()
+        : "Auto-detect";
     const outputFormatLabel = displayLabel.replace(".", "").toUpperCase();
     const modernButtonDisabled =
       !file || !selectValueAttr || Boolean(uploadingMessage) || disableSelect;
@@ -212,7 +224,11 @@ function CadDropDown({
             <span>Input format</span>
             <div className={heroStyles.converterInputFormat}>
               <strong>{inputFormatLabel}</strong>
-              {file?.name ? <small>{textLettersLimit(file.name, 28)}</small> : null}
+              {file?.name ? (
+                <small>{textLettersLimit(file.name, 28)}</small>
+              ) : pairSource ? (
+                <small>{pairSource.toUpperCase()} file</small>
+              ) : null}
             </div>
           </label>
 

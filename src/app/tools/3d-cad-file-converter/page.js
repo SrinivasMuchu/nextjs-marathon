@@ -7,7 +7,7 @@ import React from 'react';
 const CANONICAL_URL = 'https://marathon-os.com/tools/3d-cad-file-converter';
 const TITLE = 'Free Online CAD File Converter | STEP, STL, IGES, OBJ, 3DM | Marathon OS';
 const DESCRIPTION =
-  'Convert CAD and 3D files online between STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF. Secure browser-based conversion with 300 MB uploads and auto-delete in 24 hours.';
+  'Convert CAD and 3D files online between STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF. Secure browser-based conversion with 300 MB uploads and auto-delete in 7 days.';
 
 export const metadata = buildPageMetadata({
   title: TITLE,

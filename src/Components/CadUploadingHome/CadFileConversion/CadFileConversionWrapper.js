@@ -609,6 +609,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                 {uploading && designVariant !== 'converterHero' ?
                     <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
                         setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
+                        from={fromFormate}
                         folderId={folderId} baseName={baseName} s3Url={s3Url} isSampleFile={isSampleFile}
                         uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed} />
                     : null}
@@ -683,6 +684,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                         setSelectedFileFormate={setSelectedFileFormate}
                         CadFileConversion={CadFileConversion}
                         to={toFormate}
+                        from={fromFormate}
                         folderId={folderId}
                         baseName={baseName}
                         s3Url={s3Url}

@@ -38,7 +38,7 @@ function Industry({ industry, industryData }) {
         },
         {
             title: 'Secure & Privacy-Focused',
-            description: "Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours to protect your data."
+            description: "Your files are encrypted during upload, processed securely, and automatically deleted after 7 days to protect your data."
         },
     ]
 
@@ -66,7 +66,7 @@ function Industry({ industry, industryData }) {
         },
         {
             title: 'Cloud-Based & Secure',
-            description: "Files stay private and automatically delete after 24 hours for security."
+            description: "Files stay private and automatically delete after 7 days for security."
         },
         {
             title: 'Engineered for Professionals',

@@ -27,7 +27,7 @@ const FORMAT_CONFIG = {
     extensions: ['.off'],
     title: 'OFF File Viewer | Open OFF Files Online | Marathon OS',
     description:
-      'Open and inspect OFF files online without installing CAD software. Preview polygon mesh models securely in your browser with private uploads and 24-hour auto-delete.',
+      'Open and inspect OFF files online without installing CAD software. Preview polygon mesh models securely in your browser with private uploads and 7-day auto-delete.',
     h1: 'Free Online OFF File Viewer',
     relatedTools: [
       { href: '/tools/ply-file-viewer', label: 'PLY File Viewer' },
@@ -43,7 +43,7 @@ const FORMAT_CONFIG = {
     extensions: ['.step', '.stp'],
     title: 'STEP File Viewer | Open STEP and STP Files Online | Marathon OS',
     description:
-      'Open and inspect STEP and STP files online without CAD software. Preview 3D CAD models securely in your browser with encrypted uploads and 24-hour file deletion.',
+      'Open and inspect STEP and STP files online without CAD software. Preview 3D CAD models securely in your browser with encrypted uploads and 7-day file deletion.',
     h1: 'Free Online STEP File Viewer',
     relatedTools: [
       { href: '/tools/convert-step-to-stl', label: 'STEP to STL Converter' },
@@ -60,7 +60,7 @@ const FORMAT_CONFIG = {
     extensions: ['.step', '.stp'],
     title: 'STP File Viewer | Open STP and STEP Files Online | Marathon OS',
     description:
-      'Open and inspect STP and STEP files online without CAD software. Preview 3D CAD models securely in your browser with encrypted uploads and 24-hour file deletion.',
+      'Open and inspect STP and STEP files online without CAD software. Preview 3D CAD models securely in your browser with encrypted uploads and 7-day file deletion.',
     h1: 'Free Online STP File Viewer',
     relatedTools: [
       { href: '/tools/convert-step-to-stl', label: 'STEP to STL Converter' },
@@ -77,7 +77,7 @@ const FORMAT_CONFIG = {
     extensions: ['.stl'],
     title: 'STL File Viewer | Open STL Files Online | Marathon OS',
     description:
-      'Open and inspect STL files online for 3D printing checks. Preview mesh models securely in your browser with private uploads and 24-hour auto-delete.',
+      'Open and inspect STL files online for 3D printing checks. Preview mesh models securely in your browser with private uploads and 7-day auto-delete.',
     h1: 'Free Online STL File Viewer',
     relatedTools: [
       { href: '/tools/convert-stl-to-step', label: 'STL to STEP Converter' },
@@ -93,7 +93,7 @@ const FORMAT_CONFIG = {
     extensions: ['.obj'],
     title: 'OBJ File Viewer | Open OBJ Files Online | Marathon OS',
     description:
-      'Open and inspect OBJ files online without installing 3D software. Preview mesh models securely in your browser with private uploads and 24-hour auto-delete.',
+      'Open and inspect OBJ files online without installing 3D software. Preview mesh models securely in your browser with private uploads and 7-day auto-delete.',
     h1: 'Free Online OBJ File Viewer',
     relatedTools: [
       { href: '/tools/stl-file-viewer', label: 'STL File Viewer' },
@@ -109,7 +109,7 @@ const FORMAT_CONFIG = {
     extensions: ['.ply'],
     title: 'PLY File Viewer | Open PLY Files Online | Marathon OS',
     description:
-      'Open and inspect PLY files online for point clouds, scans and mesh models. Preview files securely in your browser with private uploads and 24-hour auto-delete.',
+      'Open and inspect PLY files online for point clouds, scans and mesh models. Preview files securely in your browser with private uploads and 7-day auto-delete.',
     h1: 'Free Online PLY File Viewer',
     relatedTools: [
       { href: '/tools/obj-file-viewer', label: 'OBJ File Viewer' },
@@ -125,7 +125,7 @@ const FORMAT_CONFIG = {
     extensions: ['.igs', '.iges'],
     title: 'IGES File Viewer | Open IGES and IGS Files Online | Marathon OS',
     description:
-      'Open and inspect IGES and IGS files online without CAD software. Preview surface-based CAD models securely in your browser with 24-hour auto-delete.',
+      'Open and inspect IGES and IGS files online without CAD software. Preview surface-based CAD models securely in your browser with 7-day auto-delete.',
     h1: 'Free Online IGES File Viewer',
     relatedTools: [
       { href: '/tools/convert-iges-to-step', label: 'IGES to STEP Converter' },
@@ -141,7 +141,7 @@ const FORMAT_CONFIG = {
     extensions: ['.igs', '.iges'],
     title: 'IGS File Viewer | Open IGS and IGES Files Online | Marathon OS',
     description:
-      'Open and inspect IGS and IGES files online without CAD software. Preview surface-based CAD models securely in your browser with 24-hour auto-delete.',
+      'Open and inspect IGS and IGES files online without CAD software. Preview surface-based CAD models securely in your browser with 7-day auto-delete.',
     h1: 'Free Online IGS File Viewer',
     relatedTools: [
       { href: '/tools/convert-iges-to-step', label: 'IGES to STEP Converter' },
@@ -157,7 +157,7 @@ const FORMAT_CONFIG = {
     extensions: ['.brp', '.brep'],
     title: 'BREP File Viewer | Open BREP and BRP Files Online | Marathon OS',
     description:
-      'Open and inspect BREP and BRP files online without CAD software. Preview boundary representation models securely in your browser with private uploads and 24-hour auto-delete.',
+      'Open and inspect BREP and BRP files online without CAD software. Preview boundary representation models securely in your browser with private uploads and 7-day auto-delete.',
     h1: 'Free Online BREP File Viewer',
     relatedTools: [
       { href: '/tools/convert-brep-to-stl', label: 'BREP to STL Converter' },
@@ -173,7 +173,7 @@ const FORMAT_CONFIG = {
     extensions: ['.brp', '.brep'],
     title: 'BRP File Viewer | Open BRP and BREP Files Online | Marathon OS',
     description:
-      'Open and inspect BRP and BREP files online without CAD software. Preview boundary representation models securely in your browser with private uploads and 24-hour auto-delete.',
+      'Open and inspect BRP and BREP files online without CAD software. Preview boundary representation models securely in your browser with private uploads and 7-day auto-delete.',
     h1: 'Free Online BRP File Viewer',
     relatedTools: [
       { href: '/tools/convert-brep-to-stl', label: 'BREP to STL Converter' },
@@ -189,7 +189,7 @@ const FORMAT_CONFIG = {
     extensions: ['.3dm'],
     title: '3DM File Viewer | Open Rhino 3DM Files Online | Marathon OS',
     description:
-      'Open and inspect Rhino 3DM files online without installing Rhinoceros. Preview NURBS and mesh models securely in your browser with private uploads and 24-hour auto-delete.',
+      'Open and inspect Rhino 3DM files online without installing Rhinoceros. Preview NURBS and mesh models securely in your browser with private uploads and 7-day auto-delete.',
     h1: 'Free Online 3DM File Viewer',
     relatedTools: [
       { href: '/tools/convert-3dm-to-step', label: '3DM to STEP Converter' },
@@ -205,7 +205,7 @@ const FORMAT_CONFIG = {
     extensions: ['.dxf'],
     title: 'DXF File Viewer | Open DXF Drawings Online | Marathon OS',
     description:
-      'Open and inspect DXF drawings online without installing CAD software. Preview CAD drawings securely in your browser with private uploads and 24-hour auto-delete.',
+      'Open and inspect DXF drawings online without installing CAD software. Preview CAD drawings securely in your browser with private uploads and 7-day auto-delete.',
     h1: 'Free Online DXF File Viewer',
     relatedTools: [
       { href: '/tools/convert-dxf-to-dwg', label: 'DXF to DWG Converter' },
@@ -221,7 +221,7 @@ const FORMAT_CONFIG = {
     extensions: ['.dwg'],
     title: 'DWG File Viewer | Open DWG Drawings Online | Marathon OS',
     description:
-      'Open and inspect DWG drawings online without installing CAD software. Preview CAD drawings securely in your browser with private uploads and 24-hour auto-delete.',
+      'Open and inspect DWG drawings online without installing CAD software. Preview CAD drawings securely in your browser with private uploads and 7-day auto-delete.',
     h1: 'Free Online DWG File Viewer',
     relatedTools: [
       { href: '/tools/convert-dwg-to-dxf', label: 'DWG to DXF Converter' },
@@ -254,7 +254,7 @@ export function getSupportedInputFormatsLabel(slug) {
 export function getViewerHeroCopy(slug) {
   const config = getCadViewerFormatConfig(slug);
   if (!config) return null;
-  return `Open and inspect ${config.formatName} files online without installing CAD software. Marathon OS lets you preview ${config.previewPhrase} securely in your browser with private uploads and automatic file deletion after 24 hours.`;
+  return `Open and inspect ${config.formatName} files online without installing CAD software. Marathon OS lets you preview ${config.previewPhrase} securely in your browser with private uploads and automatic file deletion after 7 days.`;
 }
 
 export function getViewerPageMetadata(slug) {

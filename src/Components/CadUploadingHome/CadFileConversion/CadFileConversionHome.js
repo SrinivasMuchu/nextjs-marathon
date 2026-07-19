@@ -35,7 +35,7 @@ const converterBenefits = [
 
 const converterTrustItems = [
     { title: 'Encrypted upload', description: 'Secure transfer and processing for every supported format.' },
-    { title: '24-hour deletion', description: 'Uploaded and converted files are removed automatically.' },
+    { title: '7-day deletion', description: 'Uploaded and converted files are removed automatically.' },
     { title: 'You retain ownership', description: 'Your CAD files and intellectual property remain yours.' },
 ];
 
@@ -54,7 +54,7 @@ const features = [
     },
     {
         title: 'Secure & Privacy-Focused',
-        description: "Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours to protect your data."
+        description: "Your files are encrypted during upload, processed securely, and automatically deleted after 7 days to protect your data."
     },
 
 ]
@@ -86,7 +86,7 @@ const featuresArray = [
     },
     {
         title: 'Cloud-Based & Private',
-        description: 'All files are securely processed in the cloud and automatically deleted after 24 hours to ensure your data stays safe.'
+        description: 'All files are securely processed in the cloud and automatically deleted after 7 days to ensure your data stays safe.'
     },
 
 ]
@@ -148,7 +148,7 @@ function CadFileConversionHome({
                 <TrustPrivacy
                   variant="converterBanner"
                   title="Secure conversion without giving up file ownership"
-                  description="Files are encrypted during upload, processed securely and removed automatically after 24 hours."
+                  description="Files are encrypted during upload, processed securely and removed automatically after 7 days."
                   items={converterTrustItems}
                 />
                 <CadConverterTypes
@@ -165,7 +165,7 @@ function CadFileConversionHome({
                 <TrustPrivacy
                   variant="converterBanner"
                   title="Secure conversion without giving up file ownership"
-                  description="Files are encrypted during upload, processed securely and removed automatically after 24 hours."
+                  description="Files are encrypted during upload, processed securely and removed automatically after 7 days."
                   items={converterTrustItems}
                 />
                 <CadConverterTypes
@@ -181,7 +181,9 @@ function CadFileConversionHome({
             <ToolsPageBanner variant="converter" />
           
             {/* <OrgFeatures type='cad' /> */}
+            {/* Explore more — CAD Viewer / CAD Library
             <InterlinkingBlocks />
+            */}
             {convert ? (
               <CadFileConversionHowItWorksServer conversionParams={conversionParams} />
             ) : null}
@@ -190,7 +192,7 @@ function CadFileConversionHome({
             {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails} /> */}
             {/* <FeaturedConversions /> */}
-            <DesignHub headingLevel={3} />
+            <DesignHub headingLevel={3} variant="converter" />
             <Footer />
         </>
 

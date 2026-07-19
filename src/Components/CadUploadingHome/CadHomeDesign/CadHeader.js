@@ -27,7 +27,7 @@ function CadHeader({ type }) {
         </p>
         <p className={heroStyles.benefitStrip}>
           Free online viewer | STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM | Up to 300 MB | Auto-delete in
-          24 hours | No CAD software needed
+          7 days | No CAD software needed
         </p>
         <CadDropZoneContent isStyled={false} type={type} designVariant="heroDark" />
       </div>

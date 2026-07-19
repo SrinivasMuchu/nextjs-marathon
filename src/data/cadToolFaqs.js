@@ -88,7 +88,7 @@ export function getConverterFaqQuestions(conversionParams) {
     {
       question: 'How is my data stored and secured?',
       answer:
-        'Your files are encrypted during upload, processed securely in the cloud, and automatically deleted after 24 hours.',
+        'Your files are encrypted during upload, processed securely in the cloud, and automatically deleted after 7 days.',
     },
     {
       question: 'Do I need any special software or training?',
@@ -123,7 +123,7 @@ export const cadConverterFaqQuestions = [
   {
     question: 'How is my data stored and secured?',
     answer:
-      'Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours.',
+      'Your files are encrypted during upload, processed securely, and automatically deleted after 7 days.',
   },
   {
     question: 'Do I need any special software or training?',
@@ -166,7 +166,7 @@ export const cadViewerFaqQuestions = [
   {
     question: 'Will my file stay private?',
     answer:
-      'Files stay private, are encrypted, and are automatically deleted after 24 hours; see the Privacy Policy for details.',
+      'Files stay private, are encrypted, and are automatically deleted after 7 days; see the Privacy Policy for details.',
   },
   {
     question: 'Why does my model look broken (holes/missing faces)?',
