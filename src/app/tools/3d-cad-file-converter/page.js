@@ -19,7 +19,14 @@ export const metadata = buildPageMetadata({
   },
 });
 
-function page() {
+function page({ searchParams }) {
+  const converterDirectoryParams = {
+    activeFormat:
+      typeof searchParams?.converterFormat === 'string' ? searchParams.converterFormat : 'All',
+    query:
+      typeof searchParams?.converterSearch === 'string' ? searchParams.converterSearch : '',
+  };
+
   return (
     <>
       <ToolPageJsonLd
@@ -31,7 +38,10 @@ function page() {
           { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
         ]}
       />
-      <CadFileConversionHome skipBreadcrumbSchema />
+      <CadFileConversionHome
+        skipBreadcrumbSchema
+        converterDirectoryParams={converterDirectoryParams}
+      />
       <StickyCadStrip />
     </>
   );

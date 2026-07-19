@@ -3,7 +3,7 @@ import React from 'react'
 import OrgFeatures from '@/Components/OrganizationHome/OrgFeatures/OrgFeatures'
 import ChartBuilder from '@/Components/OrganizationHome/ChartBuilder/ChartBuilder'
 import OurFeatures from '@/Components/OrganizationHome/OurFeatures/OurFeatures'
-import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
+import ConverterFaq from './ConverterFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadFileConversionHeader from './CadFileConversionHeader'
 import CadFileConversionHowItWorksServer from './CadFileConversionHowItWorksServer'
@@ -13,20 +13,18 @@ import CadConverterTypes from './CadConverterTypes'
 import FeaturedConversions from './FeaturedConversions'
 import CadConversionToolLinks from './CadConversionToolLinks'
 import SupportedCadFormats from './SupportedCadFormats'
-import WhenToUseConverter from './WhenToUseConverter'
+import ConverterGuidance from './ConverterGuidance'
 import CadViewerCrossLink from '../CadUpload/CadViewerCrossLink'
-import ToolLibraryCrossLinks from '@/Components/CommonJsx/CrossTemplateLinks/ToolLibraryCrossLinks'
+import ConverterResources from './ConverterResources'
 import InterlinkingBlocks from './InterlinkingBlocks'
 import CadConverterFormateText from './CadConverterFormateText'
-import ConversionQualityNotes from '../CadUpload/ConversionQualityNotes'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { cadConverterFaqQuestions, getConverterFaqQuestions } from '@/data/cadToolFaqs'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 
-// Page heading structure: 1 h1 (CadFileConversionHeader); h2 (HowItWorks, CoreBenefits, CadConverterTypes); rest h3 (InterlinkingBlocks, TrustPrivacy, DesignHub, OrgFaq).
-// “How it works” with react-icons lives in CadFileConversionHowItWorks (client) so icon components are not passed from this Server Component.
+// Page heading structure: 1 h1 (CadFileConversionHeader); h2 (HowItWorks, CoreBenefits, CadConverterTypes, ConverterFaq); rest h3.
 
 const converterBenefits = [
     { icon: 'zap', label: 'Speed', title: 'Lightning-fast conversion', description: 'Cloud-based processing converts common CAD and mesh files in seconds.' },
@@ -36,9 +34,9 @@ const converterBenefits = [
 ];
 
 const converterTrustItems = [
-    { title: 'Encrypted uploads + secure processing', description: 'Files are encrypted during upload and processed securely.' },
-    { title: 'Automatic deletion after 24 hours', description: 'Uploads are automatically deleted after 24 hours.' },
-    { title: 'File ownership stays with you', description: 'You retain full ownership of your files.' },
+    { title: 'Encrypted upload', description: 'Secure transfer and processing for every supported format.' },
+    { title: '24-hour deletion', description: 'Uploaded and converted files are removed automatically.' },
+    { title: 'You retain ownership', description: 'Your CAD files and intellectual property remain yours.' },
 ];
 
 const features = [
@@ -93,13 +91,19 @@ const featuresArray = [
 
 ]
 
-function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = false, skipBreadcrumbSchema = false }) {
+function CadFileConversionHome({
+    convert,
+    conversionParams,
+    skipPageJsonLd = false,
+    skipBreadcrumbSchema = false,
+    converterDirectoryParams = {},
+}) {
     const faqQuestions = convert && conversionParams
         ? getConverterFaqQuestions(conversionParams)
         : cadConverterFaqQuestions;
     const faqDescription = convert && conversionParams
         ? `Find answers about converting files with Marathon OS ${conversionParams.replace(/-/g, ' ')} converter.`
-        : 'Find answers to common questions about Marathon OS 3D CAD File Converter.';
+        : 'Quick answers about formats, pricing, file limits, conversion quality and privacy.';
 
     return (
         <>
@@ -139,33 +143,54 @@ function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = fal
                 <CadConversionToolLinks />
                 <CadViewerCrossLink variant="compact" />
                 <SupportedCadFormats />
-                <ToolLibraryCrossLinks />
-                <WhenToUseConverter />
+                <CadFileConversionHowItWorksServer />
+                <ConverterGuidance />
+                <TrustPrivacy
+                  variant="converterBanner"
+                  title="Secure conversion without giving up file ownership"
+                  description="Files are encrypted during upload, processed securely and removed automatically after 24 hours."
+                  items={converterTrustItems}
+                />
+                <CadConverterTypes
+                  activeFormat={converterDirectoryParams.activeFormat}
+                  query={converterDirectoryParams.query}
+                />
+                <ConverterResources />
               </>
             ) : (
               <>
                 <CadViewerCrossLink />
-                <ToolLibraryCrossLinks />
+                <ConverterResources />
+                <ConverterGuidance />
+                <TrustPrivacy
+                  variant="converterBanner"
+                  title="Secure conversion without giving up file ownership"
+                  description="Files are encrypted during upload, processed securely and removed automatically after 24 hours."
+                  items={converterTrustItems}
+                />
+                <CadConverterTypes
+                  activeFormat={converterDirectoryParams.activeFormat}
+                  query={converterDirectoryParams.query}
+                />
               </>
             )}
-            <ConversionQualityNotes />
-            <ToolsPageBanner />
+            <ConverterFaq
+                faqQuestions={faqQuestions}
+                description={faqDescription}
+            />
+            <ToolsPageBanner variant="converter" />
           
             {/* <OrgFeatures type='cad' /> */}
             <InterlinkingBlocks />
-            <CadFileConversionHowItWorksServer conversionParams={convert ? conversionParams : undefined} />
+            {convert ? (
+              <CadFileConversionHowItWorksServer conversionParams={conversionParams} />
+            ) : null}
           
-            <TrustPrivacy title="Privacy and file handling" items={converterTrustItems} />
             {conversionParams && <CadConverterFormateText conversionParams={conversionParams} />}
             {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails} /> */}
             {/* <FeaturedConversions /> */}
-            <CadConverterTypes />
             <DesignHub headingLevel={3} />
-            <OrgFaq
-                faqQuestions={faqQuestions}
-                description={faqDescription}
-            />
             <Footer />
         </>
 

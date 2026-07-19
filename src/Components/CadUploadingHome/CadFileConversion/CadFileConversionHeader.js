@@ -63,7 +63,11 @@ function CadFileConversionHeader({ convert, conversionParams }) {
             </div>
           </div>
         </div>
-        <section className={heroStyles.converterCard} aria-label="CAD file converter">
+        <section
+          id="cad-file-converter"
+          className={heroStyles.converterCard}
+          aria-label="CAD file converter"
+        >
           <div className={heroStyles.converterCardHeader}>
             <div>
               <h2>Upload your CAD or 3D file</h2>
