@@ -1,0 +1,292 @@
+.popup {
+  width: min(720px, calc(100vw - 32px));
+  max-width: 95vw;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.closeBtn {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover:not(:disabled) {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.closeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loadingWrap {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formError {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  line-height: 1.45;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #610bee;
+}
+
+.errorText {
+  color: #dc3545;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.uploadRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.uploadBtn {
+  border: 1px solid #610bee;
+  background: #f5f0ff;
+  color: #610bee;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.uploadBtn:hover:not(:disabled) {
+  background: #ede4ff;
+}
+
+.uploadBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.uploadHint {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.fileList,
+.historyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.fileMeta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fileName {
+  font-size: 13px;
+  color: #111827;
+  word-break: break-word;
+}
+
+.fileSize {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.removeFileBtn {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.removeFileBtn:hover:not(:disabled) {
+  color: #dc3545;
+  background: #fee2e2;
+}
+
+.removeFileBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.historySection {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 14px;
+}
+
+.historyTitle {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.historyEmpty {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.historyItem {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.historyHeader strong {
+  color: #111827;
+}
+
+.historyEmail {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.historyText {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #374151;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.historyAttachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.attachmentLink {
+  font-size: 12px;
+  color: #610bee;
+  text-decoration: none;
+  background: #f5f0ff;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.attachmentLink:hover {
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .popup {
+    padding: 18px 16px;
+  }
+
+  .historyHeader {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}
