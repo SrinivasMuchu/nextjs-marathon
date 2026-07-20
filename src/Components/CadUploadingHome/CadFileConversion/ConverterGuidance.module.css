@@ -1,0 +1,148 @@
+.section {
+  width: 100%;
+  padding: clamp(52px, 6vw, 78px) clamp(18px, 5vw, 64px);
+  background:
+    radial-gradient(circle at 18% 90%, rgba(149, 96, 218, 0.07), transparent 28%),
+    #f7f5fb;
+  font-family: var(--font-inter), Inter, sans-serif;
+  box-sizing: border-box;
+}
+
+.inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  gap: 18px;
+}
+
+.panel {
+  min-width: 0;
+  padding: clamp(22px, 3vw, 30px);
+  border: 1px solid #ece7f1;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 9px 26px rgba(45, 25, 68, 0.045);
+  box-sizing: border-box;
+}
+
+.eyebrow {
+  position: relative;
+  margin: 0 0 12px;
+  padding-left: 13px;
+  color: #7142aa;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: #8547d6;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.panel > h2 {
+  margin: 0 0 20px;
+  color: #21172c;
+  font-size: clamp(21px, 2.3vw, 26px);
+  font-weight: 760;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.qualityList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qualityItem,
+.useItem {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  border: 1px solid #eee9f2;
+  border-radius: 11px;
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgba(45, 25, 68, 0.03);
+  box-sizing: border-box;
+}
+
+.qualityItem {
+  padding: 13px;
+}
+
+.warningIcon,
+.checkIcon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.warningIcon {
+  background: #fff9e9;
+  color: #9c6b15;
+}
+
+.checkIcon {
+  background: #effaf3;
+  color: #2d9a57;
+}
+
+.qualityItem h3,
+.useItem h3 {
+  margin: 0 0 4px;
+  color: #33293d;
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+.qualityItem p,
+.useItem p {
+  margin: 0;
+  color: #817987;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.useGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.useItem {
+  padding: 11px;
+}
+
+@media (max-width: 820px) {
+  .inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 46px 14px;
+  }
+
+  .useGrid {
+    grid-template-columns: 1fr;
+  }
+}

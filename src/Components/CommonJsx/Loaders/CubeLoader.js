@@ -5,6 +5,7 @@ import cube from './Cube.json';
 import LeftRightBanner from '../Adsense/AdsBanner';
 import { contextState } from '../ContextProvider';
 import HomeTopNav from '@/Components/HomePages/HomepageTopNav/HomeTopNav';
+import ConverterProgressLoader from './ConverterProgressLoader';
 
 const statusMessages = {
   UPLOADINGFILE: '⏳ Uploading file...',
@@ -16,7 +17,17 @@ const statusMessages = {
   FAILED: '❌ Something went wrong. Please retry.',
 };
 
-function CubeLoader({ uploadingMessage, totalImages , completedImages,type, uploadProgressPercent }) {
+function CubeLoader({
+  uploadingMessage,
+  totalImages,
+  completedImages,
+  type,
+  uploadProgressPercent,
+  fileName,
+  outputFormat,
+  fileSize,
+  isSampleFile,
+}) {
    const { user } = useContext(contextState); 
 
 
@@ -57,9 +68,24 @@ function CubeLoader({ uploadingMessage, totalImages , completedImages,type, uplo
     uploadingMessage === 'UPLOADINGFILE' && typeof uploadProgressPercent === 'number';
   const barPercent = useMeasuredUpload ? uploadProgressPercent : fakeProgress;
 
+  if (type === 'convert') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+        <HomeTopNav />
+        <ConverterProgressLoader
+          uploadingMessage={uploadingMessage}
+          uploadProgressPercent={uploadProgressPercent}
+          fileName={fileName}
+          outputFormat={outputFormat}
+          fileSize={fileSize}
+          isSampleFile={isSampleFile}
+        />
+      </div>
+    );
+  }
+
   return (
     <div style={{display:'flex',flexDirection:'column',width:'100%'}}>
-    {type === 'convert' && <HomeTopNav />}
     <div style={{ width: '100%', minHeight: '100vh', display: 'flex', alignItems: 'center', 
     justifyContent: 'space-between', background: 'white', color: '#1f2937' }}>
       <div style={{ width: '300px', height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>

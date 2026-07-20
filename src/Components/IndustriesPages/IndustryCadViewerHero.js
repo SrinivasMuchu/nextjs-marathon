@@ -69,7 +69,7 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
             <span className={heroStyles.trustIcon} aria-hidden>
               <Clock size={18} strokeWidth={2.2} />
             </span>
-            Auto-delete in 24hrs
+            Auto-delete in 7 days
           </div>
           <div className={heroStyles.trustItem} role="listitem">
             <span className={heroStyles.trustIcon} aria-hidden>

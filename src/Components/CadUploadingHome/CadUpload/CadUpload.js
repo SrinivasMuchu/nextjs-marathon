@@ -21,7 +21,7 @@ function CadUpload({ type, cadType }) {
         </div>
         <CadUploadHeadings variant="dark" cadType={cadType} />
         <p className={heroStyles.benefitStrip}>
-          Free online viewer | Private uploads | Up to 300 MB | Auto-delete in 24 hours | No CAD
+          Free online viewer | Private uploads | Up to 300 MB | Auto-delete in 7 days | No CAD
           software needed
         </p>
         <CadDropZoneContent isStyled type={type} cadType={cadType} designVariant="heroDark" />

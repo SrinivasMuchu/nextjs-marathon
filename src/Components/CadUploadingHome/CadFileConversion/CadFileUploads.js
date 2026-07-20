@@ -3,7 +3,6 @@ import React from "react";
 import styles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import CadFileConversionWrapper from './CadFileConversionWrapper'
-import ConverterUploadPricingNote from './ConverterUploadPricingNote'
 
 function CadFileUploads({ convert, allowedFormats, initialAllowedFormats = [], designVariant }) {
     // Use initialAllowedFormats on first paint (from server params) to avoid CLS when context hydrates
@@ -14,23 +13,25 @@ function CadFileUploads({ convert, allowedFormats, initialAllowedFormats = [], d
 
     const isConverterHero = designVariant === 'converterHero';
 
-    const dropInner = (
-      <div className={isConverterHero ? heroStyles.heroUploadPanelContent : styles["cad-dropzone-content"]}>
-        <p className={isConverterHero ? heroStyles.heroUploadPanelHead : styles['cad-dropzone-head']}>
+    const dropInner = isConverterHero ? (
+      <div className={heroStyles.heroUploadPanelContent}>
+        <p className={heroStyles.heroUploadPanelHead}>Drag and drop your 3D file here</p>
+        <p className={heroStyles.heroUploadPanelHint}>or choose a file from your computer</p>
+        <span className={heroStyles.heroUploadPanelFile}>Browse files</span>
+        <p className={heroStyles.heroUploadMaxSize}>Maximum file size: 300 MB</p>
+      </div>
+    ) : (
+      <div className={styles["cad-dropzone-content"]}>
+        <p className={styles['cad-dropzone-head']}>
           Drag &amp; drop your 3D{' '}
-          <span className={isConverterHero ? heroStyles.heroUploadPanelFile : styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>
+          <span className={styles['cad-dropzone-file']} style={{ cursor: 'pointer' }}>
             file
           </span>{' '}
           here to convert
         </p>
-        {isConverterHero ? (
-          <p className={heroStyles.heroUploadPanelHint}>or click to browse files</p>
-        ) : (
           <p className={styles['cad-dropzone-desc']}>
             {formatsText}
           </p>
-        )}
-        {isConverterHero ? <ConverterUploadPricingNote /> : null}
       </div>
     );
 

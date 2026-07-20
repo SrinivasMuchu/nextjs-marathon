@@ -3,12 +3,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import Select from 'react-select'
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined'
 import PopupWrapper from '../CommonJsx/PopupWrapper'
 import popupStyles from '../CommonJsx/CommonStyles.module.css'
 import {
   fetchCadVendorMailPreview,
   previewCadVendorMail,
   sendCadVendorMail,
+  uploadCadServiceReferenceFile,
 } from '@/api/adminVendorsApi'
 import Loading from '../CommonJsx/Loaders/Loading'
 import styles from './CadVendorMailPopup.module.css'
@@ -78,7 +80,7 @@ const vendorSelectStyles = {
   }),
 }
 
-function CadVendorMailPopup({ request, onClose, onSent }) {
+function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const [isRefreshingPreview, setIsRefreshingPreview] = useState(false)
@@ -87,11 +89,17 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
   const [subject, setSubject] = useState('')
   const [mailContent, setMailContent] = useState(EMPTY_CONTENT)
   const [defaultContent, setDefaultContent] = useState(EMPTY_CONTENT)
+  const [mailFormat, setMailFormat] = useState('template')
+  const [textContent, setTextContent] = useState('')
+  const [defaultTextContent, setDefaultTextContent] = useState('')
   const [previewHtml, setPreviewHtml] = useState('')
   const [showPreview, setShowPreview] = useState(false)
   const [subjectError, setSubjectError] = useState('')
   const [contentErrors, setContentErrors] = useState({})
+  const [referenceFile, setReferenceFile] = useState(request.file || '')
+  const [isReplacingFile, setIsReplacingFile] = useState(false)
   const briefRef = useRef(null)
+  const referenceFileInputRef = useRef(null)
 
   useEffect(() => {
     adjustBriefHeight(briefRef.current)
@@ -115,6 +123,9 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
           setSubject(response.data.subject || '')
           setMailContent(editableContent)
           setDefaultContent(editableContent)
+          setTextContent(response.data.text || '')
+          setDefaultTextContent(response.data.text || '')
+          setReferenceFile(content.file || request.file || '')
           setPreviewHtml(response.data.html || '')
         } else {
           toast.error(response.meta.message || 'Failed to load mail preview')
@@ -130,7 +141,7 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
     }
 
     loadPreview()
-  }, [request._id, onClose])
+  }, [request._id, request.file, onClose])
 
   const refreshPreview = useCallback(async (nextSubject, nextContent) => {
     setIsRefreshingPreview(true)
@@ -151,14 +162,14 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
   }, [request._id])
 
   useEffect(() => {
-    if (!showPreview || isLoading) return undefined
+    if (!showPreview || isLoading || mailFormat !== 'template') return undefined
 
     const timer = setTimeout(() => {
       refreshPreview(subject, mailContent)
     }, 400)
 
     return () => clearTimeout(timer)
-  }, [subject, mailContent, showPreview, isLoading, refreshPreview])
+  }, [subject, mailContent, mailFormat, showPreview, isLoading, refreshPreview])
 
   const vendorOptions = useMemo(
     () =>
@@ -195,11 +206,15 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
   const validateMailContent = () => {
     const nextSubjectError = subject.trim() ? '' : 'Subject is required'
     const nextContentErrors = {}
-    if (!mailContent.project_type.trim()) {
-      nextContentErrors.project_type = 'Project type is required'
-    }
-    if (!mailContent.requirement.trim()) {
-      nextContentErrors.requirement = 'Project brief is required'
+    if (mailFormat === 'template') {
+      if (!mailContent.project_type.trim()) {
+        nextContentErrors.project_type = 'Project type is required'
+      }
+      if (!mailContent.requirement.trim()) {
+        nextContentErrors.requirement = 'Project brief is required'
+      }
+    } else if (!textContent.trim()) {
+      nextContentErrors.text_content = 'Email text is required'
     }
     setSubjectError(nextSubjectError)
     setContentErrors(nextContentErrors)
@@ -209,6 +224,8 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
   const buildSendPayload = (extra = {}) => ({
     request_id: request._id,
     subject: subject.trim(),
+    mail_format: mailFormat,
+    text_content: mailFormat === 'text' ? textContent.trim() : '',
     content: {
       project_type: mailContent.project_type.trim(),
       model_use: mailContent.model_use.trim(),
@@ -221,12 +238,54 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
   const handleResetFields = () => {
     setSubject(preview?.subject || '')
     setMailContent(defaultContent)
+    setTextContent(defaultTextContent)
     setSubjectError('')
     setContentErrors({})
     toast.info('Fields reset to original request values.')
   }
 
+  const handleReferenceFileChange = async (event) => {
+    const selectedFile = event.target.files?.[0]
+    event.target.value = ''
+    if (!selectedFile) return
+
+    setIsReplacingFile(true)
+    try {
+      const response = await uploadCadServiceReferenceFile(selectedFile, request._id)
+      if (!response?.meta?.success || !response.data?.request) {
+        throw new Error(response?.meta?.message || 'Failed to replace reference file')
+      }
+
+      const nextReferenceFile = response.data.request.file || ''
+      setTextContent((current) => {
+        if (referenceFile && current.includes(referenceFile)) {
+          return current.split(referenceFile).join(nextReferenceFile)
+        }
+        if (!referenceFile && current.includes('Reference file: —')) {
+          return current.replace('Reference file: —', `Reference file: ${nextReferenceFile}`)
+        }
+        return current
+      })
+      setReferenceFile(nextReferenceFile)
+      onFileUpdated?.(response.data.request)
+      toast.success(response.meta.message || 'Reference file replaced successfully')
+      if (showPreview) {
+        await refreshPreview(subject, mailContent)
+      }
+    } catch (error) {
+      console.error('Reference file replacement error:', error)
+      toast.error(
+        error.response?.data?.meta?.message
+          || error.message
+          || 'Failed to replace reference file',
+      )
+    } finally {
+      setIsReplacingFile(false)
+    }
+  }
+
   const handleSendSelected = async () => {
+    if (isReplacingFile) return
     if (!selectedVendors.length) {
       toast.error('Select at least one vendor')
       return
@@ -258,6 +317,7 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
   }
 
   const handleSendAll = async () => {
+    if (isReplacingFile) return
     if (!mailableVendorCount) {
       toast.error('No active vendors with email addresses found')
       return
@@ -288,7 +348,14 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
       <div className={styles.container}>
         <div className={popupStyles.headerRow}>
           <span className={popupStyles.headerTitle}>Send Vendor Mail</span>
-          <button type="button" className={popupStyles.closeBtn} onClick={onClose}>&times;</button>
+          <button
+            type="button"
+            className={popupStyles.closeBtn}
+            onClick={onClose}
+            disabled={isSending || isReplacingFile}
+          >
+            &times;
+          </button>
         </div>
 
         {isLoading ? (
@@ -324,8 +391,33 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
                   </button>
                 </div>
 
+                <div className={styles.formatSelector} role="radiogroup" aria-label="Email format">
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={mailFormat === 'template'}
+                    className={`${styles.formatOption} ${mailFormat === 'template' ? styles.formatOptionActive : ''}`}
+                    onClick={() => setMailFormat('template')}
+                    disabled={isSending}
+                  >
+                    Template
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={mailFormat === 'text'}
+                    className={`${styles.formatOption} ${mailFormat === 'text' ? styles.formatOptionActive : ''}`}
+                    onClick={() => setMailFormat('text')}
+                    disabled={isSending}
+                  >
+                    Plain text
+                  </button>
+                </div>
+
                 <p className={styles.editHint}>
-                  Edit the fields below. Email layout and styling stay fixed on send.
+                  {mailFormat === 'template'
+                    ? 'Edit the fields below. Email layout and styling stay fixed on send.'
+                    : 'Write a plain-text email without the styled HTML template.'}
                 </p>
 
                 <div className={styles.formGrid}>
@@ -345,61 +437,129 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
                     {subjectError ? <span className={styles.errorText}>{subjectError}</span> : null}
                   </div>
 
-                  <div className={styles.formField}>
-                    <label className={styles.fieldLabel} htmlFor="vendor-mail-project-type">Project type *</label>
-                    <input
-                      id="vendor-mail-project-type"
-                      type="text"
-                      className={`${styles.textInput} ${contentErrors.project_type ? styles.inputError : ''}`}
-                      value={mailContent.project_type}
-                      onChange={handleContentChange('project_type')}
-                      disabled={isSending}
-                    />
-                    {contentErrors.project_type ? (
-                      <span className={styles.errorText}>{contentErrors.project_type}</span>
-                    ) : null}
-                  </div>
+                  {mailFormat === 'template' ? (
+                    <>
+                      <div className={styles.formField}>
+                        <label className={styles.fieldLabel} htmlFor="vendor-mail-project-type">Project type *</label>
+                        <input
+                          id="vendor-mail-project-type"
+                          type="text"
+                          className={`${styles.textInput} ${contentErrors.project_type ? styles.inputError : ''}`}
+                          value={mailContent.project_type}
+                          onChange={handleContentChange('project_type')}
+                          disabled={isSending}
+                        />
+                        {contentErrors.project_type ? (
+                          <span className={styles.errorText}>{contentErrors.project_type}</span>
+                        ) : null}
+                      </div>
 
-                  <div className={styles.formField}>
-                    <label className={styles.fieldLabel} htmlFor="vendor-mail-model-use">Model use</label>
-                    <input
-                      id="vendor-mail-model-use"
-                      type="text"
-                      className={styles.textInput}
-                      value={mailContent.model_use}
-                      onChange={handleContentChange('model_use')}
-                      disabled={isSending}
-                    />
-                  </div>
+                      <div className={styles.formField}>
+                        <label className={styles.fieldLabel} htmlFor="vendor-mail-model-use">Model use</label>
+                        <input
+                          id="vendor-mail-model-use"
+                          type="text"
+                          className={styles.textInput}
+                          value={mailContent.model_use}
+                          onChange={handleContentChange('model_use')}
+                          disabled={isSending}
+                        />
+                      </div>
 
-                  <div className={styles.formField}>
-                    <label className={styles.fieldLabel} htmlFor="vendor-mail-software">Software</label>
-                    <input
-                      id="vendor-mail-software"
-                      type="text"
-                      className={styles.textInput}
-                      value={mailContent.software_format}
-                      onChange={handleContentChange('software_format')}
-                      disabled={isSending}
-                    />
-                  </div>
+                      <div className={styles.formField}>
+                        <label className={styles.fieldLabel} htmlFor="vendor-mail-software">Software</label>
+                        <input
+                          id="vendor-mail-software"
+                          type="text"
+                          className={styles.textInput}
+                          value={mailContent.software_format}
+                          onChange={handleContentChange('software_format')}
+                          disabled={isSending}
+                        />
+                      </div>
+                    </>
+                  ) : null}
 
                   <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                    <label className={styles.fieldLabel} htmlFor="vendor-mail-requirement">Project brief *</label>
-                    <textarea
-                      ref={briefRef}
-                      id="vendor-mail-requirement"
-                      className={`${styles.textArea} ${styles.briefArea} ${contentErrors.requirement ? styles.inputError : ''}`}
-                      value={mailContent.requirement}
-                      onChange={handleRequirementChange}
-                      disabled={isSending}
-                      rows={10}
-                      placeholder="Describe the project requirements..."
-                    />
-                    {contentErrors.requirement ? (
-                      <span className={styles.errorText}>{contentErrors.requirement}</span>
-                    ) : null}
+                    <span className={styles.fieldLabel}>Reference file</span>
+                    <div className={styles.referenceFileActions}>
+                      {referenceFile ? (
+                        <a
+                          href={referenceFile}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.referenceFileLink}
+                        >
+                          Download current file
+                        </a>
+                      ) : (
+                        <span className={styles.referenceFileEmpty}>No reference file uploaded</span>
+                      )}
+                      <input
+                        ref={referenceFileInputRef}
+                        type="file"
+                        className={styles.hiddenFileInput}
+                        onChange={handleReferenceFileChange}
+                        disabled={isSending || isReplacingFile}
+                      />
+                      <button
+                        type="button"
+                        className={styles.replaceFileBtn}
+                        onClick={() => referenceFileInputRef.current?.click()}
+                        disabled={isSending || isReplacingFile}
+                      >
+                        <UploadFileOutlinedIcon fontSize="small" />
+                        {isReplacingFile
+                          ? 'Uploading...'
+                          : referenceFile
+                            ? 'Replace file'
+                            : 'Upload file'}
+                      </button>
+                    </div>
+                    <span className={styles.fileHint}>
+                      The email preview and vendor email will use this file.
+                    </span>
                   </div>
+
+                  {mailFormat === 'template' ? (
+                    <div className={`${styles.formField} ${styles.formFieldFull}`}>
+                      <label className={styles.fieldLabel} htmlFor="vendor-mail-requirement">Project brief *</label>
+                      <textarea
+                        ref={briefRef}
+                        id="vendor-mail-requirement"
+                        className={`${styles.textArea} ${styles.briefArea} ${contentErrors.requirement ? styles.inputError : ''}`}
+                        value={mailContent.requirement}
+                        onChange={handleRequirementChange}
+                        disabled={isSending}
+                        rows={10}
+                        placeholder="Describe the project requirements..."
+                      />
+                      {contentErrors.requirement ? (
+                        <span className={styles.errorText}>{contentErrors.requirement}</span>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className={`${styles.formField} ${styles.formFieldFull}`}>
+                      <label className={styles.fieldLabel} htmlFor="vendor-mail-text">Email text *</label>
+                      <textarea
+                        id="vendor-mail-text"
+                        className={`${styles.textArea} ${styles.plainTextArea} ${contentErrors.text_content ? styles.inputError : ''}`}
+                        value={textContent}
+                        onChange={(event) => {
+                          setTextContent(event.target.value)
+                          if (contentErrors.text_content) {
+                            setContentErrors((current) => ({ ...current, text_content: '' }))
+                          }
+                        }}
+                        disabled={isSending}
+                        rows={14}
+                        placeholder="Write the email to vendors..."
+                      />
+                      {contentErrors.text_content ? (
+                        <span className={styles.errorText}>{contentErrors.text_content}</span>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -411,15 +571,21 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
                   disabled={isSending}
                 >
                   {showPreview ? 'Hide email preview' : 'Show email preview'}
-                  {isRefreshingPreview && showPreview ? ' (updating…)' : ''}
+                  {isRefreshingPreview && showPreview && mailFormat === 'template'
+                    ? ' (updating…)'
+                    : ''}
                 </button>
 
                 {showPreview ? (
                   <div className={styles.previewWrap}>
-                    <div
-                      className={styles.previewContent}
-                      dangerouslySetInnerHTML={{ __html: previewHtml || '' }}
-                    />
+                    {mailFormat === 'template' ? (
+                      <div
+                        className={styles.previewContent}
+                        dangerouslySetInnerHTML={{ __html: previewHtml || '' }}
+                      />
+                    ) : (
+                      <pre className={styles.textPreview}>{textContent}</pre>
+                    )}
                   </div>
                 ) : null}
               </div>
@@ -464,7 +630,7 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
                     type="button"
                     className={styles.sendToBtn}
                     onClick={handleSendSelected}
-                    disabled={isSending || !selectedVendors.length}
+                    disabled={isSending || isReplacingFile || !selectedVendors.length}
                   >
                     {isSending ? 'Sending...' : 'Send To'}
                   </button>
@@ -476,7 +642,7 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
                   type="button"
                   className={popupStyles.skipBtn}
                   onClick={onClose}
-                  disabled={isSending}
+                  disabled={isSending || isReplacingFile}
                 >
                   Cancel
                 </button>
@@ -484,7 +650,7 @@ function CadVendorMailPopup({ request, onClose, onSent }) {
                   type="button"
                   className={styles.sendAllBtn}
                   onClick={handleSendAll}
-                  disabled={isSending || !mailableVendorCount}
+                  disabled={isSending || isReplacingFile || !mailableVendorCount}
                 >
                   {isSending ? 'Sending...' : `Send All (${mailableVendorCount})`}
                 </button>

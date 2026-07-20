@@ -563,6 +563,30 @@
   font-weight: 700;
 }
 
+.converterPriceBadgePaid {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #ede4ff;
+  color: #610bee;
+  border: 1px solid #d6c4ff;
+}
+
+.converterPriceBadgePayable {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #fff4e5;
+  color: #b25e00;
+  border: 1px solid #ffd8a8;
+}
+
 .converterPricingFootnote {
   display: flex;
   align-items: flex-start;

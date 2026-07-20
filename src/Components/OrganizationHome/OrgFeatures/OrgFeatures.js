@@ -23,7 +23,7 @@ function OrgFeatures({type}) {
                 </div>
                 <div className={styles['features-text']}>
                 <Image src={IMAGEURLS.check} alt="CAD Viewer feature" width={24} height={24} />
-                  <span>Automatically deleted after 24hrs.</span>
+                  <span>Automatically deleted after 7 days.</span>
                 </div>
                 <div className={styles['features-text']}>
                 <Image src={IMAGEURLS.check} alt="CAD Viewer feature" width={24} height={24} />
@@ -38,7 +38,7 @@ function OrgFeatures({type}) {
                 </div>
                 <div className={styles['features-text']}>
                   <Image src={IMAGEURLS.check} alt="Organization Features" width={24} height={24} />
-                  <span>Automatically deleted after 24hrs</span>
+                  <span>Automatically deleted after 7 days</span>
                 </div>
                 {type === 'org' && (
                   <div className={styles['features-text']}>

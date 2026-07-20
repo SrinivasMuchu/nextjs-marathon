@@ -29,27 +29,54 @@
 
 .formatsSection {
   width: 100%;
-  max-width: 1120px;
-  margin: 0 auto 24px;
-  padding: 0 clamp(16px, 3vw, 24px);
+  margin: 0;
+  padding: clamp(56px, 7vw, 90px) clamp(18px, 5vw, 64px);
+  background:
+    radial-gradient(circle at 82% 14%, rgba(149, 96, 218, 0.08), transparent 30%),
+    #f8f6fc;
   box-sizing: border-box;
 }
 
 .formatsInner {
-  padding: clamp(22px, 3vw, 32px) clamp(16px, 3vw, 28px);
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   box-sizing: border-box;
   text-align: center;
 }
 
-.heading {
-  margin: 0 0 clamp(20px, 3vw, 28px);
-  font-size: clamp(24px, 3.5vw, 32px);
-  font-weight: 800;
+.formatsEyebrow {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 10px;
+  padding-left: 13px;
+  color: #7142aa;
+  font-size: 10px;
+  font-weight: 750;
   line-height: 1.2;
-  color: #111827;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.formatsEyebrow::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: #8547d6;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.heading {
+  margin: 0;
+  color: #171127;
+  font-size: clamp(29px, 3.8vw, 43px);
+  font-weight: 780;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
 }
 
 .copy {
@@ -59,32 +86,100 @@
   color: #4b5563;
 }
 
+.formatsIntro {
+  max-width: 760px;
+  margin: 10px auto clamp(28px, 4vw, 40px);
+  color: #716979;
+  font-size: clamp(12px, 1.4vw, 14px);
+  line-height: 1.55;
+}
+
 .formatList {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.formatPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
+.formatCard {
+  min-width: 0;
+  min-height: 126px;
+  padding: 15px;
+  border: 1px solid #ece7f1;
+  border-radius: 12px;
   background: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
-  color: #374151;
+  text-align: left;
+  box-shadow: 0 7px 20px rgba(49, 28, 73, 0.045);
+  box-sizing: border-box;
 }
 
-.formatIcon {
+.formatCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.formatBadge {
+  min-width: 34px;
+  height: 28px;
+  padding: 0 7px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #610bee;
+  border-radius: 8px;
+  background: #f1e8fd;
+  color: #6f30c6;
+  font-size: 9px;
+  font-weight: 750;
+  box-sizing: border-box;
+}
+
+.formatType {
+  overflow: hidden;
+  color: #9a929f;
+  font-size: 8px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.formatCard h3 {
+  margin: 0 0 5px;
+  color: #2a2134;
+  font-size: 11px;
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+.formatCard p {
+  margin: 0;
+  color: #918997;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+@media (max-width: 980px) {
+  .formatList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .formatList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .formatsSection {
+    padding: 46px 14px;
+  }
+
+  .formatList {
+    grid-template-columns: 1fr;
+  }
 }

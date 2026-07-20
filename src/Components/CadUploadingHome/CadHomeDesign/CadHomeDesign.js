@@ -41,7 +41,7 @@ const features = [
     },
     {
         title: 'Secure & Privacy-Focused',
-        description: "Your files are encrypted, private, and automatically deleted after 24 hours for security."
+        description: "Your files are encrypted, private, and automatically deleted after 7 days for security."
     },
    
 ]
@@ -69,7 +69,7 @@ const featuresArray = [
     },
     {
         title: 'Cloud-Based & Secure',
-        description: "Files stay private and automatically delete after 24 hours for security."
+        description: "Files stay private and automatically delete after 7 days for security."
     },
     {
         title: 'Engineered for Professionals',
@@ -131,7 +131,7 @@ const steps = [
     },
     {
       title: 'Retention',
-      description: 'Files are deleted after 24 hours immediately.',
+      description: 'Files are deleted after 7 days immediately.',
     },
     {
       title: 'Ownership',

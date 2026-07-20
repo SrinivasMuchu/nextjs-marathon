@@ -4,11 +4,108 @@ import { usePathname, useRouter } from "next/navigation";
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowLeftRight,
+  BookOpen,
+  Box,
+  Building2,
+  Eye,
+  FileOutput,
+  LayoutGrid,
+  Network,
+  SquareStack,
+} from "lucide-react";
 import styles from "./HomeTopNav.module.css";
 import TopNavProfileButton from "../../CommonJsx/TopNavProfileButton";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
-import CheckHistory from "@/Components/CommonJsx/CheckHistory";
+
+const TOOLS_MENU = [
+  {
+    href: "/tools",
+    title: "All tools",
+    subtitle: "Browse every Marathon tool",
+    Icon: LayoutGrid,
+  },
+  {
+    href: "/tools/industries",
+    title: "All industries",
+    subtitle: "Explore by industry category",
+    Icon: Building2,
+  },
+  {
+    href: "/tools/org-hierarchy",
+    title: "Org Hierarchy",
+    subtitle: "Map parts to organization structure",
+    Icon: Network,
+  },
+  {
+    href: "/tools/3d-cad-viewer",
+    title: "CAD Viewer",
+    subtitle: "Open the online model viewer",
+    Icon: Eye,
+  },
+  {
+    href: "/tools/3d-cad-file-converter",
+    title: "CAD File Convert",
+    subtitle: "STEP ⇄ STL ⇄ IGES ⇄ DXF",
+    Icon: ArrowLeftRight,
+  },
+  {
+    href: "/tools/cad-drawing-pipeline",
+    title: "3D to 2D Drawing Pipeline",
+    subtitle: "Generate 2D drawings from 3D CAD",
+    Icon: FileOutput,
+  },
+];
+
+const LIBRARY_MENU = [
+  {
+    href: "/library",
+    title: "3D Library",
+    subtitle: "Browse and manage 3D CAD models",
+    Icon: Box,
+  },
+  {
+    href: "/library/2d-technical-drawings",
+    title: "2D Library",
+    subtitle: "Browse 2D technical drawings",
+    Icon: SquareStack,
+  },
+];
+
+const BLOGS_MENU = [
+  {
+    href: "/blog/part-number-nomenclature-guide",
+    title: "Part Number Nomenclature Guide",
+    subtitle: "How to structure and read part numbers",
+    Icon: BookOpen,
+  },
+];
+
+function renderNavDropdownMenu(items, label, onClose) {
+  return (
+    <div className={styles.toolsDropdownMenu} role="menu" aria-label={label}>
+      {items.map(({ href, title, subtitle, Icon }) => (
+        <Link
+          key={href}
+          href={href}
+          role="menuitem"
+          className={styles.toolsDropdownCard}
+          onClick={onClose}
+        >
+          <span className={styles.toolsDropdownIcon} aria-hidden="true">
+            <Icon size={20} strokeWidth={2} />
+          </span>
+          <span className={styles.toolsDropdownText}>
+            <span className={styles.toolsDropdownTitle}>{title}</span>
+            <span className={styles.toolsDropdownSubtitle}>{subtitle}</span>
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 function HomeTopNav() {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
@@ -105,12 +202,8 @@ function HomeTopNav() {
           >
             Library <span aria-hidden>▼</span>
           </Link>
-          {openDropdown === "library" && (
-            <div className={styles["dropdown-menu"]}>
-              <Link href="/library" onClick={() => setOpenDropdown(false)}>3D Library</Link>
-              <Link href="/library/2d-technical-drawings" onClick={() => setOpenDropdown(false)}>2D Library</Link>
-            </div>
-          )}
+          {openDropdown === "library" &&
+            renderNavDropdownMenu(LIBRARY_MENU, "Library", () => setOpenDropdown(null))}
         </div>
         <Link
           href="/cad-services"
@@ -132,17 +225,8 @@ function HomeTopNav() {
           >
             Tools <span aria-hidden>▼</span>
           </Link>
-          {openDropdown === "tools" && (
-            <div className={styles["dropdown-menu"]}>
-              <Link href="/tools" onClick={()=>setOpenDropdown(false)}>All tools</Link>
-              <Link href="/tools/industries" onClick={()=>setOpenDropdown(false)}>All industries</Link>
-              <Link href="/tools/org-hierarchy" onClick={()=>setOpenDropdown(false)}>Org Hierarchy</Link>
-              <Link href="/tools/3d-cad-viewer" onClick={()=>setOpenDropdown(false)}>CAD Viewer</Link>
-              <Link href="/tools/3d-cad-file-converter" onClick={()=>setOpenDropdown(false)}>CAD File Convert</Link>
-              <Link href="/tools/cad-drawing-pipeline" onClick={()=>setOpenDropdown(false)}>3D to 2D Drawing Pipeline</Link>
-              {/* <Link href="/tools/upload-cad-file">upload cad file</Link> */}
-            </div>
-          )}
+          {openDropdown === "tools" &&
+            renderNavDropdownMenu(TOOLS_MENU, "Tools", () => setOpenDropdown(null))}
         </div>
 
         <Link href="/resources" onMouseEnter={() => handleNavHover(null)}>
@@ -165,11 +249,8 @@ function HomeTopNav() {
           >
             Blogs <span aria-hidden>▼</span>
           </span>
-          {openDropdown === "blogs" && (
-            <div className={styles["dropdown-menu"]} style={{ width: '200px' }}>
-              <Link href="/blog/part-number-nomenclature-guide" onClick={()=>setOpenDropdown(false)}>Part Number Nomenclature Guide</Link>
-            </div>
-          )}
+          {openDropdown === "blogs" &&
+            renderNavDropdownMenu(BLOGS_MENU, "Blogs", () => setOpenDropdown(null))}
         </div>
       </div>
 

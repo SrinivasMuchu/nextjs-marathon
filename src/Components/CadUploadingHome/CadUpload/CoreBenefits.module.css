@@ -87,37 +87,80 @@
   }
 }
 
-/* CAD converter: 3×2 icon cards, full-width section (no outer radius) */
+/* CAD converter: workflow benefit cards */
 .cardGridSection {
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: clamp(48px, 6vw, 88px) clamp(20px, 4vw, 56px);
+  padding: clamp(54px, 6vw, 82px) clamp(20px, 5vw, 72px);
   box-sizing: border-box;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 84% 12%, rgba(160, 94, 238, 0.1), transparent 31%),
+    linear-gradient(180deg, #fbf9ff 0%, #f8f5fc 100%);
   border-radius: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(32px, 4vw, 48px);
+  gap: clamp(28px, 3vw, 38px);
+}
+
+.cardGridHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.cardGridEyebrow {
+  position: relative;
+  margin: 0 0 2px;
+  padding-left: 13px;
+  color: #7142aa;
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.cardGridEyebrow::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: #8547d6;
+  transform: translateY(-50%) rotate(45deg);
 }
 
 .cardGridHeading {
-  color: #0f172a;
+  color: #171127;
   text-align: center;
-  font-size: clamp(26px, 4.5vw, 40px);
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: clamp(28px, 3.6vw, 42px);
+  font-weight: 760;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
   margin: 0;
   max-width: 960px;
 }
 
+.cardGridDescription {
+  max-width: 720px;
+  margin: 0;
+  color: #6f687a;
+  font-size: clamp(13px, 1.4vw, 15px);
+  line-height: 1.5;
+}
+
 .cardGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(16px, 2.5vw, 24px);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 1.7vw, 18px);
   width: 100%;
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -126,45 +169,60 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
+  gap: 8px;
   margin: 0;
-  padding: clamp(20px, 2.5vw, 26px);
+  padding: clamp(20px, 2.3vw, 27px);
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #ede8f2;
+  border-top: 3px solid #a56be1;
   border-radius: 12px;
   box-sizing: border-box;
+  box-shadow: 0 12px 28px rgba(52, 28, 82, 0.08);
 }
 
 .benefitCardIconBox {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 5px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(97, 11, 238, 0.1);
+  background: linear-gradient(135deg, #f2e8ff 0%, #e9ddfb 100%);
 }
 
 .benefitCardIconSvg {
-  color: #610bee;
+  width: 20px;
+  height: 20px;
+  color: #6f30c6;
+}
+
+.benefitCardLabel {
+  margin: 0;
+  color: #6f30c6;
+  font-size: 9px;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .benefitCardTitle {
   margin: 0;
-  color: #0f172a;
-  font-size: 17px;
-  font-weight: 700;
+  color: #241b31;
+  font-size: 15px;
+  font-weight: 720;
   line-height: 1.35;
   letter-spacing: -0.02em;
 }
 
 .benefitCardDescription {
   margin: 0;
-  color: #475569;
-  font-size: 14px;
+  color: #716979;
+  font-size: 12px;
   font-weight: 400;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 @media screen and (max-width: 900px) {

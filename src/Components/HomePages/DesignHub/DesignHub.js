@@ -1,4 +1,5 @@
 import DesignHubContent from './DesignHubContent'
+import ConverterDesignHubContent from './ConverterDesignHubContent'
 import styles from './DesignHub.module.css'
 import { BASE_URL } from '../../../config'
 
@@ -49,9 +50,19 @@ async function getCategoriesAndDesigns() {
   }
 }
 
-const DesignHub = async ({ headingLevel = 2 }) => {
+const DesignHub = async ({ headingLevel = 2, variant = 'default' }) => {
   const { categories, designsByCategory } = await getCategoriesAndDesigns()
   const HeadingTag = headingLevel === 3 ? 'h3' : 'h2'
+
+  if (variant === 'converter') {
+    return (
+      <ConverterDesignHubContent
+        categories={categories}
+        designsByCategory={designsByCategory}
+        headingLevel={headingLevel}
+      />
+    )
+  }
 
   return (
     <div className={styles.designHubContainer}>

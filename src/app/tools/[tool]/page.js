@@ -1,5 +1,5 @@
 import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDesign';
-import CadFileConversionHome from '@/Components/CadUploadingHome/CadFileConversion/CadFileConversionHome';
+import ConvertPairPage from '@/Components/CadUploadingHome/CadFileConversion/ConvertPairPage';
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd';
 import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
@@ -14,6 +14,27 @@ import {
 import { notFound } from 'next/navigation';
 
 const BASE_URL = 'https://marathon-os.com';
+
+const CONVERTER_META_TO_PHRASE = {
+  brep: 'BREP online for Open CASCADE workflows',
+  brp: 'BREP online for Open CASCADE workflows',
+  iges: 'IGES online for legacy CAD and surface exchange',
+  igs: 'IGES online for legacy CAD and surface exchange',
+  obj: 'OBJ online for visualization and mesh workflows',
+  ply: 'PLY online for 3D scanning and colored meshes',
+  stl: 'STL online for 3D printing and slicing',
+  off: 'OFF online for computational mesh workflows',
+  '3dm': '3DM online for Rhino and Grasshopper workflows',
+  step: 'STEP online for mechanical CAD workflows',
+  stp: 'STEP online for mechanical CAD workflows',
+  dxf: 'DXF online for CAD, CAM and CNC exchange',
+  dwg: 'DWG online for native AutoCAD editing',
+};
+
+function getConverterMetaToPhrase(to) {
+  const key = String(to || '').toLowerCase();
+  return CONVERTER_META_TO_PHRASE[key] || `${String(to || '').toUpperCase()} online`;
+}
 
 function parseCadFileFromSegment(segment) {
   if (!segment || typeof segment !== 'string') return null;
@@ -49,8 +70,8 @@ export async function generateMetadata({ params }) {
     const fromUpper = from?.toUpperCase() ?? '';
     const toUpper = to?.toUpperCase() ?? '';
     const canonical = `/tools/convert-${conversion}`;
-    const title = `Free Online ${fromUpper} to ${toUpper} Converter | Marathon OS`;
-    const description = `Convert ${fromUpper} files to ${toUpper} online with Marathon OS. Fast, secure CAD file conversion with no software installation required.`;
+    const title = `Convert ${fromUpper} to ${toUpper} Online – Free up to 5 MB | Marathon OS`;
+    const description = `Convert ${fromUpper} files to ${getConverterMetaToPhrase(to)}. Secure uploads, files up to 300 MB, free downloads under 5 MB, and no software required.`;
 
     return buildPageMetadata({
       title,
@@ -108,7 +129,7 @@ export default function ToolPage({ params }) {
       <>
         <FaqPageJsonLd faqSchemaData={converterFaqs} />
         <SoftwareApplicationJsonLd name={softwareName} url={softwareUrl} />
-        <CadFileConversionHome convert={true} conversionParams={conversion} skipPageJsonLd />
+        <ConvertPairPage conversionParams={conversion} />
       </>
     );
   }
