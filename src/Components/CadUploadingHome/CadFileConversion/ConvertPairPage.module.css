@@ -534,7 +534,19 @@
   grid-column: 1 / -1;
   align-self: center;
   justify-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #7632cf;
+}
+
+.geometryIcon img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  display: block;
+  transform: scale(1.15);
+  transform-origin: center;
 }
 
 .geometryIconBlue {

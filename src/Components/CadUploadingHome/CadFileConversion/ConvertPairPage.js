@@ -24,9 +24,19 @@ import ConverterFaq from './ConverterFaq'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 import { getConverterFaqQuestions } from '@/data/cadToolFaqs'
 import { getConverterPairContent } from '@/data/converterPairContent'
+import { IMAGEURLS } from '@/config'
 import cadHomeStyles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import styles from './ConvertPairPage.module.css'
+
+/** Mesh formats use wireframeImage; solid/surface CAD formats use solidImage. */
+const MESH_VISUAL_FORMATS = new Set(['stl', 'obj', 'off', 'ply'])
+
+function getFormatGeometryImage(format) {
+  return MESH_VISUAL_FORMATS.has(String(format || '').toLowerCase())
+    ? IMAGEURLS.wireframeImage
+    : IMAGEURLS.solidImage
+}
 
 const COMPARISON_ROWS = [
   ['Main purpose', 'purpose'],
@@ -257,13 +267,27 @@ function ConvertPairPage({ conversionParams }) {
           <div className={styles.behaviorVisual}>
             <div className={styles.formatVisualRow}>
               <article>
-                <span className={styles.geometryIcon}><Box size={56} /></span>
+                <span className={styles.geometryIcon}>
+                  <img
+                    src={getFormatGeometryImage(from)}
+                    alt=""
+                    width={96}
+                    height={96}
+                  />
+                </span>
                 <strong>{fromInfo.name}</strong>
                 <FormatBadge format={fromUpper} />
               </article>
               <ArrowRight className={styles.bigArrow} size={28} />
               <article>
-                <span className={`${styles.geometryIcon} ${styles.geometryIconBlue}`}><Box size={56} /></span>
+                <span className={`${styles.geometryIcon} ${styles.geometryIconBlue}`}>
+                  <img
+                    src={getFormatGeometryImage(to)}
+                    alt=""
+                    width={96}
+                    height={96}
+                  />
+                </span>
                 <strong>{toInfo.name}</strong>
                 <FormatBadge format={toUpper} tone="blue" />
               </article>

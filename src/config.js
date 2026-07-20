@@ -103,6 +103,9 @@ export const IMAGEURLS = {
   cadFileShareConversion:`${MARATHON_ASSET_PREFIX_URL}share_cad_file.svg`,
   cadFileFormat:`${MARATHON_ASSET_PREFIX_URL}select_format.svg`,
   cadFileDownload:`${MARATHON_ASSET_PREFIX_URL}download_coverted_file.svg`,
+
+  solidImage:`${MARATHON_ASSET_PREFIX_URL}solid-image.webp`,
+  wireframeImage:`${MARATHON_ASSET_PREFIX_URL}wireframe-image.webp`,
   
   // ImageSquare.svg
   // open-answer.webp
