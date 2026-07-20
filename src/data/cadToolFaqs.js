@@ -88,7 +88,7 @@ export function getConverterFaqQuestions(conversionParams) {
     {
       question: 'How is my data stored and secured?',
       answer:
-        'Your files are encrypted during upload, processed securely in the cloud, and automatically deleted after 24 hours.',
+        'Your files are encrypted during upload, processed securely in the cloud, and automatically deleted after 7 days.',
     },
     {
       question: 'Do I need any special software or training?',
@@ -105,34 +105,34 @@ export const cadConverterFaqQuestions = [
   {
     question: 'What is Marathon OS 3D CAD File Converter?',
     answer:
-      'Marathon OS 3D File Converter is a browser-based tool that lets you convert CAD/3D file formats online—no software installation needed.',
+      'A browser-based tool for converting common CAD, mesh, and 2D drawing formats without installing desktop software.',
   },
   {
-    question: 'What file formats are supported?',
+    question: 'Which file formats are supported?',
     answer:
-      'STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), DWG (.dwg), DXF (.dxf).',
+      'STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), DWG (.dwg), and DXF (.dxf).',
   },
   {
-    question: 'Is Marathon OS 3D File Converter free to use?',
+    question: 'Is the converter free to use?',
     answer: 'Files under 5 MB are free to convert and download. Larger files may require a small fee per conversion.',
+  },
+  {
+    question: 'What is the maximum file size?',
+    answer: 'You can upload files up to 300 MB.',
   },
   {
     question: 'How is my data stored and secured?',
     answer:
-      'Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours.',
+      'Your files are encrypted during upload, processed securely, and automatically deleted after 7 days.',
   },
   {
     question: 'Do I need any special software or training?',
-    answer: 'No—just upload your file and convert it directly in your browser (no downloads/plugins).',
+    answer: 'No—just upload your file and convert it directly in your browser. No downloads or plugins required.',
   },
   {
     question: 'Can I convert large and complex CAD models?',
     answer:
-      "Yes—the page states it's optimized to handle large & complex models, and supports uploads up to 300 MB.",
-  },
-  {
-    question: 'What is the max file size?',
-    answer: 'You can upload files up to 300 MB.',
+      'Yes—Marathon OS is optimized for large and complex engineering models, with uploads supported up to 300 MB.',
   },
 ];
 
@@ -166,7 +166,7 @@ export const cadViewerFaqQuestions = [
   {
     question: 'Will my file stay private?',
     answer:
-      'Files stay private, are encrypted, and are automatically deleted after 24 hours; see the Privacy Policy for details.',
+      'Files stay private, are encrypted, and are automatically deleted after 7 days; see the Privacy Policy for details.',
   },
   {
     question: 'Why does my model look broken (holes/missing faces)?',

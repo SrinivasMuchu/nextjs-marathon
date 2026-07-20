@@ -25,7 +25,7 @@ const features = [
     },
     {
         title: 'Secure & Privacy-Focused',
-        description: "Your data is securely stored for 24 hours before automatic deletion, ensuring maximum privacy and security."
+        description: "Your data is securely stored for 7 days before automatic deletion, ensuring maximum privacy and security."
     },
     {
         title: 'Zero Learning Curve',
@@ -48,7 +48,7 @@ const faqQuestions = [
     },
     {
         question: "How is my data stored and secured?",
-        answer: "Your data is securely stored for 24 hours before automatic deletion, ensuring privacy and security without long-term storage concerns.",
+        answer: "Your data is securely stored for 7 days before automatic deletion, ensuring privacy and security without long-term storage concerns.",
     },
     {
         question: "Do I need any training to use the tool?",

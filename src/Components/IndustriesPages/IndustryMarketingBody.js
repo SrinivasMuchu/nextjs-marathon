@@ -70,7 +70,7 @@ const WHY_CHOOSE_CARDS = [
   },
   {
     title: 'Cloud-based & secure',
-    description: 'Private uploads with automatic 24-hour deletion',
+    description: 'Private uploads with automatic 7-day deletion',
     Icon: MdOutlineVerifiedUser,
   },
   {
@@ -239,12 +239,12 @@ function IndustryMarketingBody({ industryData }) {
             </div>
             <p className={styles.securityText}>
               Many industry CAD files contain sensitive IP. Marathon OS keeps uploads private and
-              automatically deletes uploaded files after 24 hours. That makes it practical for quick review
+              automatically deletes uploaded files after 7 days. That makes it practical for quick review
               when teams want lower friction and tighter handling of shared models.
             </p>
             <div className={styles.securityTags} aria-label="Security highlights">
               <span className={styles.securityTag}>Private by default</span>
-              <span className={styles.securityTag}>Auto-delete in 24hrs</span>
+              <span className={styles.securityTag}>Auto-delete in 7 days</span>
               <span className={styles.securityTag}>Encrypted uploads</span>
             </div>
           </div>

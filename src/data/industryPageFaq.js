@@ -38,7 +38,7 @@ export function getIndustryCadViewerFaq(industryData) {
     {
       question: 'Will my uploaded files stay private?',
       answer:
-        'Marathon OS states uploads are private and automatically deleted after 24 hours, which helps reduce long-term exposure of shared files.',
+        'Marathon OS states uploads are private and automatically deleted after 7 days, which helps reduce long-term exposure of shared files.',
     },
     {
       question: 'Does this work without downloads or plugins?',

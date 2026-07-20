@@ -3,7 +3,7 @@ import React from 'react'
 import OrgFeatures from '@/Components/OrganizationHome/OrgFeatures/OrgFeatures'
 import ChartBuilder from '@/Components/OrganizationHome/ChartBuilder/ChartBuilder'
 import OurFeatures from '@/Components/OrganizationHome/OurFeatures/OurFeatures'
-import OrgFaq from '@/Components/OrganizationHome/OrgFaq/OrgFaq'
+import ConverterFaq from './ConverterFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadFileConversionHeader from './CadFileConversionHeader'
 import CadFileConversionHowItWorksServer from './CadFileConversionHowItWorksServer'
@@ -13,34 +13,30 @@ import CadConverterTypes from './CadConverterTypes'
 import FeaturedConversions from './FeaturedConversions'
 import CadConversionToolLinks from './CadConversionToolLinks'
 import SupportedCadFormats from './SupportedCadFormats'
-import WhenToUseConverter from './WhenToUseConverter'
+import ConverterGuidance from './ConverterGuidance'
 import CadViewerCrossLink from '../CadUpload/CadViewerCrossLink'
-import ToolLibraryCrossLinks from '@/Components/CommonJsx/CrossTemplateLinks/ToolLibraryCrossLinks'
+import ConverterResources from './ConverterResources'
 import InterlinkingBlocks from './InterlinkingBlocks'
 import CadConverterFormateText from './CadConverterFormateText'
-import ConversionQualityNotes from '../CadUpload/ConversionQualityNotes'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { cadConverterFaqQuestions, getConverterFaqQuestions } from '@/data/cadToolFaqs'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 
-// Page heading structure: 1 h1 (CadFileConversionHeader); h2 (HowItWorks, CoreBenefits, CadConverterTypes); rest h3 (InterlinkingBlocks, TrustPrivacy, DesignHub, OrgFaq).
-// “How it works” with react-icons lives in CadFileConversionHowItWorks (client) so icon components are not passed from this Server Component.
+// Page heading structure: 1 h1 (CadFileConversionHeader); h2 (HowItWorks, CoreBenefits, CadConverterTypes, ConverterFaq); rest h3.
 
 const converterBenefits = [
-    { icon: 'zap', title: 'Lightning-fast conversion', description: 'Convert in seconds with our cloud-based engine. No waiting.' },
-    { icon: 'monitorSmartphone', title: 'No installation required', description: 'Works in your browser — no downloads or plugins needed.' },
-    { icon: 'cpu', title: 'Handles large & complex models', description: 'Optimized for large and intricate CAD files up to 300 MB.' },
-    { icon: 'shield', title: 'Secure & private', description: 'Encrypted uploads. Files automatically deleted after 24 hours.' },
-    { icon: 'lock', title: 'Your files, your IP', description: 'Full file ownership stays with you. We never share your data.' },
-    { icon: 'clock', title: 'Available 24/7', description: 'Convert files anytime, anywhere — no restrictions.' },
+    { icon: 'zap', label: 'Speed', title: 'Lightning-fast conversion', description: 'Cloud-based processing converts common CAD and mesh files in seconds.' },
+    { icon: 'monitorSmartphone', label: 'Browser-based', title: 'No installation required', description: 'Use the converter in your browser without desktop software or plugins.' },
+    { icon: 'cpu', label: 'File capacity', title: 'Large and complex models', description: 'Upload intricate engineering files up to 300 MB.' },
+    { icon: 'shield', label: 'Privacy', title: 'Your files, your IP', description: 'Ownership stays with you. Files are never added to the public library.' },
 ];
 
 const converterTrustItems = [
-    { title: 'Encrypted uploads + secure processing', description: 'Files are encrypted during upload and processed securely.' },
-    { title: 'Automatic deletion after 24 hours', description: 'Uploads are automatically deleted after 24 hours.' },
-    { title: 'File ownership stays with you', description: 'You retain full ownership of your files.' },
+    { title: 'Encrypted upload', description: 'Secure transfer and processing for every supported format.' },
+    { title: '7-day deletion', description: 'Uploaded and converted files are removed automatically.' },
+    { title: 'You retain ownership', description: 'Your CAD files and intellectual property remain yours.' },
 ];
 
 const features = [
@@ -58,7 +54,7 @@ const features = [
     },
     {
         title: 'Secure & Privacy-Focused',
-        description: "Your files are encrypted during upload, processed securely, and automatically deleted after 24 hours to protect your data."
+        description: "Your files are encrypted during upload, processed securely, and automatically deleted after 7 days to protect your data."
     },
 
 ]
@@ -90,18 +86,24 @@ const featuresArray = [
     },
     {
         title: 'Cloud-Based & Private',
-        description: 'All files are securely processed in the cloud and automatically deleted after 24 hours to ensure your data stays safe.'
+        description: 'All files are securely processed in the cloud and automatically deleted after 7 days to ensure your data stays safe.'
     },
 
 ]
 
-function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = false, skipBreadcrumbSchema = false }) {
+function CadFileConversionHome({
+    convert,
+    conversionParams,
+    skipPageJsonLd = false,
+    skipBreadcrumbSchema = false,
+    converterDirectoryParams = {},
+}) {
     const faqQuestions = convert && conversionParams
         ? getConverterFaqQuestions(conversionParams)
         : cadConverterFaqQuestions;
     const faqDescription = convert && conversionParams
         ? `Find answers about converting files with Marathon OS ${conversionParams.replace(/-/g, ' ')} converter.`
-        : 'Find answers to common questions about Marathon OS 3D CAD File Converter.';
+        : 'Quick answers about formats, pricing, file limits, conversion quality and privacy.';
 
     return (
         <>
@@ -129,43 +131,68 @@ function CadFileConversionHome({ convert, conversionParams, skipPageJsonLd = fal
                 />
             )}
             <CadFileConversionHeader convert={convert} conversionParams={conversionParams} />
+            <CoreBenefits
+                eyebrow="Built for real CAD workflows"
+                title="Why convert files with Marathon OS?"
+                description="Fast, secure and browser-based CAD conversion designed for everyday engineering workflows."
+                benefits={converterBenefits}
+                variant="cardGrid"
+            />
             {!convert ? (
               <>
                 <CadConversionToolLinks />
-                <CadViewerCrossLink />
-                <ToolLibraryCrossLinks />
+                <CadViewerCrossLink variant="compact" />
                 <SupportedCadFormats />
-                <WhenToUseConverter />
+                <CadFileConversionHowItWorksServer />
+                <ConverterGuidance />
+                <TrustPrivacy
+                  variant="converterBanner"
+                  title="Secure conversion without giving up file ownership"
+                  description="Files are encrypted during upload, processed securely and removed automatically after 7 days."
+                  items={converterTrustItems}
+                />
+                <CadConverterTypes
+                  activeFormat={converterDirectoryParams.activeFormat}
+                  query={converterDirectoryParams.query}
+                />
+                <ConverterResources />
               </>
             ) : (
               <>
                 <CadViewerCrossLink />
-                <ToolLibraryCrossLinks />
+                <ConverterResources />
+                <ConverterGuidance />
+                <TrustPrivacy
+                  variant="converterBanner"
+                  title="Secure conversion without giving up file ownership"
+                  description="Files are encrypted during upload, processed securely and removed automatically after 7 days."
+                  items={converterTrustItems}
+                />
+                <CadConverterTypes
+                  activeFormat={converterDirectoryParams.activeFormat}
+                  query={converterDirectoryParams.query}
+                />
               </>
             )}
-            <ConversionQualityNotes />
-            <ToolsPageBanner />
+            <ConverterFaq
+                faqQuestions={faqQuestions}
+                description={faqDescription}
+            />
+            <ToolsPageBanner variant="converter" />
           
             {/* <OrgFeatures type='cad' /> */}
+            {/* Explore more — CAD Viewer / CAD Library
             <InterlinkingBlocks />
-            <CadFileConversionHowItWorksServer conversionParams={convert ? conversionParams : undefined} />
-            <CoreBenefits
-                title="Why use Marathon OS 3D CAD File Converter"
-                benefits={converterBenefits}
-                variant="cardGrid"
-            />
+            */}
+            {convert ? (
+              <CadFileConversionHowItWorksServer conversionParams={conversionParams} />
+            ) : null}
           
-            <TrustPrivacy title="Privacy and file handling" items={converterTrustItems} />
             {conversionParams && <CadConverterFormateText conversionParams={conversionParams} />}
             {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails} /> */}
             {/* <FeaturedConversions /> */}
-            <CadConverterTypes />
-            <DesignHub headingLevel={3} />
-            <OrgFaq
-                faqQuestions={faqQuestions}
-                description={faqDescription}
-            />
+            <DesignHub headingLevel={3} variant="converter" />
             <Footer />
         </>
 

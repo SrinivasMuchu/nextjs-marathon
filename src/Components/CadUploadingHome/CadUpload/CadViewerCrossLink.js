@@ -48,10 +48,15 @@ function WireframeArt() {
   )
 }
 
-function CadViewerCrossLink() {
+function CadViewerCrossLink({ variant = 'default' }) {
+  const isCompact = variant === 'compact'
+
   return (
-    <section className={styles.bannerWrap} aria-labelledby="cad-viewer-cross-link-title">
-      <div className={styles.banner}>
+    <section
+      className={`${styles.bannerWrap} ${isCompact ? styles.bannerWrapCompact : ''}`}
+      aria-labelledby="cad-viewer-cross-link-title"
+    >
+      <div className={`${styles.banner} ${isCompact ? styles.bannerCompact : ''}`}>
         <div className={styles.content}>
           <span className={styles.iconBadge} aria-hidden>
             <Box size={26} strokeWidth={2.2} />
@@ -68,9 +73,11 @@ function CadViewerCrossLink() {
             <ArrowRight size={22} strokeWidth={2.4} aria-hidden />
           </Link>
         </div>
-        <div className={styles.visual}>
-          <WireframeArt />
-        </div>
+        {!isCompact ? (
+          <div className={styles.visual}>
+            <WireframeArt />
+          </div>
+        ) : null}
       </div>
     </section>
   )

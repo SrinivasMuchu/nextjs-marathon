@@ -1,8 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import styles from '../CadHomeDesign/CadViewrTypes.module.css';
-import converterStyles from './CadConverterTypes.module.css';
+import styles from './CadConversionToolLinks.module.css';
 
 const CONVERSION_TOOLS = [
   {
@@ -69,24 +68,33 @@ const CONVERSION_TOOLS = [
 
 function CadConversionToolLinks() {
   return (
-    <section className={`${styles.section} ${styles.sectionMuted}`} aria-labelledby="most-used-cad-conversion-tools">
+    <section className={styles.section} aria-labelledby="most-used-cad-conversion-tools">
       <div className={styles.wrapper}>
-        <h2 id="most-used-cad-conversion-tools" className={styles.mainHeading}>
-          Most Used CAD Conversion Tools
-        </h2>
+        <header className={styles.header}>
+          <p className={styles.eyebrow}>Most used CAD workflows</p>
+          <h2 id="most-used-cad-conversion-tools" className={styles.mainHeading}>
+            Start with a popular conversion
+          </h2>
+          <p className={styles.intro}>
+            Jump directly into the format pair used most often for printing, CAD exchange, Rhino,
+            mesh editing and 2D drawing workflows.
+          </p>
+        </header>
         <div className={styles.grid}>
           {CONVERSION_TOOLS.map((tool) => (
             <Link key={tool.href} href={tool.href} className={styles.card}>
+              <div className={styles.formatPair} aria-hidden>
+                <span className={styles.formatBadge}>{tool.from}</span>
+                <ArrowRight size={14} strokeWidth={2} className={styles.pairArrow} />
+                <span className={`${styles.formatBadge} ${styles.formatBadgeTo}`}>{tool.to}</span>
+              </div>
               <div className={styles.cardContent}>
-                <div className={converterStyles.badgeRow}>
-                  <span className={converterStyles.pillFrom}>{tool.from}</span>
-                  <span className={converterStyles.arrowWrap} aria-hidden>
-                    <ArrowRight size={16} strokeWidth={2.5} className={converterStyles.arrowIcon} />
-                  </span>
-                  <span className={converterStyles.pillTo}>{tool.to}</span>
-                </div>
+                <h3>{tool.from} to {tool.to}</h3>
                 <p className={styles.cardDescription}>{tool.description}</p>
               </div>
+              <span className={styles.openIcon} aria-hidden>
+                <ArrowRight size={17} strokeWidth={2} />
+              </span>
             </Link>
           ))}
         </div>

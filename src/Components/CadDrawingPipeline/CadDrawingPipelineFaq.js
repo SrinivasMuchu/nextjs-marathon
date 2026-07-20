@@ -107,7 +107,7 @@ const FAQ_ITEMS = [
       <p>
         Your uploaded CAD files are processed in an isolated environment and are{" "}
         <strong>not shared, trained on, or retained</strong> after processing. Files are
-        automatically deleted within 24 hours of processing. We do not use your proprietary
+        automatically deleted within 7 days of processing. We do not use your proprietary
         geometry for any purpose other than generating your requested drawings.
       </p>
     ),

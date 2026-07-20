@@ -1,29 +1,28 @@
 import React from 'react';
-import Link from 'next/link';
-import { ChevronRight, Upload, FileUp, ArrowLeftRight, Download } from 'lucide-react';
-import styles from '../CadUpload/HowItWorks.module.css';
+import { Upload, Box, Sun } from 'lucide-react';
+import styles from './CadFileConversionHowItWorks.module.css';
 import { parseConversionParams } from './ConvertPageHeroHeading';
 
 const ICONS = {
-  fileUp: FileUp,
-  swap: ArrowLeftRight,
-  download: Download,
+  fileUp: Upload,
+  swap: Box,
+  download: Sun,
 };
 
 const DEFAULT_STEPS = [
   {
     title: 'Upload your CAD file',
-    description: 'Drag & drop or browse to select your file',
+    description: 'Drag and drop a supported file or browse from your computer.',
     iconKey: 'fileUp',
   },
   {
     title: 'Choose the output format',
-    description: 'STEP, IGES, STL, OBJ, PLY, OFF, BREP, or 3DM',
+    description: 'Select STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM, DWG or DXF.',
     iconKey: 'swap',
   },
   {
-    title: 'Convert and download instantly',
-    description: 'Download your converted file in one click',
+    title: 'Convert and download',
+    description: 'Process the model securely and download the converted file in one click.',
     iconKey: 'download',
   },
 ];
@@ -60,57 +59,35 @@ function CadFileConversionHowItWorksServer({ conversionParams }) {
   const heading =
     conversionParams && from && to
       ? `How to convert ${from.toUpperCase()} to ${to.toUpperCase()} online`
-      : 'How to convert CAD files online';
+      : 'Convert CAD files online in three steps';
 
   return (
-    <section className={styles.cadViewerSection}>
-      <div className={styles.cadViewerInner}>
-        <p className={styles.cadViewerEyebrow}>HOW IT WORKS</p>
-        <h2 className={styles.cadViewerHeading}>{heading}</h2>
-        <p className={styles.cadViewerSubtitle}>
-          No downloads. No plugins. Works right from your browser.
+    <section className={styles.section}>
+      <div className={styles.inner}>
+        <p className={styles.eyebrow}>How it works</p>
+        <h2 className={styles.heading}>{heading}</h2>
+        <p className={styles.subtitle}>
+          No downloads. No plugins. Works directly from your browser.
         </p>
 
-        <div className={styles.cadViewerStepsRow}>
+        <div className={styles.steps}>
           {steps.map((step, index) => {
             const StepIcon = ICONS[step.iconKey];
             const num = String(index + 1).padStart(2, '0');
 
             return (
-              <React.Fragment key={step.title}>
-                {index > 0 ? (
-                  <div className={styles.cadViewerArrow} aria-hidden>
-                    <ChevronRight size={22} strokeWidth={2} className={styles.cadViewerArrowIcon} />
-                  </div>
+              <article key={step.title} className={styles.step}>
+                <span className={styles.stepNumber} aria-hidden>{num}</span>
+                {StepIcon ? (
+                  <span className={styles.iconBox} aria-hidden>
+                    <StepIcon size={19} strokeWidth={2} />
+                  </span>
                 ) : null}
-                <div className={styles.cadViewerStep}>
-                  <div className={styles.cadViewerIconWrap}>
-                    <span className={styles.cadViewerBadge}>{num}</span>
-                    {StepIcon ? (
-                      <div className={styles.cadViewerIconBox}>
-                        <StepIcon className={styles.cadViewerReactIcon} size={40} aria-hidden />
-                      </div>
-                    ) : null}
-                  </div>
-                  <h3 className={styles.cadViewerStepTitle}>{step.title}</h3>
-                  <p className={styles.cadViewerStepDesc}>{step.description}</p>
-                </div>
-              </React.Fragment>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </article>
             );
           })}
-        </div>
-
-        <div className={styles.cadViewerCtaRow}>
-          <Link href="/tools/3d-cad-file-converter" className={styles.cadViewerPrimaryCta}>
-            <Upload size={18} strokeWidth={2.2} aria-hidden />
-            Upload CAD File
-          </Link>
-          <Link href="/tools/3d-cad-viewer" className={styles.cadViewerSecondaryCta}>
-            Open CAD Viewer
-            <span className={styles.cadViewerSecondaryArrow} aria-hidden>
-              →
-            </span>
-          </Link>
         </div>
       </div>
     </section>

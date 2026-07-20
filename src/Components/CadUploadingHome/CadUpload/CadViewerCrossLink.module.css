@@ -97,6 +97,84 @@
   color: #7c3aed;
 }
 
+.bannerWrapCompact {
+  max-width: 1352px;
+  margin: 0 auto 48px;
+  padding: 0 clamp(18px, 4vw, 56px);
+}
+
+.bannerCompact {
+  display: block;
+  padding: 18px 22px;
+  border: 0;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 88% 50%, rgba(144, 91, 216, 0.28), transparent 24%),
+    linear-gradient(105deg, #321065 0%, #45137f 55%, #391067 100%);
+  color: #ffffff;
+}
+
+.bannerCompact .content {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 2px;
+}
+
+.bannerCompact .iconBadge {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  width: 42px;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+.bannerCompact .iconBadge svg {
+  width: 19px;
+  height: 19px;
+}
+
+.bannerCompact .title {
+  grid-column: 2;
+  grid-row: 1;
+  color: #ffffff;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.bannerCompact .copy {
+  grid-column: 2;
+  grid-row: 2;
+  max-width: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.bannerCompact .cta {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  margin: 0;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #51208a;
+  font-size: 11px;
+}
+
+.bannerCompact .cta svg {
+  width: 16px;
+  height: 16px;
+}
+
+.bannerCompact .cta:hover {
+  background: #f5effc;
+}
+
 @media (max-width: 768px) {
   .banner {
     grid-template-columns: 1fr;
@@ -109,5 +187,20 @@
 
   .copy {
     max-width: none;
+  }
+
+  .bannerCompact {
+    padding: 18px;
+  }
+
+  .bannerCompact .content {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .bannerCompact .cta {
+    grid-column: 1 / 3;
+    grid-row: 3;
+    justify-self: flex-start;
+    margin-top: 10px;
   }
 }
