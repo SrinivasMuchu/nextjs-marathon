@@ -93,6 +93,39 @@ export async function sendCadVendorMail(payload) {
   return response.data
 }
 
+export async function uploadCadServiceReferenceFile(file, requestId, signal) {
+  const presignedResponse = await axios.post(
+    `${ADMIN_VENDORS_BASE}/get-cad-service-reference-presigned-url`,
+    {
+      request_id: requestId,
+      file: file.name,
+      filesize: file.size,
+      content_type: file.type || 'application/octet-stream',
+    },
+    { headers: adminHeaders(), signal },
+  )
+
+  if (!presignedResponse.data?.meta?.success || !presignedResponse.data?.data?.url) {
+    throw new Error(
+      presignedResponse.data?.meta?.message || 'Failed to get reference file upload URL',
+    )
+  }
+
+  const { url, key, content_type } = presignedResponse.data.data
+  await axios.put(url, file, {
+    headers: { 'Content-Type': content_type || file.type || 'application/octet-stream' },
+    signal,
+  })
+
+  const updateResponse = await axios.post(
+    `${ADMIN_VENDORS_BASE}/update-cad-service-reference-file`,
+    { request_id: requestId, key },
+    { headers: adminHeaders(), signal },
+  )
+
+  return updateResponse.data
+}
+
 export async function fetchCadServiceQuotations(requestId, vendorId) {
   const params = { request_id: requestId }
   if (vendorId) params.vendor_id = vendorId

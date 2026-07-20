@@ -105,6 +105,13 @@ function VendorMailHistory({ logs = [], title = 'Vendor mail history', showTitle
             </span>
           </div>
           <DetailRow label="Subject" value={log.subject} />
+          <DetailRow
+            label="Format"
+            value={log.mail_format === 'text' ? 'Plain text' : 'Template'}
+          />
+          {log.mail_format === 'text' ? (
+            <DetailRow label="Email text" value={log.text_content} />
+          ) : null}
           <DetailRow label="Project type" value={log.content?.project_type} />
           <DetailRow label="Model use" value={log.content?.model_use} />
           <DetailRow label="Software" value={log.content?.software_format} />
@@ -125,6 +132,7 @@ const ACTIVITY_LABELS = {
   vendor_mail_sent: 'Email',
   quotation_created: 'Quotation',
   note_added: 'Note',
+  file_replaced: 'File',
 }
 
 function ActivityTimeline({ activities = [] }) {
@@ -923,21 +931,6 @@ function CadServiceRequestsTable() {
                 <DetailRow label="Rejection reason" value={viewRequest.rejected_message} />
               ) : null}
             </div>
-            {Array.isArray(viewRequest.vendor_mails) && viewRequest.vendor_mails.length > 0 ? (
-              <VendorMailHistory logs={viewRequest.vendor_mails} />
-            ) : null}
-            {Array.isArray(viewRequest.quotations) && viewRequest.quotations.length > 0 ? (
-              <div className={styles.vendorMailHistory}>
-                <h4 className={styles.vendorMailHistoryTitle}>Quotations</h4>
-                <QuotationHistoryList quotations={viewRequest.quotations} />
-              </div>
-            ) : null}
-            {Array.isArray(viewRequest.activity_logs) && viewRequest.activity_logs.length > 0 ? (
-              <div className={styles.vendorMailHistory}>
-                <h4 className={styles.vendorMailHistoryTitle}>Activity</h4>
-                <ActivityTimeline activities={viewRequest.activity_logs} />
-              </div>
-            ) : null}
             <div className={modalStyles.modalActions}>
               <button
                 type="button"
@@ -956,6 +949,7 @@ function CadServiceRequestsTable() {
           request={mailTarget}
           onClose={() => setMailTarget(null)}
           onSent={() => fetchRequests(currentPage, searchTerm, statusFilter)}
+          onFileUpdated={() => fetchRequests(currentPage, searchTerm, statusFilter)}
         />
       )}
 
