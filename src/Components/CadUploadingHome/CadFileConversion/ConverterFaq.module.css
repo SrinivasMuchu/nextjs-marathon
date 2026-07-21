@@ -28,10 +28,10 @@
   margin: 0 0 14px;
   padding-left: 13px;
   color: #7142aa;
-  font-size: 10px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 800;
   line-height: 1.2;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
 }
 
@@ -51,7 +51,7 @@
   margin: 0;
   color: #171127;
   font-size: clamp(30px, 3.8vw, 44px);
-  font-weight: 780;
+  font-weight: 800;
   line-height: 1.08;
   letter-spacing: -0.045em;
 }
@@ -102,8 +102,8 @@
 .answer {
   margin: 0;
   color: #716979;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 @media (max-width: 900px) {

@@ -180,9 +180,13 @@ export default function LibraryFilters({
   const [localSort, setLocalSort] = useState(initialSort || 'newest');
   const [localRecency, setLocalRecency] = useState(initialRecency || '');
   const [localFreePaid, setLocalFreePaid] = useState(initialFreePaid || '');
-  const [localFormats, setLocalFormats] = useState(() =>
-    (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean)
-  );
+  const [localFormats, setLocalFormats] = useState(() => {
+    const first = (initialFileFormat || '')
+      .split(',')
+      .map((f) => f.trim().toUpperCase())
+      .filter(Boolean)[0];
+    return first ? [first] : [];
+  });
   const [localCategory, setLocalCategory] = useState(category || '');
   const [localTag, setLocalTag] = useState(tags || '');
   const [localOutputFormats, setLocalOutputFormats] = useState(() =>
@@ -209,7 +213,13 @@ export default function LibraryFilters({
       setLocalSort(initialSort || 'newest');
       setLocalRecency(initialRecency || '');
       setLocalFreePaid(initialFreePaid || '');
-      setLocalFormats((initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean));
+      {
+        const first = (initialFileFormat || '')
+          .split(',')
+          .map((f) => f.trim().toUpperCase())
+          .filter(Boolean)[0];
+        setLocalFormats(first ? [first] : []);
+      }
       setLocalCategory(category || '');
       setLocalTag(tags || '');
       setLocalOutputFormats((initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean));
@@ -266,7 +276,17 @@ export default function LibraryFilters({
 
   const buildLibraryUrl = buildListUrl;
 
-  const selectedFormats = isDeferredApply ? localFormats : (initialFileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+  /* File format is single-select only (SEO: multi-format URLs return 410). */
+  const selectedFormats = (() => {
+    const raw = isDeferredApply
+      ? localFormats
+      : (initialFileFormat || '')
+          .split(',')
+          .map((f) => f.trim().toUpperCase())
+          .filter(Boolean);
+    return raw.length ? [raw[0]] : [];
+  })();
+  const selectedFormat = selectedFormats[0] || '';
   const selectedOutputFormats = isDeferredApply
     ? localOutputFormats
     : (initialOutputFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
@@ -291,9 +311,7 @@ export default function LibraryFilters({
         file_format:
           libraryListMode === '2d'
             ? undefined
-            : localFormats.length
-              ? localFormats.join(',')
-              : undefined,
+            : localFormats[0] || undefined,
         output_format: undefined,
         projection: libraryListMode === '2d' ? undefined : localProjection || undefined,
         cluster_id: localClusterId || undefined,
@@ -353,13 +371,13 @@ export default function LibraryFilters({
   }, [tagSearch]);
 
   const toggleFileFormat = (formatValue, checked) => {
-    const current = selectedFormats;
-    const next = checked ? [...current, formatValue] : current.filter((f) => f !== formatValue);
+    /* Single-select: selecting a format replaces any previous choice; unchecking clears. */
+    const next = checked ? [formatValue] : [];
     if (isDeferredApply) {
       setLocalFormats(next);
       return;
     }
-    router.push(buildLibraryUrl({ file_format: next.length ? next.join(',') : undefined }));
+    router.push(buildLibraryUrl({ file_format: next[0] || undefined }));
   };
 
   const toggleOutputFormat = (formatValue, checked) => {
@@ -372,10 +390,10 @@ export default function LibraryFilters({
     router.push(buildLibraryUrl({ output_format: next.length ? next.join(',') : undefined }));
   };
 
-  const resolvedApplyFormats = useMemo(() => {
-    if (localFormats.length) return localFormats;
-    return formatsForOutputType(localOutputType, libraryListMode);
-  }, [localFormats, localOutputType, libraryListMode]);
+  const resolvedApplyFormat = useMemo(() => {
+    if (localFormats[0]) return localFormats[0];
+    return '';
+  }, [localFormats]);
 
   const panelApplyUrl = useMemo(
     () =>
@@ -387,8 +405,8 @@ export default function LibraryFilters({
         recency: localRecency || undefined,
         free_paid: localFreePaid || undefined,
         file_format:
-          libraryListMode === '3d' && resolvedApplyFormats.length
-            ? resolvedApplyFormats.join(',')
+          libraryListMode === '3d' && resolvedApplyFormat
+            ? resolvedApplyFormat
             : undefined,
         output_format: undefined,
         projection: libraryListMode === '2d' ? undefined : localProjection || undefined,
@@ -405,7 +423,7 @@ export default function LibraryFilters({
       localSort,
       localRecency,
       localFreePaid,
-      resolvedApplyFormats,
+      resolvedApplyFormat,
       localOutputFormats,
       localProjection,
       localClusterId,
@@ -417,12 +435,19 @@ export default function LibraryFilters({
 
   const handleOutputTypeChange = (value) => {
     setLocalOutputType(value);
-    const nextFormats = formatsForOutputType(value, libraryListMode);
     if (libraryListMode === '2d') {
+      const nextFormats = formatsForOutputType(value, libraryListMode);
       setLocalOutputFormats(nextFormats);
       return;
     }
-    setLocalFormats(nextFormats);
+    /* 3D: output type is a UI hint only; keep a single file format (or clear if incompatible). */
+    const allowed = formatsForOutputType(value, libraryListMode);
+    if (!value) {
+      return;
+    }
+    if (allowed.length && localFormats[0] && !allowed.includes(localFormats[0])) {
+      setLocalFormats([]);
+    }
   };
 
   if (variant === 'panel') {
@@ -502,13 +527,15 @@ export default function LibraryFilters({
 
               <div className={`${panelStyles.panelSection} ${panelStyles.panelSectionSpan2}`}>
                 <span className={panelStyles.panelLabel}>File format</span>
-                <div className={panelStyles.formatRow}>
+                <div className={panelStyles.formatRow} role="radiogroup" aria-label="File format">
                   {formatOptions.map(({ value, label }) => {
-                    const isActive = selectedPanelFormats.includes(value);
+                    const isActive = selectedPanelFormats[0] === value;
                     return (
                       <button
                         key={value}
                         type="button"
+                        role="radio"
+                        aria-checked={isActive}
                         className={`${panelStyles.formatChip} ${isActive ? panelStyles.formatChipActive : ''}`}
                         onClick={() => {
                           if (libraryListMode === '2d') {
@@ -516,6 +543,11 @@ export default function LibraryFilters({
                             return;
                           }
                           toggleFileFormat(value, !isActive);
+                          if (!isActive) {
+                            setLocalOutputType(
+                              deriveOutputType(undefined, value, libraryListMode)
+                            );
+                          }
                         }}
                       >
                         {label}
@@ -820,19 +852,18 @@ export default function LibraryFilters({
       {libraryListMode !== '2d' && (
       <div className={styles['library-filters-section']}>
         <span className={styles['library-filters-label']}>{fileFormatLabel}</span>
-        <div className={styles['library-filters-format-chips']}>
+        <div className={styles['library-filters-format-chips']} role="radiogroup" aria-label={fileFormatLabel}>
           {fileFormatOptions.map(({ value, label }) => {
-            const isActive = selectedFormats.includes(value);
-            const nextFormats = isActive
-              ? selectedFormats.filter((f) => f !== value)
-              : [...selectedFormats, value];
+            const isActive = selectedFormat === value;
             const formatUrl = buildLibraryUrl({
-              file_format: nextFormats.length ? nextFormats.join(',') : undefined,
+              file_format: isActive ? undefined : value,
             });
             return inSheet ? (
               <button
                 key={value}
                 type="button"
+                role="radio"
+                aria-checked={isActive}
                 className={
                   styles['library-filters-format-chip'] +
                   (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')
@@ -845,6 +876,8 @@ export default function LibraryFilters({
               <Link
                 key={value}
                 href={formatUrl}
+                role="radio"
+                aria-checked={isActive}
                 className={
                   styles['library-filters-format-chip'] +
                   (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')

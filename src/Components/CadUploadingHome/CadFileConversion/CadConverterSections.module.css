@@ -51,8 +51,8 @@
   margin: 0 0 10px;
   padding-left: 13px;
   color: #7142aa;
-  font-size: 10px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 800;
   line-height: 1.2;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -74,7 +74,7 @@
   margin: 0;
   color: #171127;
   font-size: clamp(29px, 3.8vw, 43px);
-  font-weight: 780;
+  font-weight: 800;
   line-height: 1.12;
   letter-spacing: -0.045em;
 }
@@ -133,16 +133,16 @@
   border-radius: 8px;
   background: #f1e8fd;
   color: #6f30c6;
-  font-size: 9px;
-  font-weight: 750;
+  font-size: 11px;
+  font-weight: 800;
   box-sizing: border-box;
 }
 
 .formatType {
   overflow: hidden;
   color: #9a929f;
-  font-size: 8px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -150,16 +150,16 @@
 .formatCard h3 {
   margin: 0 0 5px;
   color: #2a2134;
-  font-size: 11px;
-  font-weight: 720;
+  font-size: 14px;
+  font-weight: 750;
   line-height: 1.35;
 }
 
 .formatCard p {
   margin: 0;
   color: #918997;
-  font-size: 9px;
-  line-height: 1.4;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 @media (max-width: 980px) {

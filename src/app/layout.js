@@ -27,6 +27,7 @@ const roboto = Roboto({
   variable: '--font-roboto',
   adjustFontFallback: true,
 });
+
 const GA_TRACKING_ID = "G-6P47TN4FMC";
 const LINKEDIN_PARTNER_ID = "9449508";
 const BASE_URL = "https://marathon-os.com";

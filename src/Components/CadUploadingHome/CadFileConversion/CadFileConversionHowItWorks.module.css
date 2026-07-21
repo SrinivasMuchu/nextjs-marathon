@@ -18,8 +18,8 @@
   margin: 0 0 10px;
   padding-left: 13px;
   color: #7142aa;
-  font-size: 10px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 800;
   line-height: 1.2;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -41,7 +41,7 @@
   margin: 0;
   color: #171127;
   font-size: clamp(30px, 4vw, 45px);
-  font-weight: 780;
+  font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.045em;
 }
@@ -102,8 +102,8 @@
   position: relative;
   margin: 0 0 7px;
   color: #2a2134;
-  font-size: 15px;
-  font-weight: 730;
+  font-size: 18px;
+  font-weight: 750;
   line-height: 1.35;
 }
 
@@ -112,8 +112,8 @@
   max-width: 310px;
   margin: 0;
   color: #7c7483;
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.65;
 }
 
 @media (max-width: 760px) {
