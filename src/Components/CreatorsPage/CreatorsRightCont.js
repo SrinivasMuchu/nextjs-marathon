@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Box, Tabs, Tab, Typography } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FileHistoryCards from '../History/FileHistoryCards'
@@ -33,6 +33,7 @@ function CreatorsRightCont({
   const [totalPages, setTotalPages] = useState(1)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const tableSectionRef = useRef(null)
 
   // Tab configuration
   const tabs = [
@@ -45,6 +46,13 @@ function CreatorsRightCont({
     { label: "KYC", cadType: "USER_KYC" },
     { label: "Earnings", cadType: "EARNINGS" }
   ]
+
+  const scrollToTable = () => {
+    // Wait a tick so the active tab panel is painted before scrolling
+    requestAnimationFrame(() => {
+      tableSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
 
   useEffect(() => {
     const cadType = searchParams.get('cad_type')
@@ -69,6 +77,11 @@ function CreatorsRightCont({
     } else {
       setValue(0) // Default to My CAD Files
     }
+
+    // Land on the files table (not the cover) when a tool tab is selected
+    if (cadType === 'CAD_VIEWER' || cadType === 'CAD_CONVERTER' || cadType === 'CAD_TECHDRAW') {
+      scrollToTable()
+    }
   }, [searchParams])
 
   const handleChange = (event, newValue) => {
@@ -76,9 +89,10 @@ function CreatorsRightCont({
     setCurrentPage(1)
     setTotalPages(1)
 
-    // Update URL with corresponding cad_type
+    // Update URL with corresponding cad_type (keep scroll; don't jump to page top)
     const selectedTab = tabs[newValue]
-    router.push(`/dashboard?cad_type=${selectedTab.cadType}`)
+    router.push(`/dashboard?cad_type=${selectedTab.cadType}`, { scroll: false })
+    scrollToTable()
   }
 
   const getCurrentCadType = () => {
@@ -86,7 +100,7 @@ function CreatorsRightCont({
   }
 
   return (
-    <Box sx={{ width: '100%', marginTop: '32px' }}>
+    <Box ref={tableSectionRef} id="dashboard-files-table" sx={{ width: '100%', marginTop: '32px', scrollMarginTop: '88px' }}>
       {!creatorId ?
         <>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
