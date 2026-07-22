@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import SearchIcon from '@mui/icons-material/Search'
@@ -8,6 +8,8 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined'
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
 import { BASE_URL } from '@/config'
 import { formatDate } from '@/common.helper'
 import Pagenation from '@/Components/CommonJsx/Pagenation'
@@ -22,6 +24,9 @@ import {
   addCadServiceNote,
   fetchCadServiceActivity,
   fetchCadServiceQuotations,
+  uploadCadServiceNoteFile,
+  uploadCadServiceReferenceFile,
+  removeCadServiceReferenceFile,
 } from '@/api/adminVendorsApi'
 import {
   CAD_SERVICE_STATUSES,
@@ -67,12 +72,33 @@ function StatusBadge({ status }) {
   )
 }
 
-function DetailRow({ label, value, isLink }) {
-  if (!value) return null
+function getReferenceFiles(request = {}) {
+  const fromArray = Array.isArray(request.files) ? request.files : []
+  const fromSingle = request.file ? [request.file] : []
+  return [...new Set([...fromArray, ...fromSingle].map((item) => String(item || '').trim()).filter(Boolean))]
+}
+
+function DetailRow({ label, value, isLink, links }) {
+  const linkList = Array.isArray(links) ? links.filter(Boolean) : []
+  if (!value && !linkList.length) return null
   return (
     <div className={styles.detailRow}>
       <span className={styles.detailLabel}>{label}</span>
-      {isLink ? (
+      {linkList.length ? (
+        <div className={styles.detailLinks}>
+          {linkList.map((url, index) => (
+            <a
+              key={url}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.detailLink}
+            >
+              {linkList.length === 1 ? 'Download reference file' : `Download file ${index + 1}`}
+            </a>
+          ))}
+        </div>
+      ) : isLink ? (
         <a href={value} target="_blank" rel="noopener noreferrer" className={styles.detailLink}>
           Download reference file
         </a>
@@ -106,6 +132,10 @@ function VendorMailHistory({ logs = [], title = 'Vendor mail history', showTitle
           </div>
           <DetailRow label="Subject" value={log.subject} />
           <DetailRow
+            label="CC"
+            value={(log.cc_emails || []).join('\n') || null}
+          />
+          <DetailRow
             label="Format"
             value={log.mail_format === 'text' ? 'Plain text' : 'Template'}
           />
@@ -133,6 +163,28 @@ const ACTIVITY_LABELS = {
   quotation_created: 'Quotation',
   note_added: 'Note',
   file_replaced: 'File',
+  file_removed: 'File',
+}
+
+function formatNoteFileSize(bytes) {
+  const size = Number(bytes)
+  if (!Number.isFinite(size) || size < 0) return ''
+  if (size < 1024) return `${size} B`
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function fileNameFromUrl(url) {
+  const value = String(url || '').trim()
+  if (!value) return 'File'
+  try {
+    const pathname = new URL(value).pathname
+    const name = decodeURIComponent(pathname.split('/').pop() || '')
+    return name || 'File'
+  } catch {
+    const name = decodeURIComponent(value.split('/').pop() || '')
+    return name || 'File'
+  }
 }
 
 function ActivityTimeline({ activities = [] }) {
@@ -145,6 +197,11 @@ function ActivityTimeline({ activities = [] }) {
       {activities.map((activity) => {
         const vendorNames = activity.metadata?.vendor_names || []
         const vendorEmails = activity.metadata?.vendor_emails || []
+        const noteAttachments = Array.isArray(activity.metadata?.attachments)
+          ? activity.metadata.attachments
+          : []
+        const addedFileUrl = activity.metadata?.new_file || null
+        const removedFileUrl = activity.metadata?.removed_file || null
         return (
           <div key={activity._id} className={styles.activityItem}>
             <span className={styles.activityDot} />
@@ -180,7 +237,50 @@ function ActivityTimeline({ activities = [] }) {
               {activity.metadata?.subject ? (
                 <p className={styles.activityMeta}>Subject: {activity.metadata.subject}</p>
               ) : null}
-              {activity.metadata?.attachment_count ? (
+              {Array.isArray(activity.metadata?.cc_emails) && activity.metadata.cc_emails.length ? (
+                <p className={styles.activityMeta}>
+                  CC: {activity.metadata.cc_emails.join(', ')}
+                </p>
+              ) : null}
+              {addedFileUrl ? (
+                <div className={styles.noteAttachmentLinks}>
+                  <a
+                    href={addedFileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.noteAttachmentLink}
+                  >
+                    Added: {fileNameFromUrl(addedFileUrl)}
+                  </a>
+                </div>
+              ) : null}
+              {removedFileUrl ? (
+                <div className={styles.noteAttachmentLinks}>
+                  <a
+                    href={removedFileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${styles.noteAttachmentLink} ${styles.noteAttachmentLinkRemoved}`}
+                  >
+                    Deleted: {fileNameFromUrl(removedFileUrl)}
+                  </a>
+                </div>
+              ) : null}
+              {noteAttachments.length > 0 ? (
+                <div className={styles.noteAttachmentLinks}>
+                  {noteAttachments.map((attachment) => (
+                    <a
+                      key={`${activity._id}-${attachment.key || attachment.url || attachment.name}`}
+                      href={attachment.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.noteAttachmentLink}
+                    >
+                      {attachment.name || 'Attachment'}
+                    </a>
+                  ))}
+                </div>
+              ) : activity.metadata?.attachment_count ? (
                 <p className={styles.activityMeta}>
                   Attachments: {activity.metadata.attachment_count}
                 </p>
@@ -261,7 +361,7 @@ async function exportRequestsToExcel(rows) {
       model_use: request.model_use || '',
       software_format: request.software_format || '',
       requirement: request.requirement || '',
-      file: request.file || '',
+      file: getReferenceFiles(request).join('\n'),
       status: getCadServiceStatusLabel(request.status),
       rejected_message: request.rejected_message || '',
       createdAt: request.createdAt ? formatDate(request.createdAt) : '',
@@ -313,6 +413,9 @@ function CadServiceRequestsTable() {
   const [statusCounts, setStatusCounts] = useState({})
   const [totalCount, setTotalCount] = useState(0)
   const [viewRequest, setViewRequest] = useState(null)
+  const [isManagingReferenceFiles, setIsManagingReferenceFiles] = useState(false)
+  const [removingReferenceFileUrl, setRemovingReferenceFileUrl] = useState('')
+  const viewReferenceFileInputRef = useRef(null)
   const [rejectTarget, setRejectTarget] = useState(null)
   const [rejectionMessage, setRejectionMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -324,13 +427,82 @@ function CadServiceRequestsTable() {
   const [activityTarget, setActivityTarget] = useState(null)
   const [activityLoading, setActivityLoading] = useState(false)
   const [noteText, setNoteText] = useState('')
+  const [notePendingFiles, setNotePendingFiles] = useState([])
   const [noteSaving, setNoteSaving] = useState(false)
+  const [noteUploadProgress, setNoteUploadProgress] = useState('')
+  const noteFileInputRef = useRef(null)
   const [logsTarget, setLogsTarget] = useState(null)
   const [logsLoading, setLogsLoading] = useState(false)
 
   const adminHeaders = () => ({
     'admin-uuid': localStorage.getItem('admin-uuid'),
   })
+
+  const syncRequestInList = (updatedRequest) => {
+    if (!updatedRequest?._id) return
+    setRequests((current) =>
+      current.map((item) => (item._id === updatedRequest._id ? { ...item, ...updatedRequest } : item))
+    )
+    setViewRequest((current) =>
+      current && current._id === updatedRequest._id ? { ...current, ...updatedRequest } : current
+    )
+    setMailTarget((current) =>
+      current && current._id === updatedRequest._id ? { ...current, ...updatedRequest } : current
+    )
+  }
+
+  const handleAddViewReferenceFile = async (event) => {
+    const selectedFile = event.target.files?.[0]
+    event.target.value = ''
+    if (!selectedFile || !viewRequest?._id) return
+
+    setIsManagingReferenceFiles(true)
+    try {
+      const response = await uploadCadServiceReferenceFile(selectedFile, viewRequest._id)
+      if (!response?.meta?.success || !response.data?.request) {
+        throw new Error(response?.meta?.message || 'Failed to add reference file')
+      }
+      syncRequestInList(response.data.request)
+      toast.success(response.meta.message || 'Reference file added successfully')
+    } catch (error) {
+      console.error('Add reference file error:', error)
+      toast.error(
+        error.response?.data?.meta?.message
+          || error.message
+          || 'Failed to add reference file',
+      )
+    } finally {
+      setIsManagingReferenceFiles(false)
+    }
+  }
+
+  const handleRemoveViewReferenceFile = async (fileUrl) => {
+    if (!viewRequest?._id || !fileUrl) return
+    const currentFiles = getReferenceFiles(viewRequest)
+    if (currentFiles.length <= 1) {
+      toast.error('At least one reference file is required. Add another file before removing this one.')
+      return
+    }
+
+    setRemovingReferenceFileUrl(fileUrl)
+    try {
+      const response = await removeCadServiceReferenceFile(viewRequest._id, fileUrl)
+      if (!response?.meta?.success || !response.data?.request) {
+        throw new Error(response?.meta?.message || 'Failed to remove reference file')
+      }
+      syncRequestInList(response.data.request)
+      toast.success(response.meta.message || 'Reference file removed successfully')
+    } catch (error) {
+      console.error('Remove reference file error:', error)
+      toast.error(
+        error.response?.data?.meta?.message
+          || error.message
+          || 'Failed to remove reference file',
+      )
+    } finally {
+      setRemovingReferenceFileUrl('')
+    }
+  }
 
   const fetchRequests = async (page = 1, q = '', action = 'all') => {
     setIsLoading(true)
@@ -517,6 +689,8 @@ function CadServiceRequestsTable() {
 
   const openActivity = async (request) => {
     setNoteText('')
+    setNotePendingFiles([])
+    setNoteUploadProgress('')
     setActivityLoading(true)
     setActivityTarget({ request, activities: [] })
     try {
@@ -539,13 +713,56 @@ function CadServiceRequestsTable() {
     }
   }
 
+  const handleNoteFilesSelected = (event) => {
+    const files = Array.from(event.target.files || [])
+    if (!files.length) return
+
+    setNotePendingFiles((prev) => {
+      const existingKeys = new Set(
+        prev.map((file) => `${file.name}-${file.size}-${file.lastModified}`),
+      )
+      const next = [...prev]
+      files.forEach((file) => {
+        const key = `${file.name}-${file.size}-${file.lastModified}`
+        if (!existingKeys.has(key)) {
+          next.push(file)
+          existingKeys.add(key)
+        }
+      })
+      return next.slice(0, 20)
+    })
+    event.target.value = ''
+  }
+
+  const removeNotePendingFile = (index) => {
+    setNotePendingFiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
   const handleAddNote = async () => {
     const trimmedNote = noteText.trim()
-    if (!trimmedNote || !activityTarget?.request?._id) return
+    if ((!trimmedNote && notePendingFiles.length === 0) || !activityTarget?.request?._id) return
 
     setNoteSaving(true)
+    setNoteUploadProgress(
+      notePendingFiles.length ? `Uploading 0/${notePendingFiles.length}...` : 'Saving...',
+    )
     try {
-      const response = await addCadServiceNote(activityTarget.request._id, trimmedNote)
+      const attachments = []
+      for (let i = 0; i < notePendingFiles.length; i += 1) {
+        setNoteUploadProgress(`Uploading ${i + 1}/${notePendingFiles.length}...`)
+        const uploaded = await uploadCadServiceNoteFile(
+          notePendingFiles[i],
+          activityTarget.request._id,
+        )
+        attachments.push(uploaded)
+      }
+
+      setNoteUploadProgress('Saving note...')
+      const response = await addCadServiceNote(
+        activityTarget.request._id,
+        trimmedNote,
+        attachments,
+      )
       if (!response?.meta?.success) {
         throw new Error(response?.meta?.message || 'Failed to add note')
       }
@@ -555,6 +772,7 @@ function CadServiceRequestsTable() {
         activities: [response.data.activity, ...(current?.activities || [])],
       }))
       setNoteText('')
+      setNotePendingFiles([])
       toast.success(response.meta.message || 'Note added')
       refreshList()
     } catch (error) {
@@ -562,6 +780,7 @@ function CadServiceRequestsTable() {
       toast.error(error.response?.data?.meta?.message || error.message || 'Failed to add note')
     } finally {
       setNoteSaving(false)
+      setNoteUploadProgress('')
     }
   }
 
@@ -925,7 +1144,63 @@ function CadServiceRequestsTable() {
               <DetailRow label="Model use" value={viewRequest.model_use} />
               <DetailRow label="Software preference" value={viewRequest.software_format} />
               <DetailRow label="Requirement" value={viewRequest.requirement} />
-              <DetailRow label="Reference file" value={viewRequest.file} isLink={Boolean(viewRequest.file)} />
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Reference files</span>
+                {getReferenceFiles(viewRequest).length ? (
+                  <div className={styles.referenceManageList}>
+                    {getReferenceFiles(viewRequest).map((url, index) => (
+                      <div key={url} className={styles.referenceManageRow}>
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.detailLink}
+                        >
+                          {getReferenceFiles(viewRequest).length === 1
+                            ? 'Download reference file'
+                            : `Download file ${index + 1}`}
+                        </a>
+                        <button
+                          type="button"
+                          className={styles.referenceRemoveBtn}
+                          onClick={() => handleRemoveViewReferenceFile(url)}
+                          disabled={
+                            isManagingReferenceFiles
+                            || Boolean(removingReferenceFileUrl)
+                            || getReferenceFiles(viewRequest).length <= 1
+                          }
+                          title={
+                            getReferenceFiles(viewRequest).length <= 1
+                              ? 'At least one reference file is required'
+                              : 'Remove file'
+                          }
+                        >
+                          {removingReferenceFileUrl === url ? 'Removing...' : 'Remove'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className={styles.detailValue}>No reference files</span>
+                )}
+                <div className={styles.referenceManageActions}>
+                  <input
+                    ref={viewReferenceFileInputRef}
+                    type="file"
+                    className={styles.hiddenFileInput}
+                    onChange={handleAddViewReferenceFile}
+                    disabled={isManagingReferenceFiles || Boolean(removingReferenceFileUrl)}
+                  />
+                  <button
+                    type="button"
+                    className={styles.referenceAddBtn}
+                    onClick={() => viewReferenceFileInputRef.current?.click()}
+                    disabled={isManagingReferenceFiles || Boolean(removingReferenceFileUrl)}
+                  >
+                    {isManagingReferenceFiles ? 'Uploading...' : 'Add file'}
+                  </button>
+                </div>
+              </div>
               <DetailRow label="Status" value={getCadServiceStatusLabel(viewRequest.status)} />
               {viewRequest.rejected_message ? (
                 <DetailRow label="Rejection reason" value={viewRequest.rejected_message} />
@@ -949,7 +1224,21 @@ function CadServiceRequestsTable() {
           request={mailTarget}
           onClose={() => setMailTarget(null)}
           onSent={() => fetchRequests(currentPage, searchTerm, statusFilter)}
-          onFileUpdated={() => fetchRequests(currentPage, searchTerm, statusFilter)}
+          onFileUpdated={(updatedRequest) => {
+            if (updatedRequest) {
+              setRequests((current) =>
+                current.map((item) =>
+                  item._id === updatedRequest._id ? { ...item, ...updatedRequest } : item
+                )
+              )
+              setViewRequest((current) =>
+                current && current._id === updatedRequest._id
+                  ? { ...current, ...updatedRequest }
+                  : current
+              )
+            }
+            fetchRequests(currentPage, searchTerm, statusFilter)
+          }}
         />
       )}
 
@@ -1019,17 +1308,70 @@ function CadServiceRequestsTable() {
                 rows={3}
                 disabled={noteSaving}
               />
+              <div className={styles.noteUploadRow}>
+                <button
+                  type="button"
+                  className={styles.noteUploadBtn}
+                  onClick={() => noteFileInputRef.current?.click()}
+                  disabled={noteSaving}
+                >
+                  Add files
+                </button>
+                <span className={styles.noteUploadHint}>
+                  Multiple files supported · PDF, images, docs, or any type
+                </span>
+                <input
+                  ref={noteFileInputRef}
+                  type="file"
+                  multiple
+                  className={styles.noteHiddenInput}
+                  onChange={handleNoteFilesSelected}
+                  disabled={noteSaving}
+                />
+              </div>
+              {notePendingFiles.length > 0 ? (
+                <ul className={styles.noteFileList}>
+                  {notePendingFiles.map((file, index) => (
+                    <li
+                      key={`${file.name}-${file.size}-${file.lastModified}`}
+                      className={styles.noteFileItem}
+                    >
+                      <InsertDriveFileOutlinedIcon fontSize="small" />
+                      <div className={styles.noteFileMeta}>
+                        <span className={styles.noteFileName}>{file.name}</span>
+                        <span className={styles.noteFileSize}>
+                          {formatNoteFileSize(file.size)}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className={styles.noteRemoveFileBtn}
+                        onClick={() => removeNotePendingFile(index)}
+                        disabled={noteSaving}
+                        aria-label={`Remove ${file.name}`}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
               <div className={styles.noteFooter}>
                 <span className={modalStyles.characterCount}>
                   {noteText.length}/2000
+                  {notePendingFiles.length
+                    ? ` · ${notePendingFiles.length} file${notePendingFiles.length === 1 ? '' : 's'}`
+                    : ''}
                 </span>
                 <button
                   type="button"
                   className={`${modalStyles.button} ${styles.addNoteBtn}`}
                   onClick={handleAddNote}
-                  disabled={noteSaving || !noteText.trim()}
+                  disabled={
+                    noteSaving || (!noteText.trim() && notePendingFiles.length === 0)
+                  }
                 >
-                  {noteSaving ? 'Adding...' : 'Add note'}
+                  {noteSaving ? (noteUploadProgress || 'Adding...') : 'Add note'}
                 </button>
               </div>
             </div>
@@ -1047,6 +1389,8 @@ function CadServiceRequestsTable() {
                 onClick={() => {
                   setActivityTarget(null)
                   setNoteText('')
+                  setNotePendingFiles([])
+                  setNoteUploadProgress('')
                 }}
                 disabled={activityLoading || noteSaving}
               >

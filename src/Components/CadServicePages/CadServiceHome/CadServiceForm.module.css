@@ -254,6 +254,53 @@
   background: #fef2f2;
 }
 
+.fileList {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.fileListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e4e0ee;
+  border-radius: 10px;
+  background: #fcfbff;
+}
+
+.fileListName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #454056;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.fileRemoveBtn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: #f2edff;
+  color: #7c3aed;
+  cursor: pointer;
+}
+
+.fileRemoveBtn:hover {
+  background: #e8dfff;
+}
+
 .uploadInput {
   display: none;
 }

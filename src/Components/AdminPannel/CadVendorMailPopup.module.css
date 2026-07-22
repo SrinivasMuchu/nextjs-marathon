@@ -171,6 +171,11 @@
   color: #374151;
 }
 
+.optionalHint {
+  font-weight: 400;
+  color: #6b7280;
+}
+
 .textInput,
 .textArea {
   width: 100%;
@@ -253,12 +258,49 @@
   min-height: 34px;
 }
 
+.referenceFileList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.referenceFileRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .referenceFileLink {
   color: #610bee;
   font-size: 13px;
   font-weight: 600;
   text-decoration: underline;
   word-break: break-all;
+}
+
+.removeFileBtn {
+  flex: 0 0 auto;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.removeFileBtn:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.removeFileBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .referenceFileEmpty,
