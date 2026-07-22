@@ -1,0 +1,33 @@
+.stickyCta {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 22px;
+  border: none;
+  border-radius: 999px;
+  background: #7c3aed;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 12px 32px rgba(109, 40, 217, 0.38);
+  transition: background 0.16s ease;
+}
+
+.stickyCta:hover {
+  background: #6d28d9;
+}
+
+@media (max-width: 760px) {
+  .stickyCta {
+    right: 14px;
+    bottom: 14px;
+    padding: 13px 17px;
+    font-size: 12.5px;
+  }
+}
