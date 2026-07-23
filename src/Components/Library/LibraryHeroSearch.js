@@ -126,21 +126,18 @@ export default function LibraryHeroSearch({
   const pushSearch = (query) => {
     if (typeof window === 'undefined') return;
 
-    const pathname = window.location.pathname;
-    const existingParams = new URLSearchParams(window.location.search);
+    const basePath = libraryMode === '2d' ? TWO_D_LIBRARY_BASE : '/library';
+    const nextParams = new URLSearchParams();
     const trimmed = (query || '').trim();
 
     if (trimmed) {
-      existingParams.set('search', trimmed);
+      nextParams.set('search', trimmed);
       logSearch(trimmed);
-    } else {
-      existingParams.delete('search');
     }
 
-    existingParams.set('page', '1');
-    existingParams.delete('limit');
     setPanelOpen(false);
-    router.push(`${pathname}?${existingParams.toString()}`);
+    const qs = nextParams.toString();
+    router.push(qs ? `${basePath}?${qs}` : basePath);
   };
 
   const handleSearch = () => {
@@ -152,10 +149,8 @@ export default function LibraryHeroSearch({
     setResults([]);
     if (typeof window === 'undefined') return;
 
-    const pathname = window.location.pathname;
-    const existingParams = new URLSearchParams(window.location.search);
-    existingParams.delete('search');
-    router.push(`${pathname}?${existingParams.toString()}`);
+    const basePath = libraryMode === '2d' ? TWO_D_LIBRARY_BASE : '/library';
+    router.push(basePath);
   };
 
   const partHref = (tagName) =>

@@ -6,6 +6,7 @@ import {
   APPROVED_FILE_FORMAT_SLUGS,
   TRACKING_PARAMS,
   FILTER_PARAMS,
+  INTERACTIVE_QUERY_PARAMS,
   LIBRARY_STATIC_PREFIXES,
 } from '@/data/librarySeoAllowlist';
 
@@ -83,8 +84,18 @@ function isStaticLibraryPath(pathname) {
   );
 }
 
-function hasNonPaginationFilters(params) {
-  return nonTrackingKeys(params).some((key) => key !== 'page');
+function isAllowedQueryKey(key) {
+  return key === 'page' || INTERACTIVE_QUERY_PARAMS.has(key);
+}
+
+function hasBlockedFilterParams(params) {
+  return nonTrackingKeys(params).some((key) => !isAllowedQueryKey(key));
+}
+
+function blockedFilterKeys(params) {
+  return nonTrackingKeys(params).filter(
+    (key) => FILTER_PARAMS.has(key) && !INTERACTIVE_QUERY_PARAMS.has(key)
+  );
 }
 
 function applyPageToDestination(destination, pageValue) {
@@ -137,7 +148,7 @@ export function librarySeoGuard(request) {
       return gone();
     }
 
-    if (hasNonPaginationFilters(params)) {
+    if (hasBlockedFilterParams(params)) {
       return gone();
     }
 
@@ -156,7 +167,7 @@ export function librarySeoGuard(request) {
       return notFoundResponse();
     }
 
-    if (hasNonPaginationFilters(params)) {
+    if (hasBlockedFilterParams(params)) {
       return gone();
     }
 
@@ -232,7 +243,7 @@ export function librarySeoGuard(request) {
         return gone();
       }
 
-      if (hasNonPaginationFilters(params)) {
+      if (hasBlockedFilterParams(params)) {
         return gone();
       }
 
@@ -246,7 +257,7 @@ export function librarySeoGuard(request) {
 
   /* ── Static / utility library paths (2d, tags index, clusters) ── */
   if (isStaticLibraryPath(pathname)) {
-    const remainingFilterKeys = nonTrackingKeys(params).filter((key) => FILTER_PARAMS.has(key));
+    const remainingFilterKeys = blockedFilterKeys(params);
 
     if (remainingFilterKeys.length > 0) {
       return gone();
@@ -272,7 +283,7 @@ export function librarySeoGuard(request) {
     }
 
     if (isDesignRouteSegment(segment)) {
-      if (hasNonPaginationFilters(params)) {
+      if (hasBlockedFilterParams(params)) {
         return gone();
       }
 
@@ -283,8 +294,8 @@ export function librarySeoGuard(request) {
       return null;
     }
 
-    /* Category landing page — only pagination allowed */
-    if (hasNonPaginationFilters(params)) {
+    /* Category landing page — pagination + interactive search allowed */
+    if (hasBlockedFilterParams(params)) {
       return gone();
     }
 
@@ -296,7 +307,7 @@ export function librarySeoGuard(request) {
   }
 
   /* ── Kill remaining faceted URLs under /library ── */
-  const remainingFilterKeys = nonTrackingKeys(params).filter((key) => FILTER_PARAMS.has(key));
+  const remainingFilterKeys = blockedFilterKeys(params);
 
   if (remainingFilterKeys.length > 0) {
     return gone();

@@ -93,6 +93,12 @@ export const FILTER_PARAMS = new Set([
   'industry',
 ]);
 
+/**
+ * Interactive query params allowed on library browse URLs (user search).
+ * Still listed in FILTER_PARAMS for docs, but must not trigger 410.
+ */
+export const INTERACTIVE_QUERY_PARAMS = new Set(['search', 'q']);
+
 /** Path prefixes that skip tag allowlist checks */
 export const LIBRARY_STATIC_PREFIXES = [
   '/library/2d-technical-drawings',
