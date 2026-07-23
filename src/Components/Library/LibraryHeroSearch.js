@@ -4,20 +4,23 @@ import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
-import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import axios from 'axios';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { BASE_URL } from '@/config';
+import { BASE_URL, IMAGEURLS } from '@/config';
 import { getLibraryPath } from '@/common.helper';
-import { get2DLibraryPath } from '@/data/twoDLibraryPage';
+import { get2DLibraryPath, TWO_D_LIBRARY_BASE } from '@/data/twoDLibraryPage';
 import {
   LIBRARY_SEARCH_POPULAR_PARTS,
   LIBRARY_SEARCH_STANDARDS,
 } from '@/data/librarySearchSuggestions';
 import libraryStyles from './Library.module.css';
 import styles from './LibraryHeroSearch.module.css';
+
+const SUGGESTION_LIMIT = 20;
+const SUGGESTION_DEBOUNCE_MS = 400;
 
 export default function LibraryHeroSearch({
   initialSearchQuery = '',
@@ -27,10 +30,15 @@ export default function LibraryHeroSearch({
 }) {
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [results, setResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const wrapRef = useRef(null);
   const router = useRouter();
 
-  const showPanel = panelOpen && !searchQuery.trim();
+  const trimmedQuery = searchQuery.trim();
+  const showEmptyPanel = panelOpen && !trimmedQuery;
+  const showLiveSuggestions = panelOpen && Boolean(trimmedQuery);
+  const suggestionsExpanded = showEmptyPanel || showLiveSuggestions;
 
   useEffect(() => {
     setSearchQuery(initialSearchQuery);
@@ -56,6 +64,46 @@ export default function LibraryHeroSearch({
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [panelOpen]);
+
+  useEffect(() => {
+    const query = searchQuery.trim();
+
+    if (!query) {
+      setResults([]);
+      setIsLoading(false);
+      return undefined;
+    }
+
+    const handler = setTimeout(async () => {
+      try {
+        setIsLoading(true);
+        const uuid =
+          typeof window !== 'undefined' ? localStorage.getItem('uuid') : null;
+
+        const queryParams = new URLSearchParams();
+        queryParams.set('limit', String(SUGGESTION_LIMIT));
+        queryParams.set('page', '1');
+        queryParams.set('search', query);
+        if (uuid) queryParams.set('uuid', uuid);
+        if (libraryMode === '2d') queryParams.set('two_dims', '1');
+
+        const response = await axios.get(
+          `${BASE_URL}/v1/cad/get-category-design?${queryParams.toString()}`,
+          { cache: 'no-store' }
+        );
+
+        const designs = response.data?.data?.designDetails || [];
+        setResults(designs);
+      } catch (error) {
+        console.error('Error fetching search suggestions:', error);
+        setResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }, SUGGESTION_DEBOUNCE_MS);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery, libraryMode]);
 
   const logSearch = async (query) => {
     try {
@@ -101,6 +149,7 @@ export default function LibraryHeroSearch({
 
   const clearSearch = () => {
     setSearchQuery('');
+    setResults([]);
     if (typeof window === 'undefined') return;
 
     const pathname = window.location.pathname;
@@ -113,6 +162,14 @@ export default function LibraryHeroSearch({
     libraryMode === '2d'
       ? get2DLibraryPath({ tagName })
       : getLibraryPath({ tagName });
+
+  const designHref = (design) => {
+    const route = String(design?.route || '').trim();
+    if (!route) return libraryMode === '2d' ? TWO_D_LIBRARY_BASE : '/library';
+    return libraryMode === '2d'
+      ? `${TWO_D_LIBRARY_BASE}/${encodeURIComponent(route)}`
+      : `/library/${encodeURIComponent(route)}`;
+  };
 
   return (
     <div className={styles.wrap} ref={wrapRef}>
@@ -129,11 +186,14 @@ export default function LibraryHeroSearch({
             type="search"
             placeholder={placeholder}
             value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
+            onChange={(event) => {
+              setSearchQuery(event.target.value);
+              setPanelOpen(true);
+            }}
             onFocus={() => setPanelOpen(true)}
             className={libraryStyles['library-hero-search-input']}
             aria-label="Search library"
-            aria-expanded={showPanel}
+            aria-expanded={suggestionsExpanded}
             aria-controls="library-search-suggestions"
             autoComplete="off"
           />
@@ -154,7 +214,7 @@ export default function LibraryHeroSearch({
         </div>
       </form>
 
-      {showPanel ? (
+      {showEmptyPanel ? (
         <div
           id="library-search-suggestions"
           className={styles.panel}
@@ -203,30 +263,42 @@ export default function LibraryHeroSearch({
               ))}
             </div>
           </section>
+        </div>
+      ) : null}
 
-          {/* {browseCards.length > 0 ? (
-            <section className={styles.section}>
-              <h3 className={styles.sectionTitle}>
-                <GridViewOutlinedIcon aria-hidden />
-                Browse by what you&apos;ll do
-              </h3>
-              <div className={styles.browseGrid}>
-                {browseCards.map((card) => (
-                  <Link
-                    key={card.id}
-                    href={card.href}
-                    className={`${styles.browseCard} ${styles[`accent-${card.accent}`] || styles['accent-purple']}`}
-                    onClick={() => setPanelOpen(false)}
-                  >
-                    <h4 className={styles.browseCardTitle}>{card.title}</h4>
-                    <p className={styles.browseCardFormats}>{card.formats}</p>
-                    <p className={styles.browseCardDesc}>{card.description}</p>
-                    <span className={styles.browseCardLink}>{card.browseLabel} →</span>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ) : null} */}
+      {showLiveSuggestions ? (
+        <div
+          id="library-search-suggestions"
+          className={styles.liveResults}
+          role="listbox"
+          aria-label="Search results"
+        >
+          {isLoading ? (
+            <div className={styles.liveResultItem}>Searching…</div>
+          ) : null}
+          {!isLoading &&
+            results.map((design) => (
+              <Link
+                key={design._id}
+                href={designHref(design)}
+                className={styles.liveResultItem}
+                onClick={() => setPanelOpen(false)}
+              >
+                <Image
+                  src={IMAGEURLS.cubeFocus}
+                  alt=""
+                  width={20}
+                  height={20}
+                  className={styles.liveResultIcon}
+                />
+                <span className={styles.liveResultText}>
+                  {design.page_title || design.part_name || 'Untitled design'}
+                </span>
+              </Link>
+            ))}
+          {!isLoading && results.length === 0 ? (
+            <div className={styles.liveResultItem}>No results found</div>
+          ) : null}
         </div>
       ) : null}
     </div>
