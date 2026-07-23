@@ -97,7 +97,7 @@ function hasBlockedFilterParams(params) {
 
 function blockedFilterKeys(params) {
   return nonTrackingKeys(params).filter(
-    (key) => FILTER_PARAMS.has(key) && !INTERACTIVE_QUERY_PARAMS.has(key)
+    (key) => FILTER_PARAMS.has(key) && !isAllowedQueryKey(key)
   );
 }
 
@@ -178,7 +178,9 @@ export async function librarySeoGuard(request) {
       return notFoundResponse();
     }
 
-    if (hasBlockedFilterParams(params)) {
+    /* Doc: filters on format pages (free_paid, recency, sort, search, …) → 410. Only ?page= allowed. */
+    const formatExtraKeys = nonTrackingKeys(params).filter((key) => key !== 'page');
+    if (formatExtraKeys.length > 0) {
       return gone();
     }
 
@@ -218,8 +220,9 @@ export async function librarySeoGuard(request) {
         return notFoundResponse();
       }
 
+      /* Doc: any extra filter with file_format (free_paid, recency, …) → 410, do not redirect. */
       const remainingKeys = nonTrackingKeys(params).filter(
-        (key) => key !== 'file_format' && key !== 'page' && !INTERACTIVE_QUERY_PARAMS.has(key)
+        (key) => key !== 'file_format' && key !== 'page'
       );
 
       if (remainingKeys.length > 0) {
@@ -260,6 +263,21 @@ export async function librarySeoGuard(request) {
       applyPageToDestination(destination, pageValue);
       return permanentRedirect(destination);
     }
+
+    /*
+     * Root /library faceted filters (free_paid, sort, recency, …) stay 410 even if
+     * the API would return designs. Allowed query on root: page + search only.
+     */
+    const rootBlocked = blockedFilterKeys(params);
+    if (rootBlocked.length > 0) {
+      return gone();
+    }
+
+    if (removedDefault) {
+      return permanentRedirect(url);
+    }
+
+    return null;
   }
 
   /* ── Category + tag nested routes: /library/{category}/{tag} ── */

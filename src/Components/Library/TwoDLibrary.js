@@ -150,7 +150,11 @@ export default async function TwoDLibrary({
 
   const designs = data?.data?.designDetails || [];
   const pagination = data?.data?.pagination || {};
-  const totalPages = pagination?.totalPages || 1;
+  const totalPages = Math.max(1, Number(pagination?.totalPages) || 1);
+  // URL page may exceed range; API may clamp — still 404 per SEO policy.
+  if (page > totalPages) {
+    notFound();
+  }
   const dataPage = pagination?.currentPage ?? page;
   const initialTags = Array.isArray(tagsFirstPage?.data) ? tagsFirstPage.data : [];
   const initialTagsHasMore = tagsFirstPage?.hasMore === true;

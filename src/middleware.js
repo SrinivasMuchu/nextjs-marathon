@@ -23,5 +23,6 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/tools/3D-cad-viewer', '/library/:path*'],
+  // Include bare `/library` — `/library/:path*` alone can miss query-only root URLs.
+  matcher: ['/tools/3D-cad-viewer', '/library', '/library/:path*'],
 };

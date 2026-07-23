@@ -298,7 +298,7 @@ export default function LibraryFilters({
     ? localOutputType
     : deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat);
 
-  /* URL for Apply Filters – used as Link href on mobile so navigation is a real link */
+  /* URL for Apply Filters – navigated via button (not crawlable <a href>) */
   const applyFiltersUrl = useMemo(
     () =>
       buildFiltersListUrl(libraryListMode, {
@@ -636,13 +636,16 @@ export default function LibraryFilters({
           <Link href={resetListHref} className={panelStyles.clearLink}>
             ↺ Clear all filters
           </Link>
-          <Link
-            href={panelApplyUrl}
+          <button
+            type="button"
             className={panelStyles.doneButton}
-            onClick={() => typeof onClosePanel === 'function' && onClosePanel()}
+            onClick={() => {
+              router.push(panelApplyUrl);
+              if (typeof onClosePanel === 'function') onClosePanel();
+            }}
           >
             ✓ Done
-          </Link>
+          </button>
         </div>
       </div>
     );
@@ -686,7 +689,6 @@ export default function LibraryFilters({
         <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Recency">
           {RECENCY_RADIO.map(({ value, label }) => {
             const isActive = (displayRecency || '') === value;
-            const url = buildLibraryUrl({ recency: value || undefined });
             return inSheet ? (
               <label key={value || 'all'} className={styles['library-filters-radio-label']}>
                 <input
@@ -699,15 +701,16 @@ export default function LibraryFilters({
                 <span>{label}</span>
               </label>
             ) : (
-              <Link
+              <button
                 key={value || 'all'}
-                href={url}
+                type="button"
                 className={styles['library-filters-radio-label'] + (isActive ? ` ${styles['library-filters-radio-active']}` : '')}
                 aria-checked={isActive}
                 role="radio"
+                onClick={() => router.push(buildLibraryUrl({ recency: value || undefined }))}
               >
                 <span>{label}</span>
-              </Link>
+              </button>
             );
           })}
         </div>
@@ -718,7 +721,6 @@ export default function LibraryFilters({
         <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Free or Paid">
           {FREE_PAID_RADIO.map(({ value, label }) => {
             const isActive = (displayFreePaid || '') === value;
-            const url = buildLibraryUrl({ free_paid: value || undefined });
             return inSheet ? (
               <label key={value || 'all'} className={styles['library-filters-radio-label']}>
                 <input
@@ -731,15 +733,16 @@ export default function LibraryFilters({
                 <span>{label}</span>
               </label>
             ) : (
-              <Link
+              <button
                 key={value || 'all'}
-                href={url}
+                type="button"
                 className={styles['library-filters-radio-label'] + (isActive ? ` ${styles['library-filters-radio-active']}` : '')}
                 aria-checked={isActive}
                 role="radio"
+                onClick={() => router.push(buildLibraryUrl({ free_paid: value || undefined }))}
               >
                 <span>{label}</span>
-              </Link>
+              </button>
             );
           })}
         </div>
@@ -765,9 +768,7 @@ export default function LibraryFilters({
               if (!tagValue || !isValidLibraryTagSlug(tagValue)) return null;
               const tagLabel = tag?.cad_tag_label ?? tag?.cad_tag_name ?? tag?.label ?? tag?.name ?? String(tagValue);
               const isActive = displayTag === tagValue;
-              /* With category: /library/{categorySlug}/{tagSlug}; without: /library/tag/{tagSlug} */
-              const tagUrl = buildLibraryUrl({ categoryName: category || null, tagName: isActive ? null : tagValue });
-              return inSheet ? (
+              return (
                 <button
                   key={tagValue}
                   type="button"
@@ -779,27 +780,20 @@ export default function LibraryFilters({
                       isClear: isActive,
                       libraryListMode,
                     });
-                    setLocalTag(isActive ? '' : tagValue);
+                    if (inSheet) {
+                      setLocalTag(isActive ? '' : tagValue);
+                      return;
+                    }
+                    router.push(
+                      buildLibraryUrl({
+                        categoryName: category || null,
+                        tagName: isActive ? null : tagValue,
+                      })
+                    );
                   }}
                 >
                   {tagLabel}
                 </button>
-              ) : (
-                <Link
-                  key={tagValue}
-                  href={tagUrl}
-                  className={styles['library-filters-tag-pill'] + (isActive ? ` ${styles['library-filters-tag-pill-active']}` : '')}
-                  onClick={() => {
-                    trackLibraryFilterTagClick({
-                      tagValue,
-                      tagLabel,
-                      isClear: isActive,
-                      libraryListMode,
-                    });
-                  }}
-                >
-                  {tagLabel}
-                </Link>
               );
             })}
           </div>
@@ -855,10 +849,7 @@ export default function LibraryFilters({
         <div className={styles['library-filters-format-chips']} role="radiogroup" aria-label={fileFormatLabel}>
           {fileFormatOptions.map(({ value, label }) => {
             const isActive = selectedFormat === value;
-            const formatUrl = buildLibraryUrl({
-              file_format: isActive ? undefined : value,
-            });
-            return inSheet ? (
+            return (
               <button
                 key={value}
                 type="button"
@@ -872,19 +863,6 @@ export default function LibraryFilters({
               >
                 {label}
               </button>
-            ) : (
-              <Link
-                key={value}
-                href={formatUrl}
-                role="radio"
-                aria-checked={isActive}
-                className={
-                  styles['library-filters-format-chip'] +
-                  (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')
-                }
-              >
-                {label}
-              </Link>
             );
           })}
         </div>
@@ -899,13 +877,7 @@ export default function LibraryFilters({
             <div className={styles['library-filters-format-chips']}>
               {TWO_D_OUTPUT_FORMAT_FILTER_OPTIONS.map(({ value, label }) => {
                 const isActive = selectedOutputFormats.includes(value);
-                const nextFormats = isActive
-                  ? selectedOutputFormats.filter((f) => f !== value)
-                  : [...selectedOutputFormats, value];
-                const formatUrl = buildLibraryUrl({
-                  output_format: nextFormats.length ? nextFormats.join(',') : undefined,
-                });
-                return inSheet ? (
+                return (
                   <button
                     key={value}
                     type="button"
@@ -917,17 +889,6 @@ export default function LibraryFilters({
                   >
                     {label}
                   </button>
-                ) : (
-                  <Link
-                    key={value}
-                    href={formatUrl}
-                    className={
-                      styles['library-filters-format-chip'] +
-                      (isActive ? ` ${styles['library-filters-format-chip-active']}` : '')
-                    }
-                  >
-                    {label}
-                  </Link>
                 );
               })}
             </div>
@@ -938,7 +899,6 @@ export default function LibraryFilters({
             <div className={styles['library-filters-radio-group']} role="radiogroup" aria-label="Projection type">
               {TWO_D_PROJECTION_FILTERS.map(({ value, label }) => {
                 const isActive = (displayProjection || '') === value;
-                const url = buildLibraryUrl({ projection: value || undefined });
                 return inSheet ? (
                   <label key={value || 'any-projection'} className={styles['library-filters-radio-label']}>
                     <input
@@ -951,15 +911,16 @@ export default function LibraryFilters({
                     <span>{label}</span>
                   </label>
                 ) : (
-                  <Link
+                  <button
                     key={value || 'any-projection'}
-                    href={url}
+                    type="button"
                     className={styles['library-filters-radio-label'] + (isActive ? ` ${styles['library-filters-radio-active']}` : '')}
                     aria-checked={isActive}
                     role="radio"
+                    onClick={() => router.push(buildLibraryUrl({ projection: value || undefined }))}
                   >
                     <span>{label}</span>
-                  </Link>
+                  </button>
                 );
               })}
             </div>
@@ -969,13 +930,16 @@ export default function LibraryFilters({
 
       {inSheet && (
         <div className={styles['library-filters-sheet-footer']}>
-          <Link
-            href={applyFiltersUrl}
+          <button
+            type="button"
             className={styles['library-filters-sheet-apply']}
-            onClick={() => typeof onCloseSheet === 'function' && onCloseSheet()}
+            onClick={() => {
+              router.push(applyFiltersUrl);
+              if (typeof onCloseSheet === 'function') onCloseSheet();
+            }}
           >
             Apply Filters
-          </Link>
+          </button>
         </div>
       )}
     </div>

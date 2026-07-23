@@ -54,7 +54,8 @@ export const FILTER_PARAMS = new Set([
 
 /**
  * Interactive query params allowed on library browse URLs (user search).
- * Still listed in FILTER_PARAMS for docs, but must not trigger 410.
+ * Still listed in FILTER_PARAMS for docs, but must not trigger 410 on root/search paths.
+ * Not allowed on /library/file-format/* (those only allow ?page=).
  */
 export const INTERACTIVE_QUERY_PARAMS = new Set(['search', 'q']);
 
