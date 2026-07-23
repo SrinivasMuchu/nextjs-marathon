@@ -1,7 +1,4 @@
-/**
- * SEO allowlists for /library URL governance (Emergency SEO Fix: Library Filter URL Explosion).
- * Expand APPROVED_TAGS with product/SEO sign-off only.
- */
+
 
 export const FORMAT_ALIASES = {
   step: 'step',
@@ -17,44 +14,6 @@ export const FORMAT_ALIASES = {
   ply: 'ply',
   off: 'off',
 };
-
-/** Slugs with dedicated /library/file-format/{slug} landing pages */
-export const APPROVED_FILE_FORMAT_SLUGS = new Set([
-  'step',
-  'stl',
-  'iges',
-  'obj',
-  'ply',
-  'dwg',
-  'dxf',
-]);
-
-/** Category slugs eligible for ?category= → /library/{slug} redirects */
-export const APPROVED_CATEGORY_SLUGS = new Set([
-  'automotive',
-  'aerospace',
-  'robotics',
-  '3d-printing',
-  'architecture',
-  'industrial-design',
-  'medical',
-  'electrical',
-  'marine',
-]);
-
-/**
- * Tag slugs allowed as public SEO routes (/library/tag/{slug}).
- * All other tag slugs return 410 Gone.
- */
-export const APPROVED_TAG_SLUGS = new Set([
-  'servo-motors',
-  'electrical-connectors',
-  'robot-arms',
-  'electric-motors',
-  'fasteners',
-  'drone-components',
-  '3d-printing',
-]);
 
 export const TRACKING_PARAMS = new Set([
   'utm_source',
@@ -99,11 +58,13 @@ export const FILTER_PARAMS = new Set([
  */
 export const INTERACTIVE_QUERY_PARAMS = new Set(['search', 'q']);
 
-/** Path prefixes that skip tag allowlist checks */
+/**
+ * Path prefixes that skip category/tag slug checks (hubs / indexes).
+ * Cluster *detail* slugs are validated dynamically in librarySeoGuard.
+ */
 export const LIBRARY_STATIC_PREFIXES = [
   '/library/2d-technical-drawings',
   '/library/tags',
   '/library/clusters',
-  '/library/cluster/',
   '/library/category/',
 ];
