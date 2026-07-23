@@ -35,21 +35,20 @@ const SearchBar = ({ initialSearchQuery = '', placeholder = 'Search designs...' 
   };
 
   const handleSearch = () => {
-    if (typeof window !== 'undefined') {
-      const pathname = window.location.pathname;
-      const existingParams = new URLSearchParams(window.location.search);
+    if (typeof window === 'undefined') return;
 
-      if (searchQuery.trim()) {
-        existingParams.set('search', searchQuery.trim());
-      } else {
-        existingParams.delete('search');
-      }
+    const is2d = window.location.pathname.startsWith('/library/2d-technical-drawings');
+    const basePath = is2d ? '/library/2d-technical-drawings' : '/library';
+    const nextParams = new URLSearchParams();
+    const trimmed = searchQuery.trim();
 
-      existingParams.set('page', '1');
-      existingParams.set('limit', '20');
-
-      router.push(`${pathname}?${existingParams.toString()}`);
+    if (trimmed) {
+      nextParams.set('search', trimmed);
+      logSearch(trimmed);
     }
+
+    const qs = nextParams.toString();
+    router.push(qs ? `${basePath}?${qs}` : basePath);
   };
 
 
@@ -72,10 +71,8 @@ const SearchBar = ({ initialSearchQuery = '', placeholder = 'Search designs...' 
             <button
               onClick={() => {
                 setSearchQuery('');
-                const pathname = window.location.pathname;
-                const existingParams = new URLSearchParams(window.location.search);
-                existingParams.delete('search');
-                router.push(`${pathname}?${existingParams.toString()}`);
+                const is2d = window.location.pathname.startsWith('/library/2d-technical-drawings');
+                router.push(is2d ? '/library/2d-technical-drawings' : '/library');
               }}
             >
               <ClearIcon />
