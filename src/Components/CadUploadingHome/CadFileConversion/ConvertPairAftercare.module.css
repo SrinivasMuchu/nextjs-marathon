@@ -34,9 +34,9 @@
   margin: 0 0 12px;
   padding-left: 13px;
   color: #7142aa;
-  font-size: 10px;
-  font-weight: 750;
-  letter-spacing: 0.1em;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -60,8 +60,8 @@
 .privacyInner h2 {
   margin: 0;
   color: #1d1530;
-  font-size: 34px;
-  font-weight: 780;
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 800;
   line-height: 1.08;
   letter-spacing: -0.04em;
 }
@@ -84,8 +84,8 @@
   border: 1px solid #d9caf0;
   border-radius: 12px;
   color: #675c71;
-  font-size: 11px;
-  line-height: 1.55;
+  font-size: 13px;
+  line-height: 1.65;
 }
 
 .important svg {
@@ -144,8 +144,8 @@
 .privacyGrid p {
   margin: 5px 0 0;
   color: #7b7282;
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.65;
 }
 
 .troubleSection {
@@ -193,7 +193,7 @@
   border-radius: 999px;
   background: #eafbed;
   color: #258542;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .privacySection {
@@ -232,8 +232,8 @@
 .privacyInner header > p:last-child {
   margin: 14px 0 0;
   color: rgba(255, 255, 255, 0.76);
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .privacyGrid {
@@ -302,7 +302,7 @@
   border-radius: 8px;
   background: #f0e8ff;
   color: #7030c5;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 750;
   box-sizing: border-box;
 }
@@ -418,7 +418,7 @@
   .sectionHeader h2,
   .popularHeader h2,
   .privacyInner h2 {
-    font-size: 30px;
+    font-size: 28px;
   }
 }
 

@@ -33,7 +33,7 @@
 .heroCopy h1 {
   margin: 20px 0 16px;
   font-size: clamp(45px, 5.7vw, 72px);
-  font-weight: 780;
+  font-weight: 800;
   line-height: 0.98;
   letter-spacing: -0.055em;
 }
@@ -59,8 +59,8 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.09);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 750;
 }
 
 .heroBadges .freeBadge {
@@ -79,7 +79,8 @@
   align-items: center;
   gap: 7px;
   color: rgba(255, 255, 255, 0.83);
-  font-size: 11px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .uploadCard {
@@ -109,7 +110,8 @@
 .uploadHeader p {
   margin: 0;
   color: #80768a;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .uploadHeader > span {
@@ -120,8 +122,8 @@
   border-radius: 999px;
   background: #ecfbf1;
   color: #237449;
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 750;
 }
 
 .benefits {
@@ -183,8 +185,8 @@
 .comparisonSection td,
 .chooseGrid p {
   color: #776e7e;
-  font-size: 11px;
-  line-height: 1.55;
+  font-size: 13px;
+  line-height: 1.65;
 }
 
 .benefitCard p {
@@ -217,9 +219,9 @@
   margin: 0 0 12px;
   padding-left: 13px;
   color: #7142aa;
-  font-size: 10px;
-  font-weight: 750;
-  letter-spacing: 0.1em;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -243,7 +245,7 @@
   margin: 0;
   color: #171127;
   font-size: clamp(31px, 4.2vw, 48px);
-  font-weight: 780;
+  font-weight: 800;
   line-height: 1.08;
   letter-spacing: -0.045em;
 }
@@ -251,8 +253,8 @@
 .resourcesHeader > p {
   margin: 0 0 3px;
   color: #716979;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .resourceGrid {
@@ -284,7 +286,7 @@
 
 .resourceBody strong {
   color: #2e2438;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .resourceBody small {
@@ -352,7 +354,7 @@
   border: 1px solid #dac7ef;
   border-radius: 999px;
   color: #7535c7;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 750;
   text-transform: uppercase;
 }
@@ -450,7 +452,7 @@
   background: #7529e1;
   color: #fff;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 750;
   text-decoration: none;
   box-shadow: 0 10px 26px rgba(117, 41, 225, 0.25);
 }
@@ -491,7 +493,8 @@
   align-items: center;
   gap: 7px;
   color: #34805c;
-  font-size: 11px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .behaviorLists .changedList h3 {
@@ -555,7 +558,8 @@
 
 .formatVisualRow strong {
   color: #30263a;
-  font-size: 11px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .bigArrow {

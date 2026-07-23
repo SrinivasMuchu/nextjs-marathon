@@ -32,8 +32,8 @@
   margin: 0 0 12px;
   padding-left: 13px;
   color: #7142aa;
-  font-size: 11px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 800;
   line-height: 1.2;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -55,7 +55,7 @@
   margin: 0 0 20px;
   color: #21172c;
   font-size: clamp(21px, 2.3vw, 26px);
-  font-weight: 760;
+  font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.035em;
 }
@@ -108,8 +108,8 @@
 .useItem h3 {
   margin: 0 0 4px;
   color: #33293d;
-  font-size: 13px;
-  font-weight: 720;
+  font-size: 14px;
+  font-weight: 750;
   line-height: 1.35;
 }
 
@@ -117,8 +117,8 @@
 .useItem p {
   margin: 0;
   color: #817987;
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.65;
 }
 
 .useGrid {

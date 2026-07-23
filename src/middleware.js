@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { librarySeoGuard } from '@/middleware/librarySeoGuard';
 
 /**
  * Case-only redirects must use exact pathname checks. next.config redirects match
@@ -13,9 +14,14 @@ export function middleware(request) {
     return NextResponse.redirect(url, 308);
   }
 
+  const libraryResponse = librarySeoGuard(request);
+  if (libraryResponse) {
+    return libraryResponse;
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/tools/3D-cad-viewer'],
+  matcher: ['/tools/3D-cad-viewer', '/library/:path*'],
 };

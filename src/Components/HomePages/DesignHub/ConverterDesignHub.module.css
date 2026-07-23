@@ -34,9 +34,9 @@
   margin: 0 0 12px;
   padding-left: 13px;
   color: #7142aa;
-  font-size: 10px;
-  font-weight: 750;
-  letter-spacing: 0.1em;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -56,8 +56,8 @@
 .heading {
   margin: 0;
   color: #181126;
-  font-size: 34px;
-  font-weight: 780;
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.04em;
 }
@@ -66,8 +66,8 @@
   max-width: 760px;
   margin: 12px 0 0;
   color: #746b7b;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .viewAll {
@@ -103,7 +103,7 @@
   background: #fff;
   color: #493f52;
   font: inherit;
-  font-size: 9px;
+  font-size: 11px;
   cursor: pointer;
 }
 
@@ -187,7 +187,7 @@
   min-height: 36px;
   margin: 4px 0 12px;
   color: #20172a;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 720;
   line-height: 1.45;
 }
@@ -201,7 +201,7 @@
   gap: 10px;
   border-top: 1px solid #eee9f2;
   color: #867e8c;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .cardMeta strong {
@@ -238,7 +238,7 @@
   }
 
   .heading {
-    font-size: 30px;
+    font-size: 28px;
   }
 
   .grid {
