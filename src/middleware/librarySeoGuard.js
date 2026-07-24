@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
 import {
   FORMAT_ALIASES,
-  APPROVED_CATEGORY_SLUGS,
-  APPROVED_TAG_SLUGS,
-  APPROVED_FILE_FORMAT_SLUGS,
   TRACKING_PARAMS,
   FILTER_PARAMS,
   INTERACTIVE_QUERY_PARAMS,
   LIBRARY_STATIC_PREFIXES,
 } from '@/data/librarySeoAllowlist';
+import {
+  isApprovedTagSlug,
+  isApprovedCategorySlug,
+  isApprovedClusterSlug,
+  isApprovedFileFormatSlug,
+} from '@/lib/librarySeoRegistry';
 
 const GONE_HTML = `<!doctype html>
 <html>
@@ -94,7 +97,7 @@ function hasBlockedFilterParams(params) {
 
 function blockedFilterKeys(params) {
   return nonTrackingKeys(params).filter(
-    (key) => FILTER_PARAMS.has(key) && !INTERACTIVE_QUERY_PARAMS.has(key)
+    (key) => FILTER_PARAMS.has(key) && !isAllowedQueryKey(key)
   );
 }
 
@@ -104,11 +107,19 @@ function applyPageToDestination(destination, pageValue) {
   }
 }
 
+function extractClusterSlug(pathname) {
+  const match = pathname.match(
+    /^\/library(?:\/2d-technical-drawings)?\/cluster\/([^/]+)\/?$/
+  );
+  return match ? match[1] : null;
+}
+
 /**
  * Enforce library SEO URL policy (301 / 404 / 410).
+ * Tag / category / cluster existence is loaded dynamically from the API (DB/ES).
  * Returns a NextResponse when the request should be short-circuited, or null to continue.
  */
-export function librarySeoGuard(request) {
+export async function librarySeoGuard(request) {
   const url = request.nextUrl.clone();
   const params = url.searchParams;
   const pathname = url.pathname;
@@ -144,7 +155,7 @@ export function librarySeoGuard(request) {
   if (pathname.startsWith('/library/tag/')) {
     const slug = pathname.replace('/library/tag/', '').split('/')[0];
 
-    if (!slug || !APPROVED_TAG_SLUGS.has(slug)) {
+    if (!slug || !(await isApprovedTagSlug(slug))) {
       return gone();
     }
 
@@ -163,7 +174,27 @@ export function librarySeoGuard(request) {
   const fileFormatMatch = pathname.match(/^\/library\/file-format\/([^/]+)\/?$/);
   if (fileFormatMatch) {
     const slug = fileFormatMatch[1].toLowerCase();
-    if (!APPROVED_FILE_FORMAT_SLUGS.has(slug)) {
+    if (!isApprovedFileFormatSlug(slug)) {
+      return notFoundResponse();
+    }
+
+    /* Doc: filters on format pages (free_paid, recency, sort, search, …) → 410. Only ?page= allowed. */
+    const formatExtraKeys = nonTrackingKeys(params).filter((key) => key !== 'page');
+    if (formatExtraKeys.length > 0) {
+      return gone();
+    }
+
+    if (removedDefault) {
+      return permanentRedirect(url);
+    }
+
+    return null;
+  }
+
+  /* ── Cluster detail: /library/cluster/{slug} (+ 2d) ── */
+  const clusterSlug = extractClusterSlug(pathname);
+  if (clusterSlug) {
+    if (!(await isApprovedClusterSlug(clusterSlug))) {
       return notFoundResponse();
     }
 
@@ -189,6 +220,7 @@ export function librarySeoGuard(request) {
         return notFoundResponse();
       }
 
+      /* Doc: any extra filter with file_format (free_paid, recency, …) → 410, do not redirect. */
       const remainingKeys = nonTrackingKeys(params).filter(
         (key) => key !== 'file_format' && key !== 'page'
       );
@@ -213,12 +245,12 @@ export function librarySeoGuard(request) {
     if (category !== null) {
       const normalizedCategory = category.trim().toLowerCase();
 
-      if (!APPROVED_CATEGORY_SLUGS.has(normalizedCategory)) {
+      if (!(await isApprovedCategorySlug(normalizedCategory))) {
         return notFoundResponse();
       }
 
       const remainingKeys = nonTrackingKeys(params).filter(
-        (key) => key !== 'category' && key !== 'page'
+        (key) => key !== 'category' && key !== 'page' && !INTERACTIVE_QUERY_PARAMS.has(key)
       );
 
       if (remainingKeys.length > 0) {
@@ -231,6 +263,21 @@ export function librarySeoGuard(request) {
       applyPageToDestination(destination, pageValue);
       return permanentRedirect(destination);
     }
+
+    /*
+     * Root /library faceted filters (free_paid, sort, recency, …) stay 410 even if
+     * the API would return designs. Allowed query on root: page + search only.
+     */
+    const rootBlocked = blockedFilterKeys(params);
+    if (rootBlocked.length > 0) {
+      return gone();
+    }
+
+    if (removedDefault) {
+      return permanentRedirect(url);
+    }
+
+    return null;
   }
 
   /* ── Category + tag nested routes: /library/{category}/{tag} ── */
@@ -238,8 +285,15 @@ export function librarySeoGuard(request) {
   if (categoryTagMatch) {
     const [, categorySlug, tagSlug] = categoryTagMatch;
 
-    if (!isDesignRouteSegment(categorySlug) && !isDesignRouteSegment(tagSlug)) {
-      if (!APPROVED_TAG_SLUGS.has(tagSlug.toLowerCase())) {
+    if (
+      categorySlug !== '2d-technical-drawings' &&
+      !isDesignRouteSegment(categorySlug) &&
+      !isDesignRouteSegment(tagSlug)
+    ) {
+      if (!(await isApprovedCategorySlug(categorySlug))) {
+        return gone();
+      }
+      if (!(await isApprovedTagSlug(tagSlug))) {
         return gone();
       }
 
@@ -255,7 +309,7 @@ export function librarySeoGuard(request) {
     }
   }
 
-  /* ── Static / utility library paths (2d, tags index, clusters) ── */
+  /* ── Static / utility library paths (2d hub, tags index, clusters index) ── */
   if (isStaticLibraryPath(pathname)) {
     const remainingFilterKeys = blockedFilterKeys(params);
 
@@ -294,7 +348,11 @@ export function librarySeoGuard(request) {
       return null;
     }
 
-    /* Category landing page — pagination + interactive search allowed */
+    /* Category landing page — must exist in DB categories */
+    if (!(await isApprovedCategorySlug(segment))) {
+      return notFoundResponse();
+    }
+
     if (hasBlockedFilterParams(params)) {
       return gone();
     }
