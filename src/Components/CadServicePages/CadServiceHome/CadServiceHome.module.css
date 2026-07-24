@@ -1,361 +1,224 @@
 .section {
-  display: flex;
-  flex-wrap: wrap;
-  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  padding: 60px 0 70px;
   font-family: inherit;
-  overflow-x: hidden;
-  background: linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%);
+  background-color: #6d28d9;
+  background-image:
+    radial-gradient(circle at 8% 13%, rgba(196, 181, 253, 0.2), transparent 27%),
+    radial-gradient(circle at 88% 80%, rgba(255, 255, 255, 0.1), transparent 28%),
+    linear-gradient(rgba(255, 255, 255, 0.052) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.052) 1px, transparent 1px);
+  background-size: auto, auto, 44px 44px, 44px 44px;
 }
 
-.leftColumn {
-  flex: 1;
-  min-width: min(100%, 320px);
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding: clamp(24px, 5vw, 80px) clamp(16px, 4vw, 64px);
+.container {
+  width: min(1280px, calc(100% - 64px));
+  margin: 0 auto;
 }
 
-.tag {
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 520px;
+  gap: 58px;
+  align-items: start;
+}
+
+.heroCopy {
+  padding-top: 10px;
+}
+
+.heroBadge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  width: fit-content;
-  background: rgba(124, 58, 237, 0.15);
-  border: 1px solid rgba(124, 58, 237, 0.3);
-  color: #c4a8ff;
-  padding: 6px 14px;
-  border-radius: 100px;
+  gap: 9px;
+  padding: 8px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.11);
+  color: #f0ecff;
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.8px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  margin-bottom: 28px;
-  font-family: inherit;
 }
 
-.tagBullet {
-  width: 6px;
-  height: 6px;
-  background: white;
+.heroBadge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  background: #c4b5fd;
 }
 
 .headline {
-  margin: 0 0 20px 0;
-  font-size: clamp(28px, 6vw, 48px);
-  font-weight: 700;
-  line-height: 1.2;
-  color: white;
-  font-family: inherit;
-}
-
-.headlineLead {
-  display: block;
+  max-width: 760px;
+  margin: 22px 0 0;
+  color: #fff;
+  font-size: clamp(44px, 5vw, 62px);
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  text-wrap: balance;
 }
 
 .headlineAccent {
+  color: #c4b5fd;
+}
+
+.heroLead {
+  max-width: 690px;
+  margin: 22px 0 0;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 18px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.heroProof {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 720px;
+  margin-top: 36px;
+  padding: 23px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.proofItem {
+  padding-right: 26px;
+}
+
+.proofItem + .proofItem {
+  padding-left: 28px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.proofItem strong {
   display: block;
-  margin-top: 0.15em;
-  color: #610bee;
+  color: #fff;
+  font-size: 33px;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
 }
 
-.statSymbol {
-  color: #610bee;
+.proofItem span {
+  display: block;
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 600;
 }
 
-.description {
-  margin: 0 0 40px 0;
-  font-size: clamp(14px, 2vw, 16px);
-  font-weight: 400;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 420px;
-  font-family: inherit;
-}
-
-.stats {
+.heroAssurance {
   display: flex;
   flex-wrap: wrap;
-  gap: clamp(20px, 4vw, 32px) clamp(24px, 6vw, 48px);
+  gap: 10px 20px;
+  margin-top: 24px;
+  color: rgba(255, 255, 255, 0.77);
+  font-size: 13px;
+  font-weight: 650;
 }
 
-.statItem {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-family: inherit;
+.heroAssurance span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.statItem:not(:first-child) {
-  padding-left: clamp(16px, 4vw, 28px);
-  border-left: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.statValue {
-  font-size: clamp(24px, 3vw, 32px);
+.heroAssurance b {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.13);
+  color: #c4b5fd;
+  font-size: 11px;
   font-weight: 700;
-  color: white;
-  font-family: inherit;
-}
-
-.statLabel {
-  font-size: 14px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.8);
-  font-family: inherit;
 }
 
 .rightColumn {
-  flex: 1;
-  min-width: min(100%, 320px);
+  min-width: 0;
+}
+
+.scopeStrip {
+  margin-top: 52px;
+  padding-top: 26px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  text-align: center;
+}
+
+.scopeStrip p {
+  margin: 0 0 17px;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.scopeList {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: center;
-  padding: clamp(20px, 5vw, 80px) clamp(16px, 4vw, 64px);
+  gap: 15px 34px;
 }
 
-/* Form styles (merged from CadServiceForm) */
-.formCard {
-  background: white;
-  border-radius: 20px;
-  padding: clamp(20px, 4vw, 40px);
-  width: 100%;
-  max-width: 520px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-  font-family: inherit;
-  box-sizing: border-box;
-}
-
-.formTitle {
-  font-size: clamp(20px, 4vw, 24px);
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0 0 8px 0;
-  font-family: inherit;
-}
-
-.formSubtitle {
+.scopeList span {
+  color: rgba(255, 255, 255, 0.72);
   font-size: 14px;
-  font-weight: 400;
-  color: #6b7280;
-  margin: 0 0 28px 0;
-  font-family: inherit;
+  font-weight: 750;
 }
 
-.formGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(16px, 3vw, 20px);
-  margin-bottom: 20px;
-}
-
-.formGridFull {
-  grid-column: 1 / -1;
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-family: inherit;
-}
-
-.formLabel {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: #374151;
-  font-family: inherit;
-}
-
-.formInput,
-.formSelect,
-.formTextarea {
-  padding: clamp(12px, 2.5vw, 14px) 14px;
-  min-height: 44px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 400;
-  font-family: inherit;
-  background: #fff;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-}
-
-.formInput::placeholder,
-.formTextarea::placeholder {
-  color: #9ca3af;
-}
-
-.formInput:focus,
-.formSelect:focus,
-.formTextarea:focus {
-  outline: none;
-  border-color: #610bee;
-}
-
-.formTextarea {
-  min-height: 100px;
-  resize: vertical;
-  padding: 14px;
-}
-
-.formSelect {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 36px;
-}
-
-.uploadSection {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 20px 0 28px 0;
-  padding: clamp(12px, 2.5vw, 16px);
-  min-height: 44px;
-  border: 1px dashed #e5e7eb;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  font-family: inherit;
-}
-
-.uploadSection:hover {
-  border-color: #610bee;
-  background: #faf5ff;
-}
-
-.uploadInput {
-  display: none;
-}
-
-.uploadIcon {
-  flex-shrink: 0;
-  color: #6b7280;
-}
-
-.uploadText {
-  font-size: clamp(12px, 2.5vw, 14px);
-  font-weight: 400;
-  color: #6b7280;
-  font-family: inherit;
-  word-break: break-word;
-}
-
-.submitBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: clamp(14px, 2.5vw, 16px) 24px;
-  min-height: 48px;
-  background: #610bee;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: clamp(14px, 2.5vw, 16px);
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.2s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.submitBtn:hover {
-  background: #4f0bc9;
-}
-
-.submitBtn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-@media screen and (max-width: 600px) {
-  .formGrid {
+@media (max-width: 1120px) {
+  .heroGrid {
     grid-template-columns: 1fr;
-    gap: 16px;
   }
-  .formCard {
-    padding: 20px;
+
+  .rightColumn {
+    max-width: 680px;
   }
 }
 
-@media screen and (max-width: 400px) {
-  .formCard {
-    padding: 16px;
-    border-radius: 16px;
+@media (max-width: 760px) {
+  .container {
+    width: min(100% - 36px, 1280px);
   }
-  .formTitle {
-    font-size: 18px;
+
+  .section {
+    padding: 44px 0 55px;
   }
-  .formSubtitle {
-    font-size: 13px;
+
+  .heroGrid {
+    gap: 38px;
   }
-  .formInput,
-  .formSelect,
-  .formTextarea {
+
+  .headline {
+    font-size: 43px;
+  }
+
+  .heroLead {
     font-size: 16px;
   }
-  .submitBtn {
-    font-size: 14px;
-    min-height: 44px;
-  }
-}
 
-@media screen and (max-width: 900px) {
-  .section {
-    flex-direction: column;
+  .heroProof {
+    grid-template-columns: 1fr;
+    gap: 17px;
   }
-  .leftColumn {
-    min-height: auto;
-    padding-bottom: clamp(32px, 6vw, 48px);
-    padding-top: clamp(24px, 6vw, 48px);
-    text-align: center;
-    align-items: center;
-  }
-  .leftColumn .tag {
-    align-self: center;
-  }
-  .leftColumn .description {
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .leftColumn .stats {
-    justify-content: center;
-  }
-  .rightColumn {
-    padding-top: 0;
-    padding-bottom: clamp(24px, 5vw, 48px);
-  }
-}
 
-@media screen and (max-width: 480px) {
-  .tag {
-    font-size: 11px;
-    padding: 6px 12px;
+  .proofItem {
+    padding: 0;
   }
-  .headline {
-    font-size: clamp(24px, 8vw, 32px);
+
+  .proofItem + .proofItem {
+    padding: 17px 0 0;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
   }
-  .description {
-    margin-bottom: 32px;
-  }
-  .stats {
-    flex-direction: row;
-    gap: 20px 24px;
-  }
-  .statValue {
-    font-size: clamp(20px, 5vw, 28px);
-  }
-  .statLabel {
-    font-size: 12px;
+
+  .proofItem strong {
+    font-size: 29px;
   }
 }

@@ -3,33 +3,45 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ArrowRight } from 'lucide-react'
 import { useCadForm, isCadServicesRoute } from '../CadFormContext'
 import styles from './CtaSection.module.css'
 
-const CAD_SERVICES_QUOTE_HREF = '/cad-services'
+const CAD_SERVICES_QUOTE_HREF = '/cad-services#cad-quote'
 
 function CtaButtons() {
   const pathname = usePathname()
   const { openFormPopup } = useCadForm()
   const samePage = isCadServicesRoute(pathname)
-  const content = (
-    <>
-      Request CAD Quote
-      <ArrowRight size={16} strokeWidth={2.5} />
-    </>
-  )
+
+  const scrollToQuote = () => {
+    const el = document.getElementById('cad-quote')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
+    openFormPopup('cta_section')
+  }
 
   return (
     <div className={styles.ctaButtons}>
       {samePage ? (
-        <button type="button" className={styles.ctaBtnPrimary} onClick={() => openFormPopup('cta_section')}>
-          {content}
-        </button>
+        <>
+          <button type="button" className={styles.ctaBtnPrimary} onClick={scrollToQuote}>
+            Submit My CAD Brief →
+          </button>
+          <a className={styles.ctaBtnOutline} href="#process">
+            See How It Works
+          </a>
+        </>
       ) : (
-        <Link href={CAD_SERVICES_QUOTE_HREF} className={styles.ctaBtnPrimary}>
-          {content}
-        </Link>
+        <>
+          <Link href={CAD_SERVICES_QUOTE_HREF} className={styles.ctaBtnPrimary}>
+            Submit My CAD Brief →
+          </Link>
+          <Link href="/cad-services#process" className={styles.ctaBtnOutline}>
+            See How It Works
+          </Link>
+        </>
       )}
     </div>
   )

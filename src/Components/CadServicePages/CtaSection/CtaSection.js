@@ -4,12 +4,19 @@ import styles from './CtaSection.module.css'
 
 function CtaSection() {
   return (
-    <section className={styles.section}>
-      <h2 className={styles.title}>Get CAD talent assigned this week.</h2>
-      <p className={styles.sub}>
-        Send your requirements. We&apos;ll reply within 24 hours with next steps.
-      </p>
-      <CtaButtons />
+    <section className={styles.finalWrap}>
+      <div className={styles.narrow}>
+        <div className={styles.finalCta}>
+          <div>
+            <h2 className={styles.title}>Have a CAD requirement ready to move?</h2>
+            <p className={styles.sub}>
+              Share one clear brief. Marathon will help you find relevant agency options, coordinate the initial
+              questions and make the selection process easier for your team.
+            </p>
+          </div>
+          <CtaButtons />
+        </div>
+      </div>
     </section>
   )
 }

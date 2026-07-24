@@ -103,6 +103,7 @@ function FloatingButton() {
   }, [showOptions]);
 
   if (showPopup) return null;
+  if (pathname?.replace(/\/$/, '') === '/cad-services') return null;
   if (isMobile && isStickyStripVisible) return null;
 
   const bottom = anchorAds

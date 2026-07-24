@@ -1,55 +1,62 @@
 import React from 'react'
-import { Users, TrendingUp, FileText } from 'lucide-react'
-import RequestQuoteButton from '../RequestQuoteButton/RequestQuoteButton'
 import styles from './WhyMarathon.module.css'
 
 const FEATURES = [
   {
-    icon: Users,
-    title: 'Vetted Designers Only',
+    title: 'Better-fit options',
     description:
-      'Every designer on our platform passes a multi-stage vetting — tool proficiency tests, portfolio review, and trial project. You only ever work with proven professionals.',
+      'Agencies are matched to your project type, CAD software, deliverables, timeline and relevant experience. You are not left searching through a generic directory.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+        <path d="m15 9-2 4-4 2 2-4 4-2Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+    ),
   },
   {
-    icon: TrendingUp,
-    title: 'Flexible Engagement',
+    title: 'Less time spent sourcing',
     description:
-      'Scale up or down as your project needs shift. Pick hourly for ad-hoc work, fixed-price for scoped projects, or a monthly retainer when you need dedicated capacity.',
+      'Share the requirement once. Marathon coordinates the first round of questions, so your team spends less time on outreach, repeated calls and vendor follow-ups.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+        <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
   },
   {
-    icon: FileText,
-    title: 'Production-Ready Outputs',
+    title: 'A decision you control',
     description:
-      'Native CAD files, full export packages, and manufacturing-ready drawing packs — delivered with zero revision surprises. What ships from us, ships to your factory.',
+      'Compare the proposed approach, timeline and quotation. Choose the agency that fits your project, or decline the options without being locked in.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 4h12v16H6z" stroke="currentColor" strokeWidth="2" />
+        <path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
   },
 ]
 
 function WhyMarathon() {
   return (
-    <section className={styles.section}>
-      <div className={styles.header}>
-        <span className={styles.label}>Why Marathon</span>
-        <h2 className={styles.title}>Outsource CAD without the hiring overhead</h2>
+    <section className={styles.section} id="why">
+      <div className={styles.narrow}>
+        <div className={styles.eyebrow}>Why Marathon</div>
+        <h2 className={styles.title}>Your CAD requirement should not become another sourcing project.</h2>
         <p className={styles.sub}>
-          You send requirements → we match a vetted designer → you get production-ready deliverables. No recruitment, no overhead, no delays.
+          When your internal team is full, the deadline is close or the work needs specialist expertise, Marathon gives
+          you a faster path to relevant external capacity.
         </p>
-      </div>
-      <div className={styles.grid}>
-        {FEATURES.map((feature) => {
-          const Icon = feature.icon
-          return (
-            <div key={feature.title} className={styles.card}>
-              <div className={styles.icon}>
-                <Icon size={22} strokeWidth={2} color="#7C3AED" />
-              </div>
+
+        <div className={styles.grid}>
+          {FEATURES.map((feature) => (
+            <article key={feature.title} className={styles.card}>
+              <div className={styles.icon}>{feature.icon}</div>
               <h3 className={styles.cardTitle}>{feature.title}</h3>
               <p className={styles.cardDesc}>{feature.description}</p>
-            </div>
-          )
-        })}
-      </div>
-      <div className={styles.ctaWrap}>
-        <RequestQuoteButton variant="light" />
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   )

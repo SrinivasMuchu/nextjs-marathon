@@ -1,113 +1,111 @@
-/* Marathon design tokens from index.html */
-.section {
-  background: #0d0b1a;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  padding: clamp(64px, 10vw, 100px) clamp(16px, 5%, 48px);
+.finalWrap {
+  padding: 0 0 90px;
+  background: #fff;
   font-family: inherit;
 }
 
-.section::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 800px;
-  height: 400px;
-  background: radial-gradient(ellipse, rgba(124, 58, 237, 0.3) 0%, transparent 70%);
-  pointer-events: none;
+.narrow {
+  width: min(1120px, calc(100% - 64px));
+  margin: 0 auto;
+}
+
+.finalCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 42px;
+  padding: 54px;
+  border-radius: 25px;
+  background-color: #17123b;
+  background-image:
+    radial-gradient(circle at 85% 20%, rgba(124, 58, 237, 0.34), transparent 28%),
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: auto, 42px 42px, 42px 42px;
 }
 
 .title {
-  font-size: clamp(28px, 5vw, 52px);
-  font-weight: 800;
-  letter-spacing: -1.5px;
-  margin-bottom: 16px;
-  color: white;
-  position: relative;
-  z-index: 1;
-  font-family: inherit;
+  max-width: 680px;
+  margin: 0;
+  color: #fff;
+  font-size: 35px;
   line-height: 1.2;
+  letter-spacing: -0.035em;
+  font-weight: 800;
 }
 
 .sub {
-  font-size: clamp(15px, 2vw, 17px);
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 40px;
-  position: relative;
-  z-index: 1;
-  font-family: inherit;
+  max-width: 680px;
+  margin: 13px 0 0;
+  color: rgba(255, 255, 255, 0.71);
+  font-size: 15.5px;
+  line-height: 1.66;
 }
 
 .ctaButtons {
   display: flex;
-  gap: 14px;
+  flex-direction: column;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.ctaBtnPrimary,
+.ctaBtnOutline {
+  padding: 15px 28px;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  position: relative;
-  z-index: 1;
+  gap: 8px;
 }
 
 .ctaBtnPrimary {
   background: #7c3aed;
-  color: white;
-  padding: 16px 32px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
+  color: #fff;
 }
 
 .ctaBtnPrimary:hover {
-  background: #9b5cf6;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.35);
+  background: #8b5cf6;
 }
 
 .ctaBtnOutline {
-  background: rgba(255, 255, 255, 0.07);
-  color: white;
-  padding: 16px 32px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  color: #fff;
+  background: transparent;
 }
 
 .ctaBtnOutline:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
 }
 
-/* Responsive */
-@media screen and (max-width: 600px) {
-  .section {
-    padding: 64px 16px;
+@media (max-width: 760px) {
+  .narrow {
+    width: min(100% - 36px, 1120px);
+  }
+
+  .finalWrap {
+    padding: 0 0 68px;
+  }
+
+  .finalCta {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 39px 27px;
   }
 
   .ctaButtons {
-    flex-direction: column;
-    align-items: center;
+    width: 100%;
   }
 
-  .ctaBtnPrimary,
-  .ctaBtnOutline {
-    width: 100%;
-    max-width: 280px;
-    justify-content: center;
+  .title {
+    font-size: 28px;
   }
 }

@@ -11,6 +11,7 @@ import {
   previewCadVendorMail,
   sendCadVendorMail,
   uploadCadServiceReferenceFile,
+  removeCadServiceReferenceFile,
 } from '@/api/adminVendorsApi'
 import Loading from '../CommonJsx/Loaders/Loading'
 import styles from './CadVendorMailPopup.module.css'
@@ -87,6 +88,8 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
   const [preview, setPreview] = useState(null)
   const [selectedVendors, setSelectedVendors] = useState([])
   const [subject, setSubject] = useState('')
+  const [ccEmails, setCcEmails] = useState('')
+  const [ccError, setCcError] = useState('')
   const [mailContent, setMailContent] = useState(EMPTY_CONTENT)
   const [defaultContent, setDefaultContent] = useState(EMPTY_CONTENT)
   const [mailFormat, setMailFormat] = useState('template')
@@ -97,7 +100,13 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
   const [subjectError, setSubjectError] = useState('')
   const [contentErrors, setContentErrors] = useState({})
   const [referenceFile, setReferenceFile] = useState(request.file || '')
+  const [referenceFiles, setReferenceFiles] = useState(() => {
+    const fromArray = Array.isArray(request.files) ? request.files : []
+    const fromSingle = request.file ? [request.file] : []
+    return [...new Set([...fromArray, ...fromSingle].map((item) => String(item || '').trim()).filter(Boolean))]
+  })
   const [isReplacingFile, setIsReplacingFile] = useState(false)
+  const [removingFileUrl, setRemovingFileUrl] = useState('')
   const briefRef = useRef(null)
   const referenceFileInputRef = useRef(null)
 
@@ -126,6 +135,16 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
           setTextContent(response.data.text || '')
           setDefaultTextContent(response.data.text || '')
           setReferenceFile(content.file || request.file || '')
+          const nextFiles = Array.isArray(content.files) && content.files.length
+            ? content.files
+            : [
+                ...(Array.isArray(request.files) ? request.files : []),
+                ...(request.file ? [request.file] : []),
+                ...(content.file ? [content.file] : []),
+              ]
+          setReferenceFiles(
+            [...new Set(nextFiles.map((item) => String(item || '').trim()).filter(Boolean))]
+          )
           setPreviewHtml(response.data.html || '')
         } else {
           toast.error(response.meta.message || 'Failed to load mail preview')
@@ -203,9 +222,23 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     adjustBriefHeight(event.target)
   }
 
+  const parseCcEmails = (value) => [
+    ...new Set(
+      String(value || '')
+        .split(/[,;\s]+/)
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ]
+
   const validateMailContent = () => {
     const nextSubjectError = subject.trim() ? '' : 'Subject is required'
     const nextContentErrors = {}
+    const nextCcEmails = parseCcEmails(ccEmails)
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const invalidCc = nextCcEmails.find((email) => !emailPattern.test(email))
+    const nextCcError = invalidCc ? `Invalid CC email: ${invalidCc}` : ''
+
     if (mailFormat === 'template') {
       if (!mailContent.project_type.trim()) {
         nextContentErrors.project_type = 'Project type is required'
@@ -217,8 +250,9 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
       nextContentErrors.text_content = 'Email text is required'
     }
     setSubjectError(nextSubjectError)
+    setCcError(nextCcError)
     setContentErrors(nextContentErrors)
-    return !nextSubjectError && Object.keys(nextContentErrors).length === 0
+    return !nextSubjectError && !nextCcError && Object.keys(nextContentErrors).length === 0
   }
 
   const buildSendPayload = (extra = {}) => ({
@@ -226,6 +260,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     subject: subject.trim(),
     mail_format: mailFormat,
     text_content: mailFormat === 'text' ? textContent.trim() : '',
+    cc_emails: parseCcEmails(ccEmails),
     content: {
       project_type: mailContent.project_type.trim(),
       model_use: mailContent.model_use.trim(),
@@ -237,11 +272,22 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
 
   const handleResetFields = () => {
     setSubject(preview?.subject || '')
+    setCcEmails('')
+    setCcError('')
     setMailContent(defaultContent)
     setTextContent(defaultTextContent)
     setSubjectError('')
     setContentErrors({})
     toast.info('Fields reset to original request values.')
+  }
+
+  const applyReferenceFilesFromRequest = (nextRequest = {}) => {
+    const nextReferenceFiles = Array.isArray(nextRequest.files) && nextRequest.files.length
+      ? nextRequest.files.map((item) => String(item || '').trim()).filter(Boolean)
+      : (nextRequest.file ? [String(nextRequest.file).trim()].filter(Boolean) : [])
+    setReferenceFiles(nextReferenceFiles)
+    setReferenceFile(nextReferenceFiles[0] || nextRequest.file || '')
+    return nextReferenceFiles
   }
 
   const handleReferenceFileChange = async (event) => {
@@ -253,34 +299,72 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     try {
       const response = await uploadCadServiceReferenceFile(selectedFile, request._id)
       if (!response?.meta?.success || !response.data?.request) {
-        throw new Error(response?.meta?.message || 'Failed to replace reference file')
+        throw new Error(response?.meta?.message || 'Failed to add reference file')
       }
 
-      const nextReferenceFile = response.data.request.file || ''
+      const nextRequest = response.data.request || {}
+      const nextReferenceFiles = applyReferenceFilesFromRequest(nextRequest)
+      const nextReferenceFile = nextReferenceFiles[nextReferenceFiles.length - 1] || ''
       setTextContent((current) => {
-        if (referenceFile && current.includes(referenceFile)) {
-          return current.split(referenceFile).join(nextReferenceFile)
+        if (!referenceFiles.length && /Reference files?:\s*—/i.test(current)) {
+          return current.replace(/Reference files?:\s*—/i, `Reference files:\n  1. ${nextReferenceFile}`)
         }
-        if (!referenceFile && current.includes('Reference file: —')) {
-          return current.replace('Reference file: —', `Reference file: ${nextReferenceFile}`)
+        if (nextReferenceFile && !current.includes(nextReferenceFile)) {
+          return `${current.trim()}\n  ${referenceFiles.length + 1}. ${nextReferenceFile}`
         }
         return current
       })
-      setReferenceFile(nextReferenceFile)
-      onFileUpdated?.(response.data.request)
-      toast.success(response.meta.message || 'Reference file replaced successfully')
+      onFileUpdated?.(nextRequest)
+      toast.success(response.meta.message || 'Reference file added successfully')
       if (showPreview) {
         await refreshPreview(subject, mailContent)
       }
     } catch (error) {
-      console.error('Reference file replacement error:', error)
+      console.error('Reference file upload error:', error)
       toast.error(
         error.response?.data?.meta?.message
           || error.message
-          || 'Failed to replace reference file',
+          || 'Failed to add reference file',
       )
     } finally {
       setIsReplacingFile(false)
+    }
+  }
+
+  const handleRemoveReferenceFile = async (fileUrl) => {
+    if (!fileUrl || isReplacingFile || removingFileUrl) return
+    if (referenceFiles.length <= 1) {
+      toast.error('At least one reference file is required. Add another file before removing this one.')
+      return
+    }
+
+    setRemovingFileUrl(fileUrl)
+    try {
+      const response = await removeCadServiceReferenceFile(request._id, fileUrl)
+      if (!response?.meta?.success || !response.data?.request) {
+        throw new Error(response?.meta?.message || 'Failed to remove reference file')
+      }
+
+      const nextRequest = response.data.request || {}
+      applyReferenceFilesFromRequest(nextRequest)
+      setTextContent((current) => current
+        .split('\n')
+        .filter((line) => !line.includes(fileUrl))
+        .join('\n'))
+      onFileUpdated?.(nextRequest)
+      toast.success(response.meta.message || 'Reference file removed successfully')
+      if (showPreview) {
+        await refreshPreview(subject, mailContent)
+      }
+    } catch (error) {
+      console.error('Reference file removal error:', error)
+      toast.error(
+        error.response?.data?.meta?.message
+          || error.message
+          || 'Failed to remove reference file',
+      )
+    } finally {
+      setRemovingFileUrl('')
     }
   }
 
@@ -437,6 +521,25 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                     {subjectError ? <span className={styles.errorText}>{subjectError}</span> : null}
                   </div>
 
+                  <div className={`${styles.formField} ${styles.formFieldFull}`}>
+                    <label className={styles.fieldLabel} htmlFor="vendor-mail-cc">
+                      CC <span className={styles.optionalHint}>(optional)</span>
+                    </label>
+                    <input
+                      id="vendor-mail-cc"
+                      type="text"
+                      className={`${styles.textInput} ${ccError ? styles.inputError : ''}`}
+                      value={ccEmails}
+                      onChange={(e) => {
+                        setCcEmails(e.target.value)
+                        if (ccError) setCcError('')
+                      }}
+                      placeholder="email@example.com (comma-separated for multiple)"
+                      disabled={isSending}
+                    />
+                    {ccError ? <span className={styles.errorText}>{ccError}</span> : null}
+                  </div>
+
                   {mailFormat === 'template' ? (
                     <>
                       <div className={styles.formField}>
@@ -481,43 +584,69 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                   ) : null}
 
                   <div className={`${styles.formField} ${styles.formFieldFull}`}>
-                    <span className={styles.fieldLabel}>Reference file</span>
+                    <span className={styles.fieldLabel}>Reference files</span>
                     <div className={styles.referenceFileActions}>
-                      {referenceFile ? (
-                        <a
-                          href={referenceFile}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.referenceFileLink}
-                        >
-                          Download current file
-                        </a>
+                      {referenceFiles.length ? (
+                        <div className={styles.referenceFileList}>
+                          {referenceFiles.map((url, index) => (
+                            <div key={url} className={styles.referenceFileRow}>
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.referenceFileLink}
+                              >
+                                {referenceFiles.length === 1
+                                  ? 'Download current file'
+                                  : `Download file ${index + 1}`}
+                              </a>
+                              <button
+                                type="button"
+                                className={styles.removeFileBtn}
+                                onClick={() => handleRemoveReferenceFile(url)}
+                                disabled={
+                                  isSending
+                                  || isReplacingFile
+                                  || Boolean(removingFileUrl)
+                                  || referenceFiles.length <= 1
+                                }
+                                title={
+                                  referenceFiles.length <= 1
+                                    ? 'At least one reference file is required'
+                                    : 'Remove file'
+                                }
+                              >
+                                {removingFileUrl === url ? 'Removing...' : 'Remove'}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       ) : (
-                        <span className={styles.referenceFileEmpty}>No reference file uploaded</span>
+                        <span className={styles.referenceFileEmpty}>No reference files uploaded</span>
                       )}
                       <input
                         ref={referenceFileInputRef}
                         type="file"
                         className={styles.hiddenFileInput}
                         onChange={handleReferenceFileChange}
-                        disabled={isSending || isReplacingFile}
+                        disabled={isSending || isReplacingFile || Boolean(removingFileUrl)}
                       />
                       <button
                         type="button"
                         className={styles.replaceFileBtn}
                         onClick={() => referenceFileInputRef.current?.click()}
-                        disabled={isSending || isReplacingFile}
+                        disabled={isSending || isReplacingFile || Boolean(removingFileUrl)}
                       >
                         <UploadFileOutlinedIcon fontSize="small" />
                         {isReplacingFile
                           ? 'Uploading...'
-                          : referenceFile
-                            ? 'Replace file'
+                          : referenceFiles.length
+                            ? 'Add file'
                             : 'Upload file'}
                       </button>
                     </div>
                     <span className={styles.fileHint}>
-                      The email preview and vendor email will use this file.
+                      Add or remove reference files here. At least one file must remain.
                     </span>
                   </div>
 

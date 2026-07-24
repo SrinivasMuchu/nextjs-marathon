@@ -2,30 +2,21 @@
 
 import React, { useState, useRef, useId, useEffect } from 'react'
 import axios from 'axios'
-import { Send, Upload } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { isValidPhoneNumber } from 'react-phone-number-input'
 import ReactPhoneNumber from '@/Components/CommonJsx/ReactPhoneNumber'
 import { sendGAtagEvent } from '@/common.helper'
 import { BASE_URL, CAD_HIRE_DESIGNER_EVENT } from '@/config'
 import styles from './CadServiceForm.module.css'
-import { MODEL_USE_OPTIONS } from './cadServiceFormOptions'
-import SoftwareFormatSelect from './SoftwareFormatSelect'
+import { MODEL_USE_OPTIONS, SERVICE_OPTIONS, SOFTWARE_FORMAT_OPTIONS } from './cadServiceFormOptions'
 
-const UPLOAD_TIMEOUT_MS = 120000 // 2 min for large CAD files
-const PRESIGNED_TIMEOUT_MS = 30000 // 30 s for presigned
+const UPLOAD_TIMEOUT_MS = 120000
+const PRESIGNED_TIMEOUT_MS = 30000
 const LINKEDIN_CAD_SERVICE_CONVERSION_ID = 26345300
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-const SERVICE_OPTIONS = [
-  { value: '', label: 'Select a service...' },
-  { value: 'modeling', label: '3D Modeling' },
-  { value: 'drafting', label: '2D Drafting' },
-  { value: 'rendering', label: 'Rendering' },
-  { value: 'conversion', label: 'File Conversion' },
-  { value: 'reverse-engineering', label: 'Reverse Engineering' },
-  { value: 'other', label: 'Other' },
-]
+const MAX_REFERENCE_FILES = 10
+const MIN_REQUIREMENT_CHARS = 150
 
 const EMPTY_FIELD_ERRORS = {
   fullName: '',
@@ -35,6 +26,7 @@ const EMPTY_FIELD_ERRORS = {
   modelUse: '',
   softwareFormat: '',
   requirement: '',
+  file: '',
 }
 
 function trackHireDesignerEvent(eventName, extra = {}) {
@@ -56,7 +48,7 @@ function FieldError({ message }) {
   return <p className={styles.formFieldError}>{message}</p>
 }
 
-function validateFormFields(formData) {
+function validateFormFields(formData, uploadedFiles) {
   const errors = { ...EMPTY_FIELD_ERRORS }
 
   if (!String(formData.fullName || '').trim()) {
@@ -78,19 +70,18 @@ function validateFormFields(formData) {
   }
 
   if (!formData.service) {
-    errors.service = 'Please select what you need.'
+    errors.service = 'Please select a project type.'
   }
 
-  if (!formData.modelUse) {
-    errors.modelUse = 'Please select how the model will be used.'
+  const requirementText = String(formData.requirement || '').trim()
+  if (!requirementText) {
+    errors.requirement = 'Please describe your project brief.'
+  } else if (requirementText.length < MIN_REQUIREMENT_CHARS) {
+    errors.requirement = `Please write at least ${MIN_REQUIREMENT_CHARS} characters in your project brief (${requirementText.length}/${MIN_REQUIREMENT_CHARS}).`
   }
 
-  if (!String(formData.softwareFormat || '').trim()) {
-    errors.softwareFormat = 'Please select a software preference.'
-  }
-
-  if (!String(formData.requirement || '').trim()) {
-    errors.requirement = 'Please describe your requirement.'
+  if (!Array.isArray(uploadedFiles) || uploadedFiles.length < 1) {
+    errors.file = 'Please attach at least one reference file.'
   }
 
   return errors
@@ -100,7 +91,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
   const formContext = inPopup ? 'popup' : 'inline'
   const fileInputId = useId()
   const fileInputRef = React.useRef(null)
-  const fileUrlRef = useRef('')
+  const uploadedFilesRef = useRef([])
   const uploadIdRef = useRef(0)
   const abortControllerRef = useRef(null)
   const hasStartedRef = useRef(false)
@@ -115,10 +106,13 @@ function CadServiceForm({ onClose, inPopup = false }) {
     requirement: '',
   })
   const [fieldErrors, setFieldErrors] = useState(EMPTY_FIELD_ERRORS)
-  const [file, setFile] = useState(null)
-  const [fileUrl, setFileUrl] = useState('')
+  const [uploadedFiles, setUploadedFiles] = useState([])
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    uploadedFilesRef.current = uploadedFiles
+  }, [uploadedFiles])
 
   useEffect(() => {
     trackHireDesignerEvent('hire_designer_form_view', {
@@ -144,18 +138,6 @@ function CadServiceForm({ onClose, inPopup = false }) {
     clearFieldError(name)
   }
 
-  const handleSoftwareFormatChange = (value) => {
-    if (!hasStartedRef.current) {
-      hasStartedRef.current = true
-      trackHireDesignerEvent('hire_designer_form_start', {
-        form_context: formContext,
-        field_name: 'softwareFormat',
-      })
-    }
-    setFormData((prev) => ({ ...prev, softwareFormat: value }))
-    clearFieldError('softwareFormat')
-  }
-
   const uploadToS3 = async (selectedFile, signal) => {
     const presignedRes = await axios.post(
       `${BASE_URL}/v1/cad-creator/get-cad-service-presigned-url`,
@@ -175,24 +157,44 @@ function CadServiceForm({ onClose, inPopup = false }) {
   }
 
   const handleFileChange = async (e) => {
-    const selectedFile = e.target.files?.[0]
-    if (!selectedFile) return
-    if (abortControllerRef.current) abortControllerRef.current.abort()
+    const selectedFiles = Array.from(e.target.files || [])
+    if (!selectedFiles.length) return
     e.target.value = ''
+
+    const remainingSlots = MAX_REFERENCE_FILES - uploadedFilesRef.current.length
+    if (remainingSlots <= 0) {
+      toast.error(`You can attach up to ${MAX_REFERENCE_FILES} reference files.`)
+      return
+    }
+
+    const filesToUpload = selectedFiles.slice(0, remainingSlots)
+    if (selectedFiles.length > remainingSlots) {
+      toast.info(`Only ${remainingSlots} more file${remainingSlots === 1 ? '' : 's'} can be added.`)
+    }
+
+    if (abortControllerRef.current) abortControllerRef.current.abort()
     const thisUploadId = ++uploadIdRef.current
     const controller = new AbortController()
     abortControllerRef.current = controller
-    setFile(selectedFile)
-    setFileUrl('')
-    fileUrlRef.current = ''
     setUploading(true)
+
     try {
-      const url = await uploadToS3(selectedFile, controller.signal)
+      const nextUploads = []
+      for (const selectedFile of filesToUpload) {
+        const url = await uploadToS3(selectedFile, controller.signal)
+        nextUploads.push({ name: selectedFile.name, url })
+      }
       if (thisUploadId !== uploadIdRef.current) return
-      setFileUrl(url)
-      fileUrlRef.current = url
+
+      setUploadedFiles((prev) => {
+        const merged = [...prev, ...nextUploads]
+        uploadedFilesRef.current = merged
+        return merged
+      })
+      clearFieldError('file')
       trackHireDesignerEvent('hire_designer_form_file_upload_success', {
         form_context: formContext,
+        file_count: nextUploads.length,
       })
     } catch (err) {
       if (axios.isCancel(err) || err.name === 'CanceledError' || err.name === 'AbortError') return
@@ -202,17 +204,24 @@ function CadServiceForm({ onClose, inPopup = false }) {
         form_context: formContext,
       })
       toast.error(msg)
-      setFile(null)
-      fileUrlRef.current = ''
     } finally {
       abortControllerRef.current = null
       if (thisUploadId === uploadIdRef.current) setUploading(false)
     }
   }
 
+  const removeUploadedFile = (urlToRemove) => {
+    setUploadedFiles((prev) => {
+      const next = prev.filter((item) => item.url !== urlToRemove)
+      uploadedFilesRef.current = next
+      return next
+    })
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const errors = validateFormFields(formData)
+    const currentFiles = uploadedFilesRef.current
+    const errors = validateFormFields(formData, currentFiles)
     setFieldErrors(errors)
 
     const firstError = Object.values(errors).find(Boolean)
@@ -221,27 +230,30 @@ function CadServiceForm({ onClose, inPopup = false }) {
       return
     }
 
+    const fileUrls = currentFiles.map((item) => item.url).filter(Boolean)
+
     trackHireDesignerEvent('hire_designer_form_submit_click', {
       form_context: formContext,
       service_type: formData.service || 'unknown',
-      has_file: Boolean(fileUrlRef.current || fileUrl),
+      has_file: true,
+      file_count: fileUrls.length,
     })
     if (!inPopup) {
       trackLinkedInCadServiceConversion()
     }
     setLoading(true)
     try {
-      const modelUseLabel = MODEL_USE_OPTIONS.find((opt) => opt.value === formData.modelUse)?.label || formData.modelUse || ''
       const payload = {
         full_name: formData.fullName.trim(),
         email: formData.workEmail.trim(),
         phone_number: String(formData.phone || '').trim(),
         company_name: formData.company || '',
         what_do_you_need: formData.service || '',
-        model_use: modelUseLabel === 'Select an option...' ? '' : modelUseLabel,
+        model_use: formData.modelUse || '',
         software_format: formData.softwareFormat || '',
         requirement: formData.requirement.trim(),
-        file: fileUrlRef.current || fileUrl || '',
+        file: fileUrls[0] || '',
+        files: fileUrls,
       }
 
       const response = await axios.post(
@@ -253,6 +265,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
         trackHireDesignerEvent('hire_designer_form_submit_success', {
           form_context: formContext,
           service_type: formData.service || 'unknown',
+          file_count: fileUrls.length,
         })
         toast.success('Request submitted! We\'ll reply within 24 hours.')
         setFormData({
@@ -266,9 +279,8 @@ function CadServiceForm({ onClose, inPopup = false }) {
           requirement: '',
         })
         setFieldErrors(EMPTY_FIELD_ERRORS)
-        setFile(null)
-        setFileUrl('')
-        fileUrlRef.current = ''
+        setUploadedFiles([])
+        uploadedFilesRef.current = []
         if (fileInputRef.current) fileInputRef.current.value = ''
         hasStartedRef.current = false
         onClose?.()
@@ -293,12 +305,16 @@ function CadServiceForm({ onClose, inPopup = false }) {
 
   const formContent = (
     <>
-      <h2 className={styles.formTitle}>Request CAD Support</h2>
-      <p className={styles.formSubtitle}>Fill in the basics - we&apos;ll handle the rest.</p>
+      <div className={styles.formKicker}>Start with one clear brief</div>
+      <h2 className={styles.formTitle}>Tell Us What You Need Designed</h2>
+      <p className={styles.formSubtitle}>
+        Give us enough information to understand the scope, required output and timeline. Attach at least one reference
+        file to start matching.
+      </p>
 
       <div className={styles.formGrid}>
         <div className={styles.formGroup}>
-          <label className={styles.formLabel} htmlFor="fullName">FULL NAME *</label>
+          <label className={styles.formLabel} htmlFor="fullName">Full name *</label>
           <input
             id="fullName"
             name="fullName"
@@ -311,7 +327,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
           <FieldError message={fieldErrors.fullName} />
         </div>
         <div className={styles.formGroup}>
-          <label className={styles.formLabel} htmlFor="workEmail">WORK EMAIL *</label>
+          <label className={styles.formLabel} htmlFor="workEmail">Work email *</label>
           <input
             id="workEmail"
             name="workEmail"
@@ -324,7 +340,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
           <FieldError message={fieldErrors.workEmail} />
         </div>
         <div className={styles.formGroup}>
-          <label className={styles.formLabel} htmlFor="cad-phone-input">PHONE / WHATSAPP *</label>
+          <label className={styles.formLabel} htmlFor="cad-phone-input">Phone / WhatsApp *</label>
           <ReactPhoneNumber
             phoneNumber={formData.phone}
             setPhoneNumber={(value) => {
@@ -342,23 +358,22 @@ function CadServiceForm({ onClose, inPopup = false }) {
             classname={fieldErrors.phone ? 'formPhoneInputError' : 'formPhoneInput'}
             id="cad-phone-input"
           />
-          {/* <p className={styles.formHint}>Select country code, then enter your mobile number (not the full number with country digits repeated).</p> */}
           <FieldError message={fieldErrors.phone} />
         </div>
         <div className={styles.formGroup}>
-          <label className={styles.formLabel} htmlFor="company">COMPANY</label>
+          <label className={styles.formLabel} htmlFor="company">Company</label>
           <input
             id="company"
             name="company"
             type="text"
             className={styles.formInput}
-            placeholder="Acme Corp"
+            placeholder="Company name"
             value={formData.company}
             onChange={handleChange}
           />
         </div>
         <div className={`${styles.formGroup} ${styles.formGridFull}`}>
-          <label className={styles.formLabel} htmlFor="service">WHAT DO YOU NEED? *</label>
+          <label className={styles.formLabel} htmlFor="service">Project type *</label>
           <select
             id="service"
             name="service"
@@ -367,17 +382,31 @@ function CadServiceForm({ onClose, inPopup = false }) {
             onChange={handleChange}
           >
             {SERVICE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+              <option key={opt.value || 'placeholder'} value={opt.value}>{opt.label}</option>
             ))}
           </select>
           <FieldError message={fieldErrors.service} />
         </div>
-        <div className={`${styles.formGroup} ${styles.formGridFull}`}>
-          <label className={styles.formLabel} htmlFor="modelUse">WILL THE MODEL BE USED FOR? *</label>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel} htmlFor="softwareFormat">Preferred CAD tool</label>
+          <select
+            id="softwareFormat"
+            name="softwareFormat"
+            className={styles.formSelect}
+            value={formData.softwareFormat}
+            onChange={handleChange}
+          >
+            {SOFTWARE_FORMAT_OPTIONS.map((opt) => (
+              <option key={opt.value || 'placeholder'} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel} htmlFor="modelUse">When do you need support?</label>
           <select
             id="modelUse"
             name="modelUse"
-            className={`${styles.formSelect} ${fieldErrors.modelUse ? styles.formSelectError : ''}`}
+            className={styles.formSelect}
             value={formData.modelUse}
             onChange={handleChange}
           >
@@ -385,59 +414,90 @@ function CadServiceForm({ onClose, inPopup = false }) {
               <option key={opt.value || 'placeholder'} value={opt.value}>{opt.label}</option>
             ))}
           </select>
-          <FieldError message={fieldErrors.modelUse} />
         </div>
         <div className={`${styles.formGroup} ${styles.formGridFull}`}>
-          <label className={styles.formLabel} htmlFor="softwareFormat">
-            SOFTWARE PREFERENCE FOR MODELLING? *
-          </label>
-          <SoftwareFormatSelect
-            inputId="softwareFormat"
-            value={formData.softwareFormat}
-            onChange={handleSoftwareFormatChange}
-            inPopup={inPopup}
-            hasError={Boolean(fieldErrors.softwareFormat)}
-          />
-          <FieldError message={fieldErrors.softwareFormat} />
-        </div>
-        <div className={`${styles.formGroup} ${styles.formGridFull}`}>
-          <label className={styles.formLabel} htmlFor="requirement">DESCRIBE YOUR REQUIREMENT *</label>
+          <label className={styles.formLabel} htmlFor="requirement">Project brief *</label>
           <textarea
             id="requirement"
             name="requirement"
             className={`${styles.formTextarea} ${fieldErrors.requirement ? styles.formTextareaError : ''}`}
-            placeholder="E.g. 10 sheet metal parts in SolidWorks, need STEP + drawing packs, deadline in 5 days..."
+            placeholder="Example: We need a sheet-metal enclosure model and manufacturing drawings in SOLIDWORKS. The internal layout is ready, and we need the first version within two weeks. Please include scope, deliverables, preferred software, timeline, and any constraints."
             value={formData.requirement}
             onChange={handleChange}
           />
+          <p className={styles.formHint}>
+            {String(formData.requirement || '').trim().length}/{MIN_REQUIREMENT_CHARS} characters minimum
+          </p>
           <FieldError message={fieldErrors.requirement} />
         </div>
       </div>
 
-      <label className={styles.uploadSection} htmlFor={fileInputId}>
+      <label
+        className={`${styles.uploadSection} ${fieldErrors.file ? styles.uploadSectionError : ''}`}
+        htmlFor={fileInputId}
+      >
         <input
           ref={fileInputRef}
           id={fileInputId}
           type="file"
+          multiple
           className={styles.uploadInput}
           accept=".pdf,.jpg,.jpeg,.png,.sketch,.dwg,.dxf,.step,.stp,.iges"
           onChange={handleFileChange}
-          disabled={uploading}
+          disabled={uploading || uploadedFiles.length >= MAX_REFERENCE_FILES}
         />
-        <Upload className={styles.uploadIcon} size={20} />
+        <Upload className={styles.uploadIcon} size={18} />
         <span className={styles.uploadText}>
-          {uploading ? 'Uploading...' : 'Upload reference file (optional - sketch, photo, PDF)'}
-          {file && ` • ${file.name}${fileUrl ? ' ✓' : ''}`}
+          {uploading
+            ? 'Uploading...'
+            : uploadedFiles.length
+              ? `Add more reference files (${uploadedFiles.length}/${MAX_REFERENCE_FILES})`
+              : 'Attach reference files *'}
         </span>
       </label>
+
+      {uploadedFiles.length > 0 && (
+        <ul className={styles.fileList}>
+          {uploadedFiles.map((item) => (
+            <li key={item.url} className={styles.fileListItem}>
+              <span className={styles.fileListName} title={item.name}>{item.name} ✓</span>
+              <button
+                type="button"
+                className={styles.fileRemoveBtn}
+                onClick={() => removeUploadedFile(item.url)}
+                aria-label={`Remove ${item.name}`}
+              >
+                <X size={14} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <FieldError message={fieldErrors.file} />
+
+      <div className={styles.formAssurance}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7 10V8a5 5 0 0 1 10 0v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
+          <path d="M12 14v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+        <span>
+          Your brief is reviewed by Marathon. Detailed files are shared only with the agency you select, with an NDA
+          where required.
+        </span>
+      </div>
     </>
   )
 
   const submitButton = (
-    <button type="submit" className={styles.submitBtn} disabled={loading || uploading}>
-      Get a Quote in 24 Hours
-      <Send size={18} />
-    </button>
+    <>
+      <button type="submit" className={styles.submitBtn} disabled={loading || uploading}>
+        Get Matched With CAD Agencies →
+      </button>
+      {!inPopup && (
+        <p className={styles.formNote}>Submitting a brief does not commit you to an agency or quotation.</p>
+      )}
+    </>
   )
 
   if (inPopup) {

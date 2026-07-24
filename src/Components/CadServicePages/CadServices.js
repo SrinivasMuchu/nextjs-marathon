@@ -1,28 +1,32 @@
 import React from 'react'
 import CadServiceHome from './CadServiceHome/CadServiceHome'
-import TrustedByBanner from './TrustedByBanner/TrustedByBanner'
 import WhyMarathon from './WhyMarathon/WhyMarathon'
 import HowItWorks from './HowItWorks/HowItWorks'
-import Deliverables from './Deliverables/Deliverables'
-import Industries from './Industries/Industries'
-import Testimonials from './Testimonials/Testimonials'
+import BriefSection from './BriefSection/BriefSection'
+import Capabilities from './Capabilities/Capabilities'
+import NetworkSection from './NetworkSection/NetworkSection'
+import Scenarios from './Scenarios/Scenarios'
 import Faq from './Faq/Faq'
 import CtaSection from './CtaSection/CtaSection'
+import StickyCta from './StickyCta/StickyCta'
 import Footer from '../HomePages/Footer/Footer'
+
+
 
 function CadServices() {
   return (
     <div>
       <CadServiceHome />
-      {/* <TrustedByBanner /> */}
       <WhyMarathon />
       <HowItWorks />
-      <Deliverables />
-      <Industries />
-      <Testimonials />
+      <BriefSection />
+      <Capabilities />
+      <NetworkSection />
+      <Scenarios />
       <Faq />
       <CtaSection />
       <Footer />
+      <StickyCta />
     </div>
   )
 }
