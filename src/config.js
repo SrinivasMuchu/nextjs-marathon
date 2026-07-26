@@ -157,6 +157,21 @@ export function buildCadConverterOutputUrl(fileId, baseName, outputFormat) {
   return `${CAD_OUTPUT_FILES_PREFIX_URL}${CAD_CONVERTER_OUTPUT_PREFIX}/${id}/${baseName}.${String(outputFormat).toLowerCase()}`;
 }
 
+/** Post-conversion metadata.json (6 views + CAD details) */
+export function buildCadConverterMetadataUrl(fileId) {
+  const id = encodeURIComponent(fileId || '');
+  if (!id) return '';
+  return `${CAD_OUTPUT_FILES_PREFIX_URL}${CAD_CONVERTER_OUTPUT_PREFIX}/${id}/screenshots/metadata.json`;
+}
+
+/** Post-conversion snapshot PNG URL */
+export function buildCadConverterSnapshotUrl(fileId, viewName) {
+  const id = encodeURIComponent(fileId || '');
+  const view = String(viewName || '').replace(/\.png$/i, '');
+  if (!id || !view) return '';
+  return `${CAD_OUTPUT_FILES_PREFIX_URL}${CAD_CONVERTER_OUTPUT_PREFIX}/${id}/screenshots/${view}.png`;
+}
+
 export const MARATHONDETAILS = {
   name: "Marathon Technologies",
   description: "A platform for CAD file management and collaboration.",

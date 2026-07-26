@@ -19,6 +19,8 @@ import { toast } from 'react-toastify';
 import { checkConverterDownload } from '@/api/converterPaymentApi';
 import { ensureConverterDownloadAccess } from './converterPayment';
 import ConverterDownloadFlow from './ConverterDownloadFlow';
+import ConversionReportPopup from './ConversionReportPopup';
+import { buildConverterPricingDisplay } from '@/lib/converterPricing';
 
 let cachedCadHistory = {};
 
@@ -40,6 +42,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   const [openConverterBilling, setOpenConverterBilling] = useState(false);
   const [pendingConverterDownload, setPendingConverterDownload] = useState(null);
   const [converterBillingDetails, setConverterBillingDetails] = useState(null);
+  const [conversionReportFile, setConversionReportFile] = useState(null);
+  const [conversionReportIndex, setConversionReportIndex] = useState(null);
+  const [conversionReportAccess, setConversionReportAccess] = useState(null);
   // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
   const { user,cadDetailsUpdate } = useContext(contextState);
@@ -264,14 +269,14 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       throw payErr;
     }
 
-    // Payment is done — kick off the download in the background (do NOT await it)
-    // so the payment-success popup shows immediately instead of staying on the
-    // "Download your file" screen until the file finishes downloading.
-    performConverterFileDownload(file, index).catch((downloadErr) => {
-      console.error('Converter download after payment failed:', downloadErr);
-      toast.error('Payment successful. Your download will retry — use "Download again".');
-      setDownloading(prev => ({ ...prev, [index]: false }));
-    });
+    // After payment, unlock download on the report popup (already open / reopen).
+    setOpenConverterBilling(false);
+    setPendingConverterDownload(null);
+    setConverterBillingDetails(null);
+    setConversionReportFile(file);
+    setConversionReportIndex(index);
+    setConversionReportAccess({ can_download: true, pricing: null });
+    setDownloading((prev) => ({ ...prev, [index]: false }));
 
     return paymentResult;
   };
@@ -280,9 +285,16 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     sendClarityEvent("converter_billing_address_closed", {
       converter_funnel: "billing_closed",
     });
+    const pending = pendingConverterDownload;
     setOpenConverterBilling(false);
     setPendingConverterDownload(null);
     setConverterBillingDetails(null);
+    // Return to conversion report if user backed out of payment.
+    if (pending?.file) {
+      setConversionReportFile(pending.file);
+      setConversionReportIndex(pending.index);
+      setConversionReportAccess((prev) => prev || { can_download: false, pricing: null });
+    }
   };
 
   const downloadConverterFileAgain = async () => {
@@ -295,6 +307,49 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     } catch (error) {
       toast.error(error?.message || 'Download failed. Please try again.');
       setDownloading(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+  const closeConversionReport = () => {
+    setConversionReportFile(null);
+    setConversionReportIndex(null);
+    setConversionReportAccess(null);
+  };
+
+  const openConverterBillingForFile = (file, index, access) => {
+    // Hide report while payment/billing is open; reopen after pay succeeds.
+    setConversionReportFile(null);
+    setConversionReportIndex(null);
+    setPendingConverterDownload({ file, index });
+    setConverterBillingDetails({
+      title: `CAD Converter (${file.input_format} → ${file.output_format})`,
+      description: file.file_name || 'Converted CAD file download',
+      price: access?.pricing?.base_price ?? access?.price,
+      pricing: access?.pricing,
+    });
+    sendClarityEvent("converter_billing_address_opened", {
+      converter_funnel: "billing_opened",
+    });
+    setOpenConverterBilling(true);
+  };
+
+  const downloadFromConversionReport = async () => {
+    if (!conversionReportFile) return;
+    const file = conversionReportFile;
+    const index = conversionReportIndex;
+
+    // Unpaid: keep report context, open payment flow from Download click.
+    if (!conversionReportAccess?.can_download) {
+      openConverterBillingForFile(file, index, conversionReportAccess);
+      return;
+    }
+
+    setDownloading((prev) => ({ ...prev, [index]: true }));
+    try {
+      await performConverterFileDownload(file, index);
+    } catch (error) {
+      toast.error(error?.message || 'Download failed. Please try again.');
+      setDownloading((prev) => ({ ...prev, [index]: false }));
     }
   };
 
@@ -313,23 +368,15 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       setDownloading(prev => ({ ...prev, [index]: true }));
 
       const access = await checkConverterDownload(file._id);
-      if (access.can_download) {
-        await performConverterFileDownload(file, index);
-        return;
-      }
-
+      // Always show conversion report popup first (paid or unpaid).
       setDownloading(prev => ({ ...prev, [index]: false }));
-      setPendingConverterDownload({ file, index });
-      setConverterBillingDetails({
-        title: `CAD Converter (${file.input_format} → ${file.output_format})`,
-        description: file.file_name || 'Converted CAD file download',
-        price: access.pricing?.base_price ?? access.price,
-        pricing: access.pricing,
+      setConversionReportFile(file);
+      setConversionReportIndex(index);
+      setConversionReportAccess({
+        can_download: Boolean(access?.can_download),
+        pricing: access?.pricing || null,
+        price: access?.price,
       });
-      sendClarityEvent("converter_billing_address_opened", {
-        converter_funnel: "billing_opened",
-      });
-      setOpenConverterBilling(true);
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Download failed. Please try again.');
@@ -430,6 +477,20 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           onClose={closeConverterDownloadFlow}
           onPay={handleConverterPayment}
           onDownloadAgain={downloadConverterFileAgain}
+        />
+      )}
+      {conversionReportFile && (
+        <ConversionReportPopup
+          file={conversionReportFile}
+          downloading={Boolean(downloading[conversionReportIndex])}
+          requiresPayment={!conversionReportAccess?.can_download}
+          priceLabel={
+            conversionReportAccess?.pricing
+              ? buildConverterPricingDisplay(conversionReportAccess.pricing).totalLabel
+              : ""
+          }
+          onClose={closeConversionReport}
+          onDownloadFile={downloadFromConversionReport}
         />
       )}
     </>
