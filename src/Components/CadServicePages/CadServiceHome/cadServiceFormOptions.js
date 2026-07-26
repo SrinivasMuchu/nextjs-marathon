@@ -1,6 +1,7 @@
 /** Form option lists for CAD service brief. Mapped to existing API fields:
  * service → what_do_you_need
  * modelUse (timeline) → model_use
+ * budget → budget
  * softwareFormat → software_format
  */
 
@@ -19,11 +20,24 @@ export const SERVICE_OPTIONS = [
 
 export const MODEL_USE_OPTIONS = [
   { value: '', label: 'Select timeline' },
-  { value: 'As soon as possible', label: 'As soon as possible' },
-  { value: 'Within 1 week', label: 'Within 1 week' },
-  { value: 'Within 2 to 4 weeks', label: 'Within 2 to 4 weeks' },
-  { value: 'More than 1 month', label: 'More than 1 month' },
-  { value: 'Ongoing support', label: 'Ongoing support' },
+  { value: '7 days', label: '7 days' },
+  { value: '15 days', label: '15 days' },
+  { value: '1 month', label: '1 month' },
+  { value: '2 months', label: '2 months' },
+  { value: '3 months', label: '3 months' },
+  { value: '> 3 months', label: '> 3 months' },
+]
+
+export const BUDGET_OPTIONS = [
+  { value: '', label: 'Select budget' },
+  { value: '<20k', label: '<20k' },
+  { value: '20k-50k', label: '20k-50k' },
+  { value: '50k-1L', label: '50k-1L' },
+  { value: '1L-2L', label: '1L-2L' },
+  { value: '2-3', label: '2-3' },
+  { value: '3-4', label: '3-4' },
+  { value: '4-5', label: '4-5' },
+  { value: '>5', label: '>5' },
 ]
 
 export const SOFTWARE_FORMAT_OPTIONS = [

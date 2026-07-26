@@ -9,7 +9,7 @@ import ReactPhoneNumber from '@/Components/CommonJsx/ReactPhoneNumber'
 import { sendGAtagEvent } from '@/common.helper'
 import { BASE_URL, CAD_HIRE_DESIGNER_EVENT } from '@/config'
 import styles from './CadServiceForm.module.css'
-import { MODEL_USE_OPTIONS, SERVICE_OPTIONS, SOFTWARE_FORMAT_OPTIONS } from './cadServiceFormOptions'
+import { BUDGET_OPTIONS, MODEL_USE_OPTIONS, SERVICE_OPTIONS, SOFTWARE_FORMAT_OPTIONS } from './cadServiceFormOptions'
 
 const UPLOAD_TIMEOUT_MS = 120000
 const PRESIGNED_TIMEOUT_MS = 30000
@@ -24,6 +24,7 @@ const EMPTY_FIELD_ERRORS = {
   phone: '',
   service: '',
   modelUse: '',
+  budget: '',
   softwareFormat: '',
   requirement: '',
   file: '',
@@ -102,6 +103,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
     company: '',
     service: '',
     modelUse: '',
+    budget: '',
     softwareFormat: '',
     requirement: '',
   })
@@ -250,6 +252,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
         company_name: formData.company || '',
         what_do_you_need: formData.service || '',
         model_use: formData.modelUse || '',
+        budget: formData.budget || '',
         software_format: formData.softwareFormat || '',
         requirement: formData.requirement.trim(),
         file: fileUrls[0] || '',
@@ -275,6 +278,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
           company: '',
           service: '',
           modelUse: '',
+          budget: '',
           softwareFormat: '',
           requirement: '',
         })
@@ -402,7 +406,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
           </select>
         </div>
         <div className={styles.formGroup}>
-          <label className={styles.formLabel} htmlFor="modelUse">When do you need support?</label>
+          <label className={styles.formLabel} htmlFor="modelUse">Timeline</label>
           <select
             id="modelUse"
             name="modelUse"
@@ -411,6 +415,20 @@ function CadServiceForm({ onClose, inPopup = false }) {
             onChange={handleChange}
           >
             {MODEL_USE_OPTIONS.map((opt) => (
+              <option key={opt.value || 'placeholder'} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel} htmlFor="budget">Budget</label>
+          <select
+            id="budget"
+            name="budget"
+            className={styles.formSelect}
+            value={formData.budget}
+            onChange={handleChange}
+          >
+            {BUDGET_OPTIONS.map((opt) => (
               <option key={opt.value || 'placeholder'} value={opt.value}>{opt.label}</option>
             ))}
           </select>

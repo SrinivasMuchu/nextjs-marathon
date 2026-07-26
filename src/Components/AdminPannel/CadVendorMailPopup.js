@@ -19,6 +19,7 @@ import styles from './CadVendorMailPopup.module.css'
 const EMPTY_CONTENT = {
   project_type: '',
   model_use: '',
+  budget: '',
   software_format: '',
   requirement: '',
 }
@@ -125,6 +126,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
           const editableContent = {
             project_type: content.project_type || '',
             model_use: content.model_use || '',
+            budget: content.budget || '',
             software_format: content.software_format || '',
             requirement: content.requirement || '',
           }
@@ -264,6 +266,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     content: {
       project_type: mailContent.project_type.trim(),
       model_use: mailContent.model_use.trim(),
+      budget: mailContent.budget.trim(),
       software_format: mailContent.software_format.trim(),
       requirement: mailContent.requirement.trim(),
     },
@@ -558,13 +561,25 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                       </div>
 
                       <div className={styles.formField}>
-                        <label className={styles.fieldLabel} htmlFor="vendor-mail-model-use">Model use</label>
+                        <label className={styles.fieldLabel} htmlFor="vendor-mail-model-use">Timeline</label>
                         <input
                           id="vendor-mail-model-use"
                           type="text"
                           className={styles.textInput}
                           value={mailContent.model_use}
                           onChange={handleContentChange('model_use')}
+                          disabled={isSending}
+                        />
+                      </div>
+
+                      <div className={styles.formField}>
+                        <label className={styles.fieldLabel} htmlFor="vendor-mail-budget">Budget</label>
+                        <input
+                          id="vendor-mail-budget"
+                          type="text"
+                          className={styles.textInput}
+                          value={mailContent.budget}
+                          onChange={handleContentChange('budget')}
                           disabled={isSending}
                         />
                       </div>

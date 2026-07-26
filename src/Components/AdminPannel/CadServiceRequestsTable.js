@@ -143,7 +143,8 @@ function VendorMailHistory({ logs = [], title = 'Vendor mail history', showTitle
             <DetailRow label="Email text" value={log.text_content} />
           ) : null}
           <DetailRow label="Project type" value={log.content?.project_type} />
-          <DetailRow label="Model use" value={log.content?.model_use} />
+          <DetailRow label="Timeline" value={log.content?.model_use} />
+          <DetailRow label="Budget" value={log.content?.budget} />
           <DetailRow label="Software" value={log.content?.software_format} />
           <DetailRow label="Project brief" value={log.content?.requirement} />
           <DetailRow
@@ -337,7 +338,8 @@ async function exportRequestsToExcel(rows) {
     { header: 'Phone', key: 'phone_number', width: 18 },
     { header: 'Company', key: 'company_name', width: 22 },
     { header: 'Service', key: 'service', width: 20 },
-    { header: 'Model Use', key: 'model_use', width: 20 },
+    { header: 'Timeline', key: 'model_use', width: 20 },
+    { header: 'Budget', key: 'budget', width: 16 },
     { header: 'Software Format', key: 'software_format', width: 20 },
     { header: 'Requirement', key: 'requirement', width: 40 },
     { header: 'Reference File URL', key: 'file', width: 40 },
@@ -359,6 +361,7 @@ async function exportRequestsToExcel(rows) {
       company_name: request.company_name || '',
       service: getServiceLabel(request),
       model_use: request.model_use || '',
+      budget: request.budget || '',
       software_format: request.software_format || '',
       requirement: request.requirement || '',
       file: getReferenceFiles(request).join('\n'),
@@ -1141,7 +1144,8 @@ function CadServiceRequestsTable() {
                 label="What do you need"
                 value={SERVICE_LABELS[viewRequest.what_do_you_need] || viewRequest.what_do_you_need}
               />
-              <DetailRow label="Model use" value={viewRequest.model_use} />
+              <DetailRow label="Timeline" value={viewRequest.model_use} />
+              <DetailRow label="Budget" value={viewRequest.budget} />
               <DetailRow label="Software preference" value={viewRequest.software_format} />
               <DetailRow label="Requirement" value={viewRequest.requirement} />
               <div className={styles.detailRow}>
