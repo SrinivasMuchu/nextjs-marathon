@@ -268,6 +268,34 @@
   font-weight: 800;
 }
 
+.notesList {
+  display: grid;
+  gap: 12px;
+}
+
+.noteItem {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #e9e5f2;
+  background: #fcfbfe;
+}
+
+.noteDate {
+  margin-bottom: 6px;
+  color: #8a849e;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.noteText {
+  margin: 0;
+  color: #2f2a48;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .timeline {
   display: grid;
   gap: 0;
@@ -351,6 +379,138 @@
   color: #5b5570;
   font-size: 14px;
   line-height: 1.6;
+}
+
+.lockPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: #17123b;
+  background-image:
+    radial-gradient(circle at 12% 15%, rgba(196, 181, 253, 0.18), transparent 30%),
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: auto, 42px 42px, 42px 42px;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.lockCard {
+  width: min(420px, 100%);
+  padding: 36px 32px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 32px 78px rgba(28, 10, 76, 0.42);
+  color: #17123b;
+}
+
+.lockBrand {
+  display: inline-flex;
+  margin-bottom: 22px;
+  line-height: 0;
+}
+
+.lockEyebrow {
+  color: #7c3aed;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lockTitle {
+  margin: 8px 0 6px;
+  font-size: 23px;
+  letter-spacing: -0.02em;
+}
+
+.lockLead {
+  margin: 0 0 20px;
+  color: #5b5570;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.lockForm {
+  display: grid;
+  gap: 0;
+}
+
+.lockLabel {
+  display: block;
+  margin-bottom: 7px;
+  color: #59536d;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
+.lockInput {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1.5px solid #e4e0ee;
+  border-radius: 11px;
+  padding: 13px 14px;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
+.lockInput:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.lockError {
+  margin-top: 9px;
+  color: #b91c1c;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.lockButton {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #7c3aed;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.lockButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.lockSecondaryLink {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #7c3aed;
+  font-size: 13px;
+  font-weight: 650;
+  text-align: center;
+  cursor: pointer;
+}
+
+.lockSecondaryLink:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.lockSuccess {
+  margin-top: 9px;
+  color: #047857;
+  font-size: 12.5px;
+  line-height: 1.45;
 }
 
 @media (max-width: 760px) {

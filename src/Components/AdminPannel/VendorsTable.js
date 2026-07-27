@@ -243,6 +243,7 @@ function VendorsTable() {
               <th>Name / Agency Name</th>
               <th>Email</th>
               <th>Phone Number</th>
+              <th>Portal password</th>
               <th>Specialised In</th>
               <th>WhatsApp Group Link</th>
               <th>Website Link</th>
@@ -253,7 +254,7 @@ function VendorsTable() {
           {isLoading ? (
             <tbody>
               <tr>
-                <td colSpan={8} style={{ textAlign: 'center', padding: 20 }}>
+                <td colSpan={9} style={{ textAlign: 'center', padding: 20 }}>
                   <Loading />
                 </td>
               </tr>
@@ -262,7 +263,7 @@ function VendorsTable() {
             <tbody>
               {vendors.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: 20 }}>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: 20 }}>
                     {searchTerm ? 'No vendors found for your search' : 'No vendors found'}
                   </td>
                 </tr>
@@ -272,6 +273,13 @@ function VendorsTable() {
                     <td>{vendor.name}</td>
                     <td>{vendor.email || '—'}</td>
                     <td>{vendor.phone_number || '—'}</td>
+                    <td>
+                      {vendor.portal_password ? (
+                        <code className={tableStyles.passwordCode}>{vendor.portal_password}</code>
+                      ) : (
+                        <span className={tableStyles.passwordMissing}>Not set</span>
+                      )}
+                    </td>
                     <td>{formatCategoryNames(vendor.categories)}</td>
                     <td>
                       {vendor.whatsapp_group_link ? (

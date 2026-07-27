@@ -23,7 +23,10 @@ import AddQuotationPopup, {
 } from './AddQuotationPopup'
 import {
   addCadServiceNote,
+  addCadServicePartnerNote,
+  deleteCadServicePartnerNote,
   fetchCadServiceActivity,
+  fetchCadServicePartnerNotes,
   fetchCadServiceQuotations,
   uploadCadServiceNoteFile,
   uploadCadServiceReferenceFile,
@@ -454,6 +457,10 @@ function CadServiceRequestsTable() {
   const [quotesLoading, setQuotesLoading] = useState(false)
   const [activityTarget, setActivityTarget] = useState(null)
   const [activityLoading, setActivityLoading] = useState(false)
+  const [partnerNotesTarget, setPartnerNotesTarget] = useState(null)
+  const [partnerNotesLoading, setPartnerNotesLoading] = useState(false)
+  const [partnerNoteText, setPartnerNoteText] = useState('')
+  const [partnerNoteSaving, setPartnerNoteSaving] = useState(false)
   const [noteText, setNoteText] = useState('')
   const [notePendingFiles, setNotePendingFiles] = useState([])
   const [noteSaving, setNoteSaving] = useState(false)
@@ -774,6 +781,81 @@ function CadServiceRequestsTable() {
     }
   }
 
+  const openPartnerNotes = async (request) => {
+    setPartnerNoteText('')
+    setPartnerNotesLoading(true)
+    setPartnerNotesTarget({ request, notes: [] })
+    try {
+      const response = await fetchCadServicePartnerNotes(request._id)
+      if (response?.meta?.success) {
+        setPartnerNotesTarget({
+          request,
+          notes: response.data?.notes || [],
+        })
+      } else {
+        toast.error(response?.meta?.message || 'Failed to load partner notes')
+        setPartnerNotesTarget(null)
+      }
+    } catch (error) {
+      console.error('Error fetching partner notes:', error)
+      toast.error('Failed to load partner notes')
+      setPartnerNotesTarget(null)
+    } finally {
+      setPartnerNotesLoading(false)
+    }
+  }
+
+  const handleAddPartnerNote = async () => {
+    const trimmedNote = partnerNoteText.trim()
+    if (!trimmedNote || !partnerNotesTarget?.request?._id) return
+
+    setPartnerNoteSaving(true)
+    try {
+      const response = await addCadServicePartnerNote(
+        partnerNotesTarget.request._id,
+        trimmedNote,
+      )
+      if (!response?.meta?.success || !response.data?.note) {
+        throw new Error(response?.meta?.message || 'Failed to add partner note')
+      }
+      setPartnerNotesTarget((current) => ({
+        ...current,
+        notes: [response.data.note, ...(current?.notes || [])],
+      }))
+      setPartnerNoteText('')
+      toast.success(response.meta.message || 'Partner note added')
+    } catch (error) {
+      console.error('Error adding partner note:', error)
+      toast.error(error.response?.data?.meta?.message || error.message || 'Failed to add partner note')
+    } finally {
+      setPartnerNoteSaving(false)
+    }
+  }
+
+  const handleDeletePartnerNote = async (noteId) => {
+    if (!partnerNotesTarget?.request?._id || !noteId) return
+    const confirmed = window.confirm('Delete this partner page note?')
+    if (!confirmed) return
+
+    try {
+      const response = await deleteCadServicePartnerNote(
+        partnerNotesTarget.request._id,
+        noteId,
+      )
+      if (!response?.meta?.success) {
+        throw new Error(response?.meta?.message || 'Failed to delete note')
+      }
+      setPartnerNotesTarget((current) => ({
+        ...current,
+        notes: (current?.notes || []).filter((note) => note._id !== noteId),
+      }))
+      toast.success(response.meta.message || 'Partner note deleted')
+    } catch (error) {
+      console.error('Error deleting partner note:', error)
+      toast.error(error.response?.data?.meta?.message || error.message || 'Failed to delete note')
+    }
+  }
+
   const handleNoteFilesSelected = (event) => {
     const files = Array.from(event.target.files || [])
     if (!files.length) return
@@ -972,6 +1054,7 @@ function CadServiceRequestsTable() {
                   <th>Add quote</th>
                   <th>Quotations</th>
                   <th>Activity logs</th>
+                  <th>Partner notes</th>
                   <th>Change status</th>
                   <th>Page status</th>
                 </tr>
@@ -979,7 +1062,7 @@ function CadServiceRequestsTable() {
               {isLoading ? (
                 <tbody>
                   <tr>
-                    <td colSpan={12} className={styles.emptyCell}>
+                    <td colSpan={13} className={styles.emptyCell}>
                       <Loading />
                     </td>
                   </tr>
@@ -988,7 +1071,7 @@ function CadServiceRequestsTable() {
                 <tbody>
                   {requests.length === 0 ? (
                     <tr>
-                      <td colSpan={12} className={styles.emptyCell}>
+                      <td colSpan={13} className={styles.emptyCell}>
                         No CAD service requests found
                       </td>
                     </tr>
@@ -1077,6 +1160,17 @@ function CadServiceRequestsTable() {
                             title="View all activity"
                           >
                             {activityCount > 0 ? `${activityCount} events` : 'View'}
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className={styles.logsBtn}
+                            onClick={() => openPartnerNotes(request)}
+                            aria-label="Partner page notes"
+                            title="Notes shown on partner page"
+                          >
+                            Page notes
                           </button>
                         </td>
                         <td>
@@ -1547,6 +1641,107 @@ function CadServiceRequestsTable() {
                   setNoteUploadProgress('')
                 }}
                 disabled={activityLoading || noteSaving}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {partnerNotesTarget && (
+        <div
+          className={modalStyles.modalOverlay}
+          onClick={() =>
+            !partnerNotesLoading && !partnerNoteSaving && setPartnerNotesTarget(null)
+          }
+        >
+          <div className={styles.viewModal} onClick={(event) => event.stopPropagation()}>
+            <h3 className={modalStyles.modalTitle}>Partner page notes</h3>
+            <p className={modalStyles.modalDescription}>
+              Visible on the vendor partner page for{' '}
+              {partnerNotesTarget.request?.full_name ||
+                partnerNotesTarget.request?.email ||
+                'this request'}
+              . Separate from internal activity notes.
+            </p>
+            <div className={styles.noteComposer}>
+              <label className={styles.noteLabel} htmlFor="cad-partner-note">
+                Add partner page note
+              </label>
+              <textarea
+                id="cad-partner-note"
+                className={modalStyles.textarea}
+                value={partnerNoteText}
+                onChange={(event) => setPartnerNoteText(event.target.value)}
+                placeholder="Write a note vendors will see on the partner page..."
+                maxLength={2000}
+                rows={3}
+                disabled={partnerNoteSaving}
+              />
+              <div className={styles.noteFooter}>
+                <span className={modalStyles.characterCount}>
+                  {partnerNoteText.length}/2000
+                </span>
+                <button
+                  type="button"
+                  className={`${modalStyles.button} ${styles.addNoteBtn}`}
+                  onClick={handleAddPartnerNote}
+                  disabled={partnerNoteSaving || !partnerNoteText.trim()}
+                >
+                  {partnerNoteSaving ? 'Adding...' : 'Add note'}
+                </button>
+              </div>
+            </div>
+            {partnerNotesLoading ? (
+              <div className={styles.logsLoading}>
+                <Loading />
+              </div>
+            ) : (partnerNotesTarget.notes || []).length === 0 ? (
+              <p className={styles.logsEmptyText}>No partner page notes yet.</p>
+            ) : (
+              <div className={styles.activityTimeline}>
+                {(partnerNotesTarget.notes || []).map((note) => (
+                  <div key={note._id} className={styles.activityItem}>
+                    <span className={styles.activityDot} />
+                    <div className={styles.activityCard}>
+                      <div className={styles.activityHeader}>
+                        <div className={styles.activityTitleRow}>
+                          <span className={styles.activityType}>Note</span>
+                          <strong>Partner page</strong>
+                        </div>
+                        <span className={styles.activityDate}>
+                          {note.createdAt ? formatDate(note.createdAt) : ''}
+                        </span>
+                      </div>
+                      <p className={styles.activityDescription}>{note.note}</p>
+                      <p className={styles.activityMeta}>
+                        By {note.actor_admin_email || 'Admin'}
+                      </p>
+                      <button
+                        type="button"
+                        className={styles.noteRemoveFileBtn}
+                        onClick={() => handleDeletePartnerNote(note._id)}
+                        aria-label="Delete partner note"
+                        title="Delete note"
+                        style={{ marginTop: 8 }}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className={modalStyles.modalActions}>
+              <button
+                type="button"
+                className={`${modalStyles.button} ${modalStyles.cancel}`}
+                onClick={() => {
+                  setPartnerNotesTarget(null)
+                  setPartnerNoteText('')
+                }}
+                disabled={partnerNotesLoading || partnerNoteSaving}
               >
                 Close
               </button>

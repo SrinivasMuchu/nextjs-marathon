@@ -211,6 +211,32 @@ export async function addCadServiceNote(requestId, note, attachments = []) {
   return response.data
 }
 
+export async function fetchCadServicePartnerNotes(requestId) {
+  const response = await axios.get(`${ADMIN_VENDORS_BASE}/cad-service-partner-notes`, {
+    params: { request_id: requestId },
+    headers: adminHeaders(),
+  })
+  return response.data
+}
+
+export async function addCadServicePartnerNote(requestId, note) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/cad-service-partner-notes`,
+    { request_id: requestId, note },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
+export async function deleteCadServicePartnerNote(requestId, noteId) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/delete-cad-service-partner-note`,
+    { request_id: requestId, note_id: noteId },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
 export async function getCadServiceNotePresignedUrl({ file, filesize, content_type, request_id }) {
   const response = await axios.post(
     `${ADMIN_VENDORS_BASE}/get-cad-service-note-presigned-url`,
