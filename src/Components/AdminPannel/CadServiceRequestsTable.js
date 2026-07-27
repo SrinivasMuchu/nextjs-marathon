@@ -10,6 +10,7 @@ import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined'
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { BASE_URL } from '@/config'
 import { formatDate } from '@/common.helper'
 import Pagenation from '@/Components/CommonJsx/Pagenation'
@@ -34,6 +35,7 @@ import {
   getCadServiceStatusLabel,
   normalizeCadServiceStatus,
 } from './cadServiceStatusConfig'
+import { getCadPartnerPagePath, getCadPartnerPageUrl } from '../CadServicePages/CadFormContext'
 
 const SERVICE_LABELS = {
   modeling: '3D Modeling',
@@ -78,7 +80,7 @@ function getReferenceFiles(request = {}) {
   return [...new Set([...fromArray, ...fromSingle].map((item) => String(item || '').trim()).filter(Boolean))]
 }
 
-function DetailRow({ label, value, isLink, links }) {
+function DetailRow({ label, value, isLink, links, linkLabel }) {
   const linkList = Array.isArray(links) ? links.filter(Boolean) : []
   if (!value && !linkList.length) return null
   return (
@@ -100,7 +102,7 @@ function DetailRow({ label, value, isLink, links }) {
         </div>
       ) : isLink ? (
         <a href={value} target="_blank" rel="noopener noreferrer" className={styles.detailLink}>
-          Download reference file
+          {linkLabel || 'Download reference file'}
         </a>
       ) : (
         <span className={styles.detailValue}>{value}</span>
@@ -160,6 +162,7 @@ function VendorMailHistory({ logs = [], title = 'Vendor mail history', showTitle
 const ACTIVITY_LABELS = {
   request_created: 'Request',
   status_changed: 'Status',
+  standalone_status_changed: 'Page status',
   vendor_mail_sent: 'Email',
   quotation_created: 'Quotation',
   note_added: 'Note',
@@ -344,6 +347,8 @@ async function exportRequestsToExcel(rows) {
     { header: 'Requirement', key: 'requirement', width: 40 },
     { header: 'Reference File URL', key: 'file', width: 40 },
     { header: 'Status', key: 'status', width: 20 },
+    { header: 'Page Status', key: 'standalone_page_status', width: 20 },
+    { header: 'Partner Page URL', key: 'partner_page_url', width: 40 },
     { header: 'Rejection Reason', key: 'rejected_message', width: 30 },
     { header: 'Submitted At', key: 'createdAt', width: 18 },
     { header: 'Reviewed At', key: 'reviewed_at', width: 18 },
@@ -366,6 +371,8 @@ async function exportRequestsToExcel(rows) {
       requirement: request.requirement || '',
       file: getReferenceFiles(request).join('\n'),
       status: getCadServiceStatusLabel(request.status),
+      standalone_page_status: getCadServiceStatusLabel(request.standalone_page_status),
+      partner_page_url: getCadPartnerPageUrl(request._id),
       rejected_message: request.rejected_message || '',
       createdAt: request.createdAt ? formatDate(request.createdAt) : '',
       reviewed_at: request.reviewed_at ? formatDate(request.reviewed_at) : '',
@@ -394,6 +401,24 @@ function RequestStatusSelect({ request, isSubmitting, onStatusSelect, className 
       disabled={isSubmitting}
       onChange={(e) => onStatusSelect(request, e.target.value)}
       aria-label={`Change status for ${request.full_name || request.email || 'request'}`}
+    >
+      {CAD_SERVICE_STATUSES.map((status) => (
+        <option key={status.value} value={status.value}>
+          {status.label}
+        </option>
+      ))}
+    </select>
+  )
+}
+
+function StandalonePageStatusSelect({ request, isSubmitting, onStatusSelect, className }) {
+  return (
+    <select
+      className={className}
+      value={normalizeCadServiceStatus(request.standalone_page_status)}
+      disabled={isSubmitting}
+      onChange={(e) => onStatusSelect(request, e.target.value)}
+      aria-label={`Change partner page status for ${request.full_name || request.email || 'request'}`}
     >
       {CAD_SERVICE_STATUSES.map((status) => (
         <option key={status.value} value={status.value}>
@@ -591,6 +616,33 @@ function CadServiceRequestsTable() {
     }
   }
 
+  const handleStandaloneStatusUpdate = async (requestId, nextStatus) => {
+    setIsSubmitting(true)
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/v1/admin-pannel/update-cad-service-request`,
+        { request_id: requestId, standalone_page_status: nextStatus },
+        { headers: adminHeaders() }
+      )
+
+      if (response.data?.meta?.success) {
+        toast.success(response.data.meta.message)
+        if (response.data?.data?.request) {
+          syncRequestInList(response.data.data.request)
+        } else {
+          refreshList()
+        }
+      } else {
+        toast.error(response.data?.meta?.message || 'Action failed')
+      }
+    } catch (error) {
+      console.error('CAD partner page status error:', error)
+      toast.error(error.response?.data?.meta?.message || 'Failed to update partner page status')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleStatusSelect = (request, nextStatus) => {
     const current = normalizeCadServiceStatus(request.status)
     if (nextStatus === current) return
@@ -602,6 +654,12 @@ function CadServiceRequestsTable() {
     }
 
     handleStatusUpdate(request._id, nextStatus)
+  }
+
+  const handleStandaloneStatusSelect = (request, nextStatus) => {
+    const current = normalizeCadServiceStatus(request.standalone_page_status)
+    if (nextStatus === current) return
+    handleStandaloneStatusUpdate(request._id, nextStatus)
   }
 
   const handleRejectSubmit = () => {
@@ -802,13 +860,19 @@ function CadServiceRequestsTable() {
         statusFilter
       )
 
-      if (!rows.length) {
-        toast.info('No requests to export')
+      const exportRows = rows.filter(
+        (request) => normalizeCadServiceStatus(request.status) !== 'rejected',
+      )
+
+      if (!exportRows.length) {
+        toast.info('No non-rejected requests to export')
         return
       }
 
-      await exportRequestsToExcel(rows)
-      toast.success(`Exported ${rows.length} request${rows.length === 1 ? '' : 's'}`)
+      await exportRequestsToExcel(exportRows)
+      toast.success(
+        `Exported ${exportRows.length} request${exportRows.length === 1 ? '' : 's'} (rejected skipped)`,
+      )
     } catch (error) {
       console.error('Export error:', error)
       toast.error('Failed to export requests')
@@ -909,12 +973,13 @@ function CadServiceRequestsTable() {
                   <th>Quotations</th>
                   <th>Activity logs</th>
                   <th>Change status</th>
+                  <th>Page status</th>
                 </tr>
               </thead>
               {isLoading ? (
                 <tbody>
                   <tr>
-                    <td colSpan={11} className={styles.emptyCell}>
+                    <td colSpan={12} className={styles.emptyCell}>
                       <Loading />
                     </td>
                   </tr>
@@ -923,7 +988,7 @@ function CadServiceRequestsTable() {
                 <tbody>
                   {requests.length === 0 ? (
                     <tr>
-                      <td colSpan={11} className={styles.emptyCell}>
+                      <td colSpan={12} className={styles.emptyCell}>
                         No CAD service requests found
                       </td>
                     </tr>
@@ -931,6 +996,7 @@ function CadServiceRequestsTable() {
                     requests.map((request) => {
                       const quotationCount = Number(request.quotation_count) || 0
                       const activityCount = Number(request.activity_count) || 0
+                      const partnerPagePath = getCadPartnerPagePath(request._id)
                       return (
                       <tr key={request._id}>
                         <td>{request.full_name || '—'}</td>
@@ -943,14 +1009,27 @@ function CadServiceRequestsTable() {
                         </td>
                         <td>{formatDate(request.createdAt)}</td>
                         <td>
-                          <button
-                            type="button"
-                            className={styles.viewBtn}
-                            onClick={() => openView(request)}
-                            aria-label="View request"
-                          >
-                            <VisibilityOutlinedIcon fontSize="small" />
-                          </button>
+                          <div className={styles.inlineActions}>
+                            <button
+                              type="button"
+                              className={styles.viewBtn}
+                              onClick={() => openView(request)}
+                              aria-label="View request"
+                              title="View request details"
+                            >
+                              <VisibilityOutlinedIcon fontSize="small" />
+                            </button>
+                            <a
+                              href={partnerPagePath}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.viewBtn}
+                              aria-label="Open partner page"
+                              title="Open partner page"
+                            >
+                              <OpenInNewIcon fontSize="small" />
+                            </a>
+                          </div>
                         </td>
                         <td>
                           <button
@@ -1008,6 +1087,26 @@ function CadServiceRequestsTable() {
                             className={styles.statusSelect}
                           />
                         </td>
+                        <td>
+                          <div className={styles.pageStatusCell}>
+                            <StandalonePageStatusSelect
+                              request={request}
+                              isSubmitting={isSubmitting}
+                              onStatusSelect={handleStandaloneStatusSelect}
+                              className={styles.statusSelect}
+                            />
+                            <a
+                              href={partnerPagePath}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.viewBtn}
+                              aria-label="Open partner page"
+                              title="Open partner page"
+                            >
+                              <OpenInNewIcon fontSize="small" />
+                            </a>
+                          </div>
+                        </td>
                       </tr>
                       )
                     })
@@ -1034,14 +1133,27 @@ function CadServiceRequestsTable() {
                   <h4 className={styles.requestCardName}>{request.full_name || '—'}</h4>
                   <p className={styles.requestCardEmail}>{request.email || '—'}</p>
                 </div>
-                <button
-                  type="button"
-                  className={styles.viewBtn}
-                  onClick={() => openView(request)}
-                  aria-label="View request"
-                >
-                  <VisibilityOutlinedIcon fontSize="small" />
-                </button>
+                <div className={styles.inlineActions}>
+                  <button
+                    type="button"
+                    className={styles.viewBtn}
+                    onClick={() => openView(request)}
+                    aria-label="View request"
+                    title="View request details"
+                  >
+                    <VisibilityOutlinedIcon fontSize="small" />
+                  </button>
+                  <a
+                    href={getCadPartnerPagePath(request._id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.viewBtn}
+                    aria-label="Open partner page"
+                    title="Open partner page"
+                  >
+                    <OpenInNewIcon fontSize="small" />
+                  </a>
+                </div>
               </div>
 
               <div className={styles.requestCardMeta}>
@@ -1059,6 +1171,7 @@ function CadServiceRequestsTable() {
 
               <div className={styles.requestCardStatusRow}>
                 <StatusBadge status={request.status} />
+                <StatusBadge status={request.standalone_page_status} />
               </div>
 
               <div className={styles.requestCardActions}>
@@ -1111,6 +1224,25 @@ function CadServiceRequestsTable() {
                   onStatusSelect={handleStatusSelect}
                   className={styles.statusSelectMobile}
                 />
+                <span className={styles.requestCardLabel}>Page status</span>
+                <div className={styles.pageStatusCell}>
+                  <StandalonePageStatusSelect
+                    request={request}
+                    isSubmitting={isSubmitting}
+                    onStatusSelect={handleStandaloneStatusSelect}
+                    className={styles.statusSelectMobile}
+                  />
+                  <a
+                    href={getCadPartnerPagePath(request._id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.viewBtn}
+                    aria-label="Open partner page"
+                    title="Open partner page"
+                  >
+                    <OpenInNewIcon fontSize="small" />
+                  </a>
+                </div>
               </div>
             </article>
           ))
@@ -1206,11 +1338,29 @@ function CadServiceRequestsTable() {
                 </div>
               </div>
               <DetailRow label="Status" value={getCadServiceStatusLabel(viewRequest.status)} />
+              <DetailRow
+                label="Partner page status"
+                value={getCadServiceStatusLabel(viewRequest.standalone_page_status)}
+              />
+              <DetailRow
+                label="Partner page"
+                value={getCadPartnerPagePath(viewRequest._id)}
+                isLink
+                linkLabel="Open partner page"
+              />
               {viewRequest.rejected_message ? (
                 <DetailRow label="Rejection reason" value={viewRequest.rejected_message} />
               ) : null}
             </div>
             <div className={modalStyles.modalActions}>
+              <a
+                href={getCadPartnerPagePath(viewRequest._id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${modalStyles.button} ${modalStyles.cancel}`}
+              >
+                Open partner page
+              </a>
               <button
                 type="button"
                 className={`${modalStyles.button} ${modalStyles.cancel}`}

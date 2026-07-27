@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Eye, ArrowLeftRight, Download, Box, ShieldCheck, ChevronUp } from 'lucide-react';
 import { contextState } from './ContextProvider';
-import { useCadForm } from '../CadServicePages/CadFormContext';
+import { useCadForm, isCadPartnerPageRoute } from '../CadServicePages/CadFormContext';
 import styles from './FloatingButton.module.css';
 
 const ACTIONS = [
@@ -104,6 +104,7 @@ function FloatingButton() {
 
   if (showPopup) return null;
   if (pathname?.replace(/\/$/, '') === '/cad-services') return null;
+  if (isCadPartnerPageRoute(pathname)) return null;
   if (isMobile && isStickyStripVisible) return null;
 
   const bottom = anchorAds

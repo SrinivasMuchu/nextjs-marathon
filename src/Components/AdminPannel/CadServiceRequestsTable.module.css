@@ -207,6 +207,7 @@
 .desktopTable {
   display: block;
   min-width: 0;
+  max-width: 100%;
 }
 
 .mobileCards {
@@ -215,22 +216,28 @@
 
 .tableScroll {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .tableWrap {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
+  width: max-content;
+  min-width: 100%;
   overflow: hidden;
-  min-width: 900px;
 }
 
 .table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  table-layout: auto;
 }
 
 .table thead th {
@@ -248,10 +255,12 @@
   border-bottom: 1px solid #f3f4f6;
   color: #111827;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .table tbody td:nth-child(2) {
   word-break: break-word;
+  white-space: normal;
   max-width: 220px;
 }
 
@@ -290,11 +299,30 @@
   color: #374151;
   cursor: pointer;
   flex-shrink: 0;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
 .viewBtn:hover {
   border-color: #610bee;
   color: #610bee;
+}
+
+.inlineActions,
+.pageStatusCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pageStatusCell {
+  min-width: 0;
+}
+
+.pageStatusCell .statusSelect,
+.pageStatusCell .statusSelectMobile {
+  min-width: 0;
+  flex: 1;
 }
 
 .logsBtn {

@@ -44,3 +44,26 @@ export function isCadServicesRoute(pathname) {
   if (!pathname) return false
   return pathname.replace(/\/$/, '') === '/cad-services'
 }
+
+/** Public vendor partner page (Next.js): /cad-services/<requestId> */
+export function getCadPartnerPagePath(requestId) {
+  const id = String(requestId || '').trim().replace(/@index\.html$/i, '')
+  if (!id) return ''
+  return `/cad-services/${id}`
+}
+
+/** Absolute partner page URL for emails / exports. */
+export function getCadPartnerPageUrl(requestId, origin = 'https://marathon-os.com') {
+  const path = getCadPartnerPagePath(requestId)
+  if (!path) return ''
+  const base = String(origin || 'https://marathon-os.com').replace(/\/$/, '')
+  return `${base}${path}`
+}
+
+/** True for the public vendor partner request page (not the marketing /cad-services page). */
+export function isCadPartnerPageRoute(pathname) {
+  if (!pathname) return false
+  const clean = pathname.replace(/\/$/, '')
+  if (clean === '/cad-services') return false
+  return /^\/cad-services\/[a-f\d]{24}(?:@index\.html)?$/i.test(clean)
+}

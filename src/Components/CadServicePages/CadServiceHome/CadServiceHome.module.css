@@ -80,35 +80,40 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   max-width: 720px;
   margin-top: 36px;
-  padding: 23px 0;
+  padding: 28px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.18);
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  align-items: start;
 }
 
 .proofItem {
-  padding-right: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding-right: 18px;
 }
 
 .proofItem + .proofItem {
-  padding-left: 28px;
+  padding-left: 20px;
   border-left: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .proofItem strong {
   display: block;
   color: #fff;
-  font-size: 33px;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
+  font-size: clamp(22px, 2.4vw, 28px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
 }
 
 .proofItem span {
   display: block;
-  margin-top: 6px;
-  color: rgba(255, 255, 255, 0.66);
-  font-size: 12.5px;
-  line-height: 1.5;
-  font-weight: 600;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 550;
 }
 
 .heroAssurance {
@@ -210,6 +215,7 @@
 
   .proofItem {
     padding: 0;
+    gap: 8px;
   }
 
   .proofItem + .proofItem {
@@ -219,6 +225,6 @@
   }
 
   .proofItem strong {
-    font-size: 29px;
+    font-size: 26px;
   }
 }

@@ -194,6 +194,14 @@
   border-color: #610bee;
 }
 
+.readOnlyInput,
+.textInput:disabled,
+.textArea:disabled {
+  background: #f3f4f6;
+  color: #4b5563;
+  cursor: not-allowed;
+}
+
 .textArea {
   resize: vertical;
   min-height: 100px;

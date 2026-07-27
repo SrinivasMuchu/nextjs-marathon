@@ -84,6 +84,12 @@ const nextConfig = {
         destination: '/dashboard/2d-technical-drawing/:id',
         permanent: true,
       },
+      {
+        // Legacy prototype-style partner links → clean Next.js route
+        source: '/cad-services/:id@:file',
+        destination: '/cad-services/:id',
+        permanent: false,
+      },
     ];
   },
 
@@ -98,7 +104,16 @@ const nextConfig = {
           },
         ],
       },
-       {
+      {
+        source: '/cad-services/:id',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+      {
         source: '/dashboard/:path*',
         headers: [
           {

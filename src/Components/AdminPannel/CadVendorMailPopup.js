@@ -245,6 +245,9 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
       if (!mailContent.project_type.trim()) {
         nextContentErrors.project_type = 'Project type is required'
       }
+      if (!mailContent.model_use.trim()) {
+        nextContentErrors.model_use = 'Timeline is required'
+      }
       if (!mailContent.requirement.trim()) {
         nextContentErrors.requirement = 'Project brief is required'
       }
@@ -561,15 +564,18 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                       </div>
 
                       <div className={styles.formField}>
-                        <label className={styles.fieldLabel} htmlFor="vendor-mail-model-use">Timeline</label>
+                        <label className={styles.fieldLabel} htmlFor="vendor-mail-model-use">Timeline *</label>
                         <input
                           id="vendor-mail-model-use"
                           type="text"
-                          className={styles.textInput}
+                          className={`${styles.textInput} ${contentErrors.model_use ? styles.inputError : ''}`}
                           value={mailContent.model_use}
                           onChange={handleContentChange('model_use')}
                           disabled={isSending}
                         />
+                        {contentErrors.model_use ? (
+                          <span className={styles.errorText}>{contentErrors.model_use}</span>
+                        ) : null}
                       </div>
 
                       <div className={styles.formField}>
@@ -577,10 +583,11 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                         <input
                           id="vendor-mail-budget"
                           type="text"
-                          className={styles.textInput}
-                          value={mailContent.budget}
-                          onChange={handleContentChange('budget')}
-                          disabled={isSending}
+                          className={`${styles.textInput} ${styles.readOnlyInput}`}
+                          value={mailContent.budget || '—'}
+                          readOnly
+                          disabled
+                          title="Budget comes from the request and cannot be edited here"
                         />
                       </div>
 

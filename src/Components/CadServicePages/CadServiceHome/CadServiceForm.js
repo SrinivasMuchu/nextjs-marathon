@@ -74,6 +74,14 @@ function validateFormFields(formData, uploadedFiles) {
     errors.service = 'Please select a project type.'
   }
 
+  if (!String(formData.modelUse || '').trim()) {
+    errors.modelUse = 'Please select a timeline.'
+  }
+
+  if (!String(formData.budget || '').trim()) {
+    errors.budget = 'Please select a budget.'
+  }
+
   const requirementText = String(formData.requirement || '').trim()
   if (!requirementText) {
     errors.requirement = 'Please describe your project brief.'
@@ -406,11 +414,11 @@ function CadServiceForm({ onClose, inPopup = false }) {
           </select>
         </div>
         <div className={styles.formGroup}>
-          <label className={styles.formLabel} htmlFor="modelUse">Timeline</label>
+          <label className={styles.formLabel} htmlFor="modelUse">Timeline *</label>
           <select
             id="modelUse"
             name="modelUse"
-            className={styles.formSelect}
+            className={`${styles.formSelect} ${fieldErrors.modelUse ? styles.formSelectError : ''}`}
             value={formData.modelUse}
             onChange={handleChange}
           >
@@ -418,13 +426,14 @@ function CadServiceForm({ onClose, inPopup = false }) {
               <option key={opt.value || 'placeholder'} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+          <FieldError message={fieldErrors.modelUse} />
         </div>
         <div className={styles.formGroup}>
-          <label className={styles.formLabel} htmlFor="budget">Budget</label>
+          <label className={styles.formLabel} htmlFor="budget">Budget *</label>
           <select
             id="budget"
             name="budget"
-            className={styles.formSelect}
+            className={`${styles.formSelect} ${fieldErrors.budget ? styles.formSelectError : ''}`}
             value={formData.budget}
             onChange={handleChange}
           >
@@ -432,6 +441,7 @@ function CadServiceForm({ onClose, inPopup = false }) {
               <option key={opt.value || 'placeholder'} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+          <FieldError message={fieldErrors.budget} />
         </div>
         <div className={`${styles.formGroup} ${styles.formGridFull}`}>
           <label className={styles.formLabel} htmlFor="requirement">Project brief *</label>
