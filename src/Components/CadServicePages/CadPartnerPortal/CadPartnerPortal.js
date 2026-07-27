@@ -252,7 +252,7 @@ function CadPartnerPortal({ requestId }) {
       }
       setChangeSuccess(
         response.data.meta.message
-          || 'Password updated successfully. You can now unlock with your new password.',
+          || 'Password saved successfully. You can now unlock with this password.',
       )
       setNewPassword('')
       setConfirmPassword('')
@@ -342,17 +342,17 @@ function CadPartnerPortal({ requestId }) {
                 className={styles.lockSecondaryLink}
                 onClick={openChangePassword}
               >
-                Change password
+                Change/create password
               </button>
             </>
           ) : null}
 
           {authMode === 'change-email' ? (
             <>
-              <h1 className={styles.lockTitle}>Change password</h1>
+              <h1 className={styles.lockTitle}>Change/create password</h1>
               <p className={styles.lockLead}>
-                Enter your registered vendor email. If it matches our records, you can set a
-                new password.
+                Enter your registered vendor email. If it matches our records, you can
+                change or create a password.
               </p>
               <form onSubmit={handleVerifyChangeEmail} className={styles.lockForm}>
                 <label className={styles.lockLabel} htmlFor="partner-change-email">
@@ -389,9 +389,9 @@ function CadPartnerPortal({ requestId }) {
 
           {authMode === 'change-password' ? (
             <>
-              <h1 className={styles.lockTitle}>Set a new password</h1>
+              <h1 className={styles.lockTitle}>Change/create password</h1>
               <p className={styles.lockLead}>
-                Email verified for <strong>{changeEmail}</strong>. Choose a new password to
+                Email verified for <strong>{changeEmail}</strong>. Enter a password to
                 unlock partner requests.
               </p>
               <form onSubmit={handleChangePassword} className={styles.lockForm}>
@@ -436,7 +436,7 @@ function CadPartnerPortal({ requestId }) {
                   <div className={styles.lockSuccess}>{changeSuccess}</div>
                 ) : null}
                 <button type="submit" className={styles.lockButton} disabled={changeLoading}>
-                  {changeLoading ? 'Saving…' : 'Update password'}
+                  {changeLoading ? 'Saving…' : 'Save password'}
                 </button>
               </form>
               <button
