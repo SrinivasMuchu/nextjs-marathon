@@ -487,6 +487,30 @@
   cursor: not-allowed;
 }
 
+.otpRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.otpInput {
+  width: 52px;
+  height: 54px;
+  box-sizing: border-box;
+  border: 1.5px solid #e4e0ee;
+  border-radius: 11px;
+  background: #f8f7fb;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.otpInput:focus {
+  outline: none;
+  border-color: #7c3aed;
+  background: #fff;
+}
+
 .lockSecondaryLink {
   display: block;
   width: 100%;
