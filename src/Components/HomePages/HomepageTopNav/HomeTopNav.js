@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import styles from "./HomeTopNav.module.css";
 import TopNavProfileButton from "../../CommonJsx/TopNavProfileButton";
+import { isCadPartnerPageRoute } from "@/Components/CadServicePages/CadFormContext";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
 
 const TOOLS_MENU = [
@@ -149,6 +150,10 @@ function HomeTopNav() {
     setOpenDropdown(null);
     router.refresh();
   };
+
+  if (isCadPartnerPageRoute(pathname)) {
+    return null;
+  }
 
   return (
     <div

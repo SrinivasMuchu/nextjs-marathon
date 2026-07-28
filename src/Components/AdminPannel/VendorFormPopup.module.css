@@ -57,6 +57,19 @@
   line-height: 1.3;
 }
 
+.hintText {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.readOnlyInput,
+.input:disabled {
+  background: #f3f4f6;
+  color: #4b5563;
+  cursor: not-allowed;
+}
+
 .formError {
   margin-bottom: 14px;
   padding: 10px 12px;

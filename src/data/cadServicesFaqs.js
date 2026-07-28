@@ -2,48 +2,38 @@
 
 export const cadServicesFaqQuestions = [
   {
-    question: 'How fast can you start?',
+    question: 'What should I include in the project brief?',
     answer:
-      'Most projects kick off within 24–72 hours of submitting your requirement. Once we scope and quote your project, a designer is assigned the same day you approve.',
+      'Include the type of CAD work, expected deliverables, preferred software or file format, target timeline and any useful context. Detailed dimensions and native project files can be shared later with the selected agency.',
   },
   {
-    question: 'Which CAD tools do you support?',
+    question: 'Will my requirement be shared with all 1,000+ agencies?',
     answer:
-      'We support 15+ tools including SolidWorks, AutoCAD, Fusion 360, Creo, CATIA, NX, Revit, Inventor, ANSYS, and more. Just tell us your stack.',
+      'No. Marathon uses the brief to identify relevant agencies. The goal is to share only the information required to assess fit, not to circulate your complete project across the network.',
   },
   {
-    question: 'Who owns the IP?',
+    question: 'When are detailed files shared?',
     answer:
-      'You do. 100%. All deliverables, source files, and design data are fully transferred to you upon payment. We retain no rights.',
+      'Detailed files are shared after you select the agency and approve the next step. An NDA can be completed before the full technical handover where required.',
   },
   {
-    question: 'Do you sign NDAs?',
+    question: 'How are agencies matched to my project?',
     answer:
-      'Yes. We sign mutual NDAs before project kick-off. All designers on our platform are bound by confidentiality agreements. Request one at any time.',
+      'Matching considers the project type, CAD software, deliverables, industry relevance, timeline, complexity and partner availability.',
   },
   {
-    question: 'Can you work from sketches or photos?',
+    question: 'Do I have to accept a quotation?',
     answer:
-      'Absolutely. We work from hand sketches, photos, napkin drawings, PDFs, or verbal descriptions. If you can communicate the intent, we can model it.',
+      'No. You can review the available option, proposed scope, timeline and quotation before making a decision. Submitting the brief does not commit you to an agency.',
   },
   {
-    question: 'What file formats will I get?',
+    question: 'Can Marathon help with ongoing CAD support?',
     answer:
-      "Native CAD format of your choice, plus STEP, IGES, STL, DWG, and PDF exports as required. We'll confirm the exact package during scoping.",
+      'Yes. The same process can be used for a one-time task, a complete project, a temporary workload spike or ongoing external CAD capacity.',
   },
   {
-    question: 'How do revisions work?',
+    question: 'Who owns the final designs and project data?',
     answer:
-      "Revision rounds are defined in your quote upfront. We don't surprise you with extra charges. If scope changes significantly, we'll renegotiate transparently before proceeding.",
+      'Your files, project information and intellectual property remain yours. Ownership and confidentiality terms should also be documented in the final agreement with the selected agency.',
   },
-  {
-    question: 'How do you estimate cost and timeline?',
-    answer:
-      'After you submit your requirement, we scope with you (async or a quick call), then present a fixed quote with delivery timeline. No hourly surprises unless you choose hourly.',
-  },
-  {
-    question: 'Do you support long-term engagement?',
-    answer:
-      'Yes — our Monthly Retainer model gives you a dedicated designer, priority turnaround, and volume pricing for teams with continuous CAD needs.',
-  },
-];
+]

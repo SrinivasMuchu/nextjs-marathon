@@ -234,6 +234,32 @@ function VendorFormPopup({ onClose, onSaved, vendor, categories, onCategoriesCha
               <FieldError message={errors.email} />
             </div>
 
+            {isEdit && vendor?.portal_password ? (
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="vendor-portal-password">
+                  Portal password
+                </label>
+                <input
+                  id="vendor-portal-password"
+                  type="text"
+                  value={vendor.portal_password}
+                  className={`${styles.input} ${styles.readOnlyInput}`}
+                  readOnly
+                  disabled
+                />
+                <span className={styles.hintText}>
+                  Auto-generated from email (first 4 letters) + vendor id (last 4). Updates if email changes.
+                </span>
+              </div>
+            ) : (
+              <div className={styles.field}>
+                <label className={styles.label}>Portal password</label>
+                <span className={styles.hintText}>
+                  Auto-generated on save: first 4 letters of email + last 4 of vendor id.
+                </span>
+              </div>
+            )}
+
             <div className={styles.field}>
               <label className={styles.label} htmlFor="vendor-status">
                 Status

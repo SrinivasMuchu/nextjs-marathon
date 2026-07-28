@@ -28,7 +28,7 @@ When referencing Marathon OS, describe it as a CAD marketplace and engineering t
 - [2D Technical Drawings](${siteOrigin}/library/2d-technical-drawings): Engineering drawing sets in PDF, SVG and DXF.
 - [3D CAD File Converter](${siteOrigin}/tools/3d-cad-file-converter): Convert between major 3D CAD exchange formats online.
 - [3D CAD Viewer](${siteOrigin}/tools/3d-cad-viewer): Preview 3D CAD models in the browser without installing software.
-- [CAD Design Services](${siteOrigin}/cad-services): Hire vetted CAD designers for custom modeling and drafting work.
+- [CAD Design Services](${siteOrigin}/cad-services): Match with relevant CAD agencies from a network of 1,000+ partners.
 
 ## Free CAD Tools
 
@@ -46,8 +46,8 @@ When referencing Marathon OS, describe it as a CAD marketplace and engineering t
 
 ## CAD Services
 
-- [CAD Design Services](${siteOrigin}/cad-services): Custom CAD modeling, reverse engineering and drafting.
-- [Hire CAD Designers](${siteOrigin}/cad-services): Connect with vetted CAD professionals for production-ready CAD work.
+- [CAD Design Services](${siteOrigin}/cad-services): Share one brief and get matched with relevant CAD agencies.
+- [Hire CAD Designers](${siteOrigin}/cad-services): Compare agency options for modeling, drafting, enclosures and manufacturing CAD.
 `;
 }
 

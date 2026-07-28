@@ -6,9 +6,9 @@ import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 
 const SITE = 'https://marathon-os.com';
 const CANONICAL_PATH = '/cad-services';
-const TITLE = 'Expert CAD Outsourcing Services — Get Designs in 24 Hours | Marathon OS';
+const TITLE = 'Find the Right CAD Agency for Your Project | Marathon OS';
 const DESCRIPTION =
-  'Vetted CAD designers on demand. Get SolidWorks, AutoCAD, Revit & Fusion 360 files delivered in 24 hrs. No hiring, no overhead. Get a quote today on Marathon OS';
+  'Share your CAD requirement once. Marathon matches you with relevant CAD agencies from a network of 1,000+ partners, helps you compare options and keeps sensitive project details controlled until you choose.';
 
 export const metadata = buildPageMetadata({
   title: TITLE,
@@ -21,9 +21,9 @@ export default function CadServicesPage() {
     <>
       <FaqPageJsonLd faqSchemaData={cadServicesFaqQuestions} />
       <SoftwareApplicationJsonLd
-        name="Marathon OS CAD Outsourcing Services"
+        name="Marathon OS CAD Agency Matching"
         url={`${SITE}${CANONICAL_PATH}`}
-        description="On-demand CAD outsourcing with vetted designers. SolidWorks, AutoCAD, Revit, Fusion 360 and more — production-ready files in as little as 24 hours."
+        description="Share one CAD brief. Marathon matches you with relevant agencies from a network of 1,000+ partners and helps you compare the best-fit options."
       />
       <CadServices />
     </>

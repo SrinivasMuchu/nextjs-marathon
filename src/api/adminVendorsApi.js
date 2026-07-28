@@ -126,6 +126,18 @@ export async function uploadCadServiceReferenceFile(file, requestId, signal) {
   return updateResponse.data
 }
 
+export async function removeCadServiceReferenceFile(requestId, fileUrl, signal) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/remove-cad-service-reference-file`,
+    {
+      request_id: requestId,
+      file_url: fileUrl,
+    },
+    { headers: adminHeaders(), signal },
+  )
+  return response.data
+}
+
 export async function fetchCadServiceQuotations(requestId, vendorId) {
   const params = { request_id: requestId }
   if (vendorId) params.vendor_id = vendorId
@@ -190,11 +202,73 @@ export async function fetchCadServiceActivity(requestId) {
   return response.data
 }
 
-export async function addCadServiceNote(requestId, note) {
+export async function addCadServiceNote(requestId, note, attachments = []) {
   const response = await axios.post(
     `${ADMIN_VENDORS_BASE}/cad-service-activity`,
+    { request_id: requestId, note, attachments },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
+export async function fetchCadServicePartnerNotes(requestId) {
+  const response = await axios.get(`${ADMIN_VENDORS_BASE}/cad-service-partner-notes`, {
+    params: { request_id: requestId },
+    headers: adminHeaders(),
+  })
+  return response.data
+}
+
+export async function addCadServicePartnerNote(requestId, note) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/cad-service-partner-notes`,
     { request_id: requestId, note },
     { headers: adminHeaders() },
   )
   return response.data
+}
+
+export async function deleteCadServicePartnerNote(requestId, noteId) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/delete-cad-service-partner-note`,
+    { request_id: requestId, note_id: noteId },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
+export async function getCadServiceNotePresignedUrl({ file, filesize, content_type, request_id }) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/get-cad-service-note-presigned-url`,
+    { file, filesize, content_type, request_id },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
+export async function uploadCadServiceNoteFile(file, requestId, signal) {
+  const presigned = await getCadServiceNotePresignedUrl({
+    file: file.name,
+    filesize: file.size,
+    content_type: file.type || 'application/octet-stream',
+    request_id: requestId,
+  })
+
+  if (!presigned?.meta?.success || !presigned?.data?.url) {
+    throw new Error(presigned?.meta?.message || 'Failed to get note upload URL')
+  }
+
+  const { url, key, file_url, content_type } = presigned.data
+  await axios.put(url, file, {
+    headers: { 'Content-Type': content_type || file.type || 'application/octet-stream' },
+    signal,
+  })
+
+  return {
+    name: file.name,
+    type: content_type || file.type || 'application/octet-stream',
+    size: file.size,
+    key,
+    url: file_url,
+  }
 }
