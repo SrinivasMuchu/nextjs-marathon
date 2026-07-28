@@ -74,7 +74,7 @@ function CadDropDown({
     inputFileSizeBytes: file?.size,
   });
 
-  const formatOptions = useMemo(
+  const cadFormatOptions = useMemo(
     () => [
       { value: "step", label: ".step" },
       { value: "brep", label: ".brep" },
@@ -84,15 +84,31 @@ function CadDropDown({
       { value: "stl", label: ".stl" },
       { value: "off", label: ".off" },
       { value: "3dm", label: ".3dm" },
+    ],
+    []
+  );
+
+  const drawingFormatOptions = useMemo(
+    () => [
       { value: "dxf", label: ".dxf" },
       { value: "dwg", label: ".dwg" },
     ],
     []
   );
 
+  const formatOptions = useMemo(
+    () => [...cadFormatOptions, ...drawingFormatOptions],
+    [cadFormatOptions, drawingFormatOptions]
+  );
+
   const selectedKey = normalizeFormatKey(selectedFileFormate);
   const pairTarget = normalizeFormatKey(Array.isArray(to) ? to[0] : to);
   const pairSource = normalizeFormatKey(from);
+  const isDrawingPair =
+    pairSource === "dxf" ||
+    pairSource === "dwg" ||
+    pairTarget === "dxf" ||
+    pairTarget === "dwg";
 
   // Individual pair pages: default output to the URL target (e.g. BREP on step-to-brep).
   useEffect(() => {
@@ -125,27 +141,44 @@ function CadDropDown({
       return;
     }
 
+    // DXF/DWG are not valid targets for 3D CAD conversions.
+    if (selectedKey === "dxf" || selectedKey === "dwg") {
+      setSelectedFileFormate(fileExt === "stl" ? "step" : "stl");
+      return;
+    }
+
     if (!selectedKey || selectedKey === fileExt) {
       setSelectedFileFormate(fileExt === "stl" ? "step" : "stl");
     }
   }, [designVariant, file, selectedKey, setSelectedFileFormate, pairTarget]);
 
   const getFilteredOptions = useCallback(() => {
-    if (!file) return formatOptions;
-
-    const fileExt = file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase();
-
-    if (fileExt === "dxf" || fileExt === "dwg") {
-      return formatOptions.filter(
-        (option) =>
-          (option.value === "dxf" || option.value === "dwg") && option.value !== fileExt
-      );
+    // DXF ↔ DWG only: no other formats can convert to/from these 2D drawings.
+    if (isDrawingPair) {
+      const source = pairSource || (file
+        ? normalizeFormatKey(file.name.slice(file.name.lastIndexOf(".") + 1))
+        : "");
+      const requiredTarget =
+        pairTarget ||
+        (source === "dxf" ? "dwg" : source === "dwg" ? "dxf" : "");
+      if (requiredTarget) {
+        return drawingFormatOptions.filter((option) => option.value === requiredTarget);
+      }
+      return drawingFormatOptions;
     }
 
-    return formatOptions.filter((option) => {
-      if (option.value === "dxf" || option.value === "dwg") {
-        return false;
-      }
+    if (!file) return cadFormatOptions;
+
+    const fileExt = normalizeFormatKey(
+      file.name.slice(file.name.lastIndexOf(".") + 1)
+    );
+
+    // Uploaded DXF/DWG on the general converter: only the complementary drawing format.
+    if (fileExt === "dxf" || fileExt === "dwg") {
+      return drawingFormatOptions.filter((option) => option.value !== fileExt);
+    }
+
+    return cadFormatOptions.filter((option) => {
       if (fileExt === "step" || fileExt === "stp") {
         return option.value !== "step";
       }
@@ -157,7 +190,7 @@ function CadDropDown({
       }
       return option.value !== fileExt;
     });
-  }, [file, formatOptions]);
+  }, [file, cadFormatOptions, drawingFormatOptions, isDrawingPair, pairSource, pairTarget]);
 
   const handleNativeChange = (event) => {
     const v = normalizeFormatKey(event.target.value);
@@ -171,9 +204,18 @@ function CadDropDown({
     selectedKey && formatOptions.find((o) => o.value === selectedKey);
   const optionsForSelect = useMemo(() => {
     if (!selectedOption) return filteredOptions;
-    if (filteredOptions.some((o) => o.value === selectedOption.value)) return filteredOptions;
+    if (filteredOptions.some((o) => o.value === selectedOption.value)) {
+      return filteredOptions;
+    }
+    // Never inject DXF/DWG into 3D target lists (those pairs are drawing-only).
+    if (
+      !isDrawingPair &&
+      (selectedOption.value === "dxf" || selectedOption.value === "dwg")
+    ) {
+      return filteredOptions;
+    }
     return [selectedOption, ...filteredOptions];
-  }, [filteredOptions, selectedOption]);
+  }, [filteredOptions, selectedOption, isDrawingPair]);
 
   const selectValueAttr =
     selectedKey && optionsForSelect.some((o) => o.value === selectedKey)
