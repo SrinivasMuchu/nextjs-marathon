@@ -19,6 +19,7 @@ const statusMessages = {
 
 function CubeLoader({
   uploadingMessage,
+  convertStage,
   totalImages,
   completedImages,
   type,
@@ -27,6 +28,8 @@ function CubeLoader({
   outputFormat,
   fileSize,
   isSampleFile,
+  onCancel,
+  onPreviewCompleted,
 }) {
    const { user } = useContext(contextState); 
 
@@ -74,11 +77,14 @@ function CubeLoader({
         <HomeTopNav />
         <ConverterProgressLoader
           uploadingMessage={uploadingMessage}
+          convertStage={convertStage}
           uploadProgressPercent={uploadProgressPercent}
           fileName={fileName}
           outputFormat={outputFormat}
           fileSize={fileSize}
           isSampleFile={isSampleFile}
+          onCancel={onCancel}
+          onPreviewCompleted={onPreviewCompleted}
         />
       </div>
     );

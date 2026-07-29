@@ -27,6 +27,21 @@ import { convertedFiles, sendClarityEvent, sendGAtagEvent, textLettersLimit } fr
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
 import { Upload, X, FileText } from "lucide-react";
+import {
+  needsMeshConfigure,
+  resolveMeshExportSettings,
+} from "@/lib/converterMeshSettings";
+import {
+  fetchConverterPricingInfo,
+  isConverterConversionFree,
+} from "@/lib/converterPricing";
+import { checkConverterDownload } from "@/api/converterPaymentApi";
+import { ensureConverterDownloadAccess } from "@/Components/History/converterPayment";
+import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
+import ConverterConfigureStep from "./ConverterConfigureStep";
+import ConverterResultStep from "./ConverterResultStep";
+import ConverterPayStep from "./ConverterPayStep";
+import { buildCadConverterOutputUrl } from "@/config";
 
 function formatSelectedFileSize(bytes) {
     const size = Number(bytes);
@@ -61,11 +76,33 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
   const router = useRouter();
     const [fromFormate, setFromFormate] = useState('')
+    const [funnelStep, setFunnelStep] = useState('upload'); // upload | configure | convert | review | pay | download
+    const [convertStage, setConvertStage] = useState('');
+    const [meshSettings, setMeshSettings] = useState(null);
+    const [jobResult, setJobResult] = useState(null);
+    const [pricingInfo, setPricingInfo] = useState(null);
+    const [downloadAccess, setDownloadAccess] = useState(null);
+    const [downloadingFile, setDownloadingFile] = useState(false);
+    const [openBillingFlow, setOpenBillingFlow] = useState(false);
+    const meshSettingsRef = useRef(null);
 
     // Clarity: tag sessions that land on the converter
     useEffect(() => {
         sendClarityEvent("converter_visit", { converter_funnel: "visit" });
     }, []);
+
+    useEffect(() => {
+        const messages = {
+            configure: 'Configure step — once done, you will be notified.',
+            convert: 'Converting — once done, you will be notified.',
+            review: 'Review ready — once done, you will be notified.',
+            pay: 'Payment step — once done, you will be notified.',
+            download: 'Download unlocked — once done, you will be notified.',
+        };
+        if (messages[funnelStep]) {
+            toast.info(messages[funnelStep], { toastId: `funnel-${funnelStep}` });
+        }
+    }, [funnelStep]);
 
     // Debugging: Log the full pathname
     useEffect(() => {
@@ -153,62 +190,97 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
     };
 
     useEffect(() => {
+        fetchConverterPricingInfo().then(setPricingInfo).catch(() => setPricingInfo(null));
+    }, []);
+
+    useEffect(() => {
         if (!folderId) return;
         if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' ||
             uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
         const interval = setInterval(() => {
             getStatus(folderId);
-        }, 3000);
+        }, 2500);
 
-        return () => clearInterval(interval); // Cleanup interval on component unmount
+        return () => clearInterval(interval);
     }, [uploadingMessage, folderId]);
 
-    const getStatus = async (folderId) => {
+    const finishConversionSuccess = async (data) => {
+        sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
+        sendClarityEvent("converter_conversion_success", { converter_funnel: "converted" })
+        setUploadingMessage('COMPLETED')
+        setConvertStage('COMPLETED')
+        setBaseName(data.base_name)
+        setLoading(false)
+        const job = {
+            ...data,
+            _id: data.folderId || folderId,
+            folderId: data.folderId || folderId,
+            file_name: fileConvert?.name || data.file_name,
+            output_format: selectedFileFormate || data.output_format,
+            input_format: data.input_format || fileConvert?.name?.split('.').pop(),
+            input_file_size_bytes: data.input_file_size_bytes || fileConvert?.size,
+        };
+        setJobResult(job);
+        toast.success('Conversion complete — your file is ready.');
+
+        try {
+            const access = await checkConverterDownload(job._id);
+            setDownloadAccess(access);
+            const free = Boolean(access?.can_download) || isConverterConversionFree({
+                pricingInfo,
+                isSampleFile,
+                inputFileSizeBytes: job.input_file_size_bytes,
+            });
+            setFunnelStep(free ? 'download' : 'review');
+        } catch (err) {
+            console.error(err);
+            setFunnelStep('review');
+        }
+    };
+
+    const getStatus = async (statusFolderId) => {
         try {
             const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
                 params: {
-                    id: folderId,
+                    id: statusFolderId,
                     cad_type: "CAD_CONVERTER"
                 },
                 headers: {
-                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-
+                    "user-uuid": localStorage.getItem("uuid"),
                 }
             });
-//  router.push('/dashboard?cad_type=CAD_CONVERTER')
- 
+
             if (response.data.meta.success) {
-                if (response.data.data.status === 'COMPLETED') {
-                    sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
-                    sendClarityEvent("converter_conversion_success", { converter_funnel: "converted" })
-                    setUploadingMessage(response.data.data.status)
-                    setBaseName(response.data.data.base_name)
-                    router.push('/dashboard?cad_type=CAD_CONVERTER')
-                } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
-                    setUploadingMessage(response.data.data.status)
-               
-                } else if (response.data.data.status === 'FAILED') {
+                const data = response.data.data || {};
+                if (data.convert_stage) setConvertStage(data.convert_stage);
+
+                if (data.status === 'COMPLETED') {
+                    await finishConversionSuccess(data);
+                } else if (data.status !== 'COMPLETED' && data.status !== 'FAILED') {
+                    setUploadingMessage(data.status)
+                    setFunnelStep('convert');
+                } else if (data.status === 'FAILED') {
                     sendGAtagEvent({ event_name: 'converter_conversion_failure', event_category: CAD_CONVERTER_EVENT })
                     sendClarityEvent("converter_conversion_failure", { converter_funnel: "failed" })
-                    setUploading(false)
-                    setUploadingMessage(response.data.data.status)
-                    toast.error(response.data.data.status)
-                     router.push('/dashboard?cad_type=CAD_CONVERTER')
+                    setUploadingMessage('FAILED')
+                    setConvertStage('FAILED')
+                    setLoading(false)
+                    setFunnelStep('convert')
+                    toast.error('Conversion failed')
                 }
 
             } else {
                 setUploading(false)
                 setUploadingMessage('FAILED')
+                setLoading(false)
                 toast.error(response.data.meta.message)
-
             }
-
 
         } catch (error) {
             setUploading(false)
             setUploadingMessage('FAILED')
+            setLoading(false)
             console.error("Error fetching data:", error);
-
         }
     };
     const validateAndProcessFile = async (file) => {
@@ -267,35 +339,52 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         event.preventDefault();
     };
 
-    const checkingCadFileUploadLimitExceed = async (file, s3Url) => {
-        if (s3Url) {
-            setLoading(true)
-            await CadFileConversion(s3Url)
-            return
-        } else {
-            try {
-
-                const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
-                    {
-                        headers: {
-                            "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-
-                        }
+    const beginUploadAndConvert = async (file, s3UrlArg) => {
+        setFunnelStep('convert');
+        setLoading(true);
+        if (s3UrlArg) {
+            await CadFileConversion(s3UrlArg);
+            return;
+        }
+        try {
+            const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
+                {
+                    headers: {
+                        "user-uuid": localStorage.getItem("uuid"),
                     }
-                )
-                if (response.data.meta.success) {
-                    handleFileConvert(file)
-                } else {
-                    setCheckLimit(true)
-                 
                 }
-            }
-            catch (error) {
-                console.error("Error checking file upload limit:", error);
+            )
+            if (response.data.meta.success) {
+                handleFileConvert(file)
+            } else {
+                setCheckLimit(true)
+                setLoading(false)
+                setFunnelStep('configure')
             }
         }
+        catch (error) {
+            console.error("Error checking file upload limit:", error);
+            setLoading(false);
+        }
+    };
 
-    }
+    const checkingCadFileUploadLimitExceed = async (file, s3UrlArg) => {
+        const sourceFile = file && file.name ? file : fileConvert;
+        const inputFmt = sourceFile?.name?.split('.').pop() || fromFormate;
+        const outputFmt = selectedFileFormate;
+        if (needsMeshConfigure(inputFmt, outputFmt) && funnelStep !== 'convert' && !meshSettingsRef.current) {
+            setFunnelStep('configure');
+            setUploading(true);
+            return;
+        }
+        await beginUploadAndConvert(sourceFile, s3UrlArg);
+    };
+
+    const handleConfigureConvert = (settings) => {
+        meshSettingsRef.current = settings;
+        setMeshSettings(settings);
+        beginUploadAndConvert(fileConvert, s3Url || undefined);
+    };
     useEffect(() => {
         if(!uploadingMessage|| uploadingMessage==='COMPLETED'|| uploadingMessage === 'UPLOADINGFILE') return;
         const slowApiTimer = setTimeout(() => {
@@ -383,7 +472,8 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
     const CadFileConversion = async (url) => {
         try {
             sendGAtagEvent({ event_name: `converter_file_${fileConvert.name.slice(fileConvert.name.lastIndexOf(".")).toLowerCase()}_${selectedFileFormate}`, event_category: CAD_CONVERTER_EVENT })
-          
+
+            const settings = meshSettingsRef.current || meshSettings || resolveMeshExportSettings();
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
                 {
@@ -394,30 +484,29 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                     file_name: fileConvert.name,
                     input_file_size_bytes: fileConvert.size,
                     uuid: localStorage.getItem('uuid'),
+                    tessellation_quality: settings.tessellation_quality,
+                    linear_deflection: settings.linear_deflection,
+                    max_mesh_faces: settings.max_mesh_faces,
+                    triangle_target: settings.triangle_target,
                 }, {
                 headers: {
-                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-
+                    "user-uuid": localStorage.getItem("uuid"),
                 }
             }
 
             );
 
-            // /design-view
             if (response.data.meta.success) {
-              
-
                 setFolderId(response.data.data)
-
+                setFunnelStep('convert')
                 await getStatus(response.data.data)
             } else {
                 toast.error(response.data.meta.message)
-
+                setLoading(false)
             }
-            // await clearIndexedDB()
         } catch (error) {
             console.log(error)
-
+            setLoading(false)
         }
     }
     async function multiUpload(data, file, headers, fileSizeMB) {
@@ -549,6 +638,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
 
     const clearSelectedFile = () => {
         setUploading(false);
+        setLoading(false);
         setFileConvert('');
         setS3Url('');
         setIsSampleFile(false);
@@ -557,6 +647,14 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         setFolderId('');
         setBaseName('');
         setUploadProgressPercent(null);
+        setFunnelStep('upload');
+        setConvertStage('');
+        setMeshSettings(null);
+        meshSettingsRef.current = null;
+        setJobResult(null);
+        setDownloadAccess(null);
+        setOpenBillingFlow(false);
+        setDownloadingFile(false);
         if (!toFormate || (Array.isArray(toFormate) && !toFormate.length)) {
             setSelectedFileFormate('');
         }
@@ -564,6 +662,63 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
             fileInputRef.current.value = '';
         }
     };
+
+    const downloadConvertedFile = async () => {
+        if (!jobResult?._id) return;
+        try {
+            setDownloadingFile(true);
+            const url = buildCadConverterOutputUrl(
+                jobResult._id,
+                jobResult.base_name || baseName,
+                jobResult.output_format || selectedFileFormate,
+            );
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `${(fileConvert?.name || 'design').replace(/\.[^.]+$/, '')}_converted.${jobResult.output_format || selectedFileFormate}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(downloadUrl);
+            toast.success('Download started');
+            setFunnelStep('download');
+        } catch (err) {
+            toast.error(err?.message || 'Download failed');
+        } finally {
+            setDownloadingFile(false);
+        }
+    };
+
+    const handleContinuePay = () => {
+        setFunnelStep('pay');
+    };
+
+    const handlePayClick = () => {
+        setOpenBillingFlow(true);
+    };
+
+    const handleBillingPay = async (billingId) => {
+        const paymentResult = await ensureConverterDownloadAccess({
+            converterFileId: jobResult._id,
+            fileName: fileConvert?.name || jobResult.file_name,
+            userEmail: user?.email,
+            billingId,
+        });
+        setDownloadAccess({ can_download: true });
+        setOpenBillingFlow(false);
+        setFunnelStep('download');
+        toast.success('Payment successful — your download is unlocked.');
+        return paymentResult;
+    };
+
+    const isResultFree = Boolean(downloadAccess?.can_download) || isConverterConversionFree({
+        pricingInfo,
+        isSampleFile,
+        inputFileSizeBytes: jobResult?.input_file_size_bytes || fileConvert?.size,
+    });
 
     return (
         <>
@@ -582,12 +737,72 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} cad_type={'CAD_CONVERTER'}/>}
             {verifyEmail && <UserLoginPupUp onClose={() => setVerifyEmail(false)} />}
             </div>
-        {loading ?  <div style={{
+        {funnelStep === 'configure' && fileConvert ? (
+            <div style={{
+                position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                backgroundColor: '#fff', zIndex: 9998, overflow: 'auto'
+            }}>
+                <ConverterConfigureStep
+                    file={fileConvert}
+                    outputFormat={selectedFileFormate}
+                    pricingInfo={pricingInfo}
+                    isSampleFile={isSampleFile}
+                    userEmail={user?.email}
+                    onChooseAnother={clearSelectedFile}
+                    onConvert={handleConfigureConvert}
+                />
+            </div>
+        ) : null}
+
+        {(funnelStep === 'review' || funnelStep === 'download') && jobResult ? (
+            <div style={{
+                position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                backgroundColor: '#fff', zIndex: 9998, overflow: 'auto'
+            }}>
+                <ConverterResultStep
+                    job={jobResult}
+                    fileName={fileConvert?.name}
+                    isFree={isResultFree}
+                    pricing={downloadAccess?.pricing || pricingInfo?.pricing}
+                    userEmail={user?.email}
+                    downloading={downloadingFile}
+                    onContinuePay={handleContinuePay}
+                    onDownload={downloadConvertedFile}
+                />
+            </div>
+        ) : null}
+
+        {funnelStep === 'pay' && jobResult ? (
+            <div style={{
+                position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                backgroundColor: '#fff', zIndex: 9998, overflow: 'auto'
+            }}>
+                <ConverterPayStep
+                    job={jobResult}
+                    fileName={fileConvert?.name}
+                    pricing={downloadAccess?.pricing || pricingInfo?.pricing}
+                    userEmail={user?.email}
+                    onPay={handlePayClick}
+                />
+            </div>
+        ) : null}
+
+        {openBillingFlow && jobResult ? (
+            <ConverterDownloadFlow
+                file={jobResult}
+                pricing={downloadAccess?.pricing || pricingInfo?.pricing}
+                user={user}
+                onClose={() => setOpenBillingFlow(false)}
+                onPay={handleBillingPay}
+                onDownloadAgain={downloadConvertedFile}
+            />
+        ) : null}
+
+        {loading && funnelStep === 'convert' ?  <div style={{
                 position: 'fixed',
                 top: 0,
                 left: 0,
                 width: '100vw',
-                // height: '100vh',
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 zIndex: 9998,
                 display: 'flex',
@@ -596,12 +811,14 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
             }}>
                 <CubeLoader
                     uploadingMessage={uploadingMessage}
+                    convertStage={convertStage}
                     type='convert'
                     uploadProgressPercent={uploadProgressPercent ?? undefined}
                     fileName={fileConvert?.name}
                     outputFormat={selectedFileFormate}
                     fileSize={fileConvert?.size}
                     isSampleFile={isSampleFile}
+                    onCancel={clearSelectedFile}
                 />
             </div> :
         <>

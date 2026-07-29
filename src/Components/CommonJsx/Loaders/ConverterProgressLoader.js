@@ -1,24 +1,21 @@
 "use client";
 
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import Lottie from "lottie-react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { contextState } from "../ContextProvider";
 import {
   buildConverterPricingDisplay,
   CONVERTER_FREE_SIZE_LIMIT_BYTES,
   fetchConverterPricingInfo,
 } from "@/lib/converterPricing";
-import cube from "./Cube.json";
-import styles from "./ConverterProgressLoader.module.css";
-
-const stageByStatus = {
-  UPLOADINGFILE: 0,
-  PENDING: 1,
-  PROCESSING: 2,
-  PROCESSED: 2,
-  UPLOADING: 3,
-  COMPLETED: 4,
-};
+import {
+  CONVERT_STAGES,
+  stageIndexFromStatus,
+  stageProgressPercent,
+} from "@/lib/converterMeshSettings";
+import ConverterFunnelStepper from "@/Components/CadUploadingHome/CadFileConversion/ConverterFunnelStepper";
+import ConverterNotifyBanner from "@/Components/CadUploadingHome/CadFileConversion/ConverterNotifyBanner";
+import styles from "@/Components/CadUploadingHome/CadFileConversion/ConverterFunnel.module.css";
+import { toast } from "react-toastify";
 
 function formatFileSize(bytes) {
   const size = Number(bytes);
@@ -32,17 +29,33 @@ function fileFormat(fileName) {
   return fileName.slice(fileName.lastIndexOf(".") + 1).toUpperCase();
 }
 
+const STAGE_TOAST = {
+  UPLOADINGFILE: "Upload started — once done, you will be notified.",
+  PENDING: "Queued — once done, you will be notified.",
+  READING: "Reading geometry — once done, you will be notified.",
+  PROCESSING: "Converting — once done, you will be notified.",
+  TESSELLATING: "Tessellating surfaces — once done, you will be notified.",
+  INTEGRITY_CHECK: "Running mesh checks — once done, you will be notified.",
+  PREVIEW_REPORT: "Generating preview & report — once done, you will be notified.",
+  UPLOADING: "Finalizing output — once done, you will be notified.",
+};
+
 function ConverterProgressLoader({
   uploadingMessage,
+  convertStage,
   uploadProgressPercent,
   fileName,
   outputFormat,
   fileSize,
   isSampleFile,
+  onCancel,
+  onPreviewCompleted,
 }) {
   const { user } = useContext(contextState);
   const [priceLabel, setPriceLabel] = useState("");
-  const currentStage = stageByStatus[uploadingMessage] ?? 1;
+  const lastToastKey = useRef("");
+  const stageKey = String(convertStage || uploadingMessage || "").toUpperCase();
+  const currentStage = stageIndexFromStatus(uploadingMessage, convertStage);
   const inputFormat = fileFormat(fileName);
   const outputLabel = String(outputFormat || "output").toUpperCase();
   const sizeLabel = formatFileSize(fileSize);
@@ -69,33 +82,36 @@ function ConverterProgressLoader({
     };
   }, [isFree]);
 
-  const progress = useMemo(() => {
-    if (uploadingMessage === "UPLOADINGFILE") {
-      return Math.min(100, Math.max(0, Number(uploadProgressPercent) || 0));
-    }
-    return {
-      PENDING: 35,
-      PROCESSING: 64,
-      PROCESSED: 76,
-      UPLOADING: 90,
-      COMPLETED: 100,
-    }[uploadingMessage] ?? 25;
-  }, [uploadProgressPercent, uploadingMessage]);
+  useEffect(() => {
+    if (!stageKey || stageKey === "COMPLETED" || stageKey === "FAILED") return;
+    if (lastToastKey.current === stageKey) return;
+    lastToastKey.current = stageKey;
+    const msg = STAGE_TOAST[stageKey] || "Working — once done, you will be notified.";
+    toast.info(msg, { toastId: `convert-stage-${stageKey}` });
+  }, [stageKey]);
 
-  const stages = [
-    "File uploaded",
-    "Preparing conversion",
-    `Converting to ${outputLabel}`,
-    "Validating output",
-  ];
+  const progress = useMemo(
+    () => stageProgressPercent(uploadingMessage, convertStage, uploadProgressPercent),
+    [uploadProgressPercent, uploadingMessage, convertStage],
+  );
 
   if (uploadingMessage === "FAILED") {
     return (
       <main className={styles.page}>
-        <section className={styles.failure} role="alert">
-          <span className={styles.failureIcon}>!</span>
-          <h1>Conversion failed</h1>
-          <p>Something went wrong while converting your file. Please try again.</p>
+        <section className={styles.card} style={{ maxWidth: 560, margin: "48px auto" }}>
+          <h1 className={styles.title} style={{ fontSize: 28 }}>
+            Conversion failed
+          </h1>
+          <p className={styles.subtitle}>
+            Something went wrong while converting your file. Please try again.
+          </p>
+          {onCancel ? (
+            <div className={styles.actions} style={{ justifyContent: "center" }}>
+              <button type="button" className={styles.primaryBtn} onClick={onCancel}>
+                Try another file
+              </button>
+            </div>
+          ) : null}
         </section>
       </main>
     );
@@ -103,74 +119,96 @@ function ConverterProgressLoader({
 
   return (
     <main className={styles.page}>
-      <section className={styles.layout} aria-live="polite">
-        <div className={styles.visualColumn}>
-          <Lottie
-            animationData={cube}
-            loop
-            className={styles.animation}
-            aria-label="Converting file"
-          />
-          <div className={styles.progressTrack}>
-            <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-          </div>
-          <div className={styles.progressMeta}>
-            <strong>{progress}%</strong>
-            <span>{uploadingMessage === "UPLOADINGFILE" ? "Uploading…" : "Converting…"}</span>
-          </div>
-        </div>
+      <div className={styles.shell}>
+        <ConverterFunnelStepper currentStep="convert" />
+        <ConverterNotifyBanner email={user?.email} />
 
-        <div className={styles.contentColumn}>
-          <header>
-            <h1>Converting {fileName || "your CAD file"}</h1>
-            <p className={styles.fileMeta}>
-              {inputFormat} → {outputLabel}
-              {sizeLabel ? ` · ${sizeLabel}` : ""}
+        <section className={styles.card}>
+          <div className={styles.progressCenter}>
+            <div className={styles.spinner} aria-hidden />
+            <h1 className={styles.title} style={{ fontSize: "clamp(24px, 3vw, 32px)" }}>
+              Converting {fileName || "your CAD file"}
+            </h1>
+            <p className={styles.subtitle} style={{ marginBottom: 0 }}>
+              Detailed geometry may take a little longer. You will review the result before
+              payment.
+              {sizeLabel ? ` · ${inputFormat} → ${outputLabel} · ${sizeLabel}` : ""}
             </p>
-          </header>
+            <div className={styles.progressTrack}>
+              <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+            </div>
+            <p style={{ marginTop: 10, color: "#7c3aed", fontWeight: 700 }}>{progress}%</p>
+          </div>
 
-          <ol className={styles.steps}>
-            {stages.map((label, index) => {
+          <ol className={styles.stageList}>
+            {CONVERT_STAGES.map((stage, index) => {
               const complete =
                 uploadingMessage === "COMPLETED" || index < currentStage;
               const active =
                 uploadingMessage !== "COMPLETED" && index === currentStage;
+              let statusLabel = "Waiting";
+              if (complete) statusLabel = "Complete";
+              else if (active) {
+                statusLabel =
+                  stage.id === "TESSELLATING" && progress > 0
+                    ? `${Math.min(99, Math.max(1, progress))}%`
+                    : "In progress";
+              }
               return (
                 <li
-                  key={label}
-                  className={`${styles.step} ${complete ? styles.complete : ""} ${
-                    active ? styles.active : ""
+                  key={stage.id}
+                  className={`${styles.stageItem} ${
+                    complete
+                      ? styles.stageComplete
+                      : active
+                        ? styles.stageActive
+                        : styles.stageWaiting
                   }`}
                 >
-                  <span className={styles.stepIcon} aria-hidden>
-                    {complete ? "✓" : ""}
-                  </span>
-                  <span>{label}{active ? "…" : ""}</span>
+                  <span>{stage.label}</span>
+                  <strong>{statusLabel}</strong>
                 </li>
               );
             })}
           </ol>
 
-          {user?.email && (
-            <div className={styles.notice}>
-              Feel free to close this tab — we&apos;ll email{" "}
-              <strong>{user.email}</strong> the moment it&apos;s ready. Your file
-              will be waiting in <strong>Dashboard → CAD Converter</strong>.
-            </div>
-          )}
+          <div className={styles.actions} style={{ justifyContent: "center" }}>
+            {onPreviewCompleted ? (
+              <button
+                type="button"
+                className={styles.secondaryBtn}
+                onClick={onPreviewCompleted}
+              >
+                Preview completed state
+              </button>
+            ) : null}
+            {onCancel ? (
+              <button type="button" className={styles.dangerBtn} onClick={onCancel}>
+                Cancel conversion
+              </button>
+            ) : null}
+          </div>
 
-          <p className={styles.pricing}>
+          <p className={styles.subtitle} style={{ marginTop: 18, marginBottom: 0 }}>
             {isFree ? (
-              <>This conversion is <strong>free</strong> — no payment is required.</>
+              <>
+                This conversion is <strong>free</strong> — no payment is required.
+              </>
             ) : (
               <>
-                {priceLabel ? <>Price locked at <strong>{priceLabel}</strong></> : "Price is locked"}
+                {priceLabel ? (
+                  <>
+                    Price locked at <strong>{priceLabel}</strong>
+                  </>
+                ) : (
+                  "Price is locked"
+                )}
                 {" — "}you&apos;ll only pay when you download.
               </>
             )}
           </p>
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }
