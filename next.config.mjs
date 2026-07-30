@@ -60,6 +60,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/tools/:cadFile/file/viewer',
+        destination: '/tools/:cadFile-file-viewer',
+        permanent: true,
+      },
+      {
         source: '/tools/convert/:conversion',
         destination: '/tools/convert-:conversion',
         permanent: true,
