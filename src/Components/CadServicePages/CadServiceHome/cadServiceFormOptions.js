@@ -18,6 +18,7 @@ export const SERVICE_OPTIONS = [
   { value: 'Other', label: 'Other' },
 ]
 
+
 export const MODEL_USE_OPTIONS = [
   { value: '', label: 'Select timeline' },
   { value: '7 days', label: '7 days' },
@@ -30,14 +31,14 @@ export const MODEL_USE_OPTIONS = [
 
 export const BUDGET_OPTIONS = [
   { value: '', label: 'Select budget' },
-  { value: '<20k', label: '<20k' },
-  { value: '20k-50k', label: '20k-50k' },
-  { value: '50k-1L', label: '50k-1L' },
-  { value: '1L-2L', label: '1L-2L' },
-  { value: '2-3', label: '2-3' },
-  { value: '3-4', label: '3-4' },
-  { value: '4-5', label: '4-5' },
-  { value: '>5', label: '>5' },
+  { value: '<20k INR', label: '<20k INR' },
+  { value: '20k-50k INR', label: '20k-50k INR' },
+  { value: '50k-1L INR', label: '50k-1L INR' },
+  { value: '1L-2L INR', label: '1L-2L INR' },
+  { value: '2L-3L INR', label: '2L-3L INR' },
+  { value: '3L-4L INR', label: '3L-4L INR' },
+  { value: '4L-5L INR', label: '4L-5L INR' },
+  { value: '>5L INR', label: '>5L INR' },
 ]
 
 export const SOFTWARE_FORMAT_OPTIONS = [
