@@ -77,6 +77,25 @@ function StatusBadge({ status }) {
   )
 }
 
+function VendorStatusesList({ vendorStatuses = [], emptyText = null }) {
+  if (!Array.isArray(vendorStatuses) || !vendorStatuses.length) {
+    return emptyText ? <p className={styles.vendorStatusEmpty}>{emptyText}</p> : null
+  }
+
+  return (
+    <ul className={styles.vendorStatusList}>
+      {vendorStatuses.map((entry) => (
+        <li key={entry.vendor_id} className={styles.vendorStatusItem}>
+          <span className={styles.vendorStatusName}>
+            {entry.vendor_name || 'Vendor'}
+          </span>
+          <StatusBadge status={entry.status} />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 function getReferenceFiles(request = {}) {
   const fromArray = Array.isArray(request.files) ? request.files : []
   const fromSingle = request.file ? [request.file] : []
@@ -1088,7 +1107,15 @@ function CadServiceRequestsTable() {
                           {SERVICE_LABELS[request.what_do_you_need] || request.what_do_you_need || '—'}
                         </td>
                         <td>
-                          <StatusBadge status={request.status} />
+                          <div className={styles.statusCell}>
+                            <StatusBadge status={request.status} />
+                            {Array.isArray(request.vendor_statuses) && request.vendor_statuses.length > 0 ? (
+                              <div className={styles.vendorStatusSummary}>
+                                <span className={styles.vendorStatusSummaryLabel}>Vendors</span>
+                                <VendorStatusesList vendorStatuses={request.vendor_statuses} />
+                              </div>
+                            ) : null}
+                          </div>
                         </td>
                         <td>{formatDate(request.createdAt)}</td>
                         <td>
@@ -1267,6 +1294,12 @@ function CadServiceRequestsTable() {
                 <StatusBadge status={request.status} />
                 <StatusBadge status={request.standalone_page_status} />
               </div>
+              {Array.isArray(request.vendor_statuses) && request.vendor_statuses.length > 0 ? (
+                <div className={styles.vendorStatusSummary}>
+                  <span className={styles.vendorStatusSummaryLabel}>Vendor statuses</span>
+                  <VendorStatusesList vendorStatuses={request.vendor_statuses} />
+                </div>
+              ) : null}
 
               <div className={styles.requestCardActions}>
                 <div className={styles.requestCardActionRow}>
@@ -1436,6 +1469,12 @@ function CadServiceRequestsTable() {
                 label="Partner page status"
                 value={getCadServiceStatusLabel(viewRequest.standalone_page_status)}
               />
+              {Array.isArray(viewRequest.vendor_statuses) && viewRequest.vendor_statuses.length > 0 ? (
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Vendor statuses</span>
+                  <VendorStatusesList vendorStatuses={viewRequest.vendor_statuses} />
+                </div>
+              ) : null}
               <DetailRow
                 label="Partner page"
                 value={getCadPartnerPagePath(viewRequest._id)}
@@ -1494,7 +1533,12 @@ function CadServiceRequestsTable() {
         <AddQuotationPopup
           request={quotationTarget}
           onClose={() => setQuotationTarget(null)}
-          onSaved={() => fetchRequests(currentPage, searchTerm, statusFilter)}
+          onSaved={(data) => {
+            if (data?.request) {
+              syncRequestInList(data.request)
+            }
+            fetchRequests(currentPage, searchTerm, statusFilter)
+          }}
         />
       )}
 

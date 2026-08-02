@@ -94,7 +94,10 @@ export function QuotationHistoryList({ quotations = [], emptyText = 'No quotatio
           <li key={quotation._id} className={styles.historyItem}>
             <div className={styles.historyHeader}>
               <strong>{formatQuotationVendorNames(quotation)}</strong>
-              <span>{formatDate(quotation.createdAt)}</span>
+              <span className={styles.historyMeta}>
+                <span className={styles.historyStatusBadge}>Quotation sent</span>
+                <span>{formatDate(quotation.createdAt)}</span>
+              </span>
             </div>
             {vendors.length > 0 ? (
               <p className={styles.historyEmail}>
