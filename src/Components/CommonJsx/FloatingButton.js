@@ -1,7 +1,7 @@
 "use client";
 import { sendGAtagEvent } from '@/common.helper';
 import { CAD_FLOATING_BUTTON_EVENT } from '@/config';
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Eye, ArrowLeftRight, Download, Box, ShieldCheck, ChevronUp } from 'lucide-react';
@@ -40,19 +40,31 @@ const ACTIONS = [
   },
 ];
 
+const MOBILE_MQ = '(max-width: 1399px)';
+const BASE_BOTTOM = 20;
+/** Clears StickyCadStrip on mobile (wrapper bottom 16px + strip height). */
+const STICKY_STRIP_CLEARANCE = 168;
+/** Clears desktop/tablet AnchorAdBanner (90px). */
+const ANCHOR_AD_CLEARANCE = 95;
+
+function getInitialIsMobile() {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia(MOBILE_MQ).matches;
+}
+
 function FloatingButton() {
   const pathname = usePathname();
   const { anchorAds } = useContext(contextState);
   const { showPopup } = useCadForm();
   const [showOptions, setShowOptions] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(getInitialIsMobile);
   const [isStickyStripVisible, setIsStickyStripVisible] = useState(false);
   const rootRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const mediaQuery = window.matchMedia('(max-width: 1399px)');
+    const mediaQuery = window.matchMedia(MOBILE_MQ);
     const updateIsMobile = (event) => setIsMobile(event.matches);
 
     setIsMobile(mediaQuery.matches);
@@ -102,14 +114,26 @@ function FloatingButton() {
     };
   }, [showOptions]);
 
+  const bottom = useMemo(() => {
+    // Keep a stable floor on mobile — don't react to anchor ads (phones never show them;
+    // tablets flipping ad state made the FAB jump). Raise only for the sticky strip.
+    if (isMobile) {
+      if (isStickyStripVisible) {
+        return `max(${STICKY_STRIP_CLEARANCE}px, calc(${STICKY_STRIP_CLEARANCE - 16}px + env(safe-area-inset-bottom, 0px)))`;
+      }
+      return `max(${BASE_BOTTOM}px, env(safe-area-inset-bottom, 0px))`;
+    }
+
+    if (anchorAds) {
+      return `max(${ANCHOR_AD_CLEARANCE}px, calc(${BASE_BOTTOM}px + env(safe-area-inset-bottom, 0px)))`;
+    }
+
+    return `max(${BASE_BOTTOM}px, env(safe-area-inset-bottom, 0px))`;
+  }, [isMobile, isStickyStripVisible, anchorAds]);
+
   if (showPopup) return null;
   if (pathname?.replace(/\/$/, '') === '/cad-services') return null;
   if (isCadPartnerPageRoute(pathname)) return null;
-  if (isMobile && isStickyStripVisible) return null;
-
-  const bottom = anchorAds
-    ? 'max(95px, calc(20px + env(safe-area-inset-bottom, 0px)))'
-    : 'max(20px, env(safe-area-inset-bottom, 0px))';
 
   return (
     <div className={styles.wrap} style={{ bottom }} ref={rootRef}>
