@@ -35,7 +35,16 @@ function DashboardPricingCell({ converterPricing, inputFileSizeBytes }) {
   return <span className={styles.converterPriceBadgePayable}>{priceLabel}</span>;
 }
 
-function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDownload,searchTerm, setSearchTerm}) {
+function CadConvertorFiles({
+  loading,
+  cadConverterFileHistory,
+  downloading,
+  downloadingReport,
+  handleDownload,
+  handleReportDownload,
+  searchTerm,
+  setSearchTerm,
+}) {
   const [pricingNoteTotal, setPricingNoteTotal] = useState('');
 
   function formatFileSize(bytes) {
@@ -152,14 +161,15 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                       <table className={styles['industry-design-files-list']}>
                         <thead>
                           <tr>
-                            <th style={{ width: '16%' }}>File name</th>
-                            <th style={{ width: '16%' }}>Conversion</th>
-                            <th style={{ width: '12%' }}>Input Size</th>
-                            <th style={{ width: '14%' }}>Pricing</th>
-                            <th style={{ width: '11%' }}>Status</th>
-                            <th style={{ width: '11%' }}>Created</th>
-                            <th style={{ width: '10%' }}>Time</th>
-                            <th style={{ width: '10%' }}>Action</th>
+                            <th style={{ width: '14%' }}>File name</th>
+                            <th style={{ width: '14%' }}>Conversion</th>
+                            <th style={{ width: '10%' }}>Input Size</th>
+                            <th style={{ width: '12%' }}>Pricing</th>
+                            <th style={{ width: '10%' }}>Status</th>
+                            <th style={{ width: '10%' }}>Created</th>
+                            <th style={{ width: '8%' }}>Time</th>
+                            <th style={{ width: '10%' }}>Report</th>
+                            <th style={{ width: '12%' }}>Action</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -192,6 +202,21 @@ function CadConvertorFiles({loading,cadConverterFileHistory,downloading,handleDo
                               </td>
                                <td data-label="Time">
                                 {formatTime(file.time_taken_seconds)}
+                              </td>
+                              <td data-label="Report">
+                                {file.status === 'COMPLETED' && file.report_pdf_url ? (
+                                  <button
+                                    type="button"
+                                    className={styles['industry-design-files-btn-secondary']}
+                                    onClick={() => handleReportDownload(file, index)}
+                                    disabled={Boolean(downloadingReport?.[index])}
+                                    title="Download quality report PDF (free)"
+                                  >
+                                    {downloadingReport?.[index] ? 'Downloading…' : 'PDF'}
+                                  </button>
+                                ) : (
+                                  <span className={styles.reportUnavailable}>—</span>
+                                )}
                               </td>
                               <td data-label="Action">
                                 {file.status === 'COMPLETED' ? (

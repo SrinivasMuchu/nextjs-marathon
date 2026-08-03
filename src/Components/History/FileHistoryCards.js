@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, buildCadConverterOutputUrl, CAD_CONVERTER_EVENT } from '@/config';
+import { BASE_URL, buildCadConverterOutputUrl, toCadOutputCdnUrl, CAD_CONVERTER_EVENT } from '@/config';
 import styles from './FileHistory.module.css';
 import Pagenation from '../CommonJsx/Pagenation';
 import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
@@ -28,6 +28,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   // const { user } = useContext(contextState);
   const [cadViewerFileHistory, setCadViewerFileHistory] = useState([]);
   const [downloading, setDownloading] = useState({});
+  const [downloadingReport, setDownloadingReport] = useState({});
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
   const [userCadFiles, setUserCadFiles] = useState([]);
   const [userDownloadFiles, setUserDownloadFiles] = useState([]);
@@ -237,6 +238,54 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     setDownloading(prev => ({ ...prev, [index]: false }));
   };
 
+  /** Quality report PDF is always free — no payment check. */
+  const handleReportDownload = async (file, index) => {
+    try {
+      if (!localStorage.getItem("is_verified")) {
+        setPendingAction({ action: 'report', file, index });
+        setIsEmailVerify(true);
+        return;
+      }
+
+      const rawUrl = file.report_pdf_url;
+      if (!rawUrl) {
+        toast.info('Quality report is not available for this conversion.');
+        return;
+      }
+
+      setDownloadingReport(prev => ({ ...prev, [index]: true }));
+      const url = toCadOutputCdnUrl(rawUrl) || rawUrl;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stem =
+        file?.file_name?.slice(0, file.file_name.lastIndexOf('.')) ||
+        file?.base_name ||
+        'conversion';
+      a.href = downloadUrl;
+      a.download = `${stem}_quality_report.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);
+
+      sendGAtagEvent({
+        event_name: 'converter_quality_report_download',
+        event_category: CAD_CONVERTER_EVENT,
+      });
+    } catch (error) {
+      console.error('Report download error:', error);
+      toast.error('Report download failed. Please try again.');
+    } finally {
+      setDownloadingReport(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
   const handleConverterPayment = async (billingId) => {
     const pending = pendingConverterDownload;
     if (!pending) throw new Error('No converter download is selected.');
@@ -341,6 +390,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     if (pendingAction) {
       if (pendingAction.action === 'download') {
         handleDownload(pendingAction.file, pendingAction.index);
+      } else if (pendingAction.action === 'report') {
+        handleReportDownload(pendingAction.file, pendingAction.index);
       } else if (pendingAction.action === 'view') {
         handleViewDesign(pendingAction.file);
       }
@@ -371,8 +422,10 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           <CadConvertorFiles 
             loading={loading} 
             cadConverterFileHistory={cadConverterFileHistory} 
-            downloading={downloading} 
+            downloading={downloading}
+            downloadingReport={downloadingReport}
             handleDownload={handleDownload}
+            handleReportDownload={handleReportDownload}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
