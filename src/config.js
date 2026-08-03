@@ -157,6 +157,21 @@ export function buildCadConverterOutputUrl(fileId, baseName, outputFormat) {
   return `${CAD_OUTPUT_FILES_PREFIX_URL}${CAD_CONVERTER_OUTPUT_PREFIX}/${id}/${baseName}.${String(outputFormat).toLowerCase()}`;
 }
 
+/** Prefer CloudFront for cad-output-files S3 URLs (reports, artifacts, etc.). */
+export function toCadOutputCdnUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  const prefixes = [
+    'https://cad-output-files.s3.ap-south-1.amazonaws.com/',
+    'https://cad-output-files.s3.amazonaws.com/',
+  ];
+  for (const prefix of prefixes) {
+    if (url.startsWith(prefix)) {
+      return `${CAD_OUTPUT_FILES_PREFIX_URL}${url.slice(prefix.length)}`;
+    }
+  }
+  return url;
+}
+
 export const MARATHONDETAILS = {
   name: "Marathon Technologies",
   description: "A platform for CAD file management and collaboration.",

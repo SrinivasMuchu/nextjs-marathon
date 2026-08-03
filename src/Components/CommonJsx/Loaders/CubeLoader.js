@@ -23,10 +23,13 @@ function CubeLoader({
   completedImages,
   type,
   uploadProgressPercent,
+  progressPercent,
+  conversionSteps,
   fileName,
   outputFormat,
   fileSize,
   isSampleFile,
+  onCancel,
 }) {
    const { user } = useContext(contextState); 
 
@@ -70,15 +73,18 @@ function CubeLoader({
 
   if (type === 'convert') {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: '100%' }}>
         <HomeTopNav />
         <ConverterProgressLoader
           uploadingMessage={uploadingMessage}
           uploadProgressPercent={uploadProgressPercent}
+          progressPercent={progressPercent}
+          conversionSteps={conversionSteps}
           fileName={fileName}
           outputFormat={outputFormat}
           fileSize={fileSize}
           isSampleFile={isSampleFile}
+          onCancel={onCancel}
         />
       </div>
     );

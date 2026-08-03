@@ -55,7 +55,10 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
     const { setFile, allowedFormats, setAllowedFormats,user } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
     const [uploadProgressPercent, setUploadProgressPercent] = useState(null);
+    const [progressPercent, setProgressPercent] = useState(null);
+    const [conversionSteps, setConversionSteps] = useState(null);
     const partLoadedByIndexRef = useRef([]);
+    const folderIdRef = useRef('');
     const [toFormate, setToFormate] = useState('');
     const [verifyEmail, setVerifyEmail] = useState('');
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
@@ -153,15 +156,48 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
     };
 
     useEffect(() => {
-        if (!folderId) return;
-        if (uploadingMessage === 'FAILED' || uploadingMessage === 'COMPLETED' ||
-            uploadingMessage === '' || uploadingMessage === 'UPLOADINGFILE') return;
-        const interval = setInterval(() => {
-            getStatus(folderId);
-        }, 3000);
+        folderIdRef.current = folderId;
+    }, [folderId]);
 
-        return () => clearInterval(interval); // Cleanup interval on component unmount
-    }, [uploadingMessage, folderId]);
+    const shouldPollStatus =
+        Boolean(folderId) &&
+        uploadingMessage !== 'FAILED' &&
+        uploadingMessage !== 'COMPLETED' &&
+        uploadingMessage !== '' &&
+        uploadingMessage !== 'UPLOADINGFILE';
+
+    useEffect(() => {
+        if (!shouldPollStatus) return;
+
+        const poll = () => {
+            if (folderIdRef.current) getStatus(folderIdRef.current);
+        };
+        poll();
+        const interval = setInterval(poll, 2000);
+
+        return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [shouldPollStatus, folderId]);
+
+    const applyProgressPayload = (data = {}) => {
+        if (Array.isArray(data.steps) && data.steps.length > 0) {
+            setConversionSteps(data.steps);
+        }
+        const pct = Number(data.progress_percent);
+        if (Number.isFinite(pct) && pct >= 0) {
+            setProgressPercent(Math.min(100, Math.max(0, Math.round(pct))));
+        }
+    };
+
+    const handleCancelConversion = () => {
+        setLoading(false);
+        setUploading(false);
+        setUploadingMessage('');
+        setFolderId('');
+        setProgressPercent(null);
+        setConversionSteps(null);
+        setUploadProgressPercent(null);
+    };
 
     const getStatus = async (folderId) => {
         try {
@@ -178,11 +214,13 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
 //  router.push('/dashboard?cad_type=CAD_CONVERTER')
  
             if (response.data.meta.success) {
+                applyProgressPayload(response.data.data);
                 if (response.data.data.status === 'COMPLETED') {
                     sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
                     sendClarityEvent("converter_conversion_success", { converter_funnel: "converted" })
                     setUploadingMessage(response.data.data.status)
                     setBaseName(response.data.data.base_name)
+                    setProgressPercent(100)
                     router.push('/dashboard?cad_type=CAD_CONVERTER')
                 } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
                     setUploadingMessage(response.data.data.status)
@@ -587,21 +625,27 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                 top: 0,
                 left: 0,
                 width: '100vw',
-                // height: '100vh',
+                height: '100vh',
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 zIndex: 9998,
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                flexDirection: 'column',
+                alignItems: 'stretch',
+                justifyContent: 'flex-start',
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
             }}>
                 <CubeLoader
                     uploadingMessage={uploadingMessage}
                     type='convert'
                     uploadProgressPercent={uploadProgressPercent ?? undefined}
+                    progressPercent={progressPercent ?? undefined}
+                    conversionSteps={conversionSteps}
                     fileName={fileConvert?.name}
                     outputFormat={selectedFileFormate}
                     fileSize={fileConvert?.size}
                     isSampleFile={isSampleFile}
+                    onCancel={handleCancelConversion}
                 />
             </div> :
         <>
