@@ -11,11 +11,13 @@
   z-index: 1;
 }
 
+
 .loadingWrap {
   display: flex;
   justify-content: center;
   padding: 48px 0;
 }
+
 
 .metaBlock {
   display: flex;
@@ -29,6 +31,7 @@
   flex-shrink: 0;
 }
 
+
 .metaRow {
   display: flex;
   gap: 12px;
@@ -36,16 +39,19 @@
   line-height: 1.5;
 }
 
+
 .metaLabel {
   min-width: 72px;
   color: #6b7280;
   font-weight: 600;
 }
 
+
 .metaValue {
   color: #111827;
   word-break: break-word;
 }
+
 
 .fieldRow {
   display: flex;
@@ -54,6 +60,7 @@
   font-size: 13px;
 }
 
+
 .fieldInputWrap {
   flex: 1;
   min-width: 0;
@@ -61,6 +68,7 @@
   flex-direction: column;
   gap: 4px;
 }
+
 
 .subjectInput {
   width: 100%;
@@ -71,10 +79,12 @@
   box-sizing: border-box;
 }
 
+
 .subjectInput:focus {
   outline: none;
   border-color: #610bee;
 }
+
 
 .bodyHeader {
   display: flex;
@@ -85,6 +95,7 @@
   flex-shrink: 0;
 }
 
+
 .editSection {
   margin-bottom: 16px;
   padding: 14px;
@@ -94,6 +105,7 @@
   flex-shrink: 0;
 }
 
+
 .editSectionHeader {
   display: flex;
   align-items: center;
@@ -101,6 +113,7 @@
   gap: 12px;
   margin-bottom: 12px;
 }
+
 
 .formatSelector {
   display: inline-flex;
@@ -111,6 +124,7 @@
   border-radius: 8px;
   background: #fff;
 }
+
 
 .formatOption {
   padding: 7px 14px;
@@ -123,15 +137,18 @@
   cursor: pointer;
 }
 
+
 .formatOptionActive {
   background: #610bee;
   color: #fff;
 }
 
+
 .formatOption:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
+
 
 .formField {
   display: flex;
@@ -141,6 +158,7 @@
   margin-bottom: 10px;
 }
 
+
 .editHint {
   margin: 0 0 12px 0;
   font-size: 12px;
@@ -148,15 +166,18 @@
   line-height: 1.5;
 }
 
+
 .formGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
+
 .formFieldFull {
   grid-column: 1 / -1;
 }
+
 
 .bodyScroll {
   flex: 1 1 auto;
@@ -165,16 +186,37 @@
   padding-right: 4px;
 }
 
+
 .fieldLabel {
   font-size: 13px;
   font-weight: 600;
   color: #374151;
 }
 
+
 .optionalHint {
   font-weight: 400;
   color: #6b7280;
 }
+
+
+.hideBudgetOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+}
+
+
+.hideBudgetOption input {
+  margin: 0;
+  cursor: pointer;
+}
+
 
 .textInput,
 .textArea {
@@ -188,11 +230,13 @@
   font-family: inherit;
 }
 
+
 .textInput:focus,
 .textArea:focus {
   outline: none;
   border-color: #610bee;
 }
+
 
 .readOnlyInput,
 .textInput:disabled,
@@ -202,11 +246,13 @@
   cursor: not-allowed;
 }
 
+
 .textArea {
   resize: vertical;
   min-height: 100px;
   line-height: 1.5;
 }
+
 
 .briefArea {
   min-height: 220px;
@@ -216,22 +262,26 @@
   word-break: break-word;
 }
 
+
 .plainTextArea {
   min-height: 300px;
   line-height: 1.6;
   white-space: pre-wrap;
 }
 
+
 .previewStatus {
   font-size: 12px;
   color: #6b7280;
 }
+
 
 .bodyTitle {
   font-size: 14px;
   font-weight: 600;
   color: #374151;
 }
+
 
 .resetBtn {
   padding: 6px 10px;
@@ -243,13 +293,16 @@
   text-decoration: underline;
 }
 
+
 .resetBtn:hover:not(:disabled) {
   color: #610bee;
 }
 
+
 .inputError {
   border-color: #dc3545 !important;
 }
+
 
 .errorText {
   display: block;
@@ -257,6 +310,7 @@
   color: #dc3545;
   font-size: 12px;
 }
+
 
 .referenceFileActions {
   display: flex;
@@ -266,6 +320,7 @@
   min-height: 34px;
 }
 
+
 .referenceFileList {
   display: flex;
   flex-direction: column;
@@ -273,6 +328,7 @@
   min-width: 0;
   flex: 1 1 auto;
 }
+
 
 .referenceFileRow {
   display: flex;
@@ -282,6 +338,7 @@
   flex-wrap: wrap;
 }
 
+
 .referenceFileLink {
   color: #610bee;
   font-size: 13px;
@@ -289,6 +346,7 @@
   text-decoration: underline;
   word-break: break-all;
 }
+
 
 .removeFileBtn {
   flex: 0 0 auto;
@@ -302,14 +360,17 @@
   cursor: pointer;
 }
 
+
 .removeFileBtn:hover:not(:disabled) {
   background: #fee2e2;
 }
+
 
 .removeFileBtn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
+
 
 .referenceFileEmpty,
 .fileHint {
@@ -317,9 +378,11 @@
   font-size: 12px;
 }
 
+
 .hiddenFileInput {
   display: none;
 }
+
 
 .replaceFileBtn {
   display: inline-flex;
@@ -336,18 +399,22 @@
   cursor: pointer;
 }
 
+
 .replaceFileBtn:hover:not(:disabled) {
   background: #f5f0ff;
 }
+
 
 .replaceFileBtn:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
 
+
 .previewToggleSection {
   margin-bottom: 8px;
 }
+
 
 .previewToggleBtn {
   padding: 0;
@@ -360,14 +427,17 @@
   text-decoration: underline;
 }
 
+
 .previewToggleBtn:hover:not(:disabled) {
   color: #4f09c7;
 }
+
 
 .previewToggleBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
 
 .previewWrap {
   margin-top: 10px;
@@ -378,10 +448,12 @@
   overflow: auto;
 }
 
+
 .previewContent {
   background: #fff;
   min-height: 100%;
 }
+
 
 .textPreview {
   min-height: 180px;
@@ -396,12 +468,14 @@
   word-break: break-word;
 }
 
+
 .helperText {
   margin: 0 0 10px 0;
   font-size: 13px;
   color: #6b7280;
   line-height: 1.5;
 }
+
 
 .actionsBlock {
   display: flex;
@@ -414,11 +488,13 @@
   background: #fff;
 }
 
+
 .sendToRow {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
+
 
 .sendToLabel {
   font-size: 14px;
@@ -426,16 +502,19 @@
   color: #374151;
 }
 
+
 .sendToControls {
   display: flex;
   gap: 10px;
   align-items: flex-start;
 }
 
+
 .vendorSelect {
   flex: 1;
   min-width: 0;
 }
+
 
 .sendToBtn,
 .sendAllBtn {
@@ -447,15 +526,18 @@
   white-space: nowrap;
 }
 
+
 .sendToBtn {
   border: 1px solid #610bee;
   background: #fff;
   color: #610bee;
 }
 
+
 .sendToBtn:hover:not(:disabled) {
   background: #f5f0ff;
 }
+
 
 .sendAllBtn {
   border: none;
@@ -463,9 +545,11 @@
   color: #fff;
 }
 
+
 .sendAllBtn:hover:not(:disabled) {
   background: #4f09c7;
 }
+
 
 .sendToBtn:disabled,
 .sendAllBtn:disabled {
@@ -473,11 +557,13 @@
   cursor: not-allowed;
 }
 
+
 .footerActions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
+
 
 @media (max-width: 768px) {
   .container {
@@ -485,24 +571,32 @@
     padding: 16px;
   }
 
+
   .formGrid {
     grid-template-columns: 1fr;
   }
+
 
   .formFieldFull {
     grid-column: auto;
   }
 
+
   .previewWrap {
     max-height: min(35vh, 280px);
   }
 
+
   .sendToControls {
     flex-direction: column;
   }
+
 
   .sendToBtn,
   .sendAllBtn {
     width: 100%;
   }
 }
+
+
+
