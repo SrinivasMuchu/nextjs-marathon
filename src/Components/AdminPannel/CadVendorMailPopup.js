@@ -1,5 +1,6 @@
 "use client"
 
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import Select from 'react-select'
@@ -16,6 +17,7 @@ import {
 import Loading from '../CommonJsx/Loaders/Loading'
 import styles from './CadVendorMailPopup.module.css'
 
+
 const EMPTY_CONTENT = {
   project_type: '',
   model_use: '',
@@ -24,8 +26,10 @@ const EMPTY_CONTENT = {
   requirement: '',
 }
 
+
 const BRIEF_MIN_HEIGHT = 220
 const BRIEF_MAX_HEIGHT = 420
+
 
 function adjustBriefHeight(textarea) {
   if (!textarea) return
@@ -37,6 +41,7 @@ function adjustBriefHeight(textarea) {
   textarea.style.height = `${nextHeight}px`
   textarea.style.overflowY = textarea.scrollHeight > BRIEF_MAX_HEIGHT ? 'auto' : 'hidden'
 }
+
 
 const vendorSelectStyles = {
   control: (provided, state) => ({
@@ -82,6 +87,7 @@ const vendorSelectStyles = {
   }),
 }
 
+
 function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
@@ -93,6 +99,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
   const [ccError, setCcError] = useState('')
   const [mailContent, setMailContent] = useState(EMPTY_CONTENT)
   const [defaultContent, setDefaultContent] = useState(EMPTY_CONTENT)
+  const [includeBudget, setIncludeBudget] = useState(true)
   const [mailFormat, setMailFormat] = useState('template')
   const [textContent, setTextContent] = useState('')
   const [defaultTextContent, setDefaultTextContent] = useState('')
@@ -111,15 +118,18 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
   const briefRef = useRef(null)
   const referenceFileInputRef = useRef(null)
 
+
   useEffect(() => {
     adjustBriefHeight(briefRef.current)
   }, [mailContent.requirement])
+
 
   useEffect(() => {
     const loadPreview = async () => {
       setIsLoading(true)
       try {
         const response = await fetchCadVendorMailPreview(request._id)
+
 
         if (response.meta.success) {
           const content = response.data.content || {}
@@ -134,6 +144,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
           setSubject(response.data.subject || '')
           setMailContent(editableContent)
           setDefaultContent(editableContent)
+          setIncludeBudget(Boolean(String(editableContent.budget || '').trim()))
           setTextContent(response.data.text || '')
           setDefaultTextContent(response.data.text || '')
           setReferenceFile(content.file || request.file || '')
@@ -161,8 +172,10 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
       }
     }
 
+
     loadPreview()
   }, [request._id, request.file, onClose])
+
 
   const refreshPreview = useCallback(async (nextSubject, nextContent) => {
     setIsRefreshingPreview(true)
@@ -182,15 +195,19 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     }
   }, [request._id])
 
+
   useEffect(() => {
     if (!showPreview || isLoading || mailFormat !== 'template') return undefined
 
+
     const timer = setTimeout(() => {
-      refreshPreview(subject, mailContent)
+      refreshPreview(subject, { ...mailContent, include_budget: includeBudget })
     }, 400)
 
+
     return () => clearTimeout(timer)
-  }, [subject, mailContent, mailFormat, showPreview, isLoading, refreshPreview])
+  }, [subject, mailContent, includeBudget, mailFormat, showPreview, isLoading, refreshPreview])
+
 
   const vendorOptions = useMemo(
     () =>
@@ -206,10 +223,12 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     [preview?.active_vendors],
   )
 
+
   const mailableVendorCount = useMemo(
     () => vendorOptions.filter((option) => !option.isDisabled).length,
     [vendorOptions],
   )
+
 
   const handleContentChange = (field) => (event) => {
     const value = event.target.value
@@ -219,10 +238,12 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     }
   }
 
+
   const handleRequirementChange = (event) => {
     handleContentChange('requirement')(event)
     adjustBriefHeight(event.target)
   }
+
 
   const parseCcEmails = (value) => [
     ...new Set(
@@ -233,6 +254,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     ),
   ]
 
+
   const validateMailContent = () => {
     const nextSubjectError = subject.trim() ? '' : 'Subject is required'
     const nextContentErrors = {}
@@ -240,6 +262,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     const invalidCc = nextCcEmails.find((email) => !emailPattern.test(email))
     const nextCcError = invalidCc ? `Invalid CC email: ${invalidCc}` : ''
+
 
     if (mailFormat === 'template') {
       if (!mailContent.project_type.trim()) {
@@ -260,6 +283,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     return !nextSubjectError && !nextCcError && Object.keys(nextContentErrors).length === 0
   }
 
+
   const buildSendPayload = (extra = {}) => ({
     request_id: request._id,
     subject: subject.trim(),
@@ -269,23 +293,26 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     content: {
       project_type: mailContent.project_type.trim(),
       model_use: mailContent.model_use.trim(),
-      budget: mailContent.budget.trim(),
       software_format: mailContent.software_format.trim(),
       requirement: mailContent.requirement.trim(),
+      include_budget: includeBudget,
     },
     ...extra,
   })
+
 
   const handleResetFields = () => {
     setSubject(preview?.subject || '')
     setCcEmails('')
     setCcError('')
     setMailContent(defaultContent)
+    setIncludeBudget(Boolean(String(defaultContent.budget || '').trim()))
     setTextContent(defaultTextContent)
     setSubjectError('')
     setContentErrors({})
     toast.info('Fields reset to original request values.')
   }
+
 
   const applyReferenceFilesFromRequest = (nextRequest = {}) => {
     const nextReferenceFiles = Array.isArray(nextRequest.files) && nextRequest.files.length
@@ -296,10 +323,12 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     return nextReferenceFiles
   }
 
+
   const handleReferenceFileChange = async (event) => {
     const selectedFile = event.target.files?.[0]
     event.target.value = ''
     if (!selectedFile) return
+
 
     setIsReplacingFile(true)
     try {
@@ -307,6 +336,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
       if (!response?.meta?.success || !response.data?.request) {
         throw new Error(response?.meta?.message || 'Failed to add reference file')
       }
+
 
       const nextRequest = response.data.request || {}
       const nextReferenceFiles = applyReferenceFilesFromRequest(nextRequest)
@@ -337,6 +367,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     }
   }
 
+
   const handleRemoveReferenceFile = async (fileUrl) => {
     if (!fileUrl || isReplacingFile || removingFileUrl) return
     if (referenceFiles.length <= 1) {
@@ -344,12 +375,14 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
       return
     }
 
+
     setRemovingFileUrl(fileUrl)
     try {
       const response = await removeCadServiceReferenceFile(request._id, fileUrl)
       if (!response?.meta?.success || !response.data?.request) {
         throw new Error(response?.meta?.message || 'Failed to remove reference file')
       }
+
 
       const nextRequest = response.data.request || {}
       applyReferenceFilesFromRequest(nextRequest)
@@ -374,6 +407,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     }
   }
 
+
   const handleSendSelected = async () => {
     if (isReplacingFile) return
     if (!selectedVendors.length) {
@@ -381,6 +415,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
       return
     }
     if (!validateMailContent()) return
+
 
     setIsSending(true)
     try {
@@ -390,6 +425,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
           send_all: false,
         }),
       )
+
 
       if (response.meta.success) {
         toast.success(response.meta.message || 'Email sent')
@@ -406,6 +442,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     }
   }
 
+
   const handleSendAll = async () => {
     if (isReplacingFile) return
     if (!mailableVendorCount) {
@@ -414,9 +451,11 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     }
     if (!validateMailContent()) return
 
+
     setIsSending(true)
     try {
       const response = await sendCadVendorMail(buildSendPayload({ send_all: true }))
+
 
       if (response.meta.success) {
         toast.success(response.meta.message || 'Email sent to all active vendors')
@@ -433,6 +472,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
     }
   }
 
+
   return (
     <PopupWrapper>
       <div className={styles.container}>
@@ -447,6 +487,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
             &times;
           </button>
         </div>
+
 
         {isLoading ? (
           <div className={styles.loadingWrap}>
@@ -468,6 +509,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                 </div>
               </div>
 
+
               <div className={styles.editSection}>
                 <div className={styles.editSectionHeader}>
                   <span className={styles.bodyTitle}>Edit email content</span>
@@ -480,6 +522,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                     Reset fields
                   </button>
                 </div>
+
 
                 <div className={styles.formatSelector} role="radiogroup" aria-label="Email format">
                   <button
@@ -504,11 +547,13 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                   </button>
                 </div>
 
+
                 <p className={styles.editHint}>
                   {mailFormat === 'template'
                     ? 'Edit the fields below. Email layout and styling stay fixed on send.'
                     : 'Write a plain-text email without the styled HTML template.'}
                 </p>
+
 
                 <div className={styles.formGrid}>
                   <div className={`${styles.formField} ${styles.formFieldFull}`}>
@@ -526,6 +571,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                     />
                     {subjectError ? <span className={styles.errorText}>{subjectError}</span> : null}
                   </div>
+
 
                   <div className={`${styles.formField} ${styles.formFieldFull}`}>
                     <label className={styles.fieldLabel} htmlFor="vendor-mail-cc">
@@ -546,6 +592,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                     {ccError ? <span className={styles.errorText}>{ccError}</span> : null}
                   </div>
 
+
                   {mailFormat === 'template' ? (
                     <>
                       <div className={styles.formField}>
@@ -563,6 +610,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                         ) : null}
                       </div>
 
+
                       <div className={styles.formField}>
                         <label className={styles.fieldLabel} htmlFor="vendor-mail-model-use">Timeline *</label>
                         <input
@@ -578,6 +626,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                         ) : null}
                       </div>
 
+
                       <div className={styles.formField}>
                         <label className={styles.fieldLabel} htmlFor="vendor-mail-budget">Budget</label>
                         <input
@@ -589,7 +638,18 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                           disabled
                           title="Budget comes from the request and cannot be edited here"
                         />
+                        <label className={styles.hideBudgetOption} htmlFor="vendor-mail-hide-budget">
+                          <input
+                            id="vendor-mail-hide-budget"
+                            type="checkbox"
+                            checked={!includeBudget}
+                            onChange={(event) => setIncludeBudget(!event.target.checked)}
+                            disabled={isSending || !String(mailContent.budget || '').trim()}
+                          />
+                          Hide budget from email
+                        </label>
                       </div>
+
 
                       <div className={styles.formField}>
                         <label className={styles.fieldLabel} htmlFor="vendor-mail-software">Software</label>
@@ -604,6 +664,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                       </div>
                     </>
                   ) : null}
+
 
                   <div className={`${styles.formField} ${styles.formFieldFull}`}>
                     <span className={styles.fieldLabel}>Reference files</span>
@@ -672,6 +733,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                     </span>
                   </div>
 
+
                   {mailFormat === 'template' ? (
                     <div className={`${styles.formField} ${styles.formFieldFull}`}>
                       <label className={styles.fieldLabel} htmlFor="vendor-mail-requirement">Project brief *</label>
@@ -714,6 +776,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                 </div>
               </div>
 
+
               <div className={styles.previewToggleSection}>
                 <button
                   type="button"
@@ -726,6 +789,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                     ? ' (updating…)'
                     : ''}
                 </button>
+
 
                 {showPreview ? (
                   <div className={styles.previewWrap}>
@@ -742,6 +806,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
               </div>
             </div>
 
+
             <div className={styles.actionsBlock}>
               {!vendorOptions.length ? (
                 <p className={styles.helperText}>
@@ -756,6 +821,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                   {mailableVendorCount} active vendor{mailableVendorCount === 1 ? '' : 's'} with email available.
                 </p>
               )}
+
 
               <div className={styles.sendToRow}>
                 <label className={styles.sendToLabel} htmlFor="cad-vendor-mail-select">
@@ -788,6 +854,7 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
                 </div>
               </div>
 
+
               <div className={styles.footerActions}>
                 <button
                   type="button"
@@ -814,4 +881,8 @@ function CadVendorMailPopup({ request, onClose, onSent, onFileUpdated }) {
   )
 }
 
+
 export default CadVendorMailPopup
+
+
+
