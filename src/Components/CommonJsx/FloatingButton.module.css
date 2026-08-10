@@ -6,6 +6,13 @@
   align-items: flex-end;
   gap: 10px;
   right: max(12px, env(safe-area-inset-right, 0px));
+  /* Default floor so first paint is consistent before JS bottom is applied */
+  bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  /* Reduce iOS Safari fixed-position jitter when the chrome shows/hides */
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: bottom 160ms ease;
 }
 
 .menu {

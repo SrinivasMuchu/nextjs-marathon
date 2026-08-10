@@ -5,6 +5,7 @@ import ToastProvider from "@/Components/CommonJsx/ReactToastify";
 import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 import FloatingButton from "@/Components/CommonJsx/FloatingButton";
+// import ScrollToTopButton from "@/Components/CommonJsx/ScrollToTopButton";
 import HomeTopNav from "@/Components/HomePages/HomepageTopNav/HomeTopNav";
 import { CadFormProvider } from "@/Components/CadServicePages/CadFormContext";
 import { ASSET_PREFIX_URL, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
@@ -263,6 +264,7 @@ export default function RootLayout({ children }) {
           <CadFormProvider>
             <HomeTopNav />
             <main role="main">{children}</main>
+            {/* <ScrollToTopButton /> */}
             <FloatingButton />
           </CadFormProvider>
         </ContextWrapper>
