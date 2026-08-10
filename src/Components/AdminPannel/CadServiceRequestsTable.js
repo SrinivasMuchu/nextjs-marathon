@@ -7,6 +7,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined'
+import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined'
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
@@ -21,6 +22,9 @@ import CadVendorMailPopup from './CadVendorMailPopup'
 import AddQuotationPopup, {
   QuotationHistoryList,
 } from './AddQuotationPopup'
+import AddInvoicePopup, {
+  InvoiceHistoryList,
+} from './AddInvoicePopup'
 import {
   addCadServiceNote,
   addCadServicePartnerNote,
@@ -28,6 +32,7 @@ import {
   fetchCadServiceActivity,
   fetchCadServicePartnerNotes,
   fetchCadServiceQuotations,
+  fetchCadServiceInvoices,
   uploadCadServiceNoteFile,
   uploadCadServiceReferenceFile,
   removeCadServiceReferenceFile,
@@ -168,6 +173,7 @@ const ACTIVITY_LABELS = {
   standalone_status_changed: 'Page status',
   vendor_mail_sent: 'Email',
   quotation_created: 'Quotation',
+  invoice_created: 'Invoice',
   note_added: 'Note',
   file_replaced: 'File',
   file_removed: 'File',
@@ -455,6 +461,9 @@ function CadServiceRequestsTable() {
   const [quotationTarget, setQuotationTarget] = useState(null)
   const [quotesTarget, setQuotesTarget] = useState(null)
   const [quotesLoading, setQuotesLoading] = useState(false)
+  const [invoiceTarget, setInvoiceTarget] = useState(null)
+  const [invoicesTarget, setInvoicesTarget] = useState(null)
+  const [invoicesLoading, setInvoicesLoading] = useState(false)
   const [activityTarget, setActivityTarget] = useState(null)
   const [activityLoading, setActivityLoading] = useState(false)
   const [partnerNotesTarget, setPartnerNotesTarget] = useState(null)
@@ -752,6 +761,35 @@ function CadServiceRequestsTable() {
       setQuotesTarget(null)
     } finally {
       setQuotesLoading(false)
+    }
+  }
+
+  const openInvoices = async (request) => {
+    const invoiceCount = Number(request.invoice_count) || 0
+    if (invoiceCount <= 0) return
+
+    setInvoicesLoading(true)
+    setInvoicesTarget({
+      request,
+      invoices: [],
+    })
+    try {
+      const response = await fetchCadServiceInvoices(request._id)
+      if (response?.meta?.success) {
+        setInvoicesTarget({
+          request,
+          invoices: response.data?.invoices || [],
+        })
+      } else {
+        toast.error(response?.meta?.message || 'Failed to load invoices')
+        setInvoicesTarget(null)
+      }
+    } catch (error) {
+      console.error('Error fetching invoices:', error)
+      toast.error('Failed to load invoices')
+      setInvoicesTarget(null)
+    } finally {
+      setInvoicesLoading(false)
     }
   }
 
@@ -1053,6 +1091,8 @@ function CadServiceRequestsTable() {
                   <th>Send mail</th>
                   <th>Add quote</th>
                   <th>Quotations</th>
+                  <th>Add invoice</th>
+                  <th>Invoices</th>
                   <th>Activity logs</th>
                   <th>Partner notes</th>
                   <th>Change status</th>
@@ -1078,6 +1118,7 @@ function CadServiceRequestsTable() {
                   ) : (
                     requests.map((request) => {
                       const quotationCount = Number(request.quotation_count) || 0
+                      const invoiceCount = Number(request.invoice_count) || 0
                       const activityCount = Number(request.activity_count) || 0
                       const partnerPagePath = getCadPartnerPagePath(request._id)
                       return (
@@ -1146,6 +1187,32 @@ function CadServiceRequestsTable() {
                               title="View quotations"
                             >
                               {quotationCount} saved
+                            </button>
+                          ) : (
+                            <span className={styles.logsEmpty}>—</span>
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className={styles.viewBtn}
+                            onClick={() => setInvoiceTarget(request)}
+                            aria-label="Add invoice"
+                            title="Add invoice"
+                          >
+                            <ReceiptLongOutlinedIcon fontSize="small" />
+                          </button>
+                        </td>
+                        <td>
+                          {invoiceCount > 0 ? (
+                            <button
+                              type="button"
+                              className={styles.logsBtn}
+                              onClick={() => openInvoices(request)}
+                              aria-label={`View ${invoiceCount} invoice${invoiceCount === 1 ? '' : 's'}`}
+                              title="View invoices"
+                            >
+                              {invoiceCount} saved
                             </button>
                           ) : (
                             <span className={styles.logsEmpty}>—</span>
@@ -1297,6 +1364,26 @@ function CadServiceRequestsTable() {
                       title="View quotations"
                     >
                       {request.quotation_count} saved
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    className={styles.viewBtn}
+                    onClick={() => setInvoiceTarget(request)}
+                    aria-label="Add invoice"
+                    title="Add invoice"
+                  >
+                    <ReceiptLongOutlinedIcon fontSize="small" />
+                  </button>
+                  {(Number(request.invoice_count) || 0) > 0 ? (
+                    <button
+                      type="button"
+                      className={styles.logsBtn}
+                      onClick={() => openInvoices(request)}
+                      aria-label={`View ${request.invoice_count} invoice${Number(request.invoice_count) === 1 ? '' : 's'}`}
+                      title="View invoices"
+                    >
+                      {request.invoice_count} saved
                     </button>
                   ) : null}
                   <button
@@ -1498,6 +1585,14 @@ function CadServiceRequestsTable() {
         />
       )}
 
+      {invoiceTarget && (
+        <AddInvoicePopup
+          request={invoiceTarget}
+          onClose={() => setInvoiceTarget(null)}
+          onSaved={() => fetchRequests(currentPage, searchTerm, statusFilter)}
+        />
+      )}
+
       {quotesTarget && (
         <div className={modalStyles.modalOverlay} onClick={() => !quotesLoading && setQuotesTarget(null)}>
           <div className={styles.viewModal} onClick={(e) => e.stopPropagation()}>
@@ -1521,6 +1616,37 @@ function CadServiceRequestsTable() {
                 className={`${modalStyles.button} ${modalStyles.cancel}`}
                 onClick={() => setQuotesTarget(null)}
                 disabled={quotesLoading}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {invoicesTarget && (
+        <div className={modalStyles.modalOverlay} onClick={() => !invoicesLoading && setInvoicesTarget(null)}>
+          <div className={styles.viewModal} onClick={(e) => e.stopPropagation()}>
+            <h3 className={modalStyles.modalTitle}>Invoices</h3>
+            <p className={modalStyles.modalDescription}>
+              {invoicesTarget.request?.full_name || invoicesTarget.request?.email || 'Request'}
+              {invoicesTarget.invoices?.length
+                ? ` · ${invoicesTarget.invoices.length} invoice${invoicesTarget.invoices.length === 1 ? '' : 's'}`
+                : ''}
+            </p>
+            {invoicesLoading ? (
+              <div className={styles.logsLoading}>
+                <Loading />
+              </div>
+            ) : (
+              <InvoiceHistoryList invoices={invoicesTarget.invoices} />
+            )}
+            <div className={modalStyles.modalActions}>
+              <button
+                type="button"
+                className={`${modalStyles.button} ${modalStyles.cancel}`}
+                onClick={() => setInvoicesTarget(null)}
+                disabled={invoicesLoading}
               >
                 Close
               </button>
