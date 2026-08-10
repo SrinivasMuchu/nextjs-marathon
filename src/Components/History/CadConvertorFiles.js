@@ -5,6 +5,7 @@ import { IMAGEURLS } from '@/config';
 import Image from 'next/image';
 import Loading from '../CommonJsx/Loaders/Loading';
 import EastIcon from '@mui/icons-material/East';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { textLettersLimit } from '@/common.helper';
 import FileStatus from '../CommonJsx/FileStatus';
 import { SiConvertio } from "react-icons/si";
@@ -14,6 +15,7 @@ import {
   fetchConverterPricingInfo,
   CONVERTER_FREE_SIZE_LIMIT_BYTES,
 } from '@/lib/converterPricing';
+import CadComparisonPopup, { canViewComparison } from './CadComparisonPopup';
 
 function DashboardPricingCell({ converterPricing, inputFileSizeBytes }) {
   const size = Number(inputFileSizeBytes);
@@ -46,6 +48,8 @@ function CadConvertorFiles({
   setSearchTerm,
 }) {
   const [pricingNoteTotal, setPricingNoteTotal] = useState('');
+  const [comparisonFile, setComparisonFile] = useState(null);
+  const [comparisonIndex, setComparisonIndex] = useState(null);
 
   function formatFileSize(bytes) {
     const size = Number(bytes);
@@ -161,19 +165,23 @@ function CadConvertorFiles({
                       <table className={styles['industry-design-files-list']}>
                         <thead>
                           <tr>
-                            <th style={{ width: '14%' }}>File name</th>
-                            <th style={{ width: '14%' }}>Conversion</th>
-                            <th style={{ width: '10%' }}>Input Size</th>
-                            <th style={{ width: '12%' }}>Pricing</th>
-                            <th style={{ width: '10%' }}>Status</th>
+                            <th style={{ width: '13%' }}>File name</th>
+                            <th style={{ width: '12%' }}>Conversion</th>
+                            <th style={{ width: '9%' }}>Input Size</th>
+                            <th style={{ width: '10%' }}>Pricing</th>
+                            <th style={{ width: '9%' }}>Status</th>
                             <th style={{ width: '10%' }}>Created</th>
                             <th style={{ width: '8%' }}>Time</th>
-                            <th style={{ width: '10%' }}>Report</th>
-                            <th style={{ width: '12%' }}>Action</th>
+                            <th style={{ width: '8%' }}>Report</th>
+                            <th style={{ width: '8%' }}>View</th>
+                            <th style={{ width: '13%' }}>Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {cadConverterFileHistory.map((file, index) => (
+                          {cadConverterFileHistory.map((file, index) => {
+                            const canView =
+                              canViewComparison(file);
+                            return (
                             <tr key={index}>
                               <td data-label="File name">
                                 {textLettersLimit(file.file_name, 20)}
@@ -218,6 +226,26 @@ function CadConvertorFiles({
                                   <span className={styles.reportUnavailable}>—</span>
                                 )}
                               </td>
+                              <td data-label="View">
+                                {canView ? (
+                                  <button
+                                    type="button"
+                                    className={styles['industry-design-files-btn-secondary']}
+                                    onClick={() => {
+                                      setComparisonFile(file);
+                                      setComparisonIndex(index);
+                                    }}
+                                    title="View CAD comparison"
+                                  >
+                                    <span className={styles.viewCompareBtnInner}>
+                                      <VisibilityIcon style={{ fontSize: 16 }} />
+                                      View
+                                    </span>
+                                  </button>
+                                ) : (
+                                  <span className={styles.reportUnavailable}>—</span>
+                                )}
+                              </td>
                               <td data-label="Action">
                                 {file.status === 'COMPLETED' ? (
                                   <button
@@ -241,7 +269,8 @@ function CadConvertorFiles({
                                 )}
                               </td>
                             </tr>
-                          ))}
+                          );
+                          })}
                         </tbody>
                       </table>
                       <p className={styles.converterPricingFootnote}>
@@ -269,6 +298,19 @@ function CadConvertorFiles({
               )}
             </>
             }
+            {comparisonFile && canViewComparison(comparisonFile) && (
+              <CadComparisonPopup
+                file={comparisonFile}
+                onClose={() => {
+                  setComparisonFile(null);
+                  setComparisonIndex(null);
+                }}
+                onDownloadPdf={() => handleReportDownload(comparisonFile, comparisonIndex)}
+                onDownload={() => handleDownload(comparisonFile, comparisonIndex)}
+                downloadingReport={Boolean(downloadingReport?.[comparisonIndex])}
+                downloading={Boolean(downloading?.[comparisonIndex])}
+              />
+            )}
           </div>
   )
 }

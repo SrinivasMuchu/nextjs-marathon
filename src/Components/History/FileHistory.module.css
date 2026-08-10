@@ -273,6 +273,12 @@
   font-size: 14px;
 }
 
+.viewCompareBtnInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* Responsive design for mobile (card layout) */
 @media (max-width: 1100px) {
   .industry-design-files-list,
