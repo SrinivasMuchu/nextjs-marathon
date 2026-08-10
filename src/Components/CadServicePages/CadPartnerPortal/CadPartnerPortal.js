@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 import { BASE_URL, IMAGEURLS } from '@/config'
 import {
   getCadServiceStatusColor,
@@ -23,25 +24,21 @@ function accessStorageKey(requestId) {
 }
 
 function CadPartnerPortal({ requestId }) {
+  const otpInputs = useMemo(() => Array(4).fill().map(() => React.createRef()), [])
   const [bootstrapping, setBootstrapping] = useState(true)
-  const [unlocking, setUnlocking] = useState(false)
   const [locked, setLocked] = useState(true)
-  const [passcode, setPasscode] = useState('')
-  const [passcodeError, setPasscodeError] = useState('')
   const [error, setError] = useState('')
   const [payload, setPayload] = useState(null)
-  const [authMode, setAuthMode] = useState('login') // login | change-email | change-password
-  const [changeEmail, setChangeEmail] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [changeError, setChangeError] = useState('')
-  const [changeSuccess, setChangeSuccess] = useState('')
-  const [changeLoading, setChangeLoading] = useState(false)
+  const [authStep, setAuthStep] = useState('email') // email | otp
+  const [email, setEmail] = useState('')
+  const [otp, setOtp] = useState(['', '', '', ''])
+  const [authError, setAuthError] = useState('')
+  const [authLoading, setAuthLoading] = useState(false)
 
   const applyUnlockedPayload = useCallback((data, requestKey) => {
     setPayload(data)
     setLocked(false)
-    setPasscodeError('')
+    setAuthError('')
     setError('')
     if (data?.access_token && requestKey) {
       try {
@@ -64,7 +61,7 @@ function CadPartnerPortal({ requestId }) {
 
       setBootstrapping(true)
       setError('')
-      setPasscodeError('')
+      setAuthError('')
 
       let storedToken = ''
       try {
@@ -108,7 +105,8 @@ function CadPartnerPortal({ requestId }) {
             }
             setLocked(true)
             setPayload(null)
-            setPasscodeError(message)
+            setAuthStep('email')
+            setAuthError(message)
           } else if (err.response?.data?.data?.locked) {
             setLocked(true)
             setPayload(null)
@@ -127,147 +125,149 @@ function CadPartnerPortal({ requestId }) {
     }
   }, [requestId, applyUnlockedPayload])
 
-  const handleUnlock = async (event) => {
+  const resetOtp = () => {
+    setOtp(['', '', '', ''])
+    otpInputs.forEach((ref) => {
+      if (ref.current) ref.current.value = ''
+    })
+  }
+
+  const handleRequestOtp = async (event) => {
     event.preventDefault()
-    const code = passcode.trim()
-    if (!code) {
-      setPasscodeError('Enter your access passcode.')
+    const nextEmail = email.trim().toLowerCase()
+    if (!nextEmail) {
+      setAuthError('Enter your registered vendor email.')
       return
     }
 
-    setUnlocking(true)
-    setPasscodeError('')
+    setAuthLoading(true)
+    setAuthError('')
     try {
       const response = await axios.post(
-        `${BASE_URL}/v1/cad-creator/cad-service-partner-page/${requestId}/unlock`,
-        { password: code },
+        `${BASE_URL}/v1/cad-creator/cad-service-partner-page/${requestId}/request-otp`,
+        { email: nextEmail },
+      )
+      if (!response.data?.meta?.success) {
+        throw new Error(response.data?.meta?.message || 'Failed to send OTP.')
+      }
+      setEmail(response.data.data?.email || nextEmail)
+      resetOtp()
+      setAuthStep('otp')
+      toast.success('OTP sent to your email.')
+    } catch (err) {
+      setAuthError(
+        err.response?.data?.meta?.message
+          || err.message
+          || 'Failed to send OTP.',
+      )
+      toast.error(
+        err.response?.data?.meta?.message
+          || err.message
+          || 'Failed to send OTP.',
+      )
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    const nextEmail = email.trim().toLowerCase()
+    if (!nextEmail) {
+      setAuthError('Enter your registered vendor email.')
+      setAuthStep('email')
+      return
+    }
+
+    setAuthLoading(true)
+    setAuthError('')
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/v1/cad-creator/cad-service-partner-page/${requestId}/request-otp`,
+        { email: nextEmail },
+      )
+      if (!response.data?.meta?.success) {
+        throw new Error(response.data?.meta?.message || 'Failed to resend OTP.')
+      }
+      resetOtp()
+      toast.success('OTP resent to your email.')
+    } catch (err) {
+      setAuthError(
+        err.response?.data?.meta?.message
+          || err.message
+          || 'Failed to resend OTP.',
+      )
+      toast.error(
+        err.response?.data?.meta?.message
+          || err.message
+          || 'Failed to resend OTP.',
+      )
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleVerifyOtp = async (event) => {
+    event.preventDefault()
+    const nextEmail = email.trim().toLowerCase()
+    const enteredOtp = otp.join('')
+    if (!nextEmail) {
+      setAuthError('Enter your registered vendor email.')
+      setAuthStep('email')
+      return
+    }
+    if (enteredOtp.length !== 4) {
+      setAuthError('Enter the 4-digit OTP sent to your email.')
+      return
+    }
+
+    setAuthLoading(true)
+    setAuthError('')
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/v1/cad-creator/cad-service-partner-page/${requestId}/verify-otp`,
+        { email: nextEmail, otp: enteredOtp },
       )
       if (!response.data?.meta?.success || !response.data?.data?.request) {
         throw new Error(response.data?.meta?.message || 'Unable to unlock')
       }
       applyUnlockedPayload(response.data.data, requestId)
-      setPasscode('')
+      resetOtp()
     } catch (err) {
-      setPasscodeError(
+      resetOtp()
+      setAuthError(
         err.response?.data?.meta?.message
           || err.message
-          || "That passcode doesn't match. Try again.",
+          || 'Invalid OTP. Please try again.',
       )
     } finally {
-      setUnlocking(false)
+      setAuthLoading(false)
     }
   }
 
-  const resetChangePasswordForm = () => {
-    setChangeEmail('')
-    setNewPassword('')
-    setConfirmPassword('')
-    setChangeError('')
-    setChangeSuccess('')
-    setChangeLoading(false)
-  }
-
-  const openChangePassword = () => {
-    resetChangePasswordForm()
-    setAuthMode('change-email')
-  }
-
-  const backToLogin = () => {
-    resetChangePasswordForm()
-    setAuthMode('login')
-  }
-
-  const handleVerifyChangeEmail = async (event) => {
-    event.preventDefault()
-    const email = changeEmail.trim().toLowerCase()
-    if (!email) {
-      setChangeError('Enter your registered vendor email.')
-      return
-    }
-
-    setChangeLoading(true)
-    setChangeError('')
-    setChangeSuccess('')
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/v1/cad-creator/cad-service-partner-page/${requestId}/verify-vendor-email`,
-        { email },
-      )
-      if (!response.data?.meta?.success || !response.data?.data?.can_change_password) {
-        throw new Error(
-          response.data?.meta?.message
-            || 'This email is not registered as a vendor. Please enter the correct vendor email.',
-        )
-      }
-      setChangeEmail(response.data.data.email || email)
-      setAuthMode('change-password')
-    } catch (err) {
-      setChangeError(
-        err.response?.data?.meta?.message
-          || err.message
-          || 'This email is not registered as a vendor. Please enter the correct vendor email.',
-      )
-    } finally {
-      setChangeLoading(false)
+  const handleOtpChange = (value, idx) => {
+    const digit = value.replace(/[^0-9]/g, '').slice(0, 1)
+    const next = [...otp]
+    next[idx] = digit
+    setOtp(next)
+    if (authError) setAuthError('')
+    if (digit && idx < otpInputs.length - 1) {
+      otpInputs[idx + 1].current?.focus()
     }
   }
 
-  const handleChangePassword = async (event) => {
-    event.preventDefault()
-    const email = changeEmail.trim().toLowerCase()
-    const nextPassword = newPassword.trim()
-    const nextConfirm = confirmPassword.trim()
-
-    if (!email) {
-      setChangeError('Enter your registered vendor email.')
+  const handleOtpKeyDown = (event, idx) => {
+    if (event.key !== 'Backspace') return
+    if (otp[idx]) {
+      const next = [...otp]
+      next[idx] = ''
+      setOtp(next)
       return
     }
-    if (!nextPassword) {
-      setChangeError('Enter a new password.')
-      return
-    }
-    if (nextPassword.length < 6) {
-      setChangeError('Password must be at least 6 characters.')
-      return
-    }
-    if (nextPassword !== nextConfirm) {
-      setChangeError('New password and confirm password do not match.')
-      return
-    }
-
-    setChangeLoading(true)
-    setChangeError('')
-    setChangeSuccess('')
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/v1/cad-creator/cad-service-partner-page/${requestId}/change-password`,
-        {
-          email,
-          new_password: nextPassword,
-          confirm_password: nextConfirm,
-        },
-      )
-      if (!response.data?.meta?.success) {
-        throw new Error(response.data?.meta?.message || 'Failed to change password.')
-      }
-      setChangeSuccess(
-        response.data.meta.message
-          || 'Password saved successfully. You can now unlock with this password.',
-      )
-      setNewPassword('')
-      setConfirmPassword('')
-      setTimeout(() => {
-        resetChangePasswordForm()
-        setAuthMode('login')
-      }, 1600)
-    } catch (err) {
-      setChangeError(
-        err.response?.data?.meta?.message
-          || err.message
-          || 'Failed to change password.',
-      )
-    } finally {
-      setChangeLoading(false)
+    if (idx > 0) {
+      otpInputs[idx - 1].current?.focus()
+      const next = [...otp]
+      next[idx - 1] = ''
+      setOtp(next)
     }
   }
 
@@ -307,149 +307,94 @@ function CadPartnerPortal({ requestId }) {
           </Link>
           <div className={styles.lockEyebrow}>Partner access</div>
 
-          {authMode === 'login' ? (
+          {authStep === 'email' ? (
             <>
-              <h1 className={styles.lockTitle}>Enter your access code</h1>
+              <h1 className={styles.lockTitle}>Verify with email OTP</h1>
               <p className={styles.lockLead}>
                 This link was shared with your agency for request{' '}
-                <strong>{shortRequestId(requestId)}</strong>. Enter the passcode Marathon
-                sent you to view live status and project details.
+                <strong>{shortRequestId(requestId)}</strong>. Enter your registered
+                vendor email to receive a one-time code.
               </p>
-              <form onSubmit={handleUnlock} className={styles.lockForm}>
-                <label className={styles.lockLabel} htmlFor="partner-passcode">
-                  Access passcode
-                </label>
-                <input
-                  id="partner-passcode"
-                  type="password"
-                  autoComplete="current-password"
-                  className={styles.lockInput}
-                  value={passcode}
-                  onChange={(e) => {
-                    setPasscode(e.target.value)
-                    if (passcodeError) setPasscodeError('')
-                  }}
-                  placeholder="Enter passcode"
-                  disabled={unlocking}
-                />
-                {passcodeError ? <div className={styles.lockError}>{passcodeError}</div> : null}
-                <button type="submit" className={styles.lockButton} disabled={unlocking}>
-                  {unlocking ? 'Unlocking…' : 'Unlock request →'}
-                </button>
-              </form>
-              <button
-                type="button"
-                className={styles.lockSecondaryLink}
-                onClick={openChangePassword}
-              >
-                Change/create password
-              </button>
-            </>
-          ) : null}
-
-          {authMode === 'change-email' ? (
-            <>
-              <h1 className={styles.lockTitle}>Change/create password</h1>
-              <p className={styles.lockLead}>
-                Enter your registered vendor email. If it matches our records, you can
-                change or create a password.
-              </p>
-              <form onSubmit={handleVerifyChangeEmail} className={styles.lockForm}>
-                <label className={styles.lockLabel} htmlFor="partner-change-email">
+              <form onSubmit={handleRequestOtp} className={styles.lockForm}>
+                <label className={styles.lockLabel} htmlFor="partner-email">
                   Vendor email
                 </label>
                 <input
-                  id="partner-change-email"
+                  id="partner-email"
                   type="email"
                   autoComplete="email"
                   className={styles.lockInput}
-                  value={changeEmail}
+                  value={email}
                   onChange={(e) => {
-                    setChangeEmail(e.target.value)
-                    if (changeError) setChangeError('')
+                    setEmail(e.target.value)
+                    if (authError) setAuthError('')
                   }}
                   placeholder="you@agency.com"
-                  disabled={changeLoading}
+                  disabled={authLoading}
                 />
-                {changeError ? <div className={styles.lockError}>{changeError}</div> : null}
-                <button type="submit" className={styles.lockButton} disabled={changeLoading}>
-                  {changeLoading ? 'Checking…' : 'Continue →'}
+                {authError ? <div className={styles.lockError}>{authError}</div> : null}
+                <button type="submit" className={styles.lockButton} disabled={authLoading}>
+                  {authLoading ? 'Sending OTP…' : 'Send OTP →'}
+                </button>
+              </form>
+            </>
+          ) : null}
+
+          {authStep === 'otp' ? (
+            <>
+              <h1 className={styles.lockTitle}>Enter verification code</h1>
+              <p className={styles.lockLead}>
+                We sent a 4-digit OTP to <strong>{email}</strong>. Enter it below to
+                unlock this request. Access stays open for 12 hours.
+              </p>
+              <form onSubmit={handleVerifyOtp} className={styles.lockForm}>
+                <label className={styles.lockLabel} htmlFor="partner-otp-0">
+                  One-time code
+                </label>
+                <div className={styles.otpRow}>
+                  {otpInputs.map((ref, idx) => (
+                    <input
+                      key={`otp-${idx}`}
+                      id={idx === 0 ? 'partner-otp-0' : undefined}
+                      ref={ref}
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete={idx === 0 ? 'one-time-code' : 'off'}
+                      maxLength={1}
+                      className={styles.otpInput}
+                      value={otp[idx]}
+                      onChange={(e) => handleOtpChange(e.target.value, idx)}
+                      onKeyDown={(e) => handleOtpKeyDown(e, idx)}
+                      disabled={authLoading}
+                    />
+                  ))}
+                </div>
+                {authError ? <div className={styles.lockError}>{authError}</div> : null}
+                <button
+                  type="submit"
+                  className={styles.lockButton}
+                  disabled={authLoading || otp.join('').length !== 4}
+                >
+                  {authLoading ? 'Verifying…' : 'Unlock request →'}
                 </button>
               </form>
               <button
                 type="button"
                 className={styles.lockSecondaryLink}
-                onClick={backToLogin}
-                disabled={changeLoading}
+                onClick={handleResendOtp}
+                disabled={authLoading}
               >
-                Back to unlock
+                Resend OTP
               </button>
-            </>
-          ) : null}
-
-          {authMode === 'change-password' ? (
-            <>
-              <h1 className={styles.lockTitle}>Change/create password</h1>
-              <p className={styles.lockLead}>
-                Email verified for <strong>{changeEmail}</strong>. Enter a password to
-                unlock partner requests.
-              </p>
-              <form onSubmit={handleChangePassword} className={styles.lockForm}>
-                <label className={styles.lockLabel} htmlFor="partner-new-password">
-                  New password
-                </label>
-                <input
-                  id="partner-new-password"
-                  type="password"
-                  autoComplete="new-password"
-                  className={styles.lockInput}
-                  value={newPassword}
-                  onChange={(e) => {
-                    setNewPassword(e.target.value)
-                    if (changeError) setChangeError('')
-                  }}
-                  placeholder="At least 6 characters"
-                  disabled={changeLoading}
-                />
-                <label
-                  className={styles.lockLabel}
-                  htmlFor="partner-confirm-password"
-                  style={{ marginTop: 14 }}
-                >
-                  Confirm new password
-                </label>
-                <input
-                  id="partner-confirm-password"
-                  type="password"
-                  autoComplete="new-password"
-                  className={styles.lockInput}
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value)
-                    if (changeError) setChangeError('')
-                  }}
-                  placeholder="Re-enter new password"
-                  disabled={changeLoading}
-                />
-                {changeError ? <div className={styles.lockError}>{changeError}</div> : null}
-                {changeSuccess ? (
-                  <div className={styles.lockSuccess}>{changeSuccess}</div>
-                ) : null}
-                <button type="submit" className={styles.lockButton} disabled={changeLoading}>
-                  {changeLoading ? 'Saving…' : 'Save password'}
-                </button>
-              </form>
               <button
                 type="button"
                 className={styles.lockSecondaryLink}
                 onClick={() => {
-                  setNewPassword('')
-                  setConfirmPassword('')
-                  setChangeError('')
-                  setChangeSuccess('')
-                  setAuthMode('change-email')
+                  resetOtp()
+                  setAuthError('')
+                  setAuthStep('email')
                 }}
-                disabled={changeLoading}
+                disabled={authLoading}
               >
                 Use a different email
               </button>

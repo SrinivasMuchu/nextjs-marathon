@@ -280,6 +280,59 @@
   max-width: 100%;
 }
 
+.statusCell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 160px;
+}
+
+.vendorStatusSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vendorStatusSummaryLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.vendorStatusList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vendorStatusItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.vendorStatusName {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 500;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vendorStatusEmpty {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
 .statusDot {
   width: 8px;
   height: 8px;
