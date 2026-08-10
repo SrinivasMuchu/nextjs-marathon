@@ -17,6 +17,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DownloadIcon from "@mui/icons-material/Download";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import ViewInArOutlinedIcon from "@mui/icons-material/ViewInArOutlined";
 import DataObjectOutlinedIcon from "@mui/icons-material/DataObjectOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
@@ -334,7 +335,16 @@ function CadComparisonPopup({
 }) {
   const [copied, setCopied] = useState(false);
   const drawing = isDrawingConversion(file);
+  const showImages = !drawing && hasComparisonPhotos(file);
 
+  const inputUrl = useMemo(
+    () => toCadOutputCdnUrl(file?.input_snapshot_url) || file?.input_snapshot_url || "",
+    [file?.input_snapshot_url],
+  );
+  const outputUrl = useMemo(
+    () => toCadOutputCdnUrl(file?.output_snapshot_url) || file?.output_snapshot_url || "",
+    [file?.output_snapshot_url],
+  );
   const htmlUrl = useMemo(
     () => toCadOutputCdnUrl(file?.report_html_url) || file?.report_html_url || "",
     [file?.report_html_url],
@@ -403,28 +413,80 @@ function CadComparisonPopup({
 
         <div className={styles.body}>
           <div className={styles.mainCol}>
-            <div className={styles.fileMetaRow}>
-              <div className={styles.fileMetaCard}>
-                <span className={styles.fileCardTag}>Original ({inputFmt})</span>
-                <div className={styles.fileMeta}>
-                  <InsertDriveFileOutlinedIcon sx={{ fontSize: 18, color: "#6b7280" }} />
-                  <div>
-                    <strong>{inputFileName}</strong>
-                    <span>{stats.srcSize || "—"}</span>
+            {showImages ? (
+              <div className={styles.previewRow}>
+                <div className={styles.fileCard}>
+                  <div className={styles.fileCardHead}>
+                    <span className={styles.fileCardTag}>Original ({inputFmt})</span>
+                    <div className={styles.fileMeta}>
+                      <InsertDriveFileOutlinedIcon sx={{ fontSize: 18, color: "#6b7280" }} />
+                      <div>
+                        <strong>{inputFileName}</strong>
+                        <span>{stats.srcSize || "—"}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.filePreview}>
+                    <span className={styles.cubeHint} aria-hidden>
+                      <ViewInArOutlinedIcon sx={{ fontSize: 16 }} />
+                    </span>
+                    {inputUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={inputUrl} alt={`${inputFmt} original snapshot`} />
+                    ) : (
+                      <div className={styles.paneEmpty}>No input photo</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.fileCard}>
+                  <div className={styles.fileCardHead}>
+                    <span className={styles.fileCardTag}>Converted ({outputFmt})</span>
+                    <div className={styles.fileMeta}>
+                      <InsertDriveFileOutlinedIcon sx={{ fontSize: 18, color: "#6b7280" }} />
+                      <div>
+                        <strong>{outputFileName}</strong>
+                        <span>{stats.outSize || "—"}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.filePreview}>
+                    <span className={styles.cubeHint} aria-hidden>
+                      <ViewInArOutlinedIcon sx={{ fontSize: 16 }} />
+                    </span>
+                    {outputUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={outputUrl} alt={`${outputFmt} converted snapshot`} />
+                    ) : (
+                      <div className={styles.paneEmpty}>No output photo</div>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className={styles.fileMetaCard}>
-                <span className={styles.fileCardTag}>Converted ({outputFmt})</span>
-                <div className={styles.fileMeta}>
-                  <InsertDriveFileOutlinedIcon sx={{ fontSize: 18, color: "#6b7280" }} />
-                  <div>
-                    <strong>{outputFileName}</strong>
-                    <span>{stats.outSize || "—"}</span>
+            ) : (
+              <div className={styles.fileMetaRow}>
+                <div className={styles.fileMetaCard}>
+                  <span className={styles.fileCardTag}>Original ({inputFmt})</span>
+                  <div className={styles.fileMeta}>
+                    <InsertDriveFileOutlinedIcon sx={{ fontSize: 18, color: "#6b7280" }} />
+                    <div>
+                      <strong>{inputFileName}</strong>
+                      <span>{stats.srcSize || "—"}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.fileMetaCard}>
+                  <span className={styles.fileCardTag}>Converted ({outputFmt})</span>
+                  <div className={styles.fileMeta}>
+                    <InsertDriveFileOutlinedIcon sx={{ fontSize: 18, color: "#6b7280" }} />
+                    <div>
+                      <strong>{outputFileName}</strong>
+                      <span>{stats.outSize || "—"}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className={styles.attrTable}>
               <AttrRow
