@@ -258,6 +258,22 @@ export async function createCadServiceInvoices(payload) {
   return response.data
 }
 
+export async function updateCadServiceProgress(requestId, {
+  service_started_at,
+  service_ended_at,
+}) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/update-cad-service-request`,
+    {
+      request_id: requestId,
+      service_started_at,
+      service_ended_at,
+    },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
 export async function fetchCadServiceActivity(requestId) {
   const response = await axios.get(`${ADMIN_VENDORS_BASE}/cad-service-activity`, {
     params: { request_id: requestId },

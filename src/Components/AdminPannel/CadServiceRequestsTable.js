@@ -1,17 +1,17 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import SearchIcon from '@mui/icons-material/Search'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
-import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined'
-import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined'
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { BASE_URL } from '@/config'
 import { formatDate } from '@/common.helper'
 import Pagenation from '@/Components/CommonJsx/Pagenation'
@@ -33,6 +33,7 @@ import {
   fetchCadServicePartnerNotes,
   fetchCadServiceQuotations,
   fetchCadServiceInvoices,
+  updateCadServiceProgress,
   uploadCadServiceNoteFile,
   uploadCadServiceReferenceFile,
   removeCadServiceReferenceFile,
@@ -80,6 +81,36 @@ function StatusBadge({ status }) {
       {label}
     </span>
   )
+}
+
+function toDateInputValue(value) {
+  if (!value) return ''
+  const raw = String(value)
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0, 10)
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toISOString().slice(0, 10)
+}
+
+function formatServiceProgressDate(value) {
+  const inputValue = toDateInputValue(value)
+  if (!inputValue) return ''
+  const [year, month, day] = inputValue.split('-').map(Number)
+  if (!year || !month || !day) return formatDate(value)
+  return new Date(year, month - 1, day).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function formatServiceProgressRange(request = {}) {
+  const started = formatServiceProgressDate(request.service_started_at)
+  const ended = formatServiceProgressDate(request.service_ended_at)
+  if (!started && !ended) return '—'
+  if (started && ended) return `${started} → ${ended}`
+  if (started) return `${started} → Open`
+  return `Ended ${ended}`
 }
 
 function getReferenceFiles(request = {}) {
@@ -174,6 +205,7 @@ const ACTIVITY_LABELS = {
   vendor_mail_sent: 'Email',
   quotation_created: 'Quotation',
   invoice_created: 'Invoice',
+  service_progress_updated: 'Progress',
   note_added: 'Note',
   file_replaced: 'File',
   file_removed: 'File',
@@ -360,6 +392,8 @@ async function exportRequestsToExcel(rows) {
     { header: 'Partner Page URL', key: 'partner_page_url', width: 40 },
     { header: 'Rejection Reason', key: 'rejected_message', width: 30 },
     { header: 'Submitted At', key: 'createdAt', width: 18 },
+    { header: 'Service Started', key: 'service_started_at', width: 18 },
+    { header: 'Service Ended', key: 'service_ended_at', width: 18 },
     { header: 'Reviewed At', key: 'reviewed_at', width: 18 },
     { header: 'Updated At', key: 'updatedAt', width: 18 },
   ]
@@ -384,6 +418,8 @@ async function exportRequestsToExcel(rows) {
       partner_page_url: getCadPartnerPageUrl(request._id),
       rejected_message: request.rejected_message || '',
       createdAt: request.createdAt ? formatDate(request.createdAt) : '',
+      service_started_at: formatServiceProgressDate(request.service_started_at),
+      service_ended_at: formatServiceProgressDate(request.service_ended_at),
       reviewed_at: request.reviewed_at ? formatDate(request.reviewed_at) : '',
       updatedAt: request.updatedAt ? formatDate(request.updatedAt) : '',
     })
@@ -438,6 +474,178 @@ function StandalonePageStatusSelect({ request, isSubmitting, onStatusSelect, cla
   )
 }
 
+function RequestActionsMenu({
+  request,
+  isSubmitting,
+  onAddQuote,
+  onViewQuotes,
+  onAddInvoice,
+  onViewInvoices,
+  onViewActivity,
+  onPartnerNotes,
+  onStatusSelect,
+  onStandaloneStatusSelect,
+}) {
+  const [open, setOpen] = useState(false)
+  const [panelStyle, setPanelStyle] = useState({})
+  const buttonRef = useRef(null)
+  const panelRef = useRef(null)
+
+  const quotationCount = Number(request.quotation_count) || 0
+  const invoiceCount = Number(request.invoice_count) || 0
+  const activityCount = Number(request.activity_count) || 0
+
+  const updatePanelPosition = () => {
+    const button = buttonRef.current
+    if (!button) return
+
+    const rect = button.getBoundingClientRect()
+    const panelWidth = 260
+    const estimatedHeight = 420
+    const left = Math.min(Math.max(8, rect.right - panelWidth), window.innerWidth - panelWidth - 8)
+    const openUp = window.innerHeight - rect.bottom < estimatedHeight && rect.top > estimatedHeight
+    const top = openUp
+      ? Math.max(8, rect.top - estimatedHeight - 4)
+      : Math.min(rect.bottom + 4, window.innerHeight - 8)
+
+    setPanelStyle({
+      top,
+      left,
+      width: panelWidth,
+    })
+  }
+
+  useEffect(() => {
+    if (!open) return undefined
+
+    updatePanelPosition()
+
+    const handlePointerDown = (event) => {
+      const target = event.target
+      if (buttonRef.current?.contains(target) || panelRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    const handleReposition = () => updatePanelPosition()
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('resize', handleReposition)
+    window.addEventListener('scroll', handleReposition, true)
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('resize', handleReposition)
+      window.removeEventListener('scroll', handleReposition, true)
+    }
+  }, [open])
+
+  const runAndClose = (action) => {
+    setOpen(false)
+    action?.()
+  }
+
+  return (
+    <div className={styles.actionMenu}>
+      <button
+        ref={buttonRef}
+        type="button"
+        className={styles.actionMenuBtn}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
+        Action
+        <KeyboardArrowDownIcon fontSize="small" />
+      </button>
+      {open && typeof document !== 'undefined'
+        ? createPortal(
+          <div
+            ref={panelRef}
+            className={styles.actionMenuPanel}
+            style={panelStyle}
+            role="menu"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.actionMenuItem}
+              onClick={() => runAndClose(() => onAddQuote(request))}
+            >
+              Add quotation
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.actionMenuItem}
+              disabled={quotationCount <= 0}
+              onClick={() => runAndClose(() => onViewQuotes(request))}
+            >
+              {quotationCount > 0 ? `View quotations (${quotationCount})` : 'View quotations'}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.actionMenuItem}
+              onClick={() => runAndClose(() => onAddInvoice(request))}
+            >
+              Add invoice
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.actionMenuItem}
+              disabled={invoiceCount <= 0}
+              onClick={() => runAndClose(() => onViewInvoices(request))}
+            >
+              {invoiceCount > 0 ? `View invoices (${invoiceCount})` : 'View invoices'}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.actionMenuItem}
+              onClick={() => runAndClose(() => onViewActivity(request))}
+            >
+              {activityCount > 0 ? `Activity logs (${activityCount})` : 'Activity logs'}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.actionMenuItem}
+              onClick={() => runAndClose(() => onPartnerNotes(request))}
+            >
+              Partner notes
+            </button>
+            <div className={styles.actionMenuDivider} />
+            <label className={styles.actionMenuField}>
+              <span>Change status</span>
+              <RequestStatusSelect
+                request={request}
+                isSubmitting={isSubmitting}
+                onStatusSelect={onStatusSelect}
+                className={styles.statusSelect}
+              />
+            </label>
+            <label className={styles.actionMenuField}>
+              <span>Page status</span>
+              <StandalonePageStatusSelect
+                request={request}
+                isSubmitting={isSubmitting}
+                onStatusSelect={onStandaloneStatusSelect}
+                className={styles.statusSelect}
+              />
+            </label>
+          </div>,
+          document.body,
+        )
+        : null}
+    </div>
+  )
+}
+
 function CadServiceRequestsTable() {
   const [requests, setRequests] = useState([])
   const [isLoading, setIsLoading] = useState(false)
@@ -477,6 +685,9 @@ function CadServiceRequestsTable() {
   const noteFileInputRef = useRef(null)
   const [logsTarget, setLogsTarget] = useState(null)
   const [logsLoading, setLogsLoading] = useState(false)
+  const [progressStartedAt, setProgressStartedAt] = useState('')
+  const [progressEndedAt, setProgressEndedAt] = useState('')
+  const [isSavingProgress, setIsSavingProgress] = useState(false)
 
   const adminHeaders = () => ({
     'admin-uuid': localStorage.getItem('admin-uuid'),
@@ -686,6 +897,59 @@ function CadServiceRequestsTable() {
     handleStatusUpdate(rejectTarget._id, 'rejected', rejectionMessage.trim())
   }
 
+  const hydrateProgressForm = (request) => {
+    setProgressStartedAt(toDateInputValue(request?.service_started_at))
+    setProgressEndedAt(toDateInputValue(request?.service_ended_at))
+  }
+
+  const handleSaveServiceProgress = async () => {
+    if (!viewRequest?._id) return
+
+    if (progressEndedAt && !progressStartedAt) {
+      toast.error('Set the service start date before the end date')
+      return
+    }
+    if (progressStartedAt && progressEndedAt && progressEndedAt < progressStartedAt) {
+      toast.error('Service end date cannot be earlier than the start date')
+      return
+    }
+
+    const currentStarted = toDateInputValue(viewRequest.service_started_at)
+    const currentEnded = toDateInputValue(viewRequest.service_ended_at)
+    if (progressStartedAt === currentStarted && progressEndedAt === currentEnded) {
+      toast.info('Service progress dates are unchanged')
+      return
+    }
+
+    setIsSavingProgress(true)
+    try {
+      const response = await updateCadServiceProgress(viewRequest._id, {
+        service_started_at: progressStartedAt || null,
+        service_ended_at: progressEndedAt || null,
+      })
+      if (!response?.meta?.success || !response.data?.request) {
+        throw new Error(response?.meta?.message || 'Failed to update service progress')
+      }
+
+      const updatedRequest = {
+        ...response.data.request,
+        activity_count: (Number(viewRequest.activity_count) || 0) + 1,
+      }
+      syncRequestInList(updatedRequest)
+      hydrateProgressForm(updatedRequest)
+      toast.success(response.meta.message || 'Service progress dates updated')
+    } catch (error) {
+      console.error('Save service progress error:', error)
+      toast.error(
+        error.response?.data?.meta?.message
+          || error.message
+          || 'Failed to update service progress',
+      )
+    } finally {
+      setIsSavingProgress(false)
+    }
+  }
+
   const openView = async (request) => {
     try {
       const response = await axios.get(
@@ -693,12 +957,16 @@ function CadServiceRequestsTable() {
         { headers: adminHeaders() }
       )
       if (response.data?.meta?.success) {
-        setViewRequest(response.data.data.request)
+        const nextRequest = response.data.data.request
+        setViewRequest(nextRequest)
+        hydrateProgressForm(nextRequest)
       } else {
         setViewRequest(request)
+        hydrateProgressForm(request)
       }
     } catch {
       setViewRequest(request)
+      hydrateProgressForm(request)
     }
   }
 
@@ -1087,22 +1355,16 @@ function CadServiceRequestsTable() {
                   <th>Service</th>
                   <th>Status</th>
                   <th>Submitted</th>
+                  <th>Service progress</th>
                   <th>View</th>
                   <th>Send mail</th>
-                  <th>Add quote</th>
-                  <th>Quotations</th>
-                  <th>Add invoice</th>
-                  <th>Invoices</th>
-                  <th>Activity logs</th>
-                  <th>Partner notes</th>
-                  <th>Change status</th>
-                  <th>Page status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               {isLoading ? (
                 <tbody>
                   <tr>
-                    <td colSpan={13} className={styles.emptyCell}>
+                    <td colSpan={9} className={styles.emptyCell}>
                       <Loading />
                     </td>
                   </tr>
@@ -1111,15 +1373,12 @@ function CadServiceRequestsTable() {
                 <tbody>
                   {requests.length === 0 ? (
                     <tr>
-                      <td colSpan={13} className={styles.emptyCell}>
+                      <td colSpan={9} className={styles.emptyCell}>
                         No CAD service requests found
                       </td>
                     </tr>
                   ) : (
                     requests.map((request) => {
-                      const quotationCount = Number(request.quotation_count) || 0
-                      const invoiceCount = Number(request.invoice_count) || 0
-                      const activityCount = Number(request.activity_count) || 0
                       const partnerPagePath = getCadPartnerPagePath(request._id)
                       return (
                       <tr key={request._id}>
@@ -1132,6 +1391,11 @@ function CadServiceRequestsTable() {
                           <StatusBadge status={request.status} />
                         </td>
                         <td>{formatDate(request.createdAt)}</td>
+                        <td>
+                          <span className={styles.progressCell}>
+                            {formatServiceProgressRange(request)}
+                          </span>
+                        </td>
                         <td>
                           <div className={styles.inlineActions}>
                             <button
@@ -1167,106 +1431,18 @@ function CadServiceRequestsTable() {
                           </button>
                         </td>
                         <td>
-                          <button
-                            type="button"
-                            className={styles.viewBtn}
-                            onClick={() => setQuotationTarget(request)}
-                            aria-label="Add quotation"
-                            title="Add quotation"
-                          >
-                            <RequestQuoteOutlinedIcon fontSize="small" />
-                          </button>
-                        </td>
-                        <td>
-                          {quotationCount > 0 ? (
-                            <button
-                              type="button"
-                              className={styles.logsBtn}
-                              onClick={() => openQuotations(request)}
-                              aria-label={`View ${quotationCount} quotation${quotationCount === 1 ? '' : 's'}`}
-                              title="View quotations"
-                            >
-                              {quotationCount} saved
-                            </button>
-                          ) : (
-                            <span className={styles.logsEmpty}>—</span>
-                          )}
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            className={styles.viewBtn}
-                            onClick={() => setInvoiceTarget(request)}
-                            aria-label="Add invoice"
-                            title="Add invoice"
-                          >
-                            <ReceiptLongOutlinedIcon fontSize="small" />
-                          </button>
-                        </td>
-                        <td>
-                          {invoiceCount > 0 ? (
-                            <button
-                              type="button"
-                              className={styles.logsBtn}
-                              onClick={() => openInvoices(request)}
-                              aria-label={`View ${invoiceCount} invoice${invoiceCount === 1 ? '' : 's'}`}
-                              title="View invoices"
-                            >
-                              {invoiceCount} saved
-                            </button>
-                          ) : (
-                            <span className={styles.logsEmpty}>—</span>
-                          )}
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            className={styles.logsBtn}
-                            onClick={() => openActivity(request)}
-                            aria-label="View request activity"
-                            title="View all activity"
-                          >
-                            {activityCount > 0 ? `${activityCount} events` : 'View'}
-                          </button>
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            className={styles.logsBtn}
-                            onClick={() => openPartnerNotes(request)}
-                            aria-label="Partner page notes"
-                            title="Notes shown on partner page"
-                          >
-                            Page notes
-                          </button>
-                        </td>
-                        <td>
-                          <RequestStatusSelect
+                          <RequestActionsMenu
                             request={request}
                             isSubmitting={isSubmitting}
+                            onAddQuote={setQuotationTarget}
+                            onViewQuotes={openQuotations}
+                            onAddInvoice={setInvoiceTarget}
+                            onViewInvoices={openInvoices}
+                            onViewActivity={openActivity}
+                            onPartnerNotes={openPartnerNotes}
                             onStatusSelect={handleStatusSelect}
-                            className={styles.statusSelect}
+                            onStandaloneStatusSelect={handleStandaloneStatusSelect}
                           />
-                        </td>
-                        <td>
-                          <div className={styles.pageStatusCell}>
-                            <StandalonePageStatusSelect
-                              request={request}
-                              isSubmitting={isSubmitting}
-                              onStatusSelect={handleStandaloneStatusSelect}
-                              className={styles.statusSelect}
-                            />
-                            <a
-                              href={partnerPagePath}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.viewBtn}
-                              aria-label="Open partner page"
-                              title="Open partner page"
-                            >
-                              <OpenInNewIcon fontSize="small" />
-                            </a>
-                          </div>
                         </td>
                       </tr>
                       )
@@ -1328,6 +1504,10 @@ function CadServiceRequestsTable() {
                   <span className={styles.requestCardLabel}>Submitted</span>
                   <span className={styles.requestCardValue}>{formatDate(request.createdAt)}</span>
                 </div>
+                <div className={styles.requestCardField}>
+                  <span className={styles.requestCardLabel}>Service progress</span>
+                  <span className={styles.requestCardValue}>{formatServiceProgressRange(request)}</span>
+                </div>
               </div>
 
               <div className={styles.requestCardStatusRow}>
@@ -1346,83 +1526,18 @@ function CadServiceRequestsTable() {
                   >
                     <MailOutlineIcon fontSize="small" />
                   </button>
-                  <button
-                    type="button"
-                    className={styles.viewBtn}
-                    onClick={() => setQuotationTarget(request)}
-                    aria-label="Add quotation"
-                    title="Add quotation"
-                  >
-                    <RequestQuoteOutlinedIcon fontSize="small" />
-                  </button>
-                  {(Number(request.quotation_count) || 0) > 0 ? (
-                    <button
-                      type="button"
-                      className={styles.logsBtn}
-                      onClick={() => openQuotations(request)}
-                      aria-label={`View ${request.quotation_count} quotation${Number(request.quotation_count) === 1 ? '' : 's'}`}
-                      title="View quotations"
-                    >
-                      {request.quotation_count} saved
-                    </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    className={styles.viewBtn}
-                    onClick={() => setInvoiceTarget(request)}
-                    aria-label="Add invoice"
-                    title="Add invoice"
-                  >
-                    <ReceiptLongOutlinedIcon fontSize="small" />
-                  </button>
-                  {(Number(request.invoice_count) || 0) > 0 ? (
-                    <button
-                      type="button"
-                      className={styles.logsBtn}
-                      onClick={() => openInvoices(request)}
-                      aria-label={`View ${request.invoice_count} invoice${Number(request.invoice_count) === 1 ? '' : 's'}`}
-                      title="View invoices"
-                    >
-                      {request.invoice_count} saved
-                    </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    className={styles.logsBtn}
-                    onClick={() => openActivity(request)}
-                    aria-label="View request activity"
-                    title="View all activity"
-                  >
-                    {(Number(request.activity_count) || 0) > 0
-                      ? `${request.activity_count} events`
-                      : 'Activity'}
-                  </button>
-                </div>
-                <span className={styles.requestCardLabel}>Change status</span>
-                <RequestStatusSelect
-                  request={request}
-                  isSubmitting={isSubmitting}
-                  onStatusSelect={handleStatusSelect}
-                  className={styles.statusSelectMobile}
-                />
-                <span className={styles.requestCardLabel}>Page status</span>
-                <div className={styles.pageStatusCell}>
-                  <StandalonePageStatusSelect
+                  <RequestActionsMenu
                     request={request}
                     isSubmitting={isSubmitting}
-                    onStatusSelect={handleStandaloneStatusSelect}
-                    className={styles.statusSelectMobile}
+                    onAddQuote={setQuotationTarget}
+                    onViewQuotes={openQuotations}
+                    onAddInvoice={setInvoiceTarget}
+                    onViewInvoices={openInvoices}
+                    onViewActivity={openActivity}
+                    onPartnerNotes={openPartnerNotes}
+                    onStatusSelect={handleStatusSelect}
+                    onStandaloneStatusSelect={handleStandaloneStatusSelect}
                   />
-                  <a
-                    href={getCadPartnerPagePath(request._id)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.viewBtn}
-                    aria-label="Open partner page"
-                    title="Open partner page"
-                  >
-                    <OpenInNewIcon fontSize="small" />
-                  </a>
                 </div>
               </div>
             </article>
@@ -1517,6 +1632,45 @@ function CadServiceRequestsTable() {
                     {isManagingReferenceFiles ? 'Uploading...' : 'Add file'}
                   </button>
                 </div>
+              </div>
+              <div className={styles.progressForm}>
+                <div>
+                  <h4 className={styles.progressTitle}>Service progress</h4>
+                  <p className={styles.progressHint}>
+                    Record when work started and ended for this request.
+                  </p>
+                </div>
+                <div className={styles.progressFields}>
+                  <label className={styles.progressField}>
+                    <span className={styles.detailLabel}>Started</span>
+                    <input
+                      type="date"
+                      className={styles.progressInput}
+                      value={progressStartedAt}
+                      onChange={(event) => setProgressStartedAt(event.target.value)}
+                      disabled={isSavingProgress}
+                    />
+                  </label>
+                  <label className={styles.progressField}>
+                    <span className={styles.detailLabel}>Ended</span>
+                    <input
+                      type="date"
+                      className={styles.progressInput}
+                      value={progressEndedAt}
+                      min={progressStartedAt || undefined}
+                      onChange={(event) => setProgressEndedAt(event.target.value)}
+                      disabled={isSavingProgress}
+                    />
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  className={styles.progressSaveBtn}
+                  onClick={handleSaveServiceProgress}
+                  disabled={isSavingProgress}
+                >
+                  {isSavingProgress ? 'Saving...' : 'Save progress dates'}
+                </button>
               </div>
               <DetailRow label="Status" value={getCadServiceStatusLabel(viewRequest.status)} />
               <DetailRow
