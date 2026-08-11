@@ -55,13 +55,14 @@ function formatFileSize(bytes) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function formatAmount(amount) {
+function formatAmount(amount, currency = 'INR') {
   const value = Number(amount)
   if (!Number.isFinite(value)) return '—'
-  return value.toLocaleString(undefined, {
+  const formatted = value.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })
+  return `${currency || 'INR'} ${formatted}`
 }
 
 function invoiceTypeLabel(type) {
@@ -167,7 +168,7 @@ export function InvoiceHistoryList({ invoices = [], emptyText = 'No invoices fou
                       Invoice no: {invoice.invoice_no || '—'}
                     </p>
                     <p className={styles.historyMeta}>
-                      Amount: {formatAmount(invoice.invoice_amount)}
+                      Amount: {formatAmount(invoice.invoice_amount, invoice.currency)}
                     </p>
                     {invoice.comment ? (
                       <p className={styles.historyText}>{invoice.comment}</p>
@@ -265,7 +266,7 @@ function InvoiceSection({
       </label>
 
       <div className={styles.field}>
-        <span className={styles.label}>Attachments (invoice PDFs)</span>
+        <span className={styles.label}>Attachments (optional PDFs)</span>
         <div className={styles.uploadRow}>
           <button
             type="button"
@@ -275,7 +276,7 @@ function InvoiceSection({
           >
             Add PDFs
           </button>
-          <span className={styles.uploadHint}>PDF only · add as many as needed</span>
+          <span className={styles.uploadHint}>Optional · PDF only · add as many as needed</span>
           <input
             ref={fileInputRef}
             type="file"
@@ -427,18 +428,12 @@ function AddInvoicePopup({ request, onClose, onSaved }) {
     if (!String(agencyInvoice.invoice_no || '').trim()) {
       nextErrors.agency_no = 'Agency invoice number is required'
     }
-    if (!agencyFiles.length) {
-      nextErrors.agency_file = 'Add at least one agency invoice PDF'
-    }
 
     if (!String(marathonInvoice.invoice_amount || '').trim() || !(Number(marathonInvoice.invoice_amount) > 0)) {
       nextErrors.marathon_amount = 'Enter a valid Marathon invoice amount'
     }
     if (!String(marathonInvoice.invoice_no || '').trim()) {
       nextErrors.marathon_no = 'Marathon invoice number is required'
-    }
-    if (!marathonFiles.length) {
-      nextErrors.marathon_file = 'Add at least one Marathon invoice PDF'
     }
 
     return nextErrors
