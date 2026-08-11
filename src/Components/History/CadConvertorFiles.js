@@ -15,7 +15,22 @@ import {
   fetchConverterPricingInfo,
   CONVERTER_FREE_SIZE_LIMIT_BYTES,
 } from '@/lib/converterPricing';
+import { hasConverterCredits } from '@/lib/converterCredits';
 import CadComparisonPopup, { canViewComparison } from './CadComparisonPopup';
+
+function needsConverterCredit(converterPricing, inputFileSizeBytes) {
+  if (converterPricing?.paid) return false;
+  if (converterPricing?.is_free) return false;
+  const size = Number(inputFileSizeBytes);
+  return Number.isFinite(size) && size >= CONVERTER_FREE_SIZE_LIMIT_BYTES;
+}
+
+function downloadButtonLabel({ downloading, converterPricing, inputFileSizeBytes }) {
+  if (downloading) return 'Downloading...';
+  if (!needsConverterCredit(converterPricing, inputFileSizeBytes)) return 'Download';
+  if (hasConverterCredits()) return 'Download';
+  return 'Download · 1 credit';
+}
 
 function DashboardPricingCell({ converterPricing, inputFileSizeBytes }) {
   const size = Number(inputFileSizeBytes);
@@ -253,7 +268,11 @@ function CadConvertorFiles({
                                     onClick={() => handleDownload(file, index)}
                                     disabled={downloading[index]}
                                   >
-                                    {downloading[index] ? 'Downloading...' : 'Download'}
+                                    {downloadButtonLabel({
+                                      downloading: downloading[index],
+                                      converterPricing: file.converter_pricing,
+                                      inputFileSizeBytes: file.input_file_size_bytes,
+                                    })}
                                   </button>
                                 ) : (
                                   <button

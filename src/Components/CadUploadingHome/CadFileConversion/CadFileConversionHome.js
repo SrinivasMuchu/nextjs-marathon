@@ -7,7 +7,7 @@ import ConverterFaq from './ConverterFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadFileConversionHeader from './CadFileConversionHeader'
 import CadFileConversionHowItWorksServer from './CadFileConversionHowItWorksServer'
-import CoreBenefits from '../CadUpload/CoreBenefits'
+import ConverterPricingSection from './ConverterPricingSection'
 import TrustPrivacy from '../CadUpload/TrustPrivacy'
 import CadConverterTypes from './CadConverterTypes'
 import FeaturedConversions from './FeaturedConversions'
@@ -24,14 +24,7 @@ import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { cadConverterFaqQuestions, getConverterFaqQuestions } from '@/data/cadToolFaqs'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 
-// Page heading structure: 1 h1 (CadFileConversionHeader); h2 (HowItWorks, CoreBenefits, CadConverterTypes, ConverterFaq); rest h3.
-
-const converterBenefits = [
-    { icon: 'zap', label: 'Speed', title: 'Lightning-fast conversion', description: 'Cloud-based processing converts common CAD and mesh files in seconds.' },
-    { icon: 'monitorSmartphone', label: 'Browser-based', title: 'No installation required', description: 'Use the converter in your browser without desktop software or plugins.' },
-    { icon: 'cpu', label: 'File capacity', title: 'Large and complex models', description: 'Upload intricate engineering files up to 300 MB.' },
-    { icon: 'shield', label: 'Privacy', title: 'Your files, your IP', description: 'Ownership stays with you. Files are never added to the public library.' },
-];
+// Page heading structure: 1 h1 (CadFileConversionHeader); h2 (Pricing, HowItWorks, CadConverterTypes, ConverterFaq); rest h3.
 
 const converterTrustItems = [
     { title: 'Encrypted upload', description: 'Secure transfer and processing for every supported format.' },
@@ -131,13 +124,7 @@ function CadFileConversionHome({
                 />
             )}
             <CadFileConversionHeader convert={convert} conversionParams={conversionParams} />
-            <CoreBenefits
-                eyebrow="Built for real CAD workflows"
-                title="Why convert files with Marathon OS?"
-                description="Fast, secure and browser-based CAD conversion designed for everyday engineering workflows."
-                benefits={converterBenefits}
-                variant="cardGrid"
-            />
+            <ConverterPricingSection />
             {!convert ? (
               <>
                 <CadConversionToolLinks />

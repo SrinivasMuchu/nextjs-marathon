@@ -20,6 +20,11 @@ import styles from "./HomeTopNav.module.css";
 import TopNavProfileButton from "../../CommonJsx/TopNavProfileButton";
 import { isCadPartnerPageRoute } from "@/Components/CadServicePages/CadFormContext";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
+import ConverterCreditPlansPopup from "@/Components/History/ConverterCreditPlansPopup";
+import {
+  formatConverterCreditsLabel,
+  getConverterCredits,
+} from "@/lib/converterCredits";
 
 const TOOLS_MENU = [
   {
@@ -110,9 +115,11 @@ function renderNavDropdownMenu(items, label, onClose) {
 
 function HomeTopNav() {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
+  const [showCreditPlans, setShowCreditPlans] = useState(false);
   const topNavRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
+  const creditsLabel = formatConverterCreditsLabel(getConverterCredits());
 
   useEffect(() => {
     if (!openDropdown) return undefined;
@@ -260,12 +267,28 @@ function HomeTopNav() {
       </div>
 
       <div className={styles["home-pg-btns"]}>
+        <button
+          type="button"
+          className={styles.creditsPill}
+          onClick={() => setShowCreditPlans(true)}
+          aria-label={`${creditsLabel}. Buy credits`}
+        >
+          <span className={styles.creditsPillIcon} aria-hidden>
+            ◆
+          </span>
+          <span>
+            {creditsLabel} <span className={styles.creditsPillSep}>·</span> Buy
+          </span>
+        </button>
         <TopNavProfileButton styles={styles} className={"try-demo"} topBar='profile'/>
       </div>
 
       <div className={styles["home-pg-menu"]}>
         <MenuButton styles={{ styles }} />
       </div>
+      {showCreditPlans ? (
+        <ConverterCreditPlansPopup onClose={() => setShowCreditPlans(false)} />
+      ) : null}
     </div>
   );
 }

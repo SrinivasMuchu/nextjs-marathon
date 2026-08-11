@@ -7,6 +7,10 @@ import {
   CONVERTER_FREE_SIZE_LIMIT_BYTES,
   fetchConverterPricingInfo,
 } from "@/lib/converterPricing";
+import {
+  CONVERTER_CREDIT_PACKS,
+  CONVERTER_SINGLE_DOWNLOAD_PRICE,
+} from "@/lib/converterCreditPacks";
 import styles from "./ConverterProgressLoader.module.css";
 
 const MESH_EXTS = new Set(["stl", "obj", "ply", "off", "3dm"]);
@@ -116,6 +120,7 @@ function ConverterProgressLoader({
 }) {
   const { user } = useContext(contextState);
   const [priceLabel, setPriceLabel] = useState("");
+  const [showPackBanner, setShowPackBanner] = useState(false);
   const inputFormat = fileFormat(fileName);
   const outputLabel = String(outputFormat || "output").toUpperCase();
   const sizeLabel = formatFileSize(fileSize);
@@ -126,7 +131,10 @@ function ConverterProgressLoader({
       Number(fileSize) < CONVERTER_FREE_SIZE_LIMIT_BYTES);
 
   useEffect(() => {
-    if (isFree) return;
+    if (isFree) {
+      setShowPackBanner(false);
+      return;
+    }
     let cancelled = false;
     fetchConverterPricingInfo()
       .then((info) => {
@@ -188,81 +196,215 @@ function ConverterProgressLoader({
     );
   }
 
+  const showCreditsUpsell = !isFree;
+
+  if (showCreditsUpsell && showPackBanner) {
+    return (
+      <main className={styles.page}>
+        <section
+          className={styles.packBanner}
+          aria-labelledby="converter-pack-banner-heading"
+        >
+          <div className={styles.packBannerInner}>
+            <div className={styles.packBannerTop}>
+              <button
+                type="button"
+                className={styles.packBannerBack}
+                onClick={() => setShowPackBanner(false)}
+              >
+                ← Back to conversion
+              </button>
+              <div className={styles.packBannerHeader}>
+                <p className={styles.packBannerEyebrow}>Pricing</p>
+                <h2 id="converter-pack-banner-heading" className={styles.packBannerHeading}>
+                  Pay as you go, cheaper by the pack
+                </h2>
+                <p className={styles.packBannerDescription}>
+                  Files under 5 MB are always free. For everything else, buy credits —{" "}
+                  <strong>
+                    1 credit downloads any file, any size, and credits never expire.
+                  </strong>
+                </p>
+              </div>
+            </div>
+
+            <div className={styles.packBannerGrid}>
+              {CONVERTER_CREDIT_PACKS.map((pack) => (
+                <article
+                  key={pack.id}
+                  className={`${styles.packCard} ${
+                    pack.featured ? styles.packCardFeatured : ""
+                  }`}
+                >
+                  {pack.featured ? (
+                    <span className={styles.packPopularBadge}>★ Most popular</span>
+                  ) : null}
+                  <p className={styles.packTier}>{pack.name}</p>
+                  <p className={styles.packCredits}>
+                    <span className={styles.packCreditCount}>{pack.credits}</span>
+                    <span className={styles.packCreditLabel}>credits</span>
+                  </p>
+                  <div className={styles.packPriceRow}>
+                    <p className={styles.packPrice}>{pack.price}</p>
+                    <p className={styles.packPerCredit}>{pack.perCredit}</p>
+                  </div>
+                  <span
+                    className={`${styles.packSaveBadge} ${
+                      pack.saveBest ? styles.packSaveBadgeBest : ""
+                    }`}
+                  >
+                    {pack.save}
+                  </span>
+                  <p className={styles.packCopy}>{pack.description}</p>
+                  <button
+                    type="button"
+                    className={`${styles.packCta} ${
+                      pack.variant === "solid" ? styles.packCtaSolid : ""
+                    }`}
+                    onClick={() => setShowPackBanner(false)}
+                  >
+                    {pack.cta}
+                  </button>
+                </article>
+              ))}
+            </div>
+
+            <p className={styles.packBannerFooter}>
+              Just need one?{" "}
+              <button
+                type="button"
+                className={styles.packBannerFooterLink}
+                onClick={() => setShowPackBanner(false)}
+              >
+                Pay {CONVERTER_SINGLE_DOWNLOAD_PRICE} for a single download
+              </button>
+              {" · No subscription · Credits never expire · GST invoice on every purchase"}
+            </p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className={styles.page}>
-      <section className={styles.card} aria-live="polite">
-        <div className={styles.progressCenter}>
-          <div className={styles.spinner} aria-hidden />
-          <h1 className={styles.title}>
-            Converting {fileName || "your CAD file"}
-          </h1>
-          <p className={styles.subtitle}>
-            Detailed geometry may take a little longer. You will review the result before
-            payment.
-            {sizeLabel ? ` · ${inputFormat} → ${outputLabel} · ${sizeLabel}` : ""}
-          </p>
-          <div className={styles.progressTrack}>
-            <div
-              className={styles.progressFill}
-              style={{ width: `${progress}%` }}
-            />
+      <div className={`${styles.layout} ${showCreditsUpsell ? styles.layoutSplit : ""}`}>
+        <section className={styles.card} aria-live="polite">
+          <div className={styles.progressCenter}>
+            <div className={styles.spinner} aria-hidden />
+            <h1 className={styles.title}>
+              Converting {fileName || "your CAD file"}
+            </h1>
+            <p className={styles.subtitle}>
+              Detailed geometry may take a little longer. You will review the result before
+              payment.
+              {sizeLabel ? ` · ${inputFormat} → ${outputLabel} · ${sizeLabel}` : ""}
+            </p>
+            <div className={styles.progressTrack}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className={styles.progressPct}>{progress}%</p>
           </div>
-          <p className={styles.progressPct}>{progress}%</p>
-        </div>
 
-        <ol className={styles.stageList}>
-          {steps.map((step) => (
-            <li
-              key={step.id || step.label}
-              className={`${styles.stageItem} ${
-                step.status === "complete"
-                  ? styles.stageComplete
-                  : step.status === "active"
-                    ? styles.stageActive
-                    : styles.stageWaiting
-              }`}
+          <ol className={styles.stageList}>
+            {steps.map((step) => (
+              <li
+                key={step.id || step.label}
+                className={`${styles.stageItem} ${
+                  step.status === "complete"
+                    ? styles.stageComplete
+                    : step.status === "active"
+                      ? styles.stageActive
+                      : styles.stageWaiting
+                }`}
+              >
+                <span>{step.label}</span>
+                <strong>{stepStatusLabel(step)}</strong>
+              </li>
+            ))}
+          </ol>
+
+          {onCancel ? (
+            <div className={styles.actions}>
+              <button type="button" className={styles.dangerBtn} onClick={onCancel}>
+                Cancel conversion
+              </button>
+            </div>
+          ) : null}
+
+          {user?.email ? (
+            <p className={styles.notify}>
+              Feel free to close this tab — we&apos;ll email <strong>{user.email}</strong> when
+              it&apos;s ready.
+            </p>
+          ) : null}
+
+          <p className={styles.pricing}>
+            {isFree ? (
+              <>
+                This conversion is <strong>free</strong> — no payment is required.
+              </>
+            ) : (
+              <>
+                {priceLabel ? (
+                  <>
+                    Price locked at <strong>{priceLabel}</strong>
+                  </>
+                ) : (
+                  "Price is locked"
+                )}
+                {" — "}
+                you&apos;ll only pay when you download.
+              </>
+            )}
+          </p>
+        </section>
+
+        {showCreditsUpsell ? (
+          <aside className={styles.creditsCard} aria-labelledby="buy-credits-while-waiting">
+            <h2 id="buy-credits-while-waiting" className={styles.creditsTitle}>
+              Buy credits while you wait
+            </h2>
+            <p className={styles.creditsSubtitle}>
+              Optional — grab a pack now and this file downloads itself the second it&apos;s
+              done.
+            </p>
+
+            <div className={styles.offerBox}>
+              <div className={styles.offerCopy}>
+                <p className={styles.offerEyebrow}>Team · Most popular</p>
+                <p className={styles.offerLine}>10 credits · $9.99</p>
+              </div>
+              <span className={styles.offerBadge}>Save 33%</span>
+            </div>
+
+            <button
+              type="button"
+              className={styles.creditsCta}
+              onClick={() => setShowPackBanner(true)}
             >
-              <span>{step.label}</span>
-              <strong>{stepStatusLabel(step)}</strong>
-            </li>
-          ))}
-        </ol>
-
-        {onCancel ? (
-          <div className={styles.actions}>
-            <button type="button" className={styles.dangerBtn} onClick={onCancel}>
-              Cancel conversion
+              Choose a pack →
             </button>
-          </div>
-        ) : null}
 
-        {user?.email ? (
-          <p className={styles.notify}>
-            Feel free to close this tab — we&apos;ll email <strong>{user.email}</strong> when
-            it&apos;s ready.
-          </p>
-        ) : null}
+            <hr className={styles.creditsDivider} />
 
-        <p className={styles.pricing}>
-          {isFree ? (
-            <>
-              This conversion is <strong>free</strong> — no payment is required.
-            </>
-          ) : (
-            <>
-              {priceLabel ? (
-                <>
-                  Price locked at <strong>{priceLabel}</strong>
-                </>
-              ) : (
-                "Price is locked"
-              )}
-              {" — "}
-              you&apos;ll only pay when you download.
-            </>
-          )}
-        </p>
-      </section>
+            <p className={styles.creditsFooter}>
+              Just need this one?{" "}
+              <button
+                type="button"
+                className={styles.creditsLink}
+                onClick={() => setShowPackBanner(true)}
+              >
+                Pay {CONVERTER_SINGLE_DOWNLOAD_PRICE}
+              </button>{" "}
+              for a single download. Charged only after validation passes.
+            </p>
+          </aside>
+        ) : null}
+      </div>
     </main>
   );
 }

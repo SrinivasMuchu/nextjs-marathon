@@ -19,6 +19,8 @@ import { toast } from 'react-toastify';
 import { checkConverterDownload } from '@/api/converterPaymentApi';
 import { ensureConverterDownloadAccess } from './converterPayment';
 import ConverterDownloadFlow from './ConverterDownloadFlow';
+import ConverterCreditPlansPopup from './ConverterCreditPlansPopup';
+import { hasConverterCredits } from '@/lib/converterCredits';
 
 let cachedCadHistory = {};
 
@@ -41,6 +43,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   const [openConverterBilling, setOpenConverterBilling] = useState(false);
   const [pendingConverterDownload, setPendingConverterDownload] = useState(null);
   const [converterBillingDetails, setConverterBillingDetails] = useState(null);
+  const [showCreditPlans, setShowCreditPlans] = useState(false);
   // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
   const { user,cadDetailsUpdate } = useContext(contextState);
@@ -367,6 +370,12 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         return;
       }
 
+      // Paid download: use a credit for free if available, otherwise show plans.
+      if (hasConverterCredits()) {
+        await performConverterFileDownload(file, index);
+        return;
+      }
+
       setDownloading(prev => ({ ...prev, [index]: false }));
       setPendingConverterDownload({ file, index });
       setConverterBillingDetails({
@@ -375,15 +384,25 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         price: access.pricing?.base_price ?? access.price,
         pricing: access.pricing,
       });
-      sendClarityEvent("converter_billing_address_opened", {
-        converter_funnel: "billing_opened",
-      });
-      setOpenConverterBilling(true);
+      setShowCreditPlans(true);
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Download failed. Please try again.');
       setDownloading(prev => ({ ...prev, [index]: false }));
     }
+  };
+
+  const closeCreditPlans = () => {
+    setShowCreditPlans(false);
+  };
+
+  const openBillingFromPlans = () => {
+    setShowCreditPlans(false);
+    if (!pendingConverterDownload) return;
+    sendClarityEvent("converter_billing_address_opened", {
+      converter_funnel: "billing_opened",
+    });
+    setOpenConverterBilling(true);
   };
 
   const handlePostVerificationAction = () => {
@@ -483,6 +502,13 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           onClose={closeConverterDownloadFlow}
           onPay={handleConverterPayment}
           onDownloadAgain={downloadConverterFileAgain}
+        />
+      )}
+      {showCreditPlans && (
+        <ConverterCreditPlansPopup
+          onClose={closeCreditPlans}
+          onSelectPack={closeCreditPlans}
+          onSelectSingle={openBillingFromPlans}
         />
       )}
     </>
