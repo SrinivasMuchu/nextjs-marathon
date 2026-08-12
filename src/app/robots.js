@@ -8,7 +8,74 @@ const PRIVATE_PATHS = [
   "/admin/",
   "/api/",
   "/creator/",
+  "/tools/cad-renderer",
 ];
+
+/**
+ * Crawl-only policy (does not change page behavior for users):
+ * - Disallow all query-string URLs
+ * - Allow only ?page= pagination
+ * - Named param Disallows beat Allow when combined (e.g. ?page=2&sort=)
+ */
+const CRAWL_BLOCKED_QUERY_PARAMS = [
+  'sort',
+  'recency',
+  'free_paid',
+  'file_format',
+  'category',
+  'search',
+  'q',
+  'tag',
+  'tags',
+  'limit',
+  'two_dims',
+  'cluster_id',
+  'cluster_slug',
+  'output_format',
+  'sheet_count',
+  'projection',
+  'library_2d',
+  'random',
+  'industry',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+  'gclid',
+  'fbclid',
+  'gclsrc',
+  'ref',
+  'mc_cid',
+  'mc_eid',
+  '_ga',
+  'fileid',
+  'fileId',
+  'file_id',
+  'folderId',
+  'designId',
+  'glb',
+  'sample',
+  'ready',
+  'format',
+  'cad_type',
+  'type',
+  'id',
+  'token',
+  'session',
+];
+
+const QUERY_CRAWL_DISALLOW = [
+  '/*?*',
+  ...CRAWL_BLOCKED_QUERY_PARAMS.map((key) => `/*?*${key}=`),
+];
+
+const QUERY_CRAWL_ALLOW = [
+  '/',
+  '/*?page=',
+];
+
+const CRAWL_DISALLOW = [...PRIVATE_PATHS, ...QUERY_CRAWL_DISALLOW];
 
 const AI_CRAWLERS = [
   "GPTBot",
@@ -21,20 +88,22 @@ const AI_CRAWLERS = [
   "Bingbot",
 ];
 
+function crawlRules(userAgent) {
+  return {
+    userAgent,
+    allow: QUERY_CRAWL_ALLOW,
+    disallow: CRAWL_DISALLOW,
+  };
+}
+
 /** @returns {import('next').MetadataRoute.Robots} */
 export default function robots() {
   return {
     rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: PRIVATE_PATHS,
-      },
-      ...AI_CRAWLERS.map((userAgent) => ({
-        userAgent,
-        allow: "/",
-        disallow: PRIVATE_PATHS,
-      })),
+      crawlRules('*'),
+      crawlRules('Googlebot'),
+      crawlRules('Googlebot-Image'),
+      ...AI_CRAWLERS.map((userAgent) => crawlRules(userAgent)),
     ],
     sitemap: `${SITE_ORIGIN}/sitemap.xml`,
   };

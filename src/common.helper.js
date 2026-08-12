@@ -540,37 +540,29 @@ function buildLibraryCanonicalQuery(params, { includePage = true } = {}) {
   return q;
 }
 
+function isLibraryTrackingParam(key) {
+  return LIBRARY_TRACKING_PARAMS.some((t) => key.toLowerCase() === t.toLowerCase());
+}
+
 /**
  * Build canonical path + query for library pages, robots, and prev/next for pagination.
  * - Clean landings + ?page=N are self-canonical and indexable (doc §4 / §14).
- * - Filter / tracking variants: noindex,follow + canonical to the clean path (no filter query).
+ * - Any other query (filters, search, tracking): noindex,follow + canonical to clean path.
  * @param {{ path: string, searchParams?: Record<string, string | undefined>, hasNextPage?: boolean }} opts
  * @returns {{ canonicalPath: string, robots?: string, prevPath?: string, nextPath?: string }}
  */
 export function getLibraryCanonicalAndRobots({ path, searchParams = {}, hasNextPage = false }) {
   const params = searchParams || {};
   const currentPage = Math.max(1, parseInt(params.page, 10) || 1);
-  const sort = (params.sort || '').trim();
-  const hasSortVariant = sort && sort !== LIBRARY_DEFAULT_SORT;
-  const hasFreePaidVariant = (params.free_paid || '').trim() !== '';
-  const hasFileFormatVariant = (params.file_format || '').trim() !== '';
-  const hasSearchVariant = (params.search || '').trim() !== '';
-  const hasRecencyVariant = (params.recency || '').trim() !== '';
-  const hasTagsVariant = (params.tags || '').trim() !== '';
-  const twoDimsRaw = (params.two_dims || '').trim().toLowerCase();
-  const hasTwoDimsVariant = twoDimsRaw === '1' || twoDimsRaw === 'true' || twoDimsRaw === 'yes';
-  const hasTrackingParams = Object.keys(params).some((k) =>
-    LIBRARY_TRACKING_PARAMS.some((t) => k.toLowerCase() === t.toLowerCase())
-  );
 
-  const hasFilterVariant =
-    hasSortVariant ||
-    hasFreePaidVariant ||
-    hasFileFormatVariant ||
-    hasSearchVariant ||
-    hasRecencyVariant ||
-    hasTagsVariant ||
-    hasTwoDimsVariant;
+  /* Only ?page= may stay indexable; every other non-empty query is noindex. */
+  const nonPageKeys = Object.keys(params).filter((key) => {
+    if (key === 'page') return false;
+    const value = params[key];
+    return value != null && String(value).trim() !== '';
+  });
+  const hasFilterVariant = nonPageKeys.some((key) => !isLibraryTrackingParam(key));
+  const hasNonPageQuery = nonPageKeys.length > 0;
 
   /* Pagination alone is indexable with a self-referencing canonical (?page=N). */
   const canonicalQuery = buildLibraryCanonicalQuery(
@@ -580,7 +572,7 @@ export function getLibraryCanonicalAndRobots({ path, searchParams = {}, hasNextP
   const canonicalPath = queryString ? `${path}?${queryString}` : path;
 
   let robots;
-  if (hasFilterVariant || hasTrackingParams) {
+  if (hasNonPageQuery) {
     robots = 'noindex, follow';
   }
 
