@@ -1,11 +1,43 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect, useState } from 'react';
 import {
-  CONVERTER_CREDIT_PACKS,
-  CONVERTER_SINGLE_DOWNLOAD_PRICE,
-} from '@/lib/converterCreditPacks';
+  fetchConverterPricingInfo,
+  getConverterPacksFromInfo,
+  getSinglePriceLabelFromInfo,
+} from '@/lib/converterPricing';
 import styles from './ConverterPricingSection.module.css';
 
 function ConverterPricingSection() {
+  const [packs, setPacks] = useState([]);
+  const [singlePriceLabel, setSinglePriceLabel] = useState('');
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchConverterPricingInfo()
+      .then((info) => {
+        if (cancelled) return;
+        setPacks(getConverterPacksFromInfo(info));
+        setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
+        setLoaded(true);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setPacks([]);
+          setSinglePriceLabel('');
+          setLoaded(true);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!loaded || !packs.length) {
+    return null;
+  }
+
   return (
     <section className={styles.section} aria-labelledby="converter-pricing-heading">
       <div className={styles.inner}>
@@ -21,7 +53,7 @@ function ConverterPricingSection() {
         </header>
 
         <div className={styles.grid}>
-          {CONVERTER_CREDIT_PACKS.map((pack) => (
+          {packs.map((pack) => (
             <article
               key={pack.id}
               className={`${styles.card} ${pack.featured ? styles.cardFeatured : ''}`}
@@ -35,13 +67,13 @@ function ConverterPricingSection() {
                 <span className={styles.creditLabel}>credits</span>
               </p>
               <div className={styles.priceRow}>
-                <p className={styles.price}>{pack.price}</p>
-                <p className={styles.perCredit}>{pack.perCredit}</p>
+                <p className={styles.price}>{pack.price_label}</p>
+                <p className={styles.perCredit}>{pack.per_credit_label}</p>
               </div>
               <span
-                className={`${styles.saveBadge} ${pack.saveBest ? styles.saveBadgeBest : ''}`}
+                className={`${styles.saveBadge} ${pack.save_best ? styles.saveBadgeBest : ''}`}
               >
-                {pack.save}
+                {pack.save_label}
               </span>
               <p className={styles.cardCopy}>{pack.description}</p>
               <a
@@ -54,27 +86,29 @@ function ConverterPricingSection() {
           ))}
         </div>
 
-        <p className={styles.footer}>
-          Just need one?{' '}
-          <a href="#cad-file-converter" className={styles.footerLink}>
-            Pay {CONVERTER_SINGLE_DOWNLOAD_PRICE} for a single download
-          </a>
-          <span className={styles.footerDot} aria-hidden>
-            ·
-          </span>
-          <span className={styles.footerBreak} />
-          No subscription
-          <span className={styles.footerDot} aria-hidden>
-            ·
-          </span>
-          <span className={styles.footerBreak} />
-          Credits never expire
-          <span className={styles.footerDot} aria-hidden>
-            ·
-          </span>
-          <span className={styles.footerBreak} />
-          GST invoice on every purchase
-        </p>
+        {singlePriceLabel ? (
+          <p className={styles.footer}>
+            Just need one?{' '}
+            <a href="#cad-file-converter" className={styles.footerLink}>
+              Pay {singlePriceLabel} for a single download
+            </a>
+            <span className={styles.footerDot} aria-hidden>
+              ·
+            </span>
+            <span className={styles.footerBreak} />
+            No subscription
+            <span className={styles.footerDot} aria-hidden>
+              ·
+            </span>
+            <span className={styles.footerBreak} />
+            Credits never expire
+            <span className={styles.footerDot} aria-hidden>
+              ·
+            </span>
+            <span className={styles.footerBreak} />
+            Invoice on every purchase
+          </p>
+        ) : null}
       </div>
     </section>
   );

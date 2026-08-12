@@ -319,8 +319,7 @@ function CadDropDown({
           ) : (
             <p>
               <Info size={16} aria-hidden />
-              Files under 5 MB convert and download free. Larger files require a small fee per
-              conversion, including a new file or re-run.
+              Files under 5 MB convert and download free. For larger files, 1 credit = one download of any size — buy a pack and save up to 42%.
             </p>
           )}
         </div>

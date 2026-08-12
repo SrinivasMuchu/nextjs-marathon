@@ -292,7 +292,7 @@ function priceBadge(file) {
   return buildConverterPricingDisplay(pricing).totalLabel;
 }
 
-function comparisonDownloadLabel(file, downloading) {
+function comparisonDownloadLabel(file, downloading, converterCredits) {
   if (downloading) return "Downloading…";
   const outputFmt = String(file?.output_format || "file").toUpperCase();
   const pricing = file?.converter_pricing;
@@ -301,7 +301,7 @@ function comparisonDownloadLabel(file, downloading) {
   const isFree =
     Number.isFinite(size) && size > 0 && size < CONVERTER_FREE_SIZE_LIMIT_BYTES;
   if (isFree || !Number.isFinite(size) || size <= 0) return `Download ${outputFmt}`;
-  if (hasConverterCredits()) return `Download ${outputFmt}`;
+  if (hasConverterCredits(converterCredits)) return `Download ${outputFmt}`;
   return "Download · 1 credit";
 }
 
@@ -346,6 +346,7 @@ function CadComparisonPopup({
   onDownload,
   downloadingReport,
   downloading,
+  converterCredits = 0,
 }) {
   const [copied, setCopied] = useState(false);
   const drawing = isDrawingConversion(file);
@@ -662,7 +663,7 @@ function CadComparisonPopup({
               disabled={file?.status !== "COMPLETED" || Boolean(downloading)}
             >
               <DownloadIcon sx={{ fontSize: 18 }} />
-              {comparisonDownloadLabel(file, downloading)}
+              {comparisonDownloadLabel(file, downloading, converterCredits)}
             </button>
           </div>
         </footer>

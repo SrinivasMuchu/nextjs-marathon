@@ -1,17 +1,22 @@
 "use client";
 
 import React, { useContext, useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { contextState } from "../ContextProvider";
 import {
   buildConverterPricingDisplay,
   CONVERTER_FREE_SIZE_LIMIT_BYTES,
   fetchConverterPricingInfo,
+  getConverterPacksFromInfo,
+  getFeaturedConverterPack,
+  getSinglePriceLabelFromInfo,
 } from "@/lib/converterPricing";
-import {
-  CONVERTER_CREDIT_PACKS,
-  CONVERTER_SINGLE_DOWNLOAD_PRICE,
-} from "@/lib/converterCreditPacks";
+import { hasConverterCredits } from "@/lib/converterCredits";
 import styles from "./ConverterProgressLoader.module.css";
+import cube from "./Cube.json";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
+
 
 const MESH_EXTS = new Set(["stl", "obj", "ply", "off", "3dm"]);
 const SOLID_EXTS = new Set(["step", "stp", "iges", "igs", "brep", "brp"]);
@@ -120,6 +125,8 @@ function ConverterProgressLoader({
 }) {
   const { user } = useContext(contextState);
   const [priceLabel, setPriceLabel] = useState("");
+  const [packs, setPacks] = useState([]);
+  const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [showPackBanner, setShowPackBanner] = useState(false);
   const inputFormat = fileFormat(fileName);
   const outputLabel = String(outputFormat || "output").toUpperCase();
@@ -129,9 +136,10 @@ function ConverterProgressLoader({
     (Number.isFinite(Number(fileSize)) &&
       Number(fileSize) > 0 &&
       Number(fileSize) < CONVERTER_FREE_SIZE_LIMIT_BYTES);
+  const alreadyCovered = isFree || hasConverterCredits(user?.converter_credits);
 
   useEffect(() => {
-    if (isFree) {
+    if (alreadyCovered) {
       setShowPackBanner(false);
       return;
     }
@@ -140,15 +148,22 @@ function ConverterProgressLoader({
       .then((info) => {
         if (!cancelled) {
           setPriceLabel(buildConverterPricingDisplay(info?.pricing).totalLabel);
+          setPacks(getConverterPacksFromInfo(info));
+          setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
         }
       })
       .catch(() => {
-        if (!cancelled) setPriceLabel("");
+        if (!cancelled) {
+          setPriceLabel("");
+          setPacks([]);
+          setSinglePriceLabel("");
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [isFree]);
+  }, [alreadyCovered]);
+
 
   const steps = useMemo(() => {
     if (Array.isArray(conversionSteps) && conversionSteps.length > 0) {
@@ -196,9 +211,11 @@ function ConverterProgressLoader({
     );
   }
 
-  const showCreditsUpsell = !isFree;
+  const showCreditsUpsell = !alreadyCovered;
+  const featuredPack = getFeaturedConverterPack(packs);
 
-  if (showCreditsUpsell && showPackBanner) {
+
+  if (showCreditsUpsell && showPackBanner && packs.length) {
     return (
       <main className={styles.page}>
         <section
@@ -229,7 +246,7 @@ function ConverterProgressLoader({
             </div>
 
             <div className={styles.packBannerGrid}>
-              {CONVERTER_CREDIT_PACKS.map((pack) => (
+              {packs.map((pack) => (
                 <article
                   key={pack.id}
                   className={`${styles.packCard} ${
@@ -245,15 +262,15 @@ function ConverterProgressLoader({
                     <span className={styles.packCreditLabel}>credits</span>
                   </p>
                   <div className={styles.packPriceRow}>
-                    <p className={styles.packPrice}>{pack.price}</p>
-                    <p className={styles.packPerCredit}>{pack.perCredit}</p>
+                    <p className={styles.packPrice}>{pack.price_label}</p>
+                    <p className={styles.packPerCredit}>{pack.per_credit_label}</p>
                   </div>
                   <span
                     className={`${styles.packSaveBadge} ${
-                      pack.saveBest ? styles.packSaveBadgeBest : ""
+                      pack.save_best ? styles.packSaveBadgeBest : ""
                     }`}
                   >
-                    {pack.save}
+                    {pack.save_label}
                   </span>
                   <p className={styles.packCopy}>{pack.description}</p>
                   <button
@@ -269,17 +286,19 @@ function ConverterProgressLoader({
               ))}
             </div>
 
-            <p className={styles.packBannerFooter}>
-              Just need one?{" "}
-              <button
-                type="button"
-                className={styles.packBannerFooterLink}
-                onClick={() => setShowPackBanner(false)}
-              >
-                Pay {CONVERTER_SINGLE_DOWNLOAD_PRICE} for a single download
-              </button>
-              {" · No subscription · Credits never expire · GST invoice on every purchase"}
-            </p>
+            {singlePriceLabel ? (
+              <p className={styles.packBannerFooter}>
+                Just need one?{" "}
+                <button
+                  type="button"
+                  className={styles.packBannerFooterLink}
+                  onClick={() => setShowPackBanner(false)}
+                >
+                  Pay {singlePriceLabel} for a single download
+                </button>
+                {" · No subscription · Credits never expire · Invoice on every purchase"}
+              </p>
+            ) : null}
           </div>
         </section>
       </main>
@@ -291,15 +310,20 @@ function ConverterProgressLoader({
       <div className={`${styles.layout} ${showCreditsUpsell ? styles.layoutSplit : ""}`}>
         <section className={styles.card} aria-live="polite">
           <div className={styles.progressCenter}>
-            <div className={styles.spinner} aria-hidden />
+            <div className={styles.cubeLoader} aria-hidden>
+              <Lottie animationData={cube} loop style={{ width: 160, height: 160 }} />
+            </div>
             <h1 className={styles.title}>
               Converting {fileName || "your CAD file"}
             </h1>
             <p className={styles.subtitle}>
-              Detailed geometry may take a little longer. You will review the result before
-              payment.
+              Detailed geometry may take a little longer.
+              {alreadyCovered
+                ? " You can download as soon as it finishes."
+                : " You will review the result before payment."}
               {sizeLabel ? ` · ${inputFormat} → ${outputLabel} · ${sizeLabel}` : ""}
             </p>
+
             <div className={styles.progressTrack}>
               <div
                 className={styles.progressFill}
@@ -347,6 +371,10 @@ function ConverterProgressLoader({
               <>
                 This conversion is <strong>free</strong> — no payment is required.
               </>
+            ) : hasConverterCredits(user?.converter_credits) ? (
+              <>
+                Covered by your credits — <strong>no payment needed</strong> for this download.
+              </>
             ) : (
               <>
                 {priceLabel ? (
@@ -363,7 +391,7 @@ function ConverterProgressLoader({
           </p>
         </section>
 
-        {showCreditsUpsell ? (
+        {showCreditsUpsell && featuredPack ? (
           <aside className={styles.creditsCard} aria-labelledby="buy-credits-while-waiting">
             <h2 id="buy-credits-while-waiting" className={styles.creditsTitle}>
               Buy credits while you wait
@@ -375,33 +403,41 @@ function ConverterProgressLoader({
 
             <div className={styles.offerBox}>
               <div className={styles.offerCopy}>
-                <p className={styles.offerEyebrow}>Team · Most popular</p>
-                <p className={styles.offerLine}>10 credits · $9.99</p>
+                <p className={styles.offerEyebrow}>
+                  {featuredPack.name}
+                  {featuredPack.featured ? " · Most popular" : ""}
+                </p>
+                <p className={styles.offerLine}>
+                  {featuredPack.credits} credits · {featuredPack.price_label}
+                </p>
               </div>
-              <span className={styles.offerBadge}>Save 33%</span>
+              <span className={styles.offerBadge}>{featuredPack.save_label}</span>
             </div>
 
             <button
               type="button"
               className={styles.creditsCta}
               onClick={() => setShowPackBanner(true)}
+              disabled={!packs.length}
             >
               Choose a pack →
             </button>
 
             <hr className={styles.creditsDivider} />
 
-            <p className={styles.creditsFooter}>
-              Just need this one?{" "}
-              <button
-                type="button"
-                className={styles.creditsLink}
-                onClick={() => setShowPackBanner(true)}
-              >
-                Pay {CONVERTER_SINGLE_DOWNLOAD_PRICE}
-              </button>{" "}
-              for a single download. Charged only after validation passes.
-            </p>
+            {singlePriceLabel ? (
+              <p className={styles.creditsFooter}>
+                Just need this one?{" "}
+                <button
+                  type="button"
+                  className={styles.creditsLink}
+                  onClick={() => setShowPackBanner(true)}
+                >
+                  Pay {singlePriceLabel}
+                </button>{" "}
+                for a single download. Charged only after validation passes.
+              </p>
+            ) : null}
           </aside>
         ) : null}
       </div>

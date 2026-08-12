@@ -62,6 +62,43 @@ export async function verifyConverterDownloadPayment({
   return unwrap(data);
 }
 
+export async function redeemConverterCredit(converterFileId) {
+  const { data } = await axios.post(
+    `${BASE_URL}${CONVERTER_API_BASE}/use-credit`,
+    { converter_file_id: converterFileId },
+    { headers: userUuidHeader(), timeout: 30_000 },
+  );
+  return unwrap(data);
+}
+
+export async function createConverterPackOrder(packId, billingId) {
+  const { data } = await axios.post(
+    `${BASE_URL}${CONVERTER_API_BASE}/create-pack-order`,
+    { pack_id: packId, billing_id: billingId },
+    { headers: userUuidHeader(), timeout: 30_000 },
+  );
+  return unwrap(data);
+}
+
+export async function verifyConverterPackPayment({
+  pack_id,
+  razorpay_order_id,
+  razorpay_payment_id,
+  razorpay_signature,
+}) {
+  const { data } = await axios.post(
+    `${BASE_URL}${CONVERTER_API_BASE}/verify-pack-payment`,
+    {
+      pack_id,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    },
+    { headers: userUuidHeader(), timeout: 30_000 },
+  );
+  return unwrap(data);
+}
+
 export async function getAdminControls() {
   const { data } = await axios.get(`${BASE_URL}/v1/admin-pannel/get-admin-controls`, {
     headers: { "admin-uuid": localStorage.getItem("admin-uuid") },

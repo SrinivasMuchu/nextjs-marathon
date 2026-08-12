@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { IMAGEURLS } from "@/config";
 import Image from "next/image";
@@ -21,10 +21,16 @@ import TopNavProfileButton from "../../CommonJsx/TopNavProfileButton";
 import { isCadPartnerPageRoute } from "@/Components/CadServicePages/CadFormContext";
 import MenuButton from "@/Components/CommonJsx/MenuButton";
 import ConverterCreditPlansPopup from "@/Components/History/ConverterCreditPlansPopup";
+import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
+import { ensureConverterPackPurchase } from "@/Components/History/converterPayment";
+import { formatConverterCreditsLabel } from "@/lib/converterCredits";
 import {
-  formatConverterCreditsLabel,
-  getConverterCredits,
-} from "@/lib/converterCredits";
+  fetchConverterPricingInfo,
+  getConverterPacksFromInfo,
+  getSinglePriceLabelFromInfo,
+} from "@/lib/converterPricing";
+import { contextState } from "@/Components/CommonJsx/ContextProvider";
+import { toast } from "react-toastify";
 
 const TOOLS_MENU = [
   {
@@ -116,10 +122,33 @@ function renderNavDropdownMenu(items, label, onClose) {
 function HomeTopNav() {
   const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
   const [showCreditPlans, setShowCreditPlans] = useState(false);
+  const [packs, setPacks] = useState([]);
+  const [singlePriceLabel, setSinglePriceLabel] = useState("");
+  const [pendingPack, setPendingPack] = useState(null);
   const topNavRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
-  const creditsLabel = formatConverterCreditsLabel(getConverterCredits());
+  const { user, setUser, setUpdatedDetails } = useContext(contextState);
+  const creditsLabel = formatConverterCreditsLabel(user?.converter_credits);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchConverterPricingInfo()
+      .then((info) => {
+        if (cancelled) return;
+        setPacks(getConverterPacksFromInfo(info));
+        setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setPacks([]);
+          setSinglePriceLabel("");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!openDropdown) return undefined;
@@ -287,7 +316,41 @@ function HomeTopNav() {
         <MenuButton styles={{ styles }} />
       </div>
       {showCreditPlans ? (
-        <ConverterCreditPlansPopup onClose={() => setShowCreditPlans(false)} />
+        <ConverterCreditPlansPopup
+          packs={packs}
+          singlePriceLabel={singlePriceLabel}
+          onClose={() => setShowCreditPlans(false)}
+          onSelectPack={(pack) => {
+            if (!user?._id) {
+              toast.info("Log in to buy credits.");
+              return;
+            }
+            setShowCreditPlans(false);
+            setPendingPack(pack);
+          }}
+          onSelectSingle={() => setShowCreditPlans(false)}
+        />
+      ) : null}
+      {pendingPack ? (
+        <ConverterDownloadFlow
+          mode="pack"
+          pack={pendingPack}
+          user={user}
+          onClose={() => setPendingPack(null)}
+          onPay={async (billingId) => {
+            const result = await ensureConverterPackPurchase({
+              packId: pendingPack.id,
+              packName: pendingPack.name,
+              userEmail: user?.email,
+              billingId,
+            });
+            if (result?.credits != null) {
+              setUser((prev) => ({ ...prev, converter_credits: Number(result.credits) || 0 }));
+              setUpdatedDetails((value) => !value);
+            }
+            return result;
+          }}
+        />
       ) : null}
     </div>
   );
