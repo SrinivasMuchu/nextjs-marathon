@@ -1,5 +1,6 @@
 import { PHOTO_LINK, DESIGN_GLB_PREFIX_URL } from "./config";
 import { FORMAT_ALIASES } from '@/data/librarySeoAllowlist';
+import { inferLibraryOutput } from '@/data/libraryOutput';
 
 export const textLettersLimit = (text, limitType) => {
 
@@ -477,21 +478,26 @@ export function getLibraryPathWithQuery({
   recency,
   free_paid,
   file_format,
+  output,
   two_dims,
   cluster_id,
 }) {
   const params = new URLSearchParams();
+  const outputType = inferLibraryOutput({ output, file_format, two_dims });
   const formatRaw = file_format ? String(file_format).trim() : '';
-  const formatFamily = formatRaw
-    ? FORMAT_ALIASES[formatRaw.toLowerCase()] || slugify(formatRaw)
-    : '';
+  const isMultiFormat = formatRaw.includes(',');
+  const formatFamily =
+    !isMultiFormat && formatRaw
+      ? FORMAT_ALIASES[formatRaw.toLowerCase()] || slugify(formatRaw)
+      : '';
 
   let path;
   if (formatFamily && !categoryName && !tagName) {
     path = getLibraryFileFormatPath(formatFamily);
   } else {
     path = getLibraryPath({ categoryName, tagName });
-    if (formatRaw) params.set('file_format', formatRaw);
+    /* Group types use ?output=solids|meshes|2d, not a file_format list. */
+    if (formatRaw && !outputType) params.set('file_format', formatRaw);
   }
 
   if (search) params.set('search', search);
@@ -500,8 +506,7 @@ export function getLibraryPathWithQuery({
   if (sort && sort !== LIBRARY_DEFAULT_SORT) params.set('sort', sort);
   if (recency) params.set('recency', recency);
   if (free_paid) params.set('free_paid', free_paid);
-  const td = String(two_dims || '').trim().toLowerCase();
-  if (td === '1' || td === 'true' || td === 'yes') params.set('two_dims', '1');
+  if (outputType) params.set('output', outputType);
   if (cluster_id) params.set('cluster_id', String(cluster_id).trim());
   const q = params.toString();
   return q ? `${path}?${q}` : path;

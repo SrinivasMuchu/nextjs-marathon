@@ -21,7 +21,6 @@ import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 import LibraryLayoutWithFilters from './LibraryLayoutWithFilters';
 import SortBySelect from './SortBySelect';
 import TwoDLibraryCard from './TwoDLibraryCard';
-import TwoDLibraryBottomSections from './TwoDLibraryBottomSections';
 import LibraryHeroSearch from './LibraryHeroSearch';
 // import LibraryHubCards from './LibraryHubCards';
 import LibraryCategoryScroller from './LibraryCategoryScroller';
@@ -42,7 +41,6 @@ import {
 } from '@/data/twoDLibraryPage';
 
 const SITE_LIST_ORIGIN = 'https://marathon-os.com';
-const FIRST_GRID_SIZE = 6;
 
 function build2dLibraryHref(params) {
   const query = {
@@ -416,10 +414,6 @@ export default async function TwoDLibrary({
                       </div>
                     )}
                     <TwoDLibraryCard design={design} />
-
-                    {index === FIRST_GRID_SIZE - 1 && !categoryLabel && !tagLabel ? (
-                      <TwoDLibraryBottomSections />
-                    ) : null}
                   </React.Fragment>
                 ))}
               </div>

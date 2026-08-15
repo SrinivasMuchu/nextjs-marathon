@@ -7,6 +7,10 @@ import {
   LIBRARY_STATIC_PREFIXES,
 } from '@/data/librarySeoAllowlist';
 import {
+  inferOutputFromFileFormats,
+  normalizeLibraryOutput,
+} from '@/data/libraryOutput';
+import {
   isApprovedTagSlug,
   isApprovedCategorySlug,
   isApprovedClusterSlug,
@@ -87,23 +91,26 @@ function isStaticLibraryPath(pathname) {
   );
 }
 
-function isAllowedQueryKey(key) {
-  return key === 'page' || INTERACTIVE_QUERY_PARAMS.has(key);
-}
-
-function hasBlockedFilterParams(params) {
-  return nonTrackingKeys(params).some((key) => !isAllowedQueryKey(key));
-}
-
-function blockedFilterKeys(params) {
-  return nonTrackingKeys(params).filter(
-    (key) => FILTER_PARAMS.has(key) && !isAllowedQueryKey(key)
-  );
+/** Browse/filter query keys users may use; crawl blocking is robots.txt + noindex. */
+function isBrowseQueryKey(key) {
+  return key === 'page' || FILTER_PARAMS.has(key) || INTERACTIVE_QUERY_PARAMS.has(key);
 }
 
 function applyPageToDestination(destination, pageValue) {
   if (pageValue && pageValue !== '1') {
     destination.searchParams.set('page', pageValue);
+  }
+}
+
+/** Copy user browse filters onto a redirect target (excludes path-encoded keys). */
+function copyBrowseQueryParams(sourceParams, destination, { exclude = [] } = {}) {
+  const excludeSet = new Set(exclude);
+  for (const key of nonTrackingKeys(sourceParams)) {
+    if (excludeSet.has(key) || key === 'page') continue;
+    if (!isBrowseQueryKey(key)) continue;
+    const value = sourceParams.get(key);
+    if (value == null || value === '') continue;
+    destination.searchParams.set(key, value);
   }
 }
 
@@ -115,9 +122,10 @@ function extractClusterSlug(pathname) {
 }
 
 /**
- * Enforce library SEO URL policy (301 / 404 / 410).
- * Tag / category / cluster existence is loaded dynamically from the API (DB/ES).
- * Returns a NextResponse when the request should be short-circuited, or null to continue.
+ * Library SEO URL policy for users + crawlers:
+ * - Users: filter query URLs work (sort, free_paid, recency, search, …).
+ * - Crawlers: blocked via robots.txt; pages stay noindex via metadata.
+ * - Still 301 path normalizations and 404/410 for invalid path slugs.
  */
 export async function librarySeoGuard(request) {
   const url = request.nextUrl.clone();
@@ -151,15 +159,37 @@ export async function librarySeoGuard(request) {
     removedDefault = true;
   }
 
+  const normalizedOutput = normalizeLibraryOutput(params.get('output'));
+  if (params.get('output') && !normalizedOutput) {
+    params.delete('output');
+    removedDefault = true;
+  } else if (normalizedOutput && params.get('output') !== normalizedOutput) {
+    params.set('output', normalizedOutput);
+    removedDefault = true;
+  }
+
+  const groupedFormat = inferOutputFromFileFormats(params.get('file_format'));
+  if (groupedFormat) {
+    params.delete('file_format');
+    if (!params.get('output')) params.set('output', groupedFormat);
+    removedDefault = true;
+  }
+
+  const twoDimsValue = String(params.get('two_dims') || '').trim().toLowerCase();
+  if (['1', 'true', 'yes'].includes(twoDimsValue)) {
+    params.delete('two_dims');
+    if (!params.get('output')) params.set('output', '2d');
+    removedDefault = true;
+  } else if (params.has('two_dims')) {
+    params.delete('two_dims');
+    removedDefault = true;
+  }
+
   /* ── Tag routes: /library/tag/{slug} ── */
   if (pathname.startsWith('/library/tag/')) {
     const slug = pathname.replace('/library/tag/', '').split('/')[0];
 
     if (!slug || !(await isApprovedTagSlug(slug))) {
-      return gone();
-    }
-
-    if (hasBlockedFilterParams(params)) {
       return gone();
     }
 
@@ -178,12 +208,6 @@ export async function librarySeoGuard(request) {
       return notFoundResponse();
     }
 
-    /* Doc: filters on format pages (free_paid, recency, sort, search, …) → 410. Only ?page= allowed. */
-    const formatExtraKeys = nonTrackingKeys(params).filter((key) => key !== 'page');
-    if (formatExtraKeys.length > 0) {
-      return gone();
-    }
-
     if (removedDefault) {
       return permanentRedirect(url);
     }
@@ -196,10 +220,6 @@ export async function librarySeoGuard(request) {
   if (clusterSlug) {
     if (!(await isApprovedClusterSlug(clusterSlug))) {
       return notFoundResponse();
-    }
-
-    if (hasBlockedFilterParams(params)) {
-      return gone();
     }
 
     if (removedDefault) {
@@ -220,24 +240,22 @@ export async function librarySeoGuard(request) {
         return notFoundResponse();
       }
 
-      /* Doc: any extra filter with file_format (free_paid, recency, …) → 410, do not redirect. */
-      const remainingKeys = nonTrackingKeys(params).filter(
-        (key) => key !== 'file_format' && key !== 'page'
-      );
-
-      if (remainingKeys.length > 0) {
-        return gone();
-      }
-
+      /* Single format → canonical path; preserve user filters (sort, free_paid, …). */
       if (formats.length === 1) {
         const destination = request.nextUrl.clone();
         destination.pathname = `/library/file-format/${formats[0]}`;
         destination.search = '';
+        copyBrowseQueryParams(params, destination, { exclude: ['file_format'] });
         applyPageToDestination(destination, pageValue);
         return permanentRedirect(destination);
       }
 
-      return gone();
+      /* Multi-format query: serve the page for users (noindex via metadata). */
+      if (removedDefault) {
+        return permanentRedirect(url);
+      }
+
+      return null;
     }
 
     const category = params.get('category');
@@ -249,28 +267,12 @@ export async function librarySeoGuard(request) {
         return notFoundResponse();
       }
 
-      const remainingKeys = nonTrackingKeys(params).filter(
-        (key) => key !== 'category' && key !== 'page' && !INTERACTIVE_QUERY_PARAMS.has(key)
-      );
-
-      if (remainingKeys.length > 0) {
-        return gone();
-      }
-
       const destination = request.nextUrl.clone();
       destination.pathname = `/library/${normalizedCategory}`;
       destination.search = '';
+      copyBrowseQueryParams(params, destination, { exclude: ['category'] });
       applyPageToDestination(destination, pageValue);
       return permanentRedirect(destination);
-    }
-
-    /*
-     * Root /library faceted filters (free_paid, sort, recency, …) stay 410 even if
-     * the API would return designs. Allowed query on root: page + search only.
-     */
-    const rootBlocked = blockedFilterKeys(params);
-    if (rootBlocked.length > 0) {
-      return gone();
     }
 
     if (removedDefault) {
@@ -297,10 +299,6 @@ export async function librarySeoGuard(request) {
         return gone();
       }
 
-      if (hasBlockedFilterParams(params)) {
-        return gone();
-      }
-
       if (removedDefault) {
         return permanentRedirect(url);
       }
@@ -311,12 +309,6 @@ export async function librarySeoGuard(request) {
 
   /* ── Static / utility library paths (2d hub, tags index, clusters index) ── */
   if (isStaticLibraryPath(pathname)) {
-    const remainingFilterKeys = blockedFilterKeys(params);
-
-    if (remainingFilterKeys.length > 0) {
-      return gone();
-    }
-
     if (removedDefault) {
       return permanentRedirect(url);
     }
@@ -337,10 +329,6 @@ export async function librarySeoGuard(request) {
     }
 
     if (isDesignRouteSegment(segment)) {
-      if (hasBlockedFilterParams(params)) {
-        return gone();
-      }
-
       if (removedDefault) {
         return permanentRedirect(url);
       }
@@ -353,22 +341,11 @@ export async function librarySeoGuard(request) {
       return notFoundResponse();
     }
 
-    if (hasBlockedFilterParams(params)) {
-      return gone();
-    }
-
     if (removedDefault) {
       return permanentRedirect(url);
     }
 
     return null;
-  }
-
-  /* ── Kill remaining faceted URLs under /library ── */
-  const remainingFilterKeys = blockedFilterKeys(params);
-
-  if (remainingFilterKeys.length > 0) {
-    return gone();
   }
 
   if (removedDefault) {

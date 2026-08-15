@@ -22,6 +22,7 @@ const CRAWL_BLOCKED_QUERY_PARAMS = [
   'recency',
   'free_paid',
   'file_format',
+  'output',
   'category',
   'search',
   'q',

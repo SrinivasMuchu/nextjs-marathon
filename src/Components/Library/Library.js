@@ -28,9 +28,9 @@ import { cookies } from 'next/headers';
 import LibraryListingPageJsonLd from '../JsonLdSchemas/LibraryListingPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
+import { inferLibraryOutput, libraryOutputToApiFilters } from '@/data/libraryOutput';
 import LibraryProductCard from './LibraryProductCard';
 import LibraryHireCtaCard from './LibraryHireCtaCard';
-import LibraryBottomSections from './LibraryBottomSections';
 import LibraryHeroSearch from './LibraryHeroSearch';
 // import LibraryHubCards from './LibraryHubCards';
 import LibraryCategoryScroller from './LibraryCategoryScroller';
@@ -48,8 +48,6 @@ import {
 
 const SITE_LIST_ORIGIN = 'https://marathon-os.com';
 
-const FIRST_GRID_SIZE = 6;
-
 /** Build library URL (path for category/tag/cluster + query for search, page, sort, etc.). */
 function buildLibraryHref(params) {
   const query = {
@@ -59,6 +57,7 @@ function buildLibraryHref(params) {
     recency: params.recency,
     free_paid: params.free_paid,
     file_format: params.file_format,
+    output: params.output,
     two_dims: params.two_dims,
   };
 
@@ -73,9 +72,8 @@ function buildLibraryHref(params) {
     if (query.sort) searchParams.set('sort', query.sort);
     if (query.recency) searchParams.set('recency', query.recency);
     if (query.free_paid) searchParams.set('free_paid', query.free_paid);
-    if (query.file_format) searchParams.set('file_format', query.file_format);
-    const td = String(query.two_dims || '').trim().toLowerCase();
-    if (td === '1' || td === 'true' || td === 'yes') searchParams.set('two_dims', '1');
+    if (query.output) searchParams.set('output', query.output);
+    else if (query.file_format) searchParams.set('file_format', query.file_format);
     const qs = searchParams.toString();
     return qs ? `${path}?${qs}` : path;
   }
@@ -98,12 +96,15 @@ async function Library({ searchParams, pageConfig = null }) {
   const sort = searchParams?.sort || '';
   const recency = searchParams?.recency || '';
   const freePaid = searchParams?.free_paid || '';
-  const fileFormat = searchParams?.file_format || '';
-  const rawTwoDims = searchParams?.two_dims;
-  const twoDimsOn = ['1', 'true', 'yes'].includes(
-    String(rawTwoDims || '').trim().toLowerCase()
-  );
-  const twoDimsParam = twoDimsOn ? '1' : '';
+  const outputType = inferLibraryOutput({
+    output: searchParams?.output,
+    file_format: pageConfig ? '' : searchParams?.file_format,
+    two_dims: searchParams?.two_dims,
+  });
+  const outputApi = libraryOutputToApiFilters(outputType);
+  const fileFormat = pageConfig?.apiValue || (!outputType && (searchParams?.file_format || '')) || outputApi.file_format || '';
+  const urlFileFormat = pageConfig?.apiValue || (!outputType && (searchParams?.file_format || '')) || '';
+  const twoDimsParam = outputApi.two_dims || '';
   const clusterId = (searchParams?.cluster_id || '').trim();
   const clusterSlug = (searchParams?.cluster_slug || '').trim();
 
@@ -175,7 +176,8 @@ async function Library({ searchParams, pageConfig = null }) {
     search: searchQuery,
     recency,
     free_paid: freePaid,
-    file_format: fileFormat,
+    file_format: urlFileFormat,
+    output: outputType,
     two_dims: twoDimsParam,
     cluster_id: clusterId,
   });
@@ -341,7 +343,8 @@ async function Library({ searchParams, pageConfig = null }) {
               sort,
               recency,
               free_paid: freePaid,
-              file_format: fileFormat,
+              file_format: urlFileFormat,
+              output: outputType,
               two_dims: twoDimsParam,
             }}
           />
@@ -358,7 +361,8 @@ async function Library({ searchParams, pageConfig = null }) {
             initialSort: searchParams?.sort,
             initialRecency: searchParams?.recency,
             initialFreePaid: searchParams?.free_paid,
-            initialFileFormat: searchParams?.file_format,
+            initialFileFormat: urlFileFormat,
+            initialOutput: outputType,
             initialTwoDims: twoDimsParam,
             initialClusterId: clusterId,
             initialClusterSlug: clusterSlug,
@@ -414,10 +418,6 @@ async function Library({ searchParams, pageConfig = null }) {
               )}
 
               <LibraryProductCard design={design} />
-
-              {index === FIRST_GRID_SIZE - 1 && !pageConfig && !categoryLabel && !tagLabel ? (
-                <LibraryBottomSections />
-              ) : null}
             </React.Fragment>
           ))}
           {designs.length > 0 && designs.length < 5 && (
@@ -440,8 +440,8 @@ async function Library({ searchParams, pageConfig = null }) {
                 sort,
                 recency,
                 free_paid: freePaid,
-                file_format: fileFormat,
-                two_dims: twoDimsParam,
+                file_format: urlFileFormat,
+                output: outputType,
                 cluster_slug: clusterSlug,
               })}
               className={styles['pagination-button']}
@@ -465,8 +465,8 @@ async function Library({ searchParams, pageConfig = null }) {
                 sort,
                 recency,
                 free_paid: freePaid,
-                file_format: fileFormat,
-                two_dims: twoDimsParam,
+                file_format: urlFileFormat,
+                output: outputType,
                 cluster_slug: clusterSlug,
               })}
               className={`${styles['pagination-button']} ${dataPage === p ? styles.active : ''}`}
@@ -489,8 +489,8 @@ async function Library({ searchParams, pageConfig = null }) {
                 sort,
                 recency,
                 free_paid: freePaid,
-                file_format: fileFormat,
-                two_dims: twoDimsParam,
+                file_format: urlFileFormat,
+                output: outputType,
                 cluster_slug: clusterSlug,
               })}
               className={styles['pagination-button']}
