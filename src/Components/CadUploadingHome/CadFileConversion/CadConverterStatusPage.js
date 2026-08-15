@@ -34,10 +34,20 @@ function CadConverterStatusPage() {
   const [isSampleFile, setIsSampleFile] = useState(false);
   const [missingId, setMissingId] = useState(!fileId);
   const [notFound, setNotFound] = useState(false);
+  const stopPollingRef = useRef(false);
+  const pollIntervalRef = useRef(null);
 
   useEffect(() => {
     fileIdRef.current = fileId;
   }, [fileId]);
+
+  const stopPolling = useCallback(() => {
+    stopPollingRef.current = true;
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  }, []);
 
   const applyProgressPayload = useCallback((data = {}) => {
     if (Array.isArray(data.steps) && data.steps.length > 0) {
@@ -56,7 +66,7 @@ function CadConverterStatusPage() {
 
   const getStatus = useCallback(async () => {
     const id = fileIdRef.current;
-    if (!id) return;
+    if (!id || stopPollingRef.current) return;
 
     try {
       const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
@@ -64,7 +74,10 @@ function CadConverterStatusPage() {
         headers: { "user-uuid": localStorage.getItem("uuid") },
       });
 
+      if (stopPollingRef.current) return;
+
       if (!response.data?.meta?.success) {
+        stopPolling();
         setUploadingMessage("FAILED");
         setNotFound(true);
         toast.error(response.data?.meta?.message || "Could not load conversion status.");
@@ -73,6 +86,7 @@ function CadConverterStatusPage() {
 
       const data = response.data.data || {};
       if (!data.status && !data.folderId) {
+        stopPolling();
         setNotFound(true);
         setUploadingMessage("FAILED");
         return;
@@ -82,6 +96,7 @@ function CadConverterStatusPage() {
       const status = data.status;
 
       if (status === "COMPLETED") {
+        stopPolling();
         sendGAtagEvent({
           event_name: "converter_conversion_success",
           event_category: CAD_CONVERTER_EVENT,
@@ -96,6 +111,7 @@ function CadConverterStatusPage() {
       }
 
       if (status === "FAILED") {
+        stopPolling();
         sendGAtagEvent({
           event_name: "converter_conversion_failure",
           event_category: CAD_CONVERTER_EVENT,
@@ -111,9 +127,15 @@ function CadConverterStatusPage() {
       setUploadingMessage(status || "PENDING");
     } catch (error) {
       console.error("Error fetching converter status:", error);
+      stopPolling();
       setUploadingMessage("FAILED");
     }
-  }, [applyProgressPayload, router]);
+  }, [applyProgressPayload, router, stopPolling]);
+
+  const getStatusRef = useRef(getStatus);
+  useEffect(() => {
+    getStatusRef.current = getStatus;
+  }, [getStatus]);
 
   useEffect(() => {
     if (!fileId) {
@@ -122,11 +144,20 @@ function CadConverterStatusPage() {
     }
     setMissingId(false);
     setNotFound(false);
+    stopPollingRef.current = false;
 
-    getStatus();
-    const interval = setInterval(getStatus, 2000);
-    return () => clearInterval(interval);
-  }, [fileId, getStatus]);
+    getStatusRef.current();
+    pollIntervalRef.current = setInterval(() => {
+      getStatusRef.current();
+    }, 2000);
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, [fileId]);
 
   const handleCancel = () => {
     router.push(CONVERTER_TOOL_HREF);

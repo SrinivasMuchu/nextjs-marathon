@@ -57,20 +57,80 @@ export function getSinglePriceLabelFromInfo(info) {
   return info?.single_price_label || "";
 }
 
+function applyDynamicPackOffers(packs) {
+  if (!Array.isArray(packs) || !packs.length) return [];
+
+  let saveBestId = null;
+  let bestSave = -1;
+  let bestCredits = -1;
+  packs.forEach((pack) => {
+    const save = Number(pack.save_percent) || 0;
+    const credits = Number(pack.credits) || 0;
+    if (save > bestSave || (save === bestSave && credits > bestCredits)) {
+      bestSave = save;
+      bestCredits = credits;
+      saveBestId = pack.id;
+    }
+  });
+  if (bestSave <= 0) saveBestId = null;
+
+  const byCredits = [...packs].sort(
+    (a, b) => (Number(a.credits) || 0) - (Number(b.credits) || 0),
+  );
+  let popular = byCredits[Math.floor(byCredits.length / 2)] || byCredits[0];
+  if (popular && popular.id === saveBestId && byCredits.length > 1) {
+    const idx = byCredits.findIndex((pack) => pack.id === popular.id);
+    popular = byCredits[idx - 1] || byCredits[idx + 1] || popular;
+  }
+  const featuredId = popular?.id || null;
+
+  return packs.map((pack, index) => {
+    const featured = pack.id === featuredId;
+    const saveBest = pack.id === saveBestId && Number(pack.save_percent) > 0;
+    const last = index === packs.length - 1;
+    const savePercent = Number(pack.save_percent) || 0;
+    return {
+      ...pack,
+      featured,
+      save_best: saveBest,
+      save_label: saveBest
+        ? `Save ${savePercent}% · best value`
+        : savePercent > 0
+          ? `Save ${savePercent}%`
+          : "Save 0%",
+      variant: featured || last || saveBest ? "solid" : "outline",
+    };
+  });
+}
+
 export function getConverterPacksFromInfo(info) {
   const packs = Array.isArray(info?.packs) ? info.packs : [];
-  return packs.map((pack) => {
+  const singleTotal = Number(buildConverterPricingDisplay(info?.pricing).total) || 0;
+  const mapped = packs.map((pack) => {
     const display = buildConverterPricingDisplay(pack?.pricing || pack);
     const credits = Math.max(1, Math.floor(Number(pack?.credits) || 1));
     const perCreditTotal =
       Math.round((Number(display.total) / credits) * 100) / 100;
+    const savePercent = singleTotal > 0
+      ? Math.max(0, Math.round((1 - perCreditTotal / singleTotal) * 100))
+      : Number(pack.save_percent) || 0;
     return {
       ...pack,
+      credits,
       price_label: display.totalLabel || pack?.price_label,
       per_credit_label: `${formatConverterPrice(perCreditTotal, display.currency)} each`,
       price_with_gst: display.total,
+      save_percent: savePercent,
     };
   });
+  return applyDynamicPackOffers(mapped);
+}
+
+export function getMaxSavePercentFromInfo(info) {
+  const fromApi = Number(info?.max_save_percent);
+  if (Number.isFinite(fromApi) && fromApi > 0) return Math.round(fromApi);
+  const packs = getConverterPacksFromInfo(info);
+  return packs.reduce((max, pack) => Math.max(max, Number(pack.save_percent) || 0), 0);
 }
 
 export function getFeaturedConverterPack(packs) {
