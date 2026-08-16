@@ -1,8 +1,16 @@
 .popup {
-  width: min(780px, calc(100vw - 32px));
-  max-width: 95vw;
-  max-height: calc(100vh - 48px);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 28px 40px;
+  width: min(980px, calc(100vw - 40px));
+  max-width: min(980px, calc(100vw - 40px));
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  color: #222;
+  position: relative;
+  box-sizing: border-box;
 }
 
 .title {

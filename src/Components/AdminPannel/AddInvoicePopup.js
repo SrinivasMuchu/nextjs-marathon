@@ -502,7 +502,7 @@ function AddInvoicePopup({ request, onClose, onSaved }) {
 
   return (
     <PopupWrapper>
-      <div className={`${popupStyles.popupContainer} ${styles.popup}`}>
+      <div className={styles.popup}>
         <div className={popupStyles.headerRow}>
           <div>
             <h3 className={styles.title}>Add invoice</h3>
