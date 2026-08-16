@@ -84,7 +84,10 @@
   box-sizing: border-box;
 }
 
-.badge:focus-visible {
+.badge:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
   outline: 2px solid #6d28d9;
   outline-offset: 2px;
 }

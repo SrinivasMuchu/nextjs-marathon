@@ -2,6 +2,7 @@ import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
 import JSZip from "jszip";
 import { resolveTechDrawCdnRoot } from "@/lib/techDraw/techDrawCdnRoots";
+import { assertTwoDLibraryDownloadAccess } from "@/lib/techDraw/libraryDownloadAccess";
 
 export const runtime = "nodejs";
 /** Allow long ZIP builds on Vercel Pro / similar (ignored elsewhere). */
@@ -102,8 +103,18 @@ export async function GET(request) {
     return NextResponse.json({ error: "Invalid designId" }, { status: 400 });
   }
 
-  const root = cdnRoot(source, designId, prefix);
   const userPipeline = isUserPipelineSource(source, prefix);
+  if (!userPipeline) {
+    const access = await assertTwoDLibraryDownloadAccess(request, designId);
+    if (!access.ok) {
+      return NextResponse.json(
+        { error: access.message || "payment required" },
+        { status: access.status || 401 },
+      );
+    }
+  }
+
+  const root = cdnRoot(source, designId, prefix);
 
   const geoBytes = await fetchBytes(`${root}/geometry_per_sheet.json`);
   if (!geoBytes) {

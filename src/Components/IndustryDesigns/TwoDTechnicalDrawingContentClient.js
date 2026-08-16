@@ -106,6 +106,7 @@ export default function TwoDTechnicalDrawingContentClient({
             showDownloadAllPdfs={showDownloadAllPdfs}
             showCadModelLink={showCadModelLink}
             drawingInfo={drawingInfo}
+            gateLibraryDownloads={false}
           />
         </div>
       ) : (
@@ -116,7 +117,7 @@ export default function TwoDTechnicalDrawingContentClient({
         <>
           <TwoDDrawingViewCards views={viewCards} />
           <TwoDDrawingSectionDetailCards groups={sectionDetailGroups} />
-          <TwoDDrawingSheetDownloads rows={sheetDownloadRows} />
+          <TwoDDrawingSheetDownloads rows={sheetDownloadRows} gateLibraryDownloads={false} />
         </>
       ) : null}
       <TwoDDrawingCtaBanner generateHref={generateHref} />

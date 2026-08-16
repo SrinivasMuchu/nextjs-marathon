@@ -97,6 +97,8 @@ export default function TwoDTechnicalDrawingContent({
   transparencyMetaStats,
   transparencyIntroParagraphs,
   currentDesignId,
+  designTitle = "",
+  gateLibraryDownloads = true,
   hasRenderableSheets = true,
   wasFilteredEmpty = false,
 }) {
@@ -123,6 +125,9 @@ export default function TwoDTechnicalDrawingContent({
             zipHref={zipHref}
             drawingInfo={drawingInfo}
             showUploadCta={!HIDE_SIDEBAR_UPLOAD_CTA_DESIGN_IDS.has(currentDesignId)}
+            designId={currentDesignId}
+            designTitle={designTitle}
+            gateLibraryDownloads={gateLibraryDownloads}
           />
         </div>
       ) : (
@@ -134,7 +139,12 @@ export default function TwoDTechnicalDrawingContent({
           <TwoDDrawingViewCards views={viewCards} />
           <TwoDDrawingSectionDetailCards groups={sectionDetailGroups} />
           {/* <TwoDDrawingBomTable rows={bomRows} /> */}
-          <TwoDDrawingSheetDownloads rows={sheetDownloadRows} />
+          <TwoDDrawingSheetDownloads
+            rows={sheetDownloadRows}
+            designId={currentDesignId}
+            designTitle={designTitle}
+            gateLibraryDownloads={gateLibraryDownloads}
+          />
         </>
       ) : null}
       <TwoDDrawingCtaBanner generateHref={generateHref} />
