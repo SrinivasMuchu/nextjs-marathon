@@ -315,6 +315,95 @@
   gap: 8px;
 }
 
+.actionMenu {
+  position: relative;
+  display: inline-flex;
+}
+
+.actionMenuBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 92px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actionMenuBtn:hover,
+.actionMenuBtn[aria-expanded='true'] {
+  border-color: #610bee;
+  color: #610bee;
+}
+
+.actionMenuPanel {
+  position: fixed;
+  z-index: 12000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(17, 24, 39, 0.16);
+}
+
+.actionMenuItem {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: #111827;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.actionMenuItem:hover:not(:disabled) {
+  background: #f3e8ff;
+  color: #610bee;
+}
+
+.actionMenuItem:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.actionMenuDivider {
+  height: 1px;
+  margin: 4px 2px;
+  background: #e5e7eb;
+}
+
+.actionMenuField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 4px 4px;
+}
+
+.actionMenuField span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.actionMenuField .statusSelect {
+  width: 100%;
+}
+
 .pageStatusCell {
   min-width: 0;
 }
@@ -506,6 +595,92 @@
   flex-direction: column;
   gap: 12px;
   margin-bottom: 20px;
+}
+
+.progressCell {
+  display: inline-block;
+  font-size: 12px;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.progressForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.progressTitle {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.progressHint {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.progressFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.progressField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progressInput {
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.progressInput:focus {
+  outline: none;
+  border-color: #610bee;
+  box-shadow: 0 0 0 1px #610bee;
+}
+
+.progressInput:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.progressSaveBtn {
+  align-self: flex-start;
+  border: 1px solid #ddd6fe;
+  background: #610bee;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.progressSaveBtn:hover:not(:disabled) {
+  background: #5209cc;
+}
+
+.progressSaveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .detailRow {
@@ -974,5 +1149,9 @@
     padding: 16px;
     width: calc(100% - 24px);
     margin: 12px;
+  }
+
+  .progressFields {
+    grid-template-columns: 1fr;
   }
 }

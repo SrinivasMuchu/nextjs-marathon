@@ -194,6 +194,86 @@ export async function createCadServiceQuotation(payload) {
   return response.data
 }
 
+export async function fetchCadServiceInvoices(requestId, vendorId) {
+  const params = { request_id: requestId }
+  if (vendorId) params.vendor_id = vendorId
+
+  const response = await axios.get(`${ADMIN_VENDORS_BASE}/cad-service-invoices`, {
+    params,
+    headers: adminHeaders(),
+  })
+  return response.data
+}
+
+export async function getInvoicePresignedUrl({ file, filesize, content_type, request_id }) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/get-invoice-presigned-url`,
+    { file, filesize, content_type, request_id },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
+export async function uploadInvoiceFile(file, requestId, signal) {
+  const isPdf = (
+    String(file?.name || '').toLowerCase().endsWith('.pdf')
+    || String(file?.type || '').toLowerCase().includes('pdf')
+  )
+  if (!isPdf) {
+    throw new Error('Only PDF invoice attachments are allowed')
+  }
+
+  const presigned = await getInvoicePresignedUrl({
+    file: file.name,
+    filesize: file.size,
+    content_type: file.type || 'application/pdf',
+    request_id: requestId,
+  })
+
+  if (!presigned?.meta?.success || !presigned?.data?.url) {
+    throw new Error(presigned?.meta?.message || 'Failed to get invoice upload URL')
+  }
+
+  const { url, key, file_url, content_type } = presigned.data
+  await axios.put(url, file, {
+    headers: { 'Content-Type': content_type || file.type || 'application/pdf' },
+    signal,
+  })
+
+  return {
+    name: file.name,
+    type: content_type || file.type || 'application/pdf',
+    size: file.size,
+    key,
+    url: file_url,
+  }
+}
+
+export async function createCadServiceInvoices(payload) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/cad-service-invoices`,
+    { action: 'create', ...payload },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
+export async function updateCadServiceProgress(requestId, {
+  service_started_at,
+  service_ended_at,
+}) {
+  const response = await axios.post(
+    `${ADMIN_VENDORS_BASE}/update-cad-service-request`,
+    {
+      request_id: requestId,
+      service_started_at,
+      service_ended_at,
+    },
+    { headers: adminHeaders() },
+  )
+  return response.data
+}
+
 export async function fetchCadServiceActivity(requestId) {
   const response = await axios.get(`${ADMIN_VENDORS_BASE}/cad-service-activity`, {
     params: { request_id: requestId },
