@@ -16,9 +16,16 @@ import CadConvertorFiles from './CadConvertorFiles';
 import CadPublishedFiles from './CadPublishedFiles';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 import { toast } from 'react-toastify';
-import { checkConverterDownload } from '@/api/converterPaymentApi';
-import { ensureConverterDownloadAccess } from './converterPayment';
+import { checkConverterDownload, redeemConverterCredit } from '@/api/converterPaymentApi';
+import { ensureConverterDownloadAccess, ensureConverterPackPurchase } from './converterPayment';
 import ConverterDownloadFlow from './ConverterDownloadFlow';
+import ConverterCreditPlansPopup from './ConverterCreditPlansPopup';
+import {
+  fetchConverterPricingInfo,
+  getConverterPacksFromInfo,
+  getSinglePriceLabelFromInfo,
+  buildConverterPricingDisplay,
+} from '@/lib/converterPricing';
 
 let cachedCadHistory = {};
 
@@ -41,9 +48,13 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   const [openConverterBilling, setOpenConverterBilling] = useState(false);
   const [pendingConverterDownload, setPendingConverterDownload] = useState(null);
   const [converterBillingDetails, setConverterBillingDetails] = useState(null);
+  const [showCreditPlans, setShowCreditPlans] = useState(false);
+  const [creditPacks, setCreditPacks] = useState([]);
+  const [singlePriceLabel, setSinglePriceLabel] = useState('');
+  const [pendingPack, setPendingPack] = useState(null);
   // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
-  const { user,cadDetailsUpdate } = useContext(contextState);
+  const { user, setUser, cadDetailsUpdate } = useContext(contextState);
   // console.log(viewer,user)
   const limit = 12;
   const router = useRouter();
@@ -59,6 +70,28 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchConverterPricingInfo()
+      .then((info) => {
+        if (cancelled) return;
+        setCreditPacks(getConverterPacksFromInfo(info));
+        setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
+        if (info?.credits != null) {
+          setUser((prev) => ({ ...prev, converter_credits: Number(info.credits) || 0 }));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCreditPacks([]);
+          setSinglePriceLabel('');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [setUser]);
 
 
 
@@ -362,6 +395,17 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       setDownloading(prev => ({ ...prev, [index]: true }));
 
       const access = await checkConverterDownload(file._id);
+      if (access.credits != null) {
+        setUser((prev) => ({ ...prev, converter_credits: Number(access.credits) || 0 }));
+      }
+      if (access.can_download && access.reason === 'credits') {
+        const redeemed = await redeemConverterCredit(file._id);
+        if (redeemed?.credits != null) {
+          setUser((prev) => ({ ...prev, converter_credits: Number(redeemed.credits) || 0 }));
+        }
+        await performConverterFileDownload(file, index);
+        return;
+      }
       if (access.can_download) {
         await performConverterFileDownload(file, index);
         return;
@@ -375,15 +419,54 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         price: access.pricing?.base_price ?? access.price,
         pricing: access.pricing,
       });
-      sendClarityEvent("converter_billing_address_opened", {
-        converter_funnel: "billing_opened",
-      });
-      setOpenConverterBilling(true);
+      if (Array.isArray(access.packs) && access.packs.length) {
+        setCreditPacks(access.packs);
+      }
+      if (access.pricing) {
+        const label = buildConverterPricingDisplay(access.pricing).totalLabel;
+        if (label) setSinglePriceLabel(label);
+      } else if (access.single_price_label) {
+        setSinglePriceLabel(access.single_price_label);
+      }
+      setShowCreditPlans(true);
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Download failed. Please try again.');
       setDownloading(prev => ({ ...prev, [index]: false }));
     }
+  };
+
+  const closeCreditPlans = () => {
+    setShowCreditPlans(false);
+  };
+
+  const openBillingFromPlans = () => {
+    setShowCreditPlans(false);
+    setPendingPack(null);
+    if (!pendingConverterDownload) return;
+    sendClarityEvent("converter_billing_address_opened", {
+      converter_funnel: "billing_opened",
+    });
+    setOpenConverterBilling(true);
+  };
+
+  const handleSelectPack = (pack) => {
+    setShowCreditPlans(false);
+    setPendingPack(pack);
+  };
+
+  const handlePackPayment = async (billingId) => {
+    if (!pendingPack) throw new Error('No pack selected.');
+    const result = await ensureConverterPackPurchase({
+      packId: pendingPack.id,
+      packName: pendingPack.name,
+      userEmail: user.email,
+      billingId,
+    });
+    if (result?.credits != null) {
+      setUser((prev) => ({ ...prev, converter_credits: Number(result.credits) || 0 }));
+    }
+    return result;
   };
 
   const handlePostVerificationAction = () => {
@@ -428,6 +511,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
             handleReportDownload={handleReportDownload}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            converterCredits={user?.converter_credits}
           />
         )}
         {cad_type === 'USER_CADS' && (
@@ -483,6 +567,24 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           onClose={closeConverterDownloadFlow}
           onPay={handleConverterPayment}
           onDownloadAgain={downloadConverterFileAgain}
+        />
+      )}
+      {showCreditPlans && (
+        <ConverterCreditPlansPopup
+          packs={creditPacks}
+          singlePriceLabel={singlePriceLabel}
+          onClose={closeCreditPlans}
+          onSelectPack={handleSelectPack}
+          onSelectSingle={openBillingFromPlans}
+        />
+      )}
+      {pendingPack && (
+        <ConverterDownloadFlow
+          mode="pack"
+          pack={pendingPack}
+          user={user}
+          onClose={() => setPendingPack(null)}
+          onPay={handlePackPayment}
         />
       )}
     </>

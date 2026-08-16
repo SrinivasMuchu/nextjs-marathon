@@ -7,6 +7,7 @@ import {
   buildConverterPricingDisplay,
   CONVERTER_FREE_SIZE_LIMIT_BYTES,
 } from "@/lib/converterPricing";
+import { hasConverterCredits } from "@/lib/converterCredits";
 import styles from "./CadComparisonPopup.module.css";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -291,6 +292,19 @@ function priceBadge(file) {
   return buildConverterPricingDisplay(pricing).totalLabel;
 }
 
+function comparisonDownloadLabel(file, downloading, converterCredits) {
+  if (downloading) return "Downloading…";
+  const outputFmt = String(file?.output_format || "file").toUpperCase();
+  const pricing = file?.converter_pricing;
+  if (pricing?.paid || pricing?.is_free) return `Download ${outputFmt}`;
+  const size = Number(file?.input_file_size_bytes);
+  const isFree =
+    Number.isFinite(size) && size > 0 && size < CONVERTER_FREE_SIZE_LIMIT_BYTES;
+  if (isFree || !Number.isFinite(size) || size <= 0) return `Download ${outputFmt}`;
+  if (hasConverterCredits(converterCredits)) return `Download ${outputFmt}`;
+  return "Download · 1 credit";
+}
+
 export function hasComparisonPhotos(file) {
   return Boolean(file?.input_snapshot_url || file?.output_snapshot_url);
 }
@@ -332,6 +346,7 @@ function CadComparisonPopup({
   onDownload,
   downloadingReport,
   downloading,
+  converterCredits = 0,
 }) {
   const [copied, setCopied] = useState(false);
   const drawing = isDrawingConversion(file);
@@ -648,7 +663,7 @@ function CadComparisonPopup({
               disabled={file?.status !== "COMPLETED" || Boolean(downloading)}
             >
               <DownloadIcon sx={{ fontSize: 18 }} />
-              {downloading ? "Downloading…" : `Download ${outputFmt}`}
+              {comparisonDownloadLabel(file, downloading, converterCredits)}
             </button>
           </div>
         </footer>

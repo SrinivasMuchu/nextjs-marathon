@@ -1,40 +1,163 @@
 "use client";
-import React, { useEffect, useState } from 'react'
-import styles from './FileHistory.module.css';
-import { IMAGEURLS } from '@/config';
-import Image from 'next/image';
-import Loading from '../CommonJsx/Loaders/Loading';
-import EastIcon from '@mui/icons-material/East';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { textLettersLimit } from '@/common.helper';
-import FileStatus from '../CommonJsx/FileStatus';
+import React, { useEffect, useMemo, useState } from "react";
+import styles from "./FileHistory.module.css";
+import { IMAGEURLS, toCadOutputCdnUrl } from "@/config";
+import Image from "next/image";
+import Loading from "../CommonJsx/Loaders/Loading";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
+import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
+import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import BrokenImageOutlinedIcon from "@mui/icons-material/BrokenImageOutlined";
 import { SiConvertio } from "react-icons/si";
-import Link from 'next/link';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   buildConverterPricingDisplay,
   fetchConverterPricingInfo,
   CONVERTER_FREE_SIZE_LIMIT_BYTES,
-} from '@/lib/converterPricing';
-import CadComparisonPopup, { canViewComparison } from './CadComparisonPopup';
+} from "@/lib/converterPricing";
+import { hasConverterCredits } from "@/lib/converterCredits";
+import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
+import CadComparisonPopup, { canViewComparison } from "./CadComparisonPopup";
 
-function DashboardPricingCell({ converterPricing, inputFileSizeBytes }) {
+function needsConverterCredit(converterPricing, inputFileSizeBytes) {
+  if (converterPricing?.paid) return false;
+  if (converterPricing?.is_free) return false;
   const size = Number(inputFileSizeBytes);
-  const isLargeFile = Number.isFinite(size) && size >= CONVERTER_FREE_SIZE_LIMIT_BYTES;
+  return Number.isFinite(size) && size >= CONVERTER_FREE_SIZE_LIMIT_BYTES;
+}
 
-  // 1) The user has actually paid for this file -> show "Paid".
-  if (converterPricing?.paid) {
-    return <span className={styles.converterPriceBadgePaid}>Paid</span>;
+function downloadButtonLabel({
+  downloading,
+  converterPricing,
+  inputFileSizeBytes,
+  converterCredits,
+}) {
+  if (downloading) return "Downloading...";
+  if (!needsConverterCredit(converterPricing, inputFileSizeBytes)) return "Download";
+  if (hasConverterCredits(converterCredits)) return "Download";
+  return "Download · 1 credit";
+}
+
+function formatFileSize(bytes) {
+  const size = Number(bytes);
+  if (!Number.isFinite(size) || size <= 0) return "";
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function formatMb(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return "";
+  return `${n.toFixed(2)} MB`;
+}
+
+function formatTime(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return "";
+  if (n < 60) return `${parseFloat(n.toFixed(2))} sec`;
+  if (n < 3600) return `${parseFloat((n / 60).toFixed(2))} min`;
+  return `${parseFloat((n / 3600).toFixed(2))} hr`;
+}
+
+function formatChipLabel(value) {
+  const label = String(value || "")
+    .replace(/^\./, "")
+    .trim();
+  return label ? label.toUpperCase() : "CAD";
+}
+
+function formatDotLabel(value) {
+  return `.${formatChipLabel(value)}`;
+}
+
+function summarizeChecks(checks) {
+  if (!checks || typeof checks !== "object") return { passed: 0, total: 0 };
+  const entries = Object.values(checks).filter((outcome) => {
+    const o = String(outcome || "").toLowerCase();
+    return o && o !== "na" && o !== "n/a";
+  });
+  const total = entries.length;
+  const passed = entries.filter(
+    (outcome) => String(outcome).toLowerCase() === "pass",
+  ).length;
+  return { passed, total };
+}
+
+function pickSizes(file) {
+  const stl = file?.quality_stl || {};
+  const srcMesh = file?.quality_src_mesh || {};
+  const outMesh = file?.quality_out_mesh || {};
+  const srcSolid = file?.quality_src_solid || {};
+  const outSolid = file?.quality_out_solid || {};
+  const step = file?.quality_step_stats || {};
+  const inFmt = String(file?.input_format || "").toLowerCase();
+  const outFmt = String(file?.output_format || "").toLowerCase();
+  const meshIn = ["stl", "obj", "ply", "off"].includes(inFmt);
+  const meshOut = ["stl", "obj", "ply", "off"].includes(outFmt);
+
+  let src = {};
+  let out = {};
+  if (meshIn && !meshOut) {
+    src = { ...stl, ...srcMesh };
+    out = { ...step, ...outSolid };
+  } else if (!meshIn && meshOut) {
+    src = { ...srcSolid, ...step };
+    out = { ...outMesh, ...stl };
+  } else if (meshIn && meshOut) {
+    src = { ...srcMesh };
+    out = { ...outMesh };
+  } else {
+    src = { ...srcSolid, ...step };
+    out = { ...outSolid, ...step };
   }
 
-  // 2) Free download (sample file, under the size limit, or globally free).
-  const isFree = converterPricing?.is_free ? true : !isLargeFile;
-  if (isFree) {
-    return <span className={styles.converterPriceBadgeFree}>Free</span>;
-  }
+  return {
+    srcSize: formatMb(src.size_mb) || formatFileSize(file?.input_file_size_bytes),
+    outSize: formatMb(out.size_mb),
+  };
+}
 
-  // 3) Payment required but not paid yet -> show the price, NOT "Paid".
-  const priceLabel = buildConverterPricingDisplay(converterPricing).totalLabel;
-  return <span className={styles.converterPriceBadgePayable}>{priceLabel}</span>;
+function snapshotUrl(raw) {
+  if (!raw) return "";
+  return toCadOutputCdnUrl(raw) || raw;
+}
+
+function PreviewPane({ label, format, src }) {
+  const [broken, setBroken] = useState(false);
+  const showImage = Boolean(src) && !broken;
+
+  return (
+    <div className={styles.comparePane}>
+      <span className={styles.comparePaneTag}>{label}</span>
+      <div className={styles.comparePaneMedia}>
+        {showImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={src}
+            alt={`${format} preview`}
+            className={styles.comparePaneImg}
+            onError={() => setBroken(true)}
+          />
+        ) : (
+          <div className={styles.comparePlaceholder}>
+            <BrokenImageOutlinedIcon className={styles.comparePlaceholderIcon} />
+            <strong className={styles.comparePlaceholderFormat}>
+              {formatDotLabel(format)}
+            </strong>
+            <span className={styles.comparePlaceholderRule} aria-hidden />
+            <span className={styles.comparePlaceholderHint}>No preview available</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function CadConvertorFiles({
@@ -46,18 +169,12 @@ function CadConvertorFiles({
   handleReportDownload,
   searchTerm,
   setSearchTerm,
+  converterCredits = 0,
 }) {
-  const [pricingNoteTotal, setPricingNoteTotal] = useState('');
+  const router = useRouter();
+  const [pricingNoteTotal, setPricingNoteTotal] = useState("");
   const [comparisonFile, setComparisonFile] = useState(null);
   const [comparisonIndex, setComparisonIndex] = useState(null);
-
-  function formatFileSize(bytes) {
-    const size = Number(bytes);
-    if (!Number.isFinite(size) || size <= 0) return "-";
-    if (size < 1024) return `${size} B`;
-    if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
-    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -68,251 +185,375 @@ function CadConvertorFiles({
         const display = buildConverterPricingDisplay(info?.pricing);
         setPricingNoteTotal(display.totalLabel);
       } catch {
-        if (!cancelled) setPricingNoteTotal('');
+        if (!cancelled) setPricingNoteTotal("");
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  function formatTime(value) {
-    if (value === null || value === undefined || isNaN(value)) {
-        return "";
-    }
+  const files = useMemo(
+    () => (Array.isArray(cadConverterFileHistory) ? cadConverterFileHistory : []),
+    [cadConverterFileHistory],
+  );
 
-    if (value < 60) {
-        return `${parseFloat(value.toFixed(2))} sec`;
-    } else if (value < 3600) {
-        let minutes = value / 60;
-        return `${parseFloat(minutes.toFixed(2))} min`;
-    } else {
-        let hours = value / 3600;
-        return `${parseFloat(hours.toFixed(2))} hr`;
-    }
-}
   return (
     <div className={styles.cadViewerContainerContent}>
- <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '24px',
-                      padding: '8px 16px',
-                      border: '1px solid #e9ecef',
-                      minWidth: '280px',
-                      gap: '8px'
-                    }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="M21 21l-4.35-4.35"></path>
-                      </svg>
-                      <input
-                        type="text"
-                        placeholder="Search project"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{
-                          border: 'none',
-                          background: 'transparent',
-                          outline: 'none',
-                          flex: 1,
-                          fontSize: '14px',
-                          color: '#495057'
-                        }}
-                      />
-                    </div>
-                    <Link
-                    href='/tools/3d-cad-file-converter' 
-                      className={styles.cadUploadingButton}
-                      style={{
-                        borderRadius: '8px',
-                        border: '2px solid #610BEE',
-                        background: 'white',
-                        color: '#610BEE',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '10px 20px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        whiteSpace: 'nowrap'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.background = '#610BEE';
-                        e.target.style.color = 'white';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.background = 'white';
-                        e.target.style.color = '#610BEE';
-                      }}
-                    >
-                      <SiConvertio style={{ fontSize: '16px' }} />
-                      Convert file
-                    </Link>
-                  </div>
-            {loading ? <Loading smallScreen={true}/> : <>
- 
-            
-              {(cadConverterFileHistory.length) > 0 ? (
-                <div className={styles.historyContainer}>
-                 
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "20px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            backgroundColor: "#f8f9fa",
+            borderRadius: "24px",
+            padding: "8px 16px",
+            border: "1px solid #e9ecef",
+            minWidth: "280px",
+            gap: "8px",
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#6c757d"
+            strokeWidth="2"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search project"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              border: "none",
+              background: "transparent",
+              outline: "none",
+              flex: 1,
+              fontSize: "14px",
+              color: "#495057",
+            }}
+          />
+        </div>
+        <Link
+          href="/tools/3d-cad-file-converter"
+          className={styles.cadUploadingButton}
+          style={{
+            borderRadius: "8px",
+            border: "2px solid #610BEE",
+            background: "white",
+            color: "#610BEE",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "10px 20px",
+            fontSize: "14px",
+            fontWeight: "500",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            whiteSpace: "nowrap",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = "#610BEE";
+            e.target.style.color = "white";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = "white";
+            e.target.style.color = "#610BEE";
+          }}
+        >
+          <SiConvertio style={{ fontSize: "16px" }} />
+          Convert file
+        </Link>
+      </div>
 
-                  <div className={styles['industry-design-files']}>
-                    <div className={styles['industry-design-files-bottom']}>
-                      <span className={styles['industry-design-files-count']}>Files {cadConverterFileHistory.length}</span>
-                      <table className={styles['industry-design-files-list']}>
-                        <thead>
-                          <tr>
-                            <th style={{ width: '13%' }}>File name</th>
-                            <th style={{ width: '12%' }}>Conversion</th>
-                            <th style={{ width: '9%' }}>Input Size</th>
-                            <th style={{ width: '10%' }}>Pricing</th>
-                            <th style={{ width: '9%' }}>Status</th>
-                            <th style={{ width: '10%' }}>Created</th>
-                            <th style={{ width: '8%' }}>Time</th>
-                            <th style={{ width: '8%' }}>Report</th>
-                            <th style={{ width: '8%' }}>View</th>
-                            <th style={{ width: '13%' }}>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {cadConverterFileHistory.map((file, index) => {
-                            const canView =
-                              canViewComparison(file);
-                            return (
-                            <tr key={index}>
-                              <td data-label="File name">
-                                {textLettersLimit(file.file_name, 20)}
-                              </td>
-                              <td data-label="Conversion">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <span>{file.input_format}</span>
-                                  <EastIcon style={{ fontSize: '16px', color: '#6c757d' }} />
-                                  <span>{file.output_format}</span>
-                                </div>
-                              </td>
-                              <td data-label="Input Size">
-                                {formatFileSize(file.input_file_size_bytes)}
-                              </td>
-                              <td data-label="Pricing">
-                                <DashboardPricingCell
-                                  converterPricing={file.converter_pricing}
-                                  inputFileSizeBytes={file.input_file_size_bytes}
-                                />
-                              </td>
-                              <td data-label="Status">
-                                <FileStatus status={file.status} />
-                              </td>
-                              <td data-label="Created">
-                                {file.createdAtFormatted}
-                              </td>
-                               <td data-label="Time">
-                                {formatTime(file.time_taken_seconds)}
-                              </td>
-                              <td data-label="Report">
-                                {file.status === 'COMPLETED' && file.report_pdf_url ? (
-                                  <button
-                                    type="button"
-                                    className={styles['industry-design-files-btn-secondary']}
-                                    onClick={() => handleReportDownload(file, index)}
-                                    disabled={Boolean(downloadingReport?.[index])}
-                                    title="Download quality report PDF (free)"
-                                  >
-                                    {downloadingReport?.[index] ? 'Downloading…' : 'PDF'}
-                                  </button>
-                                ) : (
-                                  <span className={styles.reportUnavailable}>—</span>
-                                )}
-                              </td>
-                              <td data-label="View">
-                                {canView ? (
-                                  <button
-                                    type="button"
-                                    className={styles['industry-design-files-btn-secondary']}
-                                    onClick={() => {
-                                      setComparisonFile(file);
-                                      setComparisonIndex(index);
-                                    }}
-                                    title="View CAD comparison"
-                                  >
-                                    <span className={styles.viewCompareBtnInner}>
-                                      <VisibilityIcon style={{ fontSize: 16 }} />
-                                      View
-                                    </span>
-                                  </button>
-                                ) : (
-                                  <span className={styles.reportUnavailable}>—</span>
-                                )}
-                              </td>
-                              <td data-label="Action">
-                                {file.status === 'COMPLETED' ? (
-                                  <button
-                                    className={styles['industry-design-files-btn']}
-                                    onClick={() => handleDownload(file, index)}
-                                    disabled={downloading[index]}
-                                  >
-                                    {downloading[index] ? 'Downloading...' : 'Download'}
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled
-                                    className={styles['industry-design-files-btn']}
-                                    style={{
-                                      background: '#a270f2',
-                                      cursor: 'not-allowed'
-                                    }}
-                                  >
-                                    Download
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                          })}
-                        </tbody>
-                      </table>
-                      <p className={styles.converterPricingFootnote}>
-                        <span aria-hidden>ℹ️</span>
-                        Files under 5 MB download free. Files 5 MB and above are{' '}
-                        {pricingNoteTotal || 'a small fee'} per conversion.
-                      </p>
-                    </div>
-                  </div>
+      {loading ? (
+        <Loading smallScreen={true} />
+      ) : (
+        <>
+          {files.length > 0 ? (
+            <>
+            <div className={styles.historyContainer}>
+              {files.map((file, index) => {
+                      const canView = canViewComparison(file);
+                      const completed = file.status === "COMPLETED";
+                      const failed =
+                        String(file.status || "").toUpperCase() === "FAILED" ||
+                        String(file.status || "").toUpperCase() === "ERROR";
+                      const hasPdf = Boolean(completed && file.report_pdf_url);
+                      const inputFmt = formatChipLabel(file.input_format);
+                      const outputFmt = formatChipLabel(file.output_format);
+                      const { passed, total } = summarizeChecks(file.quality_checks);
+                      const verdict = String(file.quality_verdict || "").toLowerCase();
+                      const checksOk =
+                        (total > 0 && passed === total) || verdict === "pass";
+                      const timeLabel = formatTime(file.time_taken_seconds);
+                      const sizes = pickSizes(file);
+                      const sizeLabel =
+                        sizes.srcSize && sizes.outSize
+                          ? `${sizes.srcSize} → ${sizes.outSize}`
+                          : sizes.srcSize || sizes.outSize || "";
+                      const inputPreview = snapshotUrl(file.input_snapshot_url);
+                      const outputPreview = snapshotUrl(file.output_snapshot_url);
+                      const statusLabel = completed
+                        ? "Completed"
+                        : failed
+                          ? "Failed"
+                          : "Converting";
 
-                </div>
-              ) : (
-                <div style={{
-                  display: 'flex', justifyContent: 'center',
-                  alignItems: 'center', flexDirection: 'column',
-                  width: '300px', textAlign: 'center', gap: '40px'
+                      return (
+                        <article
+                          key={file._id || index}
+                          className={styles.compareCard}
+                          role={!completed && file._id ? "link" : undefined}
+                          tabIndex={!completed && file._id ? 0 : undefined}
+                          onClick={() => {
+                            if (!completed && file._id) {
+                              router.push(cadConverterStatusPath(file._id));
+                            }
+                          }}
+                          onKeyDown={(event) => {
+                            if (
+                              !completed &&
+                              file._id &&
+                              (event.key === "Enter" || event.key === " ")
+                            ) {
+                              event.preventDefault();
+                              router.push(cadConverterStatusPath(file._id));
+                            }
+                          }}
+                          style={
+                            !completed && file._id ? { cursor: "pointer" } : undefined
+                          }
+                        >
+                          <header className={styles.compareCardHeader}>
+                            <div className={styles.compareCardHeaderLeft}>
+                              <span className={styles.compareBrandIcon} aria-hidden>
+                                <CompareArrowsIcon sx={{ fontSize: 16 }} />
+                              </span>
+                              <div className={styles.compareCardTitles}>
+                                <h3
+                                  className={styles.compareCardTitle}
+                                  title={file.file_name}
+                                >
+                                  {file.file_name || "CAD Comparison"}
+                                </h3>
+                                <p className={styles.compareCardSubtitle}>
+                                  {inputFmt} → {outputFmt}
+                                </p>
+                              </div>
+                            </div>
+                            <span
+                              className={
+                                completed
+                                  ? styles.compareStatusDone
+                                  : failed
+                                    ? styles.compareStatusFailed
+                                    : styles.compareStatusBusy
+                              }
+                            >
+                              {completed ? (
+                                <CheckCircleIcon sx={{ fontSize: 13 }} />
+                              ) : (
+                                <span className={styles.compareStatusDot} aria-hidden />
+                              )}
+                              {statusLabel}
+                            </span>
+                          </header>
 
-                }}>
-                  <Image src={IMAGEURLS.nofilesLogo} alt="No files" width={135} height={135} />
-                  <span>You don&apos;t have any projects yet.<br />
-                    <Link href='/tools/3d-cad-file-converter' style={{ color: 'blue' }}>Upload</Link> your project files
-                  </span>
-                </div>
+                          <div className={styles.comparePreviewRow}>
+                            <PreviewPane
+                              label={`${inputFmt} (Original)`}
+                              format={inputFmt}
+                              src={inputPreview}
+                            />
+                            <span className={styles.compareSwap} aria-hidden>
+                              <CompareArrowsIcon sx={{ fontSize: 14 }} />
+                            </span>
+                            <PreviewPane
+                              label={`${outputFmt} (Converted)`}
+                              format={outputFmt}
+                              src={outputPreview}
+                            />
+                          </div>
 
-              )}
+                          <div className={styles.compareStatusLines}>
+                            <p className={styles.compareConversionLine}>
+                              <AutoAwesomeIcon sx={{ fontSize: 14 }} />
+                              {inputFmt} → {outputFmt}
+                            </p>
+                            {total > 0 ? (
+                              <p
+                                className={
+                                  checksOk
+                                    ? styles.compareChecksOk
+                                    : styles.compareChecksWarn
+                                }
+                              >
+                                <CheckCircleIcon sx={{ fontSize: 14 }} />
+                                {checksOk ? "Passed" : "Checks"} {passed}/{total}
+                              </p>
+                            ) : (
+                              <p
+                                className={
+                                  completed
+                                    ? styles.compareChecksOk
+                                    : styles.compareChecksWarn
+                                }
+                              >
+                                <CheckCircleIcon sx={{ fontSize: 14 }} />
+                                {completed
+                                  ? "Complete"
+                                  : failed
+                                    ? "Failed"
+                                    : "In progress"}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className={styles.compareMetrics}>
+                            <span title={timeLabel || undefined}>
+                              <ScheduleOutlinedIcon sx={{ fontSize: 14 }} />
+                              {timeLabel || "—"}
+                            </span>
+                            <span title={sizeLabel || undefined}>
+                              <StorageOutlinedIcon sx={{ fontSize: 14 }} />
+                              {sizeLabel || formatFileSize(file.input_file_size_bytes) || "—"}
+                            </span>
+                            <span>
+                              <VerifiedUserOutlinedIcon sx={{ fontSize: 14 }} />
+                              {checksOk || completed ? "OK" : failed ? "Fail" : "…"}
+                            </span>
+                          </div>
+
+                          <div
+                            className={styles.compareActions}
+                            onClick={(event) => event.stopPropagation()}
+                            onKeyDown={(event) => event.stopPropagation()}
+                          >
+                            {hasPdf ? (
+                              <button
+                                type="button"
+                                className={styles.comparePdfBtn}
+                                onClick={() => handleReportDownload(file, index)}
+                                disabled={Boolean(downloadingReport?.[index])}
+                                title="Download quality report PDF (free)"
+                              >
+                                <PictureAsPdfIcon style={{ fontSize: 16 }} />
+                                {downloadingReport?.[index] ? "PDF…" : "PDF"}
+                              </button>
+                            ) : (
+                              <span className={styles.compareActionSlot} aria-hidden />
+                            )}
+                            {canView ? (
+                              <button
+                                type="button"
+                                className={styles.compareViewBtn}
+                                onClick={() => {
+                                  setComparisonFile(file);
+                                  setComparisonIndex(index);
+                                }}
+                                title="View CAD comparison"
+                              >
+                                <VisibilityIcon style={{ fontSize: 16 }} />
+                                Compare
+                              </button>
+                            ) : (
+                              <span className={styles.compareActionSlot} aria-hidden />
+                            )}
+                            <button
+                              type="button"
+                              className={styles.compareDownloadBtn}
+                              onClick={() => {
+                                if (!completed) {
+                                  if (file._id) {
+                                    router.push(cadConverterStatusPath(file._id));
+                                  }
+                                  return;
+                                }
+                                handleDownload(file, index);
+                              }}
+                              disabled={completed ? Boolean(downloading[index]) : !file._id}
+                            >
+                              {completed
+                                ? downloadButtonLabel({
+                                    downloading: downloading[index],
+                                    converterPricing: file.converter_pricing,
+                                    inputFileSizeBytes: file.input_file_size_bytes,
+                                    converterCredits,
+                                  })
+                                : "Status"}
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
+            </div>
+            <p className={styles.converterPricingFootnote}>
+              <span aria-hidden>ℹ️</span>
+              Files under 5 MB download free. Files 5 MB and above are{" "}
+              {pricingNoteTotal || "a small fee"} per conversion. Quality report PDFs are
+              free.
+            </p>
             </>
-            }
-            {comparisonFile && canViewComparison(comparisonFile) && (
-              <CadComparisonPopup
-                file={comparisonFile}
-                onClose={() => {
-                  setComparisonFile(null);
-                  setComparisonIndex(null);
-                }}
-                onDownloadPdf={() => handleReportDownload(comparisonFile, comparisonIndex)}
-                onDownload={() => handleDownload(comparisonFile, comparisonIndex)}
-                downloadingReport={Boolean(downloadingReport?.[comparisonIndex])}
-                downloading={Boolean(downloading?.[comparisonIndex])}
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "column",
+                width: "300px",
+                textAlign: "center",
+                gap: "40px",
+              }}
+            >
+              <Image
+                src={IMAGEURLS.nofilesLogo}
+                alt="No files"
+                width={135}
+                height={135}
               />
-            )}
-          </div>
-  )
+              <span>
+                You don&apos;t have any projects yet.
+                <br />
+                <Link href="/tools/3d-cad-file-converter" style={{ color: "blue" }}>
+                  Upload
+                </Link>{" "}
+                your project files
+              </span>
+            </div>
+          )}
+        </>
+      )}
+
+      {comparisonFile && canViewComparison(comparisonFile) && (
+        <CadComparisonPopup
+          file={comparisonFile}
+          onClose={() => {
+            setComparisonFile(null);
+            setComparisonIndex(null);
+          }}
+          onDownloadPdf={() => handleReportDownload(comparisonFile, comparisonIndex)}
+          onDownload={() => handleDownload(comparisonFile, comparisonIndex)}
+          downloadingReport={Boolean(downloadingReport?.[comparisonIndex])}
+          downloading={Boolean(downloading?.[comparisonIndex])}
+          converterCredits={converterCredits}
+        />
+      )}
+    </div>
+  );
 }
 
-export default CadConvertorFiles
+export default CadConvertorFiles;

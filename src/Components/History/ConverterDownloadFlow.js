@@ -40,7 +40,20 @@ function CloseButton({ onClick }) {
   );
 }
 
-function FileSummary({ file, priceLabel, compact = false }) {
+function FileSummary({ file, pack, priceLabel, compact = false }) {
+  if (pack) {
+    return (
+      <div className={`${styles.fileSummary} ${compact ? styles.fileSummaryCompact : ""}`}>
+        <span className={styles.fileType}>{pack.credits}</span>
+        <div className={styles.fileDetails}>
+          <strong>{pack.name} pack</strong>
+          {!compact && <span>{pack.credits} credits · never expire</span>}
+        </div>
+        <strong className={styles.price}>{priceLabel}</strong>
+      </div>
+    );
+  }
+
   const outputFormat = String(file?.output_format || "CAD").toUpperCase();
   return (
     <div className={`${styles.fileSummary} ${compact ? styles.fileSummaryCompact : ""}`}>
@@ -61,13 +74,19 @@ function FileSummary({ file, priceLabel, compact = false }) {
 
 function ConverterDownloadFlow({
   file,
+  pack,
+  mode = "file",
   pricing,
   user,
   onClose,
   onPay,
   onDownloadAgain,
 }) {
-  const pricingDisplay = useMemo(() => buildConverterPricingDisplay(pricing), [pricing]);
+  const isPack = mode === "pack";
+  const pricingDisplay = useMemo(
+    () => buildConverterPricingDisplay(pricing || pack?.pricing),
+    [pricing, pack],
+  );
   const [step, setStep] = useState("loading");
   const [addresses, setAddresses] = useState([]);
   const [countries, setCountries] = useState([]);
@@ -263,15 +282,25 @@ function ConverterDownloadFlow({
         <div className={`${styles.modal} ${styles.successModal}`} role="dialog" aria-modal="true">
           <CloseButton onClick={onClose} />
           <div className={styles.successIcon}>✓</div>
-          <h2>Paid — your download started</h2>
-          <p>{convertedFileName(file)} is downloading now.</p>
+          <h2>{isPack ? "Credits added to your account" : "Paid — your download started"}</h2>
+          <p>
+            {isPack
+              ? `${pack?.credits || paymentResult?.credits_granted || ""} credits are ready to use.`
+              : `${convertedFileName(file)} is downloading now.`}
+          </p>
           <p>
             {invoice ? <>Invoice <strong>#{invoice}</strong> was emailed to {user?.email}.</> :
               <>Your invoice was emailed to {user?.email}.</>}
           </p>
-          <button type="button" className={styles.primaryButton} onClick={onDownloadAgain}>
-            Download again
-          </button>
+          {!isPack && onDownloadAgain ? (
+            <button type="button" className={styles.primaryButton} onClick={onDownloadAgain}>
+              Download again
+            </button>
+          ) : (
+            <button type="button" className={styles.primaryButton} onClick={onClose}>
+              Done
+            </button>
+          )}
           <div className={styles.successLinks}>
             {invoiceUrl && (
               <a href={invoiceUrl} target="_blank" rel="noreferrer">View invoice</a>
@@ -291,7 +320,7 @@ function ConverterDownloadFlow({
           <CloseButton onClick={onClose} />
           <h2>Billing address</h2>
           <p className={styles.subtitle}>Needed once for your tax invoice — we&apos;ll remember it.</p>
-          <FileSummary file={file} priceLabel={pricingDisplay.totalLabel} compact />
+          <FileSummary file={file} pack={isPack ? pack : null} priceLabel={pricingDisplay.totalLabel} compact />
 
           <form onSubmit={saveBillingAddress} className={styles.billingForm}>
             <label>
@@ -351,9 +380,9 @@ function ConverterDownloadFlow({
     <PopupWrapper>
       <div className={styles.modal} role="dialog" aria-modal="true">
         <CloseButton onClick={onClose} />
-        <h2>Download your file</h2>
+        <h2>{isPack ? `Buy ${pack?.name || "credit"} pack` : "Download your file"}</h2>
         <p className={styles.subtitle}>One-time payment · no subscription</p>
-        <FileSummary file={file} priceLabel={pricingDisplay.totalLabel} />
+        <FileSummary file={file} pack={isPack ? pack : null} priceLabel={pricingDisplay.totalLabel} />
 
         <div className={styles.billingHeading}>
           <span>Billing for your tax invoice</span>

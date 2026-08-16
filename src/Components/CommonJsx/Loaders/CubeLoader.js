@@ -4,7 +4,6 @@ import Lottie from 'lottie-react';
 import cube from './Cube.json';
 import LeftRightBanner from '../Adsense/AdsBanner';
 import { contextState } from '../ContextProvider';
-import HomeTopNav from '@/Components/HomePages/HomepageTopNav/HomeTopNav';
 import ConverterProgressLoader from './ConverterProgressLoader';
 
 const statusMessages = {
@@ -72,9 +71,9 @@ function CubeLoader({
   const barPercent = useMeasuredUpload ? uploadProgressPercent : fakeProgress;
 
   if (type === 'convert') {
+    // Root layout already renders HomeTopNav — do not duplicate it here.
     return (
       <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: '100%' }}>
-        <HomeTopNav />
         <ConverterProgressLoader
           uploadingMessage={uploadingMessage}
           uploadProgressPercent={uploadProgressPercent}
