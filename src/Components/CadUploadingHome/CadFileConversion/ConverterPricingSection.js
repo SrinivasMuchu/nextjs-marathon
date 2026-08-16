@@ -1,17 +1,24 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   fetchConverterPricingInfo,
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
 } from '@/lib/converterPricing';
+import { contextState } from '@/Components/CommonJsx/ContextProvider';
+import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
+import ConverterDownloadFlow from '@/Components/History/ConverterDownloadFlow';
+import { ensureConverterPackPurchase } from '@/Components/History/converterPayment';
 import styles from './ConverterPricingSection.module.css';
 
 function ConverterPricingSection() {
+  const { user, setUser, setUpdatedDetails } = useContext(contextState);
   const [packs, setPacks] = useState([]);
   const [singlePriceLabel, setSinglePriceLabel] = useState('');
   const [loaded, setLoaded] = useState(false);
+  const [pendingPack, setPendingPack] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,6 +40,29 @@ function ConverterPricingSection() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (user?._id && showLogin) {
+      setShowLogin(false);
+    }
+  }, [user?._id, showLogin]);
+
+  const handleChoosePack = (pack) => {
+    if (!pack) return;
+    if (!user?._id) {
+      setPendingPack(pack);
+      setShowLogin(true);
+      return;
+    }
+    setPendingPack(pack);
+  };
+
+  const closeLogin = () => {
+    setShowLogin(false);
+    if (typeof window !== 'undefined' && !localStorage.getItem('uuid')) {
+      setPendingPack(null);
+    }
+  };
 
   if (!loaded || !packs.length) {
     return null;
@@ -76,12 +106,13 @@ function ConverterPricingSection() {
                 {pack.save_label}
               </span>
               <p className={styles.cardCopy}>{pack.description}</p>
-              <a
-                href="#cad-file-converter"
+              <button
+                type="button"
                 className={`${styles.cta} ${pack.variant === 'solid' ? styles.ctaSolid : ''}`}
+                onClick={() => handleChoosePack(pack)}
               >
-                {pack.cta}
-              </a>
+                {pack.cta || `Choose ${pack.name}`}
+              </button>
             </article>
           ))}
         </div>
@@ -110,6 +141,29 @@ function ConverterPricingSection() {
           </p>
         ) : null}
       </div>
+
+      {showLogin ? <UserLoginPupUp onClose={closeLogin} type="login" /> : null}
+      {pendingPack && user?._id && !showLogin ? (
+        <ConverterDownloadFlow
+          mode="pack"
+          pack={pendingPack}
+          user={user}
+          onClose={() => setPendingPack(null)}
+          onPay={async (billingId) => {
+            const result = await ensureConverterPackPurchase({
+              packId: pendingPack.id,
+              packName: pendingPack.name,
+              userEmail: user?.email,
+              billingId,
+            });
+            if (result?.credits != null) {
+              setUser((prev) => ({ ...prev, converter_credits: Number(result.credits) || 0 }));
+              setUpdatedDetails((value) => !value);
+            }
+            return result;
+          }}
+        />
+      ) : null}
     </section>
   );
 }
