@@ -28,7 +28,7 @@ function ContextProvider({children}) {
         user_access_key: '', desc: '', 
         skills: [], website: '', linkedin: '',
         cover_image: '',projects:0,views:0,downloads:0,
-      designation:'',username:'',downloadRating:[] });
+      designation:'',username:'',downloadRating:[], converter_credits: 0 });
     const [viewer, setViewer] = useState({ 
         name: '', email: '', photo: '',_id:'',
         user_access_key: '', desc: '', 

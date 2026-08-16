@@ -27,6 +27,7 @@ import { convertedFiles, sendClarityEvent, sendGAtagEvent, textLettersLimit } fr
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
 import { Upload, X, FileText } from "lucide-react";
+import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
 
 function formatSelectedFileSize(bytes) {
     const size = Number(bytes);
@@ -159,36 +160,6 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         folderIdRef.current = folderId;
     }, [folderId]);
 
-    const shouldPollStatus =
-        Boolean(folderId) &&
-        uploadingMessage !== 'FAILED' &&
-        uploadingMessage !== 'COMPLETED' &&
-        uploadingMessage !== '' &&
-        uploadingMessage !== 'UPLOADINGFILE';
-
-    useEffect(() => {
-        if (!shouldPollStatus) return;
-
-        const poll = () => {
-            if (folderIdRef.current) getStatus(folderIdRef.current);
-        };
-        poll();
-        const interval = setInterval(poll, 2000);
-
-        return () => clearInterval(interval);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [shouldPollStatus, folderId]);
-
-    const applyProgressPayload = (data = {}) => {
-        if (Array.isArray(data.steps) && data.steps.length > 0) {
-            setConversionSteps(data.steps);
-        }
-        const pct = Number(data.progress_percent);
-        if (Number.isFinite(pct) && pct >= 0) {
-            setProgressPercent(Math.min(100, Math.max(0, Math.round(pct))));
-        }
-    };
-
     const handleCancelConversion = () => {
         setLoading(false);
         setUploading(false);
@@ -197,57 +168,6 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         setProgressPercent(null);
         setConversionSteps(null);
         setUploadProgressPercent(null);
-    };
-
-    const getStatus = async (folderId) => {
-        try {
-            const response = await axios.get(`${BASE_URL}/v1/cad/get-status`, {
-                params: {
-                    id: folderId,
-                    cad_type: "CAD_CONVERTER"
-                },
-                headers: {
-                    "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
-
-                }
-            });
-//  router.push('/dashboard?cad_type=CAD_CONVERTER')
- 
-            if (response.data.meta.success) {
-                applyProgressPayload(response.data.data);
-                if (response.data.data.status === 'COMPLETED') {
-                    sendGAtagEvent({ event_name: 'converter_conversion_success', event_category: CAD_CONVERTER_EVENT })
-                    sendClarityEvent("converter_conversion_success", { converter_funnel: "converted" })
-                    setUploadingMessage(response.data.data.status)
-                    setBaseName(response.data.data.base_name)
-                    setProgressPercent(100)
-                    router.push('/dashboard?cad_type=CAD_CONVERTER')
-                } else if (response.data.data.status !== 'COMPLETED' && response.data.data.status !== 'FAILED') {
-                    setUploadingMessage(response.data.data.status)
-               
-                } else if (response.data.data.status === 'FAILED') {
-                    sendGAtagEvent({ event_name: 'converter_conversion_failure', event_category: CAD_CONVERTER_EVENT })
-                    sendClarityEvent("converter_conversion_failure", { converter_funnel: "failed" })
-                    setUploading(false)
-                    setUploadingMessage(response.data.data.status)
-                    toast.error(response.data.data.status)
-                     router.push('/dashboard?cad_type=CAD_CONVERTER')
-                }
-
-            } else {
-                setUploading(false)
-                setUploadingMessage('FAILED')
-                toast.error(response.data.meta.message)
-
-            }
-
-
-        } catch (error) {
-            setUploading(false)
-            setUploadingMessage('FAILED')
-            console.error("Error fetching data:", error);
-
-        }
     };
     const validateAndProcessFile = async (file) => {
         if(!localStorage.getItem('is_verified')) {
@@ -443,19 +363,22 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
 
             // /design-view
             if (response.data.meta.success) {
-              
-
-                setFolderId(response.data.data)
-
-                await getStatus(response.data.data)
+                const jobId = response.data.data;
+                setFolderId(jobId);
+                setLoading(false);
+                setUploadingMessage('');
+                router.push(cadConverterStatusPath(jobId));
             } else {
+                setLoading(false);
+                setUploadingMessage('FAILED');
                 toast.error(response.data.meta.message)
 
             }
             // await clearIndexedDB()
         } catch (error) {
             console.log(error)
-
+            setLoading(false);
+            setUploadingMessage('FAILED');
         }
     }
     async function multiUpload(data, file, headers, fileSizeMB) {

@@ -268,6 +268,40 @@
   gap: 16px;
 }
 
+.creditsPill {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  appearance: none;
+  border: 1px solid #e8dff8 !important;
+  background: #f5f0ff !important;
+  color: #4c1d95 !important;
+  border-radius: 999px !important;
+  padding: 8px 14px !important;
+  font: inherit;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.creditsPill:hover {
+  background: #eee4ff !important;
+  border-color: #d8c7f5 !important;
+}
+
+.creditsPillIcon {
+  color: #7c3aed;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.creditsPillSep {
+  color: #8b7bb0;
+  font-weight: 600;
+}
+
 .home-pg-btns button {
   padding: 10px 20px;
   cursor: pointer;

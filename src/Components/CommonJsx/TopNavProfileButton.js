@@ -78,6 +78,7 @@ function TopNavProfileButton({isMobileMenu = false}) {
           username:data?.username,
           downloadRating:data?.unrated_designs_count||0,
           kycStatus:data?.kyc_status||'',
+          converter_credits: Number(data?.converter_credits) || 0,
         });
       }
     }

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowLeftRight, Info } from "lucide-react";
 import {
   fetchConverterPricingInfo,
+  getMaxSavePercentFromInfo,
   isConverterConversionFree,
 } from "@/lib/converterPricing";
 import {
@@ -73,6 +74,7 @@ function CadDropDown({
     isSampleFile,
     inputFileSizeBytes: file?.size,
   });
+  const maxSavePercent = getMaxSavePercentFromInfo(pricingInfo);
 
   const cadFormatOptions = useMemo(
     () => [
@@ -319,8 +321,9 @@ function CadDropDown({
           ) : (
             <p>
               <Info size={16} aria-hidden />
-              Files under 5 MB convert and download free. Larger files require a small fee per
-              conversion, including a new file or re-run.
+              Files under 5 MB convert and download free. For larger files, 1 credit = one download of any size — buy a pack
+              {maxSavePercent > 0 ? ` and save up to ${maxSavePercent}%` : ""}
+              .
             </p>
           )}
         </div>

@@ -20,7 +20,7 @@ const HomePage = () => {
           {/* <HomeTopNav /> */}
           {/* <WorkFlow /> */}
           <HomeLandingNew />
-          <CadOutsourcingBanner />
+          {/* <CadOutsourcingBanner /> */}
           <DesignHub />
           <RecentlyAddedDesigns />
           <WhyUsNew />
