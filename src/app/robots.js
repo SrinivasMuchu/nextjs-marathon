@@ -71,12 +71,17 @@ const QUERY_CRAWL_DISALLOW = [
   ...CRAWL_BLOCKED_QUERY_PARAMS.map((key) => `/*?*${key}=`),
 ];
 
+/** Only this session URL — not /tools/3d-cad-file-converter. */
+const CAD_CONVERTOR_FILEID_DISALLOW = [
+  '/cad-convertor?*fileid=',
+];
+
+const CRAWL_DISALLOW = [...PRIVATE_PATHS, ...CAD_CONVERTOR_FILEID_DISALLOW, ...QUERY_CRAWL_DISALLOW];
+
 const QUERY_CRAWL_ALLOW = [
   '/',
   '/*?page=',
 ];
-
-const CRAWL_DISALLOW = [...PRIVATE_PATHS, ...QUERY_CRAWL_DISALLOW];
 
 const AI_CRAWLERS = [
   "GPTBot",
