@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import LibraryFiltersWrapper from './LibraryFiltersWrapper';
+import FilterQueryRobotsTag from './FilterQueryRobotsTag';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import styles from './Library.module.css';
 import panelStyles from './LibraryFiltersPanel.module.css';
@@ -16,6 +17,7 @@ export default function LibraryLayoutWithFilters({
 
   return (
     <div className={styles['library-layout-full']}>
+      <FilterQueryRobotsTag />
       <main className={styles['library-content']}>
         <div className={styles['library-content-head']}>
           {toolbarLeft}

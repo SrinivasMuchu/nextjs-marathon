@@ -35,6 +35,7 @@ export const FILTER_PARAMS = new Set([
   'recency',
   'free_paid',
   'file_format',
+  'output',
   'category',
   'search',
   'q',
@@ -53,9 +54,8 @@ export const FILTER_PARAMS = new Set([
 ]);
 
 /**
- * Interactive query params allowed on library browse URLs (user search).
- * Still listed in FILTER_PARAMS for docs, but must not trigger 410 on root/search paths.
- * Not allowed on /library/file-format/* (those only allow ?page=).
+ * Interactive query params for library browse/search.
+ * FILTER_PARAMS are allowed for users; crawlers are blocked via robots.txt + noindex.
  */
 export const INTERACTIVE_QUERY_PARAMS = new Set(['search', 'q']);
 
