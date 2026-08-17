@@ -63,7 +63,7 @@ const PANEL_FILE_FORMATS_3D = [
 const SOLID_FORMATS = ['STEP', 'STP', 'IGES', 'IGS', 'BREP', 'BRP'];
 const MESH_FORMATS = ['STL', 'OBJ', 'PLY', 'OFF'];
 
-function deriveOutputType(twoDims, fileFormat, libraryListMode, outputFormat = '', output = '') {
+function deriveOutputType(twoDims, _fileFormat, libraryListMode, outputFormat = '', output = '') {
   if (libraryListMode === '2d') {
     const formats = (outputFormat || '')
       .split(',')
@@ -74,14 +74,8 @@ function deriveOutputType(twoDims, fileFormat, libraryListMode, outputFormat = '
     return '';
   }
 
-  const fromUrl = inferLibraryOutput({ output, file_format: fileFormat, two_dims: twoDims });
-  if (fromUrl) return fromUrl;
-
-  const formats = (fileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
-  if (!formats.length) return '';
-  if (formats.every((f) => SOLID_FORMATS.includes(f))) return 'solids';
-  if (formats.every((f) => MESH_FORMATS.includes(f))) return 'meshes';
-  return '';
+  /* 3D Output radios are independent of a single format chip (STEP ≠ Solids). */
+  return inferLibraryOutput({ output, file_format: '', two_dims: twoDims }) || '';
 }
 
 function formatsForOutputType(outputType, libraryListMode) {
@@ -103,15 +97,12 @@ function resolve3dApplyQuery(outputType, selectedFormat) {
   }
 
   const selected = selectedFormat ? String(selectedFormat).trim().toUpperCase() : '';
-  if (selected) {
-    return { output: undefined, file_format: selected, two_dims: undefined };
-  }
-
-  if (outputType === 'solids' || outputType === 'meshes') {
-    return { output: outputType, file_format: undefined, two_dims: undefined };
-  }
-
-  return { output: undefined, file_format: undefined, two_dims: undefined };
+  const groupOutput = outputType === 'solids' || outputType === 'meshes' ? outputType : undefined;
+  return {
+    output: groupOutput,
+    file_format: selected || undefined,
+    two_dims: undefined,
+  };
 }
 
 const FREE_PAID_RADIO = [
@@ -460,14 +451,8 @@ export default function LibraryFilters({
       return;
     }
 
-    /* 3D: All / 2D clear format chips; Solids / Meshes keep a compatible chip or clear. */
-    if (!value || value === '2d') {
-      setLocalFormats([]);
-      return;
-    }
-
-    const allowed = formatsForOutputType(value, libraryListMode);
-    if (localFormats[0] && !allowed.includes(localFormats[0])) {
+    /* 3D Output and File format chips are independent. 2D drawings clear 3D formats. */
+    if (value === '2d') {
       setLocalFormats([]);
     }
   };
@@ -565,11 +550,6 @@ export default function LibraryFilters({
                             return;
                           }
                           toggleFileFormat(value, !isActive);
-                          if (!isActive) {
-                            setLocalOutputType(
-                              deriveOutputType(undefined, value, libraryListMode)
-                            );
-                          }
                         }}
                       >
                         {label}
