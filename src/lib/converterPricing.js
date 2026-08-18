@@ -50,6 +50,10 @@ export async function fetchConverterPricingInfo() {
   return getConverterPricingInfo();
 }
 
+export function areConverterSubscriptionsEnabled(info) {
+  return info?.converter_subscriptions !== false;
+}
+
 /** Prefer GST-inclusive single download label from pricing-info payload. */
 export function getSinglePriceLabelFromInfo(info) {
   const fromPricing = buildConverterPricingDisplay(info?.pricing).totalLabel;
@@ -104,6 +108,7 @@ function applyDynamicPackOffers(packs) {
 }
 
 export function getConverterPacksFromInfo(info) {
+  if (!areConverterSubscriptionsEnabled(info)) return [];
   const packs = Array.isArray(info?.packs) ? info.packs : [];
   const singleTotal = Number(buildConverterPricingDisplay(info?.pricing).total) || 0;
   const mapped = packs.map((pack) => {

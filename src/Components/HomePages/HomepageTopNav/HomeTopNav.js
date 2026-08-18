@@ -28,6 +28,7 @@ import {
   fetchConverterPricingInfo,
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
+  areConverterSubscriptionsEnabled,
 } from "@/lib/converterPricing";
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { toast } from "react-toastify";
@@ -125,6 +126,7 @@ function HomeTopNav() {
   const [packs, setPacks] = useState([]);
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [pendingPack, setPendingPack] = useState(null);
+  const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
   const topNavRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -138,6 +140,7 @@ function HomeTopNav() {
         if (cancelled) return;
         setPacks(getConverterPacksFromInfo(info));
         setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
+        setSubscriptionsEnabled(areConverterSubscriptionsEnabled(info));
       })
       .catch(() => {
         if (!cancelled) {
@@ -296,26 +299,28 @@ function HomeTopNav() {
       </div>
 
       <div className={styles["home-pg-btns"]}>
-        <button
-          type="button"
-          className={styles.creditsPill}
-          onClick={() => setShowCreditPlans(true)}
-          aria-label={`${creditsLabel}. Buy credits`}
-        >
-          <span className={styles.creditsPillIcon} aria-hidden>
-            ◆
-          </span>
-          <span>
-            {creditsLabel} <span className={styles.creditsPillSep}>·</span> Buy
-          </span>
-        </button>
+        {subscriptionsEnabled ? (
+          <button
+            type="button"
+            className={styles.creditsPill}
+            onClick={() => setShowCreditPlans(true)}
+            aria-label={`${creditsLabel}. Buy credits`}
+          >
+            <span className={styles.creditsPillIcon} aria-hidden>
+              ◆
+            </span>
+            <span>
+              {creditsLabel} <span className={styles.creditsPillSep}>·</span> Buy
+            </span>
+          </button>
+        ) : null}
         <TopNavProfileButton styles={styles} className={"try-demo"} topBar='profile'/>
       </div>
 
       <div className={styles["home-pg-menu"]}>
         <MenuButton styles={{ styles }} />
       </div>
-      {showCreditPlans ? (
+      {subscriptionsEnabled && showCreditPlans ? (
         <ConverterCreditPlansPopup
           packs={packs}
           singlePriceLabel={singlePriceLabel}
@@ -331,7 +336,7 @@ function HomeTopNav() {
           onSelectSingle={() => setShowCreditPlans(false)}
         />
       ) : null}
-      {pendingPack ? (
+      {subscriptionsEnabled && pendingPack ? (
         <ConverterDownloadFlow
           mode="pack"
           pack={pendingPack}

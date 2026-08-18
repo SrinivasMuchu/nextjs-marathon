@@ -25,6 +25,7 @@ import {
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
   buildConverterPricingDisplay,
+  areConverterSubscriptionsEnabled,
 } from '@/lib/converterPricing';
 
 let cachedCadHistory = {};
@@ -52,6 +53,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   const [creditPacks, setCreditPacks] = useState([]);
   const [singlePriceLabel, setSinglePriceLabel] = useState('');
   const [pendingPack, setPendingPack] = useState(null);
+  const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
   // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
   const [editDetails, serEditDetails] = useState(null);
   const { user, setUser, cadDetailsUpdate } = useContext(contextState);
@@ -76,9 +78,12 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     fetchConverterPricingInfo()
       .then((info) => {
         if (cancelled) return;
-        setCreditPacks(getConverterPacksFromInfo(info));
+        setCreditPacks(
+          areConverterSubscriptionsEnabled(info) ? getConverterPacksFromInfo(info) : [],
+        );
         setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
-        if (info?.credits != null) {
+        setSubscriptionsEnabled(areConverterSubscriptionsEnabled(info));
+        if (info?.credits != null && areConverterSubscriptionsEnabled(info)) {
           setUser((prev) => ({ ...prev, converter_credits: Number(info.credits) || 0 }));
         }
       })
@@ -395,10 +400,11 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       setDownloading(prev => ({ ...prev, [index]: true }));
 
       const access = await checkConverterDownload(file._id);
-      if (access.credits != null) {
+      const packsOn = areConverterSubscriptionsEnabled(access);
+      if (access.credits != null && packsOn) {
         setUser((prev) => ({ ...prev, converter_credits: Number(access.credits) || 0 }));
       }
-      if (access.can_download && access.reason === 'credits') {
+      if (access.can_download && access.reason === 'credits' && packsOn) {
         const redeemed = await redeemConverterCredit(file._id);
         if (redeemed?.credits != null) {
           setUser((prev) => ({ ...prev, converter_credits: Number(redeemed.credits) || 0 }));
@@ -419,16 +425,25 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         price: access.pricing?.base_price ?? access.price,
         pricing: access.pricing,
       });
-      if (Array.isArray(access.packs) && access.packs.length) {
+      const packsEnabled =
+        packsOn &&
+        Array.isArray(access.packs) &&
+        access.packs.length;
+      if (packsEnabled) {
         setCreditPacks(access.packs);
+        if (access.pricing) {
+          const label = buildConverterPricingDisplay(access.pricing).totalLabel;
+          if (label) setSinglePriceLabel(label);
+        } else if (access.single_price_label) {
+          setSinglePriceLabel(access.single_price_label);
+        }
+        setShowCreditPlans(true);
+      } else {
+        sendClarityEvent("converter_billing_address_opened", {
+          converter_funnel: "billing_opened",
+        });
+        setOpenConverterBilling(true);
       }
-      if (access.pricing) {
-        const label = buildConverterPricingDisplay(access.pricing).totalLabel;
-        if (label) setSinglePriceLabel(label);
-      } else if (access.single_price_label) {
-        setSinglePriceLabel(access.single_price_label);
-      }
-      setShowCreditPlans(true);
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Download failed. Please try again.');
@@ -511,7 +526,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
             handleReportDownload={handleReportDownload}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
-            converterCredits={user?.converter_credits}
+            converterCredits={subscriptionsEnabled ? user?.converter_credits : 0}
+            subscriptionsEnabled={subscriptionsEnabled}
+            singlePriceLabel={singlePriceLabel}
           />
         )}
         {cad_type === 'USER_CADS' && (
@@ -569,7 +586,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           onDownloadAgain={downloadConverterFileAgain}
         />
       )}
-      {showCreditPlans && (
+      {subscriptionsEnabled && showCreditPlans && (
         <ConverterCreditPlansPopup
           packs={creditPacks}
           singlePriceLabel={singlePriceLabel}
@@ -578,7 +595,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           onSelectSingle={openBillingFromPlans}
         />
       )}
-      {pendingPack && (
+      {subscriptionsEnabled && pendingPack && (
         <ConverterDownloadFlow
           mode="pack"
           pack={pendingPack}

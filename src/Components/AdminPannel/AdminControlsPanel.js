@@ -19,6 +19,7 @@ function AdminControlsPanel() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [conversionFree, setConversionFree] = useState(true);
+  const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
   const [converterPrice, setConverterPrice] = useState("1.5");
   const [packs, setPacks] = useState(EMPTY_PACKS);
 
@@ -45,6 +46,7 @@ function AdminControlsPanel() {
 
   const applyControls = (data) => {
     setConversionFree(Boolean(data.conversion_free));
+    setSubscriptionsEnabled(data.converter_subscriptions !== false);
     setConverterPrice(String(data.converter_price ?? ""));
     if (Array.isArray(data.converter_packs) && data.converter_packs.length) {
       setPacks(
@@ -87,6 +89,26 @@ function AdminControlsPanel() {
       toast.success(next ? "Converter downloads are now free for all users." : "Paid converter downloads enabled.");
     } catch (err) {
       setConversionFree(!next);
+      toast.error(err?.message || "Failed to update setting.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleSubscriptions = async (event) => {
+    const next = event.target.checked;
+    setSubscriptionsEnabled(next);
+    setSaving(true);
+    try {
+      const data = await updateAdminControls({ converter_subscriptions: next });
+      applyControls(data);
+      toast.success(
+        next
+          ? "Credit pack subscriptions are now visible to users."
+          : "Credit pack subscriptions hidden. Users pay per file only.",
+      );
+    } catch (err) {
+      setSubscriptionsEnabled(!next);
       toast.error(err?.message || "Failed to update setting.");
     } finally {
       setSaving(false);
@@ -155,7 +177,8 @@ function AdminControlsPanel() {
     <div className={styles.panel}>
       <p className={styles.lead}>
         Configure CAD converter download pricing. Files under 5 MB are always free to download.
-        Sample files are always free. For larger files, users can pay per file or buy a credit pack.
+        Sample files are always free. For larger files, users pay per file — or buy a credit pack
+        when subscriptions are enabled.
       </p>
 
       <div className={styles.card}>
@@ -172,6 +195,25 @@ function AdminControlsPanel() {
             disabled={saving}
             color="primary"
             inputProps={{ "aria-label": "Toggle free converter downloads" }}
+          />
+        </div>
+      </div>
+
+      <div className={styles.card}>
+        <div className={styles.row}>
+          <div>
+            <h3 className={styles.rowTitle}>Credit pack subscriptions</h3>
+            <p className={styles.rowHint}>
+              When off, the credits pill, pack pricing section, and pack checkout are hidden.
+              Users download a single file by paying per conversion, as before.
+            </p>
+          </div>
+          <Switch
+            checked={subscriptionsEnabled}
+            onChange={handleToggleSubscriptions}
+            disabled={saving}
+            color="primary"
+            inputProps={{ "aria-label": "Toggle converter credit pack subscriptions" }}
           />
         </div>
       </div>

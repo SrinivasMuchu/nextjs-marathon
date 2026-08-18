@@ -20,6 +20,7 @@ import {
   buildConverterPricingDisplay,
   fetchConverterPricingInfo,
   CONVERTER_FREE_SIZE_LIMIT_BYTES,
+  areConverterSubscriptionsEnabled,
 } from "@/lib/converterPricing";
 import { hasConverterCredits } from "@/lib/converterCredits";
 import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
@@ -37,11 +38,14 @@ function downloadButtonLabel({
   converterPricing,
   inputFileSizeBytes,
   converterCredits,
+  subscriptionsEnabled = true,
+  singlePriceLabel = "",
 }) {
   if (downloading) return "Downloading...";
   if (!needsConverterCredit(converterPricing, inputFileSizeBytes)) return "Download";
-  if (hasConverterCredits(converterCredits)) return "Download";
-  return "Download · 1 credit";
+  if (subscriptionsEnabled && hasConverterCredits(converterCredits)) return "Download";
+  if (subscriptionsEnabled) return "Download · 1 credit";
+  return singlePriceLabel ? `Download · ${singlePriceLabel}` : "Download";
 }
 
 function formatFileSize(bytes) {
@@ -170,11 +174,18 @@ function CadConvertorFiles({
   searchTerm,
   setSearchTerm,
   converterCredits = 0,
+  subscriptionsEnabled = true,
+  singlePriceLabel = "",
 }) {
   const router = useRouter();
   const [pricingNoteTotal, setPricingNoteTotal] = useState("");
+  const [packsOn, setPacksOn] = useState(subscriptionsEnabled);
   const [comparisonFile, setComparisonFile] = useState(null);
   const [comparisonIndex, setComparisonIndex] = useState(null);
+
+  useEffect(() => {
+    setPacksOn(subscriptionsEnabled);
+  }, [subscriptionsEnabled]);
 
   useEffect(() => {
     let cancelled = false;
@@ -184,6 +195,7 @@ function CadConvertorFiles({
         if (cancelled) return;
         const display = buildConverterPricingDisplay(info?.pricing);
         setPricingNoteTotal(display.totalLabel);
+        setPacksOn(areConverterSubscriptionsEnabled(info));
       } catch {
         if (!cancelled) setPricingNoteTotal("");
       }
@@ -491,7 +503,9 @@ function CadConvertorFiles({
                                     downloading: downloading[index],
                                     converterPricing: file.converter_pricing,
                                     inputFileSizeBytes: file.input_file_size_bytes,
-                                    converterCredits,
+                                    converterCredits: packsOn ? converterCredits : 0,
+                                    subscriptionsEnabled: packsOn,
+                                    singlePriceLabel: pricingNoteTotal || singlePriceLabel,
                                   })
                                 : "Status"}
                             </button>
@@ -549,7 +563,9 @@ function CadConvertorFiles({
           onDownload={() => handleDownload(comparisonFile, comparisonIndex)}
           downloadingReport={Boolean(downloadingReport?.[comparisonIndex])}
           downloading={Boolean(downloading?.[comparisonIndex])}
-          converterCredits={converterCredits}
+          converterCredits={packsOn ? converterCredits : 0}
+          subscriptionsEnabled={packsOn}
+          singlePriceLabel={pricingNoteTotal || singlePriceLabel}
         />
       )}
     </div>

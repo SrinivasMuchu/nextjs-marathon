@@ -10,6 +10,7 @@ import {
   getConverterPacksFromInfo,
   getFeaturedConverterPack,
   getSinglePriceLabelFromInfo,
+  areConverterSubscriptionsEnabled,
 } from "@/lib/converterPricing";
 import { hasConverterCredits } from "@/lib/converterCredits";
 import styles from "./ConverterProgressLoader.module.css";
@@ -128,6 +129,7 @@ function ConverterProgressLoader({
   const [packs, setPacks] = useState([]);
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [showPackBanner, setShowPackBanner] = useState(false);
+  const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
   const inputFormat = fileFormat(fileName);
   const outputLabel = String(outputFormat || "output").toUpperCase();
   const sizeLabel = formatFileSize(fileSize);
@@ -136,21 +138,21 @@ function ConverterProgressLoader({
     (Number.isFinite(Number(fileSize)) &&
       Number(fileSize) > 0 &&
       Number(fileSize) < CONVERTER_FREE_SIZE_LIMIT_BYTES);
-  const alreadyCovered = isFree || hasConverterCredits(user?.converter_credits);
+  const alreadyCovered =
+    isFree ||
+    (subscriptionsEnabled && hasConverterCredits(user?.converter_credits));
 
   useEffect(() => {
-    if (alreadyCovered) {
-      setShowPackBanner(false);
-      return;
-    }
     let cancelled = false;
     fetchConverterPricingInfo()
       .then((info) => {
-        if (!cancelled) {
-          setPriceLabel(buildConverterPricingDisplay(info?.pricing).totalLabel);
-          setPacks(getConverterPacksFromInfo(info));
-          setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
-        }
+        if (cancelled) return;
+        const enabled = areConverterSubscriptionsEnabled(info);
+        setSubscriptionsEnabled(enabled);
+        setPriceLabel(buildConverterPricingDisplay(info?.pricing).totalLabel);
+        setPacks(enabled ? getConverterPacksFromInfo(info) : []);
+        setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
+        if (!enabled || isFree) setShowPackBanner(false);
       })
       .catch(() => {
         if (!cancelled) {
@@ -162,7 +164,7 @@ function ConverterProgressLoader({
     return () => {
       cancelled = true;
     };
-  }, [alreadyCovered]);
+  }, [isFree]);
 
 
   const steps = useMemo(() => {
@@ -211,7 +213,7 @@ function ConverterProgressLoader({
     );
   }
 
-  const showCreditsUpsell = !alreadyCovered;
+  const showCreditsUpsell = !alreadyCovered && subscriptionsEnabled;
   const featuredPack = getFeaturedConverterPack(packs);
 
 
@@ -371,7 +373,7 @@ function ConverterProgressLoader({
               <>
                 This conversion is <strong>free</strong> — no payment is required.
               </>
-            ) : hasConverterCredits(user?.converter_credits) ? (
+            ) : subscriptionsEnabled && hasConverterCredits(user?.converter_credits) ? (
               <>
                 Covered by your credits — <strong>no payment needed</strong> for this download.
               </>

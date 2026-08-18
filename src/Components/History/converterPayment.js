@@ -9,6 +9,7 @@ import {
 } from "@/api/converterPaymentApi";
 import { sendClarityEvent } from "@/common.helper";
 import { MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
+import { areConverterSubscriptionsEnabled } from "@/lib/converterPricing";
 
 export function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -30,7 +31,11 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
     (async () => {
       try {
         const access = await checkConverterDownload(converterFileId);
-        if (access.can_download && access.reason === "credits") {
+        if (
+          access.can_download &&
+          access.reason === "credits" &&
+          areConverterSubscriptionsEnabled(access)
+        ) {
           const redeemed = await redeemConverterCredit(converterFileId);
           resolve({
             free: true,

@@ -5,6 +5,7 @@ import {
   fetchConverterPricingInfo,
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
+  areConverterSubscriptionsEnabled,
 } from '@/lib/converterPricing';
 import { contextState } from '@/Components/CommonJsx/ContextProvider';
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
@@ -25,7 +26,9 @@ function ConverterPricingSection() {
     fetchConverterPricingInfo()
       .then((info) => {
         if (cancelled) return;
-        setPacks(getConverterPacksFromInfo(info));
+        setPacks(
+          areConverterSubscriptionsEnabled(info) ? getConverterPacksFromInfo(info) : [],
+        );
         setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
         setLoaded(true);
       })
