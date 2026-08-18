@@ -5,14 +5,14 @@ import { getTwoDLibraryPricingInfo } from "@/api/twoDLibraryPaymentApi";
 import styles from "./TwoDTechnicalDrawingHero.module.css";
 
 export default function TwoDLibraryPriceChip() {
-  const [label, setLabel] = useState("$2.99");
+  const [label, setLabel] = useState("$3.00");
 
   useEffect(() => {
     let cancelled = false;
     getTwoDLibraryPricingInfo()
       .then((info) => {
         if (cancelled) return;
-        setLabel(info?.two_d_library_free ? "Free Download" : info?.price_label || "$2.99");
+        setLabel(info?.price_label || "$3.00");
       })
       .catch(() => {});
     return () => {

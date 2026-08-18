@@ -5,7 +5,7 @@ import {
 import { MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
 import { loadRazorpayScript } from "@/Components/CadDrawingPipeline/techDrawPayment";
 
-/** Razorpay checkout for one 2D library drawing set. $2.99 all-in (GST included). */
+/** Razorpay checkout for one 2D library drawing set (all-in pricing). */
 export function openTwoDLibraryPayment({ cadFileId, billingId, description } = {}) {
   return new Promise((resolve, reject) => {
     (async () => {

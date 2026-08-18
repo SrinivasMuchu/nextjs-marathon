@@ -7,6 +7,20 @@ import BillingAddress from "@/Components/CommonJsx/BillingAddress";
 import { checkTwoDLibraryDownload } from "@/api/twoDLibraryPaymentApi";
 import { openTwoDLibraryPayment } from "@/lib/techDraw/twoDLibraryPayment";
 
+function pricingFromAccess(access) {
+  const taxable = Number(access?.taxable);
+  const gstAmount = Number(access?.gst_amount);
+  const total = Number(access?.price);
+  if (!Number.isFinite(taxable) || taxable < 0) return null;
+  return {
+    base_price: taxable,
+    gst_rate: Number(access?.gst_rate) || 0.18,
+    gst_amount: Number.isFinite(gstAmount) ? gstAmount : Math.round(taxable * 0.18 * 100) / 100,
+    total: Number.isFinite(total) ? total : Math.round(taxable * 1.18 * 100) / 100,
+    currency: access?.currency || "USD",
+  };
+}
+
 function filenameFromDisposition(header, fallback) {
   const match = String(header || "").match(/filename="?([^"]+)"?/i);
   return match?.[1] || fallback;
@@ -41,6 +55,7 @@ export function TwoDLibraryPaywallModals({
   onCloseLogin,
   onCloseBilling,
   onPay,
+  pricing,
 }) {
   return (
     <>
@@ -50,7 +65,21 @@ export function TwoDLibraryPaywallModals({
           onClose={onCloseBilling}
           onSave={onPay}
           cadId={designId}
-          designDetails={{ title: designTitle || "2D drawing set" }}
+          designDetails={{
+            title: designTitle || "2D drawing set",
+            description: "2D technical drawing download",
+          }}
+          productDetails={{
+            title: designTitle || "2D drawing set",
+            description: "2D technical drawing download",
+            pricing: pricing || {
+              base_price: 3,
+              gst_rate: 0.18,
+              gst_amount: 0.54,
+              total: 3.54,
+              currency: "USD",
+            },
+          }}
           createdFor="design_billing"
         />
       ) : null}
@@ -64,6 +93,7 @@ export function useTwoDLibraryDownload({ designId, designTitle, enabled }) {
   const [openBilling, setOpenBilling] = useState(false);
   const [pendingHref, setPendingHref] = useState("");
   const [pendingName, setPendingName] = useState("drawing-set.zip");
+  const [pricing, setPricing] = useState(null);
 
   const startDownload = useCallback(async (href, filename) => {
     if (!href) return;
@@ -89,6 +119,8 @@ export function useTwoDLibraryDownload({ designId, designTitle, enabled }) {
       setBusy(true);
       try {
         const access = await checkTwoDLibraryDownload(designId);
+        const nextPricing = pricingFromAccess(access);
+        if (nextPricing) setPricing(nextPricing);
         if (access?.can_download) {
           await startDownload(href, filename);
           return;
@@ -144,6 +176,7 @@ export function useTwoDLibraryDownload({ designId, designTitle, enabled }) {
       onCloseLogin: () => setOpenLogin(false),
       onCloseBilling: () => setOpenBilling(false),
       onPay: handlePay,
+      pricing,
     },
   };
 }

@@ -20,8 +20,7 @@ function AdminControlsPanel() {
   const [saving, setSaving] = useState(false);
   const [conversionFree, setConversionFree] = useState(true);
   const [converterPrice, setConverterPrice] = useState("1.5");
-  const [twoDLibraryFree, setTwoDLibraryFree] = useState(true);
-  const [twoDLibraryPrice, setTwoDLibraryPrice] = useState("2.99");
+  const [twoDLibraryPrice, setTwoDLibraryPrice] = useState("3.00");
   const [packs, setPacks] = useState(EMPTY_PACKS);
 
   const pricePreview = useMemo(() => {
@@ -48,8 +47,7 @@ function AdminControlsPanel() {
   const applyControls = (data) => {
     setConversionFree(Boolean(data.conversion_free));
     setConverterPrice(String(data.converter_price ?? ""));
-    setTwoDLibraryFree(data.two_d_library_free === undefined ? true : Boolean(data.two_d_library_free));
-    setTwoDLibraryPrice(String(data.two_d_library_price ?? "2.99"));
+    setTwoDLibraryPrice(String(data.two_d_library_price ?? "3.00"));
     if (Array.isArray(data.converter_packs) && data.converter_packs.length) {
       setPacks(
         data.converter_packs.map((pack) => ({
@@ -91,22 +89,6 @@ function AdminControlsPanel() {
       toast.success(next ? "Converter downloads are now free for all users." : "Paid converter downloads enabled.");
     } catch (err) {
       setConversionFree(!next);
-      toast.error(err?.message || "Failed to update setting.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleToggleTwoDLibraryFree = async (event) => {
-    const next = event.target.checked;
-    setTwoDLibraryFree(next);
-    setSaving(true);
-    try {
-      const data = await updateAdminControls({ two_d_library_free: next });
-      applyControls(data);
-      toast.success(next ? "2D library downloads are now free." : "Paid 2D library downloads enabled.");
-    } catch (err) {
-      setTwoDLibraryFree(!next);
       toast.error(err?.message || "Failed to update setting.");
     } finally {
       setSaving(false);
@@ -194,7 +176,7 @@ function AdminControlsPanel() {
     <div className={styles.panel}>
       <p className={styles.lead}>
         Configure CAD converter and 2D library download pricing. Converter files under 5 MB
-        and sample files stay free. 2D library downloads stay free until you turn the kill switch off.
+        and sample files stay free. 2D library downloads use the price configured below.
       </p>
 
       <div className={styles.card}>
@@ -216,27 +198,9 @@ function AdminControlsPanel() {
       </div>
 
       <div className={styles.card}>
-        <div className={styles.row}>
-          <div>
-            <h3 className={styles.rowTitle}>Free 2D library downloads</h3>
-            <p className={styles.rowHint}>
-              Keep this on until launch. When off, catalog drawing sets cost the price below (GST included).
-            </p>
-          </div>
-          <Switch
-            checked={twoDLibraryFree}
-            onChange={handleToggleTwoDLibraryFree}
-            disabled={saving}
-            color="primary"
-            inputProps={{ "aria-label": "Toggle free 2D library downloads" }}
-          />
-        </div>
-      </div>
-
-      <div className={styles.card}>
-        <h3 className={styles.rowTitle}>2D library download price (USD, all-in)</h3>
+        <h3 className={styles.rowTitle}>2D library download base price (USD)</h3>
         <p className={styles.rowHint}>
-          Customer pays this exact amount. Invoice splits 18% GST out of it — do not add GST on top.
+          Enter base price only. Checkout adds 18% GST on top of this amount.
         </p>
         <form className={styles.priceForm} onSubmit={handleSaveTwoDLibraryPrice}>
           <div className={styles.priceInputWrap}>
@@ -248,22 +212,20 @@ function AdminControlsPanel() {
               className={styles.priceInput}
               value={twoDLibraryPrice}
               onChange={(e) => setTwoDLibraryPrice(e.target.value)}
-              disabled={saving || twoDLibraryFree}
+              disabled={saving}
             />
           </div>
           <button
             type="submit"
             className={styles.saveBtn}
-            disabled={saving || twoDLibraryFree}
+            disabled={saving}
           >
             Save 2D price
           </button>
         </form>
-        {twoDLibraryFree ? (
-          <p className={styles.note}>Shown for reference — ignored while 2D library downloads are free.</p>
-        ) : (
-          <p className={styles.note}>Checkout charges ${Number(twoDLibraryPrice || 0).toFixed(2)} including GST.</p>
-        )}
+        <p className={styles.note}>
+          Checkout charges ${(Number(twoDLibraryPrice || 0) * 1.18).toFixed(2)} (incl. GST).
+        </p>
       </div>
 
       <div className={styles.card}>
