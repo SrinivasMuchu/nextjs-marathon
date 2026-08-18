@@ -20,6 +20,7 @@ function AdminControlsPanel() {
   const [saving, setSaving] = useState(false);
   const [conversionFree, setConversionFree] = useState(true);
   const [converterPrice, setConverterPrice] = useState("1.5");
+  const [twoDLibraryPrice, setTwoDLibraryPrice] = useState("3.00");
   const [packs, setPacks] = useState(EMPTY_PACKS);
 
   const pricePreview = useMemo(() => {
@@ -46,6 +47,7 @@ function AdminControlsPanel() {
   const applyControls = (data) => {
     setConversionFree(Boolean(data.conversion_free));
     setConverterPrice(String(data.converter_price ?? ""));
+    setTwoDLibraryPrice(String(data.two_d_library_price ?? "3.00"));
     if (Array.isArray(data.converter_packs) && data.converter_packs.length) {
       setPacks(
         data.converter_packs.map((pack) => ({
@@ -88,6 +90,25 @@ function AdminControlsPanel() {
     } catch (err) {
       setConversionFree(!next);
       toast.error(err?.message || "Failed to update setting.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveTwoDLibraryPrice = async (event) => {
+    event.preventDefault();
+    const price = Number(twoDLibraryPrice);
+    if (!Number.isFinite(price) || price < 0) {
+      toast.error("Enter a valid 2D library price (0 or greater).");
+      return;
+    }
+    setSaving(true);
+    try {
+      const data = await updateAdminControls({ two_d_library_price: price });
+      applyControls(data);
+      toast.success("2D library price updated.");
+    } catch (err) {
+      toast.error(err?.message || "Failed to update 2D library price.");
     } finally {
       setSaving(false);
     }
@@ -154,8 +175,8 @@ function AdminControlsPanel() {
   return (
     <div className={styles.panel}>
       <p className={styles.lead}>
-        Configure CAD converter download pricing. Files under 5 MB are always free to download.
-        Sample files are always free. For larger files, users can pay per file or buy a credit pack.
+        Configure CAD converter and 2D library download pricing. Converter files under 5 MB
+        and sample files stay free. 2D library downloads use the price configured below.
       </p>
 
       <div className={styles.card}>
@@ -174,6 +195,37 @@ function AdminControlsPanel() {
             inputProps={{ "aria-label": "Toggle free converter downloads" }}
           />
         </div>
+      </div>
+
+      <div className={styles.card}>
+        <h3 className={styles.rowTitle}>2D library download base price (USD)</h3>
+        <p className={styles.rowHint}>
+          Enter base price only. Checkout adds 18% GST on top of this amount.
+        </p>
+        <form className={styles.priceForm} onSubmit={handleSaveTwoDLibraryPrice}>
+          <div className={styles.priceInputWrap}>
+            <span className={styles.currency}>$</span>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              className={styles.priceInput}
+              value={twoDLibraryPrice}
+              onChange={(e) => setTwoDLibraryPrice(e.target.value)}
+              disabled={saving}
+            />
+          </div>
+          <button
+            type="submit"
+            className={styles.saveBtn}
+            disabled={saving}
+          >
+            Save 2D price
+          </button>
+        </form>
+        <p className={styles.note}>
+          Checkout charges ${(Number(twoDLibraryPrice || 0) * 1.18).toFixed(2)} (incl. GST).
+        </p>
       </div>
 
       <div className={styles.card}>

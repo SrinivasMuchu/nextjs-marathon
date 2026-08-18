@@ -348,26 +348,17 @@ function buildSheetDownloadRows(entries, baseUrl, designId) {
       };
     }
     if (id) {
+      const libraryFile = (ext) =>
+        techdrawFileApiUrl(id, {
+          sheet: n,
+          ext,
+          disposition: "attachment",
+        });
       return {
         name: e.label,
-        pdf: techdrawFileApiUrl(id, {
-          sheet: n,
-          ext: "pdf",
-          source: "user",
-          disposition: "attachment",
-        }),
-        svg: techdrawFileApiUrl(id, {
-          sheet: n,
-          ext: "svg",
-          source: "user",
-          disposition: "attachment",
-        }),
-        dxf: techdrawFileApiUrl(id, {
-          sheet: n,
-          ext: "dxf",
-          source: "user",
-          disposition: "attachment",
-        }),
+        pdf: libraryFile("pdf"),
+        svg: libraryFile("svg"),
+        dxf: libraryFile("dxf"),
       };
     }
     const paths = sheetAssetPaths(baseUrl, e.sheet_num);
@@ -577,7 +568,9 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
       outputPrefix: outputS3Prefix || "",
       format: "pdf",
     }),
-    freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
+    freecadHref: userPipeline
+      ? `${baseUrl}/technical_drawing_simple.FCStd`
+      : techdrawFileApiUrl(designId, { file: "technical_drawing_simple.FCStd" }),
     zipHref: techdrawBundleZipUrl(designId, {
       userPipeline: userPipeline && !outputS3Prefix,
       outputPrefix: outputS3Prefix || "",

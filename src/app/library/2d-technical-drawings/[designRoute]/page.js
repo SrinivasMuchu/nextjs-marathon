@@ -135,6 +135,8 @@ async function renderDesignPage(designRoute) {
       sourceModelHref: cadModelHref,
     }),
     showBadges: true,
+    showFreeDownloadBadge: false,
+    showLibraryPriceChip: true,
   };
 
   return (
@@ -155,6 +157,7 @@ async function renderDesignPage(designRoute) {
           {...contentProps}
           cadModelHref={cadModelHref}
           currentDesignId={designId}
+          designTitle={title}
         />
       </TwoDTechnicalDrawingPage>
     </>

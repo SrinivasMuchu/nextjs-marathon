@@ -15,6 +15,11 @@ export default function TwoDDrawingRightSidebar({
   showDownloadAllPdfs = true,
   showCadModelLink = true,
   showUploadCta = true,
+  onRequestDownload,
+  busy = false,
+  designId,
+  designTitle,
+  gateLibraryDownloads = false,
   drawingInfo = {
     viewsAnalysed: 6,
     sheetsGenerated: 9,
@@ -39,6 +44,11 @@ export default function TwoDDrawingRightSidebar({
             freecadHref={freecadHref}
             zipHref={zipHref}
             showPdfButton={showDownloadAllPdfs}
+            onRequestDownload={onRequestDownload}
+            busy={busy}
+            designId={designId}
+            designTitle={designTitle}
+            gateLibraryDownloads={gateLibraryDownloads}
           />
 
           <div className={styles.formatGrid}>
