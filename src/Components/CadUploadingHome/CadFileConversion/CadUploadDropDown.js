@@ -79,6 +79,7 @@ function CadDropDown({
   const cadFormatOptions = useMemo(
     () => [
       { value: "step", label: ".step" },
+      { value: "fcstd", label: ".fcstd" },
       { value: "brep", label: ".brep" },
       { value: "iges", label: ".iges" },
       { value: "obj", label: ".obj" },

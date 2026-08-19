@@ -27,6 +27,7 @@ const CONVERTER_META_TO_PHRASE = {
   '3dm': '3DM online for Rhino and Grasshopper workflows',
   step: 'STEP online for mechanical CAD workflows',
   stp: 'STEP online for mechanical CAD workflows',
+  fcstd: 'FCStd online for editable FreeCAD documents',
   dxf: 'DXF online for CAD, CAM and CNC exchange',
   dwg: 'DWG online for native AutoCAD editing',
 };

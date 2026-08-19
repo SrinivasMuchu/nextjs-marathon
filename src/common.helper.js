@@ -198,6 +198,7 @@ export const createDropdownCustomStyles = {
 
 export const converterTypes = [
   { label: 'STEP to BREP', path: '/step-to-brep', oneLiner: 'Convert STEP to BREP for solid geometry exchange.' },
+  { label: 'STEP to FCStd', path: '/step-to-fcstd', oneLiner: 'Wrap STEP geometry in an editable FreeCAD FCStd document.' },
   { label: 'STEP to IGES', path: '/step-to-iges', oneLiner: 'Convert STEP to IGES for cross-platform CAD exchange.' },
   { label: 'STEP to OBJ', path: '/step-to-obj', oneLiner: 'Convert STEP to OBJ for rendering and visualization.' },
   { label: 'STEP to PLY', path: '/step-to-ply', oneLiner: 'Convert STEP to PLY for mesh and scan workflows.' },
@@ -207,6 +208,7 @@ export const converterTypes = [
 
   { label: 'IGES to BREP', path: '/iges-to-brep', oneLiner: 'Convert IGES to BREP for solid model processing.' },
   { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'Convert IGES to STEP for modern CAD compatibility.' },
+  { label: 'IGES to FCStd', path: '/iges-to-fcstd', oneLiner: 'Convert IGES to a FreeCAD FCStd document.' },
   { label: 'IGES to OBJ', path: '/iges-to-obj', oneLiner: 'Convert IGES to OBJ for visualization pipelines.' },
   { label: 'IGES to PLY', path: '/iges-to-ply', oneLiner: 'Convert IGES to PLY for mesh export.' },
   { label: 'IGES to STL', path: '/iges-to-stl', oneLiner: 'Convert IGES to STL for 3D printing from legacy files.' },
@@ -216,6 +218,7 @@ export const converterTypes = [
   { label: 'OBJ to BREP', path: '/obj-to-brep', oneLiner: 'Convert OBJ to BREP for solid CAD workflows.' },
   { label: 'OBJ to IGES', path: '/obj-to-iges', oneLiner: 'Convert OBJ to IGES for legacy CAD exchange.' },
   { label: 'OBJ to STEP', path: '/obj-to-step', oneLiner: 'Convert OBJ to STEP for CAD editing from mesh files.' },
+  { label: 'OBJ to FCStd', path: '/obj-to-fcstd', oneLiner: 'Convert OBJ to FreeCAD FCStd for reconstructed CAD editing.' },
   { label: 'OBJ to PLY', path: '/obj-to-ply', oneLiner: 'Convert OBJ to PLY for mesh interchange.' },
   { label: 'OBJ to STL', path: '/obj-to-stl', oneLiner: 'Convert OBJ to STL for mesh workflows and 3D printing.' },
   { label: 'OBJ to OFF', path: '/obj-to-off', oneLiner: 'Convert OBJ to OFF for geometry research workflows.' },
@@ -225,6 +228,7 @@ export const converterTypes = [
   { label: 'PLY to IGES', path: '/ply-to-iges', oneLiner: 'Convert PLY to IGES for legacy CAD exchange.' },
   { label: 'PLY to OBJ', path: '/ply-to-obj', oneLiner: 'Convert PLY to OBJ for rendering and editing.' },
   { label: 'PLY to STEP', path: '/ply-to-step', oneLiner: 'Convert PLY to STEP for CAD import from scan data.' },
+  { label: 'PLY to FCStd', path: '/ply-to-fcstd', oneLiner: 'Convert PLY to FreeCAD FCStd for reconstructed CAD editing.' },
   { label: 'PLY to STL', path: '/ply-to-stl', oneLiner: 'Convert PLY to STL for 3D printing pipelines.' },
   { label: 'PLY to OFF', path: '/ply-to-off', oneLiner: 'Convert PLY to OFF for geometry research workflows.' },
   { label: 'PLY to 3DM', path: '/ply-to-3dm', oneLiner: 'Convert PLY to 3DM for Rhino scan-data workflows.' },
@@ -234,6 +238,7 @@ export const converterTypes = [
   { label: 'STL to OBJ', path: '/stl-to-obj', oneLiner: 'Convert STL to OBJ for game engines and 3D rendering.' },
   { label: 'STL to PLY', path: '/stl-to-ply', oneLiner: 'Convert STL to PLY for mesh interchange.' },
   { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'Convert STL to STEP for reverse engineering workflows.' },
+  { label: 'STL to FCStd', path: '/stl-to-fcstd', oneLiner: 'Convert STL to FreeCAD FCStd with a reconstructed document you can open and edit.' },
   { label: 'STL to OFF', path: '/stl-to-off', oneLiner: 'Convert STL to OFF for geometry research workflows.' },
   { label: 'STL to 3DM', path: '/stl-to-3dm', oneLiner: 'Convert STL to 3DM for Rhino mesh workflows.' },
 
@@ -243,9 +248,11 @@ export const converterTypes = [
   { label: 'OFF to PLY', path: '/off-to-ply', oneLiner: 'Convert OFF to PLY for mesh interchange.' },
   { label: 'OFF to STL', path: '/off-to-stl', oneLiner: 'Convert OFF to STL for 3D printing pipelines.' },
   { label: 'OFF to STEP', path: '/off-to-step', oneLiner: 'Convert OFF to STEP for modern CAD import.' },
+  { label: 'OFF to FCStd', path: '/off-to-fcstd', oneLiner: 'Convert OFF to FreeCAD FCStd for reconstructed CAD editing.' },
   { label: 'OFF to 3DM', path: '/off-to-3dm', oneLiner: 'Convert OFF to 3DM for Rhino geometry workflows.' },
 
   { label: 'BREP to STEP', path: '/brep-to-step', oneLiner: 'Convert BREP to STEP for CAD/CAM handoff.' },
+  { label: 'BREP to FCStd', path: '/brep-to-fcstd', oneLiner: 'Convert BREP to a FreeCAD FCStd document.' },
   { label: 'BREP to IGES', path: '/brep-to-iges', oneLiner: 'Convert BREP to IGES for legacy CAD exchange.' },
   { label: 'BREP to OBJ', path: '/brep-to-obj', oneLiner: 'Convert BREP to OBJ for visualization pipelines.' },
   { label: 'BREP to PLY', path: '/brep-to-ply', oneLiner: 'Convert BREP to PLY for mesh export.' },
@@ -260,6 +267,7 @@ export const converterTypes = [
   { label: '3DM to STL', path: '/3dm-to-stl', oneLiner: 'Convert 3DM to STL for 3D printing pipelines.' },
   { label: '3DM to OFF', path: '/3dm-to-off', oneLiner: 'Convert 3DM to OFF for geometry research workflows.' },
   { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Move Rhino models into CAD/CAM.' },
+  { label: '3DM to FCStd', path: '/3dm-to-fcstd', oneLiner: 'Convert Rhino 3DM to FreeCAD FCStd for reconstructed CAD editing.' },
 
   { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 2D CAD exchange.' },
   { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 2D CAD exchange.' },
@@ -296,6 +304,7 @@ const POPULAR_CONVERTER_DESCRIPTIONS = {
   'ply-to-off': 'For geometry research workflows',
   'ply-to-3dm': 'For Rhino scan-data workflows',
   'stl-to-step': 'For reverse engineering workflows',
+  'stl-to-fcstd': 'For editable FreeCAD documents',
   'stl-to-obj': 'For game engines and 3D rendering',
   'stl-to-brep': 'For solid reconstruction workflows',
   'stl-to-iges': 'For legacy CAD exchange',

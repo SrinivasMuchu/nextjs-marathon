@@ -71,6 +71,16 @@ const FORMAT_INFO = {
     groups: 'Body topology is retained where supported',
     tools: 'OpenCascade and solid-modelling CAD systems',
   },
+  fcstd: {
+    name: 'FreeCAD document',
+    family: 'Native FreeCAD',
+    purpose: 'Open and edit reconstructed CAD in FreeCAD, including a Body and feature tree when recognition succeeds',
+    geometry: 'PartDesign Body, sketches, pads/pockets when recognized, otherwise imported B-Rep',
+    texture: 'Not included',
+    materials: 'Not included',
+    groups: 'FreeCAD document object tree',
+    tools: 'FreeCAD',
+  },
   '3dm': {
     name: 'Rhino 3DM',
     family: 'Rhino / OpenNURBS',
@@ -125,6 +135,13 @@ const FORMAT_HERO = {
     kind: 'CAD model',
     into: 'into BREP (.brep) for Open CASCADE geometry processing and topology-based CAD workflows',
   },
+  fcstd: {
+    article: 'a',
+    label: 'FCStd',
+    extensions: '.fcstd',
+    kind: 'FreeCAD document',
+    into: 'into a FreeCAD document (.fcstd) with reconstructed geometry and, when possible, an editable PartDesign feature tree',
+  },
   obj: {
     article: 'an',
     label: 'OBJ',
@@ -178,7 +195,7 @@ const FORMAT_HERO = {
 
 const MESH_FORMATS = new Set(['obj', 'ply', 'stl', 'off'])
 const DRAWING_FORMATS = new Set(['dwg', 'dxf'])
-const CAD_FORMATS = new Set(['step', 'iges', 'brep'])
+const CAD_FORMATS = new Set(['step', 'iges', 'brep', 'fcstd'])
 
 const CAD_TRANSLATE_SENTENCE =
   'The converter translates compatible curves, surfaces, solids and topology while preserving engineering geometry wherever the destination format supports it.'

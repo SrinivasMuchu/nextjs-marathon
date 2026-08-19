@@ -24,6 +24,7 @@ const FORMAT_EXTENSIONS = {
   brep: '.brp or .brep',
   brp: '.brp or .brep',
   '3dm': '.3dm',
+  fcstd: '.fcstd',
   dwg: '.dwg',
   dxf: '.dxf',
 };
@@ -35,6 +36,7 @@ function getFormatExtensions(format) {
 
 const WHY_CONVERT_HINTS = {
   'stl-step': 'STL mesh files are ideal for 3D printing but hard to edit in CAD. Converting STL to STEP gives you a solid model you can modify, dimension, and use in manufacturing workflows.',
+  'stl-fcstd': 'STL has no feature history. Converting STL to FCStd builds a FreeCAD document from reconstructed geometry so you can open it in FreeCAD. Simple plates may get a Sketch and Pad; complex scans stay as imported solids.',
   'step-stl': 'STEP is the standard exchange format for CAD. Converting STEP to STL creates a mesh file ready for 3D printing, slicing, and rapid prototyping.',
   'iges-step': 'IGES is a legacy surface-based format. Converting IGES to STEP improves compatibility with modern CAD systems and downstream manufacturing tools.',
   'step-iges': 'Converting STEP to IGES helps share models with older CAD systems or suppliers that still require IGES exchange files.',

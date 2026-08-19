@@ -166,6 +166,7 @@ function CadConvertorFiles({
   downloading,
   downloadingReport,
   handleDownload,
+  handleFcstdDownload,
   handleReportDownload,
   searchTerm,
   setSearchTerm,
@@ -292,6 +293,11 @@ function CadConvertorFiles({
                         String(file.status || "").toUpperCase() === "FAILED" ||
                         String(file.status || "").toUpperCase() === "ERROR";
                       const hasPdf = Boolean(completed && file.report_pdf_url);
+                      const hasFcstd = Boolean(
+                        completed &&
+                          file.fcstd_url &&
+                          String(file.output_format || "").toLowerCase() !== "fcstd"
+                      );
                       const inputFmt = formatChipLabel(file.input_format);
                       const outputFmt = formatChipLabel(file.output_format);
                       const { passed, total } = summarizeChecks(file.quality_checks);
@@ -456,6 +462,17 @@ function CadConvertorFiles({
                             ) : (
                               <span className={styles.compareActionSlot} aria-hidden />
                             )}
+                            {hasFcstd ? (
+                              <button
+                                type="button"
+                                className={styles.comparePdfBtn}
+                                onClick={() => handleFcstdDownload?.(file, index)}
+                                disabled={Boolean(downloading[index])}
+                                title="Download reconstructed FreeCAD document (.fcstd)"
+                              >
+                                FCStd
+                              </button>
+                            ) : null}
                             {canView ? (
                               <button
                                 type="button"

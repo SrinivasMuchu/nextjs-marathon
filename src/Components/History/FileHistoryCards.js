@@ -271,6 +271,33 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     setDownloading(prev => ({ ...prev, [index]: false }));
   };
 
+  const performFcstdDownload = async (file, index) => {
+    const rawUrl = file.fcstd_url;
+    if (!rawUrl) {
+      throw new Error('FreeCAD file is not available for this conversion.');
+    }
+    const url = toCadOutputCdnUrl(rawUrl) || rawUrl;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stem =
+      file?.file_name?.slice(0, file.file_name.lastIndexOf('.')) ||
+      file?.base_name ||
+      'design';
+    a.href = downloadUrl;
+    a.download = `${stem}_converted.fcstd`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(downloadUrl);
+    sendGAtagEvent({ event_name: 'converter_fcstd_download', event_category: CAD_CONVERTER_EVENT });
+    setDownloading(prev => ({ ...prev, [index]: false }));
+  };
+
   /** Quality report PDF is always free — no payment check. */
   const handleReportDownload = async (file, index) => {
     try {
@@ -436,6 +463,40 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     }
   };
 
+  const handleFcstdDownload = async (file, index) => {
+    try {
+      if (!file?.fcstd_url) {
+        toast.info('FreeCAD file is not available for this conversion.');
+        return;
+      }
+      if (!localStorage.getItem("is_verified")) {
+        setPendingAction({ action: 'fcstd', file, index });
+        setIsEmailVerify(true);
+        return;
+      }
+      if (!user.email) {
+        router.push('/dashboard?cad_type=USER_PROFILE');
+        return;
+      }
+      setDownloading(prev => ({ ...prev, [index]: true }));
+      const access = await checkConverterDownload(file._id);
+      if (access.credits != null) {
+        setUser((prev) => ({ ...prev, converter_credits: Number(access.credits) || 0 }));
+      }
+      if (access.can_download) {
+        await performFcstdDownload(file, index);
+        return;
+      }
+      setDownloading(prev => ({ ...prev, [index]: false }));
+      toast.info('Unlock the conversion download, then download the FreeCAD file.');
+      handleDownload(file, index);
+    } catch (error) {
+      console.error('FCStd download error:', error);
+      toast.error('FreeCAD download failed. Please try again.');
+      setDownloading(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
   const closeCreditPlans = () => {
     setShowCreditPlans(false);
   };
@@ -473,6 +534,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     if (pendingAction) {
       if (pendingAction.action === 'download') {
         handleDownload(pendingAction.file, pendingAction.index);
+      } else if (pendingAction.action === 'fcstd') {
+        handleFcstdDownload(pendingAction.file, pendingAction.index);
       } else if (pendingAction.action === 'report') {
         handleReportDownload(pendingAction.file, pendingAction.index);
       } else if (pendingAction.action === 'view') {
@@ -508,6 +571,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
             downloading={downloading}
             downloadingReport={downloadingReport}
             handleDownload={handleDownload}
+            handleFcstdDownload={handleFcstdDownload}
             handleReportDownload={handleReportDownload}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}

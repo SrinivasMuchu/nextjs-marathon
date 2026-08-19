@@ -11,7 +11,7 @@ const QUALITY_NOTES = [
   {
     title: 'Mesh → CAD',
     description:
-      'STL, OBJ or PLY to STEP, IGES or BREP may create reconstructed surfaces or approximations, depending on the engine and model quality.',
+      'STL, OBJ or PLY to STEP, IGES, BREP or FCStd reconstructs surfaces. FCStd is a new FreeCAD document (imported solid, plus Pad/holes when recognition succeeds) — not the original CAD feature history.',
   },
   {
     title: 'Broken output',
