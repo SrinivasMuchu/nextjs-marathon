@@ -12,6 +12,7 @@ import {
 } from "@/api/cadDrawingPipelineApi";
 import { isFreeRetryAvailable } from "@/api/techDrawErrors";
 import TechDrawDimensionExtractionFailedModal from "./TechDrawDimensionExtractionFailedModal";
+import TechDrawDatumPicker from "./TechDrawDatumPicker";
 import { consumeJobLogs, formatStatusConsoleLine } from "@/api/consoleStatus";
 import {
   derivePipelineStageUi,
@@ -331,6 +332,12 @@ export default function CadDrawingPipelineStatus({
 
     try {
       const { job } = await waitForJob(jobId, onPhase);
+      if (job?.status === "AWAITING_DATUMS") {
+        handleJobStatusUpdate(job);
+        appendLog("info", "  📐 Waiting for you to choose datums A / B / C…");
+        toast.info("Choose datum features to continue the drawing.");
+        return;
+      }
       finishPipelineRun(job);
     } catch (err) {
       if (!handlePipelineError(err)) {
@@ -345,7 +352,7 @@ export default function CadDrawingPipelineStatus({
     } finally {
       setLoading(false);
     }
-  }, [appendLog, currentJob, finishPipelineRun, handlePipelineError, jobId, markPipelineProgress, onPhase, waitForJob]);
+  }, [appendLog, currentJob, finishPipelineRun, handleJobStatusUpdate, handlePipelineError, jobId, markPipelineProgress, onPhase, waitForJob]);
 
   const continueWaitingForJob = useCallback(async () => {
     if (loading || needsPayment) return;
@@ -390,6 +397,13 @@ export default function CadDrawingPipelineStatus({
 
         if (job.status === "COMPLETED") {
           finishPipelineRun(job);
+          setLoading(false);
+          return;
+        }
+
+        if (job.status === "AWAITING_DATUMS") {
+          handleJobStatusUpdate(job);
+          appendLog("info", "  📐 Waiting for you to choose datums A / B / C…");
           setLoading(false);
           return;
         }
@@ -469,6 +483,20 @@ export default function CadDrawingPipelineStatus({
           </div>
         ) : null}
 
+        {currentJob?.status === "AWAITING_DATUMS" ? (
+          <TechDrawDatumPicker
+            jobId={jobId}
+            job={currentJob}
+            adminMode={adminMode}
+            onConfirmed={(nextJob) => {
+              const merged = { ...(currentJob || {}), ...(nextJob || {}), status: "PROCESSING" };
+              handleJobStatusUpdate(merged);
+              appendLog("ok", "  ✓ Datum frame saved — pipeline continuing.");
+              startPolling();
+            }}
+          />
+        ) : null}
+
         {error ? (
           <div
             className={`${styles.resultBanner} ${
@@ -524,7 +552,8 @@ export default function CadDrawingPipelineStatus({
                     overallStatus === "RUNNING" ||
                     overallStatus === "PROCESSING" ||
                     overallStatus === "QUEUED" ||
-                    overallStatus === "IN QUEUE";
+                    overallStatus === "IN QUEUE" ||
+                    overallStatus === "CHOOSE DATUMS";
                   const active =
                     pipelineRunning && !stagesError && activeStageIndex === i;
                   const err = stagesError && i === errorStageIndex && !done;
