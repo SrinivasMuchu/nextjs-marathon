@@ -166,6 +166,9 @@ export async function submitTechDrawJob({
   razorpay_payment_id,
   razorpay_signature,
   original_failed_job_id,
+  gdt_standard,
+  datum_preferences,
+  choose_datums,
 }) {
   assertUuid();
   const { data } = await axios.post(
@@ -177,6 +180,9 @@ export async function submitTechDrawJob({
       s3_bucket,
       file_name,
       ...(original_failed_job_id ? { original_failed_job_id } : {}),
+      ...(gdt_standard ? { gdt_standard } : {}),
+      ...(datum_preferences ? { datum_preferences } : {}),
+      ...(choose_datums ? { choose_datums: true } : {}),
       ...(razorpay_order_id
         ? { razorpay_order_id, razorpay_payment_id, razorpay_signature }
         : {}),
@@ -252,6 +258,10 @@ export async function pollTechDrawJobUntilDone(jobId, opts = {}) {
         return job;
       }
 
+      if (job?.status === "AWAITING_DATUMS") {
+        return job;
+      }
+
       if (job?.status === "FAILED") {
         throw new TechDrawPollError(job.error_message || "Pipeline failed on the server.", {
           jobId,
@@ -290,6 +300,9 @@ async function prepareCadDrawingJobViaProxy({
   title,
   description,
   original_failed_job_id,
+  gdt_standard,
+  datum_preferences,
+  choose_datums,
   onPhase,
 }) {
   const uuid = getOrCreateTechDrawUuid();
@@ -300,6 +313,9 @@ async function prepareCadDrawingJobViaProxy({
   if (original_failed_job_id) {
     formData.append("original_failed_job_id", original_failed_job_id);
   }
+  if (gdt_standard) formData.append("gdt_standard", gdt_standard);
+  if (datum_preferences) formData.append("datum_preferences", datum_preferences);
+  if (choose_datums) formData.append("choose_datums", "true");
 
   onPhase?.("upload-url");
   onPhase?.("s3-upload");
@@ -327,6 +343,9 @@ export async function uploadAndSubmitTechDrawJob({
   description = "",
   payment,
   original_failed_job_id,
+  gdt_standard,
+  datum_preferences,
+  choose_datums,
   onPhase,
 }) {
   if (!file) throw new Error("No file selected");
@@ -344,6 +363,9 @@ export async function uploadAndSubmitTechDrawJob({
     s3_bucket: upload.s3_bucket,
     file_name: upload.file_name,
     original_failed_job_id,
+    gdt_standard,
+    datum_preferences,
+    choose_datums,
     ...(payment || {}),
   });
   return String(submit.job_id);
@@ -359,6 +381,9 @@ export async function prepareCadDrawingJob({
   description = "",
   requiresPayment = false,
   original_failed_job_id,
+  gdt_standard,
+  datum_preferences,
+  choose_datums,
   onPhase,
 }) {
   if (!file) throw new Error("No file selected");
@@ -377,6 +402,9 @@ export async function prepareCadDrawingJob({
       title,
       description,
       original_failed_job_id,
+      gdt_standard,
+      datum_preferences,
+      choose_datums,
       onPhase,
     });
   } catch (proxyErr) {
@@ -389,6 +417,9 @@ export async function prepareCadDrawingJob({
       title,
       description,
       original_failed_job_id,
+      gdt_standard,
+      datum_preferences,
+      choose_datums,
       onPhase,
     }).then((d) => String(d.job_id));
   }
@@ -424,6 +455,16 @@ export async function waitForTechDrawJob(jobId, onPhase) {
     onJob: (j) => onPhase?.("status", j),
   });
   return { job, jobId };
+}
+
+export async function confirmTechDrawDatums(jobId, { datums, auto = false } = {}) {
+  assertUuid();
+  const { data } = await axios.post(
+    `${BASE_URL}${TECHDRAW_API_BASE}/confirm-datums/${jobId}`,
+    auto ? { auto: true } : { datums: datums || {} },
+    { headers: userUuidHeader(), timeout: 60_000 },
+  );
+  return unwrap(data);
 }
 
 /** CloudFront base for a completed user TechDraw job: …/user-freecad-techdraw/{jobId}. */

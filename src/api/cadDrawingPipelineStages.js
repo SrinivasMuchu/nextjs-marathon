@@ -66,6 +66,16 @@ export function derivePipelineStageUi(job, stageCount = PIPELINE_STAGES.length) 
   const stage = job?.pipeline_stage;
   const stageIdx = stage && STAGE_INDEX[stage] != null ? STAGE_INDEX[stage] : -1;
 
+  if (status === "AWAITING_DATUMS") {
+    return {
+      overallStatus: "CHOOSE DATUMS",
+      stagesDone: Array.from({ length: stageCount }, (_, i) => i === 0),
+      activeStageIndex: -1,
+      stagesError: false,
+      errorStageIndex: -1,
+    };
+  }
+
   if (status === "COMPLETED") {
     return {
       overallStatus: "DONE ✓",
