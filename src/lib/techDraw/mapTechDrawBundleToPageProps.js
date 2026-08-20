@@ -6,7 +6,6 @@
 import {
   techdrawBundlePdfViewUrl,
   techdrawBundleZipUrl,
-  techdrawFileApiUrl,
   techdrawSheetPdfViewUrl,
   techdrawSheetPreviewUrls,
 } from "./techdrawFileApi";
@@ -109,15 +108,6 @@ function sheetPreviewCandidates(baseUrl, sheetNum, designId, outputS3Prefix = ""
     return techdrawSheetPreviewUrls(resolvedId, n, { userPipeline: false });
   }
   return [`${base}/svg/sheet_${n}.svg`];
-}
-
-function sheetAssetPaths(baseUrl, sheetNum) {
-  const n = Number(sheetNum);
-  return {
-    pdf: `${baseUrl}/sheet_${n}.pdf`,
-    svg: `${baseUrl}/svg/sheet_${n}.svg`,
-    dxf: `${baseUrl}/dxf/sheet_${n}.dxf`,
-  };
 }
 
 function pipelineMeta(dimensionsResponse, viewSelectionResponse) {
@@ -333,49 +323,16 @@ function buildSectionDetailGroups(entries, dimensionSpecs, viewSelectionResponse
   return groups;
 }
 
-function buildSheetDownloadRows(entries, baseUrl, designId) {
-  const userPipeline = isUserPipelineCdnBase(baseUrl);
-  const id = String(designId || "").trim();
+function buildSheetDownloadRows(entries, baseUrl) {
+  const base = String(baseUrl || "").replace(/\/$/, "");
   return entries.map((e) => {
     const n = Number(e.sheet_num);
-    if (userPipeline) {
-      const assets = directSheetAssetUrls(baseUrl, n);
-      return {
-        name: e.label,
-        pdf: assets.pdf,
-        svg: assets.svg,
-        dxf: assets.dxf,
-      };
-    }
-    if (id) {
-      return {
-        name: e.label,
-        pdf: techdrawFileApiUrl(id, {
-          sheet: n,
-          ext: "pdf",
-          source: "user",
-          disposition: "attachment",
-        }),
-        svg: techdrawFileApiUrl(id, {
-          sheet: n,
-          ext: "svg",
-          source: "user",
-          disposition: "attachment",
-        }),
-        dxf: techdrawFileApiUrl(id, {
-          sheet: n,
-          ext: "dxf",
-          source: "user",
-          disposition: "attachment",
-        }),
-      };
-    }
-    const paths = sheetAssetPaths(baseUrl, e.sheet_num);
+    const assets = directSheetAssetUrls(base, n);
     return {
       name: e.label,
-      pdf: paths.pdf,
-      svg: paths.svg,
-      dxf: paths.dxf,
+      pdf: assets.pdf,
+      svg: assets.svg,
+      dxf: assets.dxf,
     };
   });
 }
@@ -543,7 +500,7 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     };
   });
 
-  const sheetDownloadRows = buildSheetDownloadRows(entries, baseUrl, designId);
+  const sheetDownloadRows = buildSheetDownloadRows(entries, baseUrl);
 
   // Empty-state signal — render the failure notice instead of empty grids
   // when geometry had sheets but every one of them was filtered out by

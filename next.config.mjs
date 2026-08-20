@@ -137,6 +137,15 @@ const nextConfig = {
         ],
       },
       {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive, nosnippet',
+          },
+        ],
+      },
+      {
         source: "/creator/:creator_id*",
         headers: [
           {
