@@ -7,6 +7,7 @@ import KycTab from '../KYC/KycTab'
 import Earnings from '../Earnings/Earnings'
 import Analytics from '../History/Analytics'
 import TechDrawDashboardCards from '../History/TechDrawDashboardCards'
+import mobileStyles from './DashboardMobile.module.css'
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -18,7 +19,7 @@ function TabPanel({ children, value, index, ...other }) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: { xs: 0, md: 3 } }}>
           {children}
         </Box>
       )}
@@ -100,10 +101,15 @@ function CreatorsRightCont({
   }
 
   return (
-    <Box ref={tableSectionRef} id="dashboard-files-table" sx={{ width: '100%', marginTop: '32px', scrollMarginTop: '88px' }}>
+    <Box
+      ref={tableSectionRef}
+      id="dashboard-files-table"
+      className={!creatorId ? `${mobileStyles.rightWrap}${searchParams.get('cad_type') === 'USER_PROFILE' ? ` ${mobileStyles.hideOnMobile}` : ''}` : undefined}
+      sx={{ width: '100%', marginTop: '32px', scrollMarginTop: '88px' }}
+    >
       {!creatorId ?
         <>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Box className={mobileStyles.desktopTabs} sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs
               value={value}
               onChange={handleChange}

@@ -692,6 +692,10 @@
     letter-spacing: -0.192px;
 }
 @media screen and (max-width: 768px) {
+    .cad-conversion-table {
+      overflow: visible;
+    }
+
     .cad-conversion-table table,
     .cad-conversion-table thead,
     .cad-conversion-table tbody,
@@ -700,8 +704,19 @@
     .cad-conversion-table tr {
       display: block;
       width: 100%;
+      max-width: 100%;
+    }
+
+    .cad-conversion-table th:nth-child(n),
+    .cad-conversion-table td:nth-child(n) {
+      width: 100%;
+      max-width: 100%;
     }
   
+    .cad-conversion-table table {
+      table-layout: auto;
+    }
+
     .cad-conversion-table thead {
       display: none;
     }
@@ -711,22 +726,47 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       padding: 10px;
+      margin: 0 0 10px;
+      box-sizing: border-box;
     }
   
     .cad-conversion-table td {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
       padding: 8px 10px;
       border-bottom: 1px solid #eee;
       position: relative;
+      overflow: visible;
+      text-overflow: unset;
+      white-space: normal;
+      height: auto;
+      box-sizing: border-box;
+    }
+
+    .cad-conversion-table td:first-child {
+      white-space: normal;
     }
   
     .cad-conversion-table td::before {
       content: attr(data-label);
       font-weight: bold;
-      width: 45%;
+      width: auto;
+      min-width: 92px;
+      flex: 0 0 auto;
       display: inline-block;
       color: #333;
+    }
+
+    .cad-conversion-table td[data-label="Action"] {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .cad-conversion-table td[data-label="Action"]::before {
+      width: 100%;
     }
 
     .cad-conversion-table--dark tr {

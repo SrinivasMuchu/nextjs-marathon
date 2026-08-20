@@ -1,121 +1,224 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import CheckHistory from "@/Components/CommonJsx/CheckHistory";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, X } from "lucide-react";
+import styles from "./HomeTopNav.module.css";
+import NameProfile from "@/Components/CommonJsx/NameProfile";
+import DemoPopUp from "@/Components/HomePages/RequestDemo/DemoPopUp";
+import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
+import { contextState } from "@/Components/CommonJsx/ContextProvider";
+import {
+  BLOGS_MENU,
+  LIBRARY_MENU,
+  MOBILE_MAIN_NAV,
+  TOOLS_MENU,
+} from "./navConfig";
 
-function MobileMenu({ onClose, styles }) {
-  const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
+function NavRow({ href, onClick, Icon, label, chevron, badge, highlight }) {
+  const className = `${styles.mobileNavRow} ${highlight ? styles.mobileNavRowHighlight : ""}`;
+  const content = (
+    <>
+      <span className={styles.mobileNavIcon} aria-hidden>
+        {highlight ? <span className={styles.topCtaDot} /> : Icon ? <Icon size={18} strokeWidth={2.2} /> : null}
+      </span>
+      <span className={styles.mobileNavLabel}>{label}</span>
+      {badge ? <span className={styles.toolsMegaBadge}>{badge}</span> : null}
+      {highlight ? (
+        <ArrowRight size={16} className={styles.mobileNavChevron} />
+      ) : chevron ? (
+        <ChevronRight size={18} className={styles.mobileNavChevron} />
+      ) : null}
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={className} onClick={onClick}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" className={className} onClick={onClick}>
+      {content}
+    </button>
+  );
+}
+
+function MobileMenu({ onClose, creditsButton }) {
+  const [panelStack, setPanelStack] = useState([]);
+  const [authModal, setAuthModal] = useState(null);
   const pathname = usePathname();
   const router = useRouter();
+  const { user } = useContext(contextState);
+  const loggedIn = Boolean(user?._id);
+  const currentPanel = panelStack[panelStack.length - 1] || null;
 
-  const handleCloseMenu = () => {
-    onClose(); // Close the menu
+  useEffect(() => {
+    document.body.classList.add("mobile-nav-open");
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.classList.remove("mobile-nav-open");
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  const pushPanel = (panel) => setPanelStack((stack) => [...stack, panel]);
+  const popPanel = () => setPanelStack((stack) => stack.slice(0, -1));
+
+  const handleClose = () => {
+    document.body.classList.remove("mobile-nav-open");
+    document.body.style.overflow = "";
+    onClose();
   };
 
   const handleAnchorClick = (event, sectionId) => {
     event.preventDefault();
-
-    if (pathname !== "/") {
-      router.push(`/#${sectionId}`);
-    } else {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
-    }
-    handleCloseMenu();
+    if (pathname !== "/") router.push(`/#${sectionId}`);
+    else document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+    handleClose();
   };
 
-  // Function to toggle dropdown
-  const toggleDropdown = (dropdownName) => {
-    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+  const openSubmenu = (item) => {
+    if (item.id === "library") pushPanel({ type: "library", title: "Library" });
+    else if (item.id === "tools") pushPanel({ type: "tools", title: "Tools" });
+    else if (item.id === "blogs") pushPanel({ type: "blogs", title: "Blogs" });
   };
 
-  // Add this handler inside your component
-  const handleDashboardClick = (e) => {
-    handleCloseMenu();
-    router.refresh();
-  };
+  const renderMainNav = () => (
+    <ul className={styles.mobileNavList}>
+      {MOBILE_MAIN_NAV.map((item) => (
+        <li key={item.id}>
+          {item.type === "anchor" ? (
+            <NavRow Icon={item.Icon} label={item.label} onClick={(e) => handleAnchorClick(e, item.anchor)} />
+          ) : item.type === "link" ? (
+            <NavRow
+              href={item.href}
+              Icon={item.Icon}
+              label={item.label}
+              highlight={item.highlight}
+              onClick={item.id === "dashboard" ? () => { handleClose(); router.refresh(); } : handleClose}
+            />
+          ) : (
+            <NavRow Icon={item.Icon} label={item.label} chevron onClick={() => openSubmenu(item)} />
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+
+  const renderLibraryPanel = () => (
+    <ul className={styles.mobileNavList}>
+      {LIBRARY_MENU.map(({ href, title, Icon }) => (
+        <li key={href}>
+          <NavRow href={href} Icon={Icon} label={title} onClick={handleClose} />
+        </li>
+      ))}
+    </ul>
+  );
+
+  const renderBlogsPanel = () => (
+    <ul className={styles.mobileNavList}>
+      {BLOGS_MENU.map(({ href, title, Icon }) => (
+        <li key={href}>
+          <NavRow href={href} Icon={Icon} label={title} onClick={handleClose} />
+        </li>
+      ))}
+    </ul>
+  );
+
+  const renderToolsPanel = () => (
+    <ul className={styles.mobileNavList}>
+      {TOOLS_MENU.map(({ href, title, Icon }) => (
+        <li key={href}>
+          <NavRow href={href} Icon={Icon} label={title} chevron onClick={handleClose} />
+        </li>
+      ))}
+    </ul>
+  );
+
+  let panelContent = renderMainNav();
+  let panelTitle = "Menu";
+  let onBack = null;
+
+  if (currentPanel?.type === "library") {
+    panelContent = renderLibraryPanel();
+    panelTitle = "Library";
+    onBack = popPanel;
+  } else if (currentPanel?.type === "blogs") {
+    panelContent = renderBlogsPanel();
+    panelTitle = "Blogs";
+    onBack = popPanel;
+  } else if (currentPanel?.type === "tools") {
+    panelContent = renderToolsPanel();
+    panelTitle = "Tools";
+    onBack = popPanel;
+  }
 
   return (
-    <>
-      <div className={styles["menu-close-icon"]}>
-        <span onClick={handleCloseMenu}>close x</span>
+    <div className={styles.mobileMenuOverlay} onClick={handleClose}>
+      <div className={styles.mobileMenuSheet} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.mobileMenuHeader}>
+          {onBack ? (
+            <button type="button" className={styles.mobileMenuBack} onClick={onBack}>
+              <ChevronLeft size={22} />
+              {panelTitle}
+            </button>
+          ) : (
+            <span className={styles.mobileMenuTitle}>{panelTitle}</span>
+          )}
+          <button type="button" className={styles.mobileMenuClose} onClick={handleClose} aria-label="Close menu">
+            <X size={22} />
+          </button>
+        </div>
+
+        <div className={styles.mobileMenuBody}>{panelContent}</div>
+
+        <div className={styles.mobileMenuFoot}>
+          {creditsButton}
+          {loggedIn ? (
+            <Link href="/dashboard" className={styles.mobileProfileRow} onClick={handleClose}>
+              <NameProfile
+                userName={user?.name || user?.email || "User"}
+                memberPhoto={user?.photo}
+                width={40}
+                height={40}
+                border
+              />
+              <span>
+                <strong>{user?.name || "Account"}</strong>
+                <small>Open dashboard</small>
+              </span>
+              <ChevronRight size={18} />
+            </Link>
+          ) : (
+            <>
+              <button type="button" className={styles.mobileDemoBtn} onClick={() => setAuthModal("demo")}>
+                Request demo
+              </button>
+              <button type="button" className={styles.mobileLoginBtn} onClick={() => setAuthModal("login")}>
+                Login
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
-      <div className={styles["menu-navs"]}>
-      <Link href="/about-us" onClick={handleCloseMenu}>About us</Link>
-        <Link href="#why-us" onClick={(e) => handleAnchorClick(e, "why-us")}>Why us?</Link>
-        {/* <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
-        <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
-        <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link>
-        <Link href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</Link> */}
-        {/* Dropdown for Tools */}
-        <div className={styles["menu-dropdown"]}>
-          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("tools")}>
-            Tools ▼
-          </span>
-          {openDropdown === "tools" && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <Link href="/tools" onClick={handleCloseMenu}>
-                All tools
-              </Link>
-              <Link href="/tools/industries" onClick={handleCloseMenu}>
-                All industries
-              </Link>
-              <Link href="/tools/org-hierarchy" onClick={handleCloseMenu}>
-                Org Hierarchy
-              </Link>
-              <Link href="/tools/3d-cad-viewer" onClick={handleCloseMenu}>CAD Viewer</Link>
-              <Link href="/tools/3d-cad-file-converter" onClick={handleCloseMenu}>CAD File Convert</Link>
-              <Link href="/tools/cad-drawing-pipeline" onClick={handleCloseMenu}>3D to 2D Drawing Pipeline</Link>
-              {/* <Link href="/tools/upload-cad-file" onClick={handleCloseMenu}>upload cad file</Link> */}
-            </div>
-          )}
-        </div>
-
-        <Link href="/resources" onClick={handleCloseMenu}>
-          Resources
-        </Link>
-
-        {/* Dropdown for Blogs */}
-        <div className={styles["menu-dropdown"]}>
-          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("blogs")}>
-            Blogs ▼
-          </span>
-          {openDropdown === "blogs" && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <Link href="/blog/part-number-nomenclature-guide" onClick={handleCloseMenu}>
-                Part Number Nomenclature Guide
-              </Link>
-            </div>
-          )}
-        </div>
-         <Link rel="nofollow" href="/dashboard" onClick={handleDashboardClick}>
-           Dashboard
-         </Link>
-        <div className={styles["menu-dropdown"]}>
-          <span style={{ cursor: "pointer" }} onClick={() => toggleDropdown("library")}>
-            Library ▼
-          </span>
-          {openDropdown === "library" && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <Link href="/library" onClick={handleCloseMenu}>3D Library</Link>
-              <Link href="/library/2d-technical-drawings" onClick={handleCloseMenu}>2D Library</Link>
-            </div>
-          )}
-        </div>
-        <Link
-          href="/cad-services"
-          onClick={handleCloseMenu}
-          className={styles.topCtaMenu}
-          aria-label="Hire Designers"
-        >
-          <span className={styles.topCtaMenuDot} />
-          Hire Designers <ArrowRight size={16} strokeWidth={2.5} />
-        </Link>
-         
-      </div>
-    </>
+      {authModal === "login" ? (
+        <UserLoginPupUp onClose={() => setAuthModal(null)} type="login" />
+      ) : null}
+      {authModal === "demo" ? (
+        <DemoPopUp
+          onclose={() => setAuthModal(null)}
+          openPopUp={authModal}
+          setOpenDemoForm={setAuthModal}
+        />
+      ) : null}
+    </div>
   );
 }
 

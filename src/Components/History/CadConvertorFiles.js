@@ -15,6 +15,7 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import BrokenImageOutlinedIcon from "@mui/icons-material/BrokenImageOutlined";
 import { SiConvertio } from "react-icons/si";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   buildConverterPricingDisplay,
@@ -200,79 +201,17 @@ function CadConvertorFiles({
 
   return (
     <div className={styles.cadViewerContainerContent}>
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "20px",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "#f8f9fa",
-            borderRadius: "24px",
-            padding: "8px 16px",
-            border: "1px solid #e9ecef",
-            minWidth: "280px",
-            gap: "8px",
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#6c757d"
-            strokeWidth="2"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="M21 21l-4.35-4.35"></path>
-          </svg>
+      <div className={styles.filesToolbar}>
+        <label className={styles.filesSearch}>
+          <Search size={16} className={styles.filesSearchIcon} />
           <input
             type="text"
             placeholder="Search project"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              border: "none",
-              background: "transparent",
-              outline: "none",
-              flex: 1,
-              fontSize: "14px",
-              color: "#495057",
-            }}
           />
-        </div>
-        <Link
-          href="/tools/3d-cad-file-converter"
-          className={styles.cadUploadingButton}
-          style={{
-            borderRadius: "8px",
-            border: "2px solid #610BEE",
-            background: "white",
-            color: "#610BEE",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "10px 20px",
-            fontSize: "14px",
-            fontWeight: "500",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            whiteSpace: "nowrap",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.background = "#610BEE";
-            e.target.style.color = "white";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = "white";
-            e.target.style.color = "#610BEE";
-          }}
-        >
+        </label>
+        <Link href="/tools/3d-cad-file-converter" className={styles.filesActionBtn}>
           <SiConvertio style={{ fontSize: "16px" }} />
           Convert file
         </Link>
