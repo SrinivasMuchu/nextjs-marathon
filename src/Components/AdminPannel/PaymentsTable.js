@@ -361,7 +361,13 @@ function PaymentsTable() {
         )}
       </div>
 
-      <div className={styles.tableWrap}>
+      {loading ? (
+        <div className={styles.loadingWrap}>
+          <Loading />
+        </div>
+      ) : (
+        <>
+      <div className={`${styles.tableWrap} ${styles.desktopTable}`}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -375,12 +381,7 @@ function PaymentsTable() {
               <th>Actions</th>
             </tr>
           </thead>
-          {loading ? (
-            <div style={{ padding: 20, textAlign: 'center' }}>
-              <Loading />
-            </div>
-          ) : (
-            <tbody>
+          <tbody>
               {payments.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ textAlign: 'center', padding: 20 }}>
@@ -427,11 +428,68 @@ function PaymentsTable() {
                 })
               )}
             </tbody>
-          )}
         </table>
       </div>
+
+      <div className={styles.mobileCards}>
+        {payments.length === 0 ? (
+          <div className={styles.mobileEmpty}>
+            {searchTerm ? 'No payments found for your search' : 'No payments found'}
+          </div>
+        ) : (
+          payments.map((p) => {
+            const id = p._id
+            const isSubmitting = Boolean(submitting[id])
+            const canAct = canPerformActions(p.transfered_to_publisher)
+            return (
+              <div key={id} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <h3 className={styles.mobileCardTitle}>{p.conversion || 'Payment'}</h3>
+                  <span className={styles.mobileCardAside}>${p.amount}</span>
+                </div>
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>Order ID</span>
+                    <span className={styles.mobileCardValue}>{p.razorpay_order_id || '—'}</span>
+                  </div>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>Razorpay ID</span>
+                    <span className={styles.mobileCardValue}>{p.razorpay_payment_id || '—'}</span>
+                  </div>
+                  <div className={styles.mobileCardMeta}>
+                    <span className={statusBadge(p.transfered_to_publisher)}>
+                      {getStatusDisplayText(p.transfered_to_publisher)}
+                    </span>
+                    <span className={styles.mobileCardDate}>Date: {formatDate(p.createdAt)}</span>
+                  </div>
+                </div>
+                <div className={styles.mobileCardActions}>
+                  <button
+                    type="button"
+                    className={`${styles.actionBtn} ${styles.actionApprove}`}
+                    onClick={() => handleApproveClick(p._id)}
+                    disabled={isSubmitting || !canAct}
+                  >
+                    {submitting[id] === 'approve' ? 'Approving…' : 'Approve'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.actionBtn} ${styles.actionReject}`}
+                    onClick={() => handleActions('reject', p._id)}
+                    disabled={isSubmitting || !canAct}
+                  >
+                    {submitting[p._id] === 'reject' ? 'Rejecting…' : 'Reject'}
+                  </button>
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+        </>
+      )}
       
-      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
+      <div className={styles.paginationWrap}>
         {totalPages > 1 && (
           <Pagenation
             currentPage={currentPage}

@@ -254,7 +254,9 @@ function HomeTopNav() {
           <TopNavProfileButton />
         </div>
 
-        <div className={styles.mobileCreditsSlot}>{creditsButton}</div>
+        <div className={styles.mobileProfileSlot}>
+          <TopNavProfileButton mobileHeader />
+        </div>
       </div>
 
       {showCreditPlans ? (

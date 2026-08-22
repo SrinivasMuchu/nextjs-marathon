@@ -138,7 +138,7 @@
 
 .searchForm {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   flex-wrap: wrap;
   gap: 10px;
   width: 100%;
@@ -146,15 +146,18 @@
 }
 
 .searchInputWrap {
-  flex: 1 1 220px;
+  flex: 1 1 auto;
   min-width: 0;
+  max-width: 100%;
+  height: 42px;
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background: #eee;
+  border: none;
   border-radius: 12px;
-  padding: 10px 14px;
+  padding: 0 12px;
+  box-sizing: border-box;
 }
 
 .searchIcon {
@@ -175,7 +178,7 @@
 
 .searchBtn,
 .clearBtn {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-height: 42px;
 }
 
@@ -188,6 +191,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .searchBtn:hover {
@@ -202,6 +206,7 @@
   color: #610bee;
   font-size: 14px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .desktopTable {
@@ -445,11 +450,25 @@
   margin-bottom: 12px;
 }
 
-.requestCardActionRow {
+.loadingWrap {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 140px;
+  padding: 24px 12px;
+  box-sizing: border-box;
+}
+
+.requestCardActionRow {
+  display: flex;
+  align-items: stretch;
   gap: 10px;
-  flex-wrap: wrap;
+}
+
+.requestCardActionRow > * {
+  flex: 1;
+  min-width: 0;
 }
 
 .statusSelect {
@@ -497,12 +516,13 @@
 
 .requestCard {
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 14px;
   background: #ffffff;
-  padding: 16px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.06);
 }
 
 .requestCard + .requestCard {
@@ -535,6 +555,8 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f3f4f6;
 }
 
 .requestCardField {
@@ -1119,11 +1141,25 @@
   }
 
   .searchForm {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
   }
 
-  .searchBtn,
+  .searchInputWrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 42px;
+  }
+
+  .searchBtn {
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 42px;
+  }
+
   .clearBtn {
+    flex: 1 1 100%;
     width: 100%;
   }
 
