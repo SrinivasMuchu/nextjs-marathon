@@ -78,6 +78,26 @@ a.btnSecondary {
   margin-bottom: 12px;
 }
 
+.detailsBtn {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 11px 14px;
+  background: #fff;
+  color: #2a1367;
+  border: 1px solid #ddd6fe;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.detailsBtn:hover {
+  border-color: #6b21f5;
+  background: #faf8ff;
+  color: #6b21f5;
+}
+
 .formatCell {
   display: flex;
   align-items: center;

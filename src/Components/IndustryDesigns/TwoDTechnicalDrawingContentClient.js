@@ -80,6 +80,7 @@ export default function TwoDTechnicalDrawingContentClient({
   showDownloadAllPdfs = true,
   showCadModelLink = true,
   drawingInfo,
+  drawingDetails = null,
   viewCards,
   sectionDetailGroups,
   bomRows,
@@ -88,13 +89,14 @@ export default function TwoDTechnicalDrawingContentClient({
   transparencyIntroParagraphs,
   hasRenderableSheets = true,
   wasFilteredEmpty = false,
+  svgOnly = false,
 }) {
   const showArtifacts = hasRenderableSheets && !wasFilteredEmpty;
   return (
     <>
       {showArtifacts ? (
         <div className={layoutStyles.mainGrid}>
-          <TwoDDrawingPreviewPanel sheets={sheets} />
+          <TwoDDrawingPreviewPanel sheets={sheets} svgOnly={svgOnly} />
           <TwoDDrawingRightSidebar
             cadModelHref={cadModelHref}
             generateHref={generateHref}
@@ -103,9 +105,10 @@ export default function TwoDTechnicalDrawingContentClient({
             dxfHref={dxfHref}
             freecadHref={freecadHref}
             zipHref={zipHref}
-            showDownloadAllPdfs={showDownloadAllPdfs}
+            showDownloadAllPdfs={showDownloadAllPdfs && !svgOnly}
             showCadModelLink={showCadModelLink}
             drawingInfo={drawingInfo}
+            drawingDetails={drawingDetails}
           />
         </div>
       ) : (

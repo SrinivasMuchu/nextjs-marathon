@@ -1,6 +1,6 @@
 import React from "react";
-import { TECH_DRAW_LIBRARY_PREFIX } from "@/config";
 import { SITE_URL } from "@/lib/seo/schema";
+import { resolveLibraryTechDrawRoot } from "@/lib/techDraw/techDrawCdnRoots";
 
 /**
  * CreativeWork + ImageObject JSON-LD for individual 2D technical drawing pages.
@@ -10,13 +10,22 @@ function TwoDTechnicalDrawingPageJsonLd({
   designId,
   pageTitle,
   description,
+  version = false,
+  outputS3Prefix = "",
 }) {
   const path = `/library/2d-technical-drawings/${encodeURIComponent(String(designRoute || "").trim())}`;
   const pageUrl = `${SITE_URL}${path}`;
-  const previewImage =
-    designId && TECH_DRAW_LIBRARY_PREFIX
-      ? `${TECH_DRAW_LIBRARY_PREFIX}/${designId}/svg/sheet_1.svg`
-      : undefined;
+  const baseUrl = designId
+    ? resolveLibraryTechDrawRoot({
+        designId,
+        version: Boolean(version),
+        outputS3Prefix,
+      })
+    : "";
+  const previewImage = baseUrl ? `${baseUrl}/svg/sheet_1.svg` : undefined;
+  const encodingFormat = version
+    ? ["image/svg+xml", "application/dxf"]
+    : ["application/pdf", "image/svg+xml", "application/dxf"];
 
   const graph = [
     {
@@ -25,7 +34,7 @@ function TwoDTechnicalDrawingPageJsonLd({
       url: pageUrl,
       name: pageTitle,
       description,
-      encodingFormat: ["application/pdf", "image/svg+xml", "application/dxf"],
+      encodingFormat,
       ...(previewImage
         ? {
             image: { "@id": `${pageUrl}#primary-image` },

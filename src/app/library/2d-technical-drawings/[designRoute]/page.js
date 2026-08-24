@@ -3,7 +3,7 @@ import TwoDLibrary from "@/Components/Library/TwoDLibrary";
 import TwoDTechnicalDrawingPage from "@/Components/IndustryDesigns/TwoDTechnicalDrawingPage";
 import TwoDTechnicalDrawingContent from "@/Components/IndustryDesigns/TwoDTechnicalDrawingContent";
 import TwoDTechnicalDrawingPageJsonLd from "@/Components/JsonLdSchemas/TwoDTechnicalDrawingPageJsonLd";
-import { BASE_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
+import { BASE_URL } from "@/config";
 import { resolveCategorySlugToName } from "@/common.helper";
 import { fetchTwoDLibraryCategories } from "@/api/twoDLibraryDesignsApi";
 import { buildPageMetadata, buildTwoDDrawingMetadata } from "@/lib/seo/pageMetadata";
@@ -103,7 +103,18 @@ async function renderDesignPage(designRoute) {
   const designId = String(design?._id || "").trim();
   if (!/^[a-f0-9]{24}$/i.test(designId)) notFound();
 
-  const bundle = await fetchTechDrawBundle(designId);
+  const bundle = await fetchTechDrawBundle(designId, {
+    version: Boolean(design?.version),
+    outputS3Prefix: design?.output_s3_prefix,
+    designMeta: {
+      page_title: design?.page_title,
+      part_name: design?.part_name,
+      route: design?.route || designRoute,
+      file_type: design?.file_type,
+      version: design?.version,
+      output_s3_prefix: design?.output_s3_prefix,
+    },
+  });
   if (!bundle.geometryPerSheet || typeof bundle.geometryPerSheet !== "object") {
     notFound();
   }
@@ -144,6 +155,8 @@ async function renderDesignPage(designRoute) {
         designId={designId}
         pageTitle={title}
         description={pageDescription}
+        version={Boolean(design?.version)}
+        outputS3Prefix={design?.output_s3_prefix}
       />
       <TwoDTechnicalDrawingPage
         breadcrumbLinks={breadcrumbLinks}

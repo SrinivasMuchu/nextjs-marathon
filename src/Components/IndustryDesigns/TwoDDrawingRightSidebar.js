@@ -1,6 +1,7 @@
 import Link from "next/link";
 import TwoDDrawingDownloadButtons from "./TwoDDrawingDownloadButtons";
 import TwoDDrawingUploadGenerateButton from "./TwoDDrawingUploadGenerateButton";
+import { TwoDDrawingDetailsButton } from "./TwoDDrawingDetailsModal";
 import styles from "./TwoDDrawingRightSidebar.module.css";
 
 /** Right column: downloads, notices, link to 3D, drawing info, and upload CTA. */
@@ -22,6 +23,7 @@ export default function TwoDDrawingRightSidebar({
     exportFormats: 3,
     generatedLabel: "Generated: 14 Feb 2026 · Projection: First Angle",
   },
+  drawingDetails = null,
 }) {
   const nSheets = drawingInfo.sheetsGenerated ?? 0;
   const sheetWord = nSheets === 1 ? "1 sheet" : `${nSheets} sheets`;
@@ -42,10 +44,12 @@ export default function TwoDDrawingRightSidebar({
           />
 
           <div className={styles.formatGrid}>
-            <div className={styles.formatCell}>
-              <span className={styles.fmtPdf}>PDF</span>
-              <span className={styles.fmtMeta}>{sheetWord}</span>
-            </div>
+            {showDownloadAllPdfs ? (
+              <div className={styles.formatCell}>
+                <span className={styles.fmtPdf}>PDF</span>
+                <span className={styles.fmtMeta}>{sheetWord}</span>
+              </div>
+            ) : null}
             <div className={styles.formatCell}>
               <span className={styles.fmtSvg}>SVG</span>
               <span className={styles.fmtMeta}>{filesWord}</span>
@@ -55,6 +59,12 @@ export default function TwoDDrawingRightSidebar({
               <span className={styles.fmtMeta}>{filesWord}</span>
             </div>
           </div>
+
+          <TwoDDrawingDetailsButton
+            details={drawingDetails}
+            className={styles.detailsBtn}
+          />
+
           {showCadModelLink && cadModelHref ? (
             <Link href={cadModelHref} prefetch className={styles.backLinkBtn}>
               <span className={styles.backLinkBtnIcon} aria-hidden>

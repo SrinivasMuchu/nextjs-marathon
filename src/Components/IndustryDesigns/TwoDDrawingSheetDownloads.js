@@ -21,7 +21,8 @@ export default function TwoDDrawingSheetDownloads({ rows }) {
         Download Individual Sheets
       </h2>
       <p className={styles.desc}>
-        Each sheet available in PDF, SVG, and DXF. Click a format badge to download.
+        Each sheet available in SVG and DXF
+        {safeRows.some((row) => row.pdf) ? ", and PDF" : ""}. Click a format badge to download.
       </p>
 
       <div className={styles.list}>

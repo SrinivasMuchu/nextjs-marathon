@@ -99,6 +99,8 @@ export default function TwoDTechnicalDrawingContent({
   currentDesignId,
   hasRenderableSheets = true,
   wasFilteredEmpty = false,
+  svgOnly = false,
+  drawingDetails = null,
 }) {
   // When the bundle had sheets in geometry_per_sheet.json but every one of
   // them was filtered out (blank projection / missing S3 file), don't show
@@ -112,7 +114,7 @@ export default function TwoDTechnicalDrawingContent({
     <>
       {showArtifacts ? (
         <div className={layoutStyles.mainGrid}>
-          <TwoDDrawingPreviewPanel sheets={sheets} />
+          <TwoDDrawingPreviewPanel sheets={sheets} svgOnly={svgOnly} />
           <TwoDDrawingRightSidebar
             cadModelHref={cadModelHref}
             generateHref={generateHref}
@@ -122,6 +124,8 @@ export default function TwoDTechnicalDrawingContent({
             freecadHref={freecadHref}
             zipHref={zipHref}
             drawingInfo={drawingInfo}
+            drawingDetails={drawingDetails}
+            showDownloadAllPdfs={!svgOnly}
             showUploadCta={!HIDE_SIDEBAR_UPLOAD_CTA_DESIGN_IDS.has(currentDesignId)}
           />
         </div>

@@ -31,11 +31,16 @@ export function techdrawSheetPreviewUrls(
 ) {
   const n = Number(sheetNum);
   const prefix = String(outputPrefix || "").trim();
-  if (userPipeline) {
-    const base = prefix ? { prefix } : { source: "user" };
+  if (prefix) {
     return [
-      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", ...base }),
-      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", variant: "nodim", ...base }),
+      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", prefix }),
+      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", variant: "nodim", prefix }),
+    ];
+  }
+  if (userPipeline) {
+    return [
+      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", source: "user" }),
+      techdrawFileApiUrl(designId, { sheet: n, ext: "svg", variant: "nodim", source: "user" }),
     ];
   }
   return [techdrawFileApiUrl(designId, { sheet: n, ext: "svg" })];
@@ -89,13 +94,14 @@ export function techdrawSheetPdfViewUrl(
 ) {
   const n = Number(sheetNum);
   const prefix = String(outputPrefix || "").trim();
-  const url = userPipeline
-    ? techdrawFileApiUrl(designId, {
-        sheet: n,
-        ext: "pdf",
-        ...(prefix ? { prefix } : { source: "user" }),
-      })
-    : techdrawFileApiUrl(designId, { sheet: n, ext: "pdf" });
+  let url;
+  if (prefix) {
+    url = techdrawFileApiUrl(designId, { sheet: n, ext: "pdf", prefix });
+  } else if (userPipeline) {
+    url = techdrawFileApiUrl(designId, { sheet: n, ext: "pdf", source: "user" });
+  } else {
+    url = techdrawFileApiUrl(designId, { sheet: n, ext: "pdf" });
+  }
   return embed ? withPdfEmbedViewerParams(url) : url;
 }
 
@@ -104,10 +110,18 @@ export function techdrawBundlePdfViewUrl(
   { userPipeline = false, outputPrefix = "" } = {},
 ) {
   const prefix = String(outputPrefix || "").trim();
+  if (prefix) {
+    return withPdfEmbedViewerParams(
+      techdrawFileApiUrl(designId, {
+        prefix,
+        file: "technical_drawing_simple.pdf",
+      }),
+    );
+  }
   if (userPipeline) {
     return withPdfEmbedViewerParams(
       techdrawFileApiUrl(designId, {
-        ...(prefix ? { prefix } : { source: "user" }),
+        source: "user",
         file: "technical_drawing_simple.pdf",
       }),
     );

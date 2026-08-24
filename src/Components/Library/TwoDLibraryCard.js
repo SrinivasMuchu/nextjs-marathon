@@ -52,11 +52,18 @@ function buildTagsLine(design) {
 }
 
 function getOutputFormatChips(design) {
-  const raw = design?.two_d_output_formats || TWO_D_DEFAULT_OUTPUT_FORMATS;
+  const raw =
+    design?.version
+      ? design?.two_d_output_formats || "SVG, DXF"
+      : design?.two_d_output_formats || TWO_D_DEFAULT_OUTPUT_FORMATS;
   return String(raw)
     .split(/[,·|/]+/)
     .map((part) => part.trim().toUpperCase())
-    .filter(Boolean)
+    .filter((part) => {
+      if (!part) return false;
+      if (design?.version && (part === "PDF" || part === ".PDF")) return false;
+      return true;
+    })
     .slice(0, 4);
 }
 
@@ -67,8 +74,15 @@ export default function TwoDLibraryCard({ design }) {
     ? `/library/2d-technical-drawings/${encodeURIComponent(route)}`
     : `/library/2d-technical-drawings/${design._id}`;
   const source3dHref = route ? `/library/${encodeURIComponent(route)}` : drawingHref;
+  const outputPrefix = String(design?.output_s3_prefix || '').trim();
+  const versionPrefix =
+    design?.version && design?._id
+      ? outputPrefix || `techdraw-v2/${design._id}`
+      : outputPrefix;
   const previewSrc = design?._id
-    ? `/api/techdraw-file?designId=${encodeURIComponent(design._id)}&sheet=1&ext=svg`
+    ? `/api/techdraw-file?designId=${encodeURIComponent(design._id)}&sheet=1&ext=svg${
+        versionPrefix ? `&prefix=${encodeURIComponent(versionPrefix)}` : ''
+      }`
     : '';
   const tagsLine = buildTagsLine(design);
   const formatChips = getOutputFormatChips(design);
