@@ -235,14 +235,21 @@ function HomeTopNav() {
         <div
           style={{ position: "relative" }}
           onMouseEnter={() => handleNavHover("library")}
+          onClick={(e) => e.stopPropagation()}
         >
-          <Link
-            href="/library"
+          <span
             className={styles["nav-dropdown-trigger"]}
-            onClick={() => setOpenDropdown(null)}
+            role="button"
+            tabIndex={0}
+            aria-expanded={openDropdown === "library"}
+            aria-haspopup="menu"
+            onClick={(e) => toggleDropdown(e, "library")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") toggleDropdown(e, "library");
+            }}
           >
             Library <span aria-hidden>▼</span>
-          </Link>
+          </span>
           {openDropdown === "library" &&
             renderNavDropdownMenu(LIBRARY_MENU, "Library", () => setOpenDropdown(null))}
         </div>
@@ -258,14 +265,21 @@ function HomeTopNav() {
         <div
           style={{ position: "relative" }}
           onMouseEnter={() => handleNavHover("tools")}
+          onClick={(e) => e.stopPropagation()}
         >
-          <Link
-            href="/tools"
+          <span
             className={styles["nav-dropdown-trigger"]}
-            onClick={() => setOpenDropdown(null)}
+            role="button"
+            tabIndex={0}
+            aria-expanded={openDropdown === "tools"}
+            aria-haspopup="menu"
+            onClick={(e) => toggleDropdown(e, "tools")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") toggleDropdown(e, "tools");
+            }}
           >
             Tools <span aria-hidden>▼</span>
-          </Link>
+          </span>
           {openDropdown === "tools" &&
             renderNavDropdownMenu(TOOLS_MENU, "Tools", () => setOpenDropdown(null))}
         </div>
@@ -278,12 +292,15 @@ function HomeTopNav() {
         <div
           style={{ position: "relative" }}
           onMouseEnter={() => handleNavHover("blogs")}
+          onClick={(e) => e.stopPropagation()}
         >
           <span
             className={styles["nav-dropdown-trigger"]}
             role="button"
             tabIndex={0}
-            onClick={(e) => toggleDropdown(e,"blogs")}
+            aria-expanded={openDropdown === "blogs"}
+            aria-haspopup="menu"
+            onClick={(e) => toggleDropdown(e, "blogs")}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") toggleDropdown(e, "blogs");
             }}

@@ -2,8 +2,18 @@
 
 import React, { useMemo, useState } from "react";
 import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
 import { confirmTechDrawDatums } from "@/api/cadDrawingPipelineApi";
 import styles from "./CadDrawingPipeline.module.css";
+
+const TechDrawDatumViewer = dynamic(() => import("./TechDrawDatumViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className={styles.datumViewerEmpty}>
+      <p>Loading 3D viewer…</p>
+    </div>
+  ),
+});
 
 const LETTERS = ["A", "B", "C"];
 const LETTER_HELP = {
@@ -22,6 +32,7 @@ function candidateLabel(c) {
 export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onConfirmed }) {
   const candidates = Array.isArray(job?.gdt_datum_candidates) ? job.gdt_datum_candidates : [];
   const [picks, setPicks] = useState({ A: "", B: "", C: "" });
+  const [activeLetter, setActiveLetter] = useState("A");
   const [submitting, setSubmitting] = useState(false);
 
   const usedIds = useMemo(
@@ -30,7 +41,28 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
   );
 
   const setLetter = (letter, value) => {
-    setPicks((prev) => ({ ...prev, [letter]: value }));
+    setPicks((prev) => {
+      const next = { ...prev, [letter]: value };
+      return next;
+    });
+  };
+
+  const assignCandidate = (candidateId) => {
+    if (adminMode || submitting) return;
+    const id = String(candidateId);
+    setPicks((prev) => {
+      const next = { ...prev };
+      // Clear this feature from any other letter first.
+      for (const L of LETTERS) {
+        if (String(next[L]) === id) next[L] = "";
+      }
+      next[activeLetter] = id;
+      return next;
+    });
+    const idx = LETTERS.indexOf(activeLetter);
+    if (idx >= 0 && idx < LETTERS.length - 1) {
+      setActiveLetter(LETTERS[idx + 1]);
+    }
   };
 
   const datumsPayload = () => {
@@ -85,48 +117,103 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
         <div>
           <div className={styles.datumPickerTitle}>Choose the datum reference frame</div>
           <p className={styles.datumPickerLead}>
-            These are the faces and axes the engine found on your model. Assign A (primary),
-            B (secondary), and C (tertiary) — or let the engine choose from function.
+            Click faces and axes on your model for A (primary), B (secondary), and C (tertiary) —
+            or use the dropdowns / let the engine choose.
           </p>
         </div>
       </div>
 
-      <div className={styles.datumPickerGrid}>
-        {LETTERS.map((letter) => (
-          <label key={letter} className={styles.datumPickerField}>
-            <span className={styles.datumPickerLetter}>Datum {letter}</span>
-            <span className={styles.datumPickerHint}>{LETTER_HELP[letter]}</span>
-            <select
-              className={styles.datumPickerSelect}
-              value={picks[letter]}
-              disabled={adminMode || submitting}
-              onChange={(e) => setLetter(letter, e.target.value)}
-            >
-              <option value="">Not used</option>
-              {candidates.map((c) => {
-                const id = String(c.id);
-                const taken = usedIds.has(id) && picks[letter] !== id;
+      <div className={styles.datumPickerLayout}>
+        <TechDrawDatumViewer
+          job={job}
+          jobId={jobId}
+          candidates={candidates}
+          picks={picks}
+          activeLetter={activeLetter}
+          onPickCandidate={assignCandidate}
+          disabled={adminMode || submitting}
+        />
+
+        <div className={styles.datumPickerSide}>
+          <div className={styles.datumActiveRow}>
+            <span className={styles.datumActiveLabel}>Assigning</span>
+            <div className={styles.datumActiveLetters}>
+              {LETTERS.map((letter) => {
+                const selected = activeLetter === letter;
+                const filled = Boolean(picks[letter]);
                 return (
-                  <option key={id} value={id} disabled={taken}>
-                    {candidateLabel(c)}
-                  </option>
+                  <button
+                    key={letter}
+                    type="button"
+                    className={`${styles.datumActiveBtn}${selected ? ` ${styles.datumActiveBtnOn}` : ""}${
+                      filled ? ` ${styles.datumActiveBtnFilled}` : ""
+                    }`}
+                    disabled={adminMode || submitting}
+                    onClick={() => setActiveLetter(letter)}
+                    aria-pressed={selected}
+                  >
+                    {letter}
+                    {filled ? ` · D${picks[letter]}` : ""}
+                  </button>
                 );
               })}
-            </select>
-          </label>
-        ))}
-      </div>
+            </div>
+          </div>
 
-      <ul className={styles.datumCandidateList}>
-        {candidates.map((c) => (
-          <li key={c.id}>
-            <strong>{c.label || `D${c.id}`}</strong>
-            <span className={styles.datumKindBadge}>{c.kind === "axis" ? "axis" : "plane"}</span>
-            {c.alternate ? <span className={styles.datumAltBadge}>alt</span> : null}
-            <span>{c.evidence || c.reason || ""}</span>
-          </li>
-        ))}
-      </ul>
+          <div className={styles.datumPickerGrid}>
+            {LETTERS.map((letter) => (
+              <label key={letter} className={styles.datumPickerField}>
+                <span className={styles.datumPickerLetter}>Datum {letter}</span>
+                <span className={styles.datumPickerHint}>{LETTER_HELP[letter]}</span>
+                <select
+                  className={styles.datumPickerSelect}
+                  value={picks[letter]}
+                  disabled={adminMode || submitting}
+                  onChange={(e) => {
+                    setLetter(letter, e.target.value);
+                    setActiveLetter(letter);
+                  }}
+                  onFocus={() => setActiveLetter(letter)}
+                >
+                  <option value="">Not used</option>
+                  {candidates.map((c) => {
+                    const id = String(c.id);
+                    const taken = usedIds.has(id) && picks[letter] !== id;
+                    return (
+                      <option key={id} value={id} disabled={taken}>
+                        {candidateLabel(c)}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+            ))}
+          </div>
+
+          <ul className={styles.datumCandidateList}>
+            {candidates.map((c) => {
+              const id = String(c.id);
+              const assigned = LETTERS.find((L) => picks[L] === id);
+              return (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    className={`${styles.datumCandidateBtn}${assigned ? ` ${styles.datumCandidateBtnOn}` : ""}`}
+                    disabled={adminMode || submitting}
+                    onClick={() => assignCandidate(c.id)}
+                  >
+                    <strong>{c.label || `D${c.id}`}</strong>
+                    <span className={styles.datumKindBadge}>{c.kind === "axis" ? "axis" : "plane"}</span>
+                    {c.alternate ? <span className={styles.datumAltBadge}>alt</span> : null}
+                    {assigned ? <span className={styles.datumAssignedBadge}>{assigned}</span> : null}
+                    <span>{c.evidence || c.reason || ""}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
 
       {adminMode ? (
         <p className={styles.datumPickerLead}>
