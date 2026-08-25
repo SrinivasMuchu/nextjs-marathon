@@ -3,6 +3,7 @@ import TwoDDrawingViewCards from "./TwoDDrawingViewCards";
 import TwoDDrawingSectionDetailCards from "./TwoDDrawingSectionDetailCards";
 // import TwoDDrawingBomTable from "./TwoDDrawingBomTable";
 import TwoDDrawingSheetDownloads from "./TwoDDrawingSheetDownloads";
+import TwoDDrawingReportSection from "./TwoDDrawingReportSection";
 import TwoDDrawingCtaBanner from "./TwoDDrawingCtaBanner";
 import TwoDDrawingTransparencyBlock from "./TwoDDrawingTransparencyBlock";
 import TwoDDrawingPreviewPanel from "./TwoDDrawingPreviewPanel";
@@ -130,7 +131,7 @@ export default function TwoDTechnicalDrawingContent({
             freecadHref={freecadHref}
             zipHref={zipHref}
             drawingInfo={drawingInfo}
-            drawingDetails={useVersionPrice ? drawingDetails : null}
+            drawingDetails={null}
             showDownloadAllPdfs={!hidePdfDownloads}
             showUploadCta={!HIDE_SIDEBAR_UPLOAD_CTA_DESIGN_IDS.has(currentDesignId)}
             designId={currentDesignId}
@@ -154,6 +155,9 @@ export default function TwoDTechnicalDrawingContent({
             designTitle={designTitle}
             gateLibraryDownloads={gateLibraryDownloads}
           />
+          {useVersionPrice ? (
+            <TwoDDrawingReportSection details={drawingDetails} />
+          ) : null}
         </>
       ) : null}
       <TwoDDrawingCtaBanner generateHref={generateHref} />

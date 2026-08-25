@@ -1,7 +1,6 @@
 import Link from "next/link";
 import TwoDDrawingDownloadButtons from "./TwoDDrawingDownloadButtons";
 import TwoDDrawingUploadGenerateButton from "./TwoDDrawingUploadGenerateButton";
-import { TwoDDrawingDetailsButton } from "./TwoDDrawingDetailsModal";
 import TwoDLibraryDownloadPriceNote from "./TwoDLibraryDownloadPriceNote";
 import styles from "./TwoDDrawingRightSidebar.module.css";
 
@@ -35,8 +34,6 @@ export default function TwoDDrawingRightSidebar({
   const nSheets = drawingInfo.sheetsGenerated ?? 0;
   const sheetWord = nSheets === 1 ? "1 sheet" : `${nSheets} sheets`;
   const filesWord = nSheets === 1 ? "1 file" : `${nSheets} files`;
-  // Cover/review report popup is only for techdraw-v2 (versioned) library designs.
-  const showDetailsButton = Boolean(libraryPriceVersion);
 
   return (
     <aside className={styles.sidebar}>
@@ -76,13 +73,6 @@ export default function TwoDDrawingRightSidebar({
               <span className={styles.fmtMeta}>{filesWord}</span>
             </div>
           </div>
-
-          {showDetailsButton ? (
-            <TwoDDrawingDetailsButton
-              details={drawingDetails}
-              className={styles.detailsBtn}
-            />
-          ) : null}
 
           {showCadModelLink && cadModelHref ? (
             <Link href={cadModelHref} prefetch className={styles.backLinkBtn}>
