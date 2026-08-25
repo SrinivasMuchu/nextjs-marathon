@@ -1,24 +1,36 @@
+"use client";
+
 import { Clock, Layers } from "lucide-react";
-import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 import heroStyles from "@/Components/CadUploadingHome/CadHomeDesign/CadViewerHero.module.css";
+import useTechDrawPriceDisplay from "./useTechDrawPriceDisplay";
 import styles from "./CadDrawingPipeline.module.css";
 
-const { baseLabel: HERO_PRICE_LABEL } = getTechDrawPriceDisplay();
+/** Combined hero shell: title block + upload slot. Price from admin techdraw_upload_price. */
+export default function CadDrawingPipelineHeroSection({
+  children,
+  priceLabel: priceLabelProp,
+  initialPrices,
+}) {
+  const prices = useTechDrawPriceDisplay(initialPrices);
+  const priceLabel = priceLabelProp || prices.baseLabel;
 
-const VALUE_PILLS = [
-  { id: "price", icon: "$", iconType: "text", label: `${HERO_PRICE_LABEL} per drawing set` },
-  { id: "eta", icon: Clock, iconType: "lucide", label: "Ready in under 4 minutes" },
-  {
-    id: "formats",
-    icon: Layers,
-    iconType: "lucide",
-    label: "PDF · SVG · DXF · PNG",
-    mono: true,
-  },
-];
+  const valuePills = [
+    {
+      id: "price",
+      icon: "$",
+      iconType: "text",
+      label: `${priceLabel} per drawing set`,
+    },
+    { id: "eta", icon: Clock, iconType: "lucide", label: "Ready in under 4 minutes" },
+    {
+      id: "formats",
+      icon: Layers,
+      iconType: "lucide",
+      label: "PDF · SVG · DXF · PNG",
+      mono: true,
+    },
+  ];
 
-/** Combined hero shell: title block + upload slot (matches cad.html mockup). */
-export default function CadDrawingPipelineHeroSection({ children }) {
   return (
     <section
       className={`${heroStyles.heroPage} ${styles.pipelineHeroShell}`}
@@ -44,7 +56,7 @@ export default function CadDrawingPipelineHeroSection({ children }) {
         </div>
 
         <div className={styles.pipelineValuePills} role="list">
-          {VALUE_PILLS.map((pill) => {
+          {valuePills.map((pill) => {
             const Icon = pill.iconType === "lucide" ? pill.icon : null;
             return (
               <div key={pill.id} className={styles.pipelineValuePill} role="listitem">

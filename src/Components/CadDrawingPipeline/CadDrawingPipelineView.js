@@ -11,6 +11,7 @@ import {
   prepareCadDrawingJob,
   uploadAndSubmitTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
+import useTechDrawPriceDisplay from "./useTechDrawPriceDisplay";
 import { openTechDrawPayment } from "./techDrawPayment";
 import { STEP_EXT } from "./pipelineConstants";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
@@ -99,7 +100,13 @@ export default function CadDrawingPipelineView() {
   const pendingAfterLoginRef = useRef(false);
   const billingWaiterRef = useRef(null);
 
-  const prices = getTechDrawPriceDisplay();
+  const catalogPrices = useTechDrawPriceDisplay();
+  const prices = useMemo(() => {
+    if (eligibility?.price != null && Number.isFinite(Number(eligibility.price))) {
+      return getTechDrawPriceDisplay(eligibility.price);
+    }
+    return catalogPrices;
+  }, [eligibility, catalogPrices]);
 
   useEffect(() => {
     getOrCreateTechDrawUuid();

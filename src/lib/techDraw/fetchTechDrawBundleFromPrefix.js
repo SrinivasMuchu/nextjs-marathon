@@ -76,11 +76,27 @@ async function loadTechDrawBundleFromBaseUrl(
 ) {
   if (!baseUrl) return null;
 
-  const [geometryPerSheet, viewSelectionResponse, dimensionSpecs] = await Promise.all([
-    fetchJson(`${baseUrl}/geometry_per_sheet.json`),
-    fetchJson(`${baseUrl}/view_selection_response.json`),
-    fetchJson(`${baseUrl}/dimension_specs.json`),
-  ]);
+  const [
+    geometryPerSheet,
+    viewSelectionResponse,
+    dimensionSpecs,
+    dimensionSpecsMeta,
+    dimensionRejections,
+    gdtScheme,
+    drawingConfigPy,
+    drawingDetailsJson,
+  ] = await Promise.all([
+      fetchJson(`${baseUrl}/geometry_per_sheet.json`),
+      fetchJson(`${baseUrl}/view_selection_response.json`),
+      fetchJson(`${baseUrl}/dimension_specs.json`),
+      fetchJson(`${baseUrl}/dimension_specs_meta.json`),
+      fetchJson(`${baseUrl}/dimension_rejections.json`),
+      fetchJson(`${baseUrl}/gdt_scheme.json`),
+      fetch(`${baseUrl}/drawing_config_simple.py`, { cache: "no-store" })
+        .then((r) => (r.ok ? r.text() : ""))
+        .catch(() => ""),
+      fetchJson(`${baseUrl}/drawing_details.json`),
+    ]);
 
   if (!geometryPerSheet || typeof geometryPerSheet !== "object") {
     return null;
@@ -97,6 +113,11 @@ async function loadTechDrawBundleFromBaseUrl(
     geometryPerSheet,
     viewSelectionResponse,
     dimensionSpecs,
+    dimensionSpecsMeta,
+    dimensionRejections,
+    gdtScheme,
+    drawingConfigPy,
+    drawingDetailsJson,
     dimensionsResponse: null,
     designMeta: null,
     availabilityBySheet,

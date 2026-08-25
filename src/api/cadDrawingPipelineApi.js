@@ -8,7 +8,7 @@ import { techDrawUserJobCdnBase } from "@/lib/techDraw/fetchTechDrawBundleFromPr
 
 export const TECHDRAW_API_BASE = "/v1/cad-techdraw";
 
-/** List price shown in UI when API omits fields (keep in sync with TECHDRAW_JOB_PRICE_USD). */
+/** Fallback list price when API is unavailable (keep near admin default). */
 export const TECHDRAW_BASE_PRICE_USD = 4.99;
 const TECHDRAW_GST_RATE = 0.18;
 
@@ -26,10 +26,15 @@ export function formatTechDrawPrice(amount, currency = "USD") {
   }
 }
 
-/** Normalized labels for banners, buttons, and Razorpay copy (always $4.99 list price). */
-export function getTechDrawPriceDisplay() {
+/**
+ * Normalized labels for banners, buttons, and Razorpay copy.
+ * Pass admin `techdraw_upload_price` (base) when known — do not hardcode page copy.
+ */
+export function getTechDrawPriceDisplay(basePrice = TECHDRAW_BASE_PRICE_USD) {
   const currency = "USD";
-  const base = TECHDRAW_BASE_PRICE_USD;
+  const parsed = Number(basePrice);
+  const base =
+    Number.isFinite(parsed) && parsed >= 0 ? parsed : TECHDRAW_BASE_PRICE_USD;
   const total = Math.round(base * (1 + TECHDRAW_GST_RATE) * 100) / 100;
   return {
     base,
@@ -39,6 +44,43 @@ export function getTechDrawPriceDisplay() {
     totalLabel: formatTechDrawPrice(total, currency),
     perSetLabel: `${formatTechDrawPrice(base, currency)} per drawing set`,
   };
+}
+
+/** Public admin price for user TechDraw uploads (no auth). */
+export async function fetchTechDrawPricingInfo() {
+  if (!BASE_URL) throw new Error("App API URL is not configured.");
+  const url = `${BASE_URL}${TECHDRAW_API_BASE}/pricing-info`;
+  // Prefer native fetch with no-store so Next does not freeze the price at build time.
+  if (typeof fetch === "function") {
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) throw new Error(`TechDraw pricing HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data?.meta?.success) {
+      throw new Error(data?.meta?.message || "Failed to load TechDraw pricing.");
+    }
+    return data.data;
+  }
+  const { data } = await axios.get(url, { timeout: 15_000 });
+  if (!data?.meta?.success) {
+    throw new Error(data?.meta?.message || "Failed to load TechDraw pricing.");
+  }
+  return data.data;
+}
+
+/** Resolve display labels from admin controls (SSR / client). Always live. */
+export async function fetchTechDrawPriceDisplay() {
+  try {
+    const info = await fetchTechDrawPricingInfo();
+    return getTechDrawPriceDisplay(info?.price ?? info?.base_price);
+  } catch (err) {
+    if (typeof console !== "undefined") {
+      console.warn("[techdraw] pricing-info failed, using fallback:", err?.message || err);
+    }
+    return getTechDrawPriceDisplay();
+  }
 }
 
 const UPLOAD_TIMEOUT_MS = 120_000;
@@ -364,7 +406,7 @@ export async function prepareCadDrawingJob({
   if (!file) throw new Error("No file selected");
   assertUuid();
 
-  const prices = getTechDrawPriceDisplay();
+  const prices = await fetchTechDrawPriceDisplay();
 
   if (requiresPayment && !original_failed_job_id) {
     return { needsPayment: true, prices };

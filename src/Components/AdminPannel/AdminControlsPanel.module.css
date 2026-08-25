@@ -48,6 +48,24 @@
   flex-wrap: wrap;
 }
 
+.libraryPriceForm {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.libraryPriceRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.libraryPriceRow .note {
+  margin: 0;
+}
+
 .priceInputWrap {
   display: flex;
   align-items: center;

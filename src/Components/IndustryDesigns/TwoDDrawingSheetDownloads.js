@@ -1,4 +1,7 @@
+"use client";
+
 import { DEFAULT_SHEET_DOWNLOAD_ROWS } from "./twoDDrawingPageDefaults";
+import { useTwoDLibraryDownload, TwoDLibraryPaywallModals } from "./useTwoDLibraryDownload";
 import styles from "./TwoDDrawingSheetDownloads.module.css";
 
 const FORMATS = [
@@ -7,11 +10,24 @@ const FORMATS = [
   { key: "dxf", label: "DXF", className: styles.dxf },
 ];
 
-/**
- * Server component: per-sheet format links. Responsive: title full width, badges wrap below on narrow screens.
- */
-export default function TwoDDrawingSheetDownloads({ rows }) {
+export default function TwoDDrawingSheetDownloads({
+  rows,
+  onRequestDownload: onRequestDownloadProp,
+  designId,
+  designTitle,
+  gateLibraryDownloads = false,
+  busy: busyProp = false,
+}) {
   void DEFAULT_SHEET_DOWNLOAD_ROWS;
+  const libraryPaywall = useTwoDLibraryDownload({
+    designId,
+    designTitle,
+    enabled: gateLibraryDownloads && !onRequestDownloadProp,
+  });
+  const requestDownload = onRequestDownloadProp || libraryPaywall.requestDownload;
+  const busy = busyProp || libraryPaywall.busy;
+  const gated = Boolean(onRequestDownloadProp || gateLibraryDownloads);
+
   const safeRows = Array.isArray(rows) ? rows : [];
   if (!safeRows.length) return null;
   return (
@@ -32,6 +48,24 @@ export default function TwoDDrawingSheetDownloads({ rows }) {
               {FORMATS.map(({ key, label, className }) => {
                 const href = row[key];
                 if (!href) return null;
+                if (gated) {
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`${styles.badge} ${className}`}
+                      disabled={busy}
+                      onClick={() =>
+                        requestDownload(
+                          href,
+                          `${String(row.name || "sheet").replace(/\s+/g, "-")}.${key}`,
+                        )
+                      }
+                    >
+                      {label}
+                    </button>
+                  );
+                }
                 return (
                   <a
                     key={key}
@@ -47,6 +81,9 @@ export default function TwoDDrawingSheetDownloads({ rows }) {
           </div>
         ))}
       </div>
+      {gateLibraryDownloads && !onRequestDownloadProp ? (
+        <TwoDLibraryPaywallModals {...libraryPaywall.paywall} />
+      ) : null}
     </section>
   );
 }
