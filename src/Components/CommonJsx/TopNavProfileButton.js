@@ -14,13 +14,14 @@ import { persistAnonymousSession } from '@/lib/authSession';
 import { MdDashboard } from 'react-icons/md';
 import { FiLogOut } from 'react-icons/fi';
 
-function TopNavProfileButton({isMobileMenu = false}) {
+function TopNavProfileButton({ isMobileMenu = false, mobileHeader = false }) {
   const [openDemoForm, setOpenDemoForm] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const router = useRouter();
   const { user, setUser, setIsProfileComplete,isProfileComplete,updatedDetails, setUpdatedDetails, } = useContext(contextState);
+  const avatarSize = mobileHeader ? 36 : 50;
   
   useEffect(() => {
     // Only run on client side
@@ -105,6 +106,54 @@ function TopNavProfileButton({isMobileMenu = false}) {
     // Close dropdown
     setShowDropdown(false);
   };
+
+  if (isVerified && mobileHeader) {
+    return (
+      <div className={styles.mobileHeaderProfile} ref={dropdownRef}>
+        <button
+          type="button"
+          className={styles.mobileHeaderAvatarBtn}
+          onClick={() => setShowDropdown(!showDropdown)}
+          aria-label="Account menu"
+          aria-expanded={showDropdown}
+        >
+          <NameProfile
+            userName={user?.name ? user.name : (user?.email || 'User')}
+            memberPhoto={user?.photo}
+            width={avatarSize}
+            border={true}
+          />
+        </button>
+        {showDropdown ? (
+          <div className={styles.mobileHeaderProfileMenu}>
+            <Link href="/dashboard" onClick={() => setShowDropdown(false)}>
+              <MdDashboard /> Dashboard
+            </Link>
+            <button type="button" onClick={handleLogout}>
+              <FiLogOut /> Logout
+            </button>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (!isVerified && mobileHeader) {
+    return (
+      <>
+        <button
+          type="button"
+          className={styles.mobileHeaderLogin}
+          onClick={() => setOpenDemoForm('login')}
+        >
+          Login
+        </button>
+        {openDemoForm === 'login' && (
+          <UserLoginPupUp onClose={() => setOpenDemoForm(null)} type="login" />
+        )}
+      </>
+    );
+  }
 
   return (
     <>

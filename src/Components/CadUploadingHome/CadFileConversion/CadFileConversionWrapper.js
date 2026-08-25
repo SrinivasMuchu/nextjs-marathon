@@ -1,11 +1,6 @@
 
 
 "use client";
-import dynamic from 'next/dynamic';
-
-const CubeLoader = dynamic(() => import('@/Components/CommonJsx/Loaders/CubeLoader'), {
-    ssr: false,
-});
 import { allowedFilesList, CAD_CONVERTER_EVENT, IMAGEURLS } from "@/config";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
@@ -27,7 +22,13 @@ import { convertedFiles, sendClarityEvent, sendGAtagEvent, textLettersLimit } fr
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
 import { Upload, X, FileText } from "lucide-react";
-import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
+import { cadConverterStatusPath, saveCadConverterJobPreview } from "@/lib/cadConverterRoutes";
+import {
+    hideConverterLoadingOverlay,
+    persistConverterLoadingOverlay,
+    shouldPersistConverterLoadingOverlay,
+    showConverterLoadingOverlay,
+} from "@/lib/converterLoadingOverlay";
 
 function formatSelectedFileSize(bytes) {
     const size = Number(bytes);
@@ -161,6 +162,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
     }, [folderId]);
 
     const handleCancelConversion = () => {
+        hideConverterLoadingOverlay();
         setLoading(false);
         setUploading(false);
         setUploadingMessage('');
@@ -169,6 +171,41 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         setConversionSteps(null);
         setUploadProgressPercent(null);
     };
+
+    useEffect(() => {
+        router.prefetch("/cad-convertor");
+    }, [router]);
+
+    useEffect(() => {
+        if (!loading) return;
+        showConverterLoadingOverlay({
+            uploadingMessage,
+            uploadProgressPercent: uploadProgressPercent ?? undefined,
+            progressPercent: progressPercent ?? undefined,
+            conversionSteps,
+            fileName: fileConvert?.name,
+            outputFormat: selectedFileFormate,
+            fileSize: fileConvert?.size,
+            isSampleFile,
+            onCancel: handleCancelConversion,
+        });
+    }, [
+        loading,
+        uploadingMessage,
+        uploadProgressPercent,
+        progressPercent,
+        conversionSteps,
+        fileConvert,
+        selectedFileFormate,
+        isSampleFile,
+    ]);
+
+    useEffect(() => {
+        return () => {
+            if (shouldPersistConverterLoadingOverlay()) return;
+            hideConverterLoadingOverlay();
+        };
+    }, []);
     const validateAndProcessFile = async (file) => {
         if(!localStorage.getItem('is_verified')) {
             toast.error("Please verify your email to upload files.");
@@ -228,6 +265,14 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
     const checkingCadFileUploadLimitExceed = async (file, s3Url) => {
         if (s3Url) {
             setLoading(true)
+            showConverterLoadingOverlay({
+                uploadingMessage: uploadingMessage || 'PENDING',
+                fileName: fileConvert?.name,
+                outputFormat: selectedFileFormate,
+                fileSize: fileConvert?.size,
+                isSampleFile,
+                onCancel: handleCancelConversion,
+            });
             await CadFileConversion(s3Url)
             return
         } else {
@@ -279,6 +324,15 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                 setLoading(true)
                 setUploadingMessage('UPLOADINGFILE')
                 setUploadProgressPercent(0)
+                showConverterLoadingOverlay({
+                    uploadingMessage: 'UPLOADINGFILE',
+                    uploadProgressPercent: 0,
+                    fileName: file?.name,
+                    outputFormat: selectedFileFormate,
+                    fileSize: file?.size,
+                    isSampleFile,
+                    onCancel: handleCancelConversion,
+                });
                 const headers = {
                     "user-uuid": localStorage.getItem("uuid"),
                 };
@@ -323,6 +377,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
                 } else {
                     sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
                     toast.error("⚠️ Error generating signed URL.");
+                    hideConverterLoadingOverlay();
                     setLoading(false);
                     setUploadProgressPercent(null)
 
@@ -330,6 +385,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
             } catch (e) {
                 sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
                 console.error(e);
+                  hideConverterLoadingOverlay();
                   setLoading(false);
                   setUploadProgressPercent(null)
 
@@ -365,10 +421,19 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
             if (response.data.meta.success) {
                 const jobId = response.data.data;
                 setFolderId(jobId);
-                setLoading(false);
-                setUploadingMessage('');
+                saveCadConverterJobPreview({
+                    fileId: String(jobId),
+                    fileName: fileConvert?.name || "",
+                    outputFormat: selectedFileFormate || "",
+                    fileSize: fileConvert?.size || null,
+                    isSampleFile: Boolean(isSampleFile),
+                });
+                setUploadingMessage("PENDING");
+                setUploadProgressPercent(null);
+                persistConverterLoadingOverlay();
                 router.push(cadConverterStatusPath(jobId));
             } else {
+                hideConverterLoadingOverlay();
                 setLoading(false);
                 setUploadingMessage('FAILED');
                 toast.error(response.data.meta.message)
@@ -377,6 +442,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
             // await clearIndexedDB()
         } catch (error) {
             console.log(error)
+            hideConverterLoadingOverlay();
             setLoading(false);
             setUploadingMessage('FAILED');
         }
@@ -543,34 +609,7 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} cad_type={'CAD_CONVERTER'}/>}
             {verifyEmail && <UserLoginPupUp onClose={() => setVerifyEmail(false)} />}
             </div>
-        {loading ?  <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                zIndex: 9998,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'stretch',
-                justifyContent: 'flex-start',
-                overflowY: 'auto',
-                WebkitOverflowScrolling: 'touch',
-            }}>
-                <CubeLoader
-                    uploadingMessage={uploadingMessage}
-                    type='convert'
-                    uploadProgressPercent={uploadProgressPercent ?? undefined}
-                    progressPercent={progressPercent ?? undefined}
-                    conversionSteps={conversionSteps}
-                    fileName={fileConvert?.name}
-                    outputFormat={selectedFileFormate}
-                    fileSize={fileConvert?.size}
-                    isSampleFile={isSampleFile}
-                    onCancel={handleCancelConversion}
-                />
-            </div> :
+        {loading ? null :
         <>
            
             {(!isApiSlow || !checkLimit) && <>

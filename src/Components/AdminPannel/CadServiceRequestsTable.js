@@ -1344,6 +1344,12 @@ function CadServiceRequestsTable() {
         </form>
       </div>
 
+      {isLoading ? (
+        <div className={styles.loadingWrap}>
+          <Loading />
+        </div>
+      ) : (
+        <>
       <div className={styles.desktopTable}>
         <div className={styles.tableScroll}>
           <div className={styles.tableWrap}>
@@ -1361,15 +1367,6 @@ function CadServiceRequestsTable() {
                   <th>Action</th>
                 </tr>
               </thead>
-              {isLoading ? (
-                <tbody>
-                  <tr>
-                    <td colSpan={9} className={styles.emptyCell}>
-                      <Loading />
-                    </td>
-                  </tr>
-                </tbody>
-              ) : (
                 <tbody>
                   {requests.length === 0 ? (
                     <tr>
@@ -1449,18 +1446,13 @@ function CadServiceRequestsTable() {
                     })
                   )}
                 </tbody>
-              )}
             </table>
           </div>
         </div>
       </div>
 
       <div className={styles.mobileCards}>
-        {isLoading ? (
-          <div className={styles.mobileEmpty}>
-            <Loading />
-          </div>
-        ) : requests.length === 0 ? (
+        {requests.length === 0 ? (
           <div className={styles.mobileEmpty}>No CAD service requests found</div>
         ) : (
           requests.map((request) => (
@@ -1544,6 +1536,8 @@ function CadServiceRequestsTable() {
           ))
         )}
       </div>
+        </>
+      )}
 
       {totalPages > 1 && (
         <div className={styles.paginationWrap}>

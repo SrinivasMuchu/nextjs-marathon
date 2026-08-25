@@ -1,12 +1,23 @@
 const SITE_ORIGIN = process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://marathon-os.com";
 
+/** Same-origin Next.js routes (file proxy, upload helpers) — not indexable pages. */
+const API_PATHS = [
+  "/api",
+  "/api/",
+  "/api/*",
+  "/api/techdraw-file",
+  "/api/techdraw-bundle-zip",
+  "/api/techdraw-pdf-bundle",
+  "/api/techdraw-upload-step",
+];
+
 const PRIVATE_PATHS = [
   "/dashboard/",
   "/account/",
   "/checkout/",
   "/payment/",
   "/admin/",
-  "/api/",
+  ...API_PATHS,
   "/creator/",
   "/tools/cad-renderer",
 ];

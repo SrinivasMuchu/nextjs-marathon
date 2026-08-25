@@ -192,40 +192,6 @@
   color: rgba(244, 240, 255, 0.88);
 }
 
-.formatsTableWrap {
-  width: 100%;
-  max-width: 720px;
-}
-
-.formatsTable table {
-  min-width: 0;
-}
-
-.formatsTable th:nth-child(1),
-.formatsTable td:nth-child(1) {
-  width: 18%;
-}
-
-.formatsTable th:nth-child(2),
-.formatsTable td:nth-child(2) {
-  width: 28%;
-}
-
-.formatsTable th:nth-child(3),
-.formatsTable td:nth-child(3) {
-  width: 54%;
-}
-
-.formatsTableLink {
-  color: #c9a8ff;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.formatsTableLink:hover {
-  color: #e9ddff;
-}
-
 /* Split primary / accent in one heading (e.g. CAD File | Converter) */
 .titleAccent {
   color: #c9a8ff;

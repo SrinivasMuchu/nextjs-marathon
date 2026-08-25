@@ -467,7 +467,12 @@ background: var(--Primary-50, linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%
 .creatorLeft{
     width:30%;
     padding:0px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
 
+.showOnMobileProfile {
 }
 
 .downloadAlertContainer{
@@ -561,4 +566,33 @@ background: var(--Primary-50, linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%
     .coverPhotoPublishCad{
         margin-left:200px;
     }
+}
+
+@media (max-width: 768px) {
+  :global(body.dashboard-mobile-app) .desktopDashboardChrome {
+    display: none;
+  }
+
+  :global(body.dashboard-mobile-app) .coverPhotoCont {
+    display: none;
+  }
+
+  :global(body.dashboard-mobile-app) .creatorLeft {
+    display: none !important;
+  }
+
+  :global(body.dashboard-mobile-app) .creatorLeft.showOnMobileProfile {
+    display: flex !important;
+    width: 100%;
+    padding: 8px 16px 110px;
+    box-sizing: border-box;
+  }
+
+  :global(body.dashboard-mobile-app) .creatorDetails {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
 }

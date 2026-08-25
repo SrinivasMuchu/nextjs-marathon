@@ -115,7 +115,13 @@ function ViewedList() {
         )}
       </div>
 
-      <div className={styles.tableWrap}>
+      {isLoading ? (
+        <div className={styles.loadingWrap}>
+          <Loading />
+        </div>
+      ) : (
+        <>
+      <div className={`${styles.tableWrap} ${styles.desktopTable}`}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -126,12 +132,7 @@ function ViewedList() {
             
             </tr>
           </thead>
-          {isLoading ? (
-            <div style={{ padding: 20, textAlign: 'center' }}>
-              <Loading />
-            </div>
-          ) : (
-            <tbody>
+          <tbody>
               {viewedDesigns.length === 0 ? (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center', padding: 20 }}>
@@ -166,11 +167,39 @@ function ViewedList() {
                 })
               )}
             </tbody>
-          )}
         </table>
       </div>
+
+      <div className={styles.mobileCards}>
+        {viewedDesigns.length === 0 ? (
+          <div className={styles.mobileEmpty}>
+            {searchTerm ? 'No designs found for your search' : 'No viewed designs found'}
+          </div>
+        ) : (
+          viewedDesigns.map((d) => {
+            const route = d.route || d.page_title
+            const href = `/library/${encodeURIComponent(route)}`
+            return (
+              <Link key={d._id} href={href} className={styles.mobileCard} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className={styles.mobileCardHeader}>
+                  <h3 className={styles.mobileCardTitle}>{d.page_title || d.title || 'Design'}</h3>
+                  <span className={styles.mobileCardAside}>{formatPrice(d.price)}</span>
+                </div>
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>Views</span>
+                    <span className={styles.mobileCardValue}>{d.total_design_views || 0}</span>
+                  </div>
+                </div>
+              </Link>
+            )
+          })
+        )}
+      </div>
+        </>
+      )}
       
-      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
+      <div className={styles.paginationWrap}>
         {totalPages > 1 && (
           <Pagenation
             currentPage={currentPage}

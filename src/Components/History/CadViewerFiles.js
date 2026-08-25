@@ -7,6 +7,7 @@ import Loading from '../CommonJsx/Loaders/Loading';
 import { IoAddSharp } from "react-icons/io5";
 import FileStatus from '../CommonJsx/FileStatus';
 import Link from 'next/link';
+import { Search } from 'lucide-react';
 import { textLettersLimit } from '@/common.helper';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
@@ -122,65 +123,19 @@ function CadViewerFiles({ loading, cadViewerFileHistory, searchTerm,
   const [hoveredGlbId, setHoveredGlbId] = React.useState(null);
   return (
     <div className={styles.cadViewerContainerContent}>
-      <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '24px',
-          padding: '8px 16px',
-          border: '1px solid #e9ecef',
-          minWidth: '280px',
-          gap: '8px'
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="M21 21l-4.35-4.35"></path>
-          </svg>
+      <div className={styles.filesToolbar}>
+        <label className={styles.filesSearch}>
+          <Search size={16} className={styles.filesSearchIcon} />
           <input
             type="text"
             placeholder="Search project"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              outline: 'none',
-              flex: 1,
-              fontSize: '14px',
-              color: '#495057'
-            }}
           />
-        </div>
-        {/* <button className={styles.cadUploadingButton}  */}
-        {/* > */}
-        <Link href='/tools/3d-cad-viewer'
-          // style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-          style={{
-            borderRadius: '8px',
-            border: '2px solid #610BEE',
-            background: 'white',
-            color: '#610BEE',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 20px',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            whiteSpace: 'nowrap'
-          }}
-
-          onMouseEnter={(e) => {
-            e.target.style.background = '#610BEE';
-            e.target.style.color = 'white';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = 'white';
-            e.target.style.color = '#610BEE';
-          }}><IoAddSharp /> New file</Link>
-        {/* </button> */}
+        </label>
+        <Link href='/tools/3d-cad-viewer' className={styles.filesActionBtn}>
+          <IoAddSharp /> New file
+        </Link>
       </div>
       {loading ? <Loading smallScreen={true} /> : <>
 
