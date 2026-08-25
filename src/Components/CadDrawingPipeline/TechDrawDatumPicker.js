@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
 import { confirmTechDrawDatums } from "@/api/cadDrawingPipelineApi";
@@ -34,22 +34,32 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
   const [picks, setPicks] = useState({ A: "", B: "", C: "" });
   const [activeLetter, setActiveLetter] = useState("A");
   const [submitting, setSubmitting] = useState(false);
+  const [focusCandidateId, setFocusCandidateId] = useState(null);
+  const candidateItemRefs = useRef({});
 
   const usedIds = useMemo(
     () => new Set(LETTERS.map((L) => picks[L]).filter(Boolean)),
     [picks],
   );
 
+  useEffect(() => {
+    if (focusCandidateId == null) return;
+    const el = candidateItemRefs.current[String(focusCandidateId)];
+    el?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
+  }, [focusCandidateId]);
+
   const setLetter = (letter, value) => {
     setPicks((prev) => {
       const next = { ...prev, [letter]: value };
       return next;
     });
+    if (value) setFocusCandidateId(String(value));
   };
 
   const assignCandidate = (candidateId) => {
     if (adminMode || submitting) return;
     const id = String(candidateId);
+    setFocusCandidateId(id);
     setPicks((prev) => {
       const next = { ...prev };
       // Clear this feature from any other letter first.
@@ -194,11 +204,20 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
             {candidates.map((c) => {
               const id = String(c.id);
               const assigned = LETTERS.find((L) => picks[L] === id);
+              const focused = String(focusCandidateId) === id;
               return (
-                <li key={c.id}>
+                <li
+                  key={c.id}
+                  ref={(node) => {
+                    if (node) candidateItemRefs.current[id] = node;
+                    else delete candidateItemRefs.current[id];
+                  }}
+                >
                   <button
                     type="button"
-                    className={`${styles.datumCandidateBtn}${assigned ? ` ${styles.datumCandidateBtnOn}` : ""}`}
+                    className={`${styles.datumCandidateBtn}${assigned ? ` ${styles.datumCandidateBtnOn}` : ""}${
+                      focused ? ` ${styles.datumCandidateBtnFocus}` : ""
+                    }`}
                     disabled={adminMode || submitting}
                     onClick={() => assignCandidate(c.id)}
                   >

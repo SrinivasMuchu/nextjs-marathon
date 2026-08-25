@@ -2,7 +2,7 @@
 
 import React, { Component, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useLoader, useThree } from "@react-three/fiber";
-import { ArcballControls, useGLTF } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import { DESIGN_GLB_PREFIX_URL } from "@/config";
@@ -147,7 +147,10 @@ function GlbModel({ url, modelRef, onReady, children }) {
     return () => {
       modelRef.current = null;
     };
-  }, [model, modelRef, onReady]);
+    // Intentionally omit onReady — parent recreates it every render; that was
+    // re-fitting the camera (and snapping rotation back) on hover/pick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [model, modelRef]);
 
   return <primitive object={model}>{children}</primitive>;
 }
@@ -170,7 +173,8 @@ function StlModel({ url, modelRef, onReady, children }) {
     return () => {
       modelRef.current = null;
     };
-  }, [model, modelRef, onReady]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [model, modelRef]);
 
   return <primitive object={model}>{children}</primitive>;
 }
@@ -196,16 +200,12 @@ function applyControlsFit(controls, camera, center, dist, minDistance, maxDistan
   camera.updateMatrix();
   camera.updateMatrixWorld(true);
 
-  // Arcball keeps internal camera/gizmo matrices — sync after manual fit or
-  // the first drag snaps back to the pre-fit pose.
   if (typeof controls.update === "function") {
     controls.update();
   }
-  if (typeof controls.updateMatrixState === "function") {
-    controls.updateMatrixState();
-  }
-  if (typeof controls.setGizmosVisible === "function") {
-    controls.setGizmosVisible(false);
+  // Persist this pose as the OrbitControls baseline (prevents snap-back).
+  if (typeof controls.saveState === "function") {
+    controls.saveState();
   }
 
   void dist;
@@ -213,14 +213,30 @@ function applyControlsFit(controls, camera, center, dist, minDistance, maxDistan
 
 function FitCamera({ modelRef, readyTick, fitRequest }) {
   const { camera, controls, size } = useThree();
+  const lastFitKeyRef = useRef("");
 
+  // Full reframes only on first model ready + explicit "Reset view".
+  // Do NOT reframe on canvas size changes (panel updates after pick used to snap the camera back).
   useLayoutEffect(() => {
     const model = modelRef.current;
     if (!model || !controls) return;
     if (!size?.width || !size?.height) return;
+    if (!readyTick) return;
+
+    // readyTick only gates "model is ready"; do not include it in the key —
+    // hover/pick re-renders used to bump readyTick and snap the camera back.
+    const fitKey = `fit:${fitRequest}`;
+    const shouldReframe = lastFitKeyRef.current !== fitKey;
+
+    camera.aspect = size.width / size.height;
+
+    if (!shouldReframe) {
+      camera.updateProjectionMatrix();
+      return;
+    }
+    lastFitKeyRef.current = fitKey;
 
     model.updateWorldMatrix(true, true);
-    // Prefer CAD-only bounds (exclude datum overlays parented under the root).
     const dims =
       model.userData?.fitSize?.clone?.() ||
       (() => {
@@ -231,16 +247,13 @@ function FitCamera({ modelRef, readyTick, fitRequest }) {
 
     const center = cadFitCenter(model);
     const maxDim = Math.max(dims.x, dims.y, dims.z, 1e-4);
-    // Sphere fit fills the viewport for flat / wide parts better than a cube edge.
     const radius = Math.max(dims.length() * 0.5, maxDim * 0.5);
 
-    camera.aspect = size.width / size.height;
     const fov = THREE.MathUtils.degToRad(camera.fov);
     const fitH = radius / Math.tan(fov / 2);
     const fitW = radius / (Math.tan(fov / 2) * camera.aspect);
     const dist = Math.max(fitH, fitW) * 1.08;
 
-    // Neutral isometric start — free tumble from here (no locked world-up).
     const dir = new THREE.Vector3(1, 0.55, 0.85).normalize();
     camera.position.copy(center).addScaledVector(dir, dist);
     camera.near = Math.max(dist / 400, maxDim / 1000);
@@ -477,7 +490,8 @@ function ModelScene({
           })();
         if (size) setModelSize(Math.max(size.x, size.y, size.z, 1));
       }
-      setReadyTick((n) => n + 1);
+      // Only signal readiness once — never increment again (avoids camera reset).
+      setReadyTick((n) => (n > 0 ? n : 1));
     });
   };
 
@@ -544,19 +558,20 @@ function ModelScene({
       </group>
 
       <FitCamera modelRef={modelRef} readyTick={readyTick} fitRequest={fitRequest} />
-      {/* Arcball = free CAD tumble (no locked world-up / polar gimbal). */}
-      <ArcballControls
+      {/* OrbitControls with damping off = view stays exactly where the user releases. */}
+      <OrbitControls
         makeDefault
-        enableAnimations
+        enableDamping={false}
         enablePan
         enableRotate
         enableZoom
-        cursorZoom
-        scaleFactor={1.12}
-        dampingFactor={18}
-        wMax={28}
+        zoomSpeed={1.15}
+        rotateSpeed={0.9}
+        panSpeed={0.9}
         minDistance={0.01}
         maxDistance={1e7}
+        minPolarAngle={0}
+        maxPolarAngle={Math.PI}
         onStart={() => {
           document.body.style.cursor = "grabbing";
         }}
