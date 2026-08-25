@@ -101,6 +101,10 @@ export default function TwoDTechnicalDrawingContent({
   gateLibraryDownloads = true,
   hasRenderableSheets = true,
   wasFilteredEmpty = false,
+  drawingDetails = null,
+  svgOnly = false,
+  showDownloadAllPdfs = true,
+  libraryPriceVersion = false,
 }) {
   // When the bundle had sheets in geometry_per_sheet.json but every one of
   // them was filtered out (blank projection / missing S3 file), don't show
@@ -109,12 +113,14 @@ export default function TwoDTechnicalDrawingContent({
   // explanation, transparency block, and "more designs" section stay so
   // the page chrome still looks intact.
   const showArtifacts = hasRenderableSheets && !wasFilteredEmpty;
+  const hidePdfDownloads = svgOnly || showDownloadAllPdfs === false;
+  const useVersionPrice = Boolean(libraryPriceVersion || svgOnly);
 
   return (
     <>
       {showArtifacts ? (
         <div className={layoutStyles.mainGrid}>
-          <TwoDDrawingPreviewPanel sheets={sheets} />
+          <TwoDDrawingPreviewPanel sheets={sheets} svgOnly={svgOnly} />
           <TwoDDrawingRightSidebar
             cadModelHref={cadModelHref}
             generateHref={generateHref}
@@ -124,10 +130,13 @@ export default function TwoDTechnicalDrawingContent({
             freecadHref={freecadHref}
             zipHref={zipHref}
             drawingInfo={drawingInfo}
+            drawingDetails={useVersionPrice ? drawingDetails : null}
+            showDownloadAllPdfs={!hidePdfDownloads}
             showUploadCta={!HIDE_SIDEBAR_UPLOAD_CTA_DESIGN_IDS.has(currentDesignId)}
             designId={currentDesignId}
             designTitle={designTitle}
             gateLibraryDownloads={gateLibraryDownloads}
+            libraryPriceVersion={useVersionPrice}
           />
         </div>
       ) : (

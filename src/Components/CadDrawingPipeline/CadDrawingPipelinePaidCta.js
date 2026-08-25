@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
+import useTechDrawPriceDisplay from "./useTechDrawPriceDisplay";
 import styles from "./CadDrawingPipeline.module.css";
 
 const BENEFITS = [
@@ -31,8 +31,8 @@ const BENEFITS = [
   },
 ];
 
-export default function CadDrawingPipelinePaidCta() {
-  const { baseLabel, perSetLabel } = getTechDrawPriceDisplay();
+export default function CadDrawingPipelinePaidCta({ initialPrices }) {
+  const { baseLabel, perSetLabel } = useTechDrawPriceDisplay(initialPrices);
 
   const scrollToUpload = useCallback(() => {
     const el = document.getElementById("cad-pipeline-upload");

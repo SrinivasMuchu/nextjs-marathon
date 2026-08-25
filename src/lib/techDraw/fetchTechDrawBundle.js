@@ -1,4 +1,8 @@
-import { BASE_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
+import { BASE_URL } from "@/config";
+import {
+  libraryCdnRoot,
+  resolveLibraryTechDrawRoot,
+} from "@/lib/techDraw/techDrawCdnRoots";
 
 const JSON_OPTS = { next: { revalidate: 120 } };
 // HEAD probes go straight to the CDN — cheap, no body transfer, same cache.
@@ -8,7 +12,7 @@ const HEAD_OPTS = { method: "HEAD", next: { revalidate: 120 } };
 const MIN_VALID_SVG_BYTES = 800;
 
 function folderUrl(designId) {
-  return `${TECH_DRAW_LIBRARY_PREFIX}/${designId}`;
+  return libraryCdnRoot(designId);
 }
 
 async function fetchJson(url) {
@@ -92,29 +96,80 @@ async function buildAvailabilityMap(baseUrl, geometryPerSheet) {
   return map;
 }
 
+async function fetchText(url) {
+  try {
+    const res = await fetch(url, JSON_OPTS);
+    if (!res.ok) return "";
+    return await res.text();
+  } catch {
+    return "";
+  }
+}
+
+/** Read Document.xml from technical_drawing_simple.FCStd (placed Dim_* objects). */
+async function fetchFcstdDocumentXml(baseUrl) {
+  try {
+    const res = await fetch(`${baseUrl}/technical_drawing_simple.FCStd`, JSON_OPTS);
+    if (!res.ok) return "";
+    const buf = Buffer.from(await res.arrayBuffer());
+    const JSZip = (await import("jszip")).default;
+    const zip = await JSZip.loadAsync(buf);
+    const file = zip.file("Document.xml");
+    if (!file) return "";
+    return await file.async("string");
+  } catch {
+    return "";
+  }
+}
+
 /**
- * Load pipeline JSON for a 2d-technical-drawings folder on CloudFront.
- * BOM: bom.json fetch commented out — re-enable when BOM UI is restored.
+ * Load pipeline JSON for a library tech-draw folder on CloudFront.
+ * When design.version is true (or output_s3_prefix is set), loads from
+ * techdraw-v2/{id} instead of legacy 2d-technical-drawings/{id}.
  *
- * Also runs Layer B (frontend) availability probes for each candidate
- * sheet — the mapper uses this to hide cards for sheets whose SVG is
- * either missing on S3 or trivially small (a blank "<svg/>" shell).
- *
- * @param {string} designId — folder name under 2d-technical-drawings/
+ * @param {string} designId
+ * @param {{ version?: boolean, outputS3Prefix?: string }} [options]
  */
-export async function fetchTechDrawBundle(designId) {
-  const baseUrl = folderUrl(designId);
+export async function fetchTechDrawBundle(designId, options = {}) {
+  const designMeta =
+    options.designMeta != null
+      ? options.designMeta
+      : await fetchDesignBasicMeta(designId);
+
+  const version = Boolean(
+    options.version ?? designMeta?.version,
+  );
+  const outputS3Prefix = resolveLibraryTechDrawRoot({
+    designId,
+    version,
+    outputS3Prefix: options.outputS3Prefix ?? designMeta?.output_s3_prefix,
+    asPrefixOnly: true,
+  });
+  const baseUrl = resolveLibraryTechDrawRoot({
+    designId,
+    version,
+    outputS3Prefix: options.outputS3Prefix ?? designMeta?.output_s3_prefix,
+  });
+
   const [
     geometryPerSheet,
     viewSelectionResponse,
-    designMeta /* , bom */,
-  ] =
-    await Promise.all([
-      fetchJson(`${baseUrl}/geometry_per_sheet.json`),
-      fetchJson(`${baseUrl}/view_selection_response.json`),
-      fetchDesignBasicMeta(designId),
-      // fetchJson(`${baseUrl}/bom.json`),
-    ]);
+    dimensionSpecsMeta,
+    dimensionRejections,
+    gdtScheme,
+    drawingConfigPy,
+    fcstdDocumentXml,
+    drawingDetailsJson,
+  ] = await Promise.all([
+    fetchJson(`${baseUrl}/geometry_per_sheet.json`),
+    fetchJson(`${baseUrl}/view_selection_response.json`),
+    fetchJson(`${baseUrl}/dimension_specs_meta.json`),
+    fetchJson(`${baseUrl}/dimension_rejections.json`),
+    fetchJson(`${baseUrl}/gdt_scheme.json`),
+    fetchText(`${baseUrl}/drawing_config_simple.py`),
+    fetchFcstdDocumentXml(baseUrl),
+    fetchJson(`${baseUrl}/drawing_details.json`),
+  ]);
 
   const availabilityBySheet = await buildAvailabilityMap(
     baseUrl,
@@ -123,8 +178,17 @@ export async function fetchTechDrawBundle(designId) {
 
   return {
     baseUrl,
+    outputS3Prefix: outputS3Prefix || "",
+    version,
+    svgOnly: version,
     dimensionSpecs: null,
     dimensionsResponse: null,
+    dimensionSpecsMeta,
+    dimensionRejections,
+    gdtScheme,
+    drawingConfigPy,
+    fcstdDocumentXml,
+    drawingDetailsJson,
     geometryPerSheet,
     viewSelectionResponse,
     designMeta,

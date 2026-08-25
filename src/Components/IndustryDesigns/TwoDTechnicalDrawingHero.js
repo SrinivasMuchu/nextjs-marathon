@@ -31,6 +31,7 @@ export default function TwoDTechnicalDrawingHero({
   showBadges = true,
   showFreeDownloadBadge = true,
   showLibraryPriceChip = false,
+  libraryPriceVersion = false,
 }) {
   return (
     <header className={styles.hero}>
@@ -45,7 +46,7 @@ export default function TwoDTechnicalDrawingHero({
           {showFreeDownloadBadge ? (
             <span className={`${styles.chip} ${styles.chipFree}`}>Free Download</span>
           ) : showLibraryPriceChip ? (
-            <TwoDLibraryPriceChip />
+            <TwoDLibraryPriceChip version={libraryPriceVersion} />
           ) : null}
         </div>
       )}

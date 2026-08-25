@@ -1,6 +1,8 @@
 import Link from "next/link";
 import TwoDDrawingDownloadButtons from "./TwoDDrawingDownloadButtons";
 import TwoDDrawingUploadGenerateButton from "./TwoDDrawingUploadGenerateButton";
+import { TwoDDrawingDetailsButton } from "./TwoDDrawingDetailsModal";
+import TwoDLibraryDownloadPriceNote from "./TwoDLibraryDownloadPriceNote";
 import styles from "./TwoDDrawingRightSidebar.module.css";
 
 /** Right column: downloads, notices, link to 3D, drawing info, and upload CTA. */
@@ -20,6 +22,7 @@ export default function TwoDDrawingRightSidebar({
   designId,
   designTitle,
   gateLibraryDownloads = false,
+  libraryPriceVersion = false,
   drawingInfo = {
     viewsAnalysed: 6,
     sheetsGenerated: 9,
@@ -27,16 +30,22 @@ export default function TwoDDrawingRightSidebar({
     exportFormats: 3,
     generatedLabel: "Generated: 14 Feb 2026 · Projection: First Angle",
   },
+  drawingDetails = null,
 }) {
   const nSheets = drawingInfo.sheetsGenerated ?? 0;
   const sheetWord = nSheets === 1 ? "1 sheet" : `${nSheets} sheets`;
   const filesWord = nSheets === 1 ? "1 file" : `${nSheets} files`;
+  // Cover/review report popup is only for techdraw-v2 (versioned) library designs.
+  const showDetailsButton = Boolean(libraryPriceVersion);
 
   return (
     <aside className={styles.sidebar}>
       <div className={styles.card}>
         <div className={styles.cardBody}>
           <div className={styles.cardTitle}>Download all drawing sheets</div>
+          {gateLibraryDownloads ? (
+            <TwoDLibraryDownloadPriceNote version={Boolean(libraryPriceVersion)} />
+          ) : null}
           <TwoDDrawingDownloadButtons
             pdfHref={pdfHref}
             svgHref={svgHref}
@@ -52,10 +61,12 @@ export default function TwoDDrawingRightSidebar({
           />
 
           <div className={styles.formatGrid}>
-            <div className={styles.formatCell}>
-              <span className={styles.fmtPdf}>PDF</span>
-              <span className={styles.fmtMeta}>{sheetWord}</span>
-            </div>
+            {showDownloadAllPdfs ? (
+              <div className={styles.formatCell}>
+                <span className={styles.fmtPdf}>PDF</span>
+                <span className={styles.fmtMeta}>{sheetWord}</span>
+              </div>
+            ) : null}
             <div className={styles.formatCell}>
               <span className={styles.fmtSvg}>SVG</span>
               <span className={styles.fmtMeta}>{filesWord}</span>
@@ -65,6 +76,14 @@ export default function TwoDDrawingRightSidebar({
               <span className={styles.fmtMeta}>{filesWord}</span>
             </div>
           </div>
+
+          {showDetailsButton ? (
+            <TwoDDrawingDetailsButton
+              details={drawingDetails}
+              className={styles.detailsBtn}
+            />
+          ) : null}
+
           {showCadModelLink && cadModelHref ? (
             <Link href={cadModelHref} prefetch className={styles.backLinkBtn}>
               <span className={styles.backLinkBtnIcon} aria-hidden>

@@ -19,6 +19,7 @@ import {
   buildTwoDDrawingHeroTitle,
   TWO_D_DRAWING_TRANSPARENCY_INTRO,
 } from "./twoDDrawingPageHelpers";
+import { buildDrawingDetailsProps } from "./buildDrawingDetailsProps";
 
 function sortGeometryKeys(geometryPerSheet) {
   if (!geometryPerSheet || typeof geometryPerSheet !== "object") return [];
@@ -95,10 +96,11 @@ function sheetPreviewCandidates(baseUrl, sheetNum, designId, outputS3Prefix = ""
   const n = Number(sheetNum);
   const id = String(designId || "").trim();
   const base = String(baseUrl || "").replace(/\/$/, "");
-  if (isUserPipelineCdnBase(base)) {
+  const prefix = String(outputS3Prefix || "").trim();
+  if (isUserPipelineCdnBase(base) || prefix) {
     const apiUrls = techdrawSheetPreviewUrls(id, n, {
-      userPipeline: true,
-      outputPrefix: outputS3Prefix,
+      userPipeline: isUserPipelineCdnBase(base),
+      outputPrefix: prefix,
     });
     const direct = directSheetAssetUrls(base, n);
     return [...apiUrls, direct.svg, direct.svgNodim];
@@ -333,45 +335,82 @@ function buildSectionDetailGroups(entries, dimensionSpecs, viewSelectionResponse
   return groups;
 }
 
-function buildSheetDownloadRows(entries, baseUrl, designId) {
+function buildSheetDownloadRows(entries, baseUrl, designId, outputS3Prefix = "", svgOnly = false) {
   const userPipeline = isUserPipelineCdnBase(baseUrl);
   const id = String(designId || "").trim();
+  const prefix = String(outputS3Prefix || "").trim();
   return entries.map((e) => {
     const n = Number(e.sheet_num);
-    if (userPipeline) {
+    let row;
+    if (userPipeline && !prefix) {
       const assets = directSheetAssetUrls(baseUrl, n);
-      return {
+      row = {
         name: e.label,
         pdf: assets.pdf,
         svg: assets.svg,
         dxf: assets.dxf,
       };
-    }
-    if (id) {
-      const libraryFile = (ext) =>
-        techdrawFileApiUrl(id, {
-          sheet: n,
-          ext,
-          disposition: "attachment",
-        });
-      return {
+    } else if (id && prefix) {
+      row = {
         name: e.label,
-        pdf: libraryFile("pdf"),
-        svg: libraryFile("svg"),
-        dxf: libraryFile("dxf"),
+        pdf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "pdf",
+          prefix,
+          disposition: "attachment",
+        }),
+        svg: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "svg",
+          prefix,
+          disposition: "attachment",
+        }),
+        dxf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "dxf",
+          prefix,
+          disposition: "attachment",
+        }),
+      };
+    } else if (id) {
+      row = {
+        name: e.label,
+        pdf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "pdf",
+          source: userPipeline ? "user" : undefined,
+          disposition: "attachment",
+        }),
+        svg: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "svg",
+          source: userPipeline ? "user" : undefined,
+          disposition: "attachment",
+        }),
+        dxf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "dxf",
+          source: userPipeline ? "user" : undefined,
+          disposition: "attachment",
+        }),
+      };
+    } else {
+      const paths = sheetAssetPaths(baseUrl, e.sheet_num);
+      row = {
+        name: e.label,
+        pdf: paths.pdf,
+        svg: paths.svg,
+        dxf: paths.dxf,
       };
     }
-    const paths = sheetAssetPaths(baseUrl, e.sheet_num);
-    return {
-      name: e.label,
-      pdf: paths.pdf,
-      svg: paths.svg,
-      dxf: paths.dxf,
-    };
+    if (svgOnly) {
+      return { name: row.name, svg: row.svg, dxf: row.dxf };
+    }
+    return row;
   });
 }
 
-function buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse) {
+function buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse, svgOnly = false) {
   const sections = sectionEntries(entries);
   const meta = pipelineMeta(dimensionsResponse, viewSelectionResponse);
   const saved = meta.saved_at_utc;
@@ -387,14 +426,14 @@ function buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse) {
     viewsAnalysed: uniqueViews(entries),
     sheetsGenerated: entries.length,
     sectionCuts: sections.length,
-    exportFormats: 3,
+    exportFormats: svgOnly ? 2 : 3,
     generatedLabel: dateStr
       ? `Generated: ${dateStr} · Projection: First Angle`
       : "Projection: First Angle",
   };
 }
 
-function buildTransparencyMeta(entries, dimensionsResponse, viewSelectionResponse /* , bomRows */) {
+function buildTransparencyMeta(entries, dimensionsResponse, viewSelectionResponse /* , bomRows */, svgOnly = false) {
   const sections = sectionEntries(entries);
   const meta = pipelineMeta(dimensionsResponse, viewSelectionResponse);
   const saved = meta.saved_at_utc;
@@ -410,7 +449,7 @@ function buildTransparencyMeta(entries, dimensionsResponse, viewSelectionRespons
     { value: String(uniqueViews(entries)), label: "Views analysed" },
     { value: String(entries.length), label: "Sheets generated" },
     { value: String(sections.length), label: "Section cuts" },
-    { value: "3", label: "Export formats" },
+    { value: svgOnly ? "2" : "3", label: "Export formats" },
     { value: dateDisplay, label: "Generated date" },
   ];
 }
@@ -470,8 +509,15 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
   const {
     baseUrl,
     outputS3Prefix,
+    version,
+    svgOnly: svgOnlyFlag,
     dimensionSpecs,
     dimensionsResponse,
+    dimensionSpecsMeta,
+    dimensionRejections,
+    gdtScheme,
+    drawingConfigPy,
+    fcstdDocumentXml,
     geometryPerSheet,
     viewSelectionResponse,
     designMeta,
@@ -479,6 +525,7 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     // bom,
   } = bundle;
 
+  const svgOnly = Boolean(svgOnlyFlag ?? version);
   const rawEntries = normalizeGeometryEntries(geometryPerSheet);
   // Single source of truth for "which sheets do we render?" — every
   // downstream consumer (cards, sections, downloads, stats) uses this list.
@@ -514,6 +561,10 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
   });
 
   const userPipeline = isUserPipelineCdnBase(baseUrl);
+  const zipOpts = {
+    userPipeline: userPipeline && !outputS3Prefix,
+    outputPrefix: outputS3Prefix || "",
+  };
   const sheets = entries.map((e) => {
     const previewCandidates = sheetPreviewCandidates(
       baseUrl,
@@ -522,10 +573,12 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
       outputS3Prefix,
     );
     const n = Number(e.sheet_num);
-    const pdfUrl = techdrawSheetPdfViewUrl(designId, n, {
-      userPipeline,
-      outputPrefix: outputS3Prefix || "",
-    });
+    const pdfUrl = svgOnly
+      ? ""
+      : techdrawSheetPdfViewUrl(designId, n, {
+          userPipeline,
+          outputPrefix: outputS3Prefix || "",
+        });
     return {
       src: previewCandidates[0],
       previewCandidates,
@@ -534,7 +587,13 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     };
   });
 
-  const sheetDownloadRows = buildSheetDownloadRows(entries, baseUrl, designId);
+  const sheetDownloadRows = buildSheetDownloadRows(
+    entries,
+    baseUrl,
+    designId,
+    outputS3Prefix || "",
+    svgOnly,
+  );
 
   // Empty-state signal — render the failure notice instead of empty grids
   // when geometry had sheets but every one of them was filtered out by
@@ -542,11 +601,27 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
   const hasRenderableSheets = entries.length > 0;
   const wasFilteredEmpty = rawEntries.length > 0 && entries.length === 0;
 
+  const drawingDetails = buildDrawingDetailsProps({
+    designId,
+    designMeta,
+    viewSelectionResponse,
+    geometryEntries: entries,
+    dimensionSpecsMeta,
+    dimensionRejections,
+    gdtScheme,
+    drawingConfigPy,
+    fcstdDocumentXml,
+    drawingDetailsJson: bundle.drawingDetailsJson,
+  });
+
   return {
     designId,
     baseUrl,
     hasRenderableSheets,
     wasFilteredEmpty,
+    svgOnly,
+    libraryPriceVersion: Boolean(version || svgOnly),
+    drawingDetails,
     breadcrumbLinks: [
       { label: "Library", href: "/library" },
       { label: "2D Technical Drawings", href: "/library/2d-technical-drawings" },
@@ -563,29 +638,19 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     // Both library + user-pipeline pages CTA into the same upload flow.
     // (The legacy "/generate" route never existed and led to a 404.)
     generateHref: "/tools/cad-drawing-pipeline",
-    pdfHref: techdrawBundleZipUrl(designId, {
-      userPipeline: userPipeline && !outputS3Prefix,
-      outputPrefix: outputS3Prefix || "",
-      format: "pdf",
-    }),
-    freecadHref: userPipeline
-      ? `${baseUrl}/technical_drawing_simple.FCStd`
-      : techdrawFileApiUrl(designId, { file: "technical_drawing_simple.FCStd" }),
-    zipHref: techdrawBundleZipUrl(designId, {
-      userPipeline: userPipeline && !outputS3Prefix,
-      outputPrefix: outputS3Prefix || "",
-    }),
-    svgHref: techdrawBundleZipUrl(designId, {
-      userPipeline: userPipeline && !outputS3Prefix,
-      outputPrefix: outputS3Prefix || "",
-      format: "svg",
-    }),
-    dxfHref: techdrawBundleZipUrl(designId, {
-      userPipeline: userPipeline && !outputS3Prefix,
-      outputPrefix: outputS3Prefix || "",
-      format: "dxf",
-    }),
-    drawingInfo: buildDrawingInfo(entries, dimensionsResponse, viewSelectionResponse),
+    pdfHref: svgOnly
+      ? undefined
+      : techdrawBundleZipUrl(designId, { ...zipOpts, format: "pdf" }),
+    freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
+    zipHref: techdrawBundleZipUrl(designId, zipOpts),
+    svgHref: techdrawBundleZipUrl(designId, { ...zipOpts, format: "svg" }),
+    dxfHref: techdrawBundleZipUrl(designId, { ...zipOpts, format: "dxf" }),
+    drawingInfo: buildDrawingInfo(
+      entries,
+      dimensionsResponse,
+      viewSelectionResponse,
+      svgOnly,
+    ),
     // aiAnalysisSources: buildAiAnalysisSources(viewSelectionResponse, totalDimIds),
     viewCards: buildViewCards(entries, baseUrl, viewSelectionResponse, designId, outputS3Prefix),
     sectionDetailGroups: buildSectionDetailGroups(
@@ -598,7 +663,8 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     transparencyMetaStats: buildTransparencyMeta(
       entries,
       dimensionsResponse,
-      viewSelectionResponse /* , bomRows */
+      viewSelectionResponse /* , bomRows */,
+      svgOnly,
     ),
     transparencyIntroParagraphs: buildTransparencyIntro(),
   };

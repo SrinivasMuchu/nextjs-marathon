@@ -1,11 +1,12 @@
 import React from "react";
 import Link from "next/link";
-import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 import { PIPELINE_H1, PIPELINE_HERO_COPY } from "@/data/cadDrawingPipelinePage";
 import styles from "./CadDrawingPipeline.module.css";
 
-export default function CadDrawingPipelineHeroServer() {
-  const { baseLabel, perSetLabel } = getTechDrawPriceDisplay();
+export default function CadDrawingPipelineHeroServer({
+  baseLabel = "$4.99",
+  perSetLabel = "$4.99 per drawing set",
+}) {
   const heroStats = [
     { value: "9 sheets", label: "Per drawing set", accent: true },
     { value: "4 min", label: "Average processing time", accent: true },
