@@ -120,7 +120,13 @@ function LikesList() {
         )}
       </div>
 
-      <div className={styles.tableWrap} style={{width:"100%"}}>
+      {isLoading ? (
+        <div className={styles.loadingWrap}>
+          <Loading />
+        </div>
+      ) : (
+        <>
+      <div className={`${styles.tableWrap} ${styles.desktopTable}`} style={{width:"100%"}}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -129,12 +135,7 @@ function LikesList() {
               <th>Date</th>
             </tr>
           </thead>
-          {isLoading ? (
-            <div style={{ padding: 20, textAlign: 'center' }}>
-              <Loading />
-            </div>
-          ) : (
-            <tbody>
+          <tbody>
               {likes.length === 0 ? (
                 <tr>
                   <td colSpan={3} style={{ textAlign: 'center', padding: 20 }}>
@@ -172,11 +173,48 @@ function LikesList() {
                 })
               )}
             </tbody>
-          )}
         </table>
       </div>
+
+      <div className={styles.mobileCards}>
+        {likes.length === 0 ? (
+          <div className={styles.mobileEmpty}>
+            {searchTerm ? 'No likes found for your search' : 'No likes found'}
+          </div>
+        ) : (
+          likes.map((like) => {
+            const route = like.route
+            const href = route ? `/library/${encodeURIComponent(route)}` : null
+            const CardTag = href ? Link : 'div'
+            const cardProps = href
+              ? { href, className: styles.mobileCard, style: { textDecoration: 'none', color: 'inherit' } }
+              : { className: styles.mobileCard }
+            return (
+              <CardTag key={like._id} {...cardProps}>
+                <div className={styles.mobileCardHeader}>
+                  <h3 className={styles.mobileCardTitle}>{like.design_title || 'N/A'}</h3>
+                </div>
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>Liked By</span>
+                    <span className={styles.mobileCardValue}>{like.organization_name || 'N/A'}</span>
+                    {like.organization_email ? (
+                      <span className={styles.mobileCardSub}>{like.organization_email}</span>
+                    ) : null}
+                  </div>
+                  <div className={styles.mobileCardMeta}>
+                    <span className={styles.mobileCardDate}>Date: {formatDateTime(like.createdAt)}</span>
+                  </div>
+                </div>
+              </CardTag>
+            )
+          })
+        )}
+      </div>
+        </>
+      )}
       
-      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
+      <div className={styles.paginationWrap}>
         {totalPages > 1 && (
           <Pagenation
             currentPage={currentPage}

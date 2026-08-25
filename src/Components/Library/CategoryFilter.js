@@ -180,6 +180,7 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
         recency: sp.get('recency'),
         free_paid: sp.get('free_paid'),
         file_format: sp.get('file_format'),
+        output: sp.get('output'),
         two_dims: sp.get('two_dims'),
       });
       router.push(url);
@@ -203,6 +204,7 @@ const CategoryFilter = ({ allCategories, initialSelectedCategories, allTags, ini
         recency: sp.get('recency'),
         free_paid: sp.get('free_paid'),
         file_format: sp.get('file_format'),
+        output: sp.get('output'),
         two_dims: sp.get('two_dims'),
       });
       router.push(url);

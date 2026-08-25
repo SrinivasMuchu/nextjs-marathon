@@ -17,6 +17,7 @@ import {
   get2DLibraryPathWithQuery,
 } from '@/data/twoDLibraryPage';
 import { getLibraryClusterPath } from '@/api/libraryClustersApi';
+import { inferLibraryOutput } from '@/data/libraryOutput';
 
 function trackLibraryFilterTagClick({ tagValue, tagLabel, isClear, libraryListMode }) {
   sendGAtagEvent({
@@ -62,7 +63,7 @@ const PANEL_FILE_FORMATS_3D = [
 const SOLID_FORMATS = ['STEP', 'STP', 'IGES', 'IGS', 'BREP', 'BRP'];
 const MESH_FORMATS = ['STL', 'OBJ', 'PLY', 'OFF'];
 
-function deriveOutputType(twoDims, fileFormat, libraryListMode, outputFormat = '') {
+function deriveOutputType(twoDims, _fileFormat, libraryListMode, outputFormat = '', output = '') {
   if (libraryListMode === '2d') {
     const formats = (outputFormat || '')
       .split(',')
@@ -73,15 +74,8 @@ function deriveOutputType(twoDims, fileFormat, libraryListMode, outputFormat = '
     return '';
   }
 
-  if (['1', 'true', 'yes'].includes(String(twoDims || '').trim().toLowerCase())) {
-    return '2d';
-  }
-
-  const formats = (fileFormat || '').split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
-  if (!formats.length) return '';
-  if (formats.every((f) => SOLID_FORMATS.includes(f))) return 'solids';
-  if (formats.every((f) => MESH_FORMATS.includes(f))) return 'meshes';
-  return '';
+  /* 3D Output radios are independent of a single format chip (STEP ≠ Solids). */
+  return inferLibraryOutput({ output, file_format: '', two_dims: twoDims }) || '';
 }
 
 function formatsForOutputType(outputType, libraryListMode) {
@@ -91,9 +85,24 @@ function formatsForOutputType(outputType, libraryListMode) {
     return [];
   }
 
-  if (outputType === 'solids') return ['STEP', 'IGES', 'BREP'];
-  if (outputType === 'meshes') return ['STL', 'OBJ', 'PLY'];
+  if (outputType === 'solids') return SOLID_FORMATS;
+  if (outputType === 'meshes') return MESH_FORMATS;
   return [];
+}
+
+/** URL query for 3D Output + optional single format chip. Groups use ?output=, not file_format lists. */
+function resolve3dApplyQuery(outputType, selectedFormat) {
+  if (outputType === '2d') {
+    return { output: '2d', file_format: undefined, two_dims: undefined };
+  }
+
+  const selected = selectedFormat ? String(selectedFormat).trim().toUpperCase() : '';
+  const groupOutput = outputType === 'solids' || outputType === 'meshes' ? outputType : undefined;
+  return {
+    output: groupOutput,
+    file_format: selected || undefined,
+    two_dims: undefined,
+  };
 }
 
 const FREE_PAID_RADIO = [
@@ -123,11 +132,10 @@ function buildFiltersListUrl(libraryListMode, params) {
     if (queryParams.sort) searchParams.set('sort', queryParams.sort);
     if (queryParams.recency) searchParams.set('recency', queryParams.recency);
     if (queryParams.free_paid) searchParams.set('free_paid', queryParams.free_paid);
-    if (queryParams.file_format) searchParams.set('file_format', queryParams.file_format);
+    if (queryParams.output) searchParams.set('output', queryParams.output);
+    if (queryParams.file_format && !queryParams.output) searchParams.set('file_format', queryParams.file_format);
     if (queryParams.output_format) searchParams.set('output_format', queryParams.output_format);
     if (queryParams.projection) searchParams.set('projection', queryParams.projection);
-    const td = String(queryParams.two_dims || '').trim().toLowerCase();
-    if (td === '1' || td === 'true' || td === 'yes') searchParams.set('two_dims', '1');
     const qs = searchParams.toString();
     return qs ? `${path}?${qs}` : path;
   }
@@ -148,6 +156,7 @@ export default function LibraryFilters({
   initialRecency,
   initialFreePaid,
   initialFileFormat,
+  initialOutput = '',
   initialTwoDims = '',
   libraryListMode = '3d',
   resetListHref = '/library',
@@ -196,7 +205,7 @@ export default function LibraryFilters({
   const [localClusterId, setLocalClusterId] = useState(initialClusterId || '');
   const [localClusterSlug, setLocalClusterSlug] = useState(initialClusterSlug || '');
   const [localOutputType, setLocalOutputType] = useState(() =>
-    deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat)
+    deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat, initialOutput)
   );
   const prevSheetOpenRef = React.useRef(false);
   const prevPanelOpenRef = React.useRef(false);
@@ -227,12 +236,12 @@ export default function LibraryFilters({
       setLocalClusterId(initialClusterId || '');
       setLocalClusterSlug(initialClusterSlug || '');
       setLocalOutputType(
-        deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat)
+        deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat, initialOutput)
       );
     }
     prevSheetOpenRef.current = !!sheetOpen;
     prevPanelOpenRef.current = !!panelOpen;
-  }, [inSheet, sheetOpen, variant, panelOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialTwoDims, initialOutputFormat, initialProjection, initialClusterId, initialClusterSlug, category, tags, libraryListMode]);
+  }, [inSheet, sheetOpen, variant, panelOpen, initialSearchQuery, initialSort, initialRecency, initialFreePaid, initialFileFormat, initialOutput, initialTwoDims, initialOutputFormat, initialProjection, initialClusterId, initialClusterSlug, category, tags, libraryListMode]);
 
   const tagSearch = typeof onTagSearchChange === 'function' ? (tagSearchProp ?? '') : tagSearchLocal;
   const setTagSearch = typeof onTagSearchChange === 'function' ? onTagSearchChange : setTagSearchLocal;
@@ -249,6 +258,7 @@ export default function LibraryFilters({
       recency: initialRecency,
       free_paid: initialFreePaid,
       file_format: initialFileFormat,
+      output: initialOutput,
       two_dims: initialTwoDims,
       output_format: initialOutputFormat,
       projection: initialProjection,
@@ -266,6 +276,7 @@ export default function LibraryFilters({
     initialRecency,
     initialFreePaid,
     initialFileFormat,
+    initialOutput,
     initialTwoDims,
     initialOutputFormat,
     initialProjection,
@@ -276,7 +287,7 @@ export default function LibraryFilters({
 
   const buildLibraryUrl = buildListUrl;
 
-  /* File format is single-select only (SEO: multi-format URLs return 410). */
+  /* File format is single-select only (canonical path: /library/file-format/{slug}). */
   const selectedFormats = (() => {
     const raw = isDeferredApply
       ? localFormats
@@ -296,32 +307,31 @@ export default function LibraryFilters({
   const displayProjection = isDeferredApply ? localProjection : initialProjection;
   const displayOutputType = isDeferredApply
     ? localOutputType
-    : deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat);
+    : deriveOutputType(initialTwoDims, initialFileFormat, libraryListMode, initialOutputFormat, initialOutput);
 
   /* URL for Apply Filters – navigated via button (not crawlable <a href>) */
   const applyFiltersUrl = useMemo(
-    () =>
-      buildFiltersListUrl(libraryListMode, {
+    () => {
+      const threeD = libraryListMode === '3d'
+        ? resolve3dApplyQuery(localOutputType, localFormats[0])
+        : {};
+      return buildFiltersListUrl(libraryListMode, {
         categoryName: (localCategory || category) || null,
         tagName: localTag || null,
         search: (localSearch || '').trim() || undefined,
         sort: localSort || undefined,
         recency: localRecency || undefined,
         free_paid: localFreePaid || undefined,
-        file_format:
-          libraryListMode === '2d'
-            ? undefined
-            : localFormats[0] || undefined,
+        file_format: libraryListMode === '2d' ? undefined : threeD.file_format,
+        output: libraryListMode === '2d' ? undefined : threeD.output,
         output_format: undefined,
         projection: libraryListMode === '2d' ? undefined : localProjection || undefined,
         cluster_id: localClusterId || undefined,
         cluster_slug: localClusterSlug || undefined,
-        two_dims:
-          libraryListMode === '3d' && localOutputType === '2d'
-            ? '1'
-            : undefined,
+        two_dims: undefined,
         page: 1,
-      }),
+      });
+    },
     [
       category,
       localCategory,
@@ -377,7 +387,11 @@ export default function LibraryFilters({
       setLocalFormats(next);
       return;
     }
-    router.push(buildLibraryUrl({ file_format: next[0] || undefined }));
+    router.push(buildLibraryUrl({
+      file_format: next[0] || undefined,
+      output: undefined,
+      two_dims: undefined,
+    }));
   };
 
   const toggleOutputFormat = (formatValue, checked) => {
@@ -390,31 +404,28 @@ export default function LibraryFilters({
     router.push(buildLibraryUrl({ output_format: next.length ? next.join(',') : undefined }));
   };
 
-  const resolvedApplyFormat = useMemo(() => {
-    if (localFormats[0]) return localFormats[0];
-    return '';
-  }, [localFormats]);
-
   const panelApplyUrl = useMemo(
-    () =>
-      buildFiltersListUrl(libraryListMode, {
+    () => {
+      const threeD = libraryListMode === '3d'
+        ? resolve3dApplyQuery(localOutputType, localFormats[0])
+        : {};
+      return buildFiltersListUrl(libraryListMode, {
         categoryName: (localCategory || category) || null,
         tagName: localTag || null,
         search: (localSearch || '').trim() || undefined,
         sort: localSort || undefined,
         recency: localRecency || undefined,
         free_paid: localFreePaid || undefined,
-        file_format:
-          libraryListMode === '3d' && resolvedApplyFormat
-            ? resolvedApplyFormat
-            : undefined,
+        file_format: libraryListMode === '3d' ? threeD.file_format : undefined,
+        output: libraryListMode === '3d' ? threeD.output : undefined,
         output_format: undefined,
         projection: libraryListMode === '2d' ? undefined : localProjection || undefined,
         cluster_id: localClusterId || undefined,
         cluster_slug: localClusterSlug || undefined,
-        two_dims: libraryListMode === '3d' && localOutputType === '2d' ? '1' : undefined,
+        two_dims: undefined,
         page: 1,
-      }),
+      });
+    },
     [
       category,
       localCategory,
@@ -423,7 +434,7 @@ export default function LibraryFilters({
       localSort,
       localRecency,
       localFreePaid,
-      resolvedApplyFormat,
+      localFormats,
       localOutputFormats,
       localProjection,
       localClusterId,
@@ -436,16 +447,12 @@ export default function LibraryFilters({
   const handleOutputTypeChange = (value) => {
     setLocalOutputType(value);
     if (libraryListMode === '2d') {
-      const nextFormats = formatsForOutputType(value, libraryListMode);
-      setLocalOutputFormats(nextFormats);
+      setLocalOutputFormats(formatsForOutputType(value, libraryListMode));
       return;
     }
-    /* 3D: output type is a UI hint only; keep a single file format (or clear if incompatible). */
-    const allowed = formatsForOutputType(value, libraryListMode);
-    if (!value) {
-      return;
-    }
-    if (allowed.length && localFormats[0] && !allowed.includes(localFormats[0])) {
+
+    /* 3D Output and File format chips are independent. 2D drawings clear 3D formats. */
+    if (value === '2d') {
       setLocalFormats([]);
     }
   };
@@ -543,11 +550,6 @@ export default function LibraryFilters({
                             return;
                           }
                           toggleFileFormat(value, !isActive);
-                          if (!isActive) {
-                            setLocalOutputType(
-                              deriveOutputType(undefined, value, libraryListMode)
-                            );
-                          }
                         }}
                       >
                         {label}

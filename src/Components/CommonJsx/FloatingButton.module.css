@@ -194,3 +194,13 @@
     white-space: normal;
   }
 }
+
+@media (max-width: 768px) {
+  :global(body.dashboard-mobile-app) .wrap {
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+:global(body.mobile-nav-open) .wrap {
+  display: none !important;
+}

@@ -7,6 +7,7 @@ export function hasLibraryNarrowingFilters({
   recency,
   free_paid,
   file_format,
+  output,
   two_dims,
   cluster_id,
 }) {
@@ -17,6 +18,7 @@ export function hasLibraryNarrowingFilters({
       (recency && String(recency).trim()) ||
       (free_paid && String(free_paid).trim()) ||
       (file_format && String(file_format).trim()) ||
+      (output && String(output).trim()) ||
       ['1', 'true', 'yes'].includes(String(two_dims || '').trim().toLowerCase()) ||
       (cluster_id && String(cluster_id).trim())
   );

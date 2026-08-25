@@ -95,4 +95,12 @@
   .fieldFull {
     grid-column: auto;
   }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .actions button {
+    width: 100%;
+  }
 }
