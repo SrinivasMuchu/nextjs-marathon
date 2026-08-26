@@ -162,10 +162,18 @@ function ConverterDownloadFlow({
           postalCode: saved.postal_code || "",
           country: saved.country || "",
         });
-        setStep("review");
       } else {
-        setStep("billing");
+        setSelectedAddress(null);
+        setForm({
+          fullName: user?.name || "",
+          address: "",
+          city: "",
+          postalCode: "",
+          country: "",
+        });
       }
+      // Always show checkout summary first; address form is next for first-time users.
+      setStep("review");
     });
 
     return () => {
@@ -189,6 +197,14 @@ function ConverterDownloadFlow({
         city: selectedAddress.city || "",
         postalCode: selectedAddress.postal_code || "",
         country: selectedAddress.country || "",
+      });
+    } else {
+      setForm({
+        fullName: user?.name || "",
+        address: "",
+        city: "",
+        postalCode: "",
+        country: "",
       });
     }
     setError("");
@@ -403,10 +419,18 @@ function ConverterDownloadFlow({
             </div>
             {error && <p className={styles.error}>{error}</p>}
             <button type="submit" className={styles.primaryButton} disabled={saving}>
-              {saving ? "Saving…" : "Save & continue to payment →"}
+              {saving
+                ? "Saving…"
+                : selectedAddress
+                  ? "Save & continue to payment →"
+                  : "Save address & continue →"}
             </button>
           </form>
-          <small className={styles.secureNote}>Saved securely — future checkouts skip this step entirely.</small>
+          <small className={styles.secureNote}>
+            {selectedAddress
+              ? "Saved securely — future checkouts skip this step entirely."
+              : "Needed once for your tax invoice — we will remember it for next time."}
+          </small>
         </div>
       </PopupWrapper>
     );
@@ -417,6 +441,7 @@ function ConverterDownloadFlow({
   const defaultPayLabel = isProduct
     ? `Pay ${pricingDisplay.totalLabel} & continue →`
     : `Pay ${pricingDisplay.totalLabel} & download →`;
+  const hasAddress = Boolean(selectedAddress?._id);
 
   return (
     <PopupWrapper>
@@ -433,16 +458,44 @@ function ConverterDownloadFlow({
 
         <div className={styles.billingHeading}>
           <span>Billing for your tax invoice</span>
-          <button type="button" onClick={openBillingForm}>Change</button>
+          {hasAddress ? (
+            <button type="button" onClick={openBillingForm}>Change</button>
+          ) : null}
         </div>
-        <div className={styles.selectedAddress}>
-          <span>✓</span>
-          <p>{selectedAddress?.name} · {formatAddress(selectedAddress)}</p>
-        </div>
-        <p className={styles.savedNote}>Saved from your last purchase — we&apos;ll reuse it unless you change it.</p>
+
+        {hasAddress ? (
+          <>
+            <div className={styles.selectedAddress}>
+              <span>✓</span>
+              <p>{selectedAddress?.name} · {formatAddress(selectedAddress)}</p>
+            </div>
+            <p className={styles.savedNote}>
+              Saved from your last purchase — we&apos;ll reuse it unless you change it.
+            </p>
+          </>
+        ) : (
+          <div className={styles.missingAddress}>
+            <p className={styles.missingAddressText}>
+              Add a billing address once for your tax invoice. We&apos;ll remember it for next time.
+            </p>
+            <button type="button" className={styles.secondaryButton} onClick={openBillingForm}>
+              Add billing address
+            </button>
+          </div>
+        )}
+
         {error && <p className={styles.error}>{error}</p>}
-        <button type="button" className={styles.primaryButton} onClick={handlePayment} disabled={paying}>
-          {paying ? "Opening secure payment…" : (payButtonLabel || defaultPayLabel)}
+        <button
+          type="button"
+          className={styles.primaryButton}
+          onClick={hasAddress ? handlePayment : openBillingForm}
+          disabled={paying}
+        >
+          {paying
+            ? "Opening secure payment…"
+            : hasAddress
+              ? (payButtonLabel || defaultPayLabel)
+              : "Add address & continue →"}
         </button>
         <div className={styles.paymentTrust}>
           <span>🔒 Secured by<br /><strong>Razorpay</strong></span>
