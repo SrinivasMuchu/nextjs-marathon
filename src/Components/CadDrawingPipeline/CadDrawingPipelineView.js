@@ -103,7 +103,7 @@ export default function CadDrawingPipelineView() {
   const catalogPrices = useTechDrawPriceDisplay();
   const prices = useMemo(() => {
     if (eligibility?.price != null && Number.isFinite(Number(eligibility.price))) {
-      return getTechDrawPriceDisplay(eligibility.price);
+      return getTechDrawPriceDisplay(eligibility.price, eligibility.price_with_gst);
     }
     return catalogPrices;
   }, [eligibility, catalogPrices]);
@@ -598,8 +598,7 @@ export default function CadDrawingPipelineView() {
 
               {needsPaidFlow ? (
                 <p className={styles.uploadPhaseHint} style={{ marginTop: 16 }}>
-                  You will pay <strong>{prices.baseLabel}</strong> + tax ({prices.totalLabel}) before
-                  your file uploads.
+                  You will pay <strong>{prices.totalLabel}</strong> (incl. GST) before your file uploads.
                 </p>
               ) : null}
 
@@ -618,7 +617,7 @@ export default function CadDrawingPipelineView() {
                   <>AI service unavailable</>
                 ) : needsPaidFlow ? (
                   <>
-                    Pay {prices.baseLabel} &amp; generate drawings
+                    Pay {prices.totalLabel} &amp; generate drawings
                     <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
                   </>
                 ) : (
@@ -641,7 +640,7 @@ export default function CadDrawingPipelineView() {
               <div className={styles.pipelineCtaMeta}>
                 <span className={styles.pipelineCtaMetaItem}>
                   <span className={styles.pipelineCtaMetaDot} aria-hidden />
-                  {prices.baseLabel} per drawing set
+                  {prices.totalLabel} per drawing set incl. GST
                 </span>
                 <span className={styles.pipelineCtaMetaItem}>
                   <span className={styles.pipelineCtaMetaDot} aria-hidden />

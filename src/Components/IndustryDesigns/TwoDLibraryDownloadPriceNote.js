@@ -26,10 +26,14 @@ export default function TwoDLibraryDownloadPriceNote({ version = false }) {
 
   if (!label) return null;
 
+  const isFree = String(label).toLowerCase().includes("free");
+
   return (
     <p className={styles.downloadPriceNote}>
       Drawing set download · <strong>{label}</strong>
-      <span className={styles.downloadPriceHint}> incl. GST</span>
+      {!isFree ? (
+        <span className={styles.downloadPriceHint}> incl. GST</span>
+      ) : null}
     </p>
   );
 }

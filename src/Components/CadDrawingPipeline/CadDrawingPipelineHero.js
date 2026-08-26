@@ -19,7 +19,7 @@ export default function CadDrawingPipelineHero({
   onGenerateClick,
 }) {
   const prices = useTechDrawPriceDisplay();
-  const priceShort = priceShortProp || prices.baseLabel;
+  const priceShort = priceShortProp || prices.totalLabel;
   const generateLabel = ctaLabel || `Generate My Drawing — ${priceShort}`;
 
   return (

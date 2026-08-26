@@ -73,8 +73,8 @@ export default function TwoDDrawingCtaBanner({
           </div>
         </div>
         <div className={styles.right}>
-          <div className={styles.priceBig}>{prices.baseLabel}</div>
-          <div className={styles.priceSub}>{priceSubtext}</div>
+          <div className={styles.priceBig}>{prices.totalLabel}</div>
+          <div className={styles.priceSub}>{priceSubtext} incl. GST</div>
           <div className={styles.timeBadge}>
             <div className={styles.timeVal}>{turnaround}</div>
             <div className={styles.timeKey}>{turnaroundLabel}</div>

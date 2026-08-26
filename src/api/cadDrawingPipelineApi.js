@@ -15,7 +15,8 @@ const TECHDRAW_GST_RATE = 0.18;
 /** Display price for TechDraw (base USD; server may add tax at checkout). */
 export function formatTechDrawPrice(amount, currency = "USD") {
   const n = Number(amount);
-  if (!Number.isFinite(n) || n <= 0) return "";
+  if (!Number.isFinite(n) || n < 0) return "";
+  if (n === 0) return "Free";
   try {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -28,21 +29,36 @@ export function formatTechDrawPrice(amount, currency = "USD") {
 
 /**
  * Normalized labels for banners, buttons, and Razorpay copy.
- * Pass admin `techdraw_upload_price` (base) when known — do not hardcode page copy.
+ * Customer-facing labels use GST-inclusive totals (same as 2D library checkout).
  */
-export function getTechDrawPriceDisplay(basePrice = TECHDRAW_BASE_PRICE_USD) {
+export function getTechDrawPriceDisplay(basePrice = TECHDRAW_BASE_PRICE_USD, totalWithGst = null) {
   const currency = "USD";
   const parsed = Number(basePrice);
   const base =
     Number.isFinite(parsed) && parsed >= 0 ? parsed : TECHDRAW_BASE_PRICE_USD;
-  const total = Math.round(base * (1 + TECHDRAW_GST_RATE) * 100) / 100;
+  if (base === 0) {
+    return {
+      base: 0,
+      total: 0,
+      currency,
+      baseLabel: "Free",
+      totalLabel: "Free",
+      perSetLabel: "Free per drawing set",
+    };
+  }
+  const parsedTotal = Number(totalWithGst);
+  const total =
+    Number.isFinite(parsedTotal) && parsedTotal >= 0
+      ? Math.round(parsedTotal * 100) / 100
+      : Math.round(base * (1 + TECHDRAW_GST_RATE) * 100) / 100;
+  const totalLabel = formatTechDrawPrice(total, currency);
   return {
     base,
     total,
     currency,
     baseLabel: formatTechDrawPrice(base, currency),
-    totalLabel: formatTechDrawPrice(total, currency),
-    perSetLabel: `${formatTechDrawPrice(base, currency)} per drawing set`,
+    totalLabel,
+    perSetLabel: `${totalLabel} per drawing set`,
   };
 }
 
@@ -74,7 +90,13 @@ export async function fetchTechDrawPricingInfo() {
 export async function fetchTechDrawPriceDisplay() {
   try {
     const info = await fetchTechDrawPricingInfo();
-    return getTechDrawPriceDisplay(info?.price ?? info?.base_price);
+    if (info?.techdraw_upload_free || Number(info?.price) === 0) {
+      return getTechDrawPriceDisplay(0);
+    }
+    return getTechDrawPriceDisplay(
+      info?.price ?? info?.base_price,
+      info?.price_with_gst,
+    );
   } catch (err) {
     if (typeof console !== "undefined") {
       console.warn("[techdraw] pricing-info failed, using fallback:", err?.message || err);

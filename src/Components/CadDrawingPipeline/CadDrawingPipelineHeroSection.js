@@ -12,14 +12,14 @@ export default function CadDrawingPipelineHeroSection({
   initialPrices,
 }) {
   const prices = useTechDrawPriceDisplay(initialPrices);
-  const priceLabel = priceLabelProp || prices.baseLabel;
+  const priceLabel = priceLabelProp || prices.totalLabel;
 
   const valuePills = [
     {
       id: "price",
       icon: "$",
       iconType: "text",
-      label: `${priceLabel} per drawing set`,
+      label: `${priceLabel} per drawing set incl. GST`,
     },
     { id: "eta", icon: Clock, iconType: "lucide", label: "Ready in under 4 minutes" },
     {

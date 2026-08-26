@@ -32,7 +32,7 @@ const BENEFITS = [
 ];
 
 export default function CadDrawingPipelinePaidCta({ initialPrices }) {
-  const { baseLabel, perSetLabel } = useTechDrawPriceDisplay(initialPrices);
+  const { totalLabel, perSetLabel } = useTechDrawPriceDisplay(initialPrices);
 
   const scrollToUpload = useCallback(() => {
     const el = document.getElementById("cad-pipeline-upload");
@@ -49,8 +49,8 @@ export default function CadDrawingPipelinePaidCta({ initialPrices }) {
       <div className={styles.paidCtaCard}>
         <div className={styles.paidCtaLeft}>
           <p className={styles.paidCtaPrice}>
-            <span className={styles.paidCtaPriceAmount}>{baseLabel}</span>
-            <span className={styles.paidCtaPriceUnit}>/ drawing set</span>
+            <span className={styles.paidCtaPriceAmount}>{totalLabel}</span>
+            <span className={styles.paidCtaPriceUnit}>/ drawing set incl. GST</span>
           </p>
           <h3 className={styles.paidCtaProductTitle}>2D Technical Drawing Pipeline</h3>
           <p className={styles.paidCtaProductDesc}>
@@ -81,7 +81,7 @@ export default function CadDrawingPipelinePaidCta({ initialPrices }) {
 
           <button type="button" className={styles.paidCtaButton} onClick={scrollToUpload}>
             <span aria-hidden>📁</span>
-            Generate my 2D drawing — {baseLabel}
+            Generate my 2D drawing — {totalLabel}
           </button>
           <p className={styles.paidCtaFootnote}>
             Secure upload · Results in &lt;4 min · No subscription required

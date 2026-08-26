@@ -41,7 +41,7 @@ function PipelineSectionFallback() {
 
 export default async function CadDrawingPipelinePage() {
   const prices = await fetchTechDrawPriceDisplay();
-  const priceAmount = Number(prices.base).toFixed(2);
+  const priceAmount = Number(prices.total).toFixed(2);
 
   return (
     <>
@@ -59,7 +59,7 @@ export default async function CadDrawingPipelinePage() {
       <TechDrawPageViewTracker pageType="upload" />
       <div className={styles.root}>
         <CadDrawingPipelineHeroSection
-          priceLabel={prices.baseLabel}
+          priceLabel={prices.totalLabel}
           initialPrices={prices}
         >
           <Suspense fallback={<PipelineSectionFallback />}>
@@ -77,7 +77,7 @@ export default async function CadDrawingPipelinePage() {
           <CadDrawingPipelineOutputFormats />
           <CadDrawingPipelineTransparency />
           <CadDrawingPipelinePaidCta initialPrices={prices} />
-          <CadDrawingPipelineFaq priceLabel={prices.baseLabel} />
+          <CadDrawingPipelineFaq priceLabel={prices.totalLabel} />
           <CadDrawingPipelineInternalLinks />
         </div>
 

@@ -4,13 +4,13 @@ import { PIPELINE_H1, PIPELINE_HERO_COPY } from "@/data/cadDrawingPipelinePage";
 import styles from "./CadDrawingPipeline.module.css";
 
 export default function CadDrawingPipelineHeroServer({
-  baseLabel = "$4.99",
-  perSetLabel = "$4.99 per drawing set",
+  totalLabel = "$5.89",
+  perSetLabel = "$5.89 per drawing set incl. GST",
 }) {
   const heroStats = [
     { value: "9 sheets", label: "Per drawing set", accent: true },
     { value: "4 min", label: "Average processing time", accent: true },
-    { value: baseLabel, label: "Per drawing set", accent: true },
+    { value: totalLabel, label: "Per drawing set incl. GST", accent: true },
     { value: "4 formats", label: "PDF · SVG · DXF · PNG", accent: true },
   ];
 
@@ -31,7 +31,7 @@ export default function CadDrawingPipelineHeroServer({
         <div className={styles.heroActions}>
           <Link href="#cad-pipeline-upload" className={styles.heroCtaPrimary}>
             <span aria-hidden>⚡</span>
-            Generate My Drawing — {baseLabel}
+            Generate My Drawing — {totalLabel}
           </Link>
           <Link href="/library/2d-technical-drawings" className={styles.heroCtaSecondary}>
             Browse 2D technical drawings
