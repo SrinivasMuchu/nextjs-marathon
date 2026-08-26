@@ -25,9 +25,9 @@ function previewErrorHandler(sheet) {
   };
 }
 
-export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
+export default function TwoDDrawingSheetViewerClient({ sheets = [], svgOnly = false }) {
   const [cur, setCur] = useState(0);
-  const [viewMode, setViewMode] = useState("pdf");
+  const [viewMode, setViewMode] = useState(svgOnly ? "svg" : "pdf");
   const safeSheets = sheets.length ? sheets : [{ src: "", label: "Sheet 1" }];
   const total = safeSheets.length;
 
@@ -46,6 +46,7 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
   );
 
   const active = safeSheets[cur];
+  const effectiveMode = svgOnly ? "svg" : viewMode;
 
   return (
     <div className={styles.viewer}>
@@ -57,26 +58,39 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
           Preview · 2D Drawing Sheets
         </div>
         <div className={styles.viewerBarRight}>
-          <div className={styles.modeSwitch} role="tablist" aria-label="Preview mode">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === "pdf"}
-              className={`${styles.modeBtn} ${viewMode === "pdf" ? styles.modeBtnActive : ""}`}
-              onClick={() => setViewMode("pdf")}
-            >
-              PDF
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === "svg"}
-              className={`${styles.modeBtn} ${viewMode === "svg" ? styles.modeBtnActive : ""}`}
-              onClick={() => setViewMode("svg")}
-            >
-              SVG
-            </button>
-          </div>
+          {!svgOnly ? (
+            <div className={styles.modeSwitch} role="tablist" aria-label="Preview mode">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={viewMode === "pdf"}
+                className={`${styles.modeBtn} ${viewMode === "pdf" ? styles.modeBtnActive : ""}`}
+                onClick={() => setViewMode("pdf")}
+              >
+                PDF
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={viewMode === "svg"}
+                className={`${styles.modeBtn} ${viewMode === "svg" ? styles.modeBtnActive : ""}`}
+                onClick={() => setViewMode("svg")}
+              >
+                SVG
+              </button>
+            </div>
+          ) : (
+            <div className={styles.modeSwitch} role="tablist" aria-label="Preview mode">
+              <button
+                type="button"
+                role="tab"
+                aria-selected
+                className={`${styles.modeBtn} ${styles.modeBtnActive}`}
+              >
+                SVG
+              </button>
+            </div>
+          )}
           <span className={styles.counter} aria-live="polite">
             {cur + 1} / {total}
           </span>
@@ -108,7 +122,7 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [] }) {
       </div>
 
       <div className={styles.stage}>
-        {viewMode === "pdf" && active?.pdfUrl ? (
+        {effectiveMode === "pdf" && active?.pdfUrl ? (
           <iframe
             key={`pdf-${cur}`}
             className={styles.stagePdf}

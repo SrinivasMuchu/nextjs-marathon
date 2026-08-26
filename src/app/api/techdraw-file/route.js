@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { resolveTechDrawCdnRoot } from "@/lib/techDraw/techDrawCdnRoots";
+import {
+  assertTwoDLibraryDownloadAccess,
+  isGatedLibraryDownload,
+} from "@/lib/techDraw/libraryDownloadAccess";
 
 const DESIGN_ID_RE = /^[a-f0-9]{24}$/;
 
@@ -15,6 +19,7 @@ function mimeFor(ext) {
   if (ext === "svg") return "image/svg+xml; charset=utf-8";
   if (ext === "dxf") return "application/dxf";
   if (ext === "pdf") return "application/pdf";
+  if (ext === "fcstd") return "application/octet-stream";
   return "application/octet-stream";
 }
 
@@ -88,15 +93,30 @@ export async function GET(request) {
   }
 
   if (file) {
-    if (!file.toLowerCase().endsWith(".pdf")) {
+    const lower = file.toLowerCase();
+    if (!lower.endsWith(".pdf") && !lower.endsWith(".fcstd")) {
       return NextResponse.json({ error: "invalid file" }, { status: 400 });
     }
   } else {
     if (!Number.isInteger(sheet) || sheet < 1) {
       return NextResponse.json({ error: "invalid sheet" }, { status: 400 });
     }
-    if (!["svg", "dxf", "pdf"].includes(ext)) {
+    if (!["svg", "dxf", "pdf", "fcstd"].includes(ext)) {
       return NextResponse.json({ error: "invalid ext" }, { status: 400 });
+    }
+  }
+
+  const gated = isGatedLibraryDownload({
+    source,
+    prefix,
+    ext: file ? file.split(".").pop() : ext,
+    disposition: dispositionParam,
+    file,
+  });
+  if (gated) {
+    const access = await assertTwoDLibraryDownloadAccess(request, designId);
+    if (!access.ok) {
+      return NextResponse.json({ error: access.message || "payment required" }, { status: access.status || 401 });
     }
   }
 
@@ -111,8 +131,10 @@ export async function GET(request) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
 
-  const resolvedExt = file ? "pdf" : ext;
-  const inline = dispositionParam !== "attachment";
+  const resolvedExt = file
+    ? String(file).split(".").pop().toLowerCase()
+    : ext;
+  const inline = dispositionParam !== "attachment" && resolvedExt !== "fcstd";
   const body = await hit.upstream.arrayBuffer();
 
   return new NextResponse(body, {
@@ -120,7 +142,7 @@ export async function GET(request) {
     headers: {
       "Content-Type": mimeFor(resolvedExt),
       "Content-Disposition": inline ? "inline" : `attachment; filename="${file || `sheet_${sheet}.${resolvedExt}`}"`,
-      "Cache-Control": "public, max-age=120, s-maxage=120",
+      "Cache-Control": gated ? "no-store" : "public, max-age=120, s-maxage=120",
     },
   });
 }

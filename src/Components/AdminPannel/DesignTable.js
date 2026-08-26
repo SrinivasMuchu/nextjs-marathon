@@ -146,7 +146,13 @@ function DesignTable() {
         )}
       </div>
 
-      <div className={styles.tableWrap}>
+      {isLoading ? (
+        <div className={styles.loadingWrap}>
+          <Loading />
+        </div>
+      ) : (
+        <>
+      <div className={`${styles.tableWrap} ${styles.desktopTable}`}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -157,12 +163,7 @@ function DesignTable() {
               <th>Uploaded date</th>
             </tr>
           </thead>
-          {isLoading ? (
-            <div style={{ padding: 20, textAlign: 'center' }}>
-              <Loading />
-            </div>
-          ) : (
-            <tbody>
+          <tbody>
               {cadDesigns.length === 0 ? (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center', padding: 20 }}>
@@ -197,11 +198,46 @@ function DesignTable() {
                 })
               )}
             </tbody>
-          )}
         </table>
       </div>
+
+      <div className={styles.mobileCards}>
+        {cadDesigns.length === 0 ? (
+          <div className={styles.mobileEmpty}>
+            {searchTerm ? 'No designs found for your search' : 'No designs found'}
+          </div>
+        ) : (
+          cadDesigns.map((d) => {
+            const route = d.route || d.page_title
+            const href = `/admin/${encodeURIComponent(route)}`
+            return (
+              <Link key={d._id} href={href} className={styles.mobileCard} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className={styles.mobileCardHeader}>
+                  <h3 className={styles.mobileCardTitle}>{d.page_title || 'Design'}</h3>
+                </div>
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>Owner</span>
+                    <span className={styles.mobileCardValue}>{d.fullName || '—'}</span>
+                  </div>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>ID</span>
+                    <span className={styles.mobileCardValue}>{d._id}</span>
+                  </div>
+                  <div className={styles.mobileCardMeta}>
+                    <span className={statusBadge(d.status || 'In Review')}>{d.status || 'In Review'}</span>
+                    <span className={styles.mobileCardDate}>Date: {formatDate(d.createdAt)}</span>
+                  </div>
+                </div>
+              </Link>
+            )
+          })
+        )}
+      </div>
+        </>
+      )}
       
-      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
+      <div className={styles.paginationWrap}>
         {totalPages > 1 && (
           <Pagenation
             currentPage={currentPage}

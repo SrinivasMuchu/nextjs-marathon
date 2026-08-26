@@ -2,9 +2,20 @@ import { DESIGN_GLB_PREFIX_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
 
 const CDN = DESIGN_GLB_PREFIX_URL.replace(/\/$/, "");
 const LIBRARY = TECH_DRAW_LIBRARY_PREFIX.replace(/\/$/, "");
+const TECHDRAW_V2_FOLDER = "techdraw-v2";
 
 export function libraryCdnRoot(designId) {
   return `${LIBRARY}/${String(designId || "").trim()}`;
+}
+
+/** New FreeCAD library batch outputs (Mongo version: true). */
+export function techdrawV2CdnRoot(designId) {
+  const id = String(designId || "").trim();
+  return `${CDN}/${TECHDRAW_V2_FOLDER}/${id}`;
+}
+
+export function techdrawV2Prefix(designId) {
+  return `${TECHDRAW_V2_FOLDER}/${String(designId || "").trim()}`;
 }
 
 /** Legacy pipeline folder layout (older jobs). */
@@ -19,8 +30,36 @@ export function prefixCdnRoot(outputS3Prefix) {
   return `${CDN}/${prefix}`;
 }
 
+/**
+ * Library 2D drawings: use techdraw-v2 when version is true (or an explicit
+ * output_s3_prefix is set); otherwise legacy 2d-technical-drawings/{id}.
+ *
+ * @param {{ designId: string, version?: boolean, outputS3Prefix?: string, asPrefixOnly?: boolean }} opts
+ * @returns {string} full CDN URL, or S3 key prefix when asPrefixOnly
+ */
+export function resolveLibraryTechDrawRoot({
+  designId,
+  version = false,
+  outputS3Prefix = "",
+  asPrefixOnly = false,
+} = {}) {
+  const id = String(designId || "").trim();
+  const explicit = String(outputS3Prefix || "")
+    .trim()
+    .replace(/^\//, "")
+    .replace(/\/$/, "");
+  if (explicit) {
+    return asPrefixOnly ? explicit : prefixCdnRoot(explicit);
+  }
+  if (version && id) {
+    return asPrefixOnly ? techdrawV2Prefix(id) : techdrawV2CdnRoot(id);
+  }
+  return asPrefixOnly ? "" : libraryCdnRoot(id);
+}
+
 export function isLibraryCdnBase(baseUrl) {
-  return String(baseUrl || "").includes(LIBRARY);
+  const b = String(baseUrl || "");
+  return b.includes(LIBRARY) || b.includes(`/${TECHDRAW_V2_FOLDER}/`);
 }
 
 /** Any user-upload pipeline output on the design-glb CDN (not the public library). */

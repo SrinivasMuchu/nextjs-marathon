@@ -8,12 +8,10 @@ import CadDrawingPipelineTransparency from "@/Components/CadDrawingPipeline/CadD
 import CadDrawingPipelineHowItWorks from "@/Components/CadDrawingPipeline/CadDrawingPipelineHowItWorks";
 import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawingPipelineProcess";
 import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
-import CadDrawingPipelineHeroServer from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroServer";
 import CadDrawingPipelineInfoSections from "@/Components/CadDrawingPipeline/CadDrawingPipelineInfoSections";
 import CadDrawingPipelineInternalLinks from "@/Components/CadDrawingPipeline/CadDrawingPipelineInternalLinks";
 import ToolPageJsonLd from "@/Components/JsonLdSchemas/ToolPageJsonLd";
 import CadDrawingPipelineHeroSection from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroSection";
-import SoftwareApplicationJsonLd from "@/Components/JsonLdSchemas/SoftwareApplicationJsonLd";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
 import TechDrawPageViewTracker from "@/Components/CadDrawingPipeline/TechDrawPageViewTracker";
@@ -22,9 +20,14 @@ import {
   PIPELINE_PAGE_DESCRIPTION,
   PIPELINE_PAGE_TITLE,
 } from "@/data/cadDrawingPipelinePage";
+import { fetchTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 
 const SITE = "https://marathon-os.com";
 const CANONICAL = "/tools/cad-drawing-pipeline";
+
+/** Always re-read admin techdraw_upload_price — do not bake price into static HTML. */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata = buildPageMetadata({
   title: PIPELINE_PAGE_TITLE,
@@ -36,14 +39,17 @@ function PipelineSectionFallback() {
   return <div className={styles.pipelineSectionFallback} aria-hidden />;
 }
 
-export default function CadDrawingPipelinePage() {
+export default async function CadDrawingPipelinePage() {
+  const prices = await fetchTechDrawPriceDisplay();
+  const priceAmount = Number(prices.total).toFixed(2);
+
   return (
     <>
       <ToolPageJsonLd
         name="3D CAD to 2D Technical Drawing Generator"
         url={`${SITE}${CANONICAL}`}
         description={PIPELINE_PAGE_DESCRIPTION}
-        price="4.99"
+        price={priceAmount}
         priceCurrency="USD"
         breadcrumbLinks={[
           { label: "Tools", href: "/tools" },
@@ -52,7 +58,10 @@ export default function CadDrawingPipelinePage() {
       />
       <TechDrawPageViewTracker pageType="upload" />
       <div className={styles.root}>
-        <CadDrawingPipelineHeroSection>
+        <CadDrawingPipelineHeroSection
+          priceLabel={prices.totalLabel}
+          initialPrices={prices}
+        >
           <Suspense fallback={<PipelineSectionFallback />}>
             <CadDrawingPipelineView />
           </Suspense>
@@ -67,12 +76,12 @@ export default function CadDrawingPipelinePage() {
           <CadDrawingPipelineInfoSections />
           <CadDrawingPipelineOutputFormats />
           <CadDrawingPipelineTransparency />
-          <CadDrawingPipelinePaidCta />
-          <CadDrawingPipelineFaq />
+          <CadDrawingPipelinePaidCta initialPrices={prices} />
+          <CadDrawingPipelineFaq priceLabel={prices.totalLabel} />
           <CadDrawingPipelineInternalLinks />
         </div>
 
-        <CadDrawingPipelineFinalCta />
+        <CadDrawingPipelineFinalCta initialPrices={prices} />
       </div>
       <Footer />
     </>

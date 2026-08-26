@@ -236,7 +236,13 @@ function VendorsTable() {
         </p>
       ) : null}
 
-      <div className={styles.tableWrap} style={{ width: '100%' }}>
+      {isLoading ? (
+        <div className={styles.loadingWrap}>
+          <Loading />
+        </div>
+      ) : (
+        <>
+      <div className={`${styles.tableWrap} ${styles.desktopTable}`} style={{ width: '100%' }}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -251,16 +257,7 @@ function VendorsTable() {
               <th>Actions</th>
             </tr>
           </thead>
-          {isLoading ? (
-            <tbody>
-              <tr>
-                <td colSpan={9} style={{ textAlign: 'center', padding: 20 }}>
-                  <Loading />
-                </td>
-              </tr>
-            </tbody>
-          ) : (
-            <tbody>
+          <tbody>
               {vendors.length === 0 ? (
                 <tr>
                   <td colSpan={9} style={{ textAlign: 'center', padding: 20 }}>
@@ -347,16 +344,117 @@ function VendorsTable() {
                 ))
               )}
             </tbody>
-          )}
         </table>
       </div>
 
+      <div className={styles.mobileCards}>
+        {vendors.length === 0 ? (
+          <div className={styles.mobileEmpty}>
+            {searchTerm ? 'No vendors found for your search' : 'No vendors found'}
+          </div>
+        ) : (
+          vendors.map((vendor) => (
+            <div key={vendor._id} className={styles.mobileCard}>
+              <div className={styles.mobileCardHeader}>
+                <h3 className={styles.mobileCardTitle}>{vendor.name || 'Vendor'}</h3>
+              </div>
+              <div className={styles.mobileCardBody}>
+                <div className={styles.mobileCardField}>
+                  <span className={styles.mobileCardLabel}>Email</span>
+                  <span className={styles.mobileCardValue}>{vendor.email || '—'}</span>
+                </div>
+                <div className={styles.mobileCardField}>
+                  <span className={styles.mobileCardLabel}>Phone</span>
+                  <span className={styles.mobileCardValue}>{vendor.phone_number || '—'}</span>
+                </div>
+                <div className={styles.mobileCardField}>
+                  <span className={styles.mobileCardLabel}>Portal password</span>
+                  <span className={styles.mobileCardValue}>
+                    {vendor.portal_password ? (
+                      <code className={tableStyles.passwordCode}>{vendor.portal_password}</code>
+                    ) : (
+                      <span className={tableStyles.passwordMissing}>Not set</span>
+                    )}
+                  </span>
+                </div>
+                <div className={styles.mobileCardField}>
+                  <span className={styles.mobileCardLabel}>Specialised In</span>
+                  <span className={styles.mobileCardValue}>{formatCategoryNames(vendor.categories) || '—'}</span>
+                </div>
+                {(vendor.whatsapp_group_link || vendor.website_link) ? (
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>Links</span>
+                    <span className={styles.mobileCardValue}>
+                      {vendor.whatsapp_group_link ? (
+                        <a
+                          href={ensureExternalUrl(vendor.whatsapp_group_link)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={tableStyles.link}
+                        >
+                          WhatsApp
+                        </a>
+                      ) : null}
+                      {vendor.whatsapp_group_link && vendor.website_link ? ' · ' : null}
+                      {vendor.website_link ? (
+                        <a
+                          href={ensureExternalUrl(vendor.website_link)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={tableStyles.link}
+                        >
+                          Website
+                        </a>
+                      ) : null}
+                    </span>
+                  </div>
+                ) : null}
+                <div className={styles.mobileCardMeta}>
+                  <select
+                    value={vendor.is_active ? 'active' : 'inactive'}
+                    onChange={(event) => handleStatusChange(vendor, event.target.value)}
+                    disabled={updatingStatusId === vendor._id}
+                    className={`${tableStyles.rowStatusSelect} ${
+                      vendor.is_active ? tableStyles.active : tableStyles.inactive
+                    }`}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div className={styles.mobileCardActions}>
+                <button
+                  type="button"
+                  className={`${styles.actionBtn} ${styles.actionApprove}`}
+                  onClick={() => handleOpenEdit(vendor)}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.actionBtn} ${styles.actionReject}`}
+                  onClick={() => handleDelete(vendor)}
+                  disabled={deletingId === vendor._id}
+                >
+                  {deletingId === vendor._id ? 'Deleting…' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+        </>
+      )}
+
       {totalPages > 1 && (
-        <Pagenation
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-        />
+        <div className={styles.paginationWrap}>
+          <Pagenation
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={totalPages}
+          />
+        </div>
       )}
 
       {showPopup && (

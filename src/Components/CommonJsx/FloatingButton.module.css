@@ -6,6 +6,12 @@
   align-items: flex-end;
   gap: 10px;
   right: max(12px, env(safe-area-inset-right, 0px));
+  transition: bottom 180ms ease;
+}
+
+/* Extra clearance when StickyCadStrip is visible (strip is taller on small screens). */
+.wrapAboveStrip {
+  right: max(12px, env(safe-area-inset-right, 0px));
 }
 
 .menu {
@@ -193,4 +199,14 @@
   .subtitle {
     white-space: normal;
   }
+}
+
+@media (max-width: 768px) {
+  :global(body.dashboard-mobile-app) .wrap {
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+:global(body.mobile-nav-open) .wrap {
+  display: none !important;
 }

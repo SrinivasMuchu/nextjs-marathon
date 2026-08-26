@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TwoDLibraryPriceChip from "./TwoDLibraryPriceChip";
 import styles from "./TwoDTechnicalDrawingHero.module.css";
 
 /* Tag pills (not shown by default; pass `tags={[...]}` to render):
@@ -29,6 +30,8 @@ export default function TwoDTechnicalDrawingHero({
   stats = defaultStats,
   showBadges = true,
   showFreeDownloadBadge = true,
+  showLibraryPriceChip = false,
+  libraryPriceVersion = false,
 }) {
   return (
     <header className={styles.hero}>
@@ -42,6 +45,8 @@ export default function TwoDTechnicalDrawingHero({
           </span>
           {showFreeDownloadBadge ? (
             <span className={`${styles.chip} ${styles.chipFree}`}>Free Download</span>
+          ) : showLibraryPriceChip ? (
+            <TwoDLibraryPriceChip version={libraryPriceVersion} />
           ) : null}
         </div>
       )}

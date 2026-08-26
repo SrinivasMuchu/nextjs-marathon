@@ -1,4 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import {
+  fetchTechDrawPriceDisplay,
+  getTechDrawPriceDisplay,
+} from "@/api/cadDrawingPipelineApi";
 import TwoDDrawingCtaBannerButton from "./TwoDDrawingCtaBannerButton";
 import styles from "./TwoDDrawingCtaBanner.module.css";
 
@@ -10,21 +17,34 @@ const defaultChecks = [
 
 /**
  * Server shell + client upload button only. Responsive: stacks on narrow viewports; CTA row wraps.
+ * Price comes from admin `techdraw_upload_price`.
  */
 export default function TwoDDrawingCtaBanner({
   generateHref = "/tools/cad-drawing-pipeline",
   secondaryHref = "",
-  eyebrow = "Paid Pipeline · $4.99 per drawing set",
   title = "Have your own 3D CAD file?",
   description = "Upload a STEP, STP, IGES or FreeCAD file and generate a 2D drawing set with PDF, SVG and DXF outputs.",
   buttonLabel = "Generate my 2D drawing",
   secondaryButtonLabel = "View existing 2D drawings",
-  price = "$4.99",
   priceSubtext = "per drawing set",
   turnaround = "4 min",
   turnaroundLabel = "avg. turnaround",
   checks = defaultChecks,
 }) {
+  const [prices, setPrices] = useState(() => getTechDrawPriceDisplay());
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchTechDrawPriceDisplay().then((next) => {
+      if (!cancelled) setPrices(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const eyebrow = `Paid Pipeline · ${prices.perSetLabel}`;
+
   return (
     <section className={styles.banner} aria-labelledby="two-d-cta-heading">
       <div className={styles.inner}>
@@ -53,8 +73,8 @@ export default function TwoDDrawingCtaBanner({
           </div>
         </div>
         <div className={styles.right}>
-          <div className={styles.priceBig}>{price}</div>
-          <div className={styles.priceSub}>{priceSubtext}</div>
+          <div className={styles.priceBig}>{prices.totalLabel}</div>
+          <div className={styles.priceSub}>{priceSubtext} incl. GST</div>
           <div className={styles.timeBadge}>
             <div className={styles.timeVal}>{turnaround}</div>
             <div className={styles.timeKey}>{turnaroundLabel}</div>

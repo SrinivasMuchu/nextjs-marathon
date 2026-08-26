@@ -5,6 +5,10 @@
   bottom: 16px;
   pointer-events: none;
   z-index: 9000;
+  /* Leave room on the right so the strip CTA/close never sits under CAD Actions. */
+  padding-inline: 12px;
+  padding-right: max(12px, calc(168px + env(safe-area-inset-right, 0px)));
+  box-sizing: border-box;
 }
 
 .strip {
@@ -113,8 +117,13 @@
 }
 
 @media screen and (max-width: 720px) {
+  .wrapper {
+    padding-right: 12px;
+    bottom: 16px;
+  }
+
   .strip {
-    margin: 0 10px;
+    margin: 0;
     padding: 12px 14px;
     border-radius: 18px;
     flex-direction: column;

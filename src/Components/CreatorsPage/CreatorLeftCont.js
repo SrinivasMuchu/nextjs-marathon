@@ -6,9 +6,9 @@ import CreatorRating from './CreatorRating'
 import styles from './Creators.module.css'
 import CreatorLink from './CreatorLink'
 import DownloadsRatingAlert from './DownloadsRatingAlert'
-function CreatorLeftCont({creatorId, setIsVerified}) {
+function CreatorLeftCont({creatorId, setIsVerified, className = ''}) {
   return (
-    <div className={styles.creatorLeft} style={{display:'flex', flexDirection:'column', gap:'16px'}}>
+    <div className={`${styles.creatorLeft}${className ? ` ${className}` : ''}`}>
         <CreatorsProfile creatorId={creatorId}  setIsVerified={setIsVerified}/>
       {!creatorId && <DownloadsRatingAlert/>}
         <CreatorsStats creatorId={creatorId}  />

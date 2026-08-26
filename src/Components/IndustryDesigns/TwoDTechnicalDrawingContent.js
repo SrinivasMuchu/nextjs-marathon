@@ -3,6 +3,7 @@ import TwoDDrawingViewCards from "./TwoDDrawingViewCards";
 import TwoDDrawingSectionDetailCards from "./TwoDDrawingSectionDetailCards";
 // import TwoDDrawingBomTable from "./TwoDDrawingBomTable";
 import TwoDDrawingSheetDownloads from "./TwoDDrawingSheetDownloads";
+import TwoDDrawingReportSection from "./TwoDDrawingReportSection";
 import TwoDDrawingCtaBanner from "./TwoDDrawingCtaBanner";
 import TwoDDrawingTransparencyBlock from "./TwoDDrawingTransparencyBlock";
 import TwoDDrawingPreviewPanel from "./TwoDDrawingPreviewPanel";
@@ -97,8 +98,14 @@ export default function TwoDTechnicalDrawingContent({
   transparencyMetaStats,
   transparencyIntroParagraphs,
   currentDesignId,
+  designTitle = "",
+  gateLibraryDownloads = true,
   hasRenderableSheets = true,
   wasFilteredEmpty = false,
+  drawingDetails = null,
+  svgOnly = false,
+  showDownloadAllPdfs = true,
+  libraryPriceVersion = false,
 }) {
   // When the bundle had sheets in geometry_per_sheet.json but every one of
   // them was filtered out (blank projection / missing S3 file), don't show
@@ -107,12 +114,14 @@ export default function TwoDTechnicalDrawingContent({
   // explanation, transparency block, and "more designs" section stay so
   // the page chrome still looks intact.
   const showArtifacts = hasRenderableSheets && !wasFilteredEmpty;
+  const hidePdfDownloads = svgOnly || showDownloadAllPdfs === false;
+  const useVersionPrice = Boolean(libraryPriceVersion || svgOnly);
 
   return (
     <>
       {showArtifacts ? (
         <div className={layoutStyles.mainGrid}>
-          <TwoDDrawingPreviewPanel sheets={sheets} />
+          <TwoDDrawingPreviewPanel sheets={sheets} svgOnly={svgOnly} />
           <TwoDDrawingRightSidebar
             cadModelHref={cadModelHref}
             generateHref={generateHref}
@@ -122,7 +131,13 @@ export default function TwoDTechnicalDrawingContent({
             freecadHref={freecadHref}
             zipHref={zipHref}
             drawingInfo={drawingInfo}
+            drawingDetails={null}
+            showDownloadAllPdfs={!hidePdfDownloads}
             showUploadCta={!HIDE_SIDEBAR_UPLOAD_CTA_DESIGN_IDS.has(currentDesignId)}
+            designId={currentDesignId}
+            designTitle={designTitle}
+            gateLibraryDownloads={gateLibraryDownloads}
+            libraryPriceVersion={useVersionPrice}
           />
         </div>
       ) : (
@@ -134,7 +149,15 @@ export default function TwoDTechnicalDrawingContent({
           <TwoDDrawingViewCards views={viewCards} />
           <TwoDDrawingSectionDetailCards groups={sectionDetailGroups} />
           {/* <TwoDDrawingBomTable rows={bomRows} /> */}
-          <TwoDDrawingSheetDownloads rows={sheetDownloadRows} />
+          <TwoDDrawingSheetDownloads
+            rows={sheetDownloadRows}
+            designId={currentDesignId}
+            designTitle={designTitle}
+            gateLibraryDownloads={gateLibraryDownloads}
+          />
+          {useVersionPrice ? (
+            <TwoDDrawingReportSection details={drawingDetails} />
+          ) : null}
         </>
       ) : null}
       <TwoDDrawingCtaBanner generateHref={generateHref} />

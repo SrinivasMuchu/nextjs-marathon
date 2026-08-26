@@ -1,5 +1,6 @@
 "use client"
 import React, { useEffect, useState, useContext } from 'react'
+import { useSearchParams } from 'next/navigation'
 import CreatorLeftCont from './CreatorLeftCont'
 import CreatorsRightCont from './CreatorsRightCont'
 import CreatorCoverPage from './CreatorCoverPage'
@@ -7,23 +8,23 @@ import UserLoginPupUp from '../CommonJsx/UserLoginPupUp'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
 import styles from './Creators.module.css'
-import { useRouter } from 'next/navigation';
 import { contextState } from '../CommonJsx/ContextProvider';
+import DashboardMobileChrome from './DashboardMobileChrome';
 
 function CreatorsHome({ creatorId }) {
   // viewer, setViewer
   const { setViewer } = useContext(contextState);
   const [isVerified, setIsVerified] = useState(false);
-  // const [isVerified, setIsVerified] = useState(false);
-
-  const route = useRouter();
+  const searchParams = useSearchParams();
+  const showMobileProfile = !creatorId && searchParams.get('cad_type') === 'USER_PROFILE';
 
   useEffect(() => {
     if (creatorId) {
-
       getUserDetails(creatorId);
+      return;
     }
-
+    document.body.classList.add('dashboard-mobile-app');
+    return () => document.body.classList.remove('dashboard-mobile-app');
   }, [creatorId]);
 
 
@@ -64,9 +65,16 @@ function CreatorsHome({ creatorId }) {
   return (
     <>
       {isVerified && <UserLoginPupUp onClose={() => setIsVerified(false)} type='creator' />}
+      {!creatorId ? <DashboardMobileChrome /> : null}
+      <div className={styles.desktopDashboardChrome}>
       <CreatorCoverPage creatorId={creatorId} setIsVerified={setIsVerified}/>
+      </div>
       <div className={styles.creatorDetails} >
-        <CreatorLeftCont creatorId={creatorId} setIsVerified={setIsVerified}/>
+        <CreatorLeftCont
+          creatorId={creatorId}
+          setIsVerified={setIsVerified}
+          className={showMobileProfile ? styles.showOnMobileProfile : ''}
+        />
         {/* <div className={styles.creatorDetailsVertical} style={{ width: '2px', background: '#edf2f7', marginTop: '80px' }} />
         <div className={styles.creatorDetailsHorizontal} style={{ width: '100%', background: '#edf2f7', height: '2px' }} /> */}
         <CreatorsRightCont creatorId={creatorId} />

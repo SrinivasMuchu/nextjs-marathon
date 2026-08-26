@@ -12,8 +12,7 @@ import { MdEngineering } from "react-icons/md";
 import { MdDraw } from "react-icons/md";
 import { MdTune } from "react-icons/md";
 import { MdStorefront } from "react-icons/md";
-import { FaChevronLeft } from "react-icons/fa";
-
+import { MdClose } from "react-icons/md";
 
 function Chevron({ direction = 'left' }) {
   const rotate = direction === 'left' ? '0' : '180'
@@ -24,13 +23,27 @@ function Chevron({ direction = 'left' }) {
   )
 }
 
+const NAV_ITEMS = [
+  { id: 'designs', label: 'Designs', title: 'Designs', Icon: MdOutlineDesignServices },
+  { id: 'payments', label: 'Payments', title: 'Payments', Icon: MdOutlinePayments },
+  { id: 'controls', label: 'Controls', title: 'Controls', Icon: MdTune },
+  { id: 'viewed-list', label: 'Top Viewed', title: 'Top Viewed', Icon: MdVisibility },
+  { id: 'downloaded-list', label: 'Top Downloaded', title: 'Top Downloaded', Icon: MdDownload },
+  { id: 'searched-list', label: 'Search Logs', title: 'Search Logs', Icon: MdSearch },
+  { id: 'ratings-list', label: 'Ratings', title: 'Ratings', Icon: MdStar },
+  { id: 'likes-list', label: 'Likes', title: 'Likes', Icon: MdFavorite },
+  { id: 'cad-service-requests', label: 'CAD Requests', title: 'CAD Service Requests', Icon: MdEngineering },
+  { id: 'techdraw-jobs', label: 'TechDraw', title: 'TechDraw Uploads', Icon: MdDraw },
+  { id: 'vendors', label: 'Vendors', title: 'Vendors', Icon: MdStorefront },
+]
 
-
-function AdminSidebar({ collapsed, activeTab, onToggle, onSelect }) {
+function AdminSidebar({ collapsed, mobileOpen, activeTab, onToggle, onCloseMobile, onSelect }) {
   return (
-    <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
+    <aside
+      className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''} ${mobileOpen ? styles.sidebarMobileOpen : ''}`}
+    >
       <div className={styles.sidebarHeader}>
-        {!collapsed && (
+        {(!collapsed || mobileOpen) && (
           <div className={styles.brand}>
             <span className={styles.brandIcon}>A</span>
             <span>Admin</span>
@@ -45,109 +58,29 @@ function AdminSidebar({ collapsed, activeTab, onToggle, onSelect }) {
         >
           <Chevron direction={collapsed ? 'right' : 'left'} />
         </button>
+        <button
+          type="button"
+          className={styles.mobileCloseBtn}
+          onClick={onCloseMobile}
+          aria-label="Close menu"
+        >
+          <MdClose size={20} />
+        </button>
       </div>
 
       <nav className={styles.nav}>
-        <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'designs' ? styles.active : ''}`}
-          onClick={() => onSelect('designs')}
-          title="Designs"
-        >
-          <MdOutlineDesignServices />
-          {!collapsed && <span className={styles.label}>Designs</span>}
-        </button>
-
-        <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'payments' ? styles.active : ''}`}
-          onClick={() => onSelect('payments')}
-          title="Payments"
-        >
-          <MdOutlinePayments />
-          {!collapsed && <span className={styles.label}>Payments</span>}
-        </button>
-        <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'controls' ? styles.active : ''}`}
-          onClick={() => onSelect('controls')}
-          title="Controls"
-        >
-          <MdTune />
-          {!collapsed && <span className={styles.label}>Controls</span>}
-        </button>
+        {NAV_ITEMS.map(({ id, label, title, Icon }) => (
           <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'viewed-list' ? styles.active : ''}`}
-          onClick={() => onSelect('viewed-list')}
-          title="Top Viewed"
-        >
-          <MdVisibility />
-          {!collapsed && <span className={styles.label}>Top Viewed</span>}
-        </button>
-          <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'downloaded-list' ? styles.active : ''}`}
-          onClick={() => onSelect('downloaded-list')}
-          title="Top Downloaded"
-        >
-          <MdDownload />
-          {!collapsed && <span className={styles.label}>Top Downloaded</span>}
-        </button>
-          <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'searched-list' ? styles.active : ''}`}
-          onClick={() => onSelect('searched-list')}
-          title="Search Logs"
-        >
-          <MdSearch />
-          {!collapsed && <span className={styles.label}>Search Logs</span>}
-        </button>
-          <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'ratings-list' ? styles.active : ''}`}
-          onClick={() => onSelect('ratings-list')}
-          title="Ratings"
-        >
-          <MdStar />
-          {!collapsed && <span className={styles.label}>Ratings</span>}
-        </button>
-          <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'likes-list' ? styles.active : ''}`}
-          onClick={() => onSelect('likes-list')}
-          title="Likes"
-        >
-          <MdFavorite />
-          {!collapsed && <span className={styles.label}>Likes</span>}
-        </button>
-        <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'cad-service-requests' ? styles.active : ''}`}
-          onClick={() => onSelect('cad-service-requests')}
-          title="CAD Service Requests"
-        >
-          <MdEngineering />
-          {!collapsed && <span className={styles.label}>CAD Requests</span>}
-        </button>
-        <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'techdraw-jobs' ? styles.active : ''}`}
-          onClick={() => onSelect('techdraw-jobs')}
-          title="TechDraw Uploads"
-        >
-          <MdDraw />
-          {!collapsed && <span className={styles.label}>TechDraw</span>}
-        </button>
-        <button
-          type="button"
-          className={`${styles.navItem} ${activeTab === 'vendors' ? styles.active : ''}`}
-          onClick={() => onSelect('vendors')}
-          title="Vendors"
-        >
-          <MdStorefront />
-          {!collapsed && <span className={styles.label}>Vendors</span>}
-        </button>
+            key={id}
+            type="button"
+            className={`${styles.navItem} ${activeTab === id ? styles.active : ''}`}
+            onClick={() => onSelect(id)}
+            title={title}
+          >
+            <Icon />
+            {(!collapsed || mobileOpen) && <span className={styles.label}>{label}</span>}
+          </button>
+        ))}
       </nav>
     </aside>
   )

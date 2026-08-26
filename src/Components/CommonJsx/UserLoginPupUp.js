@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import PopupWrapper from './PopupWrapper';
 import styles from './CommonStyles.module.css';
 import { BASE_URL, GOOGLE_CLIENT_ID, IMAGEURLS } from '@/config';
@@ -71,34 +71,91 @@ function UserLoginPupUp({ onClose, type }) {
     const [fullname, setFullname] = useState('');
     const [otpAlreadySent, setOtpAlreadySent] = useState(false);
     const registerPush = usePushNotifications();
+    const googleBtnRef = useRef(null);
+    const googleCallbackRef = useRef(null);
+    const googleInitializedRef = useRef(false);
+    const [googleReady, setGoogleReady] = useState(false);
 
-    
-    useEffect(() => {
-        // Load Google Sign-In script
-        const loadGoogleScript = () => {
-            if (window.google) return;
+    const renderGoogleButton = () => {
+        const container = googleBtnRef.current;
+        if (!container || !window.google?.accounts?.id) return;
 
-            const script = document.createElement('script');
-            script.src = 'https://accounts.google.com/gsi/client';
-            script.async = true;
-            script.defer = true;
-            script.onload = initializeGoogleSignIn;
-            document.head.appendChild(script);
+        container.innerHTML = '';
+        const width = Math.floor(container.parentElement?.getBoundingClientRect().width || 320);
+        window.google.accounts.id.renderButton(container, {
+            type: 'standard',
+            theme: 'outline',
+            size: 'large',
+            text: 'continue_with',
+            width: Math.min(Math.max(width, 200), 400),
+        });
+
+        const stretchIframe = () => {
+            const iframe = container.querySelector('iframe');
+            if (!iframe) return false;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.minWidth = '100%';
+            iframe.style.minHeight = '100%';
+            return true;
         };
+        if (!stretchIframe()) {
+            const observer = new MutationObserver(() => {
+                if (stretchIframe()) observer.disconnect();
+            });
+            observer.observe(container, { childList: true, subtree: true });
+            setTimeout(() => observer.disconnect(), 3000);
+        }
+        setGoogleReady(true);
+    };
+
+    useEffect(() => {
+        if (verifyEmail) {
+            setGoogleReady(false);
+            return;
+        }
+
+        let cancelled = false;
+        const scriptSrc = 'https://accounts.google.com/gsi/client';
 
         const initializeGoogleSignIn = () => {
-            if (window.google) {
+            if (cancelled || !window.google?.accounts?.id) return;
+            if (!googleInitializedRef.current) {
                 window.google.accounts.id.initialize({
                     client_id: GOOGLE_CLIENT_ID,
-                    callback: handleGoogleCallback,
+                    callback: (response) => googleCallbackRef.current?.(response),
                     auto_select: false,
-                    use_fedcm_for_prompt: false, // Disable FedCM to avoid CORS issues
+                    ux_mode: 'popup',
+                    use_fedcm_for_prompt: false,
                 });
+                googleInitializedRef.current = true;
             }
+            renderGoogleButton();
         };
 
-        loadGoogleScript();
-    }, []);
+        if (window.google?.accounts?.id) {
+            initializeGoogleSignIn();
+            return () => { cancelled = true; };
+        }
+
+        const existing = document.querySelector(`script[src="${scriptSrc}"]`);
+        if (existing) {
+            existing.addEventListener('load', initializeGoogleSignIn);
+            return () => {
+                cancelled = true;
+                existing.removeEventListener('load', initializeGoogleSignIn);
+            };
+        }
+
+        const script = document.createElement('script');
+        script.src = scriptSrc;
+        script.async = true;
+        script.defer = true;
+        script.onload = initializeGoogleSignIn;
+        document.head.appendChild(script);
+
+        return () => { cancelled = true; };
+    }, [verifyEmail]);
 
     const handleGoogleCallback = async (response) => {
         try {
@@ -111,18 +168,10 @@ function UserLoginPupUp({ onClose, type }) {
             setIsSSO(true);
             setLoginMethod('google');
 
-            // Register for push notifications and get subscription
-            let pushSubscription = null;
-            if (browserNotify) {
-                pushSubscription = await getPushSubscription();
-            }
-
-            // Call verify-otp API for Google SSO, include pushSubscription if available
             const result = await axios.post(`${BASE_URL}/v1/cad/verify-otp`, {
                 email: googleEmail,
                 fullname: userName,
                 sso: true,
-                accessKey: pushSubscription ? pushSubscription : null, // Spread operator used here
             }, {
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"),
@@ -137,8 +186,7 @@ function UserLoginPupUp({ onClose, type }) {
                 persistVerifiedSession(result.data.data.uuid);
                 setUser({ ...user, email: googleEmail, name: userName })
 
-                // Register for push notifications after login
-                await handleRegisterNotifications(googleEmail);
+                handleRegisterNotifications(googleEmail);
 
                 if (type === "comments") {
                     setUpdatedDetails(user)
@@ -297,62 +345,18 @@ function UserLoginPupUp({ onClose, type }) {
     }
     };
 
-    const handleGoogleLogin = () => {
-        setErrorMessage(''); // Clear previous errors
-
+    const handleGoogleFallbackClick = () => {
+        if (isGoogleLoading || loginMethod === 'email' || isSSO) return;
         if (!agreed) {
             setErrorMessage('Please accept the Terms & Conditions and Privacy Policy.');
             return;
         }
-
-        if (isGoogleLoading) return;
-
-        try {
-            setIsGoogleLoading(true);
-
-            // Create a hidden div for Google Sign-In button
-            const googleButtonDiv = document.createElement('div');
-            googleButtonDiv.id = 'g_id_signin';
-            googleButtonDiv.style.display = 'none';
-            document.body.appendChild(googleButtonDiv);
-
-            // Render Google Sign-In button and auto-click it
-            if (window.google && window.google.accounts) {
-                window.google.accounts.id.renderButton(
-                    googleButtonDiv,
-                    {
-                        theme: 'outline',
-                        size: 'large',
-                        width: 250
-                    }
-                );
-
-                // Auto-trigger the button click
-                setTimeout(() => {
-                    const button = googleButtonDiv.querySelector('[role="button"]');
-                    if (button) {
-                        button.click();
-                    } else {
-                        // Fallback to prompt method
-                        window.google.accounts.id.prompt((notification) => {
-                            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                                setErrorMessage('Google Sign-In was blocked. Please try again.');
-                                setIsGoogleLoading(false);
-                            }
-                        });
-                    }
-                    document.body.removeChild(googleButtonDiv);
-                }, 100);
-            } else {
-                setErrorMessage('Google Sign-In not loaded. Please refresh and try again.');
-                setIsGoogleLoading(false);
-            }
-        } catch (error) {
-            console.error('Google login trigger error:', error);
-            setErrorMessage('Google login failed. Please try again.');
-            setIsGoogleLoading(false);
+        if (!googleReady) {
+            setErrorMessage('Google Sign-In is still loading. Please try again.');
         }
     };
+
+    googleCallbackRef.current = handleGoogleCallback;
 
     const handleCheckboxChange = (e) => {
         setAgreed(e.target.checked);
@@ -397,16 +401,14 @@ function UserLoginPupUp({ onClose, type }) {
         }
     };
 
-    // When verifyEmail is triggered, get the push subscription
     useEffect(() => {
-        const fetchSubscription = async () => {
-            if ( browserNotify) {
-                const sub = await getPushSubscription();
-                setAccessKey(sub);
-            }
-        };
-        fetchSubscription();
-    }, [ browserNotify]);
+        if (!verifyEmail || !browserNotify) return;
+        let cancelled = false;
+        getPushSubscription().then((sub) => {
+            if (!cancelled) setAccessKey(sub);
+        });
+        return () => { cancelled = true; };
+    }, [verifyEmail, browserNotify]);
 
     return (
         <PopupWrapper>
@@ -498,22 +500,29 @@ function UserLoginPupUp({ onClose, type }) {
                             <div className={styles.dividerLine}></div>
                         </div>
 
-                        <button
-                            className={styles.googleButton}
-                            onClick={handleGoogleLogin}
-                            disabled={isGoogleLoading || (loginMethod === 'email')}
-                        >
-                            {/* <svg className={styles.googleIcon} viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                        </svg> */}
-                            <Image src={IMAGEURLS.googleLogo} alt='google' width={25} height={25} />
-                            {isGoogleLoading ? 'Signing in...' :
-                                isSSO ? 'Logged in with Google' :
-                                    'Continue with Google'}
-                        </button>
+                        <div className={styles.googleButtonWrap}>
+                            <button
+                                type="button"
+                                className={styles.googleButton}
+                                disabled={isGoogleLoading || (loginMethod === 'email')}
+                                tabIndex={-1}
+                            >
+                                <Image src={IMAGEURLS.googleLogo} alt='google' width={25} height={25} />
+                                {isGoogleLoading ? 'Signing in...' :
+                                    isSSO ? 'Logged in with Google' :
+                                        googleReady ? 'Continue with Google' :
+                                            'Loading Google...'}
+                            </button>
+                            <div ref={googleBtnRef} className={styles.googleGsiOverlay} />
+                            {(!googleReady || !agreed || isGoogleLoading || loginMethod === 'email' || isSSO) && (
+                                <button
+                                    type="button"
+                                    className={styles.googleButtonCatcher}
+                                    onClick={handleGoogleFallbackClick}
+                                    aria-label="Continue with Google"
+                                />
+                            )}
+                        </div>
                          <div className="flex items-center gap-3 mb-6">
           <span className="text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

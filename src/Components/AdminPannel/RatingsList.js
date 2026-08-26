@@ -138,7 +138,13 @@ function RatingsList() {
         )}
       </div>
 
-      <div className={styles.tableWrap} style={{width:"100%"}}>
+      {isLoading ? (
+        <div className={styles.loadingWrap}>
+          <Loading />
+        </div>
+      ) : (
+        <>
+      <div className={`${styles.tableWrap} ${styles.desktopTable}`} style={{width:"100%"}}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -149,12 +155,7 @@ function RatingsList() {
               <th>Date</th>
             </tr>
           </thead>
-          {isLoading ? (
-            <div style={{ padding: 20, textAlign: 'center' }}>
-              <Loading />
-            </div>
-          ) : (
-            <tbody>
+          <tbody>
               {ratings.length === 0 ? (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center', padding: 20 }}>
@@ -206,11 +207,57 @@ function RatingsList() {
                 })
               )}
             </tbody>
-          )}
         </table>
       </div>
+
+      <div className={styles.mobileCards}>
+        {ratings.length === 0 ? (
+          <div className={styles.mobileEmpty}>
+            {searchTerm ? 'No ratings found for your search' : 'No ratings found'}
+          </div>
+        ) : (
+          ratings.map((rating) => {
+            const route = rating.route
+            const href = route ? `/library/${encodeURIComponent(route)}` : null
+            const CardTag = href ? Link : 'div'
+            const cardProps = href
+              ? { href, className: styles.mobileCard, style: { textDecoration: 'none', color: 'inherit' } }
+              : { className: styles.mobileCard }
+            return (
+              <CardTag key={rating._id} {...cardProps}>
+                <div className={styles.mobileCardHeader}>
+                  <h3 className={styles.mobileCardTitle}>{rating.design_title || 'N/A'}</h3>
+                  <span className={styles.mobileCardAside}>
+                    {rating.star_rating ? renderStars(rating.star_rating) : 'N/A'}
+                  </span>
+                </div>
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>Rated By</span>
+                    <span className={styles.mobileCardValue}>{rating.user_name || 'N/A'}</span>
+                    {rating.user_email ? (
+                      <span className={styles.mobileCardSub}>{rating.user_email}</span>
+                    ) : null}
+                  </div>
+                  {rating.comment ? (
+                    <div className={styles.mobileCardField}>
+                      <span className={styles.mobileCardLabel}>Comment</span>
+                      <span className={styles.mobileCardValue}>{rating.comment}</span>
+                    </div>
+                  ) : null}
+                  <div className={styles.mobileCardMeta}>
+                    <span className={styles.mobileCardDate}>Date: {formatDateTime(rating.createdAt)}</span>
+                  </div>
+                </div>
+              </CardTag>
+            )
+          })
+        )}
+      </div>
+        </>
+      )}
       
-      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
+      <div className={styles.paginationWrap}>
         {totalPages > 1 && (
           <Pagenation
             currentPage={currentPage}

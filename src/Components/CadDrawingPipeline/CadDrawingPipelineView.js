@@ -11,6 +11,7 @@ import {
   prepareCadDrawingJob,
   uploadAndSubmitTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
+import useTechDrawPriceDisplay from "./useTechDrawPriceDisplay";
 import { openTechDrawPayment } from "./techDrawPayment";
 import { STEP_EXT } from "./pipelineConstants";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
@@ -25,13 +26,21 @@ import {
   trackTechDrawUploadSuccess,
 } from "@/lib/techDraw/techDrawAnalytics";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
-import BillingAddress from "@/Components/CommonJsx/BillingAddress";
+import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
 import { ArrowRight, ArrowUp, Info } from "lucide-react";
 import styles from "./CadDrawingPipeline.module.css";
 
 function isUserVerified() {
   if (typeof window === "undefined") return false;
   return Boolean(window.localStorage.getItem("is_verified"));
+}
+
+function readCheckoutUser() {
+  if (typeof window === "undefined") return { name: "", email: "" };
+  return {
+    name: localStorage.getItem("name") || localStorage.getItem("full_name") || "",
+    email: localStorage.getItem("email") || localStorage.getItem("user_email") || "",
+  };
 }
 
 // Hard cap on STEP/STP uploads. FreeCAD load times grow quickly past this point
@@ -93,13 +102,19 @@ export default function CadDrawingPipelineView() {
   const [eligibilityLoading, setEligibilityLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
   const [openTechDrawBilling, setOpenTechDrawBilling] = useState(false);
-  const [techDrawBillingProduct, setTechDrawBillingProduct] = useState(null);
+  const [techDrawCheckout, setTechDrawCheckout] = useState(null);
   const fileInputRef = useRef(null);
   const submitLockRef = useRef(false);
   const pendingAfterLoginRef = useRef(false);
-  const billingWaiterRef = useRef(null);
+  const paidJobIdRef = useRef(null);
 
-  const prices = getTechDrawPriceDisplay();
+  const catalogPrices = useTechDrawPriceDisplay();
+  const prices = useMemo(() => {
+    if (eligibility?.price != null && Number.isFinite(Number(eligibility.price))) {
+      return getTechDrawPriceDisplay(eligibility.price, eligibility.price_with_gst);
+    }
+    return catalogPrices;
+  }, [eligibility, catalogPrices]);
 
   useEffect(() => {
     getOrCreateTechDrawUuid();
@@ -274,54 +289,40 @@ export default function CadDrawingPipelineView() {
 
       if (needsPaymentNow) {
         setUploadPhase("Enter billing details…");
-        setTechDrawBillingProduct({
-          title: "2D Technical Drawing",
-          description: file?.name || "TechDraw pipeline",
-          price: prices.base,
-          pricing: {
-            base_price: prices.base,
-            price: prices.base,
-            price_with_gst: prices.total,
-            currency: prices.currency,
-          },
-        });
-        const billingId = await new Promise((resolve, reject) => {
-          billingWaiterRef.current = { resolve, reject };
-          setOpenTechDrawBilling(true);
-        });
-        setUploadPhase(`Pay ${prices.totalLabel}…`);
-        const payment = await openTechDrawPayment({
-          description: `2D technical drawing — ${prices.totalLabel}`,
-          billingId,
-        });
-        setUploadPhase("Payment received — uploading STEP file…");
-        jobId = await uploadAndSubmitTechDrawJob({
+        paidJobIdRef.current = null;
+        setTechDrawCheckout({
           file,
           title: title.trim(),
           description: description.trim(),
-          payment,
+          prices,
           onPhase,
+          flowType: "paid",
         });
-        toast.success("Payment received. Your drawing is processing.");
-      } else {
-        const prep = await prepareCadDrawingJob({
-          file,
-          title: title.trim(),
-          description: description.trim(),
-          requiresPayment: false,
-          original_failed_job_id: isFreeRetryFlow ? freeRetryFor : undefined,
-          onPhase,
-        });
-        jobId = prep.jobId;
-        toast.success(
-          isFreeRetryFlow
-            ? "Free replacement upload started."
-            : "Drawing pipeline started.",
-        );
+        setOpenTechDrawBilling(true);
+        // Modal owns payment + upload; unlock submit so the form can be reused after cancel.
+        submitLockRef.current = false;
+        setSubmitting(false);
+        setUploadPhase("");
+        return;
       }
 
+      const prep = await prepareCadDrawingJob({
+        file,
+        title: title.trim(),
+        description: description.trim(),
+        requiresPayment: false,
+        original_failed_job_id: isFreeRetryFlow ? freeRetryFor : undefined,
+        onPhase,
+      });
+      jobId = prep.jobId;
+      toast.success(
+        isFreeRetryFlow
+          ? "Free replacement upload started."
+          : "Drawing pipeline started.",
+      );
+
       trackTechDrawUploadSuccess({
-        flowType: needsPaymentNow ? "paid" : flowTypeFromEligibility(freshEligibility),
+        flowType: flowTypeFromEligibility(freshEligibility),
         jobId,
         file,
       });
@@ -360,21 +361,40 @@ export default function CadDrawingPipelineView() {
     }
   }, [refreshEligibility]);
 
-  const handleTechDrawBillingSave = useCallback((_cadId, billingId) => {
-    const waiter = billingWaiterRef.current;
-    billingWaiterRef.current = null;
-    setOpenTechDrawBilling(false);
-    setTechDrawBillingProduct(null);
-    if (waiter) waiter.resolve(billingId);
-  }, []);
+  const handleTechDrawCheckoutPay = useCallback(async (billingId) => {
+    const checkout = techDrawCheckout;
+    if (!checkout?.file) throw new Error("Upload session expired. Choose your file again.");
 
-  const handleTechDrawBillingClose = useCallback(() => {
-    const waiter = billingWaiterRef.current;
-    billingWaiterRef.current = null;
+    const payment = await openTechDrawPayment({
+      description: `2D technical drawing — ${checkout.prices.totalLabel}`,
+      billingId,
+    });
+    const jobId = await uploadAndSubmitTechDrawJob({
+      file: checkout.file,
+      title: checkout.title,
+      description: checkout.description,
+      payment,
+      onPhase: checkout.onPhase,
+    });
+    paidJobIdRef.current = jobId;
+    trackTechDrawUploadSuccess({
+      flowType: checkout.flowType || "paid",
+      jobId,
+      file: checkout.file,
+    });
+    toast.success("Payment received. Your drawing is processing.");
+    return { jobId };
+  }, [techDrawCheckout]);
+
+  const handleTechDrawCheckoutClose = useCallback(() => {
+    const jobId = paidJobIdRef.current;
+    paidJobIdRef.current = null;
     setOpenTechDrawBilling(false);
-    setTechDrawBillingProduct(null);
-    if (waiter) waiter.reject(new Error("Payment cancelled"));
-  }, []);
+    setTechDrawCheckout(null);
+    if (jobId) {
+      router.push(techDrawPipelineStatusPath(jobId));
+    }
+  }, [router]);
 
   return (
     <>
@@ -591,8 +611,7 @@ export default function CadDrawingPipelineView() {
 
               {needsPaidFlow ? (
                 <p className={styles.uploadPhaseHint} style={{ marginTop: 16 }}>
-                  You will pay <strong>{prices.baseLabel}</strong> + tax ({prices.totalLabel}) before
-                  your file uploads.
+                  You will pay <strong>{prices.totalLabel}</strong> (incl. GST) before your file uploads.
                 </p>
               ) : null}
 
@@ -611,7 +630,7 @@ export default function CadDrawingPipelineView() {
                   <>AI service unavailable</>
                 ) : needsPaidFlow ? (
                   <>
-                    Pay {prices.baseLabel} &amp; generate drawings
+                    Pay {prices.totalLabel} &amp; generate drawings
                     <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
                   </>
                 ) : (
@@ -634,7 +653,7 @@ export default function CadDrawingPipelineView() {
               <div className={styles.pipelineCtaMeta}>
                 <span className={styles.pipelineCtaMetaItem}>
                   <span className={styles.pipelineCtaMetaDot} aria-hidden />
-                  {prices.baseLabel} per drawing set
+                  {prices.totalLabel} per drawing set incl. GST
                 </span>
                 <span className={styles.pipelineCtaMetaItem}>
                   <span className={styles.pipelineCtaMetaDot} aria-hidden />
@@ -647,12 +666,34 @@ export default function CadDrawingPipelineView() {
       </div>
 
       {showLogin ? <UserLoginPupUp onClose={handleLoginClose} type="login" /> : null}
-      {openTechDrawBilling ? (
-        <BillingAddress
-          onClose={handleTechDrawBillingClose}
-          onSave={handleTechDrawBillingSave}
-          productDetails={techDrawBillingProduct}
+      {openTechDrawBilling && techDrawCheckout ? (
+        <ConverterDownloadFlow
+          product={{
+            badge: "2D",
+            title: "2D Technical Drawing",
+            detail: techDrawCheckout.file?.name || "TechDraw pipeline",
+            successDetail: "Your drawing pipeline has started.",
+            pricing: {
+              base_price: techDrawCheckout.prices.base,
+              price: techDrawCheckout.prices.base,
+              price_with_gst: techDrawCheckout.prices.total,
+              currency: techDrawCheckout.prices.currency,
+            },
+          }}
+          pricing={{
+            base_price: techDrawCheckout.prices.base,
+            price: techDrawCheckout.prices.base,
+            price_with_gst: techDrawCheckout.prices.total,
+            currency: techDrawCheckout.prices.currency,
+          }}
+          user={readCheckoutUser()}
           createdFor="techdraw"
+          heading="Generate your 2D drawing"
+          payButtonLabel={`Pay ${techDrawCheckout.prices.totalLabel} & generate →`}
+          successTitle="Payment successful"
+          successBody="Your drawing pipeline has started. Opening your job dashboard next."
+          onClose={handleTechDrawCheckoutClose}
+          onPay={handleTechDrawCheckoutPay}
         />
       ) : null}
     </>

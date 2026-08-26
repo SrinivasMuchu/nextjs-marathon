@@ -48,6 +48,52 @@
   flex-wrap: wrap;
 }
 
+.libraryPriceForm {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.libraryPriceRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.libraryPriceRow:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.libraryPriceRowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.libraryPriceRowTitle {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.libraryPriceRowHint {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.libraryPriceRow .note {
+  margin: 0;
+}
+
 .priceInputWrap {
   display: flex;
   align-items: center;
@@ -174,6 +220,37 @@
 }
 
 @media (max-width: 720px) {
+  .panel {
+    max-width: 100%;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .priceForm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .priceInputWrap {
+    width: 100%;
+  }
+
+  .priceInput {
+    width: 100%;
+    flex: 1;
+  }
+
+  .saveBtn {
+    width: 100%;
+  }
+
   .packGrid {
     grid-template-columns: 1fr;
   }

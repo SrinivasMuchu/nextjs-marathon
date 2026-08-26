@@ -14,6 +14,7 @@ import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import axios from 'axios';
 import { RiEdit2Fill } from "react-icons/ri";
 import PublishCadPopUp from '../CommonJsx/PublishCadPopUp';
+import { Search, SlidersHorizontal } from 'lucide-react';
 
 function CadPublishedFiles({ loading, userCadFiles, type, searchTerm,
   setSearchTerm, selectedFilter, setSelectedFilter,
@@ -98,57 +99,20 @@ function CadPublishedFiles({ loading, userCadFiles, type, searchTerm,
   return (
     <div className={styles.cadViewerContainerContent}>
       {(!type && !creatorId) &&
-        <div style={{
-          width: '100%',
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-
-          gap: '16px'
-        }}>
-          {/* Left side - Search */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '24px',
-            padding: '8px 16px',
-            border: '1px solid #e9ecef',
-            minWidth: '280px',
-            gap: '8px'
-          }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="M21 21l-4.35-4.35"></path>
-            </svg>
+        <div className={styles.filesToolbar}>
+          <label className={styles.filesSearch}>
+            <Search size={16} className={styles.filesSearchIcon} />
             <input
               type="text"
               placeholder="Search project"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                border: 'none',
-                background: 'transparent',
-                outline: 'none',
-                flex: 1,
-                fontSize: '14px',
-                color: '#495057'
-              }}
             />
-          </div>
+          </label>
 
-          {/* Updated Filter Tabs with More dropdown */}
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px',
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}>
+          {/* Desktop filter tabs */}
+          <div className={styles.filesFilterRow}>
             {loadingFilters ? (
-              // Show loading skeleton for filters
               <div style={{ display: 'flex', gap: '8px' }}>
                 {[1, 2, 3].map((i) => (
                   <div
@@ -165,7 +129,6 @@ function CadPublishedFiles({ loading, userCadFiles, type, searchTerm,
               </div>
             ) : (
               <>
-                {/* Visible filter buttons */}
                 {visibleFilters.map((filter) => (
                   <button
                     key={filter.id}
@@ -196,9 +159,8 @@ function CadPublishedFiles({ loading, userCadFiles, type, searchTerm,
                   </button>
                 ))}
 
-                {/* More dropdown */}
                 {moreFilters.length > 0 && (
-                  <div style={{ position: 'relative' }}>
+                  <div className={styles.filesFilterMore}>
                     <button
                       onClick={() => setShowMoreDropdown(!showMoreDropdown)}
                       style={{
@@ -241,7 +203,6 @@ function CadPublishedFiles({ loading, userCadFiles, type, searchTerm,
                       </svg>
                     </button>
 
-                    {/* Dropdown menu */}
                     {showMoreDropdown && (
                       <div style={{
                         position: 'absolute',
@@ -293,50 +254,70 @@ function CadPublishedFiles({ loading, userCadFiles, type, searchTerm,
             )}
           </div>
 
-          {/* Right side - New Project Button */}
-          <button
-            style={{
-              borderRadius: '8px',
-              border: '2px solid #610BEE',
-              background: 'white',
-              color: '#610BEE',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
-            }}
-            onClick={handlePublishCad}
-            onMouseEnter={(e) => {
-              e.target.style.background = '#610BEE';
-              e.target.style.color = 'white';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = 'white';
-              e.target.style.color = '#610BEE';
-            }}
-          >
+          <button type="button" className={styles.filesActionBtn} onClick={handlePublishCad}>
             <IoAddSharp style={{ fontSize: '16px' }} />
             New Project
           </button>
+
+          <div className={styles.filesChipWrap}>
+            <div className={styles.filesChipRow}>
+              {loadingFilters ? (
+                [1, 2, 3].map((i) => (
+                  <span key={i} className={styles.filesChip} style={{ opacity: 0.5 }}>...</span>
+                ))
+              ) : (
+                <>
+                  {visibleFilters.map((filter) => (
+                    <button
+                      key={filter.id}
+                      type="button"
+                      className={`${styles.filesChip} ${selectedFilter?.id === filter.id ? styles.filesChipActive : ''}`}
+                      onClick={() => handleFilterClick(filter)}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                  {moreFilters.length > 0 ? (
+                    <button
+                      type="button"
+                      className={styles.filesFilterMoreBtn}
+                      onClick={() => setShowMoreDropdown(!showMoreDropdown)}
+                    >
+                      <SlidersHorizontal size={14} />
+                      Filter
+                    </button>
+                  ) : null}
+                </>
+              )}
+            </div>
+
+            {showMoreDropdown && moreFilters.length > 0 ? (
+              <div className={styles.filesChipRow}>
+                {moreFilters.map((filter) => (
+                  <button
+                    key={filter.id}
+                    type="button"
+                    className={`${styles.filesChip} ${selectedFilter?.id === filter.id ? styles.filesChipActive : ''}`}
+                    onClick={() => handleFilterClick(filter)}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </div>
       }
       {loading ? <Loading smallScreen={true} /> : <>
         {userCadFiles.length > 0 ? (
-
           <div className={styles.historyContainer} style={{ gap: '0px' }}>
             {/* Projects Grid */}
             {userCadFiles.map((file, index) => (
               <div key={index}
-                className={styles["library-designs-items-div"]}
+                className={`${styles["library-designs-items-div"]} ${styles.dashboardProjectCard}`}
                 style={{
                   borderRadius: '12px',
                   boxSizing: 'border-box',
-                  width: '315px',
                   background: '#fff',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                   margin: '12px 8px',
@@ -423,7 +404,6 @@ function CadPublishedFiles({ loading, userCadFiles, type, searchTerm,
             ))}
 
           </div>
-
         ) : (
           <div style={{
             display: 'flex', justifyContent: 'center',
