@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
-import BillingAddress from "@/Components/CommonJsx/BillingAddress";
+import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
 import { checkTwoDLibraryDownload } from "@/api/twoDLibraryPaymentApi";
 import { openTwoDLibraryPayment } from "@/lib/techDraw/twoDLibraryPayment";
 
@@ -24,6 +24,14 @@ function pricingFromAccess(access) {
 function filenameFromDisposition(header, fallback) {
   const match = String(header || "").match(/filename="?([^"]+)"?/i);
   return match?.[1] || fallback;
+}
+
+function readCheckoutUser() {
+  if (typeof window === "undefined") return { name: "", email: "" };
+  return {
+    name: localStorage.getItem("name") || localStorage.getItem("full_name") || "",
+    email: localStorage.getItem("email") || localStorage.getItem("user_email") || "",
+  };
 }
 
 async function downloadUrlAsFile(url, fallbackName) {
@@ -57,30 +65,32 @@ export function TwoDLibraryPaywallModals({
   onPay,
   pricing,
 }) {
+  const totalLabel =
+    pricing?.total != null && Number.isFinite(Number(pricing.total))
+      ? `$${Number(pricing.total).toFixed(2)}`
+      : "";
+
   return (
     <>
       {openLogin ? <UserLoginPupUp onClose={onCloseLogin} /> : null}
       {openBilling ? (
-        <BillingAddress
-          onClose={onCloseBilling}
-          onSave={onPay}
-          cadId={designId}
-          designDetails={{
+        <ConverterDownloadFlow
+          product={{
+            badge: "2D",
             title: designTitle || "2D drawing set",
-            description: "2D technical drawing download",
+            detail: "2D technical drawing download",
+            successDetail: "Your download has started.",
+            pricing: pricing || undefined,
           }}
-          productDetails={{
-            title: designTitle || "2D drawing set",
-            description: "2D technical drawing download",
-            pricing: pricing || {
-              base_price: 3,
-              gst_rate: 0.18,
-              gst_amount: 0.54,
-              total: 3.54,
-              currency: "USD",
-            },
-          }}
+          pricing={pricing || undefined}
+          user={readCheckoutUser()}
           createdFor="design_billing"
+          heading="Download your drawing set"
+          payButtonLabel={totalLabel ? `Pay ${totalLabel} & download →` : undefined}
+          successTitle="Paid — your download started"
+          successBody="Your drawing files are downloading now."
+          onClose={onCloseBilling}
+          onPay={onPay}
         />
       ) : null}
     </>
@@ -144,23 +154,15 @@ export function useTwoDLibraryDownload({ designId, designTitle, enabled }) {
   );
 
   const handlePay = useCallback(
-    async (cadId, billingId) => {
-      setBusy(true);
-      try {
-        await openTwoDLibraryPayment({
-          cadFileId: cadId || designId,
-          billingId,
-          description: designTitle || "2D drawing set",
-        });
-        toast.success("Payment successful. Starting download...");
-        await startDownload(pendingHref, pendingName);
-      } catch (err) {
-        if (String(err?.message || "") !== "Payment cancelled") {
-          toast.error(err?.message || "Payment failed.");
-        }
-      } finally {
-        setBusy(false);
-      }
+    async (billingId) => {
+      await openTwoDLibraryPayment({
+        cadFileId: designId,
+        billingId,
+        description: designTitle || "2D drawing set",
+      });
+      toast.success("Payment successful. Starting download...");
+      await startDownload(pendingHref, pendingName);
+      return {};
     },
     [designId, designTitle, pendingHref, pendingName, startDownload],
   );
