@@ -21,6 +21,21 @@ const LETTER_HELP = {
   B: "Secondary — orients against A",
   C: "Tertiary — last remaining freedom",
 };
+const MODE_SUGGESTED = "suggested";
+const MODE_PICK = "pick";
+
+function resolveDatumEntry(id, candidates, pickable) {
+  if (id == null || id === "") return null;
+  const sid = String(id);
+  return (
+    candidates.find((c) => String(c.id) === sid) || pickable.find((c) => String(c.id) === sid) || null
+  );
+}
+
+function displayLabel(id, candidates, pickable) {
+  const entry = resolveDatumEntry(id, candidates, pickable);
+  return entry?.label || `D${id}`;
+}
 
 function candidateLabel(c) {
   const kind = c?.kind === "axis" ? "Axis" : "Plane";
@@ -29,13 +44,28 @@ function candidateLabel(c) {
   return `${c?.label || `D${c?.id}`} · ${kind}${alt}${ev ? ` — ${ev}` : ""}`;
 }
 
+function pickableLabel(c) {
+  const kind = c?.kind === "axis" ? "Axis" : "Plane";
+  const ev = (c?.evidence || c?.reason || "").trim();
+  return `${c?.label || `D${c?.id}`} · ${kind}${ev ? ` — ${ev}` : ""}`;
+}
+
 export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onConfirmed }) {
   const candidates = Array.isArray(job?.gdt_datum_candidates) ? job.gdt_datum_candidates : [];
+  const pickable = Array.isArray(job?.gdt_datum_pickable) ? job.gdt_datum_pickable : [];
+  const hasPickable = pickable.length > 0;
+  const [mode, setMode] = useState(hasPickable ? MODE_SUGGESTED : MODE_SUGGESTED);
+  const pickMode = mode === MODE_PICK && hasPickable;
   const [picks, setPicks] = useState({ A: "", B: "", C: "" });
   const [activeLetter, setActiveLetter] = useState("A");
   const [submitting, setSubmitting] = useState(false);
   const [focusCandidateId, setFocusCandidateId] = useState(null);
   const candidateItemRefs = useRef({});
+
+  const dropdownOptions = useMemo(() => {
+    if (pickMode) return pickable;
+    return candidates;
+  }, [pickMode, pickable, candidates]);
 
   const usedIds = useMemo(
     () => new Set(LETTERS.map((L) => picks[L]).filter(Boolean)),
@@ -62,7 +92,6 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
     setFocusCandidateId(id);
     setPicks((prev) => {
       const next = { ...prev };
-      // Clear this feature from any other letter first.
       for (const L of LETTERS) {
         if (String(next[L]) === id) next[L] = "";
       }
@@ -104,7 +133,7 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
     }
   };
 
-  if (!candidates.length) {
+  if (!candidates.length && !pickable.length) {
     return (
       <div className={`${styles.resultBanner} ${styles.resultBannerWarn}`} style={{ marginBottom: 16 }}>
         <span className={styles.resultIcon}>📐</span>
@@ -124,11 +153,38 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
         <span className={styles.datumPickerIcon} aria-hidden>
           📐
         </span>
-        <div>
-          <div className={styles.datumPickerTitle}>Choose the datum reference frame</div>
+        <div className={styles.datumPickerHeaderBody}>
+          <div className={styles.datumPickerTitleRow}>
+            <div className={styles.datumPickerTitle}>Choose the datum reference frame</div>
+            {hasPickable ? (
+              <div className={styles.datumModeToggle} role="tablist" aria-label="Datum selection mode">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === MODE_SUGGESTED}
+                  className={`${styles.datumModeBtn}${mode === MODE_SUGGESTED ? ` ${styles.datumModeBtnOn}` : ""}`}
+                  disabled={adminMode || submitting}
+                  onClick={() => setMode(MODE_SUGGESTED)}
+                >
+                  Suggested datums
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === MODE_PICK}
+                  className={`${styles.datumModeBtn}${mode === MODE_PICK ? ` ${styles.datumModeBtnOn}` : ""}`}
+                  disabled={adminMode || submitting}
+                  onClick={() => setMode(MODE_PICK)}
+                >
+                  Pick on model
+                </button>
+              </div>
+            ) : null}
+          </div>
           <p className={styles.datumPickerLead}>
-            Click faces and axes on your model for A (primary), B (secondary), and C (tertiary) —
-            or use the dropdowns / let the engine choose.
+            {pickMode
+              ? "Click any planar face or cylindrical surface on the model to assign A, B, and C — or use the dropdowns."
+              : "Use engine-suggested datums from the list, click highlighted overlays on the model, or let the engine choose."}
           </p>
         </div>
       </div>
@@ -138,6 +194,8 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
           job={job}
           jobId={jobId}
           candidates={candidates}
+          pickableCandidates={pickable}
+          pickMode={pickMode}
           picks={picks}
           activeLetter={activeLetter}
           onPickCandidate={assignCandidate}
@@ -163,7 +221,7 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
                     aria-pressed={selected}
                   >
                     {letter}
-                    {filled ? ` · D${picks[letter]}` : ""}
+                    {filled ? ` · ${displayLabel(picks[letter], candidates, pickable)}` : ""}
                   </button>
                 );
               })}
@@ -186,12 +244,12 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
                   onFocus={() => setActiveLetter(letter)}
                 >
                   <option value="">Not used</option>
-                  {candidates.map((c) => {
+                  {dropdownOptions.map((c) => {
                     const id = String(c.id);
                     const taken = usedIds.has(id) && picks[letter] !== id;
                     return (
                       <option key={id} value={id} disabled={taken}>
-                        {candidateLabel(c)}
+                        {pickMode ? pickableLabel(c) : candidateLabel(c)}
                       </option>
                     );
                   })}
@@ -200,37 +258,81 @@ export default function TechDrawDatumPicker({ jobId, job, adminMode = false, onC
             ))}
           </div>
 
-          <ul className={styles.datumCandidateList}>
-            {candidates.map((c) => {
-              const id = String(c.id);
-              const assigned = LETTERS.find((L) => picks[L] === id);
-              const focused = String(focusCandidateId) === id;
-              return (
-                <li
-                  key={c.id}
-                  ref={(node) => {
-                    if (node) candidateItemRefs.current[id] = node;
-                    else delete candidateItemRefs.current[id];
-                  }}
+          {pickMode ? (
+            <div className={styles.datumPickSummary}>
+              <div className={styles.datumPickSummaryTitle}>Your frame</div>
+              {LETTERS.every((L) => !picks[L]) ? (
+                <p className={styles.datumPickSummaryEmpty}>
+                  Click the model to assign datum {activeLetter}. Every retained face and cylinder is available (
+                  {pickable.length} surfaces).
+                </p>
+              ) : (
+                <ul className={styles.datumPickSummaryList}>
+                  {LETTERS.map((letter) => {
+                    if (!picks[letter]) return null;
+                    const entry = resolveDatumEntry(picks[letter], candidates, pickable);
+                    return (
+                      <li key={letter}>
+                        <button
+                          type="button"
+                          className={styles.datumPickSummaryItem}
+                          disabled={adminMode || submitting}
+                          onClick={() => setActiveLetter(letter)}
+                        >
+                          <span className={styles.datumAssignedBadge}>{letter}</span>
+                          <strong>{displayLabel(picks[letter], candidates, pickable)}</strong>
+                          <span className={styles.datumKindBadge}>{entry?.kind === "axis" ? "axis" : "plane"}</span>
+                          <span>{entry?.evidence || entry?.reason || ""}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              {candidates.length ? (
+                <button
+                  type="button"
+                  className={styles.datumSwitchModeLink}
+                  disabled={adminMode || submitting}
+                  onClick={() => setMode(MODE_SUGGESTED)}
                 >
-                  <button
-                    type="button"
-                    className={`${styles.datumCandidateBtn}${assigned ? ` ${styles.datumCandidateBtnOn}` : ""}${
-                      focused ? ` ${styles.datumCandidateBtnFocus}` : ""
-                    }`}
-                    disabled={adminMode || submitting}
-                    onClick={() => assignCandidate(c.id)}
+                  Switch to suggested datums
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <ul className={styles.datumCandidateList}>
+              {candidates.map((c) => {
+                const id = String(c.id);
+                const assigned = LETTERS.find((L) => picks[L] === id);
+                const focused = String(focusCandidateId) === id;
+                return (
+                  <li
+                    key={c.id}
+                    ref={(node) => {
+                      if (node) candidateItemRefs.current[id] = node;
+                      else delete candidateItemRefs.current[id];
+                    }}
                   >
-                    <strong>{c.label || `D${c.id}`}</strong>
-                    <span className={styles.datumKindBadge}>{c.kind === "axis" ? "axis" : "plane"}</span>
-                    {c.alternate ? <span className={styles.datumAltBadge}>alt</span> : null}
-                    {assigned ? <span className={styles.datumAssignedBadge}>{assigned}</span> : null}
-                    <span>{c.evidence || c.reason || ""}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+                    <button
+                      type="button"
+                      className={`${styles.datumCandidateBtn}${assigned ? ` ${styles.datumCandidateBtnOn}` : ""}${
+                        focused ? ` ${styles.datumCandidateBtnFocus}` : ""
+                      }`}
+                      disabled={adminMode || submitting}
+                      onClick={() => assignCandidate(c.id)}
+                    >
+                      <strong>{c.label || `D${c.id}`}</strong>
+                      <span className={styles.datumKindBadge}>{c.kind === "axis" ? "axis" : "plane"}</span>
+                      {c.alternate ? <span className={styles.datumAltBadge}>alt</span> : null}
+                      {assigned ? <span className={styles.datumAssignedBadge}>{assigned}</span> : null}
+                      <span>{c.evidence || c.reason || ""}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </div>
 

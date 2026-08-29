@@ -466,6 +466,8 @@ function ModelScene({
   glbUrl,
   isStl,
   candidates,
+  pickPool,
+  pickMode = false,
   picks,
   hoveredId,
   onHover,
@@ -477,6 +479,12 @@ function ModelScene({
   const [readyTick, setReadyTick] = useState(0);
   const [modelSize, setModelSize] = useState(50);
   const downRef = useRef(null);
+  const clickPool = pickPool?.length ? pickPool : candidates;
+  const overlayCandidates = useMemo(() => {
+    if (!pickMode) return candidates;
+    const used = new Set(Object.values(picks || {}).filter(Boolean).map(String));
+    return clickPool.filter((c) => used.has(String(c.id)));
+  }, [pickMode, candidates, clickPool, picks]);
 
   const onReady = () => {
     requestAnimationFrame(() => {
@@ -525,14 +533,14 @@ function ModelScene({
     const local = model.worldToLocal(point.clone());
     // Model root is Y-up; feature_ref is CAD Z-up — convert back for matching.
     const cadLocal = local.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2);
-    const id = nearestCandidateId(cadLocal, candidates);
+    const id = nearestCandidateId(cadLocal, clickPool);
     if (id != null) onPick?.(id);
   };
 
-  const overlays = (
+  const overlays = overlayCandidates.length ? (
     <group rotation={[Math.PI / 2, 0, 0]}>
       <DatumOverlays
-        candidates={candidates}
+        candidates={overlayCandidates}
         picks={picks}
         hoveredId={hoveredId}
         onHover={onHover}
@@ -541,7 +549,7 @@ function ModelScene({
         modelSize={modelSize}
       />
     </group>
-  );
+  ) : null;
 
   return (
     <>
@@ -587,6 +595,8 @@ export default function TechDrawDatumViewer({
   job,
   jobId,
   candidates = [],
+  pickableCandidates = [],
+  pickMode = false,
   picks,
   activeLetter,
   onPickCandidate,
@@ -600,6 +610,10 @@ export default function TechDrawDatumViewer({
     [job, jobId],
   );
   const isStl = /\.stl(\?|$)/i.test(previewUrl);
+  const pickPool = useMemo(
+    () => (pickableCandidates?.length ? pickableCandidates : candidates),
+    [pickableCandidates, candidates],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -632,7 +646,9 @@ export default function TechDrawDatumViewer({
         <span className={styles.datumViewerHint}>
           {disabled
             ? "Read-only preview"
-            : `Drag to tumble · scroll to zoom · right-drag to pan · click for Datum ${activeLetter}`}
+            : pickMode
+              ? `Click any face or cylinder on the model for Datum ${activeLetter}`
+              : `Drag to tumble · scroll to zoom · right-drag to pan · click for Datum ${activeLetter}`}
         </span>
         <div className={styles.datumViewerToolbarRight}>
           <div className={styles.datumViewerLegend}>
@@ -682,6 +698,8 @@ export default function TechDrawDatumViewer({
                   glbUrl={previewUrl}
                   isStl={isStl}
                   candidates={candidates}
+                  pickPool={pickPool}
+                  pickMode={pickMode}
                   picks={picks}
                   hoveredId={hoveredId}
                   onHover={setHoveredId}

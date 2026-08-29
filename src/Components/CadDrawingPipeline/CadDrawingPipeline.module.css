@@ -3099,6 +3099,120 @@
   color: #b8b0cc;
 }
 
+.datumPickerHeaderBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.datumPickerTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.datumModeToggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 8, 18, 0.55);
+  gap: 2px;
+}
+
+.datumModeBtn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #8b8499;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.datumModeBtn:hover:not(:disabled) {
+  color: #cfc9dd;
+}
+
+.datumModeBtnOn {
+  background: rgba(97, 11, 238, 0.35);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.45);
+}
+
+.datumPickSummary {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 8, 18, 0.45);
+}
+
+.datumPickSummaryTitle {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8b8499;
+  margin-bottom: 8px;
+}
+
+.datumPickSummaryEmpty {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b8b0cc;
+}
+
+.datumPickSummaryList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.datumPickSummaryItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #cfc9dd;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.datumPickSummaryItem:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.45);
+}
+
+.datumSwitchModeLink {
+  margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #a78bfa;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.datumSwitchModeLink:hover:not(:disabled) {
+  color: #c4b5fd;
+}
+
 .datumPickerGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
