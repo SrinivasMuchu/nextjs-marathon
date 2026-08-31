@@ -61,6 +61,7 @@ function HomeTopNav() {
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [pendingPack, setPendingPack] = useState(null);
   const topNavRef = useRef(null);
+  const dropdownCloseTimeoutRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
   const { user, setUser, setUpdatedDetails } = useContext(contextState);
@@ -116,9 +117,27 @@ function HomeTopNav() {
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
 
+  const clearDropdownCloseTimeout = () => {
+    if (dropdownCloseTimeoutRef.current) {
+      clearTimeout(dropdownCloseTimeoutRef.current);
+      dropdownCloseTimeoutRef.current = null;
+    }
+  };
+
   const handleNavHover = (dropdownName = null) => {
+    clearDropdownCloseTimeout();
     setOpenDropdown(dropdownName);
   };
+
+  const handleDropdownLeave = (dropdownName) => {
+    clearDropdownCloseTimeout();
+    dropdownCloseTimeoutRef.current = setTimeout(() => {
+      setOpenDropdown((open) => (open === dropdownName ? null : open));
+      dropdownCloseTimeoutRef.current = null;
+    }, 150);
+  };
+
+  useEffect(() => () => clearDropdownCloseTimeout(), []);
 
   const handleDashboardClick = () => {
     setOpenDropdown(null);
@@ -190,7 +209,7 @@ function HomeTopNav() {
           <div
             className={styles.navDropdownWrap}
             onMouseEnter={() => handleNavHover("library")}
-            onMouseLeave={() => setOpenDropdown((open) => (open === "library" ? null : open))}
+            onMouseLeave={() => handleDropdownLeave("library")}
           >
             <Link
               href="/library"
@@ -215,7 +234,7 @@ function HomeTopNav() {
           <div
             className={styles.navDropdownWrap}
             onMouseEnter={() => handleNavHover("tools")}
-            onMouseLeave={() => setOpenDropdown((open) => (open === "tools" ? null : open))}
+            onMouseLeave={() => handleDropdownLeave("tools")}
           >
             <Link
               href="/tools"
@@ -234,7 +253,7 @@ function HomeTopNav() {
           <div
             className={styles.navDropdownWrap}
             onMouseEnter={() => handleNavHover("blogs")}
-            onMouseLeave={() => setOpenDropdown((open) => (open === "blogs" ? null : open))}
+            onMouseLeave={() => handleDropdownLeave("blogs")}
           >
             <button
               type="button"

@@ -152,7 +152,7 @@
 /* Tools dropdown — matches CAD Actions floating menu cards */
 .toolsDropdownMenu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -160,6 +160,7 @@
   gap: 8px;
   width: min(300px, calc(100vw - 24px));
   z-index: 1200;
+  /* padding-top bridges trigger → menu hover path (no dead zone) */
   padding: 8px 0 0;
   background: transparent;
   animation: toolsDropdownIn 160ms ease-out;
