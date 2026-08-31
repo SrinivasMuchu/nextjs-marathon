@@ -441,7 +441,7 @@ function AxisOverlay({ candidate, color, opacity, onHover, onPick, disabled, mod
   );
 }
 
-function DatumOverlays({ candidates, picks, hoveredId, onHover, onPick, disabled, modelSize }) {
+function DatumOverlays({ candidates, picks, hoveredId, onHover, onPick, disabled, modelSize, pickMode = false }) {
   return (
     <group>
       {candidates.map((c) => {
@@ -451,7 +451,7 @@ function DatumOverlays({ candidates, picks, hoveredId, onHover, onPick, disabled
         const isHover = String(hoveredId) === String(c.id);
         const color =
           overlayColor(c.id, picks, hoveredId) || (c.kind === "axis" ? IDLE_AXIS : IDLE_PLANE);
-        const opacity = assigned ? 0.7 : isHover ? 0.55 : 0.38;
+        const opacity = assigned ? 0.7 : isHover ? 0.55 : pickMode ? 0.18 : 0.38;
         const props = { candidate: c, color, opacity, onHover, onPick, disabled, modelSize };
         if (c.kind === "axis" || fr.kind === "axis") {
           return <AxisOverlay key={c.id} {...props} />;
@@ -482,9 +482,8 @@ function ModelScene({
   const clickPool = pickPool?.length ? pickPool : candidates;
   const overlayCandidates = useMemo(() => {
     if (!pickMode) return candidates;
-    const used = new Set(Object.values(picks || {}).filter(Boolean).map(String));
-    return clickPool.filter((c) => used.has(String(c.id)));
-  }, [pickMode, candidates, clickPool, picks]);
+    return clickPool;
+  }, [pickMode, candidates, clickPool]);
 
   const onReady = () => {
     requestAnimationFrame(() => {
@@ -530,25 +529,22 @@ function ModelScene({
     const model = modelRef.current;
     const point = down.point || e.point;
     if (!model || !point) return;
-    const local = model.worldToLocal(point.clone());
-    // Model root is Y-up; feature_ref is CAD Z-up — convert back for matching.
-    const cadLocal = local.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2);
+    const cadLocal = model.worldToLocal(point.clone());
     const id = nearestCandidateId(cadLocal, clickPool);
     if (id != null) onPick?.(id);
   };
 
   const overlays = overlayCandidates.length ? (
-    <group rotation={[Math.PI / 2, 0, 0]}>
-      <DatumOverlays
-        candidates={overlayCandidates}
-        picks={picks}
-        hoveredId={hoveredId}
-        onHover={onHover}
-        onPick={onPick}
-        disabled={disabled}
-        modelSize={modelSize}
-      />
-    </group>
+    <DatumOverlays
+      candidates={overlayCandidates}
+      picks={picks}
+      hoveredId={hoveredId}
+      onHover={onHover}
+      onPick={onPick}
+      disabled={disabled}
+      modelSize={modelSize}
+      pickMode={pickMode}
+    />
   ) : null;
 
   return (

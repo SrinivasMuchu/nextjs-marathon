@@ -10,6 +10,7 @@ import {
   TWO_D_DEFAULT_PROJECTION,
   TWO_D_DEFAULT_SHEET_LABEL,
   getTwoDPriceLabel,
+  isTwoDLibraryDesignFree,
 } from '@/data/twoDLibraryPage';
 import styles from './Library.module.css';
 import cardStyles from './LibraryProductCard.module.css';
@@ -74,7 +75,7 @@ export default function TwoDLibraryCard({ design }) {
   const formatChips = getOutputFormatChips(design);
   const projection = design.two_d_projection || TWO_D_DEFAULT_PROJECTION;
   const priceLabel = getTwoDPriceLabel(design);
-  const isFree = !design?.['2d_price'];
+  const isFree = isTwoDLibraryDesignFree(design);
   const downloads = formatDownloadCount(design.total_design_downloads ?? 0);
 
   return (

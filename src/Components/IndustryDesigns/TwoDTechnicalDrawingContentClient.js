@@ -79,6 +79,12 @@ export default function TwoDTechnicalDrawingContentClient({
   zipHref,
   showDownloadAllPdfs = true,
   showCadModelLink = true,
+  onPdf,
+  onZip,
+  onSvg,
+  onDxf,
+  onFreecad,
+  onSheetDownload,
   drawingInfo,
   viewCards,
   sectionDetailGroups,
@@ -103,6 +109,11 @@ export default function TwoDTechnicalDrawingContentClient({
             dxfHref={dxfHref}
             freecadHref={freecadHref}
             zipHref={zipHref}
+            onPdf={onPdf}
+            onZip={onZip}
+            onSvg={onSvg}
+            onDxf={onDxf}
+            onFreecad={onFreecad}
             showDownloadAllPdfs={showDownloadAllPdfs}
             showCadModelLink={showCadModelLink}
             drawingInfo={drawingInfo}
@@ -116,7 +127,7 @@ export default function TwoDTechnicalDrawingContentClient({
         <>
           <TwoDDrawingViewCards views={viewCards} />
           <TwoDDrawingSectionDetailCards groups={sectionDetailGroups} />
-          <TwoDDrawingSheetDownloads rows={sheetDownloadRows} />
+          <TwoDDrawingSheetDownloads rows={sheetDownloadRows} onDownload={onSheetDownload} />
         </>
       ) : null}
       <TwoDDrawingCtaBanner generateHref={generateHref} />

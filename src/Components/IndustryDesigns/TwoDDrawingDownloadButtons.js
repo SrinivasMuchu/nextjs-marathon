@@ -7,6 +7,9 @@ import { CAD_2D_DRAWING_EVENT } from "@/config";
 export default function TwoDDrawingDownloadButtons({
   onPdf,
   onZip,
+  onSvg,
+  onDxf,
+  onFreecad,
   pdfHref,
   svgHref,
   dxfHref,
@@ -26,24 +29,35 @@ export default function TwoDDrawingDownloadButtons({
     });
   };
 
+  const open = (href, handler) => {
+    if (handler) {
+      handler();
+      return;
+    }
+    if (href) window.open(href, "_blank", "noopener,noreferrer");
+  };
+
   const handlePdf = () => {
     trackDownloadClick("techdraw_download_pdf_click");
-    if (onPdf) onPdf();
-    else if (pdfHref) window.open(pdfHref, "_blank", "noopener,noreferrer");
+    open(pdfHref, onPdf);
   };
   const handleZip = () => {
     trackDownloadClick("techdraw_download_zip_click");
-    if (onZip) onZip();
-    else if (zipHref) window.open(zipHref, "_blank", "noopener,noreferrer");
+    open(zipHref, onZip);
   };
 
   const handleSvg = () => {
     trackDownloadClick("techdraw_download_svg_click");
-    if (svgHref) window.open(svgHref, "_blank", "noopener,noreferrer");
+    open(svgHref, onSvg);
   };
   const handleDxf = () => {
     trackDownloadClick("techdraw_download_dxf_click");
-    if (dxfHref) window.open(dxfHref, "_blank", "noopener,noreferrer");
+    open(dxfHref, onDxf);
+  };
+  const handleFreecad = (e) => {
+    e.preventDefault();
+    trackDownloadClick("techdraw_download_freecad_click");
+    open(freecadHref, onFreecad);
   };
 
   return (
@@ -64,33 +78,13 @@ export default function TwoDDrawingDownloadButtons({
         </button>
       ) : null}
       {freecadHref ? (
-        <a
-          href={freecadHref}
-          className={styles.btnSecondary}
-          download
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => trackDownloadClick("techdraw_download_freecad_click")}
-        >
+        <button type="button" className={styles.btnSecondary} onClick={handleFreecad}>
           {freecadLabel}
-        </a>
-      ) : null}
-      {zipHref && !onZip ? (
-        <a
-          href={zipHref}
-          className={styles.btnSecondary}
-          download
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => trackDownloadClick("techdraw_download_zip_click")}
-        >
-          {zipLabel}
-        </a>
-      ) : (
-        <button type="button" className={styles.btnSecondary} onClick={handleZip}>
-          {zipLabel}
         </button>
-      )}
+      ) : null}
+      <button type="button" className={styles.btnSecondary} onClick={handleZip}>
+        {zipLabel}
+      </button>
     </div>
   );
 }

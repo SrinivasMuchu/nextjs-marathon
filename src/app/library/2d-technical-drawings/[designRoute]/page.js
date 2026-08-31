@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import TwoDLibrary from "@/Components/Library/TwoDLibrary";
 import TwoDTechnicalDrawingPage from "@/Components/IndustryDesigns/TwoDTechnicalDrawingPage";
-import TwoDTechnicalDrawingContent from "@/Components/IndustryDesigns/TwoDTechnicalDrawingContent";
+import TwoDLibraryDrawingDownloads from "@/Components/IndustryDesigns/TwoDLibraryDrawingDownloads";
 import TwoDTechnicalDrawingPageJsonLd from "@/Components/JsonLdSchemas/TwoDTechnicalDrawingPageJsonLd";
 import { BASE_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
 import { resolveCategorySlugToName } from "@/common.helper";
@@ -151,10 +151,14 @@ async function renderDesignPage(designRoute) {
         designId={designId}
         cadModelHref={cadModelHref}
       >
-        <TwoDTechnicalDrawingContent
-          {...contentProps}
-          cadModelHref={cadModelHref}
-          currentDesignId={designId}
+        <TwoDLibraryDrawingDownloads
+          designId={designId}
+          designTitle={title}
+          contentProps={{
+            ...contentProps,
+            cadModelHref,
+            currentDesignId: designId,
+          }}
         />
       </TwoDTechnicalDrawingPage>
     </>

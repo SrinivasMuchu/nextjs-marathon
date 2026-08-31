@@ -1,7 +1,7 @@
 import React from "react";
 import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 
-/** Free vs paid TechDraw job (dashboard cards). Paid jobs show list price (e.g. $4.99). */
+/** Free vs paid TechDraw job (dashboard cards). Paid = download costs $5.99 incl. GST. */
 export default function TechDrawBillingBadge({ billingType }) {
   const isPaid = String(billingType || "").toLowerCase() === "paid";
   const paidLabel = getTechDrawPriceDisplay().totalLabel;

@@ -1,3 +1,5 @@
+"use client";
+
 import { DEFAULT_SHEET_DOWNLOAD_ROWS } from "./twoDDrawingPageDefaults";
 import styles from "./TwoDDrawingSheetDownloads.module.css";
 
@@ -7,13 +9,17 @@ const FORMATS = [
   { key: "dxf", label: "DXF", className: styles.dxf },
 ];
 
-/**
- * Server component: per-sheet format links. Responsive: title full width, badges wrap below on narrow screens.
- */
-export default function TwoDDrawingSheetDownloads({ rows }) {
+export default function TwoDDrawingSheetDownloads({ rows, onDownload }) {
   void DEFAULT_SHEET_DOWNLOAD_ROWS;
   const safeRows = Array.isArray(rows) ? rows : [];
   if (!safeRows.length) return null;
+
+  const open = (href) => {
+    if (!href) return;
+    if (onDownload) onDownload(href);
+    else window.open(href, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <section className={styles.section} aria-labelledby="sheet-downloads-heading">
       <p className={styles.eyebrow}>Downloads</p>
@@ -33,14 +39,14 @@ export default function TwoDDrawingSheetDownloads({ rows }) {
                 const href = row[key];
                 if (!href) return null;
                 return (
-                  <a
+                  <button
                     key={key}
-                    href={href}
+                    type="button"
                     className={`${styles.badge} ${className}`}
-                    download
+                    onClick={() => open(href)}
                   >
                     {label}
-                  </a>
+                  </button>
                 );
               })}
             </div>

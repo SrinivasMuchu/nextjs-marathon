@@ -1,4 +1,5 @@
 import { slugify } from '@/common.helper';
+import { TECHDRAW_CHECKOUT_TOTAL_USD } from '@/api/cadDrawingPipelineApi';
 
 export const TWO_D_LIBRARY_BASE = '/library/2d-technical-drawings';
 
@@ -97,10 +98,18 @@ export const TWO_D_PROJECTION_FILTERS = [
   { value: '3rd-angle', label: '3rd Angle' },
 ];
 
-/** Price label for 2D library cards — uses 2d_price when set, otherwise Free. */
+/** Whether this 2D library design is free to download. */
+export function isTwoDLibraryDesignFree(design) {
+  const price = Number(design?.['2d_price']);
+  return Number.isFinite(price) && price === 0 && design?.two_d_library_free === true;
+}
+
+/** Price label for 2D library cards — uses 2d_price when set, otherwise default list price. */
 export function getTwoDPriceLabel(design) {
+  if (isTwoDLibraryDesignFree(design)) return 'Free';
   const price = design?.['2d_price'];
-  return price ? `$${price}` : 'Free';
+  const amount = Number(price) > 0 ? Number(price) : TECHDRAW_CHECKOUT_TOTAL_USD;
+  return `$${amount}`;
 }
 
 /** Design routes contain a MongoDB ObjectId (24 hex chars); category slugs do not. */
