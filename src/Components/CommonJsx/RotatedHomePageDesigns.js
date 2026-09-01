@@ -3,6 +3,10 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from '../Library/Library.module.css';
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
+import {
+  THUMBNAIL_SPRITE_ANGLES,
+  getThumbnailSpriteUrl,
+} from '@/data/thumbnailSpriteAngles';
 import StaticDesign from './StaticDesign';
 
 const HoverImageSequenceHome = ({ design, loading }) => {
@@ -19,8 +23,8 @@ const HoverImageSequenceHome = ({ design, loading }) => {
   // Check if file type is DXF or DWG
   const isDxfOrDwg = design?.file_type?.toLowerCase() === 'dxf' || design?.file_type?.toLowerCase() === 'dwg';
 
-  const angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
   const intervalRef = useRef(null);
   const hoverRef = useRef(false);
 
@@ -34,16 +38,17 @@ const HoverImageSequenceHome = ({ design, loading }) => {
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.2 }
+      { threshold: 0.05, rootMargin: '40px 0px' }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    const node = containerRef.current;
+    if (node) {
+      observer.observe(node);
     }
 
     return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+      if (node) {
+        observer.unobserve(node);
       }
     };
   }, []);
@@ -51,7 +56,10 @@ const HoverImageSequenceHome = ({ design, loading }) => {
   const startCycling = () => {
     if (intervalRef.current || !hoverRef.current) return;
     // For DXF/DWG with supporting images, cycle through image count; otherwise cycle through angles
-    const cycleLength = isDxfOrDwg && hasSupportingImages ? supportingImages.length : angles.length;
+    const cycleLength =
+      isDxfOrDwg && hasSupportingImages
+        ? supportingImages.length
+        : THUMBNAIL_SPRITE_ANGLES.length;
     intervalRef.current = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % cycleLength);
     }, 300);
@@ -65,13 +73,17 @@ const HoverImageSequenceHome = ({ design, loading }) => {
 
   const handleMouseEnter = () => {
     hoverRef.current = true;
+    setIsHovering(true);
     startCycling();
   };
 
   const handleMouseLeave = () => {
     hoverRef.current = false;
+    setIsHovering(false);
     stopCycling();
   };
+
+  const showRotatingPreview = isVisible || isHovering;
 
   // For DXF/DWG files, show supporting-file images only (same behavior as Library)
   if (isDxfOrDwg && hasSupportingImages) {
@@ -127,9 +139,9 @@ const HoverImageSequenceHome = ({ design, loading }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {isVisible ? (
+      {showRotatingPreview ? (
         <Image
-          src={`${IMAGE_BASE_URL}/sprite_${angles[currentIndex]}_${angles[currentIndex]}.webp`}
+          src={getThumbnailSpriteUrl(IMAGE_BASE_URL, currentIndex)}
           alt={design.page_title}
           width={298}
           height={298}
