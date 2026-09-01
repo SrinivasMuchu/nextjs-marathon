@@ -1,6 +1,11 @@
 
 import React from "react";
 import HomeLandingNew from "../HomePages/HomeLandingNew/HomeLandingNew";
+import ConversionTypes from "../HomePages/ConversionTypes/ConversionTypes";
+import ConversionExpertise from "../HomePages/ConversionExpertise/ConversionExpertise";
+import ConverterDirectory from "../HomePages/ConverterDirectory/ConverterDirectory";
+import FormatExpertise from "../HomePages/FormatExpertise/FormatExpertise";
+import ConversionPricing from "../HomePages/ConversionPricing/ConversionPricing";
 import DesignHub from "../HomePages/DesignHub/DesignHub";
 import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
 import WhyUsNew from "../HomePages/NewWhyUs/WhyUsNew";
@@ -20,6 +25,11 @@ const HomePage = () => {
           {/* <HomeTopNav /> */}
           {/* <WorkFlow /> */}
           <HomeLandingNew />
+          <ConversionTypes />
+          <ConversionExpertise />
+          <ConverterDirectory />
+          <FormatExpertise />
+          <ConversionPricing />
           {/* <CadOutsourcingBanner /> */}
           <DesignHub />
           <RecentlyAddedDesigns />

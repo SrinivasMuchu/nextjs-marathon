@@ -1,0 +1,460 @@
+.section {
+  --purple: #6324d8;
+  --purple-dark: #4c14b8;
+  --purple-soft: #f1eafd;
+  --ink: #15121c;
+  --muted: #696572;
+  --line: #e8e5ed;
+
+  padding: clamp(72px, 10vw, 112px) 0;
+  color: var(--ink);
+  background-color: var(--purple);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.2), transparent 34%),
+    linear-gradient(135deg, #742fe7 0%, #6425d9 52%, #5018bd 100%);
+  background-size: 36px 36px, 36px 36px, 100% 100%, 100% 100%;
+  font-family: inherit;
+}
+
+.outer {
+  width: min(1200px, calc(100% - 44px));
+  margin: 0 auto;
+}
+
+.embedded {
+  width: 100%;
+  padding: clamp(56px, 7vw, 96px) clamp(18px, 5vw, 64px);
+  box-sizing: border-box;
+  background: white;
+  font-family: inherit;
+}
+
+.embedded .shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  box-shadow: 0 24px 60px rgba(47, 23, 92, 0.1);
+}
+
+.shell {
+  padding: clamp(40px, 5vw, 57px) clamp(24px, 4vw, 52px) clamp(32px, 4vw, 42px);
+  background: #fefeff;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 27px;
+  box-shadow: 0 30px 75px rgba(50, 14, 119, 0.28);
+}
+
+.heading {
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 0;
+  color: var(--purple);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 19px 0 13px;
+  font-size: clamp(36px, 4.6vw, 59px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.lead {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.packGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 13px;
+  margin-top: 47px;
+}
+
+.pack {
+  position: relative;
+  min-height: 405px;
+  display: flex;
+  flex-direction: column;
+  padding: 27px 24px 23px;
+  background: white;
+  border: 1px solid #e5e0eb;
+  border-radius: 16px;
+}
+
+.packFeatured {
+  color: white;
+  background: linear-gradient(155deg, #7939ec 0%, #6324d8 58%, #5117bd 100%);
+  border-color: #7c42e8;
+  box-shadow: 0 22px 42px rgba(87, 31, 188, 0.28);
+}
+
+.popularPill {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  padding: 9px 13px;
+  color: #5a1dc9;
+  background: white;
+  border: 1px solid #e3d6fb;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(70, 24, 154, 0.14);
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.packName {
+  color: #91899d;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.packFeatured .packName {
+  color: rgba(255, 255, 255, 0.63);
+}
+
+.packCredits {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.packCredits strong {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.packCredits span {
+  color: #8c8595;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.packFeatured .packCredits span {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.packPrice {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-top: 21px;
+}
+
+.packPrice strong {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.packPrice span {
+  color: #8c8595;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.packFeatured .packPrice span {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.savingPill {
+  align-self: flex-start;
+  margin-top: 13px;
+  padding: 7px 9px;
+  color: #6c2bd8;
+  background: #f1e8ff;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.savingPillBest {
+  color: #218447;
+  background: #eafbef;
+}
+
+.packFeatured .savingPill {
+  color: white;
+  background: rgba(255, 255, 255, 0.17);
+}
+
+.pack > p {
+  margin: 20px 0 24px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.packFeatured > p {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.packButton {
+  min-height: 45px;
+  display: grid;
+  place-items: center;
+  margin-top: auto;
+  color: var(--purple);
+  background: transparent;
+  border: 1.5px solid var(--purple);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.packButton:hover {
+  color: white;
+  background: var(--purple);
+  transform: translateY(-2px);
+}
+
+.packButtonFeatured {
+  color: #5e22cc;
+  background: white;
+  border-color: white;
+}
+
+.packButtonFeatured:hover {
+  color: white;
+  background: #41119f;
+  border-color: #41119f;
+}
+
+.directHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 45px 0 13px;
+}
+
+.directHead span {
+  color: var(--purple);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.directHead strong {
+  color: #4d4655;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.directGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.directCard {
+  position: relative;
+  min-height: 132px;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 21px;
+  color: inherit;
+  background: #faf9fc;
+  border: 1px solid #e7e3ec;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.directCard:hover {
+  transform: translateY(-3px);
+  border-color: #c9b1f0;
+  box-shadow: 0 15px 28px rgba(62, 32, 116, 0.08);
+}
+
+.directCardDrawing {
+  background: #f7f1ff;
+  border-color: #decdf6;
+}
+
+.directIcon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--purple);
+  background: white;
+  border: 1px solid #e0d4f3;
+  border-radius: 11px;
+}
+
+.directCard > div small {
+  color: var(--purple);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.directCard h3 {
+  margin: 5px 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.directCard p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.directPrice {
+  min-width: 85px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.directPrice strong {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.directPrice small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 400;
+}
+
+.directArrow {
+  color: var(--purple);
+}
+
+.footnote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 24px 0 0;
+  color: #8b8493;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.footnote > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footnote svg {
+  color: var(--purple);
+}
+
+.footnoteDot {
+  margin: 0 2px;
+}
+
+@media (max-width: 1080px) {
+  .packGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .pack {
+    min-height: 370px;
+  }
+}
+
+@media (max-width: 860px) {
+  .directGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .directHead {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 640px) {
+  .outer {
+    width: min(100% - 28px, 1200px);
+  }
+
+  .embedded {
+    padding: 48px 16px;
+  }
+
+  .shell {
+    padding: 43px 18px 31px;
+    border-radius: 20px;
+  }
+
+  .title {
+    font-size: 39px;
+  }
+
+  .lead {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .packGrid {
+    grid-template-columns: 1fr;
+    margin-top: 39px;
+  }
+
+  .pack {
+    min-height: 355px;
+  }
+
+  .directCard {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .directPrice {
+    grid-column: 2;
+    align-items: flex-start;
+  }
+
+  .directArrow {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .footnote {
+    line-height: 1.5;
+  }
+}
