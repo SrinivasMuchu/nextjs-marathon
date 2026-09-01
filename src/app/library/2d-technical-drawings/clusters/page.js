@@ -1,6 +1,9 @@
 import LibraryClustersPage from '@/Components/Library/LibraryClustersPage';
 import { ASSET_PREFIX_URL } from '@/config';
 
+/** Match /library: render on each request so build-kit list stays in sync with Mongo. */
+export const dynamic = 'force-dynamic';
+
 const BASE_URL = 'https://marathon-os.com';
 const CANONICAL_PATH = '/library/2d-technical-drawings/clusters';
 
