@@ -202,7 +202,13 @@ function SearchedList() {
         )}
       </div>
 
-      <div className={styles.tableWrap} style={{width:"100%"}}>
+      {isLoading ? (
+        <div className={styles.loadingWrap}>
+          <Loading />
+        </div>
+      ) : (
+        <>
+      <div className={`${styles.tableWrap} ${styles.desktopTable}`} style={{width:"100%"}}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -215,12 +221,7 @@ function SearchedList() {
               <th>Actions</th>
             </tr>
           </thead>
-          {isLoading ? (
-            <div style={{ padding: 20, textAlign: 'center' }}>
-              <Loading />
-            </div>
-          ) : (
-            <tbody>
+          <tbody>
               {searchLogs.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: 'center', padding: 20 }}>
@@ -310,11 +311,86 @@ function SearchedList() {
                 ))
               )}
             </tbody>
-          )}
         </table>
       </div>
+
+      <div className={styles.mobileCards}>
+        {searchLogs.length === 0 ? (
+          <div className={styles.mobileEmpty}>
+            {searchTerm ? 'No search logs found for your search' : 'No search logs found'}
+          </div>
+        ) : (
+          searchLogs.map((log) => {
+            const crawlLabel =
+              log.search_crawl_status === 'crawling'
+                ? 'Crawling'
+                : log.search_crawl_status === 'crawled'
+                  ? 'Crawled'
+                  : 'Not Crawled'
+            const crawlColor =
+              log.search_crawl_status === 'crawling'
+                ? '#f59e0b'
+                : log.search_crawl_status === 'crawled'
+                  ? '#22c55e'
+                  : '#6b7280'
+            return (
+              <div key={log._id} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <h3 className={styles.mobileCardTitle}>{log.search_text || 'Search'}</h3>
+                </div>
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>Marathon Search Term</span>
+                    <span className={styles.mobileCardValue}>
+                      {log.marathon_search_text || 'N/A'}
+                      {log.is_marathon_search_text_crawled ? ' ✓' : ''}
+                    </span>
+                  </div>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>User</span>
+                    <span className={styles.mobileCardValue}>{log.username || 'N/A'}</span>
+                    {log.user_email ? (
+                      <span className={styles.mobileCardSub}>{log.user_email}</span>
+                    ) : null}
+                  </div>
+                  <div className={styles.mobileCardMeta}>
+                    <span className={styles.badge} style={{ color: crawlColor, borderColor: 'currentColor' }}>
+                      {crawlLabel}
+                    </span>
+                    <span className={styles.mobileCardDate}>Date: {formatDateTime(log.createdAt)}</span>
+                  </div>
+                </div>
+                <div className={styles.mobileCardActions}>
+                  <button
+                    type="button"
+                    className={`${styles.actionBtn} ${styles.actionApprove}`}
+                    onClick={() => handleCrawlClick(log)}
+                    disabled={log.search_crawl_status === 'crawling'}
+                  >
+                    Crawl
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.actionBtn}
+                    onClick={() => handleUpdateSearchTextClick(log)}
+                    style={{
+                      background: 'rgba(59, 130, 246, .12)',
+                      color: '#3b82f6',
+                      borderColor: 'rgba(59, 130, 246, .35)',
+                    }}
+                  >
+                    Update
+                  </button>
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+        </>
+      )}
       
-      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
+      <div className={styles.paginationWrap}>
         {totalPages > 1 && (
           <Pagenation
             currentPage={currentPage}

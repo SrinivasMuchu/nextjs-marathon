@@ -94,13 +94,16 @@ export default function TwoDTechnicalDrawingContentClient({
   transparencyIntroParagraphs,
   hasRenderableSheets = true,
   wasFilteredEmpty = false,
+  drawingDetails = null,
+  svgOnly = false,
 }) {
   const showArtifacts = hasRenderableSheets && !wasFilteredEmpty;
+  const hidePdfDownloads = svgOnly || showDownloadAllPdfs === false;
   return (
     <>
       {showArtifacts ? (
         <div className={layoutStyles.mainGrid}>
-          <TwoDDrawingPreviewPanel sheets={sheets} />
+          <TwoDDrawingPreviewPanel sheets={sheets} svgOnly={svgOnly} />
           <TwoDDrawingRightSidebar
             cadModelHref={cadModelHref}
             generateHref={generateHref}
@@ -117,6 +120,8 @@ export default function TwoDTechnicalDrawingContentClient({
             showDownloadAllPdfs={showDownloadAllPdfs}
             showCadModelLink={showCadModelLink}
             drawingInfo={drawingInfo}
+            drawingDetails={drawingDetails}
+            gateLibraryDownloads={false}
           />
         </div>
       ) : (

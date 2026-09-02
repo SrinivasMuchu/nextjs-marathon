@@ -54,7 +54,9 @@ export function openTechDrawPayment({ description, jobId, billingId } = {}) {
           return;
         }
 
-        const prices = getTechDrawPriceDisplay();
+        const prices = getTechDrawPriceDisplay(
+          order.price ?? order.base_price ?? order.amount,
+        );
 
         const chargeLabel =
           description ||

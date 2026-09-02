@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useCallback } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { MdMenu } from 'react-icons/md'
 import AdminSidebar from './AdminSidebar'
 import DesignTable from './DesignTable'
 import PaymentsTable from './PaymentsTable'
@@ -30,6 +31,7 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
 
   const tabFromUrl = isMainAdminPage ? adminTabFromSearchParams(searchParams) : initialTab
   const [collapsed, setCollapsed] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(
     isValidAdminTab(initialTab) ? initialTab : tabFromUrl,
   )
@@ -55,9 +57,27 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
     }
   }, [initialTab, isMainAdminPage, searchParams])
 
+  useEffect(() => {
+    setMobileNavOpen(false)
+  }, [activeTab, pathname])
+
+  useEffect(() => {
+    if (!mobileNavOpen) return undefined
+    const onKey = (e) => {
+      if (e.key === 'Escape') setMobileNavOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [mobileNavOpen])
+
   const handleSelectTab = useCallback(
     (tab) => {
       if (!isValidAdminTab(tab)) return
+      setMobileNavOpen(false)
 
       if (isMainAdminPage) {
         router.replace(adminHrefForTab(tab), { scroll: false })
@@ -135,11 +155,13 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
     }
   }
 
+  const title = getTitle()
+
   const content = (
     <div className={styles.content}>
-      {getTitle() ? (
+      {title ? (
         <div className={styles.header}>
-          <h2 className={styles.title}>{getTitle()}</h2>
+          <h2 className={styles.title}>{title}</h2>
         </div>
       ) : null}
       {renderContent()}
@@ -147,17 +169,39 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
   )
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${mobileNavOpen ? styles.mobileNavOpen : ''}`}>
+      <div className={styles.mobileTopBar}>
+        <button
+          type="button"
+          className={styles.mobileMenuBtn}
+          onClick={() => setMobileNavOpen(true)}
+          aria-label="Open admin menu"
+        >
+          <MdMenu size={22} />
+        </button>
+        <span className={styles.mobileTopTitle}>{title || 'Admin'}</span>
+      </div>
+
+      {mobileNavOpen ? (
+        <button
+          type="button"
+          className={styles.sidebarScrim}
+          aria-label="Close menu"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      ) : null}
+
       <AdminSidebar
         collapsed={collapsed}
+        mobileOpen={mobileNavOpen}
         activeTab={activeTab}
-        onToggle={() => setCollapsed(v => !v)}
+        onToggle={() => setCollapsed((v) => !v)}
+        onCloseMobile={() => setMobileNavOpen(false)}
         onSelect={handleSelectTab}
       />
       <div className={styles.mainContent}>
         {children ?? content}
       </div>
-      
     </div>
   )
 }

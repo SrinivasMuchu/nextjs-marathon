@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { IMAGEURLS } from "@/config";
@@ -6,15 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowLeftRight,
-  BookOpen,
-  Box,
-  Building2,
-  Eye,
-  FileOutput,
-  LayoutGrid,
-  Network,
-  SquareStack,
+  ChevronDown,
 } from "lucide-react";
 import styles from "./HomeTopNav.module.css";
 import TopNavProfileButton from "../../CommonJsx/TopNavProfileButton";
@@ -31,69 +24,11 @@ import {
 } from "@/lib/converterPricing";
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { toast } from "react-toastify";
-
-const TOOLS_MENU = [
-  {
-    href: "/tools",
-    title: "All tools",
-    subtitle: "Browse every Marathon tool",
-    Icon: LayoutGrid,
-  },
-  {
-    href: "/tools/industries",
-    title: "All industries",
-    subtitle: "Explore by industry category",
-    Icon: Building2,
-  },
-  {
-    href: "/tools/org-hierarchy",
-    title: "Org Hierarchy",
-    subtitle: "Map parts to organization structure",
-    Icon: Network,
-  },
-  {
-    href: "/tools/3d-cad-viewer",
-    title: "CAD Viewer",
-    subtitle: "Open the online model viewer",
-    Icon: Eye,
-  },
-  {
-    href: "/tools/3d-cad-file-converter",
-    title: "CAD File Convert",
-    subtitle: "STEP ⇄ STL ⇄ IGES ⇄ DXF",
-    Icon: ArrowLeftRight,
-  },
-  {
-    href: "/tools/cad-drawing-pipeline",
-    title: "3D to 2D Drawing Pipeline",
-    subtitle: "Generate 2D drawings from 3D CAD",
-    Icon: FileOutput,
-  },
-];
-
-const LIBRARY_MENU = [
-  {
-    href: "/library",
-    title: "3D Library",
-    subtitle: "Browse and manage 3D CAD models",
-    Icon: Box,
-  },
-  {
-    href: "/library/2d-technical-drawings",
-    title: "2D Library",
-    subtitle: "Browse 2D technical drawings",
-    Icon: SquareStack,
-  },
-];
-
-const BLOGS_MENU = [
-  {
-    href: "/blog/part-number-nomenclature-guide",
-    title: "Part Number Nomenclature Guide",
-    subtitle: "How to structure and read part numbers",
-    Icon: BookOpen,
-  },
-];
+import {
+  BLOGS_MENU,
+  LIBRARY_MENU,
+  TOOLS_MENU,
+} from "./navConfig";
 
 function renderNavDropdownMenu(items, label, onClose) {
   return (
@@ -120,12 +55,13 @@ function renderNavDropdownMenu(items, label, onClose) {
 }
 
 function HomeTopNav() {
-  const [openDropdown, setOpenDropdown] = useState(null); // Store dropdown name
+  const [openDropdown, setOpenDropdown] = useState(null);
   const [showCreditPlans, setShowCreditPlans] = useState(false);
   const [packs, setPacks] = useState([]);
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [pendingPack, setPendingPack] = useState(null);
   const topNavRef = useRef(null);
+  const dropdownCloseTimeoutRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
   const { user, setUser, setUpdatedDetails } = useContext(contextState);
@@ -151,6 +87,10 @@ function HomeTopNav() {
   }, []);
 
   useEffect(() => {
+    setOpenDropdown(null);
+  }, [pathname]);
+
+  useEffect(() => {
     if (!openDropdown) return undefined;
 
     const handleClickOutside = (event) => {
@@ -172,166 +112,172 @@ function HomeTopNav() {
     }
   };
 
-  const toggleDropdown = (e,dropdownName) => {
-    e.stopPropagation()
+  const toggleDropdown = (e, dropdownName) => {
+    e.stopPropagation();
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
 
+  const clearDropdownCloseTimeout = () => {
+    if (dropdownCloseTimeoutRef.current) {
+      clearTimeout(dropdownCloseTimeoutRef.current);
+      dropdownCloseTimeoutRef.current = null;
+    }
+  };
+
   const handleNavHover = (dropdownName = null) => {
+    clearDropdownCloseTimeout();
     setOpenDropdown(dropdownName);
   };
 
-  // Add this handler inside your component
+  const handleDropdownLeave = (dropdownName) => {
+    clearDropdownCloseTimeout();
+    dropdownCloseTimeoutRef.current = setTimeout(() => {
+      setOpenDropdown((open) => (open === dropdownName ? null : open));
+      dropdownCloseTimeoutRef.current = null;
+    }, 150);
+  };
+
+  useEffect(() => () => clearDropdownCloseTimeout(), []);
+
   const handleDashboardClick = () => {
     setOpenDropdown(null);
     router.refresh();
   };
+
+  const creditsButton = (
+    <button
+      type="button"
+      className={styles.creditsPill}
+      onClick={() => setShowCreditPlans(true)}
+      aria-label={`${creditsLabel}. Buy credits`}
+    >
+      <span className={styles.creditsPillIcon} aria-hidden>
+        ◆
+      </span>
+      <span>
+        {creditsLabel} <span className={styles.creditsPillSep}>·</span> Buy
+      </span>
+    </button>
+  );
 
   if (isCadPartnerPageRoute(pathname)) {
     return null;
   }
 
   return (
-    <div
-      ref={topNavRef}
-      className={styles["home-page-top"]}
-      onClick={() => setOpenDropdown(null)}
-    >
-      <Link href="/">
-        <Image
-          src={IMAGEURLS.logo}
-          alt="Marathon Logo"
-          width={500}
-          height={500}
-          className={styles["home-page-top-logo"]}
-          priority
-        />
-      </Link>
-
-      <div className={styles["home-page-navs"]}>
-        <Link
-          href="#why-us"
-          onMouseEnter={() => handleNavHover(null)}
-          onClick={(e) => handleAnchorClick(e, "why-us")}
-        >
-          Why us?
-        </Link>
-        {/* <Link href="#capabilities" onClick={(e) => handleAnchorClick(e, "capabilities")}>Capabilities</Link>
-        <Link href="#product" onClick={(e) => handleAnchorClick(e, "product")}>Product</Link>
-        <Link href="#pricing" onClick={(e) => handleAnchorClick(e, "pricing")}>Pricing</Link> */}
-        {/* <a href="#security" onClick={(e) => handleAnchorClick(e, "security")}>Security</a> */}
-
-        {/* Dropdown for Tools */}
-      
-
-        <Link
-          href="/dashboard"
-          rel="nofollow"
-          onMouseEnter={() => handleNavHover(null)}
-          onClick={handleDashboardClick}
-        >
-          Dashboard
-        </Link>
-        <div
-          style={{ position: "relative" }}
-          onMouseEnter={() => handleNavHover("library")}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span
-            className={styles["nav-dropdown-trigger"]}
-            role="button"
-            tabIndex={0}
-            aria-expanded={openDropdown === "library"}
-            aria-haspopup="menu"
-            onClick={(e) => toggleDropdown(e, "library")}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") toggleDropdown(e, "library");
-            }}
-          >
-            Library <span aria-hidden>▼</span>
-          </span>
-          {openDropdown === "library" &&
-            renderNavDropdownMenu(LIBRARY_MENU, "Library", () => setOpenDropdown(null))}
-        </div>
-        <Link
-          href="/cad-services"
-          className={styles.topCta}
-          aria-label="Hire Designers"
-          onMouseEnter={() => handleNavHover(null)}
-        >
-          <span className={styles.topCtaDot} />
-          Hire Designers <ArrowRight size={16} strokeWidth={2.5} />
-        </Link>
-        <div
-          style={{ position: "relative" }}
-          onMouseEnter={() => handleNavHover("tools")}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span
-            className={styles["nav-dropdown-trigger"]}
-            role="button"
-            tabIndex={0}
-            aria-expanded={openDropdown === "tools"}
-            aria-haspopup="menu"
-            onClick={(e) => toggleDropdown(e, "tools")}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") toggleDropdown(e, "tools");
-            }}
-          >
-            Tools <span aria-hidden>▼</span>
-          </span>
-          {openDropdown === "tools" &&
-            renderNavDropdownMenu(TOOLS_MENU, "Tools", () => setOpenDropdown(null))}
+    <div className={styles.navShell} ref={topNavRef}>
+      <div className={styles["home-page-top"]}>
+        <div className={styles.mobileMenuSlot}>
+          <MenuButton
+            creditsButton={creditsButton}
+            onOpenCreditPlans={() => setShowCreditPlans(true)}
+            creditsLabel={creditsLabel}
+          />
         </div>
 
-        <Link href="/resources" onMouseEnter={() => handleNavHover(null)}>
-          Resources
+        <Link href="/" className={styles.logoLink}>
+          <Image
+            src={IMAGEURLS.logo}
+            alt="Marathon Logo"
+            width={500}
+            height={500}
+            className={styles["home-page-top-logo"]}
+            priority
+          />
         </Link>
 
-        {/* Dropdown for Blogs */}
-        <div
-          style={{ position: "relative" }}
-          onMouseEnter={() => handleNavHover("blogs")}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span
-            className={styles["nav-dropdown-trigger"]}
-            role="button"
-            tabIndex={0}
-            aria-expanded={openDropdown === "blogs"}
-            aria-haspopup="menu"
-            onClick={(e) => toggleDropdown(e, "blogs")}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") toggleDropdown(e, "blogs");
-            }}
+        <div className={styles["home-page-navs"]}>
+          <Link
+            href="#why-us"
+            className={`${styles.navLink} ${styles.navWhyUs}`}
+            onMouseEnter={() => handleNavHover(null)}
+            onClick={(e) => handleAnchorClick(e, "why-us")}
           >
-            Blogs <span aria-hidden>▼</span>
-          </span>
-          {openDropdown === "blogs" &&
-            renderNavDropdownMenu(BLOGS_MENU, "Blogs", () => setOpenDropdown(null))}
+            Why us?
+          </Link>
+
+          <Link
+            href="/dashboard"
+            rel="nofollow"
+            className={styles.navLink}
+            onMouseEnter={() => handleNavHover(null)}
+            onClick={handleDashboardClick}
+          >
+            Dashboard
+          </Link>
+
+          <div
+            className={styles.navDropdownWrap}
+            onMouseEnter={() => handleNavHover("library")}
+            onMouseLeave={() => handleDropdownLeave("library")}
+          >
+            <Link
+              href="/library"
+              className={`${styles["nav-dropdown-trigger"]} ${openDropdown === "library" ? styles.navTriggerOpen : ""}`}
+            >
+              Library <ChevronDown size={14} className={styles.navChevron} />
+            </Link>
+            {openDropdown === "library" &&
+              renderNavDropdownMenu(LIBRARY_MENU, "Library", () => setOpenDropdown(null))}
+          </div>
+
+          <Link
+            href="/cad-services"
+            className={styles.topCta}
+            aria-label="Hire Designers"
+            onMouseEnter={() => handleNavHover(null)}
+          >
+            <span className={styles.topCtaDot} />
+            Hire Designers <ArrowRight size={16} strokeWidth={2.5} />
+          </Link>
+
+          <div
+            className={styles.navDropdownWrap}
+            onMouseEnter={() => handleNavHover("tools")}
+            onMouseLeave={() => handleDropdownLeave("tools")}
+          >
+            <Link
+              href="/tools"
+              className={`${styles["nav-dropdown-trigger"]} ${openDropdown === "tools" ? styles.navTriggerOpen : ""}`}
+            >
+              Tools <ChevronDown size={14} className={styles.navChevron} />
+            </Link>
+            {openDropdown === "tools" &&
+              renderNavDropdownMenu(TOOLS_MENU, "Tools", () => setOpenDropdown(null))}
+          </div>
+
+          <Link href="/resources" className={styles.navLink} onMouseEnter={() => handleNavHover(null)}>
+            Resources
+          </Link>
+
+          <div
+            className={styles.navDropdownWrap}
+            onMouseEnter={() => handleNavHover("blogs")}
+            onMouseLeave={() => handleDropdownLeave("blogs")}
+          >
+            <button
+              type="button"
+              className={`${styles["nav-dropdown-trigger"]} ${styles.navTriggerBtn} ${openDropdown === "blogs" ? styles.navTriggerOpen : ""}`}
+              onClick={(e) => toggleDropdown(e, "blogs")}
+              aria-expanded={openDropdown === "blogs"}
+            >
+              Blogs <ChevronDown size={14} className={styles.navChevron} />
+            </button>
+            {openDropdown === "blogs" &&
+              renderNavDropdownMenu(BLOGS_MENU, "Blogs", () => setOpenDropdown(null))}
+          </div>
+        </div>
+
+        <div className={styles["home-pg-btns"]}>
+          {creditsButton}
+          <TopNavProfileButton />
+        </div>
+
+        <div className={styles.mobileProfileSlot}>
+          <TopNavProfileButton mobileHeader />
         </div>
       </div>
 
-      <div className={styles["home-pg-btns"]}>
-        <button
-          type="button"
-          className={styles.creditsPill}
-          onClick={() => setShowCreditPlans(true)}
-          aria-label={`${creditsLabel}. Buy credits`}
-        >
-          <span className={styles.creditsPillIcon} aria-hidden>
-            ◆
-          </span>
-          <span>
-            {creditsLabel} <span className={styles.creditsPillSep}>·</span> Buy
-          </span>
-        </button>
-        <TopNavProfileButton styles={styles} className={"try-demo"} topBar='profile'/>
-      </div>
-
-      <div className={styles["home-pg-menu"]}>
-        <MenuButton styles={{ styles }} />
-      </div>
       {showCreditPlans ? (
         <ConverterCreditPlansPopup
           packs={packs}

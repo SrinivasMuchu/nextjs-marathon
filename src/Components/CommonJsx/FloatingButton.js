@@ -106,11 +106,17 @@ function FloatingButton() {
   if (showPopup) return null;
   if (pathname?.replace(/\/$/, '') === '/cad-services') return null;
   if (isCadPartnerPageRoute(pathname)) return null;
-  if (isMobile && isStickyStripVisible) return null;
 
-  const bottom = anchorAds
-    ? 'max(95px, calc(20px + env(safe-area-inset-bottom, 0px)))'
-    : 'max(20px, env(safe-area-inset-bottom, 0px))';
+  let bottom = 'max(20px, env(safe-area-inset-bottom, 0px))';
+  if (anchorAds) {
+    bottom = 'max(95px, calc(20px + env(safe-area-inset-bottom, 0px)))';
+  }
+  // Sit above StickyCadStrip so the FAB and quote banner never collide.
+  if (isStickyStripVisible) {
+    bottom = isMobile
+      ? 'max(148px, calc(128px + env(safe-area-inset-bottom, 0px)))'
+      : 'max(96px, calc(80px + env(safe-area-inset-bottom, 0px)))';
+  }
 
   const fab = (
     <div
@@ -119,6 +125,11 @@ function FloatingButton() {
       ref={rootRef}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
+  return (
+    <div
+      className={`${styles.wrap}${isStickyStripVisible ? ` ${styles.wrapAboveStrip}` : ''}`}
+      style={{ bottom }}
+      ref={rootRef}
     >
       {showOptions && (
         <div className={styles.menu} role="menu" aria-label="CAD actions">

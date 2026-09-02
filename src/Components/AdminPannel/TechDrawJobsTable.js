@@ -191,6 +191,12 @@ function TechDrawJobsTable() {
         </form>
       </div>
 
+      {isLoading ? (
+        <div className={styles.loadingWrap}>
+          <Loading />
+        </div>
+      ) : (
+        <>
       <div className={styles.desktopTable}>
         <div className={styles.tableScroll}>
           <div className={styles.tableWrap}>
@@ -205,15 +211,6 @@ function TechDrawJobsTable() {
                   <th>Design</th>
                 </tr>
               </thead>
-              {isLoading ? (
-                <tbody>
-                  <tr>
-                    <td colSpan={6} className={styles.emptyCell}>
-                      <Loading />
-                    </td>
-                  </tr>
-                </tbody>
-              ) : (
                 <tbody>
                   {jobs.length === 0 ? (
                     <tr>
@@ -272,18 +269,13 @@ function TechDrawJobsTable() {
                     })
                   )}
                 </tbody>
-              )}
             </table>
           </div>
         </div>
       </div>
 
       <div className={styles.mobileCards}>
-        {isLoading ? (
-          <div className={styles.mobileEmpty}>
-            <Loading />
-          </div>
-        ) : jobs.length === 0 ? (
+        {jobs.length === 0 ? (
           <div className={styles.mobileEmpty}>No TechDraw uploads found</div>
         ) : (
           jobs.map((job) => {
@@ -325,6 +317,8 @@ function TechDrawJobsTable() {
           })
         )}
       </div>
+        </>
+      )}
 
       {totalPages > 1 ? (
         <div className={styles.paginationWrap}>

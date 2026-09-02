@@ -17,7 +17,8 @@ const TECHDRAW_GST_RATE = 0.18;
 /** Display price for TechDraw (checkout total includes GST). */
 export function formatTechDrawPrice(amount, currency = "USD") {
   const n = Number(amount);
-  if (!Number.isFinite(n) || n <= 0) return "";
+  if (!Number.isFinite(n) || n < 0) return "";
+  if (n === 0) return "Free";
   try {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -42,6 +43,49 @@ export function getTechDrawPriceDisplay() {
     totalLabel,
     perSetLabel: `${totalLabel} per drawing set`,
   };
+}
+
+/** Public admin price for user TechDraw uploads (no auth). */
+export async function fetchTechDrawPricingInfo() {
+  if (!BASE_URL) throw new Error("App API URL is not configured.");
+  const url = `${BASE_URL}${TECHDRAW_API_BASE}/pricing-info`;
+  // Prefer native fetch with no-store so Next does not freeze the price at build time.
+  if (typeof fetch === "function") {
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) throw new Error(`TechDraw pricing HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data?.meta?.success) {
+      throw new Error(data?.meta?.message || "Failed to load TechDraw pricing.");
+    }
+    return data.data;
+  }
+  const { data } = await axios.get(url, { timeout: 15_000 });
+  if (!data?.meta?.success) {
+    throw new Error(data?.meta?.message || "Failed to load TechDraw pricing.");
+  }
+  return data.data;
+}
+
+/** Resolve display labels from admin controls (SSR / client). Always live. */
+export async function fetchTechDrawPriceDisplay() {
+  try {
+    const info = await fetchTechDrawPricingInfo();
+    if (info?.techdraw_upload_free || Number(info?.price) === 0) {
+      return getTechDrawPriceDisplay(0);
+    }
+    return getTechDrawPriceDisplay(
+      info?.price ?? info?.base_price,
+      info?.price_with_gst,
+    );
+  } catch (err) {
+    if (typeof console !== "undefined") {
+      console.warn("[techdraw] pricing-info failed, using fallback:", err?.message || err);
+    }
+    return getTechDrawPriceDisplay();
+  }
 }
 
 const UPLOAD_TIMEOUT_MS = 120_000;
@@ -447,7 +491,7 @@ export async function prepareCadDrawingJob({
   if (!file) throw new Error("No file selected");
   assertUuid();
 
-  const prices = getTechDrawPriceDisplay();
+  const prices = await fetchTechDrawPriceDisplay();
 
   if (requiresPayment && !original_failed_job_id) {
     return { needsPayment: true, prices };

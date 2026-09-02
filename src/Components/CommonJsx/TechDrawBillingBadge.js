@@ -1,10 +1,12 @@
+"use client";
+
 import React from "react";
-import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
+import useTechDrawPriceDisplay from "@/Components/CadDrawingPipeline/useTechDrawPriceDisplay";
 
 /** Free vs paid TechDraw job (dashboard cards). Paid = download costs $5.99 incl. GST. */
 export default function TechDrawBillingBadge({ billingType }) {
   const isPaid = String(billingType || "").toLowerCase() === "paid";
-  const paidLabel = getTechDrawPriceDisplay().totalLabel;
+  const { totalLabel } = useTechDrawPriceDisplay();
 
   return (
     <div
@@ -22,7 +24,7 @@ export default function TechDrawBillingBadge({ billingType }) {
         boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
       }}
     >
-      {isPaid ? paidLabel : "Free"}
+      {isPaid ? totalLabel : "Free"}
     </div>
   );
 }

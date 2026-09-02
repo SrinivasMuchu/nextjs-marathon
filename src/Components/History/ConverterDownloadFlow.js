@@ -40,7 +40,7 @@ function CloseButton({ onClick }) {
   );
 }
 
-function FileSummary({ file, pack, priceLabel, compact = false }) {
+function FileSummary({ file, pack, product, priceLabel, compact = false }) {
   if (pack) {
     return (
       <div className={`${styles.fileSummary} ${compact ? styles.fileSummaryCompact : ""}`}>
@@ -48,6 +48,19 @@ function FileSummary({ file, pack, priceLabel, compact = false }) {
         <div className={styles.fileDetails}>
           <strong>{pack.name} pack</strong>
           {!compact && <span>{pack.credits} credits · never expire</span>}
+        </div>
+        <strong className={styles.price}>{priceLabel}</strong>
+      </div>
+    );
+  }
+
+  if (product) {
+    return (
+      <div className={`${styles.fileSummary} ${compact ? styles.fileSummaryCompact : ""}`}>
+        <span className={styles.fileType}>{product.badge || "2D"}</span>
+        <div className={styles.fileDetails}>
+          <strong>{product.title || "2D technical drawing"}</strong>
+          {!compact && product.detail ? <span>{product.detail}</span> : null}
         </div>
         <strong className={styles.price}>{priceLabel}</strong>
       </div>
@@ -75,17 +88,25 @@ function FileSummary({ file, pack, priceLabel, compact = false }) {
 function ConverterDownloadFlow({
   file,
   pack,
+  product = null,
   mode = "file",
   pricing,
   user,
+  createdFor = "converter",
+  heading,
+  subtitle = "One-time payment · no subscription",
+  payButtonLabel,
+  successTitle,
+  successBody,
   onClose,
   onPay,
   onDownloadAgain,
 }) {
   const isPack = mode === "pack";
+  const isProduct = Boolean(product) && !isPack;
   const pricingDisplay = useMemo(
-    () => buildConverterPricingDisplay(pricing || pack?.pricing),
-    [pricing, pack],
+    () => buildConverterPricingDisplay(pricing || pack?.pricing || product?.pricing),
+    [pricing, pack, product],
   );
   const [step, setStep] = useState("loading");
   const [addresses, setAddresses] = useState([]);
@@ -141,10 +162,18 @@ function ConverterDownloadFlow({
           postalCode: saved.postal_code || "",
           country: saved.country || "",
         });
-        setStep("review");
       } else {
-        setStep("billing");
+        setSelectedAddress(null);
+        setForm({
+          fullName: user?.name || "",
+          address: "",
+          city: "",
+          postalCode: "",
+          country: "",
+        });
       }
+      // Always show checkout summary first; address form is next for first-time users.
+      setStep("review");
     });
 
     return () => {
@@ -168,6 +197,14 @@ function ConverterDownloadFlow({
         city: selectedAddress.city || "",
         postalCode: selectedAddress.postal_code || "",
         country: selectedAddress.country || "",
+      });
+    } else {
+      setForm({
+        fullName: user?.name || "",
+        address: "",
+        city: "",
+        postalCode: "",
+        country: "",
       });
     }
     setError("");
@@ -197,7 +234,7 @@ function ConverterDownloadFlow({
           country: form.country,
           phone: selectedAddress?.phone || "",
           payment_billing_id: selectedAddress?._id || null,
-          created_for: "converter",
+          created_for: createdFor || "converter",
         },
         { headers: { "user-uuid": localStorage.getItem("uuid") } },
       );
@@ -277,22 +314,29 @@ function ConverterDownloadFlow({
   }
 
   if (step === "success") {
+    const defaultSuccessTitle = isPack
+      ? "Credits added to your account"
+      : isProduct
+        ? "Payment successful"
+        : "Paid — your download started";
+    const defaultSuccessBody = isPack
+      ? `${pack?.credits || paymentResult?.credits_granted || ""} credits are ready to use.`
+      : isProduct
+        ? product?.successDetail || "Your 2D drawing job is ready to continue."
+        : `${convertedFileName(file)} is downloading now.`;
+
     return (
       <PopupWrapper>
         <div className={`${styles.modal} ${styles.successModal}`} role="dialog" aria-modal="true">
           <CloseButton onClick={onClose} />
           <div className={styles.successIcon}>✓</div>
-          <h2>{isPack ? "Credits added to your account" : "Paid — your download started"}</h2>
-          <p>
-            {isPack
-              ? `${pack?.credits || paymentResult?.credits_granted || ""} credits are ready to use.`
-              : `${convertedFileName(file)} is downloading now.`}
-          </p>
+          <h2>{successTitle || defaultSuccessTitle}</h2>
+          <p>{successBody || defaultSuccessBody}</p>
           <p>
             {invoice ? <>Invoice <strong>#{invoice}</strong> was emailed to {user?.email}.</> :
               <>Your invoice was emailed to {user?.email}.</>}
           </p>
-          {!isPack && onDownloadAgain ? (
+          {!isPack && !isProduct && onDownloadAgain ? (
             <button type="button" className={styles.primaryButton} onClick={onDownloadAgain}>
               Download again
             </button>
@@ -305,9 +349,11 @@ function ConverterDownloadFlow({
             {invoiceUrl && (
               <a href={invoiceUrl} target="_blank" rel="noreferrer">View invoice</a>
             )}
-            <button type="button" onClick={onClose}>Back to dashboard</button>
+            <button type="button" onClick={onClose}>Close</button>
           </div>
-          <small>Re-download free anytime for 7 days from your dashboard.</small>
+          {!isProduct ? (
+            <small>Re-download free anytime for 7 days from your dashboard.</small>
+          ) : null}
         </div>
       </PopupWrapper>
     );
@@ -320,7 +366,13 @@ function ConverterDownloadFlow({
           <CloseButton onClick={onClose} />
           <h2>Billing address</h2>
           <p className={styles.subtitle}>Needed once for your tax invoice — we&apos;ll remember it.</p>
-          <FileSummary file={file} pack={isPack ? pack : null} priceLabel={pricingDisplay.totalLabel} compact />
+          <FileSummary
+            file={file}
+            pack={isPack ? pack : null}
+            product={isProduct ? product : null}
+            priceLabel={pricingDisplay.totalLabel}
+            compact
+          />
 
           <form onSubmit={saveBillingAddress} className={styles.billingForm}>
             <label>
@@ -367,35 +419,83 @@ function ConverterDownloadFlow({
             </div>
             {error && <p className={styles.error}>{error}</p>}
             <button type="submit" className={styles.primaryButton} disabled={saving}>
-              {saving ? "Saving…" : "Save & continue to payment →"}
+              {saving
+                ? "Saving…"
+                : selectedAddress
+                  ? "Save & continue to payment →"
+                  : "Save address & continue →"}
             </button>
           </form>
-          <small className={styles.secureNote}>Saved securely — future checkouts skip this step entirely.</small>
+          <small className={styles.secureNote}>
+            {selectedAddress
+              ? "Saved securely — future checkouts skip this step entirely."
+              : "Needed once for your tax invoice — we will remember it for next time."}
+          </small>
         </div>
       </PopupWrapper>
     );
   }
 
+  const reviewHeading = heading
+    || (isPack ? `Buy ${pack?.name || "credit"} pack` : isProduct ? (product?.title || "Checkout") : "Download your file");
+  const defaultPayLabel = isProduct
+    ? `Pay ${pricingDisplay.totalLabel} & continue →`
+    : `Pay ${pricingDisplay.totalLabel} & download →`;
+  const hasAddress = Boolean(selectedAddress?._id);
+
   return (
     <PopupWrapper>
       <div className={styles.modal} role="dialog" aria-modal="true">
         <CloseButton onClick={onClose} />
-        <h2>{isPack ? `Buy ${pack?.name || "credit"} pack` : "Download your file"}</h2>
-        <p className={styles.subtitle}>One-time payment · no subscription</p>
-        <FileSummary file={file} pack={isPack ? pack : null} priceLabel={pricingDisplay.totalLabel} />
+        <h2>{reviewHeading}</h2>
+        <p className={styles.subtitle}>{subtitle}</p>
+        <FileSummary
+          file={file}
+          pack={isPack ? pack : null}
+          product={isProduct ? product : null}
+          priceLabel={pricingDisplay.totalLabel}
+        />
 
         <div className={styles.billingHeading}>
           <span>Billing for your tax invoice</span>
-          <button type="button" onClick={openBillingForm}>Change</button>
+          {hasAddress ? (
+            <button type="button" onClick={openBillingForm}>Change</button>
+          ) : null}
         </div>
-        <div className={styles.selectedAddress}>
-          <span>✓</span>
-          <p>{selectedAddress?.name} · {formatAddress(selectedAddress)}</p>
-        </div>
-        <p className={styles.savedNote}>Saved from your last purchase — we&apos;ll reuse it unless you change it.</p>
+
+        {hasAddress ? (
+          <>
+            <div className={styles.selectedAddress}>
+              <span>✓</span>
+              <p>{selectedAddress?.name} · {formatAddress(selectedAddress)}</p>
+            </div>
+            <p className={styles.savedNote}>
+              Saved from your last purchase — we&apos;ll reuse it unless you change it.
+            </p>
+          </>
+        ) : (
+          <div className={styles.missingAddress}>
+            <p className={styles.missingAddressText}>
+              Add a billing address once for your tax invoice. We&apos;ll remember it for next time.
+            </p>
+            <button type="button" className={styles.secondaryButton} onClick={openBillingForm}>
+              Add billing address
+            </button>
+          </div>
+        )}
+
         {error && <p className={styles.error}>{error}</p>}
-        <button type="button" className={styles.primaryButton} onClick={handlePayment} disabled={paying}>
-          {paying ? "Opening secure payment…" : `Pay ${pricingDisplay.totalLabel} & download →`}
+        <button
+          type="button"
+          className={styles.primaryButton}
+          onClick={hasAddress ? handlePayment : openBillingForm}
+          disabled={paying}
+        >
+          {paying
+            ? "Opening secure payment…"
+            : hasAddress
+              ? (payButtonLabel || defaultPayLabel)
+              : "Add address & continue →"}
         </button>
         <div className={styles.paymentTrust}>
           <span>🔒 Secured by<br /><strong>Razorpay</strong></span>

@@ -1,4 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import {
+  fetchTechDrawPriceDisplay,
+  getTechDrawPriceDisplay,
+} from "@/api/cadDrawingPipelineApi";
 import TwoDDrawingCtaBannerButton from "./TwoDDrawingCtaBannerButton";
 import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 import styles from "./TwoDDrawingCtaBanner.module.css";
@@ -11,6 +18,7 @@ const defaultChecks = [
 
 /**
  * Server shell + client upload button only. Responsive: stacks on narrow viewports; CTA row wraps.
+ * Price comes from admin `techdraw_upload_price`.
  */
 export default function TwoDDrawingCtaBanner({
   generateHref = "/tools/cad-drawing-pipeline",
@@ -29,6 +37,19 @@ export default function TwoDDrawingCtaBanner({
   const { baseLabel, perSetLabel } = getTechDrawPriceDisplay();
   const displayPrice = price || baseLabel;
   const displayEyebrow = eyebrow || `Paid Pipeline · ${perSetLabel}`;
+  const [prices, setPrices] = useState(() => getTechDrawPriceDisplay());
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchTechDrawPriceDisplay().then((next) => {
+      if (!cancelled) setPrices(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const eyebrow = `Paid Pipeline · ${prices.perSetLabel}`;
 
   return (
     <section className={styles.banner} aria-labelledby="two-d-cta-heading">

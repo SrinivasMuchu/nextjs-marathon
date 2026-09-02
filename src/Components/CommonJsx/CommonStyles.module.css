@@ -297,6 +297,40 @@
   border-color: #cbd5e0;
 }
 
+.googleButtonWrap {
+  position: relative;
+  width: 100%;
+}
+
+.googleButtonWrap .googleButton {
+  width: 100%;
+}
+
+.googleGsiOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  opacity: 0.01;
+}
+
+.googleGsiOverlay > div,
+.googleGsiOverlay iframe {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+}
+
+.googleButtonCatcher {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
 .googleIcon {
   width: 20px;
   height: 20px;

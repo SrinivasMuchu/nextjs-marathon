@@ -24,6 +24,19 @@
   margin-bottom: 12px;
 }
 
+.downloadPriceNote {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.downloadPriceHint {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 12px;
+}
+
 .downloadActions {
   display: flex;
   flex-direction: column;
@@ -76,6 +89,26 @@ a.btnSecondary {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.detailsBtn {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 11px 14px;
+  background: #fff;
+  color: #2a1367;
+  border: 1px solid #ddd6fe;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.detailsBtn:hover {
+  border-color: #6b21f5;
+  background: #faf8ff;
+  color: #6b21f5;
 }
 
 .formatCell {

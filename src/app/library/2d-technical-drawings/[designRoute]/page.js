@@ -37,6 +37,20 @@ async function fetchDesignByRoute(designRoute) {
   }
 }
 
+/** Mongo-only fields (version is not in Elasticsearch). */
+async function fetchDesignVersionMeta(designId) {
+  if (!BASE_URL || !designId) return null;
+  try {
+    const url = `${BASE_URL}/v1/cad/get-design-basic-meta?design_id=${encodeURIComponent(designId)}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    const payload = await res.json();
+    return payload?.meta?.success ? payload?.data || null : null;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchCategories() {
   return fetchTwoDLibraryCategories();
 }
@@ -103,12 +117,32 @@ async function renderDesignPage(designRoute) {
   const designId = String(design?._id || "").trim();
   if (!/^[a-f0-9]{24}$/i.test(designId)) notFound();
 
-  const bundle = await fetchTechDrawBundle(designId);
+  // version / output_s3_prefix are Mongo-only (not in ES) — prefer basic-meta.
+  const versionMeta = await fetchDesignVersionMeta(designId);
+  const isVersioned = Boolean(versionMeta?.version ?? design?.version);
+  const outputS3Prefix = String(
+    versionMeta?.output_s3_prefix ||
+      design?.output_s3_prefix ||
+      (isVersioned ? `techdraw-v2/${designId}` : ""),
+  ).trim();
+
+  const bundle = await fetchTechDrawBundle(designId, {
+    version: isVersioned,
+    outputS3Prefix,
+    designMeta: {
+      ...design,
+      version: isVersioned,
+      output_s3_prefix: outputS3Prefix || undefined,
+    },
+  });
   if (!bundle.geometryPerSheet || typeof bundle.geometryPerSheet !== "object") {
     notFound();
   }
 
-  const props = mapTechDrawBundleToPageProps(designId, bundle);
+  const props = mapTechDrawBundleToPageProps(designId, {
+    ...bundle,
+    version: isVersioned,
+  });
   const { baseUrl: _u, ...contentProps } = props;
 
   const title = String(design?.page_title || design?.part_name || "2D Technical Drawing Set").trim();
@@ -135,6 +169,9 @@ async function renderDesignPage(designRoute) {
       sourceModelHref: cadModelHref,
     }),
     showBadges: true,
+    showFreeDownloadBadge: false,
+    showLibraryPriceChip: true,
+    libraryPriceVersion: isVersioned,
   };
 
   return (
@@ -151,14 +188,11 @@ async function renderDesignPage(designRoute) {
         designId={designId}
         cadModelHref={cadModelHref}
       >
-        <TwoDLibraryDrawingDownloads
-          designId={designId}
+        <TwoDTechnicalDrawingContent
+          {...contentProps}
+          cadModelHref={cadModelHref}
+          currentDesignId={designId}
           designTitle={title}
-          contentProps={{
-            ...contentProps,
-            cadModelHref,
-            currentDesignId: designId,
-          }}
         />
       </TwoDTechnicalDrawingPage>
     </>

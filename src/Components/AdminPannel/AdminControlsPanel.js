@@ -15,11 +15,23 @@ const EMPTY_PACKS = [
   { id: "studio", name: "Studio", credits: "", price: "" },
 ];
 
+function gstCheckoutNote(base) {
+  const n = Number(base);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return (n * 1.18).toFixed(2);
+}
+
 function AdminControlsPanel() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [conversionFree, setConversionFree] = useState(true);
   const [converterPrice, setConverterPrice] = useState("1.5");
+  const [twoDLibraryPrice, setTwoDLibraryPrice] = useState("3.00");
+  const [twoDLibraryFree, setTwoDLibraryFree] = useState(false);
+  const [twoDLibraryVersionPrice, setTwoDLibraryVersionPrice] = useState("4.99");
+  const [twoDLibraryVersionFree, setTwoDLibraryVersionFree] = useState(false);
+  const [techdrawUploadPrice, setTechdrawUploadPrice] = useState("4.99");
+  const [techdrawUploadFree, setTechdrawUploadFree] = useState(false);
   const [packs, setPacks] = useState(EMPTY_PACKS);
 
   const pricePreview = useMemo(() => {
@@ -46,6 +58,12 @@ function AdminControlsPanel() {
   const applyControls = (data) => {
     setConversionFree(Boolean(data.conversion_free));
     setConverterPrice(String(data.converter_price ?? ""));
+    setTwoDLibraryPrice(String(data.two_d_library_price ?? "3.00"));
+    setTwoDLibraryFree(Boolean(data.two_d_library_free));
+    setTwoDLibraryVersionPrice(String(data.two_d_library_version_price ?? "4.99"));
+    setTwoDLibraryVersionFree(Boolean(data.two_d_library_version_free));
+    setTechdrawUploadPrice(String(data.techdraw_upload_price ?? "4.99"));
+    setTechdrawUploadFree(Boolean(data.techdraw_upload_free));
     if (Array.isArray(data.converter_packs) && data.converter_packs.length) {
       setPacks(
         data.converter_packs.map((pack) => ({
@@ -88,6 +106,102 @@ function AdminControlsPanel() {
     } catch (err) {
       setConversionFree(!next);
       toast.error(err?.message || "Failed to update setting.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleTwoDLibraryFree = async (event) => {
+    const next = event.target.checked;
+    setTwoDLibraryFree(next);
+    setSaving(true);
+    try {
+      const data = await updateAdminControls({ two_d_library_free: next });
+      applyControls(data);
+      toast.success(
+        next
+          ? "Previous-files 2D library downloads are now free."
+          : "Paid previous-files 2D library downloads enabled.",
+      );
+    } catch (err) {
+      setTwoDLibraryFree(!next);
+      toast.error(err?.message || "Failed to update setting.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleTwoDLibraryVersionFree = async (event) => {
+    const next = event.target.checked;
+    setTwoDLibraryVersionFree(next);
+    setSaving(true);
+    try {
+      const data = await updateAdminControls({ two_d_library_version_free: next });
+      applyControls(data);
+      toast.success(
+        next
+          ? "Versioned 2D library downloads are now free."
+          : "Paid versioned 2D library downloads enabled.",
+      );
+    } catch (err) {
+      setTwoDLibraryVersionFree(!next);
+      toast.error(err?.message || "Failed to update setting.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleTechdrawUploadFree = async (event) => {
+    const next = event.target.checked;
+    setTechdrawUploadFree(next);
+    setSaving(true);
+    try {
+      const data = await updateAdminControls({ techdraw_upload_free: next });
+      applyControls(data);
+      toast.success(
+        next
+          ? "User TechDraw uploads are now free for all users."
+          : "Paid user TechDraw uploads enabled.",
+      );
+    } catch (err) {
+      setTechdrawUploadFree(!next);
+      toast.error(err?.message || "Failed to update setting.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveLibraryPrices = async (event) => {
+    event.preventDefault();
+    const legacy = Number(twoDLibraryPrice);
+    const versioned = Number(twoDLibraryVersionPrice);
+    const upload = Number(techdrawUploadPrice);
+    if (!Number.isFinite(legacy) || legacy < 0) {
+      toast.error("Enter a valid previous-files 2D library price (0 or greater).");
+      return;
+    }
+    if (!Number.isFinite(versioned) || versioned < 0) {
+      toast.error("Enter a valid versioned 2D library price (0 or greater).");
+      return;
+    }
+    if (!Number.isFinite(upload) || upload < 0) {
+      toast.error("Enter a valid user-upload TechDraw price (0 or greater).");
+      return;
+    }
+    setSaving(true);
+    try {
+      const data = await updateAdminControls({
+        two_d_library_price: legacy,
+        two_d_library_free: twoDLibraryFree,
+        two_d_library_version_price: versioned,
+        two_d_library_version_free: twoDLibraryVersionFree,
+        techdraw_upload_price: upload,
+        techdraw_upload_free: techdrawUploadFree,
+      });
+      applyControls(data);
+      toast.success("2D library and upload prices updated.");
+    } catch (err) {
+      toast.error(err?.message || "Failed to update prices.");
     } finally {
       setSaving(false);
     }
@@ -151,11 +265,15 @@ function AdminControlsPanel() {
     );
   }
 
+  const legacyCheckout = gstCheckoutNote(twoDLibraryPrice);
+  const versionCheckout = gstCheckoutNote(twoDLibraryVersionPrice);
+  const uploadCheckout = gstCheckoutNote(techdrawUploadPrice);
+
   return (
     <div className={styles.panel}>
       <p className={styles.lead}>
-        Configure CAD converter download pricing. Files under 5 MB are always free to download.
-        Sample files are always free. For larger files, users can pay per file or buy a credit pack.
+        Configure CAD converter, 2D library downloads (previous vs versioned), and user TechDraw
+        upload pricing. Converter files under 5 MB and sample files stay free.
       </p>
 
       <div className={styles.card}>
@@ -174,6 +292,141 @@ function AdminControlsPanel() {
             inputProps={{ "aria-label": "Toggle free converter downloads" }}
           />
         </div>
+      </div>
+
+      <div className={styles.card}>
+        <h3 className={styles.rowTitle}>2D library &amp; user upload prices (USD base)</h3>
+        <p className={styles.rowHint}>
+          Enter base prices only. Checkout adds 18% GST. Versioned designs
+          (`version: true` / techdraw-v2) use the versioned price; previous files use the legacy price.
+        </p>
+        <form className={styles.libraryPriceForm} onSubmit={handleSaveLibraryPrices}>
+          <div className={styles.libraryPriceRow}>
+            <div className={styles.libraryPriceRowHeader}>
+              <div>
+                <p className={styles.libraryPriceRowTitle}>Previous files download (non-versioned)</p>
+                <p className={styles.libraryPriceRowHint}>
+                  {twoDLibraryFree
+                    ? "Free — users download without payment."
+                    : "Paid — base price before 18% GST at checkout."}
+                </p>
+              </div>
+              <Switch
+                checked={twoDLibraryFree}
+                onChange={handleToggleTwoDLibraryFree}
+                disabled={saving}
+                color="primary"
+                inputProps={{ "aria-label": "Toggle free previous-files 2D library downloads" }}
+              />
+            </div>
+            <label className={styles.packField}>
+              Base price (USD)
+              <div className={styles.priceInputWrap}>
+                <span className={styles.currency}>$</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className={styles.priceInput}
+                  value={twoDLibraryPrice}
+                  onChange={(e) => setTwoDLibraryPrice(e.target.value)}
+                  disabled={saving || twoDLibraryFree}
+                />
+              </div>
+            </label>
+            {twoDLibraryFree ? (
+              <p className={styles.note}>Price is ignored while free downloads are on.</p>
+            ) : legacyCheckout ? (
+              <p className={styles.note}>Checkout charges ${legacyCheckout} (incl. GST).</p>
+            ) : null}
+          </div>
+
+          <div className={styles.libraryPriceRow}>
+            <div className={styles.libraryPriceRowHeader}>
+              <div>
+                <p className={styles.libraryPriceRowTitle}>Versioned files download (techdraw-v2)</p>
+                <p className={styles.libraryPriceRowHint}>
+                  {twoDLibraryVersionFree
+                    ? "Free — users download without payment."
+                    : "Paid — base price before 18% GST at checkout."}
+                </p>
+              </div>
+              <Switch
+                checked={twoDLibraryVersionFree}
+                onChange={handleToggleTwoDLibraryVersionFree}
+                disabled={saving}
+                color="primary"
+                inputProps={{ "aria-label": "Toggle free versioned 2D library downloads" }}
+              />
+            </div>
+            <label className={styles.packField}>
+              Base price (USD)
+              <div className={styles.priceInputWrap}>
+                <span className={styles.currency}>$</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className={styles.priceInput}
+                  value={twoDLibraryVersionPrice}
+                  onChange={(e) => setTwoDLibraryVersionPrice(e.target.value)}
+                  disabled={saving || twoDLibraryVersionFree}
+                />
+              </div>
+            </label>
+            {twoDLibraryVersionFree ? (
+              <p className={styles.note}>Price is ignored while free downloads are on.</p>
+            ) : versionCheckout ? (
+              <p className={styles.note}>Checkout charges ${versionCheckout} (incl. GST).</p>
+            ) : null}
+          </div>
+
+          <div className={styles.libraryPriceRow}>
+            <div className={styles.libraryPriceRowHeader}>
+              <div>
+                <p className={styles.libraryPriceRowTitle}>User TechDraw upload job</p>
+                <p className={styles.libraryPriceRowHint}>
+                  {techdrawUploadFree
+                    ? "Free — all upload jobs skip payment."
+                    : "Paid — first job per org may still be free; later jobs use this price."}
+                </p>
+              </div>
+              <Switch
+                checked={techdrawUploadFree}
+                onChange={handleToggleTechdrawUploadFree}
+                disabled={saving}
+                color="primary"
+                inputProps={{ "aria-label": "Toggle free user TechDraw uploads" }}
+              />
+            </div>
+            <label className={styles.packField}>
+              Base price (USD)
+              <div className={styles.priceInputWrap}>
+                <span className={styles.currency}>$</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className={styles.priceInput}
+                  value={techdrawUploadPrice}
+                  onChange={(e) => setTechdrawUploadPrice(e.target.value)}
+                  disabled={saving || techdrawUploadFree}
+                />
+              </div>
+            </label>
+            {techdrawUploadFree ? (
+              <p className={styles.note}>Price is ignored while free uploads are on.</p>
+            ) : uploadCheckout ? (
+              <p className={styles.note}>
+                Paid uploads charge ${uploadCheckout} (incl. GST). First job may still be free.
+              </p>
+            ) : null}
+          </div>
+
+          <button type="submit" className={styles.saveBtn} disabled={saving}>
+            Save 2D &amp; upload prices
+          </button>
+        </form>
       </div>
 
       <div className={styles.card}>

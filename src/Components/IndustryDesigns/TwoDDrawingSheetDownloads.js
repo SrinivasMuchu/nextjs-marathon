@@ -1,6 +1,7 @@
 "use client";
 
 import { DEFAULT_SHEET_DOWNLOAD_ROWS } from "./twoDDrawingPageDefaults";
+import { useTwoDLibraryDownload, TwoDLibraryPaywallModals } from "./useTwoDLibraryDownload";
 import styles from "./TwoDDrawingSheetDownloads.module.css";
 
 const FORMATS = [
@@ -11,6 +12,15 @@ const FORMATS = [
 
 export default function TwoDDrawingSheetDownloads({ rows, onDownload }) {
   void DEFAULT_SHEET_DOWNLOAD_ROWS;
+  const libraryPaywall = useTwoDLibraryDownload({
+    designId,
+    designTitle,
+    enabled: gateLibraryDownloads && !onRequestDownloadProp,
+  });
+  const requestDownload = onRequestDownloadProp || libraryPaywall.requestDownload;
+  const busy = busyProp || libraryPaywall.busy;
+  const gated = Boolean(onRequestDownloadProp || gateLibraryDownloads);
+
   const safeRows = Array.isArray(rows) ? rows : [];
   if (!safeRows.length) return null;
 
@@ -38,6 +48,24 @@ export default function TwoDDrawingSheetDownloads({ rows, onDownload }) {
               {FORMATS.map(({ key, label, className }) => {
                 const href = row[key];
                 if (!href) return null;
+                if (gated) {
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`${styles.badge} ${className}`}
+                      disabled={busy}
+                      onClick={() =>
+                        requestDownload(
+                          href,
+                          `${String(row.name || "sheet").replace(/\s+/g, "-")}.${key}`,
+                        )
+                      }
+                    >
+                      {label}
+                    </button>
+                  );
+                }
                 return (
                   <button
                     key={key}
@@ -53,6 +81,9 @@ export default function TwoDDrawingSheetDownloads({ rows, onDownload }) {
           </div>
         ))}
       </div>
+      {gateLibraryDownloads && !onRequestDownloadProp ? (
+        <TwoDLibraryPaywallModals {...libraryPaywall.paywall} />
+      ) : null}
     </section>
   );
 }

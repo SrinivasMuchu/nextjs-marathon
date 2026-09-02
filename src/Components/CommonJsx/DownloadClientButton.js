@@ -1,17 +1,17 @@
 "use client";
-import axios from 'axios';
-import styles from '../IndustryDesigns/IndustryDesign.module.css'
-import { sendGAtagEvent } from '@/common.helper';
-import React, { useState, useContext } from 'react'
-import { BASE_URL, CAD_VIEWER_EVENT, RAZORPAY_KEY_ID , MARATHONDETAILS} from '@/config';
-import Tooltip from '@mui/material/Tooltip';
-import CadFileNotifyPopUp from './CadFileNotifyPopUp';
-import UserLoginPupUp from './UserLoginPupUp';
-import { contextState } from './ContextProvider';
-import BillingAddress from './BillingAddress';
-import SupportingFilesPopup from './SupportingFilesPopup';
-import Loading from './Loaders/Loading';
-import { toast } from 'react-toastify';
+
+import axios from "axios";
+import styles from "../IndustryDesigns/IndustryDesign.module.css";
+import { sendGAtagEvent } from "@/common.helper";
+import React, { useContext, useMemo, useState } from "react";
+import { BASE_URL, CAD_VIEWER_EVENT, RAZORPAY_KEY_ID, MARATHONDETAILS } from "@/config";
+import Tooltip from "@mui/material/Tooltip";
+import UserLoginPupUp from "./UserLoginPupUp";
+import { contextState } from "./ContextProvider";
+import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
+import SupportingFilesPopup from "./SupportingFilesPopup";
+import { toast } from "react-toastify";
+import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -24,9 +24,36 @@ function loadRazorpayScript() {
   });
 }
 
-function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable, 
-  step, filetype, custumDownload, designDetails, supportingFileUrl, downloadButtonLabel }) {
-    console.log(designDetails)
+function readCheckoutUser(contextUser) {
+  if (typeof window === "undefined") {
+    return { name: contextUser?.name || "", email: contextUser?.email || "" };
+  }
+  return {
+    name:
+      contextUser?.name ||
+      localStorage.getItem("name") ||
+      localStorage.getItem("full_name") ||
+      "",
+    email:
+      contextUser?.email ||
+      localStorage.getItem("email") ||
+      localStorage.getItem("user_email") ||
+      "",
+  };
+}
+
+function DownloadClientButton({
+  folderId,
+  xaxis,
+  yaxis,
+  isDownladable,
+  step,
+  filetype,
+  custumDownload,
+  designDetails,
+  supportingFileUrl,
+  downloadButtonLabel,
+}) {
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [isDownloadingMainFile, setIsDownloadingMainFile] = useState(false);
   const [openEmailPopUp, setOpenEmailPopUp] = useState(false);
@@ -34,39 +61,39 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
   const [openSupportingFiles, setOpenSupportingFiles] = useState(false);
   const [supportingFiles, setSupportingFiles] = useState([]);
   const [supportingFilesLoading, setSupportingFilesLoading] = useState(false);
-  const [billerDetails,setBillerDetails] = useState({})
-  const { setDownloadedFileUpdate,user } = useContext(contextState);
+  const { setDownloadedFileUpdate, user } = useContext(contextState);
 
-  // Fetch supporting files
-  // Alias for backward compatibility in payment logic
+  const pricing = useMemo(() => {
+    const base = Number(designDetails?.price);
+    if (!Number.isFinite(base) || base < 0) return null;
+    return {
+      base_price: base,
+      price: base,
+      currency: "USD",
+    };
+  }, [designDetails?.price]);
+
+  const pricingDisplay = useMemo(
+    () => buildConverterPricingDisplay(pricing || { base_price: 0 }),
+    [pricing],
+  );
 
   const fetchSupportingFiles = async () => {
     try {
-      // Replace this endpoint with your actual supporting files API endpoint
-      const response = await axios.get(
-        `${BASE_URL}/v1/cad/get-supporting-files`,
-        {
-          params: {
-            design_id: folderId,
-          },
-          headers: {
-            "user-uuid": localStorage.getItem("uuid"),
-          }
-        }
-      );
-// files    supporting_files
-      if (response.data.meta.success ) {
-        return response.data.data.files; // Array of {name, type, size, url}
+      const response = await axios.get(`${BASE_URL}/v1/cad/get-supporting-files`, {
+        params: { design_id: folderId },
+        headers: { "user-uuid": localStorage.getItem("uuid") },
+      });
+      if (response.data.meta.success) {
+        return response.data.data.files;
       }
       return [];
     } catch (err) {
-      console.error('Error fetching supporting files:', err);
-      // If API doesn't exist or fails, return empty array
+      console.error("Error fetching supporting files:", err);
       return [];
     }
   };
 
-  // Download logic for main file (to be called from popup)
   const downloadMainFile = async () => {
     setIsDownloadingMainFile(true);
     try {
@@ -77,88 +104,108 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
         document.body.appendChild(link);
         link.click();
         link.remove();
-        setIsDownloadingMainFile(false);
-        sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
+        sendGAtagEvent({
+          event_name: "design_view_file_download",
+          event_category: CAD_VIEWER_EVENT,
+        });
         return;
       }
-      const response = await axios.post(`${BASE_URL}/v1/cad/get-signedurl`, {
-        design_id: folderId, xaxis, yaxis, step, file_type: filetype, action_type: 'DOWNLOAD'
-      }, {
-        headers: {
-          "user-uuid": localStorage.getItem("uuid"),
-        }
-      });
+      const response = await axios.post(
+        `${BASE_URL}/v1/cad/get-signedurl`,
+        {
+          design_id: folderId,
+          xaxis,
+          yaxis,
+          step,
+          file_type: filetype,
+          action_type: "DOWNLOAD",
+        },
+        {
+          headers: { "user-uuid": localStorage.getItem("uuid") },
+        },
+      );
       const data = response.data;
       if (data.meta.success) {
         const url = data.data.download_url;
-        setDownloadedFileUpdate(data.data.download_url)
-        // Download main file using anchor tag
+        setDownloadedFileUpdate(data.data.download_url);
         const link = document.createElement("a");
         link.href = url;
         link.download = "";
         document.body.appendChild(link);
         link.click();
         link.remove();
-        setIsDownloadingMainFile(false);
-        sendGAtagEvent({ event_name: 'design_view_file_download', event_category: CAD_VIEWER_EVENT });
-      } else {
-        setIsDownloadingMainFile(false);
+        sendGAtagEvent({
+          event_name: "design_view_file_download",
+          event_category: CAD_VIEWER_EVENT,
+        });
       }
     } catch (err) {
-      console.error('Error downloading file:', err);
+      console.error("Error downloading file:", err);
+      throw err;
+    } finally {
       setIsDownloadingMainFile(false);
     }
   };
 
-  // Razorpay payment + download
-  const handleDownload = async (cadId,billingId,currency) => {
-    setIsDownLoading(true);
-    console.log('designPrice', folderId)
-    try {
-      if (!localStorage.getItem('is_verified')) {
-        setOpenEmailPopUp(true);
-        setIsDownLoading(false);
-        return;
-      }
+  const openSupportingFilesAfterPay = () => {
+    if (!custumDownload) return;
+    setSupportingFiles([]);
+    setSupportingFilesLoading(true);
+    setOpenSupportingFiles(true);
+    fetchSupportingFiles()
+      .then((files) => {
+        setSupportingFiles(files);
+        setSupportingFilesLoading(false);
+      })
+      .catch(() => {
+        setSupportingFiles([]);
+        setSupportingFilesLoading(false);
+      });
+  };
 
-      // 1. Create Razorpay order from backend
-      const res = await axios.post(
-        `${BASE_URL}/v1/payment/create-order`,
-        {
-          cad_file_id: cadId,
-          billing_id: billingId,
-          currency
-        },
-        {
-          headers: {
-            "user-uuid": localStorage.getItem("uuid"),
-          },
-        }
-      );
+  /** Converter-style checkout: billingId from ConverterDownloadFlow → Razorpay → download. */
+  const handleCheckoutPay = async (billingId) => {
+    if (!localStorage.getItem("is_verified")) {
+      setOpenEmailPopUp(true);
+      throw new Error("Please sign in to continue.");
+    }
 
-      if (res.data.meta.status === 'active') {
-        await downloadMainFile();
-        setIsDownLoading(false);
-        return;
-      } else if (res.data.meta.success) {
-        const loaded = await loadRazorpayScript();
-        if (!loaded) {
-          alert("Razorpay SDK failed to load.");
-          setIsDownLoading(false);
-          return;
-        }
-      }
+    const res = await axios.post(
+      `${BASE_URL}/v1/payment/create-order`,
+      {
+        cad_file_id: folderId,
+        billing_id: billingId,
+      },
+      {
+        headers: { "user-uuid": localStorage.getItem("uuid") },
+      },
+    );
 
-      // 2. Setup checkout options
+    if (res.data.meta.status === "active") {
+      await downloadMainFile();
+      openSupportingFilesAfterPay();
+      return {};
+    }
+
+    if (!res.data.meta.success) {
+      throw new Error(res.data.meta.message || "Failed to create order.");
+    }
+
+    const loaded = await loadRazorpayScript();
+    if (!loaded) throw new Error("Razorpay SDK failed to load.");
+
+    const checkoutUser = readCheckoutUser(user);
+
+    return new Promise((resolve, reject) => {
       const options = {
         key: RAZORPAY_KEY_ID,
         amount: res.data.data.amount,
         currency: res.data.data.currency,
         name: MARATHONDETAILS.name,
-        image:MARATHONDETAILS.image,
-        description: designDetails.title,
+        image: MARATHONDETAILS.image,
+        description: designDetails?.title || "CAD download",
         order_id: res.data.data.orderId,
-        handler: async function (response) {
+        handler: async (response) => {
           try {
             const verifyRes = await axios.post(
               `${BASE_URL}/v1/payment/verify-payment`,
@@ -169,138 +216,102 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
                 cad_file_id: folderId,
               },
               {
-                headers: {
-                  "user-uuid": localStorage.getItem("uuid"),
-                },
-              }
+                headers: { "user-uuid": localStorage.getItem("uuid") },
+              },
             );
 
-            if (verifyRes.data.meta.success) {
-              toast.success("✅ Payment successful! Starting download...");
-              await downloadMainFile();
-              // Only show SupportingFilesPopup if this is the custom 3D design download button
-              if (custumDownload) {
-                setSupportingFiles([]);
-                setSupportingFilesLoading(true);
-                setOpenSupportingFiles(true);
-                fetchSupportingFiles().then(files => {
-                  setSupportingFiles(files);
-                  setSupportingFilesLoading(false);
-                }).catch(() => {
-                  setSupportingFiles([]);
-                  setSupportingFilesLoading(false);
-                });
-              }
-              setIsDownLoading(false);
-            } else {
-              alert("⚠️ Payment verification failed!");
-              setIsDownLoading(false);
+            if (!verifyRes.data.meta.success) {
+              reject(new Error("Payment verification failed."));
+              return;
             }
+
+            toast.success("Payment successful! Starting download...");
+            await downloadMainFile();
+            openSupportingFilesAfterPay();
+            resolve({
+              verification: verifyRes.data.data || {},
+            });
           } catch (err) {
-            console.error("Verification error:", err);
-            alert("Server verification failed.");
-            setIsDownLoading(false);
+            reject(err);
           }
         },
         prefill: {
-          name: res.data.data?.prefill?.name || billerDetails.user_name,
-          email: res.data.data?.prefill?.email || user.email,
-          contact: res.data.data?.prefill?.contact || billerDetails.phone_number,
+          name: res.data.data?.prefill?.name || checkoutUser.name,
+          email: res.data.data?.prefill?.email || checkoutUser.email,
+          contact: res.data.data?.prefill?.contact || "",
         },
         ...(res.data.data?.notes && Object.keys(res.data.data.notes).length
           ? { notes: res.data.data.notes }
           : {}),
         theme: { color: MARATHONDETAILS.theme },
         modal: {
-          ondismiss: () => setIsDownLoading(false)
-        }
+          ondismiss: () => reject(new Error("Payment cancelled")),
+        },
       };
 
-      // 4. Open Razorpay checkout
       const rzp = new window.Razorpay(options);
       rzp.open();
-    } catch (err) {
-      console.error("Error creating order:", err);
-      alert("Failed to create order");
-      setIsDownLoading(false);
-    }
+    });
   };
 
-  // If you want to allow free download for some files, you can add a check here
   const handleFreeDownload = async () => {
     setIsDownLoading(true);
     try {
-      if (!localStorage.getItem('is_verified')) {
-        setOpenEmailPopUp(true)
-        return
+      if (!localStorage.getItem("is_verified")) {
+        setOpenEmailPopUp(true);
+        return;
       }
       if (custumDownload) {
-        // Only open popup for custom 3D design button
         setSupportingFiles([]);
         setSupportingFilesLoading(true);
         setOpenSupportingFiles(true);
-        fetchSupportingFiles().then(files => {
-          setSupportingFiles(files);
-          setSupportingFilesLoading(false);
-        }).catch(() => {
-          setSupportingFiles([]);
-          setSupportingFilesLoading(false);
-        });
+        fetchSupportingFiles()
+          .then((files) => {
+            setSupportingFiles(files);
+            setSupportingFilesLoading(false);
+          })
+          .catch(() => {
+            setSupportingFiles([]);
+            setSupportingFilesLoading(false);
+          });
       } else {
-        // For normal download, just download the file
         await downloadMainFile();
       }
     } finally {
       setIsDownLoading(false);
     }
   };
-  const billingHandler = async() => {
-    if (!localStorage.getItem('is_verified')) {
-      setOpenEmailPopUp(true)
-      return
+
+  const billingHandler = async () => {
+    if (!localStorage.getItem("is_verified")) {
+      setOpenEmailPopUp(true);
+      return;
     }
     try {
-      const downloadCheck = await axios.post(`${BASE_URL}/v1/payment/check-download`, {
-      cad_file_id: folderId, // Include cad_file_id in the request body
-    }, {
-      headers: { 'user-uuid': localStorage.getItem('uuid') }
-    });
+      setIsDownLoading(true);
+      const downloadCheck = await axios.post(
+        `${BASE_URL}/v1/payment/check-download`,
+        { cad_file_id: folderId },
+        { headers: { "user-uuid": localStorage.getItem("uuid") } },
+      );
 
-      if(downloadCheck.data.meta.success ) {
-        if(!downloadCheck.data.data.can_download ){
-          
-              setOpenBillingDetails(true);
-          
-        }else{
+      if (downloadCheck.data.meta.success) {
+        if (!downloadCheck.data.data.can_download) {
+          setOpenBillingDetails(true);
+        } else {
           await handleFreeDownload();
         }
-        // if(!downloadCheck.data.data.sameUser &&
-        //   downloadCheck.data.data.fileType &&
-        //   // !downloadCheck.data.data.subscriptionActive &&
-        //   !downloadCheck.data.data.canDownload
-        // ) {
-        //   setOpenBillingDetails(true);
-        // }else if(downloadCheck.data.data.sameUser &&
-        //   !downloadCheck.data.data.fileType &&
-        //   // downloadCheck.data.data.subscriptionActive &&
-        //   downloadCheck.data.data.canDownload){
-        //   await handleFreeDownload();
-        //   }
-         
-      // }
       }
     } catch (error) {
       console.error("Error checking download permissions:", error);
+      toast.error("Could not start download.");
+    } finally {
+      setIsDownLoading(false);
     }
-    
+  };
 
-  }
-  // Decide which handler to use (do NOT call it during render)
-  const downloadHandler = isDownladable === false
-    ? undefined
-    : billingHandler;
-
-  const defaultCtaLabel = custumDownload ? 'Download 3D design' : 'Download';
+  const downloadHandler = isDownladable === false ? undefined : billingHandler;
+  const defaultCtaLabel = custumDownload ? "Download 3D design" : "Download";
   const ctaLabel = downloadButtonLabel || defaultCtaLabel;
 
   return (
@@ -308,27 +319,28 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
       {custumDownload ? (
         <span
           style={{
-            display: 'block',
-            width: '100%',
-            visibility: openSupportingFiles ? 'hidden' : 'visible',
+            display: "block",
+            width: "100%",
+            visibility: openSupportingFiles ? "hidden" : "visible",
           }}
           aria-hidden={openSupportingFiles}
         >
           {isDownladable === false ? (
             <Tooltip
-              title='This file is view-only downloads are disabled by the creator.' arrow
-              placement='top'
+              title="This file is view-only downloads are disabled by the creator."
+              arrow
+              placement="top"
               disableHoverListener={isDownladable}
               disableFocusListener={isDownladable}
               disableTouchListener={isDownladable}
               PopperProps={{
                 sx: {
-                  '& .MuiTooltip-tooltip': {
-                    backgroundColor: '#333',
-                    color: '#fff',
-                    fontSize: '12px',
-                    padding: '6px',
-                    borderRadius: '4px',
+                  "& .MuiTooltip-tooltip": {
+                    backgroundColor: "#333",
+                    color: "#fff",
+                    fontSize: "12px",
+                    padding: "6px",
+                    borderRadius: "4px",
                   },
                 },
               }}
@@ -337,19 +349,19 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
                 <button
                   disabled
                   className="rounded bg-[#610BEE] h-12"
-                  style={{  
-                    opacity: 0.6, 
-                    cursor: 'not-allowed', 
-                    color: 'white', 
-                    fontSize: '20px',
-                    background: '#610BEE',
-                    borderRadius: '4px',
-                    height: '48px',
-                    padding: '10px 20px',
-                    border: 'none',
-                    minWidth: 'fit-content',
-                    whiteSpace: 'nowrap',
-                    boxSizing: 'border-box'
+                  style={{
+                    opacity: 0.6,
+                    cursor: "not-allowed",
+                    color: "white",
+                    fontSize: "20px",
+                    background: "#610BEE",
+                    borderRadius: "4px",
+                    height: "48px",
+                    padding: "10px 20px",
+                    border: "none",
+                    minWidth: "fit-content",
+                    whiteSpace: "nowrap",
+                    boxSizing: "border-box",
                   }}
                 >
                   {ctaLabel}
@@ -359,24 +371,24 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           ) : (
             <button
               disabled={isDownLoading}
-              style={{ 
-                color: 'white', 
-                fontSize: '20px',
-                background: '#610BEE',
-                borderRadius: '4px',
-                height: '48px',
-                padding: '10px 20px',
-                border: 'none',
-                minWidth: 'fit-content',
-                whiteSpace: 'nowrap',
-                boxSizing: 'border-box',
-                cursor: isDownLoading ? 'not-allowed' : 'pointer',
-                opacity: isDownLoading ? 0.7 : 1
+              style={{
+                color: "white",
+                fontSize: "20px",
+                background: "#610BEE",
+                borderRadius: "4px",
+                height: "48px",
+                padding: "10px 20px",
+                border: "none",
+                minWidth: "fit-content",
+                whiteSpace: "nowrap",
+                boxSizing: "border-box",
+                cursor: isDownLoading ? "not-allowed" : "pointer",
+                opacity: isDownLoading ? 0.7 : 1,
               }}
               className="rounded bg-[#610BEE] h-12"
               onClick={downloadHandler}
             >
-              {isDownLoading ? 'Processing...' : ctaLabel}
+              {isDownLoading ? "Processing..." : ctaLabel}
             </button>
           )}
         </span>
@@ -384,29 +396,29 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
         <>
           {isDownladable === false ? (
             <Tooltip
-              title='This file is view-only downloads are disabled by the creator.' arrow
-              placement='top'
+              title="This file is view-only downloads are disabled by the creator."
+              arrow
+              placement="top"
               disableHoverListener={isDownladable}
               disableFocusListener={isDownladable}
               disableTouchListener={isDownladable}
               PopperProps={{
                 sx: {
-                  '& .MuiTooltip-tooltip': {
-                    backgroundColor: '#333',
-                    color: '#fff',
-                    fontSize: '12px',
-                    padding: '6px',
-                    borderRadius: '4px',
+                  "& .MuiTooltip-tooltip": {
+                    backgroundColor: "#333",
+                    color: "#fff",
+                    fontSize: "12px",
+                    padding: "6px",
+                    borderRadius: "4px",
                   },
                 },
               }}
             >
               <span>
-                
                 <button
                   disabled
-                  className={styles['industry-design-files-btn']}
-                  style={{ opacity: 0.6, cursor: 'not-allowed' }}
+                  className={styles["industry-design-files-btn"]}
+                  style={{ opacity: 0.6, cursor: "not-allowed" }}
                 >
                   {ctaLabel}
                 </button>
@@ -415,20 +427,44 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           ) : (
             <button
               disabled={isDownLoading}
-              className={styles['industry-design-files-btn']}
+              className={styles["industry-design-files-btn"]}
               onClick={downloadHandler}
             >
-              {isDownLoading ? 'Processing...' : ctaLabel}
+              {isDownLoading ? "Processing..." : ctaLabel}
             </button>
           )}
         </>
       )}
-      {openBillingDetails && <BillingAddress 
-      onClose={() => setOpenBillingDetails(false)}  setBillerDetails={setBillerDetails}
-      onSave={handleDownload} cadId={folderId} designDetails={designDetails} createdFor="design_billing"/>}
-      {openEmailPopUp && <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} />}
-      {openSupportingFiles && (
-        <SupportingFilesPopup 
+
+      {openBillingDetails ? (
+        <ConverterDownloadFlow
+          product={{
+            badge: String(filetype || designDetails?.file_type || "CAD").toUpperCase(),
+            title: designDetails?.title || "CAD download",
+            detail: designDetails?.description || "One-time download",
+            successDetail: "Your file download has started.",
+            pricing: pricing || undefined,
+          }}
+          pricing={pricing || undefined}
+          user={readCheckoutUser(user)}
+          createdFor="design_billing"
+          heading="Download your CAD file"
+          payButtonLabel={
+            pricingDisplay.totalLabel
+              ? `Pay ${pricingDisplay.totalLabel} & download →`
+              : undefined
+          }
+          successTitle="Paid — your download started"
+          successBody="Your CAD file is downloading now."
+          onClose={() => setOpenBillingDetails(false)}
+          onPay={handleCheckoutPay}
+        />
+      ) : null}
+
+      {openEmailPopUp ? <UserLoginPupUp onClose={() => setOpenEmailPopUp(false)} /> : null}
+
+      {openSupportingFiles ? (
+        <SupportingFilesPopup
           files={supportingFiles.supporting_files}
           cadFilenName={supportingFiles.cad_file_name}
           loading={supportingFilesLoading}
@@ -440,12 +476,9 @@ function DownloadClientButton({ folderId, xaxis, yaxis, isDownladable,
           onDownloadMainFile={downloadMainFile}
           isDownloadingMainFile={isDownloadingMainFile}
         />
-      )}
-      {/* {isDownloadingMainFile && <Loading />} */}
+      ) : null}
     </>
   );
 }
 
 export default DownloadClientButton;
-
-// console.log("RAZORPAY_KEY_ID:", RAZORPAY_KEY_ID); // Should print your key, not undefined

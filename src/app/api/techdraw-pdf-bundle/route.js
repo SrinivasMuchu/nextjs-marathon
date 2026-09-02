@@ -2,6 +2,7 @@ import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
 import JSZip from "jszip";
 import { TECH_DRAW_LIBRARY_PREFIX } from "@/config";
+import { assertTwoDLibraryDownloadAccess } from "@/lib/techDraw/libraryDownloadAccess";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -39,6 +40,14 @@ export async function GET(request) {
   const designId = new URL(request.url).searchParams.get("designId");
   if (!designId || !DESIGN_ID_RE.test(designId)) {
     return NextResponse.json({ error: "Invalid designId" }, { status: 400 });
+  }
+
+  const access = await assertTwoDLibraryDownloadAccess(request, designId);
+  if (!access.ok) {
+    return NextResponse.json(
+      { error: access.message || "payment required" },
+      { status: access.status || 401 },
+    );
   }
 
   const root = `${ALLOW_PREFIX}/${designId}`;
