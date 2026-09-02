@@ -12,15 +12,16 @@ const FOOTNOTES = [
 
 function ConversionPricingPanel({
   packs = [],
-  singlePriceLabel = "$2.99",
-  drawingPriceLabel = "$5.99",
-  variant = "home",
+  singlePriceLabel = "",
+  drawingPriceLabel = "",
   onChoosePack,
 }) {
   if (!packs.length) return null;
 
-  const shell = (
-    <div className={styles.shell}>
+  return (
+    <section className={styles.section} id="pricing">
+      <div className={styles.outer}>
+        <div className={styles.shell}>
       <header className={styles.heading}>
         <p className={styles.eyebrow}>
           <CircleDollarSign size={14} aria-hidden="true" />
@@ -114,16 +115,8 @@ function ConversionPricingPanel({
           </span>
         ))}
       </p>
-    </div>
-  );
-
-  if (variant === "embedded") {
-    return <div className={styles.embedded}>{shell}</div>;
-  }
-
-  return (
-    <section className={styles.section} id="pricing">
-      <div className={styles.outer}>{shell}</div>
+        </div>
+      </div>
     </section>
   );
 }

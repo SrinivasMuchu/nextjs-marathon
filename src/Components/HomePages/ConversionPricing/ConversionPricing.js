@@ -13,11 +13,11 @@ import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
 import { ensureConverterPackPurchase } from "@/Components/History/converterPayment";
 import ConversionPricingPanel from "./ConversionPricingPanel";
 
-function ConversionPricing({ variant = "home" }) {
+function ConversionPricing() {
   const { user, setUser, setUpdatedDetails } = useContext(contextState);
   const [packs, setPacks] = useState([]);
-  const [singlePriceLabel, setSinglePriceLabel] = useState("$2.99");
-  const [drawingPriceLabel, setDrawingPriceLabel] = useState("$5.99");
+  const [singlePriceLabel, setSinglePriceLabel] = useState("");
+  const [drawingPriceLabel, setDrawingPriceLabel] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [pendingPack, setPendingPack] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
@@ -81,7 +81,6 @@ function ConversionPricing({ variant = "home" }) {
   return (
     <>
       <ConversionPricingPanel
-        variant={variant}
         packs={packs}
         singlePriceLabel={singlePriceLabel}
         drawingPriceLabel={drawingPriceLabel}

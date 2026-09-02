@@ -98,11 +98,12 @@ export const TWO_D_PROJECTION_FILTERS = [
 ];
 
 /** Price label for 2D library cards — uses overlay `2d_price` (GST-inclusive). */
-export function getTwoDPriceLabel(design) {
-  const price = Number(design?.['2d_price']);
+export function getTwoDPriceLabel(design, fallbackLabel) {
+  const price = Number(design?.["2d_price"]);
   if (Number.isFinite(price) && price > 0) return `$${price.toFixed(2)}`;
-  if (design?.['2d_price'] === 0 || design?.['2d_price'] === '0') return 'Free';
-  return 'Free';
+  if (design?.["2d_price"] === 0 || design?.["2d_price"] === "0") return "Free";
+  if (fallbackLabel != null && fallbackLabel !== "") return fallbackLabel;
+  return "";
 }
 
 /** Design routes contain a MongoDB ObjectId (24 hex chars); category slugs do not. */

@@ -6,7 +6,12 @@ import ConversionExpertise from "../HomePages/ConversionExpertise/ConversionExpe
 import ConverterDirectory from "../HomePages/ConverterDirectory/ConverterDirectory";
 import FormatExpertise from "../HomePages/FormatExpertise/FormatExpertise";
 import ConversionPricing from "../HomePages/ConversionPricing/ConversionPricing";
-import DesignHub from "../HomePages/DesignHub/DesignHub";
+import ConversionWorkflow from "../HomePages/ConversionWorkflow/ConversionWorkflow";
+import ConversionPrivacy from "../HomePages/ConversionPrivacy/ConversionPrivacy";
+import CadProductsShowcase from "../HomePages/CadProductsShowcase/CadProductsShowcase";
+import CadDrawingsShowcase from "../HomePages/CadDrawingsShowcase/CadDrawingsShowcase";
+import ConversionDesignerCta from "../HomePages/ConversionDesignerCta/ConversionDesignerCta";
+import ConversionFinalCta from "../HomePages/ConversionFinalCta/ConversionFinalCta";
 import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
 import WhyUsNew from "../HomePages/NewWhyUs/WhyUsNew";
 import FreeTools from "../HomePages/FreeTools/FreeTools";
@@ -30,8 +35,13 @@ const HomePage = () => {
           <ConverterDirectory />
           <FormatExpertise />
           <ConversionPricing />
+          <ConversionWorkflow />
+          <ConversionPrivacy />
           {/* <CadOutsourcingBanner /> */}
-          <DesignHub />
+          <CadProductsShowcase />
+          <CadDrawingsShowcase />
+          <ConversionDesignerCta />
+          <ConversionFinalCta />
           <RecentlyAddedDesigns />
           <WhyUsNew />
           <FreeTools />

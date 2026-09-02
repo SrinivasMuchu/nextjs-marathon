@@ -23,20 +23,6 @@
   margin: 0 auto;
 }
 
-.embedded {
-  width: 100%;
-  padding: clamp(56px, 7vw, 96px) clamp(18px, 5vw, 64px);
-  box-sizing: border-box;
-  background: white;
-  font-family: inherit;
-}
-
-.embedded .shell {
-  max-width: 1120px;
-  margin: 0 auto;
-  box-shadow: 0 24px 60px rgba(47, 23, 92, 0.1);
-}
-
 .shell {
   padding: clamp(40px, 5vw, 57px) clamp(24px, 4vw, 52px) clamp(32px, 4vw, 42px);
   background: #fefeff;
@@ -411,10 +397,6 @@
 @media (max-width: 640px) {
   .outer {
     width: min(100% - 28px, 1200px);
-  }
-
-  .embedded {
-    padding: 48px 16px;
   }
 
   .shell {

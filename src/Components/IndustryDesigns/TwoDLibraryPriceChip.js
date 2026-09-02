@@ -9,7 +9,7 @@ import styles from "./TwoDTechnicalDrawingHero.module.css";
  * Pass `version` for techdraw-v2 designs so the versioned price is used.
  */
 export default function TwoDLibraryPriceChip({ version = false }) {
-  const [label, setLabel] = useState(version ? "$9.44" : "$5.90");
+  const [label, setLabel] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -31,6 +31,8 @@ export default function TwoDLibraryPriceChip({ version = false }) {
       cancelled = true;
     };
   }, [version]);
+
+  if (!label) return null;
 
   const isFree = String(label).toLowerCase().includes("free");
   return (

@@ -11,6 +11,7 @@ import {
   Layers,
   Workflow,
 } from "lucide-react";
+import TechDrawPriceAmount from "../shared/TechDrawPriceAmount";
 import styles from "./HomeLandingNew.module.css";
 
 const ASSURANCE_ITEMS = [
@@ -133,7 +134,7 @@ function HomeLandingNew() {
                 <strong>STEP or STP to 2D drawing set</strong>
               </span>
               <span className={styles.consoleAltPrice}>
-                <strong>$5.99</strong>
+                <TechDrawPriceAmount />
                 <ChevronRight size={15} aria-hidden="true" />
               </span>
             </Link>

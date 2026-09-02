@@ -1,0 +1,135 @@
+.section {
+  --purple: #6324d8;
+
+  text-align: center;
+  color: white;
+  font-family: inherit;
+  border-top: 10px solid white;
+  background-color: var(--purple);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.065) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.065) 1px, transparent 1px),
+    radial-gradient(circle at 80% 9%, rgba(255, 255, 255, 0.17), transparent 29%),
+    linear-gradient(135deg, #6c2ce0 0%, #5c20ce 55%, #4d18b8 100%);
+  background-size: 34px 34px, 34px 34px, 100% 100%, 100% 100%;
+}
+
+.shell {
+  width: min(1200px, calc(100% - 44px));
+  margin: 0 auto;
+  padding: clamp(82px, 11vw, 104px) 20px clamp(77px, 10vw, 98px);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  color: #eee5ff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.title {
+  max-width: 830px;
+  margin: 24px auto 17px;
+  font-size: clamp(36px, 5.6vw, 58px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+}
+
+.description {
+  max-width: 620px;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 31px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 45px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.buttonLarge {
+  min-height: 50px;
+  padding: 0 24px;
+}
+
+.buttonWhite {
+  color: var(--purple);
+  background: white;
+  box-shadow: 0 12px 24px rgba(44, 12, 101, 0.22);
+}
+
+.buttonWhite:hover {
+  background: #fbf9ff;
+}
+
+.buttonGhost {
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.44);
+}
+
+.buttonGhost:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.proof {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 21px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    width: min(100% - 28px, 1200px);
+    padding-inline: 14px;
+  }
+
+  .title {
+    font-size: 36px;
+  }
+
+  .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+}

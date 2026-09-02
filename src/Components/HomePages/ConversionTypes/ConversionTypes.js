@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, ChevronRight, FileOutput, RefreshCw } from "lucide-react";
+import TechDrawPriceAmount from "../shared/TechDrawPriceAmount";
 import styles from "./ConversionTypes.module.css";
 
 const FORMAT_EXAMPLES = [
@@ -87,7 +88,7 @@ function ConversionTypes() {
             <div className={styles.footer}>
               <div className={styles.priceBlock}>
                 <small>PER DRAWING SET</small>
-                <strong>$5.99</strong>
+                <TechDrawPriceAmount />
               </div>
               <Link className={styles.whiteButton} href="/tools/cad-drawing-pipeline">
                 Create 2D drawings
