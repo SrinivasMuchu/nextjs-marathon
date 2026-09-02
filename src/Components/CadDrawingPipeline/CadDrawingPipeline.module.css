@@ -3010,3 +3010,500 @@
   background: #610bee;
   color: #fff;
 }
+
+.gdtPanel {
+  margin-top: 22px;
+  padding: 16px 16px 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.gdtPanelTitle {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #e8e0ff;
+  letter-spacing: 0.01em;
+}
+
+.gdtPanelLead {
+  margin: 6px 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9b93b3;
+}
+
+.gdtStandardRow {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  align-items: center;
+}
+
+.gdtStandardRow legend {
+  margin-bottom: 8px;
+}
+
+.gdtRadio,
+.gdtCheck {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #d8d2ea;
+  cursor: pointer;
+}
+
+.gdtCheck {
+  margin: 16px 0 12px;
+}
+
+.gdtOptional {
+  font-weight: 500;
+  color: #8b8499;
+}
+
+.datumPicker {
+  margin: 0 0 18px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  background: linear-gradient(180deg, rgba(97, 11, 238, 0.16), rgba(20, 16, 32, 0.4));
+}
+
+.datumPickerHeader {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.datumPickerIcon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.datumPickerTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.datumPickerLead {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b8b0cc;
+}
+
+.datumPickerHeaderBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.datumPickerTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.datumModeToggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 8, 18, 0.55);
+  gap: 2px;
+}
+
+.datumModeBtn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #8b8499;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.datumModeBtn:hover:not(:disabled) {
+  color: #cfc9dd;
+}
+
+.datumModeBtnOn {
+  background: rgba(97, 11, 238, 0.35);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.45);
+}
+
+.datumPickSummary {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 8, 18, 0.45);
+}
+
+.datumPickSummaryTitle {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8b8499;
+  margin-bottom: 8px;
+}
+
+.datumPickSummaryEmpty {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b8b0cc;
+}
+
+.datumPickSummaryList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.datumPickSummaryItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #cfc9dd;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.datumPickSummaryItem:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.45);
+}
+
+.datumSwitchModeLink {
+  margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #a78bfa;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.datumSwitchModeLink:hover:not(:disabled) {
+  color: #c4b5fd;
+}
+
+.datumPickerGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 800px) {
+  .datumPickerGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.datumPickerField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.datumPickerLetter {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #e8e0ff;
+}
+
+.datumPickerHint {
+  font-size: 11.5px;
+  color: #8b8499;
+}
+
+.datumPickerSelect {
+  margin-top: 4px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 8, 18, 0.65);
+  color: #fff;
+  font-size: 13px;
+}
+
+.datumCandidateList {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(420px, 48vh);
+  overflow: auto;
+}
+
+.datumCandidateList li {
+  display: block;
+  font-size: 13px;
+  color: #cfc9dd;
+}
+
+.datumCandidateBtn {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 8, 18, 0.45);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.datumCandidateBtn:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.55);
+  background: rgba(97, 11, 238, 0.14);
+}
+
+.datumCandidateBtn:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.datumCandidateBtnOn {
+  border-color: rgba(139, 92, 246, 0.7);
+  background: rgba(97, 11, 238, 0.22);
+}
+
+.datumCandidateBtnFocus {
+  border-color: rgba(103, 232, 249, 0.85);
+  box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.35);
+  background: rgba(103, 232, 249, 0.12);
+}
+
+.datumAssignedBadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 229, 160, 0.2);
+  color: #9ff5d4;
+}
+
+.datumKindBadge,
+.datumAltBadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(139, 92, 246, 0.22);
+  color: #d8ccff;
+}
+
+.datumAltBadge {
+  background: rgba(255, 255, 255, 0.08);
+  color: #b8b0cc;
+}
+
+.datumPickerLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .datumPickerLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.datumPickerSide {
+  min-width: 0;
+}
+
+.datumActiveRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.datumActiveLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8b8499;
+}
+
+.datumActiveLetters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.datumActiveBtn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 8, 18, 0.55);
+  color: #cfc9dd;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.datumActiveBtn:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.datumActiveBtnOn {
+  border-color: rgba(139, 92, 246, 0.75);
+  background: rgba(97, 11, 238, 0.28);
+  color: #fff;
+}
+
+.datumActiveBtnFilled {
+  box-shadow: inset 0 0 0 1px rgba(0, 229, 160, 0.35);
+}
+
+.datumViewerShell {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0a0a14;
+  overflow: hidden;
+  min-height: 420px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.datumViewerToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 16, 32, 0.65);
+}
+
+.datumViewerHint {
+  font-size: 12.5px;
+  color: #b8b0cc;
+}
+
+.datumViewerToolbarRight {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.datumViewerLegend {
+  display: flex;
+  gap: 8px;
+}
+
+.datumViewerLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #e8e0ff;
+}
+
+.datumViewerLegendItem::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--swatch, #7c5cff);
+}
+
+.datumViewerResetBtn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 8, 18, 0.55);
+  color: #e8e0ff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.datumViewerResetBtn:hover {
+  border-color: rgba(139, 92, 246, 0.55);
+  background: rgba(97, 11, 238, 0.18);
+}
+
+.datumViewerCanvas {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 440px;
+  height: min(62vh, 560px);
+  overflow: hidden;
+  isolation: isolate;
+  cursor: grab;
+}
+
+.datumViewerCanvas:active {
+  cursor: grabbing;
+}
+
+.datumViewerEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: #8b8499;
+  font-size: 13px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(10, 8, 18, 0.4);
+}
+
+.datumPickerActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+

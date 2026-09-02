@@ -10,14 +10,7 @@ const FORMATS = [
   { key: "dxf", label: "DXF", className: styles.dxf },
 ];
 
-export default function TwoDDrawingSheetDownloads({
-  rows,
-  onRequestDownload: onRequestDownloadProp,
-  designId,
-  designTitle,
-  gateLibraryDownloads = false,
-  busy: busyProp = false,
-}) {
+export default function TwoDDrawingSheetDownloads({ rows, onDownload }) {
   void DEFAULT_SHEET_DOWNLOAD_ROWS;
   const libraryPaywall = useTwoDLibraryDownload({
     designId,
@@ -30,6 +23,13 @@ export default function TwoDDrawingSheetDownloads({
 
   const safeRows = Array.isArray(rows) ? rows : [];
   if (!safeRows.length) return null;
+
+  const open = (href) => {
+    if (!href) return;
+    if (onDownload) onDownload(href);
+    else window.open(href, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <section className={styles.section} aria-labelledby="sheet-downloads-heading">
       <p className={styles.eyebrow}>Downloads</p>
@@ -67,14 +67,14 @@ export default function TwoDDrawingSheetDownloads({
                   );
                 }
                 return (
-                  <a
+                  <button
                     key={key}
-                    href={href}
+                    type="button"
                     className={`${styles.badge} ${className}`}
-                    download
+                    onClick={() => open(href)}
                   >
                     {label}
-                  </a>
+                  </button>
                 );
               })}
             </div>

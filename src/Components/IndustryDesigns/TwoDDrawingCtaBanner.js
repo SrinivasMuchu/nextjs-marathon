@@ -7,6 +7,7 @@ import {
   getTechDrawPriceDisplay,
 } from "@/api/cadDrawingPipelineApi";
 import TwoDDrawingCtaBannerButton from "./TwoDDrawingCtaBannerButton";
+import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 import styles from "./TwoDDrawingCtaBanner.module.css";
 
 const defaultChecks = [
@@ -22,15 +23,20 @@ const defaultChecks = [
 export default function TwoDDrawingCtaBanner({
   generateHref = "/tools/cad-drawing-pipeline",
   secondaryHref = "",
+  eyebrow,
   title = "Have your own 3D CAD file?",
   description = "Upload a STEP, STP, IGES or FreeCAD file and generate a 2D drawing set with PDF, SVG and DXF outputs.",
   buttonLabel = "Generate my 2D drawing",
   secondaryButtonLabel = "View existing 2D drawings",
+  price,
   priceSubtext = "per drawing set",
   turnaround = "4 min",
   turnaroundLabel = "avg. turnaround",
   checks = defaultChecks,
 }) {
+  const { baseLabel, perSetLabel } = getTechDrawPriceDisplay();
+  const displayPrice = price || baseLabel;
+  const displayEyebrow = eyebrow || `Paid Pipeline · ${perSetLabel}`;
   const [prices, setPrices] = useState(() => getTechDrawPriceDisplay());
 
   useEffect(() => {
@@ -49,7 +55,7 @@ export default function TwoDDrawingCtaBanner({
     <section className={styles.banner} aria-labelledby="two-d-cta-heading">
       <div className={styles.inner}>
         <div className={styles.left}>
-          <p className={styles.eyebrow}>{eyebrow}</p>
+          <p className={styles.eyebrow}>{displayEyebrow}</p>
           <h2 id="two-d-cta-heading" className={styles.title}>
             {title}
           </h2>
@@ -73,8 +79,8 @@ export default function TwoDDrawingCtaBanner({
           </div>
         </div>
         <div className={styles.right}>
-          <div className={styles.priceBig}>{prices.totalLabel}</div>
-          <div className={styles.priceSub}>{priceSubtext} incl. GST</div>
+          <div className={styles.priceBig}>{displayPrice}</div>
+          <div className={styles.priceSub}>{priceSubtext}</div>
           <div className={styles.timeBadge}>
             <div className={styles.timeVal}>{turnaround}</div>
             <div className={styles.timeKey}>{turnaroundLabel}</div>

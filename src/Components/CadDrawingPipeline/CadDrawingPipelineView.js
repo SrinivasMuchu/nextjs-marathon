@@ -9,7 +9,6 @@ import {
   getOrCreateTechDrawUuid,
   getTechDrawPriceDisplay,
   prepareCadDrawingJob,
-  uploadAndSubmitTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
 import useTechDrawPriceDisplay from "./useTechDrawPriceDisplay";
 import { openTechDrawPayment } from "./techDrawPayment";
@@ -94,6 +93,9 @@ export default function CadDrawingPipelineView() {
   const [formStep, setFormStep] = useState(1);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [gdtStandard, setGdtStandard] = useState("ASME");
+  const [datumPreferences, setDatumPreferences] = useState("");
+  const [chooseDatums, setChooseDatums] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [uploadPhase, setUploadPhase] = useState("");
   const [error, setError] = useState("");
@@ -101,6 +103,9 @@ export default function CadDrawingPipelineView() {
   const [eligibility, setEligibility] = useState(null);
   const [eligibilityLoading, setEligibilityLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
+  const fileInputRef = useRef(null);
+  const submitLockRef = useRef(false);
+  const pendingAfterLoginRef = useRef(false);
   const [openTechDrawBilling, setOpenTechDrawBilling] = useState(false);
   const [techDrawCheckout, setTechDrawCheckout] = useState(null);
   const fileInputRef = useRef(null);
@@ -200,7 +205,7 @@ export default function CadDrawingPipelineView() {
     pickFile(f);
   };
 
-  const needsPaidFlow =
+  const needsPaidDownload =
     !isFreeRetryFlow && eligibility && !eligibility.free_run_available && !eligibilityLoading;
 
   const llmAvailable = useMemo(() => isLlmAvailable(eligibility), [eligibility]);
@@ -248,7 +253,7 @@ export default function CadDrawingPipelineView() {
     setSubmitting(true);
     setError("");
 
-    const flowType = needsPaidFlow ? "paid" : flowTypeFromEligibility(eligibility);
+    const flowType = needsPaidDownload ? "paid" : flowTypeFromEligibility(eligibility);
     trackTechDrawUploadStart({ flowType, file });
 
     try {
@@ -270,14 +275,6 @@ export default function CadDrawingPipelineView() {
         return;
       }
 
-      // Re-check payment requirement from fresh eligibility (not stale render state).
-      const needsPaymentNow =
-        !isFreeRetryFlow &&
-        Boolean(
-          freshEligibility?.requires_payment ||
-            (freshEligibility && !freshEligibility.free_run_available),
-        );
-
       const onPhase = (phase) => {
         trackTechDrawUploadPhase(phase);
         if (phase === "upload-url") setUploadPhase("Requesting upload URL…");
@@ -285,6 +282,23 @@ export default function CadDrawingPipelineView() {
         if (phase === "submit") setUploadPhase("Creating job & starting pipeline…");
       };
 
+      const prep = await prepareCadDrawingJob({
+        file,
+        title: title.trim(),
+        description: description.trim(),
+        requiresPayment: false,
+        original_failed_job_id: isFreeRetryFlow ? freeRetryFor : undefined,
+        gdt_standard: gdtStandard,
+        datum_preferences: datumPreferences.trim(),
+        choose_datums: chooseDatums,
+        onPhase,
+      });
+      const jobId = prep.jobId;
+      toast.success(
+        isFreeRetryFlow
+          ? "Free replacement upload started."
+          : "Drawing pipeline started.",
+      );
       let jobId;
 
       if (needsPaymentNow) {
@@ -322,6 +336,7 @@ export default function CadDrawingPipelineView() {
       );
 
       trackTechDrawUploadSuccess({
+        flowType: needsPaidDownload ? "paid" : flowTypeFromEligibility(freshEligibility),
         flowType: flowTypeFromEligibility(freshEligibility),
         jobId,
         file,
@@ -336,7 +351,7 @@ export default function CadDrawingPipelineView() {
         "Request failed";
       const text = typeof msg === "string" ? msg : JSON.stringify(msg, null, 2);
       trackTechDrawUploadFailed({
-        flowType: needsPaidFlow ? "paid" : flowTypeFromEligibility(eligibility),
+        flowType: needsPaidDownload ? "paid" : flowTypeFromEligibility(eligibility),
         errorMessage: text,
       });
       setError(text);
@@ -607,13 +622,79 @@ export default function CadDrawingPipelineView() {
                 rows={4}
               />
 
+              <div className={styles.gdtPanel}>
+                <div className={styles.gdtPanelTitle}>GD&amp;T datums</div>
+                <p className={styles.gdtPanelLead}>
+                  Optional. The drawing engine proposes datum faces from the model. You can
+                  steer that choice, or pick the exact A / B / C frame after views are captured.
+                </p>
+
+                <fieldset className={styles.gdtStandardRow} disabled={submitting}>
+                  <legend className={styles.pipelineHeroFieldLabel}>Standard</legend>
+                  <label className={styles.gdtRadio}>
+                    <input
+                      type="radio"
+                      name="gdt-standard"
+                      value="ASME"
+                      checked={gdtStandard === "ASME"}
+                      onChange={() => setGdtStandard("ASME")}
+                    />
+                    ASME Y14.5
+                  </label>
+                  <label className={styles.gdtRadio}>
+                    <input
+                      type="radio"
+                      name="gdt-standard"
+                      value="ISO"
+                      checked={gdtStandard === "ISO"}
+                      onChange={() => setGdtStandard("ISO")}
+                    />
+                    ISO GPS
+                  </label>
+                </fieldset>
+
+                <label
+                  className={`${styles.pipelineHeroFieldLabel} ${styles.pipelineHeroFieldLabelSpaced}`}
+                  htmlFor="cad-pipeline-datums"
+                >
+                  Datum notes <span className={styles.gdtOptional}>(optional)</span>
+                </label>
+                <textarea
+                  id="cad-pipeline-datums"
+                  className={styles.pipelineHeroTextarea}
+                  value={datumPreferences}
+                  onChange={(e) => setDatumPreferences(e.target.value)}
+                  placeholder="e.g. Primary datum is the mounting face; locate on the Ø12 dowel bore."
+                  disabled={submitting}
+                  rows={3}
+                />
+
+                <label className={styles.gdtCheck}>
+                  <input
+                    type="checkbox"
+                    checked={chooseDatums}
+                    disabled={submitting}
+                    onChange={(e) => setChooseDatums(e.target.checked)}
+                  />
+                  <span>
+                    I&apos;ll pick datum features A / B / C after the model is analyzed
+                  </span>
+                </label>
+              </div>
+
               {uploadPhase ? <p className={styles.uploadPhaseHint}>{uploadPhase}</p> : null}
 
-              {needsPaidFlow ? (
+              {needsPaidDownload ? (
                 <p className={styles.uploadPhaseHint} style={{ marginTop: 16 }}>
+                  Processing is free. You&apos;ll pay <strong>{prices.baseLabel}</strong> + tax (
+                  {prices.totalLabel}) when you download the ZIP.
                   You will pay <strong>{prices.totalLabel}</strong> (incl. GST) before your file uploads.
                 </p>
-              ) : null}
+              ) : (
+                <p className={styles.uploadPhaseHint} style={{ marginTop: 16 }}>
+                  Your first drawing-set download is free. Upload and generate at no charge.
+                </p>
+              )}
 
               <button
                 className={styles.pipelineHeroSubmitBtn}
@@ -653,6 +734,7 @@ export default function CadDrawingPipelineView() {
               <div className={styles.pipelineCtaMeta}>
                 <span className={styles.pipelineCtaMetaItem}>
                   <span className={styles.pipelineCtaMetaDot} aria-hidden />
+                  Pay at download · {prices.baseLabel} per drawing set
                   {prices.totalLabel} per drawing set incl. GST
                 </span>
                 <span className={styles.pipelineCtaMetaItem}>

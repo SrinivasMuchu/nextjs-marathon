@@ -8,11 +8,13 @@ import { techDrawUserJobCdnBase } from "@/lib/techDraw/fetchTechDrawBundleFromPr
 
 export const TECHDRAW_API_BASE = "/v1/cad-techdraw";
 
-/** Fallback list price when API is unavailable (keep near admin default). */
-export const TECHDRAW_BASE_PRICE_USD = 4.99;
+/** GST-inclusive checkout total (keep in sync with TECHDRAW_JOB_PRICE on API). */
+export const TECHDRAW_CHECKOUT_TOTAL_USD = 5.99;
+/** @deprecated Use TECHDRAW_CHECKOUT_TOTAL_USD — kept for card/JSON-LD imports. */
+export const TECHDRAW_BASE_PRICE_USD = TECHDRAW_CHECKOUT_TOTAL_USD;
 const TECHDRAW_GST_RATE = 0.18;
 
-/** Display price for TechDraw (base USD; server may add tax at checkout). */
+/** Display price for TechDraw (checkout total includes GST). */
 export function formatTechDrawPrice(amount, currency = "USD") {
   const n = Number(amount);
   if (!Number.isFinite(n) || n < 0) return "";
@@ -27,36 +29,17 @@ export function formatTechDrawPrice(amount, currency = "USD") {
   }
 }
 
-/**
- * Normalized labels for banners, buttons, and Razorpay copy.
- * Customer-facing labels use GST-inclusive totals (same as 2D library checkout).
- */
-export function getTechDrawPriceDisplay(basePrice = TECHDRAW_BASE_PRICE_USD, totalWithGst = null) {
+/** Normalized labels for banners, buttons, and Razorpay copy ($5.99 incl. GST). */
+export function getTechDrawPriceDisplay() {
   const currency = "USD";
-  const parsed = Number(basePrice);
-  const base =
-    Number.isFinite(parsed) && parsed >= 0 ? parsed : TECHDRAW_BASE_PRICE_USD;
-  if (base === 0) {
-    return {
-      base: 0,
-      total: 0,
-      currency,
-      baseLabel: "Free",
-      totalLabel: "Free",
-      perSetLabel: "Free per drawing set",
-    };
-  }
-  const parsedTotal = Number(totalWithGst);
-  const total =
-    Number.isFinite(parsedTotal) && parsedTotal >= 0
-      ? Math.round(parsedTotal * 100) / 100
-      : Math.round(base * (1 + TECHDRAW_GST_RATE) * 100) / 100;
+  const total = TECHDRAW_CHECKOUT_TOTAL_USD;
+  const base = Math.round((total / (1 + TECHDRAW_GST_RATE)) * 100) / 100;
   const totalLabel = formatTechDrawPrice(total, currency);
   return {
     base,
     total,
     currency,
-    baseLabel: formatTechDrawPrice(base, currency),
+    baseLabel: totalLabel,
     totalLabel,
     perSetLabel: `${totalLabel} per drawing set`,
   };
@@ -230,6 +213,9 @@ export async function submitTechDrawJob({
   razorpay_payment_id,
   razorpay_signature,
   original_failed_job_id,
+  gdt_standard,
+  datum_preferences,
+  choose_datums,
 }) {
   assertUuid();
   const { data } = await axios.post(
@@ -241,6 +227,9 @@ export async function submitTechDrawJob({
       s3_bucket,
       file_name,
       ...(original_failed_job_id ? { original_failed_job_id } : {}),
+      ...(gdt_standard ? { gdt_standard } : {}),
+      ...(datum_preferences ? { datum_preferences } : {}),
+      ...(choose_datums ? { choose_datums: true } : {}),
       ...(razorpay_order_id
         ? { razorpay_order_id, razorpay_payment_id, razorpay_signature }
         : {}),
@@ -253,15 +242,28 @@ export async function submitTechDrawJob({
 /** Razorpay checkout only — no job row until submit after payment. */
 export async function createTechDrawOrder(jobId, billingId) {
   assertUuid();
+  if (!jobId) {
+    throw new Error("job_id is required.");
+  }
   if (!billingId) {
     throw new Error("Billing address is required before payment.");
   }
   const { data } = await axios.post(
     `${BASE_URL}${TECHDRAW_API_BASE}/create-order`,
     {
+      job_id: jobId,
       billing_id: billingId,
-      ...(jobId ? { job_id: jobId } : {}),
     },
+    { headers: userUuidHeader(), timeout: 30_000 },
+  );
+  return unwrap(data);
+}
+
+export async function checkTechDrawDownload(jobId) {
+  assertUuid();
+  const { data } = await axios.post(
+    `${BASE_URL}${TECHDRAW_API_BASE}/check-download`,
+    { job_id: jobId },
     { headers: userUuidHeader(), timeout: 30_000 },
   );
   return unwrap(data);
@@ -278,6 +280,48 @@ export async function verifyTechDrawPayment({
     `${BASE_URL}${TECHDRAW_API_BASE}/verify-payment`,
     {
       ...(job_id ? { job_id } : {}),
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    },
+    { headers: userUuidHeader(), timeout: 60_000 },
+  );
+  return unwrap(data);
+}
+
+export async function checkTwoDLibraryDownload(cadFileId) {
+  assertUuid();
+  const { data } = await axios.post(
+    `${BASE_URL}${TECHDRAW_API_BASE}/library/check-download`,
+    { cad_file_id: cadFileId },
+    { headers: userUuidHeader(), timeout: 30_000 },
+  );
+  return unwrap(data);
+}
+
+export async function createTwoDLibraryOrder(cadFileId, billingId) {
+  assertUuid();
+  if (!cadFileId) throw new Error("cad_file_id is required.");
+  if (!billingId) throw new Error("Billing address is required before payment.");
+  const { data } = await axios.post(
+    `${BASE_URL}${TECHDRAW_API_BASE}/library/create-order`,
+    { cad_file_id: cadFileId, billing_id: billingId },
+    { headers: userUuidHeader(), timeout: 30_000 },
+  );
+  return unwrap(data);
+}
+
+export async function verifyTwoDLibraryPayment({
+  cad_file_id,
+  razorpay_order_id,
+  razorpay_payment_id,
+  razorpay_signature,
+}) {
+  assertUuid();
+  const { data } = await axios.post(
+    `${BASE_URL}${TECHDRAW_API_BASE}/library/verify-payment`,
+    {
+      cad_file_id,
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
@@ -313,6 +357,10 @@ export async function pollTechDrawJobUntilDone(jobId, opts = {}) {
       opts.onJob?.(job);
 
       if (job?.status === "COMPLETED") {
+        return job;
+      }
+
+      if (job?.status === "AWAITING_DATUMS") {
         return job;
       }
 
@@ -354,6 +402,9 @@ async function prepareCadDrawingJobViaProxy({
   title,
   description,
   original_failed_job_id,
+  gdt_standard,
+  datum_preferences,
+  choose_datums,
   onPhase,
 }) {
   const uuid = getOrCreateTechDrawUuid();
@@ -364,6 +415,9 @@ async function prepareCadDrawingJobViaProxy({
   if (original_failed_job_id) {
     formData.append("original_failed_job_id", original_failed_job_id);
   }
+  if (gdt_standard) formData.append("gdt_standard", gdt_standard);
+  if (datum_preferences) formData.append("datum_preferences", datum_preferences);
+  if (choose_datums) formData.append("choose_datums", "true");
 
   onPhase?.("upload-url");
   onPhase?.("s3-upload");
@@ -391,6 +445,9 @@ export async function uploadAndSubmitTechDrawJob({
   description = "",
   payment,
   original_failed_job_id,
+  gdt_standard,
+  datum_preferences,
+  choose_datums,
   onPhase,
 }) {
   if (!file) throw new Error("No file selected");
@@ -408,6 +465,9 @@ export async function uploadAndSubmitTechDrawJob({
     s3_bucket: upload.s3_bucket,
     file_name: upload.file_name,
     original_failed_job_id,
+    gdt_standard,
+    datum_preferences,
+    choose_datums,
     ...(payment || {}),
   });
   return String(submit.job_id);
@@ -423,6 +483,9 @@ export async function prepareCadDrawingJob({
   description = "",
   requiresPayment = false,
   original_failed_job_id,
+  gdt_standard,
+  datum_preferences,
+  choose_datums,
   onPhase,
 }) {
   if (!file) throw new Error("No file selected");
@@ -441,6 +504,9 @@ export async function prepareCadDrawingJob({
       title,
       description,
       original_failed_job_id,
+      gdt_standard,
+      datum_preferences,
+      choose_datums,
       onPhase,
     });
   } catch (proxyErr) {
@@ -453,6 +519,9 @@ export async function prepareCadDrawingJob({
       title,
       description,
       original_failed_job_id,
+      gdt_standard,
+      datum_preferences,
+      choose_datums,
       onPhase,
     }).then((d) => String(d.job_id));
   }
@@ -488,6 +557,16 @@ export async function waitForTechDrawJob(jobId, onPhase) {
     onJob: (j) => onPhase?.("status", j),
   });
   return { job, jobId };
+}
+
+export async function confirmTechDrawDatums(jobId, { datums, auto = false } = {}) {
+  assertUuid();
+  const { data } = await axios.post(
+    `${BASE_URL}${TECHDRAW_API_BASE}/confirm-datums/${jobId}`,
+    auto ? { auto: true } : { datums: datums || {} },
+    { headers: userUuidHeader(), timeout: 60_000 },
+  );
+  return unwrap(data);
 }
 
 /** CloudFront base for a completed user TechDraw job: …/user-freecad-techdraw/{jobId}. */

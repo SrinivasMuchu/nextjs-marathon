@@ -163,6 +163,9 @@
   /* padding-top bridges trigger → menu hover path (no dead zone) */
   padding: 8px 0 0;
   background: transparent;
+  /* Bridge the 10px gap so hover does not drop between trigger and menu */
+  padding-top: 10px;
+  margin-top: -10px;
   animation: toolsDropdownIn 160ms ease-out;
 }
 

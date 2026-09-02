@@ -2,6 +2,7 @@
 import { sendGAtagEvent } from '@/common.helper';
 import { CAD_FLOATING_BUTTON_EVENT } from '@/config';
 import { useState, useEffect, useContext, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Eye, ArrowLeftRight, Download, Box, ShieldCheck, ChevronUp } from 'lucide-react';
@@ -117,6 +118,13 @@ function FloatingButton() {
       : 'max(96px, calc(80px + env(safe-area-inset-bottom, 0px)))';
   }
 
+  const fab = (
+    <div
+      className={styles.wrap}
+      style={{ bottom }}
+      ref={rootRef}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
   return (
     <div
       className={`${styles.wrap}${isStickyStripVisible ? ` ${styles.wrapAboveStrip}` : ''}`}
@@ -156,7 +164,10 @@ function FloatingButton() {
         className={`${styles.trigger}${showOptions ? ` ${styles.triggerOpen}` : ''}`}
         aria-expanded={showOptions}
         aria-haspopup="menu"
-        onClick={() => setShowOptions((open) => !open)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowOptions((open) => !open);
+        }}
       >
         <span className={styles.dot} aria-hidden="true" />
         <ShieldCheck
@@ -175,6 +186,12 @@ function FloatingButton() {
       </button>
     </div>
   );
+
+  // Portal avoids stacking/overflow clipping from page shells (e.g. pipeline canvas).
+  if (typeof document !== 'undefined') {
+    return createPortal(fab, document.body);
+  }
+  return fab;
 }
 
 export default FloatingButton;
