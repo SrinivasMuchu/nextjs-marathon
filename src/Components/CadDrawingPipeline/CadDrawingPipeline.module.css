@@ -1,59 +1,55 @@
 /* Matches cad_pipeline_ui_v3.html — dark pipeline UI */
 
 .root {
-  --purple: #610bee;
-  --purple-dim: #4a09b5;
-  --purple-glow: rgba(97, 11, 238, 0.35);
-  --purple-subtle: rgba(97, 11, 238, 0.12);
-  --accent: #610bee;
+  --purple: #6324d8;
+  --purple-dim: #4c14b8;
+  --purple-glow: rgba(99, 36, 216, 0.28);
+  --purple-subtle: rgba(99, 36, 216, 0.1);
+  --accent: #6324d8;
   --accent-light: #a56bff;
-  --accent-gradient: linear-gradient(135deg, #4a09b5 0%, #610bee 100%);
-  --bg: #080810;
-  --surface: #0d0d1a;
-  --surface2: #111125;
-  --border: rgba(255, 255, 255, 0.07);
-  --border-accent: rgba(97, 11, 238, 0.4);
-  --text: #e8e8f0;
-  --text-dim: #6b6b8a;
-  --text-muted: #3a3a5a;
+  --accent-gradient: linear-gradient(135deg, #6c2ce0 0%, #5c20ce 55%, #4d18b8 100%);
+  --bg: #6324d8;
+  --surface: rgba(255, 255, 255, 0.08);
+  --surface2: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.16);
+  --border-accent: rgba(255, 255, 255, 0.28);
+  --text: #ffffff;
+  --text-dim: rgba(255, 255, 255, 0.78);
+  --text-muted: rgba(255, 255, 255, 0.58);
   --success: #00e5a0;
   --warning: #f5a623;
   --error: #ff4d6a;
-  /* Match app layout: Inter body (from globals / layout.js) */
   --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
 
   position: relative;
   min-height: calc(100vh - 1px);
-  background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 14px;
   overflow-x: hidden;
+  background-color: var(--purple);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.065) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.065) 1px, transparent 1px),
+    radial-gradient(circle at 80% 9%, rgba(255, 255, 255, 0.17), transparent 29%),
+    linear-gradient(135deg, #6c2ce0 0%, #5c20ce 55%, #4d18b8 100%);
+  background-size: 34px 34px, 34px 34px, 100% 100%, 100% 100%;
 }
 
 .root::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(97, 11, 238, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(97, 11, 238, 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
-  z-index: 0;
+  content: none;
 }
 
 .root::after {
   content: "";
-  position: fixed;
-  top: -30%;
-  left: -10%;
-  width: 60%;
-  height: 70%;
-  background: radial-gradient(ellipse at center, rgba(97, 11, 238, 0.08) 0%, transparent 65%);
-  pointer-events: none;
+  position: absolute;
+  inset: 0;
   z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 90%, rgba(255, 255, 255, 0.07), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 95% 20%, rgba(255, 255, 255, 0.09), transparent 50%);
 }
 
 .page {
@@ -66,13 +62,11 @@
   box-sizing: border-box;
 }
 
-/* Combined hero + upload (cad.html mockup) */
+/* Combined hero + upload (aligned with home purple grid) */
 .pipelineHeroShell {
-  background:
-    radial-gradient(900px 520px at 50% -8%, rgba(124, 58, 237, 0.3), transparent 62%),
-    radial-gradient(620px 420px at 88% 12%, rgba(139, 92, 246, 0.14), transparent 60%),
-    radial-gradient(560px 420px at 8% 30%, rgba(99, 49, 200, 0.12), transparent 60%),
-    #0a0712;
+  position: relative;
+  z-index: 1;
+  background: transparent;
 }
 
 .pipelineHeroInner {

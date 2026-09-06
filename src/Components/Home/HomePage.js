@@ -16,8 +16,8 @@ import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAdde
 import WhyUsNew from "../HomePages/NewWhyUs/WhyUsNew";
 import FreeTools from "../HomePages/FreeTools/FreeTools";
 import CreatorsContent from "../HomePages/CreatorsContent/CreatorsContent";
+import ConversionFaq from "../HomePages/ConversionFaq/ConversionFaq";
 import Security from "../HomePages/Security/Security";
-import Faq from "../HomePages/Faq/Faq";
 import Footer from "../HomePages/Footer/Footer";
 import styles from "./HomePage.module.css";
 import CadOutsourcingBanner from "../CadServicesBanners/CadOutsourcingBanner";
@@ -43,9 +43,9 @@ const HomePage = () => {
           <ConversionDesignerCta />
           <ConversionFinalCta />
           <RecentlyAddedDesigns />
-          <WhyUsNew />
-          <FreeTools />
-          <CreatorsContent />
+          {/* <WhyUsNew />
+          <FreeTools /> */}
+          {/* <CreatorsContent /> */}
           {/* <WhyUs />
           <Capabilities /> */}
           
@@ -54,8 +54,8 @@ const HomePage = () => {
         
           {/* <Tools/>
           <LibraryDetails/> */}
-          <Security />
-          <Faq />
+          {/* <Security /> */}
+          <ConversionFaq />
         </div>
         <Footer />
       </div>

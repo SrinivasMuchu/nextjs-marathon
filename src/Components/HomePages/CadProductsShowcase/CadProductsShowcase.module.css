@@ -76,6 +76,43 @@
   box-shadow: 0 9px 20px rgba(76, 33, 157, 0.1);
 }
 
+.categoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.categoryPill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  color: #4b4454;
+  background: #f3f0f7;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.categoryPill:hover {
+  background: #ebe4f8;
+}
+
+.categoryPillActive {
+  color: white;
+  background: var(--purple);
+  border-color: var(--purple);
+}
+
+.categoryPillActive:hover {
+  background: var(--purple-dark);
+  color: white;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

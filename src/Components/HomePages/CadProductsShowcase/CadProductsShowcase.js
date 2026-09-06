@@ -1,23 +1,48 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { BASE_URL } from "@/config";
-import CadProductCard from "./CadProductCard";
+import CadProductsShowcaseClient from "./CadProductsShowcaseClient";
 import styles from "./CadProductsShowcase.module.css";
 
-async function getFeaturedDesigns() {
+async function getCategoriesAndDesigns() {
   try {
-    const response = await fetch(`${BASE_URL}/v1/cad/get-recently-added-designs?limit=4`, {
+    const categoriesRes = await fetch(`${BASE_URL}/v1/cad/get-categories`, {
       cache: "no-store",
     });
-    const data = await response.json();
-    return Array.isArray(data?.data) ? data.data : [];
+    const categoriesJson = await categoriesRes.json();
+    const categoriesData =
+      categoriesJson?.data?.data || categoriesJson?.data || categoriesJson || [];
+    const categories = Array.isArray(categoriesData) ? categoriesData : [];
+
+    const designsByCategory = {};
+    await Promise.all(
+      categories.map(async (category) => {
+        const categoryName = category.industry_category_name || category.name;
+        if (!categoryName) return;
+        try {
+          const designsRes = await fetch(
+            `${BASE_URL}/v1/cad/get-category-design?category=${encodeURIComponent(
+              categoryName,
+            )}&limit=8&page=1&random=true`,
+            { cache: "no-store" },
+          );
+          const designsJson = await designsRes.json();
+          const designsData = designsJson?.data?.designDetails || [];
+          designsByCategory[categoryName] = Array.isArray(designsData) ? designsData : [];
+        } catch {
+          designsByCategory[categoryName] = [];
+        }
+      }),
+    );
+
+    return { categories, designsByCategory };
   } catch {
-    return [];
+    return { categories: [], designsByCategory: {} };
   }
 }
 
 async function CadProductsShowcase() {
-  const designs = await getFeaturedDesigns();
+  const { categories, designsByCategory } = await getCategoriesAndDesigns();
 
   return (
     <section className={styles.section} id="cad-products">
@@ -37,15 +62,10 @@ async function CadProductsShowcase() {
           </Link>
         </header>
 
-        {designs.length > 0 ? (
-          <div className={styles.grid}>
-            {designs.map((design, index) => (
-              <CadProductCard key={design._id || design.route} design={design} index={index} />
-            ))}
-          </div>
-        ) : (
-          <p className={styles.emptyState}>No products available right now.</p>
-        )}
+        <CadProductsShowcaseClient
+          categories={categories}
+          designsByCategory={designsByCategory}
+        />
       </div>
     </section>
   );

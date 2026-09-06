@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ChevronRight, FileOutput, RefreshCw } from "lucide-react";
 import TechDrawPriceAmount from "../shared/TechDrawPriceAmount";
+import ConverterPriceAmount from "../shared/ConverterPriceAmount";
 import styles from "./ConversionTypes.module.css";
 
 const FORMAT_EXAMPLES = [
@@ -55,7 +56,7 @@ function ConversionTypes() {
             <div className={styles.footer}>
               <div className={styles.priceBlock}>
                 <small>SINGLE DOWNLOAD</small>
-                <strong>$2.99</strong>
+                <ConverterPriceAmount />
               </div>
               <Link className={styles.primaryButton} href="/tools/3d-cad-file-converter">
                 Choose a format converter

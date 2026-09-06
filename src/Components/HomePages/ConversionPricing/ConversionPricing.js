@@ -25,29 +25,32 @@ function ConversionPricing() {
   useEffect(() => {
     let cancelled = false;
 
-    Promise.allSettled([fetchConverterPricingInfo(), fetchTechDrawPriceDisplay()]).then(
-      ([converterResult, drawingResult]) => {
-        if (cancelled) return;
+    const load = () =>
+      Promise.allSettled([fetchConverterPricingInfo(), fetchTechDrawPriceDisplay()]).then(
+        ([converterResult, drawingResult]) => {
+          if (cancelled) return;
 
-        if (converterResult.status === "fulfilled") {
-          const info = converterResult.value;
-          setPacks(getConverterPacksFromInfo(info));
-          const single = getSinglePriceLabelFromInfo(info);
-          if (single) setSinglePriceLabel(single);
-        } else {
-          setPacks([]);
-        }
+          if (converterResult.status === "fulfilled") {
+            const info = converterResult.value;
+            setPacks(getConverterPacksFromInfo(info));
+            const single = getSinglePriceLabelFromInfo(info);
+            if (single) setSinglePriceLabel(single);
+          }
 
-        if (drawingResult.status === "fulfilled" && drawingResult.value?.totalLabel) {
-          setDrawingPriceLabel(drawingResult.value.totalLabel);
-        }
+          if (drawingResult.status === "fulfilled" && drawingResult.value?.totalLabel) {
+            setDrawingPriceLabel(drawingResult.value.totalLabel);
+          }
 
-        setLoaded(true);
-      },
-    );
+          setLoaded(true);
+        },
+      );
+
+    load();
+    const retry = setTimeout(load, 500);
 
     return () => {
       cancelled = true;
+      clearTimeout(retry);
     };
   }, []);
 

@@ -3,15 +3,12 @@ import {
   ArrowRight,
   BadgeCheck,
   Check,
-  ChevronRight,
   CloudUpload,
-  FileOutput,
   Files,
   Gauge,
-  Layers,
   Workflow,
 } from "lucide-react";
-import TechDrawPriceAmount from "../shared/TechDrawPriceAmount";
+import ConversionConsole from "./ConversionConsole";
 import styles from "./HomeLandingNew.module.css";
 
 const ASSURANCE_ITEMS = [
@@ -20,14 +17,8 @@ const ASSURANCE_ITEMS = [
   "Auto-delete in 7 days",
 ];
 
-const QUICK_ROUTES = [
-  { label: "STL", target: "STEP", href: "/tools/convert-stl-to-step" },
-  { label: "IGES", target: "STEP", href: "/tools/convert-iges-to-step" },
-  { label: "DWG", target: "DXF", href: "/tools/convert-dwg-to-dxf" },
-];
-
 const METRICS = [
-  { icon: Files, value: "15,000+", label: "files converted" },
+  { icon: Files, value: "150,000+", label: "files converted" },
   { icon: CloudUpload, value: "10 TB+", label: "CAD data handled" },
   { icon: Workflow, value: "60+", label: "specialist conversion tools" },
   { icon: Gauge, value: "300 MB", label: "supported per file" },
@@ -81,77 +72,7 @@ function HomeLandingNew() {
             </div>
           </div>
 
-          <div className={styles.conversionConsole} aria-label="Marathon OS CAD conversion routes">
-            <div className={styles.consoleHead}>
-              <div>
-                <span>MARATHON CONVERSION DESK</span>
-                <strong>Choose the result you need</strong>
-              </div>
-              <span className={styles.livePill}>
-                <span />
-                ONLINE
-              </span>
-            </div>
-
-            <div className={styles.consoleRoute}>
-              <div className={styles.consoleFormat}>
-                <small>SOURCE FILE</small>
-                <strong>STEP</strong>
-                <span>.step&nbsp;&nbsp;.stp</span>
-              </div>
-              <div className={styles.consoleArrow}>
-                <span>CONVERT</span>
-                <ArrowRight size={20} aria-hidden="true" />
-              </div>
-              <div className={`${styles.consoleFormat} ${styles.consoleFormatTarget}`}>
-                <small>READY FILE</small>
-                <strong>STL</strong>
-                <span>.stl</span>
-              </div>
-            </div>
-
-            <div className={styles.consolePurpose}>
-              <span className={styles.consolePurposeIcon}>
-                <Layers size={18} aria-hidden="true" />
-              </span>
-              <div>
-                <small>WHY THIS ROUTE</small>
-                <strong>Prepare engineering geometry for 3D printing</strong>
-              </div>
-            </div>
-
-            <Link className={styles.consoleButton} href="/tools/convert-step-to-stl">
-              Open STEP to STL converter
-              <ArrowRight size={17} aria-hidden="true" />
-            </Link>
-
-            <Link className={styles.consoleAlternative} href="/tools/cad-drawing-pipeline">
-              <span className={styles.consoleAltIcon}>
-                <FileOutput size={18} aria-hidden="true" />
-              </span>
-              <span className={styles.consoleAltCopy}>
-                <small>NEED MANUFACTURING DRAWINGS?</small>
-                <strong>STEP or STP to 2D drawing set</strong>
-              </span>
-              <span className={styles.consoleAltPrice}>
-                <TechDrawPriceAmount />
-                <ChevronRight size={15} aria-hidden="true" />
-              </span>
-            </Link>
-
-            <div className={styles.consoleQuick}>
-              <span>MORE FORMAT CONVERSIONS</span>
-              <div>
-                {QUICK_ROUTES.map((route) => (
-                  <Link key={route.href} href={route.href}>
-                    {route.label}
-                    <ChevronRight size={12} aria-hidden="true" />
-                    {route.target}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
+          <ConversionConsole />
         </div>
       </div>
 

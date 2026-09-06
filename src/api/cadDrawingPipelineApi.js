@@ -93,10 +93,19 @@ export async function fetchTechDrawPriceDisplay() {
     if (info?.techdraw_upload_free || Number(info?.price) === 0) {
       return getTechDrawPriceDisplay(0);
     }
-    return getTechDrawPriceDisplay(
+    const display = getTechDrawPriceDisplay(
       info?.price ?? info?.base_price,
-      info?.price_with_gst,
+      info?.price_with_gst ?? info?.total,
     );
+    // Prefer server-provided GST-inclusive labels when present.
+    if (info?.total_label) {
+      display.totalLabel = String(info.total_label);
+      display.perSetLabel = `${display.totalLabel} per drawing set`;
+    }
+    if (info?.price_label && !display.baseLabel) {
+      display.baseLabel = String(info.price_label);
+    }
+    return display;
   } catch (err) {
     if (typeof console !== "undefined") {
       console.warn("[techdraw] pricing-info failed, using fallback:", err?.message || err);

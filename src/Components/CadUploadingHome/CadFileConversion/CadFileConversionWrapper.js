@@ -38,7 +38,7 @@ function formatSelectedFileSize(bytes) {
     return `${(size / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-function CadFileConversionWrapper({ children, convert, designVariant, heroFormatsLine }) {
+function CadFileConversionWrapper({ children, convert, conversionParams, designVariant, heroFormatsLine, preferredOutput }) {
     const fileInputRef = useRef(null);
     const [s3Url, setS3Url] = useState('');
     const [isSampleFile, setIsSampleFile] = useState(false);
@@ -81,11 +81,16 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         }
 
 
-        const pathSegments = pathname.split('/').filter(Boolean);
-        let formatsSegment = pathSegments.at(-1) ?? '';
-        // New URL shape: /tools/convert-step-to-stl → use "step-to-stl" for from/to
-        if (formatsSegment.startsWith('convert-')) {
-            formatsSegment = formatsSegment.slice(8);
+        let formatsSegment = '';
+        if (conversionParams && typeof conversionParams === 'string') {
+            formatsSegment = conversionParams.split('/').filter(Boolean).pop() || conversionParams;
+        } else {
+            const pathSegments = pathname.split('/').filter(Boolean);
+            formatsSegment = pathSegments.at(-1) ?? '';
+            // New URL shape: /tools/convert-step-to-stl → use "step-to-stl" for from/to
+            if (formatsSegment.startsWith('convert-')) {
+                formatsSegment = formatsSegment.slice(8);
+            }
         }
 
         let from = "", to = "";
@@ -110,8 +115,14 @@ function CadFileConversionWrapper({ children, convert, designVariant, heroFormat
         setFromFormate(from)
         setAllowedFormats(formats);
         setToFormate(toFormats)
-    }, [pathname, convert]);
+    }, [pathname, convert, conversionParams]);
 
+    useEffect(() => {
+        if (!preferredOutput || convert) return;
+        const normalized = String(preferredOutput).replace(/^\./, "").toLowerCase();
+        if (!normalized) return;
+        setSelectedFileFormate(normalized);
+    }, [preferredOutput, convert]);
 
 
 
