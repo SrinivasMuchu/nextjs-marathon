@@ -282,6 +282,8 @@ function HomeTopNav() {
         <ConverterCreditPlansPopup
           packs={packs}
           singlePriceLabel={singlePriceLabel}
+          title="Pay as you go, cheaper by the pack"
+          subtitle="Files under 5 MB are always free. For everything else, buy credits — 1 credit downloads any file, any size, and credits never expire."
           onClose={() => setShowCreditPlans(false)}
           onSelectPack={(pack) => {
             if (!user?._id) {

@@ -66,6 +66,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
   const router = useRouter();
     const [fromFormate, setFromFormate] = useState('')
+    const librarySourceLoadedRef = useRef('');
 
     // Clarity: tag sessions that land on the converter
     useEffect(() => {
@@ -115,7 +116,61 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         setFromFormate(from)
         setAllowedFormats(formats);
         setToFormate(toFormats)
+        if (toFormats.length === 1) {
+            setSelectedFileFormate(toFormats[0]);
+        }
     }, [pathname, convert, conversionParams]);
+
+    // Prefill / auto-start converter from library design (?source=designId)
+    useEffect(() => {
+        if (typeof window === 'undefined') return undefined;
+        const sourceId = String(new URLSearchParams(window.location.search).get('source') || '').trim();
+        if (!sourceId || !/^[a-f0-9]{24}$/i.test(sourceId)) return undefined;
+        if (librarySourceLoadedRef.current === sourceId) return undefined;
+        if (fileConvert || s3Url) return undefined;
+        // Wait until route formats are resolved for convert-pair pages
+        if (convert && (!allowedFormats || !allowedFormats.length)) return undefined;
+
+        const output =
+            (Array.isArray(toFormate) && toFormate[0]) ||
+            selectedFileFormate ||
+            '';
+        // Auto-start when we know the target format (convert-X-to-Y pages)
+        if (!output) return undefined;
+
+        let cancelled = false;
+        librarySourceLoadedRef.current = sourceId;
+
+        (async () => {
+            try {
+                if (!localStorage.getItem('is_verified')) {
+                    setVerifyEmail(true);
+                    librarySourceLoadedRef.current = '';
+                    return;
+                }
+                const { startLibraryFormatConversion } = await import('@/api/librarySourceApi');
+                const result = await startLibraryFormatConversion({
+                    designId: sourceId,
+                    outputFormat: output,
+                });
+                if (cancelled) return;
+                router.push(result.statusPath);
+            } catch (err) {
+                librarySourceLoadedRef.current = '';
+                if (err?.code === 'AUTH_REQUIRED') {
+                    setVerifyEmail(true);
+                } else if (err?.code === 'LIMIT_EXCEEDED') {
+                    setCheckLimit(true);
+                } else {
+                    toast.error(err?.message || 'Could not start library conversion.');
+                }
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [convert, allowedFormats, toFormate, selectedFileFormate, fileConvert, s3Url, router]);
 
     useEffect(() => {
         if (!preferredOutput || convert) return;
@@ -274,7 +329,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     };
 
     const checkingCadFileUploadLimitExceed = async (file, s3Url) => {
-        if (s3Url) {
+        if (s3Url && isSampleFile) {
             setLoading(true)
             showConverterLoadingOverlay({
                 uploadingMessage: uploadingMessage || 'PENDING',
@@ -286,8 +341,38 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
             });
             await CadFileConversion(s3Url)
             return
-        } else {
+        }
+
+        if (s3Url && !isSampleFile) {
             try {
+                const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
+                    {
+                        headers: {
+                            "user-uuid": localStorage.getItem("uuid"),
+                        }
+                    }
+                )
+                if (response.data.meta.success) {
+                    setLoading(true)
+                    showConverterLoadingOverlay({
+                        uploadingMessage: uploadingMessage || 'PENDING',
+                        fileName: fileConvert?.name,
+                        outputFormat: selectedFileFormate,
+                        fileSize: fileConvert?.size,
+                        isSampleFile: false,
+                        onCancel: handleCancelConversion,
+                    });
+                    await CadFileConversion(s3Url)
+                } else {
+                    setCheckLimit(true)
+                }
+            } catch (error) {
+                console.error("Error checking file upload limit:", error);
+            }
+            return
+        }
+
+        try {
 
                 const response = await axios.get(`${BASE_URL}/v1/cad/validate-operations`,
                     {
@@ -307,7 +392,6 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
             catch (error) {
                 console.error("Error checking file upload limit:", error);
             }
-        }
 
     }
     useEffect(() => {

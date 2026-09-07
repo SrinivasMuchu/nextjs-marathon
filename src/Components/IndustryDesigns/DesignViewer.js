@@ -31,12 +31,19 @@ export default function DesignViewer({
 }) {
   let isDxf = designData?.file_type?.toLowerCase() === 'dxf' || designData?.file_type?.toLowerCase() === 'dwg';
   const isGlb = Boolean(designData?.is_glb);
-  // Filter supported image files (png, jpg, jpeg, webp - match IndustryDesignSupportFileList)
+  // Filter supported image files (png, jpg, jpeg, webp — also mime type)
   const supportedImages = useMemo(() => {
     const files = designData?.supporting_files || [];
-    return Array.isArray(files)
-      ? files.filter(f => /\.(png|jpg|jpeg|webp)$/i.test(f?.name || f?.fileName || ''))
-      : [];
+    if (!Array.isArray(files)) return [];
+    return files.filter((f) => {
+      const name = f?.name || f?.fileName || '';
+      const mime = String(f?.type || '').toLowerCase();
+      const url = f?.url || f?.fileUrl || '';
+      if (!url) return false;
+      if (mime.startsWith('image/')) return true;
+      if (/\.(png|jpe?g|webp|gif|bmp|svg)$/i.test(name)) return true;
+      return /\.(png|jpe?g|webp|gif|bmp|svg)(\?|$)/i.test(url);
+    });
   }, [designData?.supporting_files]);
 
   // Create unified list: angles first, then images

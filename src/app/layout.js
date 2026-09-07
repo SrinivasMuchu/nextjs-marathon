@@ -262,8 +262,10 @@ export default function RootLayout({ children }) {
         <CreateLocalStorage />
         <ContextWrapper>
           <CadFormProvider>
-            <AnnouncementBanner />
-            <HomeTopNav />
+            <div className="siteStickyHeader">
+              <AnnouncementBanner />
+              <HomeTopNav />
+            </div>
             <main role="main">{children}</main>
             <FloatingButton />
           </CadFormProvider>

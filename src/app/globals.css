@@ -13,6 +13,14 @@ body {
   overflow-x: hidden;
 }
 
+/* Announcement banner + top nav stick together on scroll */
+.siteStickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+}
+
 /* Ensure MUI components use Roboto with font-display: swap */
 .MuiTypography-root,
 .MuiButton-root,

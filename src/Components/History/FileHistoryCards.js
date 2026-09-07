@@ -573,6 +573,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         <ConverterCreditPlansPopup
           packs={creditPacks}
           singlePriceLabel={singlePriceLabel}
+          title="Pay as you go, cheaper by the pack"
+          subtitle="Files under 5 MB are always free. For everything else, buy credits — 1 credit downloads any file, any size, and credits never expire."
           onClose={closeCreditPlans}
           onSelectPack={handleSelectPack}
           onSelectSingle={openBillingFromPlans}
