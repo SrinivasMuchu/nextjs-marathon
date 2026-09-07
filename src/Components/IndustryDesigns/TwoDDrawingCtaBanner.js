@@ -7,7 +7,6 @@ import {
   getTechDrawPriceDisplay,
 } from "@/api/cadDrawingPipelineApi";
 import TwoDDrawingCtaBannerButton from "./TwoDDrawingCtaBannerButton";
-import { getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 import styles from "./TwoDDrawingCtaBanner.module.css";
 
 const defaultChecks = [
@@ -34,9 +33,6 @@ export default function TwoDDrawingCtaBanner({
   turnaroundLabel = "avg. turnaround",
   checks = defaultChecks,
 }) {
-  const { baseLabel, perSetLabel } = getTechDrawPriceDisplay();
-  const displayPrice = price || baseLabel;
-  const displayEyebrow = eyebrow || `Paid Pipeline · ${perSetLabel}`;
   const [prices, setPrices] = useState(() => getTechDrawPriceDisplay());
 
   useEffect(() => {
@@ -49,7 +45,8 @@ export default function TwoDDrawingCtaBanner({
     };
   }, []);
 
-  const eyebrow = `Paid Pipeline · ${prices.perSetLabel}`;
+  const displayPrice = price || prices.baseLabel;
+  const displayEyebrow = eyebrow || `Paid Pipeline · ${prices.perSetLabel}`;
 
   return (
     <section className={styles.banner} aria-labelledby="two-d-cta-heading">

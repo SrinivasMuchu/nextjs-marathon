@@ -120,16 +120,11 @@ function FloatingButton() {
 
   const fab = (
     <div
-      className={styles.wrap}
+      className={`${styles.wrap}${isStickyStripVisible ? ` ${styles.wrapAboveStrip}` : ''}`}
       style={{ bottom }}
       ref={rootRef}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
-  return (
-    <div
-      className={`${styles.wrap}${isStickyStripVisible ? ` ${styles.wrapAboveStrip}` : ''}`}
-      style={{ bottom }}
-      ref={rootRef}
     >
       {showOptions && (
         <div className={styles.menu} role="menu" aria-label="CAD actions">

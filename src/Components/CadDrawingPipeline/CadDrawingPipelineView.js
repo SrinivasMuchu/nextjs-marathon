@@ -9,6 +9,7 @@ import {
   getOrCreateTechDrawUuid,
   getTechDrawPriceDisplay,
   prepareCadDrawingJob,
+  uploadAndSubmitTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
 import useTechDrawPriceDisplay from "./useTechDrawPriceDisplay";
 import { openTechDrawPayment } from "./techDrawPayment";
@@ -104,9 +105,6 @@ export default function CadDrawingPipelineView() {
   const [eligibility, setEligibility] = useState(null);
   const [eligibilityLoading, setEligibilityLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
-  const fileInputRef = useRef(null);
-  const submitLockRef = useRef(false);
-  const pendingAfterLoginRef = useRef(false);
   const [openTechDrawBilling, setOpenTechDrawBilling] = useState(false);
   const [techDrawCheckout, setTechDrawCheckout] = useState(null);
   const fileInputRef = useRef(null);
@@ -324,6 +322,28 @@ export default function CadDrawingPipelineView() {
         if (phase === "submit") setUploadPhase("Creating job & starting pipeline…");
       };
 
+      if (needsPaidDownload) {
+        setUploadPhase("Enter billing details…");
+        paidJobIdRef.current = null;
+        setTechDrawCheckout({
+          file,
+          title: title.trim(),
+          description: description.trim(),
+          prices,
+          onPhase,
+          flowType: "paid",
+          gdt_standard: gdtStandard,
+          datum_preferences: datumPreferences.trim(),
+          choose_datums: chooseDatums,
+        });
+        setOpenTechDrawBilling(true);
+        // Modal owns payment + upload; unlock submit so the form can be reused after cancel.
+        submitLockRef.current = false;
+        setSubmitting(false);
+        setUploadPhase("");
+        return;
+      }
+
       const prep = await prepareCadDrawingJob({
         file,
         title: title.trim(),
@@ -341,44 +361,8 @@ export default function CadDrawingPipelineView() {
           ? "Free replacement upload started."
           : "Drawing pipeline started.",
       );
-      let jobId;
-
-      if (needsPaymentNow) {
-        setUploadPhase("Enter billing details…");
-        paidJobIdRef.current = null;
-        setTechDrawCheckout({
-          file,
-          title: title.trim(),
-          description: description.trim(),
-          prices,
-          onPhase,
-          flowType: "paid",
-        });
-        setOpenTechDrawBilling(true);
-        // Modal owns payment + upload; unlock submit so the form can be reused after cancel.
-        submitLockRef.current = false;
-        setSubmitting(false);
-        setUploadPhase("");
-        return;
-      }
-
-      const prep = await prepareCadDrawingJob({
-        file,
-        title: title.trim(),
-        description: description.trim(),
-        requiresPayment: false,
-        original_failed_job_id: isFreeRetryFlow ? freeRetryFor : undefined,
-        onPhase,
-      });
-      jobId = prep.jobId;
-      toast.success(
-        isFreeRetryFlow
-          ? "Free replacement upload started."
-          : "Drawing pipeline started.",
-      );
 
       trackTechDrawUploadSuccess({
-        flowType: needsPaidDownload ? "paid" : flowTypeFromEligibility(freshEligibility),
         flowType: flowTypeFromEligibility(freshEligibility),
         jobId,
         file,
@@ -431,6 +415,9 @@ export default function CadDrawingPipelineView() {
       title: checkout.title,
       description: checkout.description,
       payment,
+      gdt_standard: checkout.gdt_standard,
+      datum_preferences: checkout.datum_preferences,
+      choose_datums: checkout.choose_datums,
       onPhase: checkout.onPhase,
     });
     paidJobIdRef.current = jobId;

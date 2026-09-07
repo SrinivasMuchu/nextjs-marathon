@@ -30,16 +30,36 @@ export function formatTechDrawPrice(amount, currency = "USD") {
 }
 
 /** Normalized labels for banners, buttons, and Razorpay copy ($5.99 incl. GST). */
-export function getTechDrawPriceDisplay() {
+export function getTechDrawPriceDisplay(basePrice, totalWithGst) {
   const currency = "USD";
-  const total = TECHDRAW_CHECKOUT_TOTAL_USD;
-  const base = Math.round((total / (1 + TECHDRAW_GST_RATE)) * 100) / 100;
+  let total = Number(totalWithGst);
+  let base = Number(basePrice);
+
+  if (Number.isFinite(total) && total === 0) {
+    return {
+      base: 0,
+      total: 0,
+      currency,
+      baseLabel: "Free",
+      totalLabel: "Free",
+      perSetLabel: "Free per drawing set",
+    };
+  }
+
+  if (!Number.isFinite(total) || total < 0) {
+    total = TECHDRAW_CHECKOUT_TOTAL_USD;
+  }
+  if (!Number.isFinite(base) || base < 0) {
+    base = Math.round((total / (1 + TECHDRAW_GST_RATE)) * 100) / 100;
+  }
+
   const totalLabel = formatTechDrawPrice(total, currency);
+  const baseLabel = formatTechDrawPrice(base, currency);
   return {
     base,
     total,
     currency,
-    baseLabel: totalLabel,
+    baseLabel,
     totalLabel,
     perSetLabel: `${totalLabel} per drawing set`,
   };
