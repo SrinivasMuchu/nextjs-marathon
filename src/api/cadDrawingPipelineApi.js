@@ -29,11 +29,26 @@ export function formatTechDrawPrice(amount, currency = "USD") {
   }
 }
 
-/** Normalized labels for banners, buttons, and Razorpay copy ($5.99 incl. GST). */
-export function getTechDrawPriceDisplay() {
+/**
+ * Normalized labels for banners, buttons, and Razorpay copy.
+ * Called with no args it falls back to the $5.99 constant; pass the live admin
+ * numbers so the UI quotes what Razorpay will actually charge.
+ * @param {number} [basePrice] pre-GST price (`price` / `base_price` from the API)
+ * @param {number} [totalWithGst] GST-inclusive checkout total (`price_with_gst`)
+ */
+export function getTechDrawPriceDisplay(basePrice, totalWithGst) {
   const currency = "USD";
-  const total = TECHDRAW_CHECKOUT_TOTAL_USD;
-  const base = Math.round((total / (1 + TECHDRAW_GST_RATE)) * 100) / 100;
+  const liveBase = Number(basePrice);
+  const liveTotal = Number(totalWithGst);
+  const hasBase = Number.isFinite(liveBase) && liveBase >= 0;
+  const hasTotal = Number.isFinite(liveTotal) && liveTotal >= 0;
+
+  let total;
+  if (hasTotal) total = liveTotal;
+  else if (hasBase) total = Math.round(liveBase * (1 + TECHDRAW_GST_RATE) * 100) / 100;
+  else total = TECHDRAW_CHECKOUT_TOTAL_USD;
+
+  const base = hasBase ? liveBase : Math.round((total / (1 + TECHDRAW_GST_RATE)) * 100) / 100;
   const totalLabel = formatTechDrawPrice(total, currency);
   return {
     base,
@@ -41,7 +56,7 @@ export function getTechDrawPriceDisplay() {
     currency,
     baseLabel: totalLabel,
     totalLabel,
-    perSetLabel: `${totalLabel} per drawing set`,
+    perSetLabel: total === 0 ? totalLabel : `${totalLabel} per drawing set`,
   };
 }
 

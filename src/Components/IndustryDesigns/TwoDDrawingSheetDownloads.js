@@ -10,7 +10,15 @@ const FORMATS = [
   { key: "dxf", label: "DXF", className: styles.dxf },
 ];
 
-export default function TwoDDrawingSheetDownloads({ rows, onDownload }) {
+export default function TwoDDrawingSheetDownloads({
+  rows,
+  onDownload,
+  onRequestDownload: onRequestDownloadProp,
+  designId,
+  designTitle,
+  gateLibraryDownloads = false,
+  busy: busyProp = false,
+}) {
   void DEFAULT_SHEET_DOWNLOAD_ROWS;
   const libraryPaywall = useTwoDLibraryDownload({
     designId,

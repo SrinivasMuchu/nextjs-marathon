@@ -13,7 +13,6 @@ import CadDrawingPipelineInternalLinks from "@/Components/CadDrawingPipeline/Cad
 import ToolPageJsonLd from "@/Components/JsonLdSchemas/ToolPageJsonLd";
 import CadDrawingPipelineHeroSection from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroSection";
 import SoftwareApplicationJsonLd from "@/Components/JsonLdSchemas/SoftwareApplicationJsonLd";
-import { TECHDRAW_CHECKOUT_TOTAL_USD } from "@/api/cadDrawingPipelineApi";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
 import TechDrawPageViewTracker from "@/Components/CadDrawingPipeline/TechDrawPageViewTracker";
@@ -51,7 +50,7 @@ export default async function CadDrawingPipelinePage() {
         name="3D CAD to 2D Technical Drawing Generator"
         url={`${SITE}${CANONICAL}`}
         description={PIPELINE_PAGE_DESCRIPTION}
-        price={String(TECHDRAW_CHECKOUT_TOTAL_USD)}
+        price={priceAmount}
         priceCurrency="USD"
         breadcrumbLinks={[
           { label: "Tools", href: "/tools" },
@@ -65,7 +64,7 @@ export default async function CadDrawingPipelinePage() {
           initialPrices={prices}
         >
           <Suspense fallback={<PipelineSectionFallback />}>
-            <CadDrawingPipelineView />
+            <CadDrawingPipelineView initialPrices={prices} />
           </Suspense>
         </CadDrawingPipelineHeroSection>
 
