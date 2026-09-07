@@ -1,0 +1,127 @@
+.nudge {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2.5vw, 28px);
+  width: 100%;
+  box-sizing: border-box;
+  padding: 18px 22px;
+  background: #fff;
+  border: 1px solid #e8e8ec;
+  border-radius: 12px;
+}
+
+.formats {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.formatFrom,
+.formatTo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.formatFrom {
+  color: #374151;
+  background: #fff;
+  border: 1px solid #d1d5db;
+}
+
+.formatTo {
+  color: #fff;
+  background: #610bee;
+  border: 1px solid #610bee;
+}
+
+.arrow {
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #6b7280;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #610bee;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.cta:hover {
+  border-color: #610bee;
+  background: #f5f0ff;
+  color: #4c09c4;
+}
+
+@media (max-width: 900px) {
+  .nudge {
+    flex-wrap: wrap;
+    padding: 16px 18px;
+  }
+
+  .copy {
+    flex: 1 1 200px;
+  }
+
+  .cta {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .nudge {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cta {
+    width: 100%;
+    margin-left: 0;
+  }
+}

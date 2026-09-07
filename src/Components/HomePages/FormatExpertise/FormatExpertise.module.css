@@ -1,0 +1,225 @@
+.section {
+  --purple: #6324d8;
+  --purple-soft: #f1eafd;
+  --purple-pale: #faf8ff;
+  --ink: #15121c;
+  --muted: #696572;
+  --line: #e8e5ed;
+
+  padding: clamp(72px, 10vw, 112px) 0;
+  color: var(--ink);
+  background: white;
+  font-family: inherit;
+}
+
+.shell {
+  width: min(1200px, calc(100% - 44px));
+  margin: 0 auto;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 0.83fr 1.25fr;
+  gap: 74px;
+  align-items: start;
+}
+
+.copy {
+  position: sticky;
+  top: 106px;
+}
+
+.label {
+  margin: 0 0 16px;
+  color: var(--purple);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  max-width: 520px;
+  margin: 0;
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+
+.description {
+  margin: 23px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.72;
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-top: 27px;
+  padding: 17px;
+  color: #5c5265;
+  background: var(--purple-pale);
+  border: 1px solid #e9e1f6;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.note svg {
+  color: var(--purple);
+  flex-shrink: 0;
+}
+
+.note span {
+  flex: 1;
+}
+
+.note strong {
+  color: #352544;
+  font-weight: 600;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 25px;
+  color: var(--purple);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link svg {
+  transition: transform 0.2s ease;
+}
+
+.link:hover svg {
+  transform: translateX(3px);
+}
+
+.familyList {
+  display: grid;
+  gap: 12px;
+}
+
+.familyCard {
+  display: grid;
+  grid-template-columns: 36px 48px 1fr auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 142px;
+  padding: 22px;
+  background: #fbfafc;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+}
+
+.familyNumber {
+  color: #b0a9b5;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.familyIcon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  color: var(--purple);
+  background: var(--purple-soft);
+  border-radius: 11px;
+}
+
+.familyCopy h3 {
+  margin: 0 0 7px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.familyCopy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.formatPills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.formatPills span {
+  padding: 6px 8px;
+  color: #4a2a84;
+  background: var(--purple-soft);
+  border: 1px solid #e1d5f8;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .copy {
+    position: static;
+  }
+
+  .familyCard {
+    grid-template-columns: 28px 44px 1fr;
+    gap: 14px;
+  }
+
+  .formatPills {
+    grid-column: 2 / -1;
+    justify-content: flex-start;
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 640px) {
+  .shell {
+    width: min(100% - 28px, 1200px);
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+
+  .familyCard {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    gap: 12px;
+  }
+
+  .familyNumber {
+    display: none;
+  }
+
+  .familyIcon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .formatPills {
+    grid-column: auto;
+  }
+}

@@ -1,13 +1,23 @@
 
 import React from "react";
 import HomeLandingNew from "../HomePages/HomeLandingNew/HomeLandingNew";
-import DesignHub from "../HomePages/DesignHub/DesignHub";
+import ConversionTypes from "../HomePages/ConversionTypes/ConversionTypes";
+import ConversionExpertise from "../HomePages/ConversionExpertise/ConversionExpertise";
+import ConverterDirectory from "../HomePages/ConverterDirectory/ConverterDirectory";
+import FormatExpertise from "../HomePages/FormatExpertise/FormatExpertise";
+import ConversionPricing from "../HomePages/ConversionPricing/ConversionPricing";
+import ConversionWorkflow from "../HomePages/ConversionWorkflow/ConversionWorkflow";
+import ConversionPrivacy from "../HomePages/ConversionPrivacy/ConversionPrivacy";
+import CadProductsShowcase from "../HomePages/CadProductsShowcase/CadProductsShowcase";
+import CadDrawingsShowcase from "../HomePages/CadDrawingsShowcase/CadDrawingsShowcase";
+import ConversionDesignerCta from "../HomePages/ConversionDesignerCta/ConversionDesignerCta";
+import ConversionFinalCta from "../HomePages/ConversionFinalCta/ConversionFinalCta";
 import RecentlyAddedDesigns from "../HomePages/RecentlyAddedDesigns/RecentlyAddedDesigns";
 import WhyUsNew from "../HomePages/NewWhyUs/WhyUsNew";
 import FreeTools from "../HomePages/FreeTools/FreeTools";
 import CreatorsContent from "../HomePages/CreatorsContent/CreatorsContent";
+import ConversionFaq from "../HomePages/ConversionFaq/ConversionFaq";
 import Security from "../HomePages/Security/Security";
-import Faq from "../HomePages/Faq/Faq";
 import Footer from "../HomePages/Footer/Footer";
 import styles from "./HomePage.module.css";
 import CadOutsourcingBanner from "../CadServicesBanners/CadOutsourcingBanner";
@@ -20,12 +30,22 @@ const HomePage = () => {
           {/* <HomeTopNav /> */}
           {/* <WorkFlow /> */}
           <HomeLandingNew />
+          <ConversionTypes />
+          <ConversionExpertise />
+          <ConverterDirectory />
+          <FormatExpertise />
+          <ConversionPricing />
+          <ConversionWorkflow />
+          <ConversionPrivacy />
           {/* <CadOutsourcingBanner /> */}
-          <DesignHub />
+          <CadProductsShowcase />
+          <CadDrawingsShowcase />
+          <ConversionDesignerCta />
+          <ConversionFinalCta />
           <RecentlyAddedDesigns />
-          <WhyUsNew />
-          <FreeTools />
-          <CreatorsContent />
+          {/* <WhyUsNew />
+          <FreeTools /> */}
+          {/* <CreatorsContent /> */}
           {/* <WhyUs />
           <Capabilities /> */}
           
@@ -34,8 +54,8 @@ const HomePage = () => {
         
           {/* <Tools/>
           <LibraryDetails/> */}
-          <Security />
-          <Faq />
+          {/* <Security /> */}
+          <ConversionFaq />
         </div>
         <Footer />
       </div>

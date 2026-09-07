@@ -1,7 +1,6 @@
 "use client";
 
 import { Clock, Layers } from "lucide-react";
-import heroStyles from "@/Components/CadUploadingHome/CadHomeDesign/CadViewerHero.module.css";
 import useTechDrawPriceDisplay from "./useTechDrawPriceDisplay";
 import styles from "./CadDrawingPipeline.module.css";
 
@@ -33,11 +32,11 @@ export default function CadDrawingPipelineHeroSection({
 
   return (
     <section
-      className={`${heroStyles.heroPage} ${styles.pipelineHeroShell}`}
+      className={styles.pipelineHeroShell}
       id="cad-pipeline-upload"
       aria-labelledby="cad-pipeline-hero-title"
     >
-      <div className={`${heroStyles.heroInner} ${styles.pipelineHeroInner}`}>
+      <div className={styles.pipelineHeroInner}>
         <div className={styles.pipelineHeroIntro}>
           <p className={styles.pipelineHeroBadge}>
             <span className={styles.pipelineHeroBadgeDot} aria-hidden />

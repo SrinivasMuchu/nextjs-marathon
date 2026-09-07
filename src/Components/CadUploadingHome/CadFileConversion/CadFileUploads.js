@@ -4,7 +4,7 @@ import styles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import CadFileConversionWrapper from './CadFileConversionWrapper'
 
-function CadFileUploads({ convert, allowedFormats, initialAllowedFormats = [], designVariant }) {
+function CadFileUploads({ convert, conversionParams, allowedFormats, initialAllowedFormats = [], designVariant, preferredOutput }) {
     // Use initialAllowedFormats on first paint (from server params) to avoid CLS when context hydrates
     const formats = (allowedFormats?.length ? allowedFormats : initialAllowedFormats) || [];
     const formatsText = convert
@@ -41,14 +41,21 @@ function CadFileUploads({ convert, allowedFormats, initialAllowedFormats = [], d
               <div className={heroStyles.uploadSection}>
                 <CadFileConversionWrapper
                   convert={convert}
+                  conversionParams={conversionParams}
                   designVariant={designVariant}
                   heroFormatsLine={formatsText}
+                  preferredOutput={preferredOutput}
                 >
                   {dropInner}
                 </CadFileConversionWrapper>
               </div>
             ) : (
-              <CadFileConversionWrapper convert={convert} designVariant={designVariant}>
+              <CadFileConversionWrapper
+                convert={convert}
+                conversionParams={conversionParams}
+                designVariant={designVariant}
+                preferredOutput={preferredOutput}
+              >
                 {dropInner}
               </CadFileConversionWrapper>
             )}

@@ -5,7 +5,7 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import SwapHorizOutlinedIcon from '@mui/icons-material/SwapHorizOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import HoverImageSequence from '../CommonJsx/RotatedImages';
-import { getLibraryQuickLinks } from '@/data/libraryPage';
+import { getLibraryQuickLinks, getLibraryCardConvertTargets } from '@/data/libraryPage';
 import styles from './Library.module.css';
 import cardStyles from './LibraryProductCard.module.css';
 
@@ -56,6 +56,7 @@ export default function LibraryProductCard({ design }) {
   const productHref = `/library/${design.route}`;
   const quickLinks = getLibraryQuickLinks(design.file_type).slice(0, 2);
   const fileFormats = getCardFileFormats(design);
+  const convertTargets = getLibraryCardConvertTargets(design.file_type, design._id);
   const tagsLine = buildTagsLine(design);
   const priceLabel = design.price ? `$${design.price}` : 'Free';
   const isFree = !design.price;
@@ -115,6 +116,19 @@ export default function LibraryProductCard({ design }) {
                 {link.label}
               </Link>
             ))}
+          </div>
+        ) : null}
+
+        {convertTargets.length > 0 ? (
+          <div className={cardStyles.convertRow}>
+            <span className={cardStyles.convertLabel}>Convert to</span>
+            <div className={cardStyles.convertTargets}>
+              {convertTargets.map((target) => (
+                <Link key={target.href} href={target.href} className={cardStyles.convertChip}>
+                  {target.label}
+                </Link>
+              ))}
+            </div>
           </div>
         ) : null}
 

@@ -53,6 +53,8 @@ function DownloadClientButton({
   designDetails,
   supportingFileUrl,
   downloadButtonLabel,
+  onDownloadSuccess,
+  suppressConversionPopup: _suppressConversionPopup = false,
 }) {
   const [isDownLoading, setIsDownLoading] = useState(false);
   const [isDownloadingMainFile, setIsDownloadingMainFile] = useState(false);
@@ -138,6 +140,13 @@ function DownloadClientButton({
           event_name: "design_view_file_download",
           event_category: CAD_VIEWER_EVENT,
         });
+        if (typeof onDownloadSuccess === "function") {
+          onDownloadSuccess({
+            downloadUrl: url,
+            fileType: filetype || designDetails?.file_type || "step",
+            title: designDetails?.title,
+          });
+        }
       }
     } catch (err) {
       console.error("Error downloading file:", err);
