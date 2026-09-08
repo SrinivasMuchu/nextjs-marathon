@@ -222,7 +222,17 @@ export const LIBRARY_CATEGORY_PAGES = {
   },
 };
 
-export { getLibraryQuickLinks } from './crossTemplateLinks';
+export {
+  getLibraryQuickLinks,
+  getLibraryCardConvertTargets,
+  getDesignPageDownloadOptions,
+  getPreferredDesignConvertTarget,
+  getDesignConversionSocialProofRows,
+  getDesignPageSoftwareLine,
+  getConvertTargetBlurb,
+  designPageSupports2dPdf,
+  withLibrarySource,
+} from './crossTemplateLinks';
 
 export function formatPrimaryFileFormat(fileType) {
   const key = String(fileType || 'step').toUpperCase();
@@ -231,6 +241,16 @@ export function formatPrimaryFileFormat(fileType) {
 
 export function hasPreviewAvailable(design) {
   const ft = String(design?.file_type || '').toLowerCase();
-  if (ft === 'dxf' || ft === 'dwg') return true;
+  if (ft === 'dxf' || ft === 'dwg') {
+    const files = Array.isArray(design?.supporting_files) ? design.supporting_files : [];
+    return files.some((f) => {
+      const name = f?.name || f?.fileName || '';
+      const mime = String(f?.type || '').toLowerCase();
+      const url = f?.url || f?.fileUrl || '';
+      if (!url) return false;
+      if (mime.startsWith('image/')) return true;
+      return /\.(png|jpe?g|webp|gif|bmp|svg)(\?|$)/i.test(name || url);
+    });
+  }
   return Boolean(design?.is_glb);
 }

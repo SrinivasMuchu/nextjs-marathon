@@ -1,140 +1,83 @@
-"use client"
-import React from "react"
-import styles from "./Footer.module.css"
-import Image from "next/image"
-import { IMAGEURLS } from "@/config"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import LinkedInIcon from "@mui/icons-material/LinkedIn"
-import FooterForm from "./FooterForm"
+"use client";
+
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { IMAGEURLS } from "@/config";
+import styles from "./Footer.module.css";
 
 function Footer() {
-  const pathname = usePathname()
-  const router = useRouter()
-
-  const handleAnchorClick = (event, sectionId) => {
-    event.preventDefault()
-
-    if (pathname !== "/") {
-      router.push(`/#${sectionId}`)
-    } else {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" })
-    }
-  }
+  const year = new Date().getFullYear();
 
   return (
-    <div className={styles["footer-page"]}>
-      <div className={styles["footer-page-cont"]}>
-        {/* <div className={styles["footer-left"]}> */}
-          <div className={styles["footer-logo"]}>
-            <Image
-              src={IMAGEURLS.footerLogo}
-              alt="Marathon OS logo"
-              width={160}
-              height={30}
-            />
-            <span>The CAD marketplace for modern teams</span>
+    <footer className={styles.footerPage}>
+      <div className={styles.footerShell}>
+        <div className={styles.footerMain}>
+          <div className={styles.footerBrand}>
+            <Link href="/" className={styles.logoLink} aria-label="Marathon home">
+              <Image
+                src={IMAGEURLS.logo}
+                alt="Marathon Logo"
+                width={500}
+                height={500}
+                className={styles.footerLogo}
+              />
+            </Link>
+            <p>
+              The specialist CAD conversion platform for engineering, mesh and drawing workflows.
+            </p>
+            <Link className={styles.footerPrimary} href="/tools/3d-cad-file-converter">
+              Start a conversion
+              <ArrowRight size={14} aria-hidden="true" />
+            </Link>
           </div>
 
-          {/* <div className={styles["footer-navs-group"]}> */}
-            <div className={styles["footer-navs"]}>
-              <Link href="#home" onClick={(e) => handleAnchorClick(e, "home")}>
-                Home
-              </Link>
-              <Link href="/about-us">About us</Link>
-              <Link
-                href="#why-us"
-                onClick={(e) => handleAnchorClick(e, "why-us")}
-              >
-                Why us?
-              </Link>
-              {/* <Link href="/tools">Tools</Link> */}
-              <Link href="/contact-us">Contact us</Link>
-              {/* <Link
-                href="#product"
-                onClick={(e) => handleAnchorClick(e, "product")}
-              >
-                Product
-              </Link>
-              <Link
-                href="#pricing"
-                onClick={(e) => handleAnchorClick(e, "pricing")}
-              >
-                Pricing
-              </Link> */}
-            </div>
-            <div className={styles["footer-navs"]}>
-              <Link href="/tools">Tools</Link>
-              <Link href="/tools/cad-drawing-pipeline">3D to 2D Drawing Pipeline</Link>
-              <Link href="/tools/3d-cad-viewer">3D CAD Viewer</Link>
-              <Link href="/tools/3d-cad-file-converter">3D CAD File Converter</Link>
-              {/* <Link
-                href="#product"
-                onClick={(e) => handleAnchorClick(e, "product")}
-              >
-                Product
-              </Link>
-              <Link
-                href="#pricing"
-                onClick={(e) => handleAnchorClick(e, "pricing")}
-              >
-                Pricing
-              </Link> */}
-            </div>
+          <div className={styles.footerColumn}>
+            <strong>Convert</strong>
+            <Link href="/tools/3d-cad-file-converter">All 60+ conversion tools</Link>
+            <Link href="/tools/convert-step-to-stl">STEP to STL</Link>
+            <Link href="/tools/convert-stl-to-step">STL to STEP</Link>
+            <Link href="/tools/convert-iges-to-step">IGES to STEP</Link>
+            <Link href="/tools/convert-dwg-to-dxf">DWG to DXF</Link>
+            <Link href="/tools/cad-drawing-pipeline">STEP or STP to 2D</Link>
+          </div>
 
-            <div className={styles["footer-navs"]}>
-             
-              <Link href="/library">Library</Link>
-              <Link
-                href="/cad-services"
-                className={styles.footerCadCard}
-                aria-label="Hire CAD designers"
-              >
-                <div>
-                  <div className={styles.footerCadTitle}>Hire CAD Designers</div>
-                  <div className={styles.footerCadBody}>Production-ready in 24 hrs</div>
-                </div>
-                <div className={styles.footerCadBottomRow}>
-                  <div className={styles.footerCadIcon}>👤</div>
-                  <span className={styles.footerCadArrow}>→</span>
-                </div>
-              </Link>
-              <Link href="/library/2d-technical-drawings">2D Library</Link>
-            
-              {/* <Link href="/tools/org-hierarchy">Org Hierarchy</Link>
-            
-              <Link href="/tools/3d-cad-viewer">CAD Viewer</Link>
-              <Link href="/tools/3d-cad-file-converter">CAD Converter</Link> */}
-            </div>
-          {/* </div> */}
-        {/* </div> */}
+          <div className={styles.footerColumn}>
+            <strong>Products</strong>
+            <Link href="/library">3D CAD Products</Link>
+            <Link href="/library/2d-technical-drawings">2D CAD Products</Link>
+          </div>
 
-        <FooterForm styles={styles} />
-      </div>
+          <div className={styles.footerColumn}>
+            <strong>Tools and services</strong>
+            <Link href="/tools">All CAD Tools</Link>
+            <Link href="/tools/3d-cad-viewer">3D CAD Viewer</Link>
+            <Link href="/cad-services">Hire a CAD Designer</Link>
+          </div>
 
-      <div className={styles["footer-bottom"]}>
-        <div className={styles["footer-bottom-links"]}>
-          <Link href="/privacy-policy">Privacy Policy</Link>
-          <span>|</span>
-          <Link href="/terms-and-conditions">Terms of Service</Link>
-          <span>|</span>
-          <Link href="/refund-policy">Refund Policy</Link>
-          <span>|</span>
-          <Link
-            href="https://www.linkedin.com/company/marathon-os/"
-            aria-label="Marathon OS LinkedIn"
-            target="_blank"
-          >
-            <LinkedInIcon style={{ width: "20px", height: "20px" }} />
-          </Link>
+          <div className={styles.footerColumn}>
+            <strong>Company</strong>
+            <Link href="/">Home</Link>
+            <Link href="/about-us">About Us</Link>
+            <Link href="/contact-us">Contact Us</Link>
+          </div>
+
+          <div className={styles.footerColumn}>
+            <strong>Legal</strong>
+            <Link href="/privacy-policy">Privacy Policy</Link>
+            <Link href="/terms-and-conditions">Terms and Conditions</Link>
+            <Link href="/refund-policy">Refund Policy</Link>
+          </div>
         </div>
-        <div className={styles["footer-bottom-right"]}>
-          
-          <span>© Marathon 2025 All Rights Reserved</span>
+
+        <div className={styles.footerBottom}>
+          <span>© {year} Marathon OS. All rights reserved.</span>
+          <span>Convert precisely. Download confidently. Keep moving.</span>
         </div>
       </div>
-    </div>
-  )
+    </footer>
+  );
 }
 
-export default Footer
+export default Footer;

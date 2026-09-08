@@ -23,6 +23,7 @@ import {
   trackTechDrawUploadStart,
   trackTechDrawUploadSuccess,
 } from "@/lib/techDraw/techDrawAnalytics";
+import { fetchLibrarySourceFile } from "@/api/librarySourceApi";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 import { ArrowRight, ArrowUp, Info } from "lucide-react";
 import styles from "./CadDrawingPipeline.module.css";
@@ -96,6 +97,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
   const fileInputRef = useRef(null);
   const submitLockRef = useRef(false);
   const pendingAfterLoginRef = useRef(false);
+  const librarySourceLoadedRef = useRef("");
 
   const catalogPrices = useTechDrawPriceDisplay(initialPrices);
   const prices = useMemo(() => {
@@ -144,6 +146,46 @@ export default function CadDrawingPipelineView({ initialPrices }) {
     setError("");
     setFormStep(2);
   }, []);
+
+  // Prefill STEP from library design (?source=designId)
+  useEffect(() => {
+    const sourceId = String(searchParams.get("source") || "").trim();
+    if (!sourceId || !/^[a-f0-9]{24}$/i.test(sourceId)) return undefined;
+    if (librarySourceLoadedRef.current === sourceId) return undefined;
+    if (file || isFreeRetryFlow) return undefined;
+
+    let cancelled = false;
+    librarySourceLoadedRef.current = sourceId;
+
+    (async () => {
+      try {
+        if (!isUserVerified()) {
+          setShowLogin(true);
+          librarySourceLoadedRef.current = "";
+          return;
+        }
+        setUploadPhase("Loading library STEP file…");
+        const source = await fetchLibrarySourceFile(sourceId);
+        if (cancelled) return;
+        if (source.pageTitle) {
+          setTitle((prev) => prev || source.pageTitle.slice(0, 120));
+        }
+        pickFile(source.file);
+        toast.success("Library STEP file loaded.");
+      } catch (err) {
+        librarySourceLoadedRef.current = "";
+        const msg = err?.message || "Could not load library file.";
+        setError(msg);
+        toast.error(msg);
+      } finally {
+        if (!cancelled) setUploadPhase("");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams, file, isFreeRetryFlow, pickFile]);
 
   const onPickFile = (e) => {
     const f = e.target.files?.[0];
@@ -456,24 +498,28 @@ export default function CadDrawingPipelineView({ initialPrices }) {
                       <span className={styles.pipelineDropzoneBrowse}>click to browse</span> from your
                       computer
                     </p>
+                    <p className={styles.pipelineFormatsLine}>
+                      Supports .step and .stp · max {MAX_UPLOAD_LABEL}
+                    </p>
                   </div>
                 )}
               </div>
 
-              <p className={styles.pipelineFormatsLine}>
-                Supports .step and .stp · max {MAX_UPLOAD_LABEL}
-              </p>
-
               {file ? (
-                <button
-                  type="button"
-                  className={styles.pipelineContinueBtn}
-                  onClick={goToDetailsStep}
-                  disabled={submitting}
-                >
-                  Continue
-                  <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
-                </button>
+                <>
+                  <p className={styles.pipelineFormatsLine}>
+                    Supports .step and .stp · max {MAX_UPLOAD_LABEL}
+                  </p>
+                  <button
+                    type="button"
+                    className={styles.pipelineContinueBtn}
+                    onClick={goToDetailsStep}
+                    disabled={submitting}
+                  >
+                    Continue
+                    <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
+                  </button>
+                </>
               ) : null}
             </>
           ) : (
