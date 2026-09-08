@@ -1,59 +1,48 @@
 /* Matches cad_pipeline_ui_v3.html — dark pipeline UI */
 
 .root {
-  --purple: #610bee;
-  --purple-dim: #4a09b5;
-  --purple-glow: rgba(97, 11, 238, 0.35);
-  --purple-subtle: rgba(97, 11, 238, 0.12);
-  --accent: #610bee;
-  --accent-light: #a56bff;
-  --accent-gradient: linear-gradient(135deg, #4a09b5 0%, #610bee 100%);
-  --bg: #080810;
-  --surface: #0d0d1a;
-  --surface2: #111125;
-  --border: rgba(255, 255, 255, 0.07);
-  --border-accent: rgba(97, 11, 238, 0.4);
-  --text: #e8e8f0;
-  --text-dim: #6b6b8a;
-  --text-muted: #3a3a5a;
+  --purple: #8b5cf6;
+  --purple-dim: #6d28d9;
+  --purple-glow: rgba(139, 92, 246, 0.28);
+  --purple-subtle: rgba(139, 92, 246, 0.12);
+  --accent: #8b5cf6;
+  --accent-light: #c4b0ff;
+  --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 55%, #5b21b6 100%);
+  --bg: #0a040f;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface2: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-accent: rgba(139, 92, 246, 0.35);
+  --text: #ffffff;
+  --text-dim: rgba(255, 255, 255, 0.78);
+  --text-muted: rgba(255, 255, 255, 0.58);
   --success: #00e5a0;
   --warning: #f5a623;
   --error: #ff4d6a;
-  /* Match app layout: Inter body (from globals / layout.js) */
   --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
 
   position: relative;
   min-height: calc(100vh - 1px);
-  background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 14px;
   overflow-x: hidden;
+  background-color: #0a040f;
+  background-image:
+    radial-gradient(120% 80% at 50% 0%, rgba(97, 11, 238, 0.32) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 50% at 10% 90%, rgba(97, 11, 238, 0.12), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 95% 20%, rgba(139, 92, 246, 0.1), transparent 50%),
+    linear-gradient(180deg, #12061f 0%, #0d0514 45%, #0a040f 100%);
+  background-size: 100% 100%;
 }
 
 .root::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(97, 11, 238, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(97, 11, 238, 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
-  z-index: 0;
+  content: none;
 }
 
 .root::after {
-  content: "";
-  position: fixed;
-  top: -30%;
-  left: -10%;
-  width: 60%;
-  height: 70%;
-  background: radial-gradient(ellipse at center, rgba(97, 11, 238, 0.08) 0%, transparent 65%);
-  pointer-events: none;
-  z-index: 0;
+  content: none;
 }
 
 .page {
@@ -64,19 +53,28 @@
   margin: 0;
   padding: 28px 64px 80px;
   box-sizing: border-box;
+  background: transparent;
 }
 
-/* Combined hero + upload (cad.html mockup) */
+/* Combined hero + upload — same dark page color; glass cards sit on top */
 .pipelineHeroShell {
-  background:
-    radial-gradient(900px 520px at 50% -8%, rgba(124, 58, 237, 0.3), transparent 62%),
-    radial-gradient(620px 420px at 88% 12%, rgba(139, 92, 246, 0.14), transparent 60%),
-    radial-gradient(560px 420px at 8% 30%, rgba(99, 49, 200, 0.12), transparent 60%),
-    #0a0712;
+  position: relative;
+  z-index: 1;
+  color: #f4f0ff;
+  background: transparent;
 }
 
 .pipelineHeroInner {
   max-width: 840px;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 40px) clamp(40px, 6vw, 64px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  box-sizing: border-box;
 }
 
 .pipelineHeroIntro {
@@ -139,7 +137,8 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
-  margin-top: 30px;
+  margin-top: 10px;
+  width: 100%;
 }
 
 .pipelineValuePill {
@@ -147,9 +146,10 @@
   align-items: center;
   gap: 11px;
   padding: 10px 15px 10px 11px;
-  border-radius: 13px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  background: rgba(18, 8, 36, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .pipelineValuePillIcon {
@@ -160,7 +160,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 9px;
-  background: rgba(139, 92, 246, 0.15);
+  background: rgba(139, 92, 246, 0.18);
   color: #b69bff;
   font-weight: 700;
   font-size: 16px;
@@ -186,15 +186,38 @@
 }
 
 .pipelineToolPanel {
-  margin-top: 34px;
+  margin-top: 18px;
   padding: 26px;
   border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  background: rgba(16, 8, 32, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   box-shadow:
-    0 24px 60px rgba(10, 5, 25, 0.55),
+    0 24px 60px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   text-align: left;
+  box-sizing: border-box;
+}
+
+.pipelineDropzone {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 44px 24px 36px;
+  border: 1.5px dashed rgba(139, 92, 246, 0.42);
+  border-radius: 16px;
+  background: rgba(8, 4, 18, 0.35);
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.pipelineDropzone:hover,
+.pipelineDropzoneDrag {
+  border-color: rgba(139, 92, 246, 0.7);
+  background: rgba(124, 58, 237, 0.08);
 }
 
 .pipelineStepHeader {
@@ -216,12 +239,12 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  background: rgba(139, 92, 246, 0.16);
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  background: rgba(139, 92, 246, 0.2);
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 500;
-  color: #b69bff;
+  color: #c4b0ff;
 }
 
 .pipelineStepTitle {
@@ -236,26 +259,6 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-}
-
-.pipelineDropzone {
-  position: relative;
-  display: block;
-  width: 100%;
-  padding: 44px 24px;
-  border: 2px dashed rgba(139, 92, 246, 0.38);
-  border-radius: 16px;
-  background: radial-gradient(420px 200px at 50% 30%, rgba(124, 58, 237, 0.12), transparent 70%);
-  text-align: center;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-  box-sizing: border-box;
-}
-
-.pipelineDropzone:hover,
-.pipelineDropzoneDrag {
-  border-color: rgba(139, 92, 246, 0.65);
-  background: radial-gradient(420px 200px at 50% 30%, rgba(124, 58, 237, 0.2), transparent 70%);
 }
 
 .pipelineDropzoneFilled {
@@ -279,7 +282,9 @@
   border-radius: 50%;
   background: linear-gradient(140deg, #8b5cf6, #6d28d9);
   color: #ffffff;
-  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.45);
+  box-shadow:
+    0 0 0 10px rgba(124, 58, 237, 0.12),
+    0 10px 30px rgba(124, 58, 237, 0.45);
 }
 
 .pipelineDropzoneHeadline {
@@ -496,12 +501,16 @@
 }
 
 .pipelineFormatsLine {
-  margin: 13px 0 0;
+  margin: 18px 0 0;
   text-align: center;
   font-family: var(--font-mono);
   font-size: 11.5px;
   letter-spacing: 0.02em;
   color: #6e6883;
+}
+
+.pipelineDropzoneEmpty .pipelineFormatsLine {
+  margin-top: 22px;
 }
 
 .pipelineFormDivider {
@@ -3010,3 +3019,500 @@
   background: #610bee;
   color: #fff;
 }
+
+.gdtPanel {
+  margin-top: 22px;
+  padding: 16px 16px 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.gdtPanelTitle {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #e8e0ff;
+  letter-spacing: 0.01em;
+}
+
+.gdtPanelLead {
+  margin: 6px 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9b93b3;
+}
+
+.gdtStandardRow {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  align-items: center;
+}
+
+.gdtStandardRow legend {
+  margin-bottom: 8px;
+}
+
+.gdtRadio,
+.gdtCheck {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #d8d2ea;
+  cursor: pointer;
+}
+
+.gdtCheck {
+  margin: 16px 0 12px;
+}
+
+.gdtOptional {
+  font-weight: 500;
+  color: #8b8499;
+}
+
+.datumPicker {
+  margin: 0 0 18px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  background: linear-gradient(180deg, rgba(97, 11, 238, 0.16), rgba(20, 16, 32, 0.4));
+}
+
+.datumPickerHeader {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.datumPickerIcon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.datumPickerTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.datumPickerLead {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b8b0cc;
+}
+
+.datumPickerHeaderBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.datumPickerTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.datumModeToggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 8, 18, 0.55);
+  gap: 2px;
+}
+
+.datumModeBtn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #8b8499;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.datumModeBtn:hover:not(:disabled) {
+  color: #cfc9dd;
+}
+
+.datumModeBtnOn {
+  background: rgba(97, 11, 238, 0.35);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.45);
+}
+
+.datumPickSummary {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 8, 18, 0.45);
+}
+
+.datumPickSummaryTitle {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8b8499;
+  margin-bottom: 8px;
+}
+
+.datumPickSummaryEmpty {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b8b0cc;
+}
+
+.datumPickSummaryList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.datumPickSummaryItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #cfc9dd;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.datumPickSummaryItem:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.45);
+}
+
+.datumSwitchModeLink {
+  margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #a78bfa;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.datumSwitchModeLink:hover:not(:disabled) {
+  color: #c4b5fd;
+}
+
+.datumPickerGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 800px) {
+  .datumPickerGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.datumPickerField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.datumPickerLetter {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #e8e0ff;
+}
+
+.datumPickerHint {
+  font-size: 11.5px;
+  color: #8b8499;
+}
+
+.datumPickerSelect {
+  margin-top: 4px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 8, 18, 0.65);
+  color: #fff;
+  font-size: 13px;
+}
+
+.datumCandidateList {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(420px, 48vh);
+  overflow: auto;
+}
+
+.datumCandidateList li {
+  display: block;
+  font-size: 13px;
+  color: #cfc9dd;
+}
+
+.datumCandidateBtn {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 8, 18, 0.45);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.datumCandidateBtn:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.55);
+  background: rgba(97, 11, 238, 0.14);
+}
+
+.datumCandidateBtn:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.datumCandidateBtnOn {
+  border-color: rgba(139, 92, 246, 0.7);
+  background: rgba(97, 11, 238, 0.22);
+}
+
+.datumCandidateBtnFocus {
+  border-color: rgba(103, 232, 249, 0.85);
+  box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.35);
+  background: rgba(103, 232, 249, 0.12);
+}
+
+.datumAssignedBadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 229, 160, 0.2);
+  color: #9ff5d4;
+}
+
+.datumKindBadge,
+.datumAltBadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(139, 92, 246, 0.22);
+  color: #d8ccff;
+}
+
+.datumAltBadge {
+  background: rgba(255, 255, 255, 0.08);
+  color: #b8b0cc;
+}
+
+.datumPickerLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .datumPickerLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.datumPickerSide {
+  min-width: 0;
+}
+
+.datumActiveRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.datumActiveLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8b8499;
+}
+
+.datumActiveLetters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.datumActiveBtn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 8, 18, 0.55);
+  color: #cfc9dd;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.datumActiveBtn:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.datumActiveBtnOn {
+  border-color: rgba(139, 92, 246, 0.75);
+  background: rgba(97, 11, 238, 0.28);
+  color: #fff;
+}
+
+.datumActiveBtnFilled {
+  box-shadow: inset 0 0 0 1px rgba(0, 229, 160, 0.35);
+}
+
+.datumViewerShell {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0a0a14;
+  overflow: hidden;
+  min-height: 420px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.datumViewerToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 16, 32, 0.65);
+}
+
+.datumViewerHint {
+  font-size: 12.5px;
+  color: #b8b0cc;
+}
+
+.datumViewerToolbarRight {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.datumViewerLegend {
+  display: flex;
+  gap: 8px;
+}
+
+.datumViewerLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #e8e0ff;
+}
+
+.datumViewerLegendItem::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--swatch, #7c5cff);
+}
+
+.datumViewerResetBtn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 8, 18, 0.55);
+  color: #e8e0ff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.datumViewerResetBtn:hover {
+  border-color: rgba(139, 92, 246, 0.55);
+  background: rgba(97, 11, 238, 0.18);
+}
+
+.datumViewerCanvas {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 440px;
+  height: min(62vh, 560px);
+  overflow: hidden;
+  isolation: isolate;
+  cursor: grab;
+}
+
+.datumViewerCanvas:active {
+  cursor: grabbing;
+}
+
+.datumViewerEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: #8b8499;
+  font-size: 13px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(10, 8, 18, 0.4);
+}
+
+.datumPickerActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+

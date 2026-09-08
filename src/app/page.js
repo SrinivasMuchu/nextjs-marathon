@@ -4,9 +4,9 @@ import { buildPageMetadata } from "@/lib/seo/pageMetadata";
 import styles from "./page.module.css";
 
 const CANONICAL_PATH = "/";
-const TITLE = "CAD Design Library + Free CAD Viewer & 3D Converter | Marathon OS";
+const TITLE = "CAD Converter Experts | 60+ Conversion Tools | Marathon OS";
 const DESCRIPTION =
-  "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.";
+  "Convert STEP, STL, IGES, OBJ, 3DM, BREP, PLY, OFF, DWG and DXF files with 60+ specialist tools, or turn STEP and STP models into 2D drawing sets.";
 
 export const metadata = buildPageMetadata({
   title: TITLE,

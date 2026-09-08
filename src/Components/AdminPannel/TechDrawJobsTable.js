@@ -21,6 +21,7 @@ const STATUS_OPTIONS = [
   { value: "all", label: "All" },
   { value: "PENDING", label: "Pending" },
   { value: "PROCESSING", label: "Processing" },
+  { value: "AWAITING_DATUMS", label: "Choose datums" },
   { value: "UPLOADING", label: "Uploading" },
   { value: "COMPLETED", label: "Completed" },
   { value: "FAILED", label: "Failed" },
@@ -31,6 +32,7 @@ const STATUS_COLORS = {
   FAILED: "#dc2626",
   PROCESSING: "#2563eb",
   UPLOADING: "#2563eb",
+  AWAITING_DATUMS: "#7c3aed",
   PENDING: "#d97706",
 };
 

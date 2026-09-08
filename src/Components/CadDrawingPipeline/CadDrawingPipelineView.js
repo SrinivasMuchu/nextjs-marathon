@@ -9,10 +9,8 @@ import {
   getOrCreateTechDrawUuid,
   getTechDrawPriceDisplay,
   prepareCadDrawingJob,
-  uploadAndSubmitTechDrawJob,
 } from "@/api/cadDrawingPipelineApi";
 import useTechDrawPriceDisplay from "./useTechDrawPriceDisplay";
-import { openTechDrawPayment } from "./techDrawPayment";
 import { STEP_EXT } from "./pipelineConstants";
 import { techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
 import { DIMENSION_EXTRACTION_FREE_RETRY_MSG } from "@/api/techDrawErrors";
@@ -25,22 +23,14 @@ import {
   trackTechDrawUploadStart,
   trackTechDrawUploadSuccess,
 } from "@/lib/techDraw/techDrawAnalytics";
+import { fetchLibrarySourceFile } from "@/api/librarySourceApi";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
-import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
 import { ArrowRight, ArrowUp, Info } from "lucide-react";
 import styles from "./CadDrawingPipeline.module.css";
 
 function isUserVerified() {
   if (typeof window === "undefined") return false;
   return Boolean(window.localStorage.getItem("is_verified"));
-}
-
-function readCheckoutUser() {
-  if (typeof window === "undefined") return { name: "", email: "" };
-  return {
-    name: localStorage.getItem("name") || localStorage.getItem("full_name") || "",
-    email: localStorage.getItem("email") || localStorage.getItem("user_email") || "",
-  };
 }
 
 // Hard cap on STEP/STP uploads. FreeCAD load times grow quickly past this point
@@ -85,7 +75,7 @@ function isLlmAvailable(eligibility) {
   return true;
 }
 
-export default function CadDrawingPipelineView() {
+export default function CadDrawingPipelineView({ initialPrices }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const freeRetryFor = String(searchParams.get("freeRetryFor") || "").trim();
@@ -94,6 +84,9 @@ export default function CadDrawingPipelineView() {
   const [formStep, setFormStep] = useState(1);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [gdtStandard, setGdtStandard] = useState("ASME");
+  const [datumPreferences, setDatumPreferences] = useState("");
+  const [chooseDatums, setChooseDatums] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [uploadPhase, setUploadPhase] = useState("");
   const [error, setError] = useState("");
@@ -101,14 +94,12 @@ export default function CadDrawingPipelineView() {
   const [eligibility, setEligibility] = useState(null);
   const [eligibilityLoading, setEligibilityLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
-  const [openTechDrawBilling, setOpenTechDrawBilling] = useState(false);
-  const [techDrawCheckout, setTechDrawCheckout] = useState(null);
   const fileInputRef = useRef(null);
   const submitLockRef = useRef(false);
   const pendingAfterLoginRef = useRef(false);
-  const paidJobIdRef = useRef(null);
+  const librarySourceLoadedRef = useRef("");
 
-  const catalogPrices = useTechDrawPriceDisplay();
+  const catalogPrices = useTechDrawPriceDisplay(initialPrices);
   const prices = useMemo(() => {
     if (eligibility?.price != null && Number.isFinite(Number(eligibility.price))) {
       return getTechDrawPriceDisplay(eligibility.price, eligibility.price_with_gst);
@@ -156,6 +147,46 @@ export default function CadDrawingPipelineView() {
     setFormStep(2);
   }, []);
 
+  // Prefill STEP from library design (?source=designId)
+  useEffect(() => {
+    const sourceId = String(searchParams.get("source") || "").trim();
+    if (!sourceId || !/^[a-f0-9]{24}$/i.test(sourceId)) return undefined;
+    if (librarySourceLoadedRef.current === sourceId) return undefined;
+    if (file || isFreeRetryFlow) return undefined;
+
+    let cancelled = false;
+    librarySourceLoadedRef.current = sourceId;
+
+    (async () => {
+      try {
+        if (!isUserVerified()) {
+          setShowLogin(true);
+          librarySourceLoadedRef.current = "";
+          return;
+        }
+        setUploadPhase("Loading library STEP file…");
+        const source = await fetchLibrarySourceFile(sourceId);
+        if (cancelled) return;
+        if (source.pageTitle) {
+          setTitle((prev) => prev || source.pageTitle.slice(0, 120));
+        }
+        pickFile(source.file);
+        toast.success("Library STEP file loaded.");
+      } catch (err) {
+        librarySourceLoadedRef.current = "";
+        const msg = err?.message || "Could not load library file.";
+        setError(msg);
+        toast.error(msg);
+      } finally {
+        if (!cancelled) setUploadPhase("");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams, file, isFreeRetryFlow, pickFile]);
+
   const onPickFile = (e) => {
     const f = e.target.files?.[0];
     pickFile(f);
@@ -200,8 +231,14 @@ export default function CadDrawingPipelineView() {
     pickFile(f);
   };
 
-  const needsPaidFlow =
-    !isFreeRetryFlow && eligibility && !eligibility.free_run_available && !eligibilityLoading;
+  // Uploads are always free; the server charges at download time.
+  const needsPaidDownload =
+    !isFreeRetryFlow &&
+    !eligibilityLoading &&
+    Boolean(
+      eligibility?.requires_payment_at_download ??
+        (eligibility && !eligibility.free_run_available),
+    );
 
   const llmAvailable = useMemo(() => isLlmAvailable(eligibility), [eligibility]);
   const llmDownMessage = useMemo(
@@ -248,7 +285,7 @@ export default function CadDrawingPipelineView() {
     setSubmitting(true);
     setError("");
 
-    const flowType = needsPaidFlow ? "paid" : flowTypeFromEligibility(eligibility);
+    const flowType = needsPaidDownload ? "paid" : flowTypeFromEligibility(eligibility);
     trackTechDrawUploadStart({ flowType, file });
 
     try {
@@ -270,14 +307,6 @@ export default function CadDrawingPipelineView() {
         return;
       }
 
-      // Re-check payment requirement from fresh eligibility (not stale render state).
-      const needsPaymentNow =
-        !isFreeRetryFlow &&
-        Boolean(
-          freshEligibility?.requires_payment ||
-            (freshEligibility && !freshEligibility.free_run_available),
-        );
-
       const onPhase = (phase) => {
         trackTechDrawUploadPhase(phase);
         if (phase === "upload-url") setUploadPhase("Requesting upload URL…");
@@ -285,36 +314,19 @@ export default function CadDrawingPipelineView() {
         if (phase === "submit") setUploadPhase("Creating job & starting pipeline…");
       };
 
-      let jobId;
-
-      if (needsPaymentNow) {
-        setUploadPhase("Enter billing details…");
-        paidJobIdRef.current = null;
-        setTechDrawCheckout({
-          file,
-          title: title.trim(),
-          description: description.trim(),
-          prices,
-          onPhase,
-          flowType: "paid",
-        });
-        setOpenTechDrawBilling(true);
-        // Modal owns payment + upload; unlock submit so the form can be reused after cancel.
-        submitLockRef.current = false;
-        setSubmitting(false);
-        setUploadPhase("");
-        return;
-      }
-
+      // Upload and generation are always free; payment is collected at download.
       const prep = await prepareCadDrawingJob({
         file,
         title: title.trim(),
         description: description.trim(),
         requiresPayment: false,
         original_failed_job_id: isFreeRetryFlow ? freeRetryFor : undefined,
+        gdt_standard: gdtStandard,
+        datum_preferences: datumPreferences.trim(),
+        choose_datums: chooseDatums,
         onPhase,
       });
-      jobId = prep.jobId;
+      const jobId = prep.jobId;
       toast.success(
         isFreeRetryFlow
           ? "Free replacement upload started."
@@ -336,7 +348,7 @@ export default function CadDrawingPipelineView() {
         "Request failed";
       const text = typeof msg === "string" ? msg : JSON.stringify(msg, null, 2);
       trackTechDrawUploadFailed({
-        flowType: needsPaidFlow ? "paid" : flowTypeFromEligibility(eligibility),
+        flowType: needsPaidDownload ? "paid" : flowTypeFromEligibility(eligibility),
         errorMessage: text,
       });
       setError(text);
@@ -360,41 +372,6 @@ export default function CadDrawingPipelineView() {
       }, 200);
     }
   }, [refreshEligibility]);
-
-  const handleTechDrawCheckoutPay = useCallback(async (billingId) => {
-    const checkout = techDrawCheckout;
-    if (!checkout?.file) throw new Error("Upload session expired. Choose your file again.");
-
-    const payment = await openTechDrawPayment({
-      description: `2D technical drawing — ${checkout.prices.totalLabel}`,
-      billingId,
-    });
-    const jobId = await uploadAndSubmitTechDrawJob({
-      file: checkout.file,
-      title: checkout.title,
-      description: checkout.description,
-      payment,
-      onPhase: checkout.onPhase,
-    });
-    paidJobIdRef.current = jobId;
-    trackTechDrawUploadSuccess({
-      flowType: checkout.flowType || "paid",
-      jobId,
-      file: checkout.file,
-    });
-    toast.success("Payment received. Your drawing is processing.");
-    return { jobId };
-  }, [techDrawCheckout]);
-
-  const handleTechDrawCheckoutClose = useCallback(() => {
-    const jobId = paidJobIdRef.current;
-    paidJobIdRef.current = null;
-    setOpenTechDrawBilling(false);
-    setTechDrawCheckout(null);
-    if (jobId) {
-      router.push(techDrawPipelineStatusPath(jobId));
-    }
-  }, [router]);
 
   return (
     <>
@@ -521,24 +498,28 @@ export default function CadDrawingPipelineView() {
                       <span className={styles.pipelineDropzoneBrowse}>click to browse</span> from your
                       computer
                     </p>
+                    <p className={styles.pipelineFormatsLine}>
+                      Supports .step and .stp · max {MAX_UPLOAD_LABEL}
+                    </p>
                   </div>
                 )}
               </div>
 
-              <p className={styles.pipelineFormatsLine}>
-                Supports .step and .stp · max {MAX_UPLOAD_LABEL}
-              </p>
-
               {file ? (
-                <button
-                  type="button"
-                  className={styles.pipelineContinueBtn}
-                  onClick={goToDetailsStep}
-                  disabled={submitting}
-                >
-                  Continue
-                  <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
-                </button>
+                <>
+                  <p className={styles.pipelineFormatsLine}>
+                    Supports .step and .stp · max {MAX_UPLOAD_LABEL}
+                  </p>
+                  <button
+                    type="button"
+                    className={styles.pipelineContinueBtn}
+                    onClick={goToDetailsStep}
+                    disabled={submitting}
+                  >
+                    Continue
+                    <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
+                  </button>
+                </>
               ) : null}
             </>
           ) : (
@@ -607,13 +588,78 @@ export default function CadDrawingPipelineView() {
                 rows={4}
               />
 
+              <div className={styles.gdtPanel}>
+                <div className={styles.gdtPanelTitle}>GD&amp;T datums</div>
+                <p className={styles.gdtPanelLead}>
+                  Optional. The drawing engine proposes datum faces from the model. You can
+                  steer that choice, or pick the exact A / B / C frame after views are captured.
+                </p>
+
+                <fieldset className={styles.gdtStandardRow} disabled={submitting}>
+                  <legend className={styles.pipelineHeroFieldLabel}>Standard</legend>
+                  <label className={styles.gdtRadio}>
+                    <input
+                      type="radio"
+                      name="gdt-standard"
+                      value="ASME"
+                      checked={gdtStandard === "ASME"}
+                      onChange={() => setGdtStandard("ASME")}
+                    />
+                    ASME Y14.5
+                  </label>
+                  <label className={styles.gdtRadio}>
+                    <input
+                      type="radio"
+                      name="gdt-standard"
+                      value="ISO"
+                      checked={gdtStandard === "ISO"}
+                      onChange={() => setGdtStandard("ISO")}
+                    />
+                    ISO GPS
+                  </label>
+                </fieldset>
+
+                <label
+                  className={`${styles.pipelineHeroFieldLabel} ${styles.pipelineHeroFieldLabelSpaced}`}
+                  htmlFor="cad-pipeline-datums"
+                >
+                  Datum notes <span className={styles.gdtOptional}>(optional)</span>
+                </label>
+                <textarea
+                  id="cad-pipeline-datums"
+                  className={styles.pipelineHeroTextarea}
+                  value={datumPreferences}
+                  onChange={(e) => setDatumPreferences(e.target.value)}
+                  placeholder="e.g. Primary datum is the mounting face; locate on the Ø12 dowel bore."
+                  disabled={submitting}
+                  rows={3}
+                />
+
+                <label className={styles.gdtCheck}>
+                  <input
+                    type="checkbox"
+                    checked={chooseDatums}
+                    disabled={submitting}
+                    onChange={(e) => setChooseDatums(e.target.checked)}
+                  />
+                  <span>
+                    I&apos;ll pick datum features A / B / C after the model is analyzed
+                  </span>
+                </label>
+              </div>
+
               {uploadPhase ? <p className={styles.uploadPhaseHint}>{uploadPhase}</p> : null}
 
-              {needsPaidFlow ? (
+              {needsPaidDownload ? (
                 <p className={styles.uploadPhaseHint} style={{ marginTop: 16 }}>
-                  You will pay <strong>{prices.totalLabel}</strong> (incl. GST) before your file uploads.
+                  Generating is free. You&apos;ll pay <strong>{prices.totalLabel}</strong> (incl.
+                  GST) only when you download your drawing set.
                 </p>
-              ) : null}
+              ) : (
+                <p className={styles.uploadPhaseHint} style={{ marginTop: 16 }}>
+                  Your first drawing-set download is free. Upload and generate at no charge.
+                </p>
+              )}
 
               <button
                 className={styles.pipelineHeroSubmitBtn}
@@ -628,11 +674,6 @@ export default function CadDrawingPipelineView() {
                   </>
                 ) : !llmAvailable ? (
                   <>AI service unavailable</>
-                ) : needsPaidFlow ? (
-                  <>
-                    Pay {prices.totalLabel} &amp; generate drawings
-                    <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
-                  </>
                 ) : (
                   <>
                     Generate drawings
@@ -653,7 +694,7 @@ export default function CadDrawingPipelineView() {
               <div className={styles.pipelineCtaMeta}>
                 <span className={styles.pipelineCtaMetaItem}>
                   <span className={styles.pipelineCtaMetaDot} aria-hidden />
-                  {prices.totalLabel} per drawing set incl. GST
+                  Pay at download · {prices.totalLabel} per drawing set incl. GST
                 </span>
                 <span className={styles.pipelineCtaMetaItem}>
                   <span className={styles.pipelineCtaMetaDot} aria-hidden />
@@ -666,36 +707,6 @@ export default function CadDrawingPipelineView() {
       </div>
 
       {showLogin ? <UserLoginPupUp onClose={handleLoginClose} type="login" /> : null}
-      {openTechDrawBilling && techDrawCheckout ? (
-        <ConverterDownloadFlow
-          product={{
-            badge: "2D",
-            title: "2D Technical Drawing",
-            detail: techDrawCheckout.file?.name || "TechDraw pipeline",
-            successDetail: "Your drawing pipeline has started.",
-            pricing: {
-              base_price: techDrawCheckout.prices.base,
-              price: techDrawCheckout.prices.base,
-              price_with_gst: techDrawCheckout.prices.total,
-              currency: techDrawCheckout.prices.currency,
-            },
-          }}
-          pricing={{
-            base_price: techDrawCheckout.prices.base,
-            price: techDrawCheckout.prices.base,
-            price_with_gst: techDrawCheckout.prices.total,
-            currency: techDrawCheckout.prices.currency,
-          }}
-          user={readCheckoutUser()}
-          createdFor="techdraw"
-          heading="Generate your 2D drawing"
-          payButtonLabel={`Pay ${techDrawCheckout.prices.totalLabel} & generate →`}
-          successTitle="Payment successful"
-          successBody="Your drawing pipeline has started. Opening your job dashboard next."
-          onClose={handleTechDrawCheckoutClose}
-          onPay={handleTechDrawCheckoutPay}
-        />
-      ) : null}
     </>
   );
 }

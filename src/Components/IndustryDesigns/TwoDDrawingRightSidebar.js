@@ -13,6 +13,11 @@ export default function TwoDDrawingRightSidebar({
   dxfHref,
   freecadHref,
   zipHref,
+  onPdf,
+  onZip,
+  onSvg,
+  onDxf,
+  onFreecad,
   showDownloadAllPdfs = true,
   showCadModelLink = true,
   showUploadCta = true,
@@ -49,6 +54,11 @@ export default function TwoDDrawingRightSidebar({
             dxfHref={dxfHref}
             freecadHref={freecadHref}
             zipHref={zipHref}
+            onPdf={onPdf}
+            onZip={onZip}
+            onSvg={onSvg}
+            onDxf={onDxf}
+            onFreecad={onFreecad}
             showPdfButton={showDownloadAllPdfs}
             onRequestDownload={onRequestDownload}
             busy={busy}

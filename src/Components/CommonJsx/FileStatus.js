@@ -39,6 +39,13 @@ function FileStatus({status}) {
           textColor: 'text-white',
           label: 'Rejected'
         }
+      case 'awaiting_datums':
+        return {
+          icon: <FaClock />,
+          bgColor: 'bg-violet-600',
+          textColor: 'text-white',
+          label: 'Choose datums'
+        }
       case 'pending':
         return {
           icon: <FaClock />,

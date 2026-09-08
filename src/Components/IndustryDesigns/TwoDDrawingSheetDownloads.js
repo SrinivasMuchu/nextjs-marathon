@@ -12,6 +12,7 @@ const FORMATS = [
 
 export default function TwoDDrawingSheetDownloads({
   rows,
+  onDownload,
   onRequestDownload: onRequestDownloadProp,
   designId,
   designTitle,
@@ -30,6 +31,13 @@ export default function TwoDDrawingSheetDownloads({
 
   const safeRows = Array.isArray(rows) ? rows : [];
   if (!safeRows.length) return null;
+
+  const open = (href) => {
+    if (!href) return;
+    if (onDownload) onDownload(href);
+    else window.open(href, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <section className={styles.section} aria-labelledby="sheet-downloads-heading">
       <p className={styles.eyebrow}>Downloads</p>
@@ -67,14 +75,14 @@ export default function TwoDDrawingSheetDownloads({
                   );
                 }
                 return (
-                  <a
+                  <button
                     key={key}
-                    href={href}
+                    type="button"
                     className={`${styles.badge} ${className}`}
-                    download
+                    onClick={() => open(href)}
                   >
                     {label}
-                  </a>
+                  </button>
                 );
               })}
             </div>

@@ -70,6 +70,10 @@ export async function pollAdminTechDrawJobUntilDone(jobId, opts = {}) {
         return job;
       }
 
+      if (job?.status === "AWAITING_DATUMS") {
+        return job;
+      }
+
       if (job?.status === "FAILED") {
         throw new TechDrawPollError(job.error_message || "Pipeline failed on the server.", {
           jobId,

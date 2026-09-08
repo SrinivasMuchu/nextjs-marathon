@@ -6,6 +6,7 @@ import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 import FloatingButton from "@/Components/CommonJsx/FloatingButton";
 import HomeTopNav from "@/Components/HomePages/HomepageTopNav/HomeTopNav";
+import AnnouncementBanner from "@/Components/HomePages/AnnouncementBanner/AnnouncementBanner";
 import { CadFormProvider } from "@/Components/CadServicePages/CadFormContext";
 import { ASSET_PREFIX_URL, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 
@@ -261,7 +262,10 @@ export default function RootLayout({ children }) {
         <CreateLocalStorage />
         <ContextWrapper>
           <CadFormProvider>
-            <HomeTopNav />
+            <div className="siteStickyHeader">
+              <AnnouncementBanner />
+              <HomeTopNav />
+            </div>
             <main role="main">{children}</main>
             <FloatingButton />
           </CadFormProvider>

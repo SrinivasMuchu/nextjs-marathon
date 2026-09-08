@@ -30,6 +30,9 @@ export async function POST(request) {
   const title = String(formData.get("title") || "").trim();
   const description = String(formData.get("description") || "").trim();
   const originalFailedJobId = String(formData.get("original_failed_job_id") || "").trim();
+  const gdtStandard = String(formData.get("gdt_standard") || "").trim();
+  const datumPreferences = String(formData.get("datum_preferences") || "").trim();
+  const chooseDatums = String(formData.get("choose_datums") || "").trim() === "true";
 
   if (!file || typeof file === "string") {
     return NextResponse.json(
@@ -93,6 +96,9 @@ export async function POST(request) {
         s3_bucket,
         file_name,
         ...(originalFailedJobId ? { original_failed_job_id: originalFailedJobId } : {}),
+        ...(gdtStandard ? { gdt_standard: gdtStandard } : {}),
+        ...(datumPreferences ? { datum_preferences: datumPreferences } : {}),
+        ...(chooseDatums ? { choose_datums: true } : {}),
       }),
       cache: "no-store",
     });

@@ -35,6 +35,7 @@ function normalizeFileStatus(status) {
   if (s === "COMPLETED") return "completed";
   if (s === "FAILED") return "failed";
   if (["PROCESSING", "UPLOADING", "RUNNING", "QUEUED"].includes(s)) return "processing";
+  if (s === "AWAITING_DATUMS") return "awaiting_datums";
   if (s === "PENDING") return "pending";
   return "pending";
 }

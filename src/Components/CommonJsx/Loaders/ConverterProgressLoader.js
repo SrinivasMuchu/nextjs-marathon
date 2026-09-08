@@ -2,7 +2,11 @@
 
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { toast } from "react-toastify";
 import { contextState } from "../ContextProvider";
+import ConverterCreditPlansPopup from "@/Components/History/ConverterCreditPlansPopup";
+import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
+import { ensureConverterPackPurchase } from "@/Components/History/converterPayment";
 import {
   buildConverterPricingDisplay,
   CONVERTER_FREE_SIZE_LIMIT_BYTES,
@@ -123,11 +127,12 @@ function ConverterProgressLoader({
   isSampleFile,
   onCancel,
 }) {
-  const { user } = useContext(contextState);
+  const { user, setUser, setUpdatedDetails } = useContext(contextState);
   const [priceLabel, setPriceLabel] = useState("");
   const [packs, setPacks] = useState([]);
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [showPackBanner, setShowPackBanner] = useState(false);
+  const [pendingPack, setPendingPack] = useState(null);
   const inputFormat = fileFormat(fileName);
   const outputLabel = String(outputFormat || "output").toUpperCase();
   const sizeLabel = formatFileSize(fileSize);
@@ -214,98 +219,8 @@ function ConverterProgressLoader({
   const showCreditsUpsell = !alreadyCovered;
   const featuredPack = getFeaturedConverterPack(packs);
 
-
-  if (showCreditsUpsell && showPackBanner && packs.length) {
-    return (
-      <main className={styles.page}>
-        <section
-          className={styles.packBanner}
-          aria-labelledby="converter-pack-banner-heading"
-        >
-          <div className={styles.packBannerInner}>
-            <div className={styles.packBannerTop}>
-              <button
-                type="button"
-                className={styles.packBannerBack}
-                onClick={() => setShowPackBanner(false)}
-              >
-                ← Back to conversion
-              </button>
-              <div className={styles.packBannerHeader}>
-                <p className={styles.packBannerEyebrow}>Pricing</p>
-                <h2 id="converter-pack-banner-heading" className={styles.packBannerHeading}>
-                  Pay as you go, cheaper by the pack
-                </h2>
-                <p className={styles.packBannerDescription}>
-                  Files under 5 MB are always free. For everything else, buy credits —{" "}
-                  <strong>
-                    1 credit downloads any file, any size, and credits never expire.
-                  </strong>
-                </p>
-              </div>
-            </div>
-
-            <div className={styles.packBannerGrid}>
-              {packs.map((pack) => (
-                <article
-                  key={pack.id}
-                  className={`${styles.packCard} ${
-                    pack.featured ? styles.packCardFeatured : ""
-                  }`}
-                >
-                  {pack.featured ? (
-                    <span className={styles.packPopularBadge}>★ Most popular</span>
-                  ) : null}
-                  <p className={styles.packTier}>{pack.name}</p>
-                  <p className={styles.packCredits}>
-                    <span className={styles.packCreditCount}>{pack.credits}</span>
-                    <span className={styles.packCreditLabel}>credits</span>
-                  </p>
-                  <div className={styles.packPriceRow}>
-                    <p className={styles.packPrice}>{pack.price_label}</p>
-                    <p className={styles.packPerCredit}>{pack.per_credit_label}</p>
-                  </div>
-                  <span
-                    className={`${styles.packSaveBadge} ${
-                      pack.save_best ? styles.packSaveBadgeBest : ""
-                    }`}
-                  >
-                    {pack.save_label}
-                  </span>
-                  <p className={styles.packCopy}>{pack.description}</p>
-                  <button
-                    type="button"
-                    className={`${styles.packCta} ${
-                      pack.variant === "solid" ? styles.packCtaSolid : ""
-                    }`}
-                    onClick={() => setShowPackBanner(false)}
-                  >
-                    {pack.cta}
-                  </button>
-                </article>
-              ))}
-            </div>
-
-            {singlePriceLabel ? (
-              <p className={styles.packBannerFooter}>
-                Just need one?{" "}
-                <button
-                  type="button"
-                  className={styles.packBannerFooterLink}
-                  onClick={() => setShowPackBanner(false)}
-                >
-                  Pay {singlePriceLabel} for a single download
-                </button>
-                {" · No subscription · Credits never expire · Invoice on every purchase"}
-              </p>
-            ) : null}
-          </div>
-        </section>
-      </main>
-    );
-  }
-
   return (
+    <>
     <main className={styles.page}>
       <div className={`${styles.layout} ${showCreditsUpsell ? styles.layoutSplit : ""}`}>
         <section className={styles.card} aria-live="polite">
@@ -442,6 +357,53 @@ function ConverterProgressLoader({
         ) : null}
       </div>
     </main>
+
+    {showCreditsUpsell && showPackBanner && packs.length ? (
+      <ConverterCreditPlansPopup
+        packs={packs}
+        singlePriceLabel={singlePriceLabel}
+        fileType={inputFormat}
+        title="Pay as you go, cheaper by the pack"
+        subtitle="Files under 5 MB are always free. For everything else, buy credits — 1 credit downloads any file, any size, and credits never expire."
+        onClose={() => setShowPackBanner(false)}
+        onSelectSingle={() => setShowPackBanner(false)}
+        onSelectPack={(pack) => {
+          if (!user?._id && typeof window !== "undefined" && !localStorage.getItem("is_verified")) {
+            toast.info("Log in to buy credits.");
+            return;
+          }
+          setShowPackBanner(false);
+          setPendingPack(pack);
+        }}
+      />
+    ) : null}
+
+    {pendingPack ? (
+      <ConverterDownloadFlow
+        mode="pack"
+        pack={pendingPack}
+        user={user}
+        onClose={() => setPendingPack(null)}
+        onPay={async (billingId) => {
+          const result = await ensureConverterPackPurchase({
+            packId: pendingPack.id,
+            packName: pendingPack.name,
+            userEmail: user?.email,
+            billingId,
+          });
+          if (result?.credits != null) {
+            setUser?.((prev) => ({
+              ...prev,
+              converter_credits: Number(result.credits) || 0,
+            }));
+            setUpdatedDetails?.((value) => !value);
+          }
+          setPendingPack(null);
+          return result;
+        }}
+      />
+    ) : null}
+    </>
   );
 }
 

@@ -8,8 +8,9 @@ import { useRouter } from "next/navigation";
 import DesignStats from "../CommonJsx/DesignStats";
 import styles from "./IndustryDesign.module.css";
 import { BASE_URL } from "@/config";
-
 import DownloadClientButton from "../CommonJsx/DownloadClientButton";
+import DesignDownloadFormatBox from "./DesignDownloadFormatBox";
+import { useDesignConversion } from "./DesignConversionContext";
 
 function getOrCreateUuid() {
   let uuid = localStorage.getItem("uuid");
@@ -23,13 +24,15 @@ function getOrCreateUuid() {
 export default function IndustryDesignHeader({ design, designData, type }) {
   const [isRequestingViewer, setIsRequestingViewer] = useState(false);
   const router = useRouter();
+  const conversion = useDesignConversion();
+  const isLibraryDetail = type === "library";
   const isTwoDEnabled = Boolean(designData?.is_two_dims);
   const libraryRoute = String(designData?.route || design || "").trim();
   const twoDPageHref =
     designData?._id && libraryRoute
       ? `/library/2d-technical-drawings/${encodeURIComponent(libraryRoute)}`
       : null;
-  const showTwoDButton = type === "library" && isTwoDEnabled && Boolean(twoDPageHref);
+  const showTwoDButton = isLibraryDetail && isTwoDEnabled && Boolean(twoDPageHref);
   const showThreeDButton = designData.file_type !== "dxf" && designData.file_type !== "dwg";
 
   const handleRequestGlbViewer = async () => {
@@ -76,17 +79,29 @@ export default function IndustryDesignHeader({ design, designData, type }) {
     type === "library" ? "Download CAD model" : undefined;
 
   return (
-    
-     
-     
-      <div className={styles["industry-design-header-viewer"]}>
-         {/* <EditableFields initialTitle={designData.response.page_title} initialDesc={designData.page_description} fileId={designData._id} orgId={designData._id}/> */}
-        {/* <span>Experience in 3-D</span> */}
-        <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
-          {designData.price? <p style={{fontSize:'24px',fontWeight:'500'}}>${designData.price}<span style={{fontSize:'16px',fontWeight:'400',color:'#001325'}}>/download</span></p>:<p style={{fontSize:'24px',fontWeight:'500'}}>Free</p>}
-        </div>
-      
-        <div className={styles.actionStack}>
+    <div className={styles["industry-design-header-viewer"]}>
+      {isLibraryDetail ? (
+        <DesignDownloadFormatBox
+          designData={designData}
+          type={type}
+          onDownloadSuccess={conversion?.onDownloadSuccess}
+          onPreferredFormatChange={conversion?.onPreferredFormatChange}
+        />
+      ) : (
+        <>
+          <div style={{ width: "100%", display: "flex", alignItems: "flex-start" }}>
+            {designData.price ? (
+              <p style={{ fontSize: "24px", fontWeight: "500" }}>
+                ${designData.price}
+                <span style={{ fontSize: "16px", fontWeight: "400", color: "#001325" }}>
+                  /download
+                </span>
+              </p>
+            ) : (
+              <p style={{ fontSize: "24px", fontWeight: "500" }}>Free</p>
+            )}
+          </div>
+
           <div className={styles.primaryAction}>
             <DownloadClientButton
               custumDownload={true}
@@ -94,7 +109,6 @@ export default function IndustryDesignHeader({ design, designData, type }) {
               isDownladable={designData.is_downloadable}
               step={true}
               filetype={fileType}
-              designPrice={designData?.price}
               downloadButtonLabel={primaryDownloadLabel}
               designDetails={{
                 title: designData.page_title,
@@ -103,51 +117,56 @@ export default function IndustryDesignHeader({ design, designData, type }) {
               }}
             />
           </div>
+        </>
+      )}
 
-          <div
-            className={`${styles.secondaryActions} ${
-              !showTwoDButton ? styles.secondaryActionsSingle : ""
-            }`}
-          >
-            {showThreeDButton && (
-              <button
-                type="button"
-                className={`${styles.viewerButton} ${
-                  type === "library" ? styles.viewerButtonOutline : ""
-                }`}
-                onClick={handleRequestGlbViewer}
-                disabled={isRequestingViewer}
-              >
-                <span className={styles.viewerButtonIcon} aria-hidden>
-                  🧊
-                </span>
-                {isRequestingViewer ? "Opening" : type === "library" ? "Open in 3D CAD viewer" : "Open 3D viewer"}
-              </button>
-            )}
-            {showTwoDButton && (
-              <Link
-                href={twoDPageHref}
-                prefetch
-                className={`${styles.viewerButton} ${styles.viewerButtonOutline}`}
-              >
-                <span className={styles.viewerButtonIcon} aria-hidden>
-                  📐
-                </span>
-                2D drawings
-              </Link>
-            )}
-          </div>
+      <div className={styles.actionStack}>
+        <div
+          className={`${styles.secondaryActions} ${
+            !showTwoDButton ? styles.secondaryActionsSingle : ""
+          }`}
+        >
+          {showThreeDButton && (
+            <button
+              type="button"
+              className={`${styles.viewerButton} ${
+                type === "library" ? styles.viewerButtonOutline : ""
+              }`}
+              onClick={handleRequestGlbViewer}
+              disabled={isRequestingViewer}
+            >
+              <span className={styles.viewerButtonIcon} aria-hidden>
+                🧊
+              </span>
+              {isRequestingViewer
+                ? "Opening"
+                : type === "library"
+                  ? "Open in 3D CAD viewer"
+                  : "Open 3D viewer"}
+            </button>
+          )}
+          {showTwoDButton && (
+            <Link
+              href={twoDPageHref}
+              prefetch
+              className={`${styles.viewerButton} ${styles.viewerButtonOutline}`}
+            >
+              <span className={styles.viewerButtonIcon} aria-hidden>
+                📐
+              </span>
+              2D drawings
+            </Link>
+          )}
         </div>
-        <div style={{width:'100%',display:'flex',alignItems:'flex-start',}}>
-    <DesignStats
-            views={designData.total_design_views}
-            downloads={designData.total_design_downloads}
-            ratings={{ average: designData.average_rating, total: designData.rating_count }} />
-
-
-        </div>
-        
       </div>
-  
+
+      <div style={{ width: "100%", display: "flex", alignItems: "flex-start" }}>
+        <DesignStats
+          views={designData.total_design_views}
+          downloads={designData.total_design_downloads}
+          ratings={{ average: designData.average_rating, total: designData.rating_count }}
+        />
+      </div>
+    </div>
   );
 }

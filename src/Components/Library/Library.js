@@ -31,6 +31,7 @@ import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
 import { inferLibraryOutput, libraryOutputToApiFilters } from '@/data/libraryOutput';
 import LibraryProductCard from './LibraryProductCard';
 import LibraryHireCtaCard from './LibraryHireCtaCard';
+import LibraryConversionNudge from './LibraryConversionNudge';
 import LibraryHeroSearch from './LibraryHeroSearch';
 // import LibraryHubCards from './LibraryHubCards';
 import LibraryCategoryScroller from './LibraryCategoryScroller';
@@ -408,6 +409,9 @@ async function Library({ searchParams, pageConfig = null }) {
                   <LeftRightBanner adSlot="4799748492" />
                 </div>
               )}
+
+              {/* After first grid row: ad (index 0) + 2 cards → nudge before card at index 2 */}
+              {index === 2 && designs.length > 2 && <LibraryConversionNudge />}
 
               {index === 4 && (
                 <div

@@ -8,6 +8,9 @@ import { useTwoDLibraryDownload, TwoDLibraryPaywallModals } from "./useTwoDLibra
 export default function TwoDDrawingDownloadButtons({
   onPdf,
   onZip,
+  onSvg,
+  onDxf,
+  onFreecad,
   onRequestDownload: onRequestDownloadProp,
   designId,
   designTitle,
@@ -62,15 +65,22 @@ export default function TwoDDrawingDownloadButtons({
   };
   const handleSvg = () => {
     if (gatedClick("techdraw_download_svg_click", svgHref, "techdraw-svg.zip")) return;
-    if (svgHref) window.open(svgHref, "_blank", "noopener,noreferrer");
+    if (onSvg) onSvg();
+    else if (svgHref) window.open(svgHref, "_blank", "noopener,noreferrer");
   };
   const handleDxf = () => {
     if (gatedClick("techdraw_download_dxf_click", dxfHref, "techdraw-dxf.zip")) return;
-    if (dxfHref) window.open(dxfHref, "_blank", "noopener,noreferrer");
+    if (onDxf) onDxf();
+    else if (dxfHref) window.open(dxfHref, "_blank", "noopener,noreferrer");
   };
   const handleFreecad = (event) => {
     if (gatedClick("techdraw_download_freecad_click", freecadHref, "technical_drawing_simple.FCStd")) {
       event.preventDefault();
+      return;
+    }
+    if (onFreecad) {
+      event.preventDefault();
+      onFreecad();
     }
   };
 
@@ -93,7 +103,7 @@ export default function TwoDDrawingDownloadButtons({
           </button>
         ) : null}
         {freecadHref ? (
-          gated ? (
+          gated || onFreecad ? (
             <button type="button" className={styles.btnSecondary} onClick={handleFreecad} disabled={busy}>
               {freecadLabel}
             </button>

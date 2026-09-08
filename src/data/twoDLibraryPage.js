@@ -1,4 +1,5 @@
 import { slugify } from '@/common.helper';
+import { TECHDRAW_CHECKOUT_TOTAL_USD } from '@/api/cadDrawingPipelineApi';
 
 export const TWO_D_LIBRARY_BASE = '/library/2d-technical-drawings';
 
@@ -97,12 +98,24 @@ export const TWO_D_PROJECTION_FILTERS = [
   { value: '3rd-angle', label: '3rd Angle' },
 ];
 
-/** Price label for 2D library cards — uses overlay `2d_price` (GST-inclusive). */
-export function getTwoDPriceLabel(design) {
+/** Whether this 2D library design is free to download. */
+export function isTwoDLibraryDesignFree(design) {
   const price = Number(design?.['2d_price']);
+  return Number.isFinite(price) && price === 0 && design?.two_d_library_free === true;
+}
+
+/**
+ * Price label for 2D library cards — uses overlay `2d_price` (GST-inclusive).
+ * Pass `fallbackLabel` (the live admin price) for designs with no overlay price.
+ */
+export function getTwoDPriceLabel(design, fallbackLabel) {
+  if (isTwoDLibraryDesignFree(design)) return 'Free';
+  const raw = design?.['2d_price'];
+  const price = Number(raw);
   if (Number.isFinite(price) && price > 0) return `$${price.toFixed(2)}`;
-  if (design?.['2d_price'] === 0 || design?.['2d_price'] === '0') return 'Free';
-  return 'Free';
+  if (raw === 0 || raw === '0') return 'Free';
+  if (fallbackLabel != null && fallbackLabel !== '') return fallbackLabel;
+  return `$${TECHDRAW_CHECKOUT_TOTAL_USD.toFixed(2)}`;
 }
 
 /** Design routes contain a MongoDB ObjectId (24 hex chars); category slugs do not. */

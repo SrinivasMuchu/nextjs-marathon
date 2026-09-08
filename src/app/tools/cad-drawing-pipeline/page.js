@@ -12,6 +12,7 @@ import CadDrawingPipelineInfoSections from "@/Components/CadDrawingPipeline/CadD
 import CadDrawingPipelineInternalLinks from "@/Components/CadDrawingPipeline/CadDrawingPipelineInternalLinks";
 import ToolPageJsonLd from "@/Components/JsonLdSchemas/ToolPageJsonLd";
 import CadDrawingPipelineHeroSection from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroSection";
+import SoftwareApplicationJsonLd from "@/Components/JsonLdSchemas/SoftwareApplicationJsonLd";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
 import TechDrawPageViewTracker from "@/Components/CadDrawingPipeline/TechDrawPageViewTracker";
@@ -63,7 +64,7 @@ export default async function CadDrawingPipelinePage() {
           initialPrices={prices}
         >
           <Suspense fallback={<PipelineSectionFallback />}>
-            <CadDrawingPipelineView />
+            <CadDrawingPipelineView initialPrices={prices} />
           </Suspense>
         </CadDrawingPipelineHeroSection>
 
