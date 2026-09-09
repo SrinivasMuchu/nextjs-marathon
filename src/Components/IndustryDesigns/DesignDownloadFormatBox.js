@@ -80,6 +80,8 @@ export default function DesignDownloadFormatBox({
   }, [options, selectedId]);
 
   const selected = options.find((option) => option.id === selectedId) || options[0];
+  // Paid designs only offer the native file, so the format picker has nothing to choose from.
+  const showFormatChoices = options.length > 1;
 
   useEffect(() => {
     if (!selected || selected.kind === 'native') {
@@ -174,40 +176,41 @@ export default function DesignDownloadFormatBox({
         Download this model
       </p>
       <p className={styles.lead}>
-        Pick the format your software opens.
-        {nativeIsFree
-          ? ' The native file is free.'
-          : ` Native download is ${nativePriceLabel}.`}
+        {showFormatChoices
+          ? 'Pick the format your software opens. The native file is free.'
+          : `Download the native ${selected?.label || fileType.toUpperCase()} file — ${nativePriceLabel}.`}
       </p>
 
-      <div className={styles.list} role="radiogroup" aria-label="Download format">
-        {options.map((option) => {
-          const checked = option.id === selectedId;
-          return (
-            <label
-              key={option.id}
-              className={`${styles.row} ${checked ? styles.rowSelected : ''}`}
-            >
-              <input
-                type="radio"
-                name="design-download-format"
-                value={option.id}
-                checked={checked}
-                onChange={() => setSelectedId(option.id)}
-                className={styles.radioInput}
-              />
-              <span className={styles.radio} aria-hidden />
-              <span className={styles.rowMain}>
-                <span className={styles.rowTitle}>
-                  <span className={styles.rowLabel}>{option.label}</span>
-                  {priceBadge(option)}
+      {showFormatChoices ? (
+        <div className={styles.list} role="radiogroup" aria-label="Download format">
+          {options.map((option) => {
+            const checked = option.id === selectedId;
+            return (
+              <label
+                key={option.id}
+                className={`${styles.row} ${checked ? styles.rowSelected : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="design-download-format"
+                  value={option.id}
+                  checked={checked}
+                  onChange={() => setSelectedId(option.id)}
+                  className={styles.radioInput}
+                />
+                <span className={styles.radio} aria-hidden />
+                <span className={styles.rowMain}>
+                  <span className={styles.rowTitle}>
+                    <span className={styles.rowLabel}>{option.label}</span>
+                    {priceBadge(option)}
+                  </span>
+                  <span className={styles.rowDetail}>{detailText(option)}</span>
                 </span>
-                <span className={styles.rowDetail}>{detailText(option)}</span>
-              </span>
-            </label>
-          );
-        })}
-      </div>
+              </label>
+            );
+          })}
+        </div>
+      ) : null}
 
       <div className={styles.ctaWrap}>
         {selected?.kind === 'native' ? (
@@ -240,7 +243,9 @@ export default function DesignDownloadFormatBox({
       </div>
 
       <p className={styles.footerNote}>
-        {softwareLine} Need a mesh or a drawing? Pick a format above.
+        {showFormatChoices
+          ? `${softwareLine} Need a mesh or a drawing? Pick a format above.`
+          : softwareLine}
       </p>
 
       {showLogin ? <UserLoginPupUp onClose={() => setShowLogin(false)} /> : null}

@@ -19,7 +19,7 @@ import {
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
 } from '@/lib/converterPricing';
-import { getPreferredDesignConvertTarget } from '@/data/libraryPage';
+import { getPreferredDesignConvertTarget, isLibraryDesignFree } from '@/data/libraryPage';
 import { startLibraryFormatConversion } from '@/api/librarySourceApi';
 import { contextState } from '@/Components/CommonJsx/ContextProvider';
 
@@ -112,6 +112,7 @@ export function DesignPostDownloadBannerHost() {
   }, [ctx?.showPricingPopup]);
 
   if (!ctx?.showPricingPopup || !ctx.designData) return null;
+  if (!isLibraryDesignFree(ctx.designData)) return null;
 
   const preferred = getPreferredDesignConvertTarget(
     ctx.designData.file_type,
@@ -193,6 +194,7 @@ export function DesignPostDownloadBannerHost() {
 export function DesignConversionStickyBarHost() {
   const ctx = useDesignConversion();
   if (!ctx?.designData) return null;
+  if (!isLibraryDesignFree(ctx.designData)) return null;
   return (
     <DesignConversionStickyBar
       designData={ctx.designData}

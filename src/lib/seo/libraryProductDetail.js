@@ -162,10 +162,20 @@ const LIBRARY_DETAIL_TOOL_LINKS = {
 /** Section 4.6 — product detail internal links with spec anchor text. */
 export function getLibraryProductDetailToolLinks(
   fileType,
-  { hasTwoDDrawings = false, twoDDrawingHref = "" } = {}
+  { hasTwoDDrawings = false, twoDDrawingHref = "", showConversionLinks = true } = {}
 ) {
   const key = String(fileType || "step").toLowerCase().replace(/^\./, "");
-  const links = [...(LIBRARY_DETAIL_TOOL_LINKS[key] || STEP_DETAIL_LINKS)];
+  let links = [...(LIBRARY_DETAIL_TOOL_LINKS[key] || STEP_DETAIL_LINKS)];
+
+  // Paid designs are download-only, so only the viewer links stay.
+  if (!showConversionLinks) {
+    return links.filter(
+      (link) =>
+        !link.href.includes("/tools/convert-") &&
+        !link.href.includes("/tools/cad-drawing-pipeline") &&
+        !link.href.includes("/tools/3d-cad-file-converter")
+    );
+  }
 
   if (hasTwoDDrawings && twoDDrawingHref) {
     links.push({

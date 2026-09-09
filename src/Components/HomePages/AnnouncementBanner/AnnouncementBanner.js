@@ -38,18 +38,29 @@ function AnnouncementBanner() {
       <div className={styles.inner}>
         <span>
           <BadgeCheck size={14} aria-hidden="true" />
-          {converterLabel
-            ? `Standard conversions from ${converterLabel}`
-            : "Standard conversions from live pricing"}
+          <span className={styles.wide}>
+            {converterLabel
+              ? `Standard conversions from ${converterLabel}`
+              : "Standard conversions from live pricing"}
+          </span>
+          <span className={styles.compact}>
+            {converterLabel ? `Convert from ${converterLabel}` : "Live pricing"}
+          </span>
         </span>
         <span className={styles.divider} aria-hidden="true" />
         <span>
-          {drawingLabel
-            ? `STEP or STP to 2D drawings for ${drawingLabel}`
-            : "STEP or STP to 2D drawings"}
+          <span className={styles.wide}>
+            {drawingLabel
+              ? `STEP or STP to 2D drawings for ${drawingLabel}`
+              : "STEP or STP to 2D drawings"}
+          </span>
+          <span className={styles.compact}>
+            {drawingLabel ? `2D drawings ${drawingLabel}` : "2D drawings"}
+          </span>
         </span>
         <Link href="/#pricing" className={styles.link}>
-          See conversion pricing
+          <span className={styles.wide}>See conversion pricing</span>
+          <span className={styles.compact}>Pricing</span>
           <ArrowRight size={14} aria-hidden="true" />
         </Link>
       </div>
