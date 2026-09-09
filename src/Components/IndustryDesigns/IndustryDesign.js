@@ -27,6 +27,7 @@ import TwoDDrawingCtaBanner from './TwoDDrawingCtaBanner';
 import ProductDetailToolLinks from '../CommonJsx/CrossTemplateLinks/ProductDetailToolLinks';
 import ProductDetailGuidance from './ProductDetailGuidance';
 import { cleanLibraryProductName } from '@/lib/seo/libraryProductDetail';
+import { isLibraryDesignFree } from '@/data/libraryPage';
 import DesignConversionSocialProof from './DesignConversionSocialProof';
 import {
   DesignConversionProvider,
@@ -38,6 +39,8 @@ import {
 function IndustryDesign({ design, designData, type }) {
   const isLibraryDetail = type === 'library';
   const response = designData?.response;
+  // Paid designs are download-only: no conversion or 2D drawing upsells.
+  const showConversionUpsells = isLibraryDetail && isLibraryDesignFree(response);
   const libraryRoute = String(response?.route || design || '').trim();
   const hasTwoDDrawings = Boolean(response?.is_two_dims && libraryRoute);
   const twoDPageHref = hasTwoDDrawings
@@ -90,7 +93,7 @@ function IndustryDesign({ design, designData, type }) {
         </div>
       </div>
 
-      {isLibraryDetail ? <DesignPostDownloadBannerHost /> : null}
+      {showConversionUpsells ? <DesignPostDownloadBannerHost /> : null}
 
       <IndustryHeaderDetails designData={designData} isLibraryDetail={isLibraryDetail} />
       <div className={styles['industry-design-header-container']}>
@@ -108,7 +111,7 @@ function IndustryDesign({ design, designData, type }) {
             About this design
           </h3>
           <p>{designData.response.page_description}</p>
-          {isLibraryDetail && response ? (
+          {showConversionUpsells && response ? (
             <DesignConversionSocialProof designData={response} />
           ) : null}
         </div>
@@ -123,6 +126,7 @@ function IndustryDesign({ design, designData, type }) {
               fileType={response.file_type}
               hasTwoDDrawings={hasTwoDDrawings}
               twoDDrawingHref={twoDPageHref}
+              showConversionLinks={showConversionUpsells}
             />
           )}
 
@@ -158,7 +162,12 @@ function IndustryDesign({ design, designData, type }) {
 
       {isLibraryDetail && response && <ProductDetailGuidance design={response} />}
 
-      {isLibraryDetail ? (
+      {!isLibraryDetail ? (
+        <TwoDDrawingCtaBanner
+          title="Want 2D engineering drawings for this CAD?"
+          description="Upload any STEP, IGES, or FreeCAD file (including this design's source file). Our AI analyses the 3D geometry, picks the best views, places dimensions, and returns a complete 2D drawing set — editable FCStd plus PDF, SVG, and DXF — in under 4 minutes."
+        />
+      ) : showConversionUpsells ? (
         <TwoDDrawingCtaBanner
           title="Need 2D engineering drawings for this CAD model?"
           description="Generate multi-view 2D technical drawings from this 3D CAD file, including orthographic views, section cuts and downloadable PDF, SVG and DXF files."
@@ -167,12 +176,7 @@ function IndustryDesign({ design, designData, type }) {
           secondaryHref={hasTwoDDrawings ? twoDPageHref : ''}
           secondaryButtonLabel="View existing 2D drawings"
         />
-      ) : (
-        <TwoDDrawingCtaBanner
-          title="Want 2D engineering drawings for this CAD?"
-          description="Upload any STEP, IGES, or FreeCAD file (including this design's source file). Our AI analyses the 3D geometry, picks the best views, places dimensions, and returns a complete 2D drawing set — editable FCStd plus PDF, SVG, and DXF — in under 4 minutes."
-        />
-      )}
+      ) : null}
 
       {designData?.response?._id && <DesignComments designId={designData.response._id} />}
     </>
@@ -195,7 +199,7 @@ function IndustryDesign({ design, designData, type }) {
           <DesignHub headingLevel={3} />
           <RecentlyAddedDesigns />
           <IndustryDesignDropZone />
-          <DesignConversionStickyBarHost />
+          {showConversionUpsells ? <DesignConversionStickyBarHost /> : null}
           <Footer />
         </DesignConversionProvider>
       ) : (

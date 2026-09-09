@@ -422,6 +422,11 @@ function UserLoginPupUp({ onClose, type }) {
                     saveDetails={handleSendOTP}
                     accessKey={accessKey}
                     skipInitialSend={otpAlreadySent}
+                    onChangeEmail={() => {
+                        setOtpAlreadySent(false);
+                        setErrorMessage('');
+                        setVerifyEmail(false);
+                    }}
                 /> 
                 :
                 <div className={styles.loginPopup}>

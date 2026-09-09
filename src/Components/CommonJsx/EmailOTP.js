@@ -10,15 +10,25 @@ import { persistVerifiedSession } from '@/lib/authSession';
 
 
 function EmailOTP({ email, fullname, accessKey,
-  setIsEmailVerify, setError, setNeedsFullname, type, saveDetails, skipInitialSend }) {
+  setIsEmailVerify, setError, setNeedsFullname, type, saveDetails, skipInitialSend,
+  onChangeEmail }) {
 
   const inputs = useMemo(() => Array(4).fill().map(() => React.createRef()), []);
   const [otp, setOtp] = useState(['', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const router = useRouter();
-  // Safe router usage - handle case where router might not be available
-  const handleNavigateToProfile = () => {
+  // Back to whichever step collected the email; only flows that have no email
+  // step of their own (profile/dashboard) fall through to the profile page.
+  const handleChangeEmail = () => {
+    if (onChangeEmail) {
+      onChangeEmail();
+      return;
+    }
+    if (setIsEmailVerify) {
+      setIsEmailVerify(false);
+      return;
+    }
     router.push('/dashboard');
   }
 
@@ -138,47 +148,70 @@ function EmailOTP({ email, fullname, accessKey,
         borderRadius: 16,
         background: '#fff'
       }}>
-        {/* Optional SVG Icon */}
-        <div style={{ marginBottom: 24 }}>
-          {/* ... Insert SVG if needed ... */}
+        {/* Title and Info */}
+        <h3 style={{ fontWeight: 600, fontSize: 22, marginBottom: 8 }}>Verification Code</h3>
+        <p style={{ color: '#6B7280', fontSize: 14, marginBottom: 16 }}>
+          Please enter the 4-digit code sent to your email address to verify your account.
+        </p>
+
+        <div style={{ marginBottom: 24, fontSize: 14 }}>
           Verification code sent to your email <strong>{email}</strong>
-          <br />Want to change your email?
-          <span style={{ color: '#610bee', cursor: 'pointer' }}
-            onClick={handleNavigateToProfile}>
+          <br />Want to change your email?{' '}
+          <button
+            type="button"
+            onClick={handleChangeEmail}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              font: 'inherit',
+              fontWeight: 600,
+              color: '#610bee',
+              textDecoration: 'underline',
+              cursor: 'pointer'
+            }}
+          >
             Click here
-          </span>
+          </button>
         </div>
 
         {/* OTP Input Fields */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 24 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 10,
+            marginBottom: 24,
+          }}
+        >
           {inputs.map((ref, idx) => (
             <input
               key={idx}
               ref={ref}
-              type="text"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="one-time-code"
               maxLength={1}
               value={otp[idx]}
               onChange={e => handleChange(e, idx)}
               onKeyDown={e => handleKeyDown(e, idx)}
               disabled={loading}
               style={{
-                width: 40,
+                flex: '0 1 48px',
+                width: 48,
+                minWidth: 0,
                 height: 48,
                 borderRadius: 8,
                 border: '1px solid #E2E8F0',
                 background: '#F5F7FA',
                 fontSize: 24,
-                textAlign: 'center'
+                textAlign: 'center',
+                boxSizing: 'border-box'
               }}
             />
           ))}
         </div>
 
-        {/* Title and Info */}
-        <h3 style={{ fontWeight: 600, fontSize: 22, marginBottom: 8 }}>Verification Code</h3>
-        <p style={{ color: '#6B7280', fontSize: 14, marginBottom: 24 }}>
-          Please enter the 4-digit code sent to your email address to verify your account.
-        </p>
         {message && (
           <div style={{ color: message.includes('success') ? '#38a169' : '#e53e3e', marginBottom: 12 }}>
             {message}

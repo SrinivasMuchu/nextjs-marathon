@@ -231,6 +231,7 @@ export {
   getDesignPageSoftwareLine,
   getConvertTargetBlurb,
   designPageSupports2dPdf,
+  isLibraryDesignFree,
   withLibrarySource,
 } from './crossTemplateLinks';
 

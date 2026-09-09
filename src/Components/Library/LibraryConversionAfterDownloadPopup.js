@@ -133,8 +133,8 @@ export default function LibraryConversionAfterDownloadPopup({
 
   const ctaLabel = (() => {
     if (!selected) return 'Continue';
-    if (selected.kind === 'single') return `Convert now — ${selected.totalLabel}`;
-    return `Get ${selected.name} — ${selected.totalLabel}`;
+    if (selected.kind === 'single') return `Convert now @ ${selected.totalLabel}`;
+    return `Get ${selected.name} @ ${selected.totalLabel}`;
   })();
 
   const preferred = getPreferredDesignConvertTarget(fileType, designId);

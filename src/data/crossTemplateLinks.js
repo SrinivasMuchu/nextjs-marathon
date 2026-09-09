@@ -251,6 +251,14 @@ export function getDesignPageSoftwareLine(fileType) {
 }
 
 /**
+ * Free designs get the conversion + 2D drawing upsells; paid designs are download-only.
+ */
+export function isLibraryDesignFree(design) {
+  const price = Number(design?.price);
+  return !(Number.isFinite(price) && price > 0);
+}
+
+/**
  * Download-box options for the 3D design detail page.
  * Native first (priced from design.price when set); convert targets + STEP-only 2D PDF.
  */
@@ -277,6 +285,12 @@ export function getDesignPageDownloadOptions({
       price: hasNativePrice ? nativePrice : 0,
       isFree: !hasNativePrice,
     },
+  ];
+
+  // Paid designs are download-only — no conversion, no 2D drawing.
+  if (hasNativePrice) return options;
+
+  options.push(
     ...convertTargets.map((target) => ({
       id: `convert-${target.label.toLowerCase()}`,
       kind: 'convert',
@@ -287,7 +301,7 @@ export function getDesignPageDownloadOptions({
       toLabel: target.label,
       fromLabel: formatDisplayLabel(from),
     })),
-  ];
+  );
 
   // 2D PDF only for STEP/STP designs
   if (include2dPdf && designPageSupports2dPdf(fileType)) {

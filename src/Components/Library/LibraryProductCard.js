@@ -56,7 +56,10 @@ export default function LibraryProductCard({ design }) {
   const productHref = `/library/${design.route}`;
   const quickLinks = getLibraryQuickLinks(design.file_type).slice(0, 2);
   const fileFormats = getCardFileFormats(design);
-  const convertTargets = getLibraryCardConvertTargets(design.file_type, design._id);
+  // Paid designs are download-only, so they get no convert chips.
+  const convertTargets = design.price
+    ? []
+    : getLibraryCardConvertTargets(design.file_type, design._id);
   const tagsLine = buildTagsLine(design);
   const priceLabel = design.price ? `$${design.price}` : 'Free';
   const isFree = !design.price;

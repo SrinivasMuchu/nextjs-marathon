@@ -7,7 +7,8 @@
     background-color: rgba(0, 19, 37, 0.72);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    z-index: 10000;
+    /* Must beat the portalled CAD Actions FAB (z-index 2147483000). */
+    z-index: 2147483100;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -78,6 +79,10 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   padding: 24px;
   width: 40%;
+  min-width: 340px;
+  box-sizing: border-box;
+  /* Long emails must wrap instead of spilling outside the card. */
+  overflow-wrap: anywhere;
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   color: #333;
 }
@@ -136,6 +141,12 @@
   .cadConvertPopup{
     width: 90%;
     /* height: 75vh; */
+  }
+
+  .cadNotifyPopup {
+    width: 100%;
+    min-width: 0;
+    padding: 20px 16px;
   }
 }
 

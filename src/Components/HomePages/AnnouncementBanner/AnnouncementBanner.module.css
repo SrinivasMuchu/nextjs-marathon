@@ -46,20 +46,38 @@
   transition: transform 0.2s ease;
 }
 
+/* Shorter wording swaps in below 640px so the strip stays on one line. */
+.compact {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .inner {
-    width: min(100% - 28px, 1200px);
-    min-height: 43px;
-    justify-content: space-between;
+    width: min(100% - 24px, 1200px);
+    min-height: 38px;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 8px;
     font-size: 11px;
+    white-space: nowrap;
   }
 
-  .inner > span:nth-of-type(2),
-  .divider {
+  .wide {
     display: none;
   }
 
+  .compact {
+    display: inline;
+  }
+
   .link {
-    margin-left: auto;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .inner {
+    gap: 6px;
+    font-size: 10px;
   }
 }

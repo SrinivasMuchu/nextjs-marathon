@@ -1062,11 +1062,15 @@ letter-spacing: -0.192px;
     width: 100%;
 }
 
-/* Desktop: equal two-column row, fixed height, single line (matches sidebar width) */
+/* Two equal columns when the container can fit both labels, one column otherwise.
+   Driven by the container, not the viewport, so the row looks the same in the
+   narrow sidebar as it does full width. */
 .secondaryActions {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* 240px = widest label ("Open in 3D CAD viewer") at 16px plus slack for
+       platform font differences, so a column never squeezes the text. */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 10px;
     align-items: stretch;
 }
@@ -1080,14 +1084,17 @@ letter-spacing: -0.192px;
     width: 100%;
     min-width: 0;
     max-width: 100%;
-    height: 48px;
+    height: auto;
     min-height: 48px;
     padding: 10px 12px;
     box-sizing: border-box;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: clamp(14px, 1.1vw, 18px);
+    /* text-overflow can't apply to a flex button, so a nowrap label would be cut
+       mid-word. Wrap instead — the label is never truncated. */
+    white-space: normal;
+    overflow-wrap: break-word;
+    line-height: 1.25;
+    text-align: center;
+    font-size: 16px;
 }
 
 .viewerButtonLink {
@@ -1224,25 +1231,6 @@ letter-spacing: -0.192px;
     box-sizing: border-box;
    }
 
-   /* Mobile / tablet: stack secondary actions; allow wrapping text */
-   .secondaryActions {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    gap: 10px;
-   }
-
-   .secondaryActions > button,
-   .secondaryActions > a {
-    height: auto;
-    min-height: 48px;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
-    line-height: 1.25;
-    justify-content: center;
-    text-align: center;
-   }
    
    .statsCont {
     flex-direction: column;

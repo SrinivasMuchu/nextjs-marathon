@@ -7,10 +7,12 @@ export default function ProductDetailToolLinks({
   fileType,
   hasTwoDDrawings = false,
   twoDDrawingHref = '',
+  showConversionLinks = true,
 }) {
   const links = getLibraryProductDetailToolLinks(fileType, {
     hasTwoDDrawings,
     twoDDrawingHref,
+    showConversionLinks,
   });
   if (!links.length) return null;
 
