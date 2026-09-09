@@ -38,6 +38,23 @@ function formatSelectedFileSize(bytes) {
     return `${(size / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+function parsePairFromConversionParams(convert, conversionParams) {
+    if (!convert || !conversionParams) return { from: '', to: '' };
+    const segment = String(conversionParams).split('/').filter(Boolean).pop() || String(conversionParams);
+    const extracted = segment.replace(/^convert-/, '').split(/-to-|_to_|_/i);
+    const from = (extracted[0] || '').replace(/\.\w+$/, '').toLowerCase();
+    const to = (extracted[1] || '').replace(/\.\w+$/, '').toLowerCase();
+    return { from, to };
+}
+
+function getSamplePrompt(from, isConverterHero, conversionParams) {
+    if (!isConverterHero) return 'Don’t have a file? Try one of these samples:';
+    if (String(conversionParams || '').includes('stl-to-step')) {
+        return 'No STL file available? Try a sample mesh to see the conversion workflow.';
+    }
+    return "Don't have a file? Try a sample:";
+}
+
 function CadFileConversionWrapper({ children, convert, conversionParams, designVariant, heroFormatsLine, preferredOutput }) {
     const fileInputRef = useRef(null);
     const [s3Url, setS3Url] = useState('');
@@ -53,7 +70,8 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     const [disableSelect, setDisableSelect] = useState(false)
     const [fileConvert, setFileConvert] = useState('');
     const [isApiSlow, setIsApiSlow] = useState(false);
-    const [selectedFileFormate, setSelectedFileFormate] = useState('');
+    const initialPair = parsePairFromConversionParams(convert, conversionParams);
+    const [selectedFileFormate, setSelectedFileFormate] = useState(initialPair.to || '');
     const { setFile, allowedFormats, setAllowedFormats,user } = useContext(contextState);
     const maxFileSizeMB = 300; // Max file size in MB
     const [uploadProgressPercent, setUploadProgressPercent] = useState(null);
@@ -61,11 +79,11 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     const [conversionSteps, setConversionSteps] = useState(null);
     const partLoadedByIndexRef = useRef([]);
     const folderIdRef = useRef('');
-    const [toFormate, setToFormate] = useState('');
+    const [toFormate, setToFormate] = useState(initialPair.to ? [initialPair.to] : '');
     const [verifyEmail, setVerifyEmail] = useState('');
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
   const router = useRouter();
-    const [fromFormate, setFromFormate] = useState('')
+    const [fromFormate, setFromFormate] = useState(initialPair.from)
     const librarySourceLoadedRef = useRef('');
 
     // Clarity: tag sessions that land on the converter
@@ -712,7 +730,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                     type="file"
                     ref={fileInputRef}
                     style={{ display: "none" }}
-                    accept={allowedFormats.join(", ")}
+                    accept={(allowedFormats?.length ? allowedFormats : (fromFormate ? [`.${fromFormate}`] : [])).join(", ")}
                     onChange={handleFileChange}
                 />
                 {uploading && designVariant !== 'converterHero' ?
@@ -826,7 +844,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                 return shouldShow && (
                     <div className={isConverterHero ? heroStyles.samplesDark : styles["cad-dropzone-samples"]}>
                         <span className={isConverterHero ? heroStyles.samplesDarkLabel : undefined}>
-                            {isConverterHero ? "Don't have a file? Try a sample:" : "Don’t have a file? Try one of these samples:"}
+                            {getSamplePrompt(fromFormate, isConverterHero, conversionParams)}
                         </span>
                         <div className={isConverterHero ? heroStyles.samplesDarkGrid : styles["cad-dropzone-sample-btns"]}>
                             {filteredFiles.map((file) => (

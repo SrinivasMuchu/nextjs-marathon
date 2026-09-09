@@ -92,37 +92,47 @@ function getChecks(to, toUpper) {
   ]
 }
 
-function ConvertPairAftercare({ conversionParams }) {
-  const { from, to, fromUpper, toUpper } = getConverterPairContent(conversionParams)
-  const checks = getChecks(to, toUpper)
-  const relatedTools = buildRelatedTools(from, to)
+const PROBLEM_ICONS = [Maximize2, ImageOff, AlertTriangle, Waves, Box, Eye]
 
-  const problems = [
+function ConvertPairAftercare({ conversionParams }) {
+  const { from, to, fromUpper, toUpper, uniquePage } = getConverterPairContent(conversionParams)
+  const checks = uniquePage?.checks || getChecks(to, toUpper)
+  const relatedTools = uniquePage?.relatedTools || buildRelatedTools(from, to)
+
+  const defaultProblems = [
     {
-      icon: Maximize2,
       title: `The ${toUpper} file has the wrong size`,
       description: `The source and destination tools may interpret units differently. Open the ${toUpper} file and select the correct unit or scale.`,
       fix: 'Verify units and dimensions',
     },
     {
-      icon: ImageOff,
       title: 'Textures or materials disappeared',
       description: `This can be expected when ${toUpper} does not support the texture, UV or material information stored by ${fromUpper}.`,
       fix: `Keep the original ${fromUpper} visual data`,
     },
     {
-      icon: AlertTriangle,
       title: 'The model has missing faces',
       description: `The ${fromUpper} source may contain open edges, invalid polygons, overlapping geometry or inverted normals that remain visible after conversion.`,
       fix: 'Inspect and repair the source geometry',
     },
     {
-      icon: Waves,
       title: 'The conversion fails on a large file',
       description: 'High polygon counts and complex geometry need more processing. Confirm the file is below 300 MB and opens correctly in a viewer.',
       fix: 'Simplify unnecessary geometry detail',
     },
   ]
+  const problems = (uniquePage?.problems || defaultProblems).map((item, index) => ({
+    ...item,
+    icon: PROBLEM_ICONS[index] || AlertTriangle,
+  }))
+  const privacyItems = uniquePage?.privacyItems?.length
+    ? uniquePage.privacyItems.map((item, index) => ({ ...item, icon: PRIVACY_ITEMS[index]?.icon || LockKeyhole }))
+    : PRIVACY_ITEMS
+  const popularItems = uniquePage?.popular || featuredConversions.slice(0, 9).map((item) => ({
+    label: item.label,
+    path: item.path,
+    oneLiner: item.oneLiner,
+  }))
 
   return (
     <>
@@ -130,12 +140,14 @@ function ConvertPairAftercare({ conversionParams }) {
         <div className={styles.checkInner}>
           <header className={styles.checkCopy}>
             <p className={styles.eyebrow}>Before continuing</p>
-            <h2 id="output-check-heading">Check the converted<br />{toUpper} before the next step</h2>
-            <p>Changing the file format does not automatically make a model production-ready. Review these checks in the application used for your next workflow.</p>
+            <h2 id="output-check-heading">{uniquePage?.checksHeading || <>Check the converted<br />{toUpper} before the next step</>}</h2>
+            <p>{uniquePage?.checksIntro || 'Changing the file format does not automatically make a model production-ready. Review these checks in the application used for your next workflow.'}</p>
+            {uniquePage ? null : (
             <div className={styles.important}>
               <Shield size={16} />
               <span><strong>Important:</strong> File formats may not include a standard unit definition. Always verify dimensions after conversion.</span>
             </div>
+            )}
           </header>
           <ol className={styles.checkList}>
             {checks.map(([title, description], index) => (
@@ -152,17 +164,18 @@ function ConvertPairAftercare({ conversionParams }) {
         <div className={styles.inner}>
           <header className={styles.sectionHeader}>
             <p className={styles.eyebrow}>Common problems</p>
-            <h2 id="troubleshooting-heading">{fromUpper}-to-{toUpper} conversion troubleshooting</h2>
-            <p>Most conversion issues come from differences between file formats or problems already present in the source geometry.</p>
+            <h2 id="troubleshooting-heading">{uniquePage?.troubleHeading || `${fromUpper}-to-${toUpper} conversion troubleshooting`}</h2>
+            <p>{uniquePage?.troubleIntro || 'Most conversion issues come from differences between file formats or problems already present in the source geometry.'}</p>
           </header>
           <div className={styles.problemGrid}>
-            {problems.map(({ icon: Icon, title, description, fix }) => (
+            {problems.map(({ icon: Icon, title, description, fix, href }) => (
               <article key={title}>
                 <span className={styles.problemIcon}><Icon size={17} /></span>
                 <div>
                   <h3>{title}</h3>
                   <p>{description}</p>
                   <strong>Fix: {fix}</strong>
+                  {href ? <p><Link href={href}>Hire a CAD designer</Link></p> : null}
                 </div>
               </article>
             ))}
@@ -174,11 +187,11 @@ function ConvertPairAftercare({ conversionParams }) {
         <div className={styles.privacyInner}>
           <header>
             <p className={styles.privacyEyebrow}>Secure processing</p>
-            <h2 id="pair-privacy-heading">Your 3D files remain yours</h2>
-            <p>Product models can contain confidential engineering information. Privacy and file handling stay explicit beside the tool.</p>
+            <h2 id="pair-privacy-heading">{uniquePage?.privacyHeading || 'Your 3D files remain yours'}</h2>
+            <p>{uniquePage?.privacyIntro || 'Product models can contain confidential engineering information. Privacy and file handling stay explicit beside the tool.'}</p>
           </header>
           <div className={styles.privacyGrid}>
-            {PRIVACY_ITEMS.map(({ icon: Icon, title, description }) => (
+            {privacyItems.map(({ icon: Icon, title, description }) => (
               <article key={title}>
                 <Icon size={16} />
                 <h3>{title}</h3>
@@ -189,19 +202,19 @@ function ConvertPairAftercare({ conversionParams }) {
         </div>
       </section>
 
-      <section className={styles.relatedSection} aria-labelledby="related-converters-heading">
+      <section className={styles.relatedSection} aria-labelledby="related-converters-heading" data-nosnippet={uniquePage ? true : undefined}>
         <div className={styles.inner}>
           <header className={styles.sectionHeader}>
-            <p className={styles.eyebrow}>Continue your workflow</p>
-            <h2 id="related-converters-heading">Related 3D conversion tools</h2>
-            <p>Recommendations are limited to pages that are contextually useful when working with {fromUpper} or {toUpper} files.</p>
+            {uniquePage ? null : <p className={styles.eyebrow}>Continue your workflow</p>}
+            <h2 id="related-converters-heading">{uniquePage?.relatedHeading || 'Related 3D conversion tools'}</h2>
+            <p>{uniquePage?.relatedIntro || `Recommendations are limited to pages that are contextually useful when working with ${fromUpper} or ${toUpper} files.`}</p>
           </header>
           <div className={styles.relatedGrid}>
             {relatedTools.map((tool) => (
               <Link key={tool.href} href={tool.href} className={styles.relatedCard}>
                 <div className={styles.pairBadges}>
                   <span>{tool.from}</span>
-                  {tool.viewer ? <Eye size={13} /> : <><ArrowRight size={12} /><span>{tool.to}</span></>}
+                  {tool.viewer || !tool.to ? <Eye size={13} /> : <><ArrowRight size={12} /><span>{tool.to}</span></>}
                 </div>
                 <span className={styles.cardArrow}><ArrowRight size={13} /></span>
                 <h3>{tool.title}</h3>
@@ -212,15 +225,15 @@ function ConvertPairAftercare({ conversionParams }) {
         </div>
       </section>
 
-      <section className={styles.popularSection} aria-labelledby="popular-converters-heading">
+      <section className={styles.popularSection} aria-labelledby="popular-converters-heading" data-nosnippet={uniquePage ? true : undefined}>
         <div className={styles.inner}>
           <header className={styles.popularHeader}>
-            <p className={styles.eyebrow}>Popular conversions</p>
-            <h2 id="popular-converters-heading">CAD converter types</h2>
-            <p>Move into another common engineering workflow using one of Marathon OS&apos;s most-used conversion paths.</p>
+            {uniquePage ? null : <p className={styles.eyebrow}>Popular conversions</p>}
+            <h2 id="popular-converters-heading">{uniquePage?.popularHeading || 'CAD converter types'}</h2>
+            <p>{uniquePage?.popularIntro || "Move into another common engineering workflow using one of Marathon OS's most-used conversion paths."}</p>
           </header>
           <div className={styles.popularGrid}>
-            {featuredConversions.slice(0, 9).map((item) => {
+            {popularItems.map((item) => {
               const parsed = parsePair(item)
               return (
                 <Link key={item.path} href={`/tools/convert-${parsed.pair}`} className={styles.popularCard}>
@@ -231,7 +244,7 @@ function ConvertPairAftercare({ conversionParams }) {
             })}
           </div>
           <Link href="/tools/3d-cad-file-converter#cad-converter-types-heading" className={styles.viewAll}>
-            View all CAD conversion tools <ArrowRight size={14} />
+            {uniquePage?.popularCta || 'View all CAD conversion tools'} <ArrowRight size={14} />
           </Link>
         </div>
       </section>

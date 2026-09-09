@@ -29,6 +29,28 @@ function normalizeFormatKey(v) {
   return FORMAT_ALIASES[noDot] || noDot;
 }
 
+const FORMAT_FIELD_LABELS = {
+  step: "STEP (.step, .stp)",
+  stp: "STEP (.step, .stp)",
+  stl: "STL (.stl)",
+  iges: "IGES (.iges, .igs)",
+  igs: "IGES (.iges, .igs)",
+  brep: "BREP (.brep)",
+  brp: "BREP (.brep)",
+  obj: "OBJ (.obj)",
+  ply: "PLY (.ply)",
+  off: "OFF (.off)",
+  "3dm": "3DM (.3dm)",
+  dwg: "DWG (.dwg)",
+  dxf: "DXF (.dxf)",
+};
+
+function formatFieldLabel(key) {
+  const normalized = normalizeFormatKey(key);
+  if (!normalized) return "";
+  return FORMAT_FIELD_LABELS[normalized] || `${normalized.toUpperCase()} (.${normalized})`;
+}
+
 function CadDropDown({
   file,
   selectedFileFormate,
@@ -232,9 +254,13 @@ function CadDropDown({
   }, [selectedKey, formatOptions]);
 
   const handleConvert = () => {
-    if (!selectValueAttr) {
+    const outputKey = selectValueAttr || pairTarget;
+    if (!outputKey) {
       console.error("No format selected for conversion");
       return;
+    }
+    if (outputKey !== selectedKey) {
+      setSelectedFileFormate(outputKey);
     }
     setDisableSelect(true);
     if (s3Url) {
@@ -252,14 +278,27 @@ function CadDropDown({
   const isConvertButtonVisible = !!selectedKey;
 
   if (designVariant === "converterHero") {
+    const dedicatedPair = Boolean(pairSource && pairTarget);
     const inputFormatLabel = fileExt
-      ? normalizeFormatKey(fileExt).toUpperCase()
-      : pairSource
-        ? pairSource.toUpperCase()
+      ? formatFieldLabel(fileExt) || normalizeFormatKey(fileExt).toUpperCase()
+      : dedicatedPair
+        ? formatFieldLabel(pairSource)
         : "Auto-detect";
-    const outputFormatLabel = displayLabel.replace(".", "").toUpperCase();
+    const lockedOutputLabel = dedicatedPair ? formatFieldLabel(pairTarget) : "";
+    const outputFormatLabel = dedicatedPair
+      ? pairTarget.toUpperCase()
+      : displayLabel.replace(".", "").toUpperCase();
+    const fromUpper = (pairSource || "").toUpperCase();
+    const toUpper = (pairTarget || outputFormatLabel || "").toUpperCase();
+    const convertLabel = dedicatedPair
+      ? file
+        ? `Convert ${textLettersLimit(file.name, 22)} to ${toUpper}`
+        : `Convert ${fromUpper} to ${toUpper}`
+      : file
+        ? `Convert ${textLettersLimit(file.name, 22)} to ${outputFormatLabel}`
+        : `Choose a file to convert to ${outputFormatLabel || "your format"}`;
     const modernButtonDisabled =
-      !file || !selectValueAttr || Boolean(uploadingMessage) || disableSelect;
+      !file || !(selectValueAttr || pairTarget) || Boolean(uploadingMessage) || disableSelect;
 
     return (
       <div className={heroStyles.converterControls}>
@@ -271,7 +310,7 @@ function CadDropDown({
               {file?.name ? (
                 <small>{textLettersLimit(file.name, 28)}</small>
               ) : pairSource ? (
-                <small>{pairSource.toUpperCase()} file</small>
+                <small>{`${pairSource.toUpperCase()} file`}</small>
               ) : null}
             </div>
           </label>
@@ -282,20 +321,27 @@ function CadDropDown({
 
           <label className={heroStyles.converterFormatField}>
             <span>Output format</span>
-            <select
-              className={heroStyles.converterOutputSelect}
-              value={selectValueAttr}
-              onChange={handleNativeChange}
-              disabled={isSelectDisabled}
-              aria-label={`Output file format. ${displayLabel}`}
-            >
-              <option value="">Select format…</option>
-              {optionsForSelect.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label.replace(".", "").toUpperCase()}
-                </option>
-              ))}
-            </select>
+            {dedicatedPair ? (
+              <div className={heroStyles.converterInputFormat}>
+                <strong>{lockedOutputLabel}</strong>
+                <small>Preselected for this page</small>
+              </div>
+            ) : (
+              <select
+                className={heroStyles.converterOutputSelect}
+                value={selectValueAttr}
+                onChange={handleNativeChange}
+                disabled={isSelectDisabled}
+                aria-label={`Output file format. ${displayLabel}`}
+              >
+                <option value="">Select format…</option>
+                {optionsForSelect.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label.replace(".", "").toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            )}
           </label>
         </div>
 
@@ -304,10 +350,9 @@ function CadDropDown({
           className={heroStyles.converterActionButton}
           onClick={handleConvert}
           disabled={modernButtonDisabled}
+          aria-label={dedicatedPair ? `Convert ${fromUpper} to ${toUpper}` : undefined}
         >
-          {file
-            ? `Convert ${textLettersLimit(file.name, 22)} to ${outputFormatLabel}`
-            : `Choose a file to convert to ${outputFormatLabel || "your format"}`}
+          {convertLabel}
         </button>
 
         <div className={heroStyles.converterPricingStatus}>

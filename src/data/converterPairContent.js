@@ -1,4 +1,5 @@
 import { converterTypes } from '@/common.helper'
+import { getUniquePairPage } from '@/data/converterPairUniquePages'
 
 const FORMAT_INFO = {
   step: {
@@ -293,6 +294,9 @@ export function getConverterPairContent(conversionParams) {
     tools: 'Compatible CAD tools',
   }
 
+  const uniquePage = getUniquePairPage(`${from}-to-${to}`)
+  const behavior = getBehavior(from, to)
+
   return {
     from,
     to,
@@ -301,7 +305,18 @@ export function getConverterPairContent(conversionParams) {
     fromInfo,
     toInfo,
     oneLiner: getPairOneLiner(from, to),
-    heroDescription: getHeroDescription(from, to),
-    behavior: getBehavior(from, to),
+    heroDescription: uniquePage?.heroIntro || getHeroDescription(from, to),
+    behavior: uniquePage
+      ? {
+          heading: uniquePage.behaviorHeading,
+          summary: uniquePage.behaviorSummary,
+          retainedHeading: uniquePage.retainedHeading,
+          changedHeading: uniquePage.changedHeading,
+          retained: uniquePage.retained,
+          changed: uniquePage.changed,
+          note: uniquePage.behaviorNote || '',
+        }
+      : behavior,
+    uniquePage,
   }
 }

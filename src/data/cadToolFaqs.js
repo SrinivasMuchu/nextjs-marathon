@@ -3,6 +3,8 @@
  * Edit this file to change questions/answers sitewide for those pages.
  */
 
+import { getUniquePairPage } from '@/data/converterPairUniquePages'
+
 function parseConversionParams(conversionParams) {
   if (!conversionParams || typeof conversionParams !== 'string') return { from: '', to: '' };
   const segment = conversionParams.split('/').filter(Boolean).pop() || conversionParams;
@@ -59,6 +61,9 @@ function getWhyConvertAnswer(from, to) {
 /** Format-pair FAQs for /tools/convert-{from}-to-{to} pages (B5.2). Falls back to generic list. */
 export function getConverterFaqQuestions(conversionParams) {
   if (!conversionParams) return cadConverterFaqQuestions;
+
+  const uniquePage = getUniquePairPage(conversionParams);
+  if (uniquePage?.faqs?.length) return uniquePage.faqs;
 
   const { from, to } = parseConversionParams(conversionParams);
   if (!from || !to) return cadConverterFaqQuestions;

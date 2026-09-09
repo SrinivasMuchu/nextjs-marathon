@@ -3,9 +3,11 @@ import React from "react";
 import styles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import CadFileConversionWrapper from './CadFileConversionWrapper'
+import { getUniquePairPage } from '@/data/converterPairUniquePages'
 
 function CadFileUploads({ convert, conversionParams, allowedFormats, initialAllowedFormats = [], designVariant, preferredOutput }) {
     // Use initialAllowedFormats on first paint (from server params) to avoid CLS when context hydrates
+    const uniquePage = getUniquePairPage(conversionParams)
     const formats = (allowedFormats?.length ? allowedFormats : initialAllowedFormats) || [];
     const formatsText = convert
       ? (formats.length ? `Supported formats: ${formats.join(', ')}` : 'Supported formats: …')
@@ -15,7 +17,9 @@ function CadFileUploads({ convert, conversionParams, allowedFormats, initialAllo
 
     const dropInner = isConverterHero ? (
       <div className={heroStyles.heroUploadPanelContent}>
-        <p className={heroStyles.heroUploadPanelHead}>Drag and drop your 3D file here</p>
+        <p className={heroStyles.heroUploadPanelHead}>
+          {uniquePage?.dropzoneHead || 'Drag and drop your 3D file here'}
+        </p>
         <p className={heroStyles.heroUploadPanelHint}>or choose a file from your computer</p>
         <span className={heroStyles.heroUploadPanelFile}>Browse files</span>
         <p className={heroStyles.heroUploadMaxSize}>Maximum file size: 300 MB</p>

@@ -20,6 +20,9 @@ function ConverterDesignHubContent({
   categories = [],
   designsByCategory = {},
   headingLevel = 2,
+  heading,
+  description,
+  nosnippet = false,
 }) {
   const preferredCategory =
     categories.find((category) => getCategoryName(category).toLowerCase().includes('3d printing')) ||
@@ -42,11 +45,10 @@ function ConverterDesignHubContent({
           <div>
             <p className={styles.eyebrow}>Marathon OS Design Hub</p>
             <HeadingTag id="converter-design-hub-heading" className={styles.heading}>
-              Find a model before building from scratch
+              {heading || 'Find a model before building from scratch'}
             </HeadingTag>
             <p className={styles.description}>
-              Browse engineering categories and recent 3D-printing models. Preview and validate
-              every downloaded file before production use.
+              {description || 'Browse engineering categories and recent 3D-printing models. Preview and validate every downloaded file before production use.'}
             </p>
           </div>
           <Link href="/library" className={styles.viewAll}>
@@ -73,7 +75,7 @@ function ConverterDesignHubContent({
           })}
         </div>
 
-        <div className={styles.grid}>
+        <div className={styles.grid} data-nosnippet={nosnippet ? true : undefined}>
           {designs.map((design) => (
             <Link key={design._id} href={`/library/${design.route}`} className={styles.card}>
               <span className={styles.tag}>{activeCategory || 'Engineering'}</span>
