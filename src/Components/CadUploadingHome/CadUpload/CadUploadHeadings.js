@@ -3,10 +3,12 @@ import React from 'react'
 import cadStyles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import { getCadViewerFormatConfig, getViewerHeroCopy } from '@/data/cadFormatViewerPages'
+import { getUniqueViewerPage } from '@/data/viewerUniquePages'
 
 function CadUploadHeadings({ variant, cadType }) {
+    const uniquePage = getUniqueViewerPage(cadType)
     const config = getCadViewerFormatConfig(cadType)
-    const h1 = config?.h1 || 'Free Online CAD File Viewer'
+    const h1 = uniquePage?.h1 || config?.h1 || 'Free Online CAD File Viewer'
     const heroCopy = getViewerHeroCopy(cadType) || ''
     const isDark = variant === 'dark'
 

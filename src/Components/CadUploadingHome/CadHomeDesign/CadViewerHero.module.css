@@ -207,6 +207,7 @@
   width: 100%;
   max-width: 720px;
   min-height: 200px;
+  scroll-margin-top: 96px;
   border-radius: 16px;
   border: 2px dashed rgba(255, 255, 255, 0.38);
   background: rgba(14, 8, 26, 0.72);

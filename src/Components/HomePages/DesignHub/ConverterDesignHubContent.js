@@ -22,6 +22,7 @@ function ConverterDesignHubContent({
   headingLevel = 2,
   heading,
   description,
+  ctaLabel,
   nosnippet = false,
 }) {
   const preferredCategory =
@@ -52,7 +53,7 @@ function ConverterDesignHubContent({
             </p>
           </div>
           <Link href="/library" className={styles.viewAll}>
-            View all designs <ArrowRight size={13} />
+            {ctaLabel || 'View all designs'} <ArrowRight size={13} />
           </Link>
         </header>
 

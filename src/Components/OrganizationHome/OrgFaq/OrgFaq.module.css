@@ -74,6 +74,16 @@
   line-height: 1.6;
 }
 
+.answer + .answer {
+  margin-top: 8px;
+}
+
+.answerLink {
+  color: #610bee;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 @media screen and (max-width: 600px) {
   .section {
     padding: 40px 16px 56px;

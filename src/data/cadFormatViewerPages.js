@@ -1,3 +1,5 @@
+import { getUniqueViewerPage } from '@/data/viewerUniquePages';
+
 export const CAD_VIEWER_FORMAT_SLUGS = [
   'off',
   'step',
@@ -246,12 +248,18 @@ export function getAllowedExtensions(slug) {
 }
 
 export function getSupportedInputFormatsLabel(slug) {
+  const unique = getUniqueViewerPage(slug);
+  if (unique?.supportedInputLabel) {
+    return `Supported input formats: ${unique.supportedInputLabel}`;
+  }
   const config = getCadViewerFormatConfig(slug);
   if (!config) return null;
   return `Supported input formats: ${config.supportedInputLabel}`;
 }
 
 export function getViewerHeroCopy(slug) {
+  const unique = getUniqueViewerPage(slug);
+  if (unique?.heroIntro) return unique.heroIntro;
   const config = getCadViewerFormatConfig(slug);
   if (!config) return null;
   return `Open and inspect ${config.formatName} files online without installing CAD software. Marathon OS lets you preview ${config.previewPhrase} securely in your browser with private uploads and automatic file deletion after 7 days.`;
@@ -260,15 +268,17 @@ export function getViewerHeroCopy(slug) {
 export function getViewerPageMetadata(slug) {
   const config = getCadViewerFormatConfig(slug);
   if (!config) return null;
+  const unique = getUniqueViewerPage(slug);
   const canonicalPath = `/tools/${slug.toLowerCase()}-file-viewer`;
   return {
-    title: config.title,
-    description: config.description,
-    h1: config.h1,
+    title: unique?.meta?.title || config.title,
+    description: unique?.meta?.description || config.description,
+    h1: unique?.h1 || config.h1,
     canonicalPath,
     canonicalUrl: `https://marathon-os.com${canonicalPath}`,
     formatName: config.formatName,
-    relatedTools: config.relatedTools || DEFAULT_RELATED_TOOLS,
+    relatedTools: unique?.relatedTools || config.relatedTools || DEFAULT_RELATED_TOOLS,
+    breadcrumbLabel: unique?.breadcrumbLabel,
   };
 }
 

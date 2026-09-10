@@ -4,6 +4,7 @@
  */
 
 import { getUniquePairPage } from '@/data/converterPairUniquePages'
+import { getUniqueViewerPage } from '@/data/viewerUniquePages'
 
 function parseConversionParams(conversionParams) {
   if (!conversionParams || typeof conversionParams !== 'string') return { from: '', to: '' };
@@ -188,3 +189,9 @@ export const cadViewerFaqQuestions = [
       'Yes—because it runs in your browser (no installation needed), it works on Mac and Windows with a modern browser.',
   },
 ];
+
+export function getViewerFaqQuestions(cadType) {
+  const uniquePage = getUniqueViewerPage(cadType);
+  if (uniquePage?.faqs?.length) return uniquePage.faqs;
+  return cadViewerFaqQuestions;
+}

@@ -168,14 +168,14 @@ function ConvertPairAftercare({ conversionParams }) {
             <p>{uniquePage?.troubleIntro || 'Most conversion issues come from differences between file formats or problems already present in the source geometry.'}</p>
           </header>
           <div className={styles.problemGrid}>
-            {problems.map(({ icon: Icon, title, description, fix, href }) => (
+            {problems.map(({ icon: Icon, title, description, fix, href, cta }) => (
               <article key={title}>
                 <span className={styles.problemIcon}><Icon size={17} /></span>
                 <div>
                   <h3>{title}</h3>
                   <p>{description}</p>
                   <strong>Fix: {fix}</strong>
-                  {href ? <p><Link href={href}>Hire a CAD designer</Link></p> : null}
+                  {href ? <p><Link href={href}>{cta || 'Hire a CAD designer'}</Link></p> : null}
                 </div>
               </article>
             ))}
@@ -202,14 +202,14 @@ function ConvertPairAftercare({ conversionParams }) {
         </div>
       </section>
 
-      <section className={styles.relatedSection} aria-labelledby="related-converters-heading" data-nosnippet={uniquePage ? true : undefined}>
+      <section className={styles.relatedSection} aria-labelledby="related-converters-heading">
         <div className={styles.inner}>
           <header className={styles.sectionHeader}>
             {uniquePage ? null : <p className={styles.eyebrow}>Continue your workflow</p>}
             <h2 id="related-converters-heading">{uniquePage?.relatedHeading || 'Related 3D conversion tools'}</h2>
             <p>{uniquePage?.relatedIntro || `Recommendations are limited to pages that are contextually useful when working with ${fromUpper} or ${toUpper} files.`}</p>
           </header>
-          <div className={styles.relatedGrid}>
+          <div className={styles.relatedGrid} data-nosnippet>
             {relatedTools.map((tool) => (
               <Link key={tool.href} href={tool.href} className={styles.relatedCard}>
                 <div className={styles.pairBadges}>

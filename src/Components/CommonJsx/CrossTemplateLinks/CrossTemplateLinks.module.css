@@ -53,6 +53,14 @@
   color: #111827;
 }
 
+.toolLibraryIntro {
+  margin: -8px 0 16px;
+  max-width: 720px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
 .toolLibraryLinks {
   display: flex;
   flex-wrap: wrap;

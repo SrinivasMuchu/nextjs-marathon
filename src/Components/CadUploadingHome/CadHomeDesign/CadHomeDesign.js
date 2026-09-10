@@ -16,10 +16,12 @@ import CadIndustry from './CadIndustry'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import CadViewerFormatSections from './CadViewerFormatSections'
 import CadViewerToolLinks from './CadViewerToolLinks'
+import CadViewerUniqueArticle from './CadViewerUniqueArticle'
 import ToolLibraryCrossLinks from '@/Components/CommonJsx/CrossTemplateLinks/ToolLibraryCrossLinks'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
-import { cadViewerFaqQuestions } from '@/data/cadToolFaqs'
+import { getViewerFaqQuestions } from '@/data/cadToolFaqs'
+import { getUniqueViewerPage } from '@/data/viewerUniquePages'
 import { IMAGEURLS } from '@/config'
 
 // Page heading structure: 1 h1 (CadHeader), 2 h2s (HowItWorks, CoreBenefits), rest h3 (CadViewrTypes, DesignHub, UseCases, TrustPrivacy, ConvertCrossLink, CadIndustry, OrgFaq).
@@ -77,7 +79,6 @@ const featuresArray = [
     },
 
 ]
-
 
 
 const steps = [
@@ -147,7 +148,9 @@ const steps = [
     { title: '3D printing workflows inspecting STL/OBJ meshes', description: 'inspecting STL/OBJ meshes' },
   ];
 function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSchema = false }) {
-    const cadTypeLabel = cadType ? `${String(cadType).toUpperCase()} CAD Viewer` : 'CAD Viewer Type';
+    const uniquePage = getUniqueViewerPage(cadType)
+    const faqQuestions = getViewerFaqQuestions(cadType)
+    const cadTypeLabel = uniquePage?.breadcrumbLabel || (cadType ? `${String(cadType).toUpperCase()} CAD Viewer` : 'CAD Viewer Type');
     const breadcrumbLinks = type
       ? [
           { label: 'tools', href: '/tools' },
@@ -158,10 +161,16 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSc
           { label: 'tools', href: '/tools' },
           { label: 'CAD Viewer', href: '/tools/3d-cad-viewer' },
         ];
+    const howItWorksSteps = uniquePage?.workflowSteps
+      ? uniquePage.workflowSteps.map((step, index) => ({
+          ...step,
+          image: steps[index]?.image,
+        }))
+      : steps
    
     return (
         <>
-            {!skipPageJsonLd ? <FaqPageJsonLd faqSchemaData={cadViewerFaqQuestions} /> : null}
+            {!skipPageJsonLd ? <FaqPageJsonLd faqSchemaData={faqQuestions} /> : null}
             {/* <HomeTopNav /> */}
              <ActiveLastBreadcrumb
                       links={breadcrumbLinks}
@@ -171,8 +180,13 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSc
             {type && cadType ? (
               <>
                 <CadViewerFormatSections cadType={cadType} />
-                <ConvertCrossLink />
-                <ToolLibraryCrossLinks />
+                <ConvertCrossLink cadType={cadType} />
+                <ToolLibraryCrossLinks
+                  title={uniquePage?.resourcesHeading}
+                  intro={uniquePage?.resourcesIntro}
+                  links={uniquePage?.resources}
+                  nosnippet={Boolean(uniquePage)}
+                />
               </>
             ) : null}
             {!type ? (
@@ -185,29 +199,68 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSc
             {/* <OrgFeatures type='cad'/> */}
             <HowItWorks
                 variant="cadViewer"
-                label="HOW IT WORKS"
-                title="How to view CAD files online"
-                mainHeading="No downloads. No plugins. Works right from your browser."
-                steps={steps}
-                primaryCta={{ label: 'Upload CAD File', href: '/tools/3d-cad-viewer' }}
-                secondaryCta={{ label: 'Open Converter Tool', href: '/tools/3d-cad-file-converter' }}
+                label={uniquePage?.workflowEyebrow || "HOW IT WORKS"}
+                title={uniquePage?.workflowHeading || "How to view CAD files online"}
+                mainHeading={uniquePage?.workflowIntro || "No downloads. No plugins. Works right from your browser."}
+                steps={howItWorksSteps}
+                primaryCta={{
+                  label: uniquePage?.workflowCta || 'Upload CAD File',
+                  href: uniquePage?.workflowCtaHref || '/tools/3d-cad-viewer',
+                }}
+                secondaryCta={{
+                  label: uniquePage?.workflowSecondaryCta || 'Open Converter Tool',
+                  href: uniquePage?.workflowSecondaryHref || '/tools/3d-cad-file-converter',
+                }}
             />
+            {uniquePage ? <CadViewerUniqueArticle uniquePage={uniquePage} parts={['capabilities']} /> : null}
             <CoreBenefits
                 variant="viewerGrid"
-                benefits={benefits}
-                title="Why use Marathon OS CAD Viewer"
+                benefits={uniquePage?.whyCards || benefits}
+                title={uniquePage?.whyHeading || "Why use Marathon OS CAD Viewer"}
+                description={uniquePage?.whyIntro}
             />
-           
-            <DesignHub headingLevel={3} />
-            <UseCases useCases={useCases} title="Who this CAD viewer is for" />
-            <TrustPrivacy items={items} title="Privacy and file handling" />
-            <CadIndustry/>
+            {uniquePage ? (
+              <CadViewerUniqueArticle uniquePage={uniquePage} parts={['preflight', 'troubleshooting']} />
+            ) : null}
+            {uniquePage ? (
+              <>
+                <TrustPrivacy
+                  items={uniquePage.privacyItems}
+                  title={uniquePage.privacyHeading}
+                  description={uniquePage.privacyIntro}
+                  headingLevel={2}
+                />
+                <UseCases
+                  useCases={uniquePage.audience}
+                  title={uniquePage.audienceHeading}
+                  label=""
+                  headingLevel={2}
+                />
+                <DesignHub
+                  variant="converter"
+                  headingLevel={2}
+                  heading={uniquePage.designHubHeading}
+                  description={uniquePage.designHubIntro}
+                  ctaLabel={uniquePage.designHubCta}
+                  nosnippet
+                />
+              </>
+            ) : (
+              <>
+                <DesignHub headingLevel={3} />
+                <UseCases useCases={useCases} title="Who this CAD viewer is for" />
+                <TrustPrivacy items={items} title="Privacy and file handling" />
+                <CadIndustry/>
+              </>
+            )}
             {/* <ChartBuilder whyChoose={whyChoose} featuresArray={featuresArray} />
             <OurFeatures features={features} essentialDeatails={essentialDeatails}/> */}
             <OrgFaq
-                faqQuestions={cadViewerFaqQuestions}
-                description="Find answers to common questions about Marathon OS CAD Viewer."
+                faqQuestions={faqQuestions}
+                title={uniquePage?.faqHeading}
+                description={uniquePage?.faqIntro || "Find answers to common questions about Marathon OS CAD Viewer."}
             />
+            {uniquePage ? <CadViewerUniqueArticle uniquePage={uniquePage} parts={['finalCta']} /> : null}
             <Footer />
         </>
     )

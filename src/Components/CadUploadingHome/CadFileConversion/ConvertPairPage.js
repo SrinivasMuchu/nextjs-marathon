@@ -226,24 +226,31 @@ function ConvertPairPage({ conversionParams }) {
         <div className={styles.resourcesInner}>
           <div className={styles.resourcesHeader}>
             <div>
-              <p className={styles.eyebrow}>Continue your CAD workflow</p>
+              <p className={styles.eyebrow}>{uniquePage?.resourcesEyebrow || 'Continue your CAD workflow'}</p>
               <h2 id="pair-resources-heading">{uniquePage?.resourcesHeading || <>Explore Marathon<br />OS CAD resources</>}</h2>
             </div>
             <p>{uniquePage?.resourcesIntro || 'Preview a model before conversion, find an existing engineering file, open a 2D drawing, or get specialist help when a source mesh needs to be rebuilt.'}</p>
           </div>
 
           <div className={styles.resourceGrid}>
-            {resources.map(({ icon: Icon, title, description, href, cta }) => (
-              <Link key={title} href={href} className={styles.resourceCard}>
-                <span className={styles.resourceIcon}><Icon size={18} /></span>
-                <span className={styles.resourceBody}>
-                  <strong>{title}</strong>
-                  <small>{description}</small>
-                  {cta ? <em className={styles.resourceCta}>{cta}</em> : null}
-                </span>
-                <span className={styles.resourceArrow}><ArrowRight size={14} /></span>
-              </Link>
-            ))}
+            {resources.map(({ icon: Icon, title, description, href, cta }) => {
+              const body = (
+                <>
+                  <span className={styles.resourceIcon}><Icon size={18} /></span>
+                  <span className={styles.resourceBody}>
+                    <strong>{title}</strong>
+                    <small>{description}</small>
+                    {cta ? <em className={styles.resourceCta}>{cta}</em> : null}
+                  </span>
+                  <span className={styles.resourceArrow}><ArrowRight size={14} /></span>
+                </>
+              )
+              return href ? (
+                <Link key={title} href={href} className={styles.resourceCard}>{body}</Link>
+              ) : (
+                <article key={title} className={styles.resourceCard}>{body}</article>
+              )
+            })}
           </div>
         </div>
       </section>
