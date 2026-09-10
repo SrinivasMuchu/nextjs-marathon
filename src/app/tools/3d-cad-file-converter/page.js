@@ -2,16 +2,14 @@ import CadFileConversionHome from '@/Components/CadUploadingHome/CadFileConversi
 import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import StickyCadStrip from '@/Components/CadServicesBanners/StickyCadStrip';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
+import { CONVERTER_HUB_PAGE } from '@/data/converterHubPage';
 import React from 'react';
 
 const CANONICAL_URL = 'https://marathon-os.com/tools/3d-cad-file-converter';
-const TITLE = 'Free Online CAD File Converter | STEP, STL, IGES, OBJ, 3DM | Marathon OS';
-const DESCRIPTION =
-  'Convert CAD and 3D files online between STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF. Secure browser-based conversion with 300 MB uploads and auto-delete in 7 days.';
 
 export const metadata = buildPageMetadata({
-  title: TITLE,
-  description: DESCRIPTION,
+  title: CONVERTER_HUB_PAGE.meta.title,
+  description: CONVERTER_HUB_PAGE.meta.description,
   canonicalPath: '/tools/3d-cad-file-converter',
   pageUrl: CANONICAL_URL,
   extra: {
@@ -19,29 +17,19 @@ export const metadata = buildPageMetadata({
   },
 });
 
-function page({ searchParams }) {
-  const converterDirectoryParams = {
-    activeFormat:
-      typeof searchParams?.converterFormat === 'string' ? searchParams.converterFormat : 'All',
-    query:
-      typeof searchParams?.converterSearch === 'string' ? searchParams.converterSearch : '',
-  };
-
+function page() {
   return (
     <>
       <ToolPageJsonLd
-        name="Free Online 3D CAD File Converter"
+        name="Free online 3D CAD file converter"
         url={CANONICAL_URL}
-        description="Convert STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF files online with no software installation."
+        description={CONVERTER_HUB_PAGE.meta.description}
         breadcrumbLinks={[
           { label: 'Tools', href: '/tools' },
           { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },
         ]}
       />
-      <CadFileConversionHome
-        skipBreadcrumbSchema
-        converterDirectoryParams={converterDirectoryParams}
-      />
+      <CadFileConversionHome skipBreadcrumbSchema />
       <StickyCadStrip />
     </>
   );

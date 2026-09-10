@@ -119,6 +119,14 @@
   line-height: 1.6;
 }
 
+.cardBody strong {
+  display: inline-block;
+  margin-top: 8px;
+  color: #6f30c6;
+  font-size: 12px;
+  font-weight: 750;
+}
+
 .arrow {
   flex: 0 0 auto;
   width: 28px;

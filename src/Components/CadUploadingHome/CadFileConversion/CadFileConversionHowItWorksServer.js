@@ -2,6 +2,7 @@ import React from 'react';
 import { Upload, Box, Sun } from 'lucide-react';
 import styles from './CadFileConversionHowItWorks.module.css';
 import { parseConversionParams } from './ConvertPageHeroHeading';
+import { CONVERTER_HUB_PAGE } from '@/data/converterHubPage';
 
 const ICONS = {
   fileUp: Upload,
@@ -9,23 +10,11 @@ const ICONS = {
   download: Sun,
 };
 
-const DEFAULT_STEPS = [
-  {
-    title: 'Upload your CAD file',
-    description: 'Drag and drop a supported file or browse from your computer.',
-    iconKey: 'fileUp',
-  },
-  {
-    title: 'Choose the output format',
-    description: 'Select STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM, DWG or DXF.',
-    iconKey: 'swap',
-  },
-  {
-    title: 'Convert and download',
-    description: 'Process the model securely and download the converted file in one click.',
-    iconKey: 'download',
-  },
-];
+const DEFAULT_STEPS = CONVERTER_HUB_PAGE.workflowSteps.map(([title, description], index) => ({
+  title,
+  description,
+  iconKey: ['fileUp', 'swap', 'download'][index],
+}));
 
 function getConverterSteps(conversionParams) {
   if (!conversionParams) return DEFAULT_STEPS;
@@ -59,15 +48,17 @@ function CadFileConversionHowItWorksServer({ conversionParams }) {
   const heading =
     conversionParams && from && to
       ? `How to convert ${from.toUpperCase()} to ${to.toUpperCase()} online`
-      : 'Convert CAD files online in three steps';
+      : CONVERTER_HUB_PAGE.workflowHeading;
 
   return (
     <section className={styles.section}>
       <div className={styles.inner}>
-        <p className={styles.eyebrow}>How it works</p>
+        <p className={styles.eyebrow}>{conversionParams ? 'How it works' : CONVERTER_HUB_PAGE.workflowEyebrow}</p>
         <h2 className={styles.heading}>{heading}</h2>
         <p className={styles.subtitle}>
-          No downloads. No plugins. Works directly from your browser.
+          {conversionParams && from && to
+            ? `Move from ${from.toUpperCase()} to ${to.toUpperCase()} in three clear steps.`
+            : CONVERTER_HUB_PAGE.workflowIntro}
         </p>
 
         <div className={styles.steps}>
@@ -89,6 +80,11 @@ function CadFileConversionHowItWorksServer({ conversionParams }) {
             );
           })}
         </div>
+        {!conversionParams ? (
+          <a href="#cad-file-converter" className={styles.convertButton}>
+            {CONVERTER_HUB_PAGE.workflowCta}
+          </a>
+        ) : null}
       </div>
     </section>
   );

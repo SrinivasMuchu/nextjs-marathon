@@ -9,6 +9,7 @@ function ToolsPageBanner({
   variant = "default",
   title,
   description,
+  primaryLabel,
   secondaryLabel,
 }) {
   const isConverter = variant === "converter"
@@ -36,7 +37,7 @@ function ToolsPageBanner({
         </div>
 
         <div className={styles.ctaCol}>
-          <CadQuoteButton label="Hire a Designer" className={styles.primaryCta} />
+          <CadQuoteButton label={primaryLabel || "Hire a Designer"} className={styles.primaryCta} />
           {isConverter ? (
             <Link href="#cad-file-converter" className={styles.secondaryCta}>
               {secondaryLabel || "Use converter"}

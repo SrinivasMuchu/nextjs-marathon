@@ -68,6 +68,22 @@
   box-shadow: 0 16px 42px rgba(45, 25, 68, 0.07);
 }
 
+.group {
+  margin-top: 18px;
+}
+
+.group:first-of-type {
+  margin-top: 0;
+}
+
+.groupHeading {
+  margin: 0 0 10px;
+  color: #33293d;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -244,6 +260,14 @@
   color: #716979;
   font-size: 13px;
   text-align: center;
+}
+
+.empty a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #7030c8;
+  font-weight: 750;
+  text-decoration: none;
 }
 
 .resultCount {

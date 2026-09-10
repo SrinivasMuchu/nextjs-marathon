@@ -225,14 +225,14 @@ function ConvertPairAftercare({ conversionParams }) {
         </div>
       </section>
 
-      <section className={styles.popularSection} aria-labelledby="popular-converters-heading" data-nosnippet={uniquePage ? true : undefined}>
+      <section className={styles.popularSection} aria-labelledby="popular-converters-heading">
         <div className={styles.inner}>
           <header className={styles.popularHeader}>
             {uniquePage ? null : <p className={styles.eyebrow}>Popular conversions</p>}
             <h2 id="popular-converters-heading">{uniquePage?.popularHeading || 'CAD converter types'}</h2>
             <p>{uniquePage?.popularIntro || "Move into another common engineering workflow using one of Marathon OS's most-used conversion paths."}</p>
           </header>
-          <div className={styles.popularGrid}>
+          <div className={styles.popularGrid} data-nosnippet>
             {popularItems.map((item) => {
               const parsed = parsePair(item)
               return (
@@ -243,7 +243,7 @@ function ConvertPairAftercare({ conversionParams }) {
               )
             })}
           </div>
-          <Link href="/tools/3d-cad-file-converter#cad-converter-types-heading" className={styles.viewAll}>
+          <Link href="/tools/3d-cad-file-converter" className={styles.viewAll}>
             {uniquePage?.popularCta || 'View all CAD conversion tools'} <ArrowRight size={14} />
           </Link>
         </div>

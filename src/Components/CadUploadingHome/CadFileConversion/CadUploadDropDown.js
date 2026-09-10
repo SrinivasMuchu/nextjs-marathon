@@ -7,13 +7,13 @@ import Link from "next/link";
 import { ArrowLeftRight, Info } from "lucide-react";
 import {
   fetchConverterPricingInfo,
-  getMaxSavePercentFromInfo,
   isConverterConversionFree,
 } from "@/lib/converterPricing";
 import {
   ConverterPricingBadge,
   ConverterPricingBanner,
 } from "./ConverterPricingDisplay";
+import { CONVERTER_HUB_PAGE } from "@/data/converterHubPage";
 
 const FORMAT_ALIASES = {
   stp: "step",
@@ -96,8 +96,6 @@ function CadDropDown({
     isSampleFile,
     inputFileSizeBytes: file?.size,
   });
-  const maxSavePercent = getMaxSavePercentFromInfo(pricingInfo);
-
   const cadFormatOptions = useMemo(
     () => [
       { value: "step", label: ".step" },
@@ -145,14 +143,9 @@ function CadDropDown({
     pairDefaultAppliedRef.current = true;
   }, [pairTarget, setSelectedFileFormate]);
 
-  // General converter hero only: auto-pick a sensible output when no pair target exists.
+  // Hub converter: keep output empty until a file is detected, then pick a compatible format.
   useEffect(() => {
     if (designVariant !== "converterHero" || pairTarget) return;
-
-    if (!file && !selectedKey) {
-      setSelectedFileFormate("stl");
-      return;
-    }
 
     if (!file) return;
     const fileExt = normalizeFormatKey(
@@ -247,7 +240,7 @@ function CadDropDown({
       : "";
 
   const displayLabel = useMemo(() => {
-    if (!selectedKey) return "Select format…";
+    if (!selectedKey) return CONVERTER_HUB_PAGE.outputPlaceholder;
     return (
       formatOptions.find((o) => o.value === selectedKey)?.label ?? `.${selectedKey}`
     );
@@ -290,13 +283,15 @@ function CadDropDown({
       : displayLabel.replace(".", "").toUpperCase();
     const fromUpper = (pairSource || "").toUpperCase();
     const toUpper = (pairTarget || outputFormatLabel || "").toUpperCase();
+    const hubOutputKey = selectValueAttr || pairTarget;
+    const hubInputUpper = fileExt
+      ? (normalizeFormatKey(fileExt) || fileExt).toUpperCase()
+      : "Auto-detect";
     const convertLabel = dedicatedPair
-      ? file
-        ? `Convert ${textLettersLimit(file.name, 22)} to ${toUpper}`
-        : `Convert ${fromUpper} to ${toUpper}`
-      : file
-        ? `Convert ${textLettersLimit(file.name, 22)} to ${outputFormatLabel}`
-        : `Choose a file to convert to ${outputFormatLabel || "your format"}`;
+      ? `Convert ${fromUpper} to ${toUpper}`
+      : hubOutputKey
+        ? `Convert ${hubInputUpper} to ${outputFormatLabel}`
+        : CONVERTER_HUB_PAGE.convertBeforeSelection;
     const modernButtonDisabled =
       !file || !(selectValueAttr || pairTarget) || Boolean(uploadingMessage) || disableSelect;
 
@@ -334,7 +329,7 @@ function CadDropDown({
                 disabled={isSelectDisabled}
                 aria-label={`Output file format. ${displayLabel}`}
               >
-                <option value="">Select format…</option>
+                <option value="">{CONVERTER_HUB_PAGE.outputPlaceholder}</option>
                 {optionsForSelect.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label.replace(".", "").toUpperCase()}
@@ -350,7 +345,7 @@ function CadDropDown({
           className={heroStyles.converterActionButton}
           onClick={handleConvert}
           disabled={modernButtonDisabled}
-          aria-label={dedicatedPair ? `Convert ${fromUpper} to ${toUpper}` : undefined}
+          aria-label={convertLabel}
         >
           {convertLabel}
         </button>
@@ -366,9 +361,7 @@ function CadDropDown({
           ) : (
             <p>
               <Info size={16} aria-hidden />
-              Files under 5 MB convert and download free. For larger files, 1 credit = one download of any size — buy a pack
-              {maxSavePercent > 0 ? ` and save up to ${maxSavePercent}%` : ""}
-              .
+              {CONVERTER_HUB_PAGE.pricingNote}
             </p>
           )}
         </div>

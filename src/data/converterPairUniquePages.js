@@ -13,6 +13,7 @@ export const UNIQUE_PAIR_PAGES = {
     heroIntro:
       'Convert an STL (.stl) mesh to a STEP (.step or .stp) file for CAD import, supplier handoff and manufacturing review. Marathon OS preserves the visible mesh geometry in a STEP-compatible representation, but it does not recreate the original sketches, dimensions, constraints or feature history.',
     badges: ['Free under 5 MB', 'STL → STEP', 'No software installation'],
+    trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
     uploadHeading: 'Upload your STL file',
     uploadHelper: 'Choose one STL file. This page is already configured to create a STEP or STP output.',
     dropzoneHead: 'Drag and drop your STL file here',

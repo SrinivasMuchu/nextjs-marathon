@@ -19,6 +19,8 @@ import { unstable_useId } from "@mui/material";
 import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPopUp";
 import CadFileNotifyInfoPopUp from "@/Components/CommonJsx/CadFileNotifyInfoPopUp";
 import { convertedFiles, sendClarityEvent, sendGAtagEvent, textLettersLimit } from "@/common.helper";
+import { getUniquePairPage } from '@/data/converterPairUniquePages';
+import { CONVERTER_HUB_PAGE } from '@/data/converterHubPage';
 import { useRouter } from "next/navigation";
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
 import { Upload, X, FileText } from "lucide-react";
@@ -49,10 +51,17 @@ function parsePairFromConversionParams(convert, conversionParams) {
 
 function getSamplePrompt(from, isConverterHero, conversionParams) {
     if (!isConverterHero) return 'Don’t have a file? Try one of these samples:';
-    if (String(conversionParams || '').includes('stl-to-step')) {
-        return 'No STL file available? Try a sample mesh to see the conversion workflow.';
-    }
-    return "Don't have a file? Try a sample:";
+    const uniquePage = getUniquePairPage(conversionParams);
+    if (uniquePage?.samplePrompt) return uniquePage.samplePrompt;
+    return CONVERTER_HUB_PAGE.samplePrompt;
+}
+
+function getSampleButtonLabel(file, conversionParams) {
+    if (getUniquePairPage(conversionParams)) return file?.name;
+    const format = String(file?.format || '').toLowerCase();
+    const useCase = CONVERTER_HUB_PAGE.sampleUseCases[format];
+    if (useCase) return `${file.name} · ${useCase}`;
+    return file?.name;
 }
 
 function CadFileConversionWrapper({ children, convert, conversionParams, designVariant, heroFormatsLine, preferredOutput }) {
@@ -854,7 +863,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                                     className={isConverterHero ? heroStyles.sampleChip : undefined}
                                     onClick={() => handleSampleFileUpload(file)}
                                 >
-                                    {file.name}
+                                    {getSampleButtonLabel(file, conversionParams)}
                                 </button>
                             ))}
                         </div>

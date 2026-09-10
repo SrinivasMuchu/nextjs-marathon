@@ -5,6 +5,7 @@ import CadFileConversionContent from './CadFileConversionContent'
 import ConvertPageHeroHeading from './ConvertPageHeroHeading'
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 import { Zap, Shield, Clock, HardDrive, Box, MonitorOff } from 'lucide-react'
+import { CONVERTER_HUB_PAGE } from '@/data/converterHubPage'
 
 function CadFileConversionHeader({ convert, conversionParams }) {
   return (
@@ -19,27 +20,26 @@ function CadFileConversionHeader({ convert, conversionParams }) {
           <div className={heroStyles.converterBadgeRow}>
             <div className={`${heroStyles.badge} ${heroStyles.converterBadgePrimary}`}>
               <Zap size={14} strokeWidth={2.2} aria-hidden />
-              <span>Files under 5 MB free</span>
+              <span>{CONVERTER_HUB_PAGE.badges[0]}</span>
             </div>
             <div className={heroStyles.converterMiniBadge}>
               <Box size={13} aria-hidden />
-              <span>10 supported formats</span>
+              <span>{CONVERTER_HUB_PAGE.badges[1]}</span>
             </div>
             <div className={heroStyles.converterMiniBadge}>
               <MonitorOff size={13} aria-hidden />
-              <span>No software installation</span>
+              <span>{CONVERTER_HUB_PAGE.badges[2]}</span>
             </div>
           </div>
           {convert ? (
             <ConvertPageHeroHeading conversionParams={conversionParams} />
           ) : (
             <>
-              <h1 className={heroStyles.title}>Free Online 3D CAD File Converter</h1>
+              <h1 className={heroStyles.title}>{CONVERTER_HUB_PAGE.h1}</h1>
               <p className={heroStyles.description}>
-                Convert CAD, mesh and drawing files between common engineering formats in your
-                browser. Upload securely and convert STEP, STL, IGES, OBJ, PLY, OFF, BREP, 3DM,
-                DWG and DXF files without installing desktop CAD software.
+                {CONVERTER_HUB_PAGE.intro}
               </p>
+              <p className={heroStyles.description}>{CONVERTER_HUB_PAGE.expectationNote}</p>
             </>
           )}
           <div className={heroStyles.trustRow} role="list">
@@ -51,15 +51,15 @@ function CadFileConversionHeader({ convert, conversionParams }) {
             </div>
             <div className={heroStyles.trustItem} role="listitem">
               <span className={heroStyles.trustIcon} aria-hidden>
-                <Clock size={18} strokeWidth={2.2} />
-              </span>
-              Auto-delete in 7 days
-            </div>
-            <div className={heroStyles.trustItem} role="listitem">
-              <span className={heroStyles.trustIcon} aria-hidden>
                 <HardDrive size={18} strokeWidth={2.2} />
               </span>
               Up to 300 MB
+            </div>
+            <div className={heroStyles.trustItem} role="listitem">
+              <span className={heroStyles.trustIcon} aria-hidden>
+                <Clock size={18} strokeWidth={2.2} />
+              </span>
+              Automatically deleted within 7 days
             </div>
           </div>
         </div>
@@ -70,8 +70,8 @@ function CadFileConversionHeader({ convert, conversionParams }) {
         >
           <div className={heroStyles.converterCardHeader}>
             <div>
-              <h2>Upload your CAD or 3D file</h2>
-              <p>We&apos;ll detect the input format. Choose the output you need.</p>
+              <h2>{convert ? `Upload your file` : CONVERTER_HUB_PAGE.uploadHeading}</h2>
+              <p>{convert ? 'Choose one file to begin the conversion.' : CONVERTER_HUB_PAGE.uploadHelper}</p>
             </div>
             <span className={heroStyles.converterSecureBadge}>
               <Shield size={13} strokeWidth={2.2} aria-hidden />

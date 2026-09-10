@@ -166,13 +166,20 @@ function ConvertPairPage({ conversionParams }) {
               ))}
             </div>
             <h1>
-              Convert {fromUpper}<br />to {toUpper} online
+              {uniquePage?.h1 || (
+                <>
+                  Convert {fromUpper}<br />to {toUpper} online
+                </>
+              )}
             </h1>
             <p>{heroDescription}</p>
             <div className={styles.trustRow}>
-              <span><Shield size={15} /> Encrypted uploads</span>
-              <span><Workflow size={15} /> Files up to 300 MB</span>
-              <span><LockKeyhole size={15} /> Deleted after 7 days</span>
+              {(uniquePage?.trust || ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days']).map((item, index) => {
+                const Icon = [Shield, Workflow, LockKeyhole][index] || Shield
+                return (
+                  <span key={item}><Icon size={15} /> {item}</span>
+                )
+              })}
             </div>
           </div>
 
@@ -373,6 +380,7 @@ function ConvertPairPage({ conversionParams }) {
         variant="converter"
         title={uniquePage?.designerTitle}
         description={uniquePage?.designerBody}
+        primaryLabel={uniquePage ? 'Hire a CAD designer' : undefined}
         secondaryLabel={uniquePage?.designerSecondary}
       />
       <Footer />
