@@ -50,7 +50,13 @@ async function getCategoriesAndDesigns() {
   }
 }
 
-const DesignHub = async ({ headingLevel = 2, variant = 'default' }) => {
+const DesignHub = async ({
+  headingLevel = 2,
+  variant = 'default',
+  heading,
+  description,
+  nosnippet = false,
+}) => {
   const { categories, designsByCategory } = await getCategoriesAndDesigns()
   const HeadingTag = headingLevel === 3 ? 'h3' : 'h2'
 
@@ -60,6 +66,9 @@ const DesignHub = async ({ headingLevel = 2, variant = 'default' }) => {
         categories={categories}
         designsByCategory={designsByCategory}
         headingLevel={headingLevel}
+        heading={heading}
+        description={description}
+        nosnippet={nosnippet}
       />
     )
   }

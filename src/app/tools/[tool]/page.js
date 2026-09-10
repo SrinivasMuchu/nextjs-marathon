@@ -4,6 +4,7 @@ import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd';
 import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
 import { getConverterFaqQuestions, cadViewerFaqQuestions } from '@/data/cadToolFaqs';
+import { getUniquePairPage } from '@/data/converterPairUniquePages';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import { converterTypes } from '@/common.helper';
 import {
@@ -66,12 +67,13 @@ export async function generateMetadata({ params }) {
   }
 
   if (isConvert && converterTypes.some((type) => type.path === `/${conversion}`)) {
+    const uniquePage = getUniquePairPage(conversion);
     const [from, to] = conversion.split('-to-');
     const fromUpper = from?.toUpperCase() ?? '';
     const toUpper = to?.toUpperCase() ?? '';
     const canonical = `/tools/convert-${conversion}`;
-    const title = `Convert ${fromUpper} to ${toUpper} Online – Free up to 5 MB | Marathon OS`;
-    const description = `Convert ${fromUpper} files to ${getConverterMetaToPhrase(to)}. Secure uploads, files up to 300 MB, free downloads under 5 MB, and no software required.`;
+    const title = uniquePage?.meta?.title || `Convert ${fromUpper} to ${toUpper} Online – Free up to 5 MB | Marathon OS`;
+    const description = uniquePage?.meta?.description || `Convert ${fromUpper} files to ${getConverterMetaToPhrase(to)}. Secure uploads, files up to 300 MB, free downloads under 5 MB, and no software required.`;
 
     return buildPageMetadata({
       title,
@@ -117,18 +119,24 @@ export default function ToolPage({ params }) {
 
   if (isConvert) {
     if (!converterTypes.some((type) => type.path === `/${conversion}`)) return notFound();
+    const uniquePage = getUniquePairPage(conversion);
     const [from, to] = conversion.split('-to-');
     const fromUpper = from?.toUpperCase() ?? '';
     const toUpper = to?.toUpperCase() ?? '';
     const softwareName = `Free Online ${fromUpper} to ${toUpper} Converter`;
     const softwareUrl = `${BASE_URL}/tools/convert-${conversion}`;
+    const softwareDescription = uniquePage?.heroIntro || uniquePage?.meta?.description;
 
     const converterFaqs = getConverterFaqQuestions(conversion);
 
     return (
       <>
         <FaqPageJsonLd faqSchemaData={converterFaqs} />
-        <SoftwareApplicationJsonLd name={softwareName} url={softwareUrl} />
+        <SoftwareApplicationJsonLd
+          name={softwareName}
+          url={softwareUrl}
+          description={softwareDescription}
+        />
         <ConvertPairPage conversionParams={conversion} />
       </>
     );

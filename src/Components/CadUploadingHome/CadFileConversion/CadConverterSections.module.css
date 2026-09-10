@@ -162,6 +162,15 @@
   line-height: 1.55;
 }
 
+.formatCta {
+  margin-top: 10px;
+  display: inline-block;
+  color: #7030c8;
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
 @media (max-width: 980px) {
   .formatList {
     grid-template-columns: repeat(3, minmax(0, 1fr));
