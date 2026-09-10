@@ -190,8 +190,8 @@ export const cadViewerFaqQuestions = [
   },
 ];
 
-export function getViewerFaqQuestions(cadType) {
-  const uniquePage = getUniqueViewerPage(cadType);
+export function getViewerFaqQuestions(cadType, options = {}) {
+  const uniquePage = getUniqueViewerPage(cadType, options);
   if (uniquePage?.faqs?.length) return uniquePage.faqs;
   return cadViewerFaqQuestions;
 }

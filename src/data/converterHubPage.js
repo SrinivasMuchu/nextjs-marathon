@@ -1,8 +1,8 @@
 export const CONVERTER_HUB_PAGE = {
   meta: {
-    title: 'Free online 3D CAD file converter | Marathon OS',
+    title: 'Free Online CAD File Converter | STEP, STL, IGES, OBJ, 3DM | Marathon OS',
     description:
-      'Convert CAD solids, surface models, polygon meshes and 2D drawings between 10 common engineering formats. Secure uploads up to 300 MB, free downloads under 5 MB, and no software required.',
+      'Convert CAD and 3D files online between STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF. Secure browser-based conversion with 300 MB uploads and auto-delete in 7 days.',
   },
   h1: 'Free online 3D CAD file converter',
   badges: ['Files under 5 MB free', '10 supported formats', 'No software installation'],

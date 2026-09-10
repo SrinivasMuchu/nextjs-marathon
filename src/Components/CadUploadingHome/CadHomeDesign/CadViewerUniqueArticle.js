@@ -21,7 +21,7 @@ function CadViewerUniqueArticle({ uniquePage, parts = [] }) {
 
   return (
     <>
-      {parts.includes('capabilities') ? (
+      {parts.includes('capabilities') && uniquePage.capabilities?.length ? (
         <section className={styles.capabilitiesSection} aria-labelledby="viewer-capabilities-heading">
           <div className={styles.capabilitiesInner}>
             <article>
@@ -50,7 +50,7 @@ function CadViewerUniqueArticle({ uniquePage, parts = [] }) {
         </section>
       ) : null}
 
-      {parts.includes('preflight') ? (
+      {parts.includes('preflight') && uniquePage.preflight?.length ? (
         <section className={aftercare.checkSection} aria-labelledby="viewer-preflight-heading">
           <div className={aftercare.checkInner}>
             <header className={aftercare.checkCopy}>
@@ -73,11 +73,29 @@ function CadViewerUniqueArticle({ uniquePage, parts = [] }) {
         </section>
       ) : null}
 
-      {parts.includes('troubleshooting') ? (
+      {parts.includes('formatGuidance') && uniquePage.formatGuidance?.length ? (
+        <section className={styles.guidanceSection} aria-labelledby="viewer-format-guidance-heading">
+          <div className={styles.guidanceInner}>
+            <h2 id="viewer-format-guidance-heading">{uniquePage.formatGuidanceHeading}</h2>
+            {uniquePage.formatGuidanceIntro ? <p>{uniquePage.formatGuidanceIntro}</p> : null}
+            <div className={styles.guidanceGrid}>
+              {uniquePage.formatGuidance.map((item) => (
+                <article key={item.title}>
+                  <h3>{item.title}</h3>
+                  {item.label ? <strong>{item.label}</strong> : null}
+                  <p>{item.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {parts.includes('troubleshooting') && uniquePage.problems?.length ? (
         <section className={aftercare.troubleSection} aria-labelledby="viewer-troubleshooting-heading">
           <div className={aftercare.inner}>
             <header className={aftercare.sectionHeader}>
-              <p className={aftercare.eyebrow}>{uniquePage.troubleEyebrow}</p>
+              {uniquePage.troubleEyebrow ? <p className={aftercare.eyebrow}>{uniquePage.troubleEyebrow}</p> : null}
               <h2 id="viewer-troubleshooting-heading">{uniquePage.troubleHeading}</h2>
               <p>{uniquePage.troubleIntro}</p>
             </header>
@@ -92,12 +110,28 @@ function CadViewerUniqueArticle({ uniquePage, parts = [] }) {
                     <div>
                       <h3>{problem.title}</h3>
                       <p>{problem.description}</p>
-                      <strong>Fix: {problem.fix}</strong>
+                      {problem.fix ? <strong>Fix: {problem.fix}</strong> : null}
                     </div>
                   </article>
                 )
               })}
             </div>
+          </div>
+        </section>
+      ) : null}
+
+      {parts.includes('privacy') && uniquePage.privacyHeading ? (
+        <section className={styles.privacySection} aria-labelledby="viewer-privacy-heading">
+          <div className={styles.privacyInner}>
+            <h2 id="viewer-privacy-heading">{uniquePage.privacyHeading}</h2>
+            {uniquePage.privacyIntro ? <p>{uniquePage.privacyIntro}</p> : null}
+            {uniquePage.privacyPolicyHref ? (
+              <p>
+                <Link href={uniquePage.privacyPolicyHref}>
+                  {uniquePage.privacyPolicyLabel || 'Privacy Policy'}
+                </Link>
+              </p>
+            ) : null}
           </div>
         </section>
       ) : null}

@@ -45,7 +45,7 @@ const FORMAT_CONFIG = {
     extensions: ['.step', '.stp'],
     title: 'STEP File Viewer | Open STEP and STP Files Online | Marathon OS',
     description:
-      'Open and inspect STEP and STP files online without CAD software. Preview 3D CAD models securely in your browser with encrypted uploads and 7-day file deletion.',
+      'Open STEP and STP files online to inspect solids, surfaces and assemblies. Private browser-based viewing for files up to 300 MB, with no CAD software required.',
     h1: 'Free Online STEP File Viewer',
     relatedTools: [
       { href: '/tools/convert-step-to-stl', label: 'STEP to STL Converter' },
@@ -127,7 +127,7 @@ const FORMAT_CONFIG = {
     extensions: ['.igs', '.iges'],
     title: 'IGES File Viewer | Open IGES and IGS Files Online | Marathon OS',
     description:
-      'Open and inspect IGES and IGS files online without CAD software. Preview surface-based CAD models securely in your browser with 7-day auto-delete.',
+      'Open IGES and IGS files online to inspect curves, surfaces and gaps. Private browser-based viewing for files up to 300 MB, with no CAD software required.',
     h1: 'Free Online IGES File Viewer',
     relatedTools: [
       { href: '/tools/convert-iges-to-step', label: 'IGES to STEP Converter' },

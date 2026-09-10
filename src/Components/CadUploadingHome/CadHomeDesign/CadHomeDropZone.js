@@ -9,9 +9,10 @@ import { getSupportedInputFormatsLabel } from "@/data/cadFormatViewerPages";
 import { getUniqueViewerPage } from "@/data/viewerUniquePages";
 
 function CadHomeDropZone({ isStyled, allowedFormats, type, cadType, designVariant, dropzoneId }) {
-  const uniquePage = getUniqueViewerPage(cadType);
+  const uniquePage = getUniqueViewerPage(cadType, { isHub: !type && !cadType });
   const isHeroDark = designVariant === "heroDark";
-  const supportedInputLabel = type && cadType ? getSupportedInputFormatsLabel(cadType) : null;
+  const supportedInputLabel = uniquePage?.acceptedFormatsLabel
+    || (type && cadType ? getSupportedInputFormatsLabel(cadType) : null);
   const formatsLine = supportedInputLabel
     || (type && Array.isArray(allowedFormats) && allowedFormats.length
       ? `Supported input formats: ${allowedFormats.join(", ")}`
@@ -65,6 +66,7 @@ function CadHomeDropZone({ isStyled, allowedFormats, type, cadType, designVarian
             prompt={uniquePage?.samplePrompt}
             sampleLabel={uniquePage?.sampleCta}
             sampleFormat={uniquePage?.sampleFormat}
+            sampleGallery={uniquePage?.sampleGallery}
           />
         </div>
       ) : (
@@ -76,14 +78,17 @@ function CadHomeDropZone({ isStyled, allowedFormats, type, cadType, designVarian
             prompt={uniquePage?.samplePrompt}
             sampleLabel={uniquePage?.sampleCta}
             sampleFormat={uniquePage?.sampleFormat}
+            sampleGallery={uniquePage?.sampleGallery}
           />
         </>
       )}
-      <ToolsPageBanner
-        title={uniquePage?.designerTitle}
-        description={uniquePage?.designerBody}
-        primaryLabel={uniquePage?.designerCta}
-      />
+      {uniquePage?.skipHeroDesigner ? null : (
+        <ToolsPageBanner
+          title={uniquePage?.designerTitle}
+          description={uniquePage?.designerBody}
+          primaryLabel={uniquePage?.designerCta}
+        />
+      )}
     </>
   );
 }

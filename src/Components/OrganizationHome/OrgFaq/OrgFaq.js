@@ -30,6 +30,15 @@ function AnswerText({ item }) {
           </Link>
         </p>
       ) : null}
+      {item.ctas?.length
+        ? item.ctas.map((cta) => (
+            <p key={cta.href} className={styles.answer}>
+              <Link href={cta.href} className={styles.answerLink}>
+                {cta.label}
+              </Link>
+            </p>
+          ))
+        : null}
     </>
   );
 }

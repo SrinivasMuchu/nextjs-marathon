@@ -229,6 +229,11 @@ export const UNIQUE_PAIR_PAGES = {
     designerSecondary: 'Convert another STL file',
   },
   'stl-to-iges': {
+    meta: {
+      title: 'Convert STL to IGES Online – Free up to 5 MB | Marathon OS',
+      description:
+        'Convert STL meshes to IGES online for legacy CAD and CAM workflows. Secure uploads up to 300 MB, free downloads under 5 MB and no software required.',
+    },
     h1: 'Convert STL to IGES online',
     heroIntro:
       'Convert an STL (.stl) mesh to IGES (.iges or .igs) for legacy CAD/CAM import and surface-based exchange. The IGES result is derived from the STL triangles; it does not recreate smooth NURBS surfaces, sketches, dimensions, constraints or the original feature history.',
@@ -449,7 +454,248 @@ export const UNIQUE_PAIR_PAGES = {
       'Format conversion can package the mesh as IGES, but it cannot recover the original smooth design. Work with a CAD designer for accurate NURBS surfaces, dimensions, tolerances or production-ready native geometry.',
     designerSecondary: 'Convert another STL file',
   },
+  'stl-to-brep': {
+    meta: {
+      title: 'Convert STL to BREP Online – Free up to 5 MB | Marathon OS',
+      description:
+        'Convert STL mesh files to BREP online for Open CASCADE and topology workflows. Secure uploads up to 300 MB, free under 5 MB and no software required.',
+    },
+    h1: 'Convert STL to BREP online',
+    heroIntro:
+      'Convert an STL (.stl) triangle mesh to BREP (.brep or .brp) for Open CASCADE and topology-based CAD workflows. The result can carry faces, edges and vertices derived from the mesh, but it does not recover smooth analytic surfaces, sketches or feature history.',
+    badges: ['Free under 5 MB', 'STL → BREP', 'No software installation'],
+    trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
+    uploadHeading: 'Upload your STL file',
+    uploadHelper: 'Choose one STL file. This page is already configured to create BREP output.',
+    dropzoneHead: 'Drag and drop your STL file here',
+    convertCta: 'Convert STL to BREP',
+    samplePrompt: 'No STL file available? Try a STL sample to see the workflow.',
+    sampleCta: 'Try sample.stl',
+    benefits: [
+      {
+        title: 'No desktop software',
+        description: 'Start the STL-to-BREP workflow in your browser without installing a CAD application or plugin.',
+      },
+      {
+        title: 'Mesh-derived boundary representation',
+        description:
+          'The BREP output reflects the STL facets. A watertight mesh may form a closed shell or solid; damaged meshes may remain open or invalid.',
+      },
+      {
+        title: 'Ready to inspect',
+        description:
+          'Open the BREP result in an Open CASCADE-compatible viewer or CAD system and check body status, face count, scale and open edges.',
+        href: '/tools/brep-file-viewer',
+        cta: 'Open BREP viewer',
+      },
+      {
+        title: 'Private file handling',
+        description: 'Files stay private, are never added to the public CAD library and are automatically deleted within 7 days.',
+      },
+    ],
+    resourcesEyebrow: 'Continue your CAD workflow',
+    resourcesHeading: 'Inspect the STL, verify the BREP or request specialist help',
+    resourcesIntro:
+      'Inspect the STL before conversion, validate the BREP topology afterward, or request a native rebuild when smooth editable geometry matters.',
+    resources: [
+      {
+        title: 'Check the source STL',
+        description: 'Check watertightness, normals, disconnected shells, non-manifold edges and triangle density before conversion.',
+        href: '/tools/stl-file-viewer',
+        cta: 'Open STL viewer',
+      },
+      {
+        title: 'Inspect the BREP output',
+        description: 'Confirm whether the result is a solid, closed shell, open shell or collection of faceted faces.',
+        href: '/tools/brep-file-viewer',
+        cta: 'Open BREP viewer',
+      },
+      {
+        title: 'Need editable manufacturing geometry?',
+        description: 'Ask a CAD designer to rebuild clean analytic faces and features instead of editing thousands of mesh-derived BREP faces.',
+        href: '/cad-services',
+        cta: 'Hire a CAD designer',
+      },
+    ],
+    workflowHeading: 'How to convert STL to BREP online',
+    workflowIntro: 'Move from a triangular STL mesh to a BREP topology file in three steps.',
+    workflowSteps: [
+      ['Upload the STL file', 'Choose a .stl file up to 300 MB. Watertight, manifold meshes with consistent normals produce the most reliable topology.'],
+      ['Convert to BREP', 'The route is preconfigured for BREP. Start the conversion without searching through a destination-format menu.'],
+      ['Download and verify', 'Open the .brep or .brp result in the target CAD kernel. Verify units, body validity, open edges and face count.'],
+    ],
+    workflowCta: 'Convert STL to BREP',
+    behaviorHeading: 'What actually happens when STL is converted to BREP?',
+    behaviorSummary:
+      'STL stores an unstructured triangle surface. BREP represents geometry through connected faces, edges and vertices. Conversion creates BREP topology from the STL facets; it may sew a clean watertight mesh into a closed shell or solid, but it does not infer cylinders, fillets, holes or the original feature tree.',
+    retainedHeading: 'What is normally retained',
+    changedHeading: 'What is not retained or may change',
+    retained: [
+      'Visible shape defined by triangles',
+      'Vertex and face boundaries',
+      'Model orientation',
+      'Separate shells where supported',
+      'Closed volume when a valid watertight mesh sews successfully',
+    ],
+    changed: [
+      'Original sketches, dimensions and constraints',
+      'Parametric features and design history',
+      'Exact planes, cylinders, cones and NURBS surfaces',
+      'STL unit intent unless supplied separately',
+      'Materials, colors and manufacturing metadata',
+    ],
+    comparisonHeading: 'STL versus BREP',
+    comparisonIntro: 'Choose the format according to what the next application needs—not because one is universally better.',
+    comparisonRows: [
+      ['Data model', 'Triangle surface mesh', 'Connected faces, edges and vertices'],
+      ['Body status', 'May be watertight but has no CAD solid topology', 'Can represent shells or solids when topology is valid'],
+      ['Units', 'No standard unit field', 'Application/kernel dependent; verify dimensions'],
+      ['Editability', 'Mesh editing', 'Topology editing, often with one face per triangle'],
+      ['Best use', '3D printing and mesh workflows', 'Open CASCADE and B-rep CAD workflows'],
+    ],
+    chooseToHeading: 'Choose BREP when',
+    chooseTo: [
+      'An Open CASCADE workflow specifically needs BREP',
+      'You need faces, edges and topology rather than raw triangles',
+      'The mesh is clean enough to sew into usable topology',
+      'You accept that the model may remain faceted',
+    ],
+    keepFromHeading: 'Keep STL when',
+    keepFrom: [
+      'The next step is slicing or 3D printing',
+      'You are still repairing or simplifying the mesh',
+      'A lightweight triangle file is preferred',
+      'You need to preserve the original tessellation exactly',
+    ],
+    checksHeading: 'Check the converted BREP before using it',
+    checksIntro:
+      'A BREP file can be created successfully and still contain open shells or thousands of unusable faces. Validate topology before downstream use.',
+    checks: [
+      ['Verify scale and intended units', 'STL has no standard unit field; measure a known feature after import.'],
+      ['Confirm body status', 'Check whether the result is a valid solid, closed shell, open shell or compound.'],
+      ['Inspect open and non-manifold edges', 'Look for holes, T-junctions, overlaps and self-intersections inherited from the mesh.'],
+      ['Review face count', 'A face-per-triangle result may be too heavy for editing or Boolean operations.'],
+      ['Check orientation', 'Confirm shell and face orientation and recalculate source normals if needed.'],
+      ['Run the target operation', 'Test the Boolean, healing or CAD operation that motivated the conversion.'],
+    ],
+    troubleHeading: 'STL-to-BREP troubleshooting',
+    troubleIntro:
+      'Failures usually trace back to non-manifold STL geometry, missing unit context, invalid normals or excessive triangle density.',
+    problems: [
+      {
+        title: 'The BREP is an open shell',
+        description: 'Cause: The STL contains holes or edges that do not sew.',
+        fix: 'Repair and close the mesh before converting again.',
+      },
+      {
+        title: 'The result has thousands of faces',
+        description: 'Cause: Each triangle was represented as a separate BREP face.',
+        fix: 'Decimate non-critical mesh detail or commission a native rebuild.',
+      },
+      {
+        title: 'Boolean operations fail',
+        description: 'Cause: The converted topology is invalid, self-intersecting or too fragmented.',
+        fix: 'Run mesh repair, then validate and heal the BREP in the target kernel.',
+      },
+      {
+        title: 'The model is the wrong size',
+        description: 'Cause: The STL did not declare a physical unit.',
+        fix: 'Apply the intended millimetre, inch or other scale after measuring a known feature.',
+      },
+      {
+        title: 'Faces are reversed or missing',
+        description: 'Cause: Source normals or triangles are inconsistent.',
+        fix: 'Repair invalid facets and recalculate normals before retrying.',
+      },
+      {
+        title: 'The file opens but is hard to edit',
+        description: 'Cause: BREP topology does not equal recovered parametric features.',
+        fix: 'Use the file for exchange; request a native rebuild for design changes.',
+        href: '/cad-services',
+        cta: 'Hire a CAD designer',
+      },
+    ],
+    privacyHeading: 'Your design files remain yours',
+    privacyIntro:
+      'Engineering files can contain confidential geometry and documentation. Marathon OS keeps conversion uploads separate from its public CAD library and explains how each file is handled.',
+    privacyItems: [
+      { title: 'Encrypted transfer', description: 'Files are transferred over an encrypted connection.' },
+      { title: 'Automatic deletion', description: 'Uploaded source files and converted outputs are automatically deleted within 7 days.' },
+      { title: 'You retain ownership', description: 'Uploading or converting a file does not transfer ownership of the design to Marathon OS.' },
+      { title: 'Never published automatically', description: 'Conversion files are not listed in the public Marathon OS CAD library.' },
+    ],
+    relatedHeading: 'Related STL and BREP tools',
+    relatedIntro: 'Use tools that support the same STL-to-BREP workflow.',
+    relatedTools: [
+      { title: 'STL file viewer', description: 'inspect the source mesh', href: '/tools/stl-file-viewer', from: 'STL', viewer: true },
+      { title: 'BREP file viewer', description: 'check the converted topology', href: '/tools/brep-file-viewer', from: 'BREP', viewer: true },
+      { title: 'STL to STEP', description: 'create a STEP-compatible result', href: '/tools/convert-stl-to-step', from: 'STL', to: 'STEP' },
+      { title: 'BREP to STL', description: 'return to a printable mesh', href: '/tools/convert-brep-to-stl', from: 'BREP', to: 'STL' },
+      { title: 'OBJ to BREP', description: 'convert another mesh format', href: '/tools/convert-obj-to-brep', from: 'OBJ', to: 'BREP' },
+      { title: 'Hire a CAD designer', description: 'rebuild clean native geometry', href: '/cad-services', from: 'CAD', viewer: true },
+    ],
+    popularHeading: 'Popular CAD conversion workflows',
+    popularIntro: 'Explore adjacent engineering and mesh handoffs.',
+    popularCta: 'View all conversion tools',
+    popular: [
+      { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'CAD to printable mesh' },
+      { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'mesh to CAD exchange' },
+      { label: 'OBJ to STEP', path: '/obj-to-step', oneLiner: 'mesh to CAD exchange' },
+      { label: 'STEP to IGES', path: '/step-to-iges', oneLiner: 'legacy surface exchange' },
+      { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Rhino to CAD/CAM exchange' },
+      { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'legacy surfaces to STEP' },
+    ],
+    designHubHeading: 'Find an existing model before rebuilding one',
+    designHubIntro:
+      'Search the Marathon OS library for a usable starting model. Review dimensions, licensing and manufacturing suitability before using it.',
+    faqHeading: 'Frequently asked questions about STL to BREP conversion',
+    faqIntro: 'Clear answers about output behavior, compatibility, pricing, file limits and privacy.',
+    faqs: [
+      {
+        question: 'How do I convert STL to BREP online?',
+        answer:
+          'Upload STL (.stl), confirm BREP as the preselected output, convert and download BREP (.brep, .brp). Verify the result in the target application.',
+      },
+      {
+        question: 'Why convert STL to BREP?',
+        answer:
+          'Use BREP when an Open CASCADE or topology-based CAD workflow requires connected faces, edges and vertices rather than a raw triangle mesh.',
+      },
+      {
+        question: 'Will STL to BREP create a smooth, editable solid?',
+        answer:
+          'Not automatically. A clean STL may become a valid closed BREP, but the faces are still derived from triangles and no original parametric features are recovered.',
+      },
+      {
+        question: 'Which STL and BREP extensions are supported?',
+        answer: 'This route accepts .stl input and creates .brep, .brp output.',
+      },
+      {
+        question: 'Is the STL to BREP converter free?',
+        answer: 'Files under 5 MB can be converted and downloaded free. Larger files use one credit for one completed download.',
+      },
+      {
+        question: 'What is the maximum STL file size?',
+        answer:
+          'You can upload a STL file up to 300 MB. Very dense meshes can create enormous BREP face counts and slow or fail downstream operations.',
+      },
+      {
+        question: 'How are my files handled?',
+        answer:
+          'Files are transferred securely, are not published to the public CAD library and are automatically deleted within 7 days. You retain ownership.',
+      },
+    ],
+    designerTitle: 'Need more than a faceted BREP?',
+    designerBody:
+      'A file-format change does not reverse-engineer the original part. Work with a CAD designer when you need analytic surfaces, tolerances, features or a production-ready native model.',
+    designerSecondary: 'Convert another STL file',
+  },
   'step-to-iges': {
+    meta: {
+      title: 'Convert STEP to IGES Online – Free up to 5 MB | Marathon OS',
+      description:
+        'Convert STEP or STP files to IGES online for legacy CAD and CAM compatibility. Secure 300 MB uploads, free downloads under 5 MB and no software required.',
+    },
     h1: 'Convert STEP to IGES online',
     heroIntro:
       'Convert a STEP or STP (.step, .stp) model to IGES (.iges or .igs) for legacy CAD/CAM systems and suppliers that still require surface-based exchange. Compatible curves and surfaces can transfer, but assemblies, solid-body status, names, colors and product metadata may change.',
@@ -671,6 +917,11 @@ export const UNIQUE_PAIR_PAGES = {
     designerSecondary: 'Convert another STEP file',
   },
   'obj-to-step': {
+    meta: {
+      title: 'Convert OBJ to STEP Online – Free up to 5 MB | Marathon OS',
+      description:
+        'Convert OBJ meshes to STEP online for CAD import and engineering handoff. Secure uploads up to 300 MB, free downloads under 5 MB and no software required.',
+    },
     h1: 'Convert OBJ to STEP online',
     heroIntro:
       'Convert an OBJ (.obj) polygon mesh to STEP (.step or .stp) for CAD import, engineering review and supplier handoff. The result represents the OBJ geometry in a STEP-compatible form; it does not recreate parametric features, smooth analytic surfaces, materials, textures or the original design history.',
@@ -891,7 +1142,246 @@ export const UNIQUE_PAIR_PAGES = {
       'Conversion transfers the mesh geometry, not the design intent. Work with a CAD designer when you need smooth surfaces, precise dimensions, tolerances, separate parts or an editable native feature tree.',
     designerSecondary: 'Convert another OBJ file',
   },
+  'obj-to-iges': {
+    meta: {
+      title: 'Convert OBJ to IGES Online – Free up to 5 MB | Marathon OS',
+      description:
+        'Convert OBJ mesh files to IGES online for legacy CAD and surface workflows. Secure uploads up to 300 MB, free downloads under 5 MB and no software required.',
+    },
+    h1: 'Convert OBJ to IGES online',
+    heroIntro:
+      'Convert an OBJ (.obj) mesh to IGES (.iges or .igs) for legacy CAD/CAM and surface-exchange workflows. The output is derived from polygon faces; it does not restore smooth NURBS surfaces, native features, textures or design history.',
+    badges: ['Free under 5 MB', 'OBJ → IGES', 'No software installation'],
+    trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
+    uploadHeading: 'Upload your OBJ file',
+    uploadHelper: 'Choose one OBJ file. This page is already configured to create IGES output.',
+    dropzoneHead: 'Drag and drop your OBJ file here',
+    convertCta: 'Convert OBJ to IGES',
+    samplePrompt: 'No OBJ file available? Try a OBJ sample to see the workflow.',
+    sampleCta: 'Try sample.obj',
+    benefits: [
+      {
+        title: 'No desktop software',
+        description: 'Start the OBJ-to-IGES workflow in your browser without installing a CAD application or plugin.',
+      },
+      {
+        title: 'Honest mesh-to-surface output',
+        description: 'The IGES result packages geometry derived from OBJ polygons. It is not a reverse-engineered parametric CAD model.',
+      },
+      {
+        title: 'Ready to inspect',
+        description: 'Open the result in an IGES-compatible viewer or CAD/CAM application and check scale, surface count, gaps and file complexity.',
+        href: '/tools/iges-file-viewer',
+        cta: 'Open IGES viewer',
+      },
+      {
+        title: 'Private file handling',
+        description: 'Files stay private, are never added to the public CAD library and are automatically deleted within 7 days.',
+      },
+    ],
+    resourcesEyebrow: 'Continue your CAD workflow',
+    resourcesHeading: 'Inspect the OBJ, verify the IGES or request specialist help',
+    resourcesIntro:
+      'Inspect the OBJ mesh first, validate the IGES surfaces after conversion, or request reverse engineering when clean analytic surfaces are required.',
+    resources: [
+      {
+        title: 'Check the source OBJ',
+        description: 'Check for missing faces, inverted normals, disconnected objects, non-manifold edges and excessive polygon density.',
+        href: '/tools/obj-file-viewer',
+        cta: 'Open OBJ viewer',
+      },
+      {
+        title: 'Inspect the IGES output',
+        description: 'Confirm that the .iges or .igs file opens at the expected size and contains the expected entities or surface patches.',
+        href: '/tools/iges-file-viewer',
+        cta: 'Open IGES viewer',
+      },
+      {
+        title: 'Need smooth CAD surfaces?',
+        description: 'Ask a CAD designer to rebuild planes, cylinders, fillets and NURBS surfaces when a faceted IGES result is not suitable.',
+        href: '/cad-services',
+        cta: 'Hire a CAD designer',
+      },
+    ],
+    workflowHeading: 'How to convert OBJ to IGES online',
+    workflowIntro: 'Move from a Wavefront OBJ mesh to an IGES-compatible surface model in three steps.',
+    workflowSteps: [
+      ['Upload the OBJ file', 'Choose a .obj file up to 300 MB. Repair invalid polygons and confirm the intended scale before converting.'],
+      ['Convert to IGES', 'The route is preconfigured for IGES. Start the conversion without searching through a destination-format menu.'],
+      ['Download and verify', 'Open the .iges or .igs result in the receiving system. Verify dimensions, surface orientation, gaps and usable entity structure.'],
+    ],
+    workflowCta: 'Convert OBJ to IGES',
+    behaviorHeading: 'What actually happens when OBJ is converted to IGES?',
+    behaviorSummary:
+      'OBJ stores polygonal geometry and may reference MTL materials, texture images, UV coordinates and object groups. IGES stores curves, wireframes and trimmed surfaces. Conversion translates the visible mesh geometry into IGES-compatible entities—often many faceted surface patches. It cannot infer the original smooth surfaces or parametric design intent.',
+    retainedHeading: 'What is normally retained',
+    changedHeading: 'What is not retained or may change',
+    retained: [
+      'Visible shape defined by OBJ polygons',
+      'Vertex and face geometry',
+      'Model orientation',
+      'Separate objects or shells where supported',
+      'Closed geometry only when the source mesh is suitable',
+    ],
+    changed: [
+      'MTL materials, texture images and UV mapping',
+      'Original sketches, constraints and feature history',
+      'Exact analytic or NURBS surfaces',
+      'Reliable physical units when none were supplied',
+      'Some object names, groups and smoothing data',
+    ],
+    comparisonHeading: 'OBJ versus IGES',
+    comparisonIntro: 'Choose the format according to what the next application needs—not because one is universally better.',
+    comparisonRows: [
+      ['Data model', 'Polygon mesh', 'Curves, wireframes and trimmed surfaces'],
+      ['Visual data', 'May use MTL, textures and UVs', 'Not designed for modern texture workflows'],
+      ['Units', 'No universal unit convention', 'Can carry unit metadata, but verify import interpretation'],
+      ['Editability', 'Mesh and vertex editing', 'Surface/entity editing; no recovered feature tree'],
+      ['Best use', 'Visualization, scanning and asset exchange', 'Legacy CAD/CAM and surface exchange'],
+    ],
+    chooseToHeading: 'Choose IGES when',
+    chooseTo: [
+      'A supplier or application specifically requires IGES',
+      'You need a surface-exchange container for legacy CAD/CAM',
+      'You can accept faceted geometry derived from the mesh',
+      'You will verify the result before manufacturing',
+    ],
+    keepFromHeading: 'Keep OBJ when',
+    keepFrom: [
+      'Materials, textures or UVs matter',
+      'The next step is rendering or mesh editing',
+      'You need to preserve polygon groups or smoothing data',
+      'A faceted IGES offers no downstream advantage',
+    ],
+    checksHeading: 'Check the converted IGES before using it',
+    checksIntro:
+      'OBJ and IGES represent different types of data. Review the output carefully before quoting, machining or continuing surface work.',
+    checks: [
+      ['Verify dimensions and unit interpretation', 'OBJ does not enforce a universal physical unit. Measure a known feature in the IGES result.'],
+      ['Inspect surface count and complexity', 'Dense meshes can create thousands of IGES entities and slow the receiving application.'],
+      ['Check open edges and gaps', 'Look for disconnected patches, overlaps, missing polygons and boundaries that failed to translate.'],
+      ['Review orientation and normals', 'Confirm that faces are not reversed and the model displays consistently.'],
+      ['Confirm lost visual data', 'Check whether materials, colors, textures and UVs are required elsewhere; keep the original OBJ and assets.'],
+      ['Open the target application', 'Test the file in the exact CAD or CAM system used next.'],
+    ],
+    troubleHeading: 'OBJ-to-IGES troubleshooting',
+    troubleIntro:
+      'Most issues come from invalid polygons, missing unit context, dense meshes or expecting IGES to preserve OBJ visual assets.',
+    problems: [
+      {
+        title: 'The IGES file is huge or slow',
+        description: 'Cause: Each polygon may become one or more surface entities.',
+        fix: 'Create a copy of the OBJ and decimate non-critical detail before retrying.',
+      },
+      {
+        title: 'Textures or materials disappeared',
+        description: 'Cause: IGES does not preserve the OBJ/MTL texture workflow.',
+        fix: 'Keep the OBJ, MTL and image files as the visual source of truth.',
+      },
+      {
+        title: 'The model is the wrong size',
+        description: 'Cause: The source unit was implicit or interpreted differently.',
+        fix: 'Measure a known feature and apply the intended unit or scale.',
+      },
+      {
+        title: 'Faces are missing or reversed',
+        description: 'Cause: The OBJ contains invalid polygons, open edges or inconsistent normals.',
+        fix: 'Repair topology and recalculate normals before conversion.',
+      },
+      {
+        title: 'The result is not a smooth CAD model',
+        description: 'Cause: Format conversion follows the mesh facets.',
+        fix: 'Use reverse engineering when analytic surfaces are required.',
+      },
+      {
+        title: 'The file fails in the receiving system',
+        description: 'Cause: It may exceed entity limits or contain unsupported geometry.',
+        fix: 'Simplify the source and test a smaller sample; request specialist help if needed.',
+        href: '/cad-services',
+        cta: 'Hire a CAD designer',
+      },
+    ],
+    privacyHeading: 'Your design files remain yours',
+    privacyIntro:
+      'Engineering files can contain confidential geometry and documentation. Marathon OS keeps conversion uploads separate from its public CAD library and explains how each file is handled.',
+    privacyItems: [
+      { title: 'Encrypted transfer', description: 'Files are transferred over an encrypted connection.' },
+      { title: 'Automatic deletion', description: 'Uploaded source files and converted outputs are automatically deleted within 7 days.' },
+      { title: 'You retain ownership', description: 'Uploading or converting a file does not transfer ownership of the design to Marathon OS.' },
+      { title: 'Never published automatically', description: 'Conversion files are not listed in the public Marathon OS CAD library.' },
+    ],
+    relatedHeading: 'Related OBJ and IGES tools',
+    relatedIntro: 'Use tools that support the same OBJ-to-IGES workflow.',
+    relatedTools: [
+      { title: 'OBJ file viewer', description: 'inspect the source mesh', href: '/tools/obj-file-viewer', from: 'OBJ', viewer: true },
+      { title: 'IGES file viewer', description: 'verify the converted surfaces', href: '/tools/iges-file-viewer', from: 'IGES', viewer: true },
+      { title: 'OBJ to STEP', description: 'create a STEP-compatible mesh-derived output', href: '/tools/convert-obj-to-step', from: 'OBJ', to: 'STEP' },
+      { title: 'OBJ to BREP', description: 'try a topology-based CAD container', href: '/tools/convert-obj-to-brep', from: 'OBJ', to: 'BREP' },
+      { title: 'IGES to STEP', description: 'move legacy surfaces into STEP', href: '/tools/convert-iges-to-step', from: 'IGES', to: 'STEP' },
+      { title: 'Hire a CAD designer', description: 'rebuild clean native geometry', href: '/cad-services', from: 'CAD', viewer: true },
+    ],
+    popularHeading: 'Popular CAD conversion workflows',
+    popularIntro: 'Explore adjacent engineering and mesh handoffs.',
+    popularCta: 'View all conversion tools',
+    popular: [
+      { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'CAD to printable mesh' },
+      { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'mesh to CAD exchange' },
+      { label: 'OBJ to STEP', path: '/obj-to-step', oneLiner: 'mesh to CAD exchange' },
+      { label: 'STEP to IGES', path: '/step-to-iges', oneLiner: 'legacy surface exchange' },
+      { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Rhino to CAD/CAM exchange' },
+      { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'legacy surfaces to STEP' },
+    ],
+    designHubHeading: 'Find an existing model before rebuilding one',
+    designHubIntro:
+      'Search the Marathon OS library for a usable starting model. Review dimensions, licensing and manufacturing suitability before using it.',
+    faqHeading: 'Frequently asked questions about OBJ to IGES conversion',
+    faqIntro: 'Clear answers about output behavior, compatibility, pricing, file limits and privacy.',
+    faqs: [
+      {
+        question: 'How do I convert OBJ to IGES online?',
+        answer:
+          'Upload OBJ (.obj), confirm IGES as the preselected output, convert and download IGES (.iges, .igs). Verify the result in the target application.',
+      },
+      {
+        question: 'Why convert OBJ to IGES?',
+        answer:
+          'Use IGES when a legacy CAD/CAM system or supplier requires .igs or .iges and the mesh-derived geometry is acceptable.',
+      },
+      {
+        question: 'Does OBJ to IGES create smooth NURBS surfaces?',
+        answer:
+          'No. Automatic conversion translates the polygon mesh into IGES-compatible entities. It does not reliably reconstruct original analytic or NURBS surfaces.',
+      },
+      {
+        question: 'Which OBJ and IGES extensions are supported?',
+        answer: 'This route accepts .obj input and creates .iges, .igs output.',
+      },
+      {
+        question: 'Is the OBJ to IGES converter free?',
+        answer: 'Files under 5 MB can be converted and downloaded free. Larger files use one credit for one completed download.',
+      },
+      {
+        question: 'What is the maximum OBJ file size?',
+        answer:
+          'You can upload a OBJ file up to 300 MB. High polygon counts can produce very large IGES files and long import times.',
+      },
+      {
+        question: 'How are my files handled?',
+        answer:
+          'Files are transferred securely, are not published to the public CAD library and are automatically deleted within 7 days. You retain ownership.',
+      },
+    ],
+    designerTitle: 'Need a clean, editable CAD model?',
+    designerBody:
+      'Changing OBJ into IGES does not recreate design intent. Use a vetted CAD designer when the job requires smooth surfaces, tolerances or production-ready native geometry.',
+    designerSecondary: 'Convert another OBJ file',
+  },
   'step-to-stl': {
+    meta: {
+      title: 'Convert STEP to STL Online – Free up to 5 MB | Marathon OS',
+      description:
+        'Convert STEP or STP files to STL online for 3D printing and slicing. Secure uploads up to 300 MB, free downloads under 5 MB and no software required.',
+    },
     h1: 'Convert STEP to STL online',
     heroIntro:
       'Convert a STEP or STP (.step, .stp) CAD model to STL (.stl) for 3D printing, slicing and rapid prototyping. The converter tessellates CAD surfaces into triangles; always verify units, watertightness, facet density and thin features before printing.',
@@ -1112,6 +1602,11 @@ export const UNIQUE_PAIR_PAGES = {
     designerSecondary: 'Convert another STEP file',
   },
   'dxf-to-dwg': {
+    meta: {
+      title: 'Convert DXF to DWG Online – Free up to 5 MB | Marathon OS',
+      description:
+        'Convert DXF drawings to DWG online for AutoCAD and drafting workflows. Secure uploads up to 300 MB, free downloads under 5 MB and no software required.',
+    },
     h1: 'Convert DXF to DWG online',
     heroIntro:
       'Convert a DXF (.dxf) drawing to DWG (.dwg) for AutoCAD and DWG-compatible drafting workflows. Supported geometry, layers, blocks, dimensions and text can transfer, but fonts, external references, proxy objects, plot settings and application-specific data must be checked after conversion.',
@@ -1329,6 +1824,477 @@ export const UNIQUE_PAIR_PAGES = {
     designerBody:
       'Format conversion creates the container, but production drawings still require checking. Work with a CAD drafter when the file needs repaired geometry, fonts, xrefs, layouts, dimensions, standards or a confirmed DWG version.',
     designerSecondary: 'Convert another DXF file',
+  },
+  '3dm-to-step': {
+    meta: {
+      title: 'Convert 3DM to STEP Online – Free up to 5 MB | Marathon OS',
+      description:
+        'Convert Rhino 3DM files to STEP online for mechanical CAD and CAM workflows. Secure uploads up to 300 MB, free under 5 MB and no software required.',
+    },
+    h1: 'Convert 3DM to STEP online',
+    heroIntro:
+      'Convert a Rhino 3DM (.3dm) model to STEP (.step or .stp) for mechanical CAD, supplier handoff and CAD/CAM workflows. Compatible NURBS and B-rep geometry can transfer, while Rhino-specific layers, blocks, annotations, materials and mixed mesh data may change or be omitted.',
+    badges: ['Free under 5 MB', '3DM → STEP', 'No software installation'],
+    trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
+    uploadHeading: 'Upload your 3DM file',
+    uploadHelper: 'Choose one 3DM file. This page is already configured to create STEP output.',
+    dropzoneHead: 'Drag and drop your 3DM file here',
+    convertCta: 'Convert 3DM to STEP',
+    samplePrompt: 'No 3DM file available? Try a 3DM sample to see the workflow.',
+    sampleCta: 'Try sample.3dm',
+    benefits: [
+      {
+        title: 'No desktop software',
+        description: 'Start the 3DM-to-STEP workflow in your browser without installing a CAD application or plugin.',
+      },
+      {
+        title: 'Built for Rhino-to-CAD exchange',
+        description:
+          'Preserve compatible solids and surfaces for STEP-based workflows while keeping the original 3DM as the source of truth.',
+      },
+      {
+        title: 'Ready to inspect',
+        description:
+          'Open the STEP result in SolidWorks, Fusion 360, Inventor or the receiving CAD/CAM system and check bodies, units, trims and assembly expectations.',
+        href: '/tools/step-file-viewer',
+        cta: 'Open STEP viewer',
+      },
+      {
+        title: 'Private file handling',
+        description: 'Files stay private, are never added to the public CAD library and are automatically deleted within 7 days.',
+      },
+    ],
+    resourcesEyebrow: 'Continue your CAD workflow',
+    resourcesHeading: 'Inspect the 3DM, verify the STEP or request specialist help',
+    resourcesIntro:
+      'Inspect the source 3DM, validate the STEP output and use design support when Rhino-specific content must be rebuilt for the receiving CAD system.',
+    resources: [
+      {
+        title: 'Check the source 3DM',
+        description: 'Review solids, surfaces, curves, meshes, layers and visible objects before conversion.',
+        href: '/tools/3dm-file-viewer',
+        cta: 'Open 3DM viewer',
+      },
+      {
+        title: 'Inspect the STEP output',
+        description: 'Confirm that expected solids and surfaces open at the correct size and that trimmed faces and body status are valid.',
+        href: '/tools/step-file-viewer',
+        cta: 'Open STEP viewer',
+      },
+      {
+        title: 'Need a clean mechanical CAD model?',
+        description:
+          'Ask a CAD designer to rebuild missing features, assemblies, drawings, tolerances or Rhino-specific construction data in the target system.',
+        href: '/cad-services',
+        cta: 'Hire a CAD designer',
+      },
+    ],
+    workflowHeading: 'How to convert 3DM to STEP online',
+    workflowIntro: 'Move from a Rhino 3DM model to a STEP exchange file in three steps.',
+    workflowSteps: [
+      ['Upload the 3DM file', 'Choose a .3dm file up to 300 MB. Remove hidden or duplicate geometry and confirm document units before conversion.'],
+      ['Convert to STEP', 'The route is preconfigured for STEP. Start the conversion without searching through a destination-format menu.'],
+      ['Download and verify', 'Open the .step or .stp file in the receiving CAD system. Check units, body count, trims, open edges and whether meshes transferred acceptably.'],
+    ],
+    workflowCta: 'Convert 3DM to STEP',
+    behaviorHeading: 'What actually happens when 3DM is converted to STEP?',
+    behaviorSummary:
+      '3DM can store NURBS curves and surfaces, B-reps, meshes, layers, blocks, annotations, render materials and application-specific data. STEP focuses on product geometry and structure. Compatible NURBS/B-rep solids and surfaces generally translate best; meshes may remain faceted, while Rhino-specific organization and presentation data may not have an equivalent.',
+    retainedHeading: 'What is normally retained',
+    changedHeading: 'What is not retained or may change',
+    retained: [
+      'Compatible NURBS and B-rep shape',
+      'Solid and surface geometry where supported',
+      'Model orientation and explicit units',
+      'Separate bodies or parts where supported',
+      'Basic names or product data when mapped',
+    ],
+    changed: [
+      'Rhino history and application-specific objects',
+      'Some layers, blocks and object attributes',
+      'Annotations, layouts, lights and render settings',
+      'Materials, textures and UV data',
+      'Mesh editability and some curve-only construction geometry',
+    ],
+    comparisonHeading: '3DM versus STEP',
+    comparisonIntro: 'Choose the format according to what the next application needs—not because one is universally better.',
+    comparisonRows: [
+      ['Data model', 'NURBS, B-reps, meshes, curves and scene data', 'Product geometry, B-rep solids/surfaces and structure'],
+      ['Organization', 'Layers, groups, blocks and object attributes', 'Parts/assemblies and product names where mapped'],
+      ['Visual data', 'Can store materials, textures, lights and views', 'Limited presentation support in typical exchange'],
+      ['Editability', 'Rich Rhino-native modeling data', 'Imported geometry without Rhino history'],
+      ['Best use', 'Rhino design, surfacing and mixed geometry', 'Mechanical CAD/CAM and supplier exchange'],
+    ],
+    chooseToHeading: 'Choose STEP when',
+    chooseTo: [
+      'A mechanical CAD or CAM system requires STEP',
+      'A supplier needs neutral B-rep geometry',
+      'Compatible solids and surfaces matter more than Rhino scene data',
+      'You will keep the 3DM as the editable source',
+    ],
+    keepFromHeading: 'Keep 3DM when',
+    keepFrom: [
+      'You are still editing in Rhino',
+      'Layers, blocks, materials or annotations matter',
+      'The file contains important meshes or plugins',
+      'No STEP-based downstream requirement exists',
+    ],
+    checksHeading: 'Check the converted STEP before using it',
+    checksIntro:
+      'STEP is a strong geometry exchange format, but it is not a complete copy of the Rhino document. Compare geometry and organization before release.',
+    checks: [
+      ['Verify units and scale', 'Compare Rhino document units with the imported STEP units and measure a known feature.'],
+      ['Count solids, surfaces and meshes', 'Confirm that every expected visible body transferred and note any mesh-derived output.'],
+      ['Inspect trimmed surfaces', 'Look for gaps, missing trims, sliver faces and naked edges.'],
+      ['Confirm body status', 'Check whether objects arrived as solids, open shells or separate surfaces.'],
+      ['Review names and organization', 'Verify part names, layers, groups and blocks where they matter downstream.'],
+      ['Open the exact receiving system', 'Test the STEP in the CAD/CAM application and version used by the recipient.'],
+    ],
+    troubleHeading: '3DM-to-STEP troubleshooting',
+    troubleIntro:
+      'Most issues come from mixed geometry, damaged trims, plugin-specific objects, hidden data or differences between Rhino organization and STEP product structure.',
+    problems: [
+      {
+        title: 'Surfaces arrive with gaps',
+        description: 'Cause: Trims or tolerances do not sew cleanly in the target kernel.',
+        fix: 'Join/heal geometry in Rhino, reduce naked edges and export again.',
+      },
+      {
+        title: 'Meshes are missing or faceted',
+        description: 'Cause: Mesh objects have no native B-rep equivalent.',
+        fix: 'Convert or rebuild critical mesh geometry before STEP export.',
+      },
+      {
+        title: 'Layers or blocks changed',
+        description: 'Cause: STEP product structure does not map one-to-one with Rhino layers and blocks.',
+        fix: 'Use clear object/part names and verify organization after import.',
+      },
+      {
+        title: 'Materials or textures disappeared',
+        description: 'Cause: Typical STEP exchange does not preserve Rhino rendering data.',
+        fix: 'Keep the 3DM and texture assets for visualization workflows.',
+      },
+      {
+        title: 'The model is the wrong size',
+        description: 'Cause: Document and import units were interpreted differently.',
+        fix: 'Set explicit Rhino units and verify a known dimension in the STEP.',
+      },
+      {
+        title: 'The recipient needs editable features',
+        description: 'Cause: STEP transfers geometry, not Rhino modeling history or a target-native feature tree.',
+        fix: 'Rebuild the required features in the destination CAD system.',
+        href: '/cad-services',
+        cta: 'Hire a CAD designer',
+      },
+    ],
+    privacyHeading: 'Your design files remain yours',
+    privacyIntro:
+      'Engineering files can contain confidential geometry and documentation. Marathon OS keeps conversion uploads separate from its public CAD library and explains how each file is handled.',
+    privacyItems: [
+      { title: 'Encrypted transfer', description: 'Files are transferred over an encrypted connection.' },
+      { title: 'Automatic deletion', description: 'Uploaded source files and converted outputs are automatically deleted within 7 days.' },
+      { title: 'You retain ownership', description: 'Uploading or converting a file does not transfer ownership of the design to Marathon OS.' },
+      { title: 'Never published automatically', description: 'Conversion files are not listed in the public Marathon OS CAD library.' },
+    ],
+    relatedHeading: 'Related 3DM and STEP tools',
+    relatedIntro: 'Use tools that support the same 3DM-to-STEP workflow.',
+    relatedTools: [
+      { title: '3DM file viewer', description: 'inspect the Rhino source', href: '/tools/3dm-file-viewer', from: '3DM', viewer: true },
+      { title: 'STEP file viewer', description: 'verify the converted result', href: '/tools/step-file-viewer', from: 'STEP', viewer: true },
+      { title: 'STEP to 3DM', description: 'move STEP geometry into Rhino', href: '/tools/convert-step-to-3dm', from: 'STEP', to: '3DM' },
+      { title: '3DM to IGES', description: 'create a legacy surface-exchange file', href: '/tools/convert-3dm-to-iges', from: '3DM', to: 'IGES' },
+      { title: 'STEP to STL', description: 'create a mesh for 3D printing', href: '/tools/convert-step-to-stl', from: 'STEP', to: 'STL' },
+      { title: 'Hire a CAD designer', description: 'rebuild production-ready geometry', href: '/cad-services', from: 'CAD', viewer: true },
+    ],
+    popularHeading: 'Popular CAD conversion workflows',
+    popularIntro: 'Explore adjacent engineering and mesh handoffs.',
+    popularCta: 'View all conversion tools',
+    popular: [
+      { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'CAD to printable mesh' },
+      { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'mesh to CAD exchange' },
+      { label: 'OBJ to STEP', path: '/obj-to-step', oneLiner: 'mesh to CAD exchange' },
+      { label: 'STEP to IGES', path: '/step-to-iges', oneLiner: 'legacy surface exchange' },
+      { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'legacy surfaces to STEP' },
+    ],
+    designHubHeading: 'Find an existing model before rebuilding one',
+    designHubIntro:
+      'Search the Marathon OS library for a usable starting model. Review dimensions, licensing and manufacturing suitability before using it.',
+    faqHeading: 'Frequently asked questions about 3DM to STEP conversion',
+    faqIntro: 'Clear answers about output behavior, compatibility, pricing, file limits and privacy.',
+    faqs: [
+      {
+        question: 'How do I convert 3DM to STEP online?',
+        answer:
+          'Upload 3DM (.3dm), confirm STEP as the preselected output, convert and download STEP (.step, .stp). Verify the result in the target application.',
+      },
+      {
+        question: 'Why convert 3DM to STEP?',
+        answer:
+          'Convert 3DM to STEP when a mechanical CAD/CAM system, supplier or manufacturer needs neutral product geometry rather than a Rhino document.',
+      },
+      {
+        question: 'What 3DM data may not survive STEP conversion?',
+        answer:
+          'Rhino-specific history, layers, blocks, annotations, render materials, textures, views and plugin objects may change or be omitted. Compatible B-rep solids and NURBS surfaces transfer most reliably.',
+      },
+      {
+        question: 'Which 3DM and STEP extensions are supported?',
+        answer: 'This route accepts .3dm input and creates .step, .stp output.',
+      },
+      {
+        question: 'Is the 3DM to STEP converter free?',
+        answer: 'Files under 5 MB can be converted and downloaded free. Larger files use one credit for one completed download.',
+      },
+      {
+        question: 'What is the maximum 3DM file size?',
+        answer:
+          'You can upload a 3DM file up to 300 MB. Files with many detailed surfaces, meshes, blocks or hidden objects may take longer and create complex STEP output.',
+      },
+      {
+        question: 'How are my files handled?',
+        answer:
+          'Files are transferred securely, are not published to the public CAD library and are automatically deleted within 7 days. You retain ownership.',
+      },
+    ],
+    designerTitle: 'Need a target-native production model?',
+    designerBody:
+      'STEP is excellent for exchange, but it does not recreate a SolidWorks, Inventor or Fusion feature tree. Use a CAD designer when the recipient needs editable features, drawings, tolerances or assembly structure.',
+    designerSecondary: 'Convert another 3DM file',
+  },
+  'iges-to-step': {
+    meta: {
+      title: 'Convert IGES to STEP Online – Free up to 5 MB | Marathon OS',
+      description:
+        'Convert IGES or IGS files to STEP online for modern CAD and manufacturing workflows. Secure uploads up to 300 MB, free under 5 MB and no software required.',
+    },
+    h1: 'Convert IGES to STEP online',
+    heroIntro:
+      'Convert an IGES (.iges or .igs) model to STEP (.step or .stp) for modern mechanical CAD, supplier exchange and manufacturing workflows. Compatible curves and trimmed surfaces can transfer, but conversion cannot restore the original feature tree or automatically repair every gap in legacy geometry.',
+    badges: ['Free under 5 MB', 'IGES → STEP', 'No software installation'],
+    trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
+    uploadHeading: 'Upload your IGES file',
+    uploadHelper: 'Choose one IGES file. This page is already configured to create STEP output.',
+    dropzoneHead: 'Drag and drop your IGES file here',
+    convertCta: 'Convert IGES to STEP',
+    samplePrompt: 'No IGES file available? Try a IGES sample to see the workflow.',
+    sampleCta: 'Try sample.iges',
+    benefits: [
+      {
+        title: 'No desktop software',
+        description: 'Start the IGES-to-STEP workflow in your browser without installing a CAD application or plugin.',
+      },
+      {
+        title: 'Modernize legacy CAD exchange',
+        description:
+          'Move usable IGES geometry into a STEP container that is more common in current mechanical CAD workflows, then verify whether surfaces sew into valid bodies.',
+      },
+      {
+        title: 'Ready to inspect',
+        description:
+          'Open the STEP result in the receiving CAD system and check units, missing entities, open edges, body status and product structure.',
+        href: '/tools/step-file-viewer',
+        cta: 'Open STEP viewer',
+      },
+      {
+        title: 'Private file handling',
+        description: 'Files stay private, are never added to the public CAD library and are automatically deleted within 7 days.',
+      },
+    ],
+    resourcesEyebrow: 'Continue your CAD workflow',
+    resourcesHeading: 'Inspect the IGES, verify the STEP or request specialist help',
+    resourcesIntro:
+      'Inspect the IGES source, validate the STEP result and request geometry repair when legacy surfaces do not sew cleanly.',
+    resources: [
+      {
+        title: 'Check the source IGES',
+        description: 'Check scale, missing faces, surface boundaries and disconnected geometry before conversion.',
+        href: '/tools/iges-file-viewer',
+        cta: 'Open IGES viewer',
+      },
+      {
+        title: 'Inspect the STEP output',
+        description: 'Confirm expected bodies and surfaces, then inspect open edges, units and assembly or naming information.',
+        href: '/tools/step-file-viewer',
+        cta: 'Open STEP viewer',
+      },
+      {
+        title: 'Need repaired solids or native features?',
+        description: 'Ask a CAD designer to heal gaps, rebuild missing surfaces or recreate editable features in the target CAD system.',
+        href: '/cad-services',
+        cta: 'Hire a CAD designer',
+      },
+    ],
+    workflowHeading: 'How to convert IGES to STEP online',
+    workflowIntro: 'Move from a legacy IGES model to a STEP exchange file in three steps.',
+    workflowSteps: [
+      ['Upload the IGES file', 'Choose a .iges or .igs file up to 300 MB. Confirm that the source opens and contains the expected entities before converting.'],
+      ['Convert to STEP', 'The route is preconfigured for STEP. Start the conversion without searching through a destination-format menu.'],
+      ['Download and verify', 'Open the .step or .stp result in the receiving CAD system. Verify dimensions, surface continuity, body status and completeness.'],
+    ],
+    workflowCta: 'Convert IGES to STEP',
+    behaviorHeading: 'What actually happens when IGES is converted to STEP?',
+    behaviorSummary:
+      'IGES commonly stores curves, wireframes and trimmed surfaces, often as loosely connected entities. STEP stores B-rep geometry and product structure. Conversion maps compatible entities and may sew adjacent surfaces into shells or solids when tolerances permit. It does not invent missing faces, recover native features or guarantee that an open IGES becomes a solid.',
+    retainedHeading: 'What is normally retained',
+    changedHeading: 'What is not retained or may change',
+    retained: [
+      'Compatible curves and trimmed surfaces',
+      'Overall model shape and orientation',
+      'Explicit unit information where present',
+      'Entity names or layers when mapping exists',
+      'Closed shells or solids when surfaces sew successfully',
+    ],
+    changed: [
+      'Original sketches, constraints and feature history',
+      'Unsupported or application-specific IGES entities',
+      'Some layers, colors and metadata',
+      'Assembly relationships not represented by the source',
+      'Gaps or invalid trims that require manual healing',
+    ],
+    comparisonHeading: 'IGES versus STEP',
+    comparisonIntro: 'Choose the format according to what the next application needs—not because one is universally better.',
+    comparisonRows: [
+      ['Data model', 'Curves, wireframes and trimmed surfaces', 'B-rep solids/surfaces and product structure'],
+      ['Connectivity', 'May contain loosely associated surface entities', 'Supports connected topology and solid bodies'],
+      ['Assemblies', 'Limited and inconsistently used', 'Can represent product/assembly structure'],
+      ['Editability', 'Surface and curve editing; no universal feature history', 'Imported geometry; no recovered native feature tree'],
+      ['Best use', 'Legacy CAD/CAM and surface exchange', 'Modern mechanical CAD and supplier exchange'],
+    ],
+    chooseToHeading: 'Choose STEP when',
+    chooseTo: [
+      'A current CAD/CAM system or supplier prefers STEP',
+      'You need connected topology or product structure where available',
+      'You want a more common mechanical CAD exchange container',
+      'You can validate and heal legacy surfaces if required',
+    ],
+    keepFromHeading: 'Keep IGES when',
+    keepFrom: [
+      'The recipient specifically requires IGES',
+      'A legacy system depends on particular IGES entities',
+      'You are still repairing the source surfaces',
+      'The conversion provides no practical downstream benefit',
+    ],
+    checksHeading: 'Check the converted STEP before using it',
+    checksIntro:
+      'IGES files often contain tolerance and connectivity problems. A STEP download should be inspected as geometry, not accepted merely because it opens.',
+    checks: [
+      ['Verify units and dimensions', 'Compare a known measurement in the IGES source and STEP result.'],
+      ['Count expected entities and bodies', 'Confirm that no surfaces, curves or components disappeared.'],
+      ['Inspect open edges and gaps', 'Check whether trimmed surfaces sewed into closed shells or remained open.'],
+      ['Review body status', 'Identify solids, shells, compounds and separate surfaces in the receiving system.'],
+      ['Check orientation and trims', 'Look for reversed faces, failed boundaries and sliver geometry.'],
+      ['Validate product structure', 'Confirm names, parts and assembly hierarchy only when the source contained usable structure.'],
+    ],
+    troubleHeading: 'IGES-to-STEP troubleshooting',
+    troubleIntro:
+      'Most problems come from legacy entity support, loose surface tolerances, invalid trims, missing unit context or expecting conversion to heal incomplete geometry automatically.',
+    problems: [
+      {
+        title: 'The STEP remains a surface model',
+        description: 'Cause: The IGES surfaces are open or do not meet within sewing tolerance.',
+        fix: 'Heal gaps and trims in a CAD system, then convert or save again.',
+      },
+      {
+        title: 'Some faces or curves are missing',
+        description: 'Cause: The source contains invalid or unsupported IGES entities.',
+        fix: 'Identify the missing entities in the source and re-export using widely supported types.',
+      },
+      {
+        title: 'The model is the wrong size',
+        description: 'Cause: Units were absent or interpreted differently.',
+        fix: 'Measure a known feature and set the intended unit in the receiving system.',
+      },
+      {
+        title: 'Faces are reversed',
+        description: 'Cause: Surface orientation or trim loops were inconsistent.',
+        fix: 'Repair face orientation and boundaries in the source or target CAD system.',
+      },
+      {
+        title: 'Assembly structure is missing',
+        description: 'Cause: IGES often lacks reliable modern product hierarchy.',
+        fix: 'Recreate the required structure after import or use a better source file.',
+      },
+      {
+        title: 'The file opens but cannot be edited parametrically',
+        description: 'Cause: STEP contains imported geometry, not the original feature tree.',
+        fix: 'Use direct editing or commission a target-native rebuild.',
+        href: '/cad-services',
+        cta: 'Hire a CAD designer',
+      },
+    ],
+    privacyHeading: 'Your design files remain yours',
+    privacyIntro:
+      'Engineering files can contain confidential geometry and documentation. Marathon OS keeps conversion uploads separate from its public CAD library and explains how each file is handled.',
+    privacyItems: [
+      { title: 'Encrypted transfer', description: 'Files are transferred over an encrypted connection.' },
+      { title: 'Automatic deletion', description: 'Uploaded source files and converted outputs are automatically deleted within 7 days.' },
+      { title: 'You retain ownership', description: 'Uploading or converting a file does not transfer ownership of the design to Marathon OS.' },
+      { title: 'Never published automatically', description: 'Conversion files are not listed in the public Marathon OS CAD library.' },
+    ],
+    relatedHeading: 'Related IGES and STEP tools',
+    relatedIntro: 'Use tools that support the same IGES-to-STEP workflow.',
+    relatedTools: [
+      { title: 'IGES file viewer', description: 'inspect the legacy source', href: '/tools/iges-file-viewer', from: 'IGES', viewer: true },
+      { title: 'STEP file viewer', description: 'verify the converted result', href: '/tools/step-file-viewer', from: 'STEP', viewer: true },
+      { title: 'STEP to IGES', description: 'create an IGES handoff', href: '/tools/convert-step-to-iges', from: 'STEP', to: 'IGES' },
+      { title: 'IGES to STL', description: 'create a printable mesh', href: '/tools/convert-iges-to-stl', from: 'IGES', to: 'STL' },
+      { title: '3DM to STEP', description: 'convert Rhino geometry to STEP', href: '/tools/convert-3dm-to-step', from: '3DM', to: 'STEP' },
+      { title: 'Hire a CAD designer', description: 'heal or rebuild geometry', href: '/cad-services', from: 'CAD', viewer: true },
+    ],
+    popularHeading: 'Popular CAD conversion workflows',
+    popularIntro: 'Explore adjacent engineering and mesh handoffs.',
+    popularCta: 'View all conversion tools',
+    popular: [
+      { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'CAD to printable mesh' },
+      { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'mesh to CAD exchange' },
+      { label: 'OBJ to STEP', path: '/obj-to-step', oneLiner: 'mesh to CAD exchange' },
+      { label: 'STEP to IGES', path: '/step-to-iges', oneLiner: 'legacy surface exchange' },
+      { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Rhino to CAD/CAM exchange' },
+    ],
+    designHubHeading: 'Find an existing model before rebuilding one',
+    designHubIntro:
+      'Search the Marathon OS library for a usable starting model. Review dimensions, licensing and manufacturing suitability before using it.',
+    faqHeading: 'Frequently asked questions about IGES to STEP conversion',
+    faqIntro: 'Clear answers about output behavior, compatibility, pricing, file limits and privacy.',
+    faqs: [
+      {
+        question: 'How do I convert IGES to STEP online?',
+        answer:
+          'Upload IGES (.iges, .igs), confirm STEP as the preselected output, convert and download STEP (.step, .stp). Verify the result in the target application.',
+      },
+      {
+        question: 'Why convert IGES to STEP?',
+        answer:
+          'Convert IGES to STEP when the receiving CAD/CAM system or supplier prefers STEP and you need a modern B-rep exchange container for legacy surface geometry.',
+      },
+      {
+        question: 'Will IGES to STEP turn every surface model into a solid?',
+        answer:
+          'No. Surfaces can form a solid only when they are complete, correctly trimmed and close enough to sew. Gaps or missing faces require repair.',
+      },
+      {
+        question: 'Which IGES and STEP extensions are supported?',
+        answer: 'This route accepts .iges, .igs input and creates .step, .stp output.',
+      },
+      {
+        question: 'Is the IGES to STEP converter free?',
+        answer: 'Files under 5 MB can be converted and downloaded free. Larger files use one credit for one completed download.',
+      },
+      {
+        question: 'What is the maximum IGES file size?',
+        answer:
+          'You can upload a IGES file up to 300 MB. Legacy files with many surface patches, curves or invalid entities can take longer to process and review.',
+      },
+      {
+        question: 'How are my files handled?',
+        answer:
+          'Files are transferred securely, are not published to the public CAD library and are automatically deleted within 7 days. You retain ownership.',
+      },
+    ],
+    designerTitle: 'Need a healed solid or editable feature model?',
+    designerBody:
+      'Conversion can modernize the exchange format, but it cannot invent missing geometry or recover design history. Use a CAD designer when the result needs healing, remodeling, tolerances or target-native features.',
+    designerSecondary: 'Convert another IGES file',
   },
 }
 

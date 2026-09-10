@@ -11,12 +11,13 @@ import { toast } from 'react-toastify'
 
 const SAMPLE_ICONS = [Car, Truck, Wrench, Radio]
 
-function CommonSampleViewer({ variant, prompt, sampleLabel, sampleFormat }) {
+function CommonSampleViewer({ variant, prompt, sampleLabel, sampleFormat, sampleGallery }) {
   const router = useRouter();
   const { setFile } = useContext(contextState);
   const formatSample = sampleFormat
     ? convertedFiles.find((file) => file.format === String(sampleFormat).toLowerCase())
     : null;
+  const gallerySamples = sampleGallery ? convertedFiles.filter((file) => file.url) : [];
 
   const handleViewFile = (designId) => {
     sendGAtagEvent({ event_name: 'viewer_sample_file_clicked', event_category: CAD_VIEWER_EVENT })
@@ -24,14 +25,14 @@ function CommonSampleViewer({ variant, prompt, sampleLabel, sampleFormat }) {
     router.push(`/tools/cad-renderer?designId=${designId}&sample=true&glb=true`);
   }
 
-  const handleFormatSample = async () => {
-    if (!formatSample?.url) return;
+  const handleConvertedSample = async (sample) => {
+    if (!sample?.url) return;
     sendGAtagEvent({ event_name: 'viewer_sample_file_clicked', event_category: CAD_VIEWER_EVENT })
     try {
-      const response = await fetch(formatSample.url);
+      const response = await fetch(sample.url);
       if (!response.ok) throw new Error('sample fetch failed');
       const blob = await response.blob();
-      const file = new File([blob], formatSample.name, {
+      const file = new File([blob], sample.name, {
         type: blob.type || 'application/octet-stream',
       });
       setFile(file);
@@ -47,20 +48,33 @@ function CommonSampleViewer({ variant, prompt, sampleLabel, sampleFormat }) {
 
   if (sampleFormat && !formatSample) return null;
 
+  const galleryButtons = gallerySamples.map((file) => (
+    <button
+      type="button"
+      key={file.id}
+      className={variant === 'dark' ? heroStyles.sampleChip : undefined}
+      onClick={() => handleConvertedSample(file)}
+    >
+      {String(file.format || '').toUpperCase()}
+    </button>
+  ))
+
+  const singleFormatButton = formatSample ? (
+    <button
+      type="button"
+      className={variant === 'dark' ? heroStyles.sampleChip : undefined}
+      onClick={() => handleConvertedSample(formatSample)}
+    >
+      {sampleLabel || formatSample.name}
+    </button>
+  ) : null
+
   if (variant === 'dark') {
     return (
       <div className={heroStyles.samplesDark}>
         <span className={heroStyles.samplesDarkLabel}>{samplePrompt}</span>
         <div className={heroStyles.samplesDarkGrid}>
-          {formatSample ? (
-            <button
-              type="button"
-              className={heroStyles.sampleChip}
-              onClick={handleFormatSample}
-            >
-              {sampleLabel || formatSample.name}
-            </button>
-          ) : (
+          {gallerySamples.length ? galleryButtons : singleFormatButton || (
             cadViewerFiles.map((file, index) => {
               const Icon = SAMPLE_ICONS[index] || Radio
               return (
@@ -87,11 +101,7 @@ function CommonSampleViewer({ variant, prompt, sampleLabel, sampleFormat }) {
     <div className={styles["cad-dropzone-samples"]}>
       <span>{samplePrompt}</span>
       <div className={styles["cad-dropzone-sample-btns"]}>
-        {formatSample ? (
-          <button type="button" onClick={handleFormatSample}>
-            {sampleLabel || formatSample.name}
-          </button>
-        ) : (
+        {gallerySamples.length ? galleryButtons : singleFormatButton || (
           cadViewerFiles.map((file) => (
             <button type="button" key={file.id} onClick={() => handleViewFile(file.id)}>{file.name}</button>
           ))

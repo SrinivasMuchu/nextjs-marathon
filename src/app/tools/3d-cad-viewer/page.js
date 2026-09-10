@@ -2,12 +2,17 @@ import CadHomeDesign from '@/Components/CadUploadingHome/CadHomeDesign/CadHomeDe
 import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import StickyCadStrip from '@/Components/CadServicesBanners/StickyCadStrip';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
+import { getUniqueViewerPage } from '@/data/viewerUniquePages';
 import React from 'react';
 
+const uniquePage = getUniqueViewerPage(null, { isHub: true });
 const CANONICAL_URL = 'https://marathon-os.com/tools/3d-cad-viewer';
-const TITLE = 'Free Online 3D CAD Viewer | STEP, IGES, STL, OBJ, 3DM | Marathon OS';
+const TITLE =
+  uniquePage?.meta?.title ||
+  'Free Online 3D CAD Viewer | STEP, IGES, STL, OBJ, 3DM | Marathon OS';
 const DESCRIPTION =
-  'Preview CAD & 3D model files online in seconds on Marathon OS. Upload STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP, 3DM. Fast, secure, cloud-based viewer. No software required.';
+  uniquePage?.meta?.description ||
+  'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP and 3DM files online. Private browser-based viewing up to 300 MB, with no CAD software required.';
 
 export const metadata = buildPageMetadata({
   title: TITLE,
@@ -23,12 +28,12 @@ function PartDesignViewer() {
   return (
     <>
       <ToolPageJsonLd
-        name="Free Online 3D CAD Viewer"
+        name={uniquePage?.h1 || 'Free Online 3D CAD Viewer'}
         url={CANONICAL_URL}
-        description="Preview STEP, IGES, STL, OBJ, PLY, OFF, BREP, and 3DM files online with no software installation."
+        description={DESCRIPTION}
         breadcrumbLinks={[
           { label: 'Tools', href: '/tools' },
-          { label: 'CAD Viewer', href: '/tools/3d-cad-viewer' },
+          { label: uniquePage?.breadcrumbLabel || 'CAD Viewer' },
         ]}
       />
       <CadHomeDesign skipBreadcrumbSchema />

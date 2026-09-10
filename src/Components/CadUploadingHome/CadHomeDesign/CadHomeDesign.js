@@ -15,6 +15,7 @@ import ConvertCrossLink from '../CadUpload/ConvertCrossLink'
 import CadIndustry from './CadIndustry'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import CadViewerFormatSections from './CadViewerFormatSections'
+import CadViewerFormatDirectory from './CadViewerFormatDirectory'
 import CadViewerToolLinks from './CadViewerToolLinks'
 import CadViewerUniqueArticle from './CadViewerUniqueArticle'
 import ToolLibraryCrossLinks from '@/Components/CommonJsx/CrossTemplateLinks/ToolLibraryCrossLinks'
@@ -22,6 +23,7 @@ import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { getViewerFaqQuestions } from '@/data/cadToolFaqs'
 import { getUniqueViewerPage } from '@/data/viewerUniquePages'
+import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 import { IMAGEURLS } from '@/config'
 
 // Page heading structure: 1 h1 (CadHeader), 2 h2s (HowItWorks, CoreBenefits), rest h3 (CadViewrTypes, DesignHub, UseCases, TrustPrivacy, ConvertCrossLink, CadIndustry, OrgFaq).
@@ -148,8 +150,8 @@ const steps = [
     { title: '3D printing workflows inspecting STL/OBJ meshes', description: 'inspecting STL/OBJ meshes' },
   ];
 function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSchema = false }) {
-    const uniquePage = getUniqueViewerPage(cadType)
-    const faqQuestions = getViewerFaqQuestions(cadType)
+    const uniquePage = getUniqueViewerPage(cadType, { isHub: !type })
+    const faqQuestions = getViewerFaqQuestions(cadType, { isHub: !type })
     const cadTypeLabel = uniquePage?.breadcrumbLabel || (cadType ? `${String(cadType).toUpperCase()} CAD Viewer` : 'CAD Viewer Type');
     const breadcrumbLinks = type
       ? [
@@ -159,7 +161,7 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSc
         ]
       : [
           { label: 'tools', href: '/tools' },
-          { label: 'CAD Viewer', href: '/tools/3d-cad-viewer' },
+          { label: uniquePage?.breadcrumbLabel || 'CAD Viewer' },
         ];
     const howItWorksSteps = uniquePage?.workflowSteps
       ? uniquePage.workflowSteps.map((step, index) => ({
@@ -191,9 +193,22 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSc
             ) : null}
             {!type ? (
               <>
-                <CadViewerToolLinks />
-                <ConvertCrossLink />
-                <ToolLibraryCrossLinks />
+                <CadViewerFormatDirectory uniquePage={uniquePage} />
+                <CadViewerToolLinks uniquePage={uniquePage} />
+                {uniquePage?.skipHeroDesigner ? (
+                  <ToolsPageBanner
+                    title={uniquePage.designerTitle}
+                    description={uniquePage.designerBody}
+                    primaryLabel={uniquePage.designerCta}
+                  />
+                ) : null}
+                <ConvertCrossLink uniquePage={uniquePage} />
+                <ToolLibraryCrossLinks
+                  title={uniquePage?.resourcesHeading}
+                  intro={uniquePage?.resourcesIntro}
+                  links={uniquePage?.resources}
+                  nosnippet={Boolean(uniquePage)}
+                />
               </>
             ) : null}
             {/* <OrgFeatures type='cad'/> */}
@@ -220,16 +235,20 @@ function CadHomeDesign({ type, cadType, skipPageJsonLd = false, skipBreadcrumbSc
                 description={uniquePage?.whyIntro}
             />
             {uniquePage ? (
-              <CadViewerUniqueArticle uniquePage={uniquePage} parts={['preflight', 'troubleshooting']} />
+              <CadViewerUniqueArticle uniquePage={uniquePage} parts={['preflight', 'formatGuidance', 'troubleshooting']} />
             ) : null}
             {uniquePage ? (
               <>
+                {uniquePage.privacyItems?.length ? (
                 <TrustPrivacy
                   items={uniquePage.privacyItems}
                   title={uniquePage.privacyHeading}
                   description={uniquePage.privacyIntro}
                   headingLevel={2}
                 />
+                ) : (
+                  <CadViewerUniqueArticle uniquePage={uniquePage} parts={['privacy']} />
+                )}
                 <UseCases
                   useCases={uniquePage.audience}
                   title={uniquePage.audienceHeading}

@@ -123,8 +123,93 @@
   color: #ffffff;
 }
 
+.guidanceSection,
+.privacySection {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-inter), Inter, sans-serif;
+}
+
+.guidanceSection {
+  padding: clamp(56px, 7vw, 88px) clamp(18px, 5vw, 64px);
+  background: #ffffff;
+}
+
+.guidanceInner,
+.privacyInner {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.guidanceInner h2,
+.privacyInner h2 {
+  margin: 0;
+  color: #1d1530;
+  font-size: clamp(26px, 3.2vw, 36px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.guidanceInner > p,
+.privacyInner > p {
+  max-width: 720px;
+  margin: 12px 0 0;
+  color: #5b5566;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.guidanceGrid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.guidanceGrid article {
+  padding: 20px;
+  border: 1px solid #ece7f1;
+  border-radius: 14px;
+  background: #f8f6fc;
+}
+
+.guidanceGrid h3 {
+  margin: 0;
+  color: #1d1530;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.guidanceGrid strong {
+  display: block;
+  margin-top: 6px;
+  color: #6d28d9;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.guidanceGrid p {
+  margin: 8px 0 0;
+  color: #5b5566;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.privacySection {
+  padding: clamp(48px, 6vw, 80px) clamp(18px, 5vw, 64px);
+  background: #f8f6fc;
+}
+
+.privacyInner a {
+  color: #6d28d9;
+  font-weight: 700;
+}
+
 @media (max-width: 800px) {
-  .capabilitiesInner {
+  .capabilitiesInner,
+  .guidanceGrid {
     grid-template-columns: 1fr;
   }
 }
