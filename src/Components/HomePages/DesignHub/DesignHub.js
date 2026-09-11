@@ -55,6 +55,7 @@ const DesignHub = async ({
   variant = 'default',
   heading,
   description,
+  ctaLabel,
   nosnippet = false,
 }) => {
   const { categories, designsByCategory } = await getCategoriesAndDesigns()
@@ -68,6 +69,7 @@ const DesignHub = async ({
         headingLevel={headingLevel}
         heading={heading}
         description={description}
+        ctaLabel={ctaLabel}
         nosnippet={nosnippet}
       />
     )

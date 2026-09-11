@@ -57,7 +57,9 @@ function getSamplePrompt(from, isConverterHero, conversionParams) {
 }
 
 function getSampleButtonLabel(file, conversionParams) {
-    if (getUniquePairPage(conversionParams)) return file?.name;
+    const uniquePage = getUniquePairPage(conversionParams);
+    if (uniquePage?.sampleCta) return uniquePage.sampleCta;
+    if (uniquePage) return file?.name;
     const format = String(file?.format || '').toLowerCase();
     const useCase = CONVERTER_HUB_PAGE.sampleUseCases[format];
     if (useCase) return `${file.name} · ${useCase}`;

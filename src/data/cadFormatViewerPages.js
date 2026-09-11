@@ -1,3 +1,5 @@
+import { getUniqueViewerPage } from '@/data/viewerUniquePages';
+
 export const CAD_VIEWER_FORMAT_SLUGS = [
   'off',
   'step',
@@ -43,7 +45,7 @@ const FORMAT_CONFIG = {
     extensions: ['.step', '.stp'],
     title: 'STEP File Viewer | Open STEP and STP Files Online | Marathon OS',
     description:
-      'Open and inspect STEP and STP files online without CAD software. Preview 3D CAD models securely in your browser with encrypted uploads and 7-day file deletion.',
+      'Open STEP and STP files online to inspect solids, surfaces and assemblies. Private browser-based viewing for files up to 300 MB, with no CAD software required.',
     h1: 'Free Online STEP File Viewer',
     relatedTools: [
       { href: '/tools/convert-step-to-stl', label: 'STEP to STL Converter' },
@@ -125,7 +127,7 @@ const FORMAT_CONFIG = {
     extensions: ['.igs', '.iges'],
     title: 'IGES File Viewer | Open IGES and IGS Files Online | Marathon OS',
     description:
-      'Open and inspect IGES and IGS files online without CAD software. Preview surface-based CAD models securely in your browser with 7-day auto-delete.',
+      'Open IGES and IGS files online to inspect curves, surfaces and gaps. Private browser-based viewing for files up to 300 MB, with no CAD software required.',
     h1: 'Free Online IGES File Viewer',
     relatedTools: [
       { href: '/tools/convert-iges-to-step', label: 'IGES to STEP Converter' },
@@ -246,12 +248,18 @@ export function getAllowedExtensions(slug) {
 }
 
 export function getSupportedInputFormatsLabel(slug) {
+  const unique = getUniqueViewerPage(slug);
+  if (unique?.supportedInputLabel) {
+    return `Supported input formats: ${unique.supportedInputLabel}`;
+  }
   const config = getCadViewerFormatConfig(slug);
   if (!config) return null;
   return `Supported input formats: ${config.supportedInputLabel}`;
 }
 
 export function getViewerHeroCopy(slug) {
+  const unique = getUniqueViewerPage(slug);
+  if (unique?.heroIntro) return unique.heroIntro;
   const config = getCadViewerFormatConfig(slug);
   if (!config) return null;
   return `Open and inspect ${config.formatName} files online without installing CAD software. Marathon OS lets you preview ${config.previewPhrase} securely in your browser with private uploads and automatic file deletion after 7 days.`;
@@ -260,15 +268,17 @@ export function getViewerHeroCopy(slug) {
 export function getViewerPageMetadata(slug) {
   const config = getCadViewerFormatConfig(slug);
   if (!config) return null;
+  const unique = getUniqueViewerPage(slug);
   const canonicalPath = `/tools/${slug.toLowerCase()}-file-viewer`;
   return {
-    title: config.title,
-    description: config.description,
-    h1: config.h1,
+    title: unique?.meta?.title || config.title,
+    description: unique?.meta?.description || config.description,
+    h1: unique?.h1 || config.h1,
     canonicalPath,
     canonicalUrl: `https://marathon-os.com${canonicalPath}`,
     formatName: config.formatName,
-    relatedTools: config.relatedTools || DEFAULT_RELATED_TOOLS,
+    relatedTools: unique?.relatedTools || config.relatedTools || DEFAULT_RELATED_TOOLS,
+    breadcrumbLabel: unique?.breadcrumbLabel,
   };
 }
 

@@ -39,6 +39,7 @@ function CoreBenefits({ benefits, title, variant, eyebrow, description }) {
         <h2 id="viewer-core-benefits-heading" className={styles.viewerGridHeading}>
           {title}
         </h2>
+        {description ? <p className={styles.viewerGridDescription}>{description}</p> : null}
         <div className={styles.viewerGrid}>
           {benefits.map((item, index) => {
             const Icon = (item.icon && VIEWER_GRID_ICONS[item.icon]) || Zap;

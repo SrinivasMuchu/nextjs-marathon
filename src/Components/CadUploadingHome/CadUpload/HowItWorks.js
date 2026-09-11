@@ -98,10 +98,17 @@ function HowItWorks({
           {(primaryCta?.href || secondaryCta?.href) && (
             <div className={styles.cadViewerCtaRow}>
               {primaryCta?.href ? (
+                primaryCta.href.startsWith('#') ? (
+                  <a href={primaryCta.href} className={styles.cadViewerPrimaryCta}>
+                    <Upload size={18} strokeWidth={2.2} aria-hidden />
+                    {primaryCta.label}
+                  </a>
+                ) : (
                 <Link href={primaryCta.href} className={styles.cadViewerPrimaryCta}>
                   <Upload size={18} strokeWidth={2.2} aria-hidden />
                   {primaryCta.label}
                 </Link>
+                )
               ) : null}
               {secondaryCta?.href ? (
                 <Link href={secondaryCta.href} className={styles.cadViewerSecondaryCta}>

@@ -10,7 +10,7 @@ import converterStyles from './TrustPrivacyConverter.module.css';
 
 const CONVERTER_ICONS = [LockKeyhole, Trash2, UserRound];
 
-function TrustPrivacy({ items, title, description, variant }) {
+function TrustPrivacy({ items, title, description, variant, headingLevel }) {
   if (variant === 'converterBanner') {
     return (
       <section className={converterStyles.section} aria-labelledby="converter-privacy-heading">
@@ -37,10 +37,12 @@ function TrustPrivacy({ items, title, description, variant }) {
     );
   }
 
+  const HeadingTag = headingLevel === 2 ? 'h2' : 'h3';
+
   return (
     <SecurityWrapper styles={securityStyles}>
       <div className={securityStyles['security-content']}>
-        <h3 className={securityStyles['security-head']}>{title}</h3>
+        <HeadingTag className={securityStyles['security-head']}>{title}</HeadingTag>
         {description && (
           <p className={securityStyles['security-desc']}>{description}</p>
         )}

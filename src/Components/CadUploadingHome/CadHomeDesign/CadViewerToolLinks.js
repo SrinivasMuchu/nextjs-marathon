@@ -53,21 +53,30 @@ const VIEWER_TOOLS = [
   },
 ];
 
-function CadViewerToolLinks() {
+function CadViewerToolLinks({ uniquePage }) {
+  const tools = uniquePage?.viewerTools?.length
+    ? uniquePage.viewerTools
+    : VIEWER_TOOLS;
+  const heading = uniquePage?.viewerToolsHeading || 'Most Used CAD Viewer Tools';
+
   return (
     <section className={`${styles.section} ${styles.sectionMuted}`} aria-labelledby="most-used-cad-viewer-tools">
       <div className={styles.wrapper}>
         <h2 id="most-used-cad-viewer-tools" className={styles.mainHeading}>
-          Most Used CAD Viewer Tools
+          {heading}
         </h2>
-        <div className={styles.grid}>
-          {VIEWER_TOOLS.map((tool) => (
+        <div className={styles.grid} data-nosnippet={uniquePage ? true : undefined}>
+          {tools.map((tool) => (
             <Link key={tool.href} href={tool.href} className={styles.card}>
               <div className={styles.cardContent}>
-                <div className={styles.cardHeaderRow}>
-                  <span className={styles.formatPill}>{tool.pill}</span>
-                  <span className={styles.viewerTitle}>File Viewer</span>
-                </div>
+                {tool.pill ? (
+                  <div className={styles.cardHeaderRow}>
+                    <span className={styles.formatPill}>{tool.pill}</span>
+                    <span className={styles.viewerTitle}>File Viewer</span>
+                  </div>
+                ) : (
+                  <h3 className={styles.viewerTitle}>{tool.title || tool.label}</h3>
+                )}
                 <p className={styles.cardDescription}>{tool.description}</p>
               </div>
             </Link>

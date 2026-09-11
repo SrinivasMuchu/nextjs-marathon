@@ -14,6 +14,7 @@ import {
   ConverterPricingBanner,
 } from "./ConverterPricingDisplay";
 import { CONVERTER_HUB_PAGE } from "@/data/converterHubPage";
+import { getUniquePairPage } from "@/data/converterPairUniquePages";
 
 const FORMAT_ALIASES = {
   stp: "step",
@@ -35,8 +36,8 @@ const FORMAT_FIELD_LABELS = {
   stl: "STL (.stl)",
   iges: "IGES (.iges, .igs)",
   igs: "IGES (.iges, .igs)",
-  brep: "BREP (.brep)",
-  brp: "BREP (.brep)",
+  brep: "BREP (.brep, .brp)",
+  brp: "BREP (.brep, .brp)",
   obj: "OBJ (.obj)",
   ply: "PLY (.ply)",
   off: "OFF (.off)",
@@ -287,8 +288,11 @@ function CadDropDown({
     const hubInputUpper = fileExt
       ? (normalizeFormatKey(fileExt) || fileExt).toUpperCase()
       : "Auto-detect";
+    const uniquePairPage = getUniquePairPage(
+      pairSource && pairTarget ? `${pairSource}-to-${pairTarget}` : ""
+    );
     const convertLabel = dedicatedPair
-      ? `Convert ${fromUpper} to ${toUpper}`
+      ? uniquePairPage?.convertCta || `Convert ${fromUpper} to ${toUpper}`
       : hubOutputKey
         ? `Convert ${hubInputUpper} to ${outputFormatLabel}`
         : CONVERTER_HUB_PAGE.convertBeforeSelection;

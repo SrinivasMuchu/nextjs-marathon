@@ -3,7 +3,7 @@ import ConvertPairPage from '@/Components/CadUploadingHome/CadFileConversion/Con
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd';
 import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
-import { getConverterFaqQuestions, cadViewerFaqQuestions } from '@/data/cadToolFaqs';
+import { getConverterFaqQuestions, getViewerFaqQuestions } from '@/data/cadToolFaqs';
 import { getUniquePairPage } from '@/data/converterPairUniquePages';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import { converterTypes } from '@/common.helper';
@@ -97,11 +97,12 @@ export default function ToolPage({ params }) {
     const meta = getViewerPageMetadata(cadFile);
     if (!meta) return notFound();
 
-    const cadTypeLabel = `${String(cadFile).toUpperCase()} CAD Viewer`;
+    const cadTypeLabel = meta.breadcrumbLabel || `${String(cadFile).toUpperCase()} CAD Viewer`;
+    const viewerFaqs = getViewerFaqQuestions(cadFile);
 
     return (
       <>
-        <FaqPageJsonLd faqSchemaData={cadViewerFaqQuestions} />
+        <FaqPageJsonLd faqSchemaData={viewerFaqs} />
         <ToolPageJsonLd
           name={meta.h1.replace(/^Free Online /, '')}
           url={meta.canonicalUrl}

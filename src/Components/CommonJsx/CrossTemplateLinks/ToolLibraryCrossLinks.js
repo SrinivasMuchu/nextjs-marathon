@@ -12,6 +12,9 @@ const ICON_MAP = {
 
 export default function ToolLibraryCrossLinks({
   title = 'Explore Marathon OS CAD resources',
+  intro,
+  links = TOOL_LIBRARY_CROSS_LINKS,
+  nosnippet = false,
   variant = 'light',
 }) {
   const bandClass =
@@ -24,8 +27,9 @@ export default function ToolLibraryCrossLinks({
       <h2 id="tool-library-cross-links" className={styles.toolLibraryTitle}>
         {title}
       </h2>
-      <div className={styles.toolLibraryCards}>
-        {TOOL_LIBRARY_CROSS_LINKS.map((link) => {
+      {intro ? <p className={styles.toolLibraryIntro}>{intro}</p> : null}
+      <div className={styles.toolLibraryCards} data-nosnippet={nosnippet ? true : undefined}>
+        {links.map((link) => {
           const Icon = ICON_MAP[link.icon] || Box
           return (
             <Link key={link.href} href={link.href} className={styles.toolLibraryCard}>
