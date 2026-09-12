@@ -3,7 +3,7 @@ import ConverterFaq from './ConverterFaq'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import CadFileConversionHeader from './CadFileConversionHeader'
 import CadFileConversionHowItWorksServer from './CadFileConversionHowItWorksServer'
-import ConverterPricingSection from './ConverterPricingSection'
+import ConverterPricingSectionServer from './ConverterPricingSectionServer'
 import TrustPrivacy from '../CadUpload/TrustPrivacy'
 import CadConverterTypes from './CadConverterTypes'
 import CadConversionToolLinks from './CadConversionToolLinks'
@@ -66,7 +66,7 @@ function CadFileConversionHome({
                 />
             )}
             <CadFileConversionHeader convert={convert} conversionParams={conversionParams} />
-            <ConverterPricingSection />
+            <ConverterPricingSectionServer />
             {!convert ? (
               <>
                 <CadConversionToolLinks />

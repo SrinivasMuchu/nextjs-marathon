@@ -12,34 +12,36 @@ import ConverterDownloadFlow from '@/Components/History/ConverterDownloadFlow';
 import { ensureConverterPackPurchase } from '@/Components/History/converterPayment';
 import styles from './ConverterPricingSection.module.css';
 
-function ConverterPricingSection() {
+function ConverterPricingSection({
+  initialPacks = [],
+  initialSinglePriceLabel = '',
+  pricingNote = 'Files under 5 MB convert and download free. Larger files use one credit for one completed download, regardless of file size.',
+}) {
   const { user, setUser, setUpdatedDetails } = useContext(contextState);
-  const [packs, setPacks] = useState([]);
-  const [singlePriceLabel, setSinglePriceLabel] = useState('');
-  const [loaded, setLoaded] = useState(false);
+  const [packs, setPacks] = useState(initialPacks);
+  const [singlePriceLabel, setSinglePriceLabel] = useState(initialSinglePriceLabel);
   const [pendingPack, setPendingPack] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
+    if (initialPacks.length) return undefined;
     let cancelled = false;
     fetchConverterPricingInfo()
       .then((info) => {
         if (cancelled) return;
         setPacks(getConverterPacksFromInfo(info));
         setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
-        setLoaded(true);
       })
       .catch(() => {
         if (!cancelled) {
           setPacks([]);
           setSinglePriceLabel('');
-          setLoaded(true);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialPacks.length]);
 
   useEffect(() => {
     if (user?._id && showLogin) {
@@ -64,10 +66,6 @@ function ConverterPricingSection() {
     }
   };
 
-  if (!loaded || !packs.length) {
-    return null;
-  }
-
   return (
     <section className={styles.section} aria-labelledby="converter-pricing-heading">
       <div className={styles.inner}>
@@ -77,11 +75,12 @@ function ConverterPricingSection() {
             Pay as you go, cheaper by the pack
           </h2>
           <p className={styles.description}>
-            Files under 5 MB are always free. For everything else, buy credits —{' '}
+            {pricingNote}{' '}
             <strong>1 credit downloads any file, any size, and credits never expire.</strong>
           </p>
         </header>
 
+        {packs.length ? (
         <div className={styles.grid}>
           {packs.map((pack) => (
             <article
@@ -116,6 +115,7 @@ function ConverterPricingSection() {
             </article>
           ))}
         </div>
+        ) : null}
 
         {singlePriceLabel ? (
           <p className={styles.footer}>
