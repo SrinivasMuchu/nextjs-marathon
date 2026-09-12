@@ -5,7 +5,7 @@ import { useState, useEffect, useContext, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Eye, ArrowLeftRight, Download, Box, ShieldCheck, ChevronUp } from 'lucide-react';
+import { Eye, ArrowLeftRight, Download, Box, ShieldCheck, ChevronUp, Search } from 'lucide-react';
 import { contextState } from './ContextProvider';
 import { useCadForm, isCadPartnerPageRoute } from '../CadServicePages/CadFormContext';
 import styles from './FloatingButton.module.css';
@@ -24,6 +24,13 @@ const ACTIONS = [
     subtitle: 'STEP ⇄ STL ⇄ IGES ⇄ DXF',
     Icon: ArrowLeftRight,
     eventName: 'floating_button_convert_click',
+  },
+  {
+    href: '/tools/cad-match',
+    title: 'Match CAD',
+    subtitle: 'Find similar library designs',
+    Icon: Search,
+    eventName: 'floating_button_match_click',
   },
   {
     href: '/publish-cad',

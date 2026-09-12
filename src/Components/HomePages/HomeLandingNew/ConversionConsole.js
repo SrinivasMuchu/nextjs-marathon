@@ -8,6 +8,7 @@ import {
   ChevronRight,
   FileOutput,
   Layers,
+  Search,
 } from "lucide-react";
 import { converterTypes } from "@/common.helper";
 import CadFileConversionContent from "@/Components/CadUploadingHome/CadFileConversion/CadFileConversionContent";
@@ -130,6 +131,20 @@ function ConversionConsole() {
         </span>
         <span className={styles.consoleAltPrice}>
           <TechDrawPriceAmount />
+          <ChevronRight size={15} aria-hidden="true" />
+        </span>
+      </Link>
+
+      <Link className={styles.consoleAlternative} href="/tools/cad-match">
+        <span className={styles.consoleAltIcon}>
+          <Search size={18} aria-hidden="true" />
+        </span>
+        <span className={styles.consoleAltCopy}>
+          <small>FIND SIMILAR PARTS?</small>
+          <strong>Match your CAD against the library</strong>
+        </span>
+        <span className={styles.consoleAltPrice}>
+          Free
           <ChevronRight size={15} aria-hidden="true" />
         </span>
       </Link>

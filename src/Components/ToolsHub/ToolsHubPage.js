@@ -9,6 +9,7 @@ import {
   Network,
   PenTool,
   RefreshCw,
+  Search,
 } from 'lucide-react';
 import Footer from '@/Components/HomePages/Footer/Footer';
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs';
@@ -47,6 +48,14 @@ const QUICK_TOOLS_CARDS = [
       'Upload a STEP file and get multi-sheet 2D technical drawings — front, top, section and detail views with AI-placed dimensions.',
     tags: ['STEP/STP', 'Multi-sheet', 'AI Dimensions'],
     Icon: PenTool,
+  },
+  {
+    href: '/tools/cad-match',
+    title: 'CAD Match',
+    description:
+      'Upload your CAD part and find the most similar designs in the Marathon library by geometric shape.',
+    tags: ['Shape search', 'Top 10', 'Library match'],
+    Icon: Search,
   },
   {
     href: '/tools/industries',
