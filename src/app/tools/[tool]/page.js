@@ -5,6 +5,7 @@ import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
 import { getConverterFaqQuestions, getViewerFaqQuestions } from '@/data/cadToolFaqs';
 import { getUniquePairPage } from '@/data/converterPairUniquePages';
+import { getConverterPricingForRender } from '@/lib/converterPricingServer';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import { converterTypes } from '@/common.helper';
 import {
@@ -85,7 +86,7 @@ export async function generateMetadata({ params }) {
   return { title: 'Not Found' };
 }
 
-export default function ToolPage({ params }) {
+export default async function ToolPage({ params }) {
   const segment = params?.tool ?? '';
   const isViewer = /^.+-file-viewer$/.test(segment);
   const isConvert = segment.startsWith('convert-');
@@ -129,6 +130,7 @@ export default function ToolPage({ params }) {
     const softwareDescription = uniquePage?.heroIntro || uniquePage?.meta?.description;
 
     const converterFaqs = getConverterFaqQuestions(conversion);
+    const pricing = await getConverterPricingForRender();
 
     return (
       <>
@@ -137,6 +139,7 @@ export default function ToolPage({ params }) {
           name={softwareName}
           url={softwareUrl}
           description={softwareDescription}
+          offers={pricing.offers}
         />
         <ConvertPairPage conversionParams={conversion} />
       </>

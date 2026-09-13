@@ -27,7 +27,7 @@ import TwoDDrawingCtaBanner from './TwoDDrawingCtaBanner';
 import ProductDetailToolLinks from '../CommonJsx/CrossTemplateLinks/ProductDetailToolLinks';
 import ProductDetailGuidance from './ProductDetailGuidance';
 import { cleanLibraryProductName } from '@/lib/seo/libraryProductDetail';
-import { isLibraryDesignFree } from '@/data/libraryPage';
+import { isLibraryDesignFree, getDesignPageDrawingHref } from '@/data/libraryPage';
 import DesignConversionSocialProof from './DesignConversionSocialProof';
 import {
   DesignConversionProvider,
@@ -49,9 +49,11 @@ function IndustryDesign({ design, designData, type }) {
   const cleanTitle = response
     ? cleanLibraryProductName(response.page_title || response.part_name)
     : '';
-  const pipelineHref = response?._id
-    ? `/tools/cad-drawing-pipeline?source=${encodeURIComponent(response._id)}`
-    : '/tools/cad-drawing-pipeline';
+  const pipelineHref = getDesignPageDrawingHref({
+    designId: response?._id,
+    libraryRoute,
+    hasTwoDDrawings: false,
+  });
 
   const pageBody = designData ? (
     <>
