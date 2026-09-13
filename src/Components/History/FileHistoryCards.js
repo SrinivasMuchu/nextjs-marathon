@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, buildCadConverterOutputUrl, toCadOutputCdnUrl, CAD_CONVERTER_EVENT } from '@/config';
+import { BASE_URL, buildCadConverterOutputUrlCandidates, toCadOutputCdnUrl, CAD_CONVERTER_EVENT } from '@/config';
 import styles from './FileHistory.module.css';
 import Pagenation from '../CommonJsx/Pagenation';
 import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
@@ -246,12 +246,26 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   };
 
   const performConverterFileDownload = async (file, index) => {
-    const url = buildCadConverterOutputUrl(file._id, file.base_name, file.output_format);
+    const candidates = buildCadConverterOutputUrlCandidates(file);
+    if (!candidates.length) {
+      throw new Error('Download URL is missing for this conversion.');
+    }
 
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    let response = null;
+    let lastError = null;
+    for (const url of candidates) {
+      try {
+        response = await fetch(url);
+        if (response.ok) break;
+        lastError = new Error(`HTTP error! status: ${response.status}`);
+        response = null;
+      } catch (err) {
+        lastError = err;
+        response = null;
+      }
+    }
+    if (!response?.ok) {
+      throw lastError || new Error('Download failed.');
     }
 
     const blob = await response.blob();
