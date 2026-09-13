@@ -153,8 +153,35 @@ export function buildCadViewerMetaUrl(fileId) {
 /** CAD converter outputs: cad-output-files/converter/{id}/{baseName}.{format} */
 export function buildCadConverterOutputUrl(fileId, baseName, outputFormat) {
   const id = encodeURIComponent(fileId || '');
-  if (!id || !baseName || !outputFormat) return '';
-  return `${CAD_OUTPUT_FILES_PREFIX_URL}${CAD_CONVERTER_OUTPUT_PREFIX}/${id}/${baseName}.${String(outputFormat).toLowerCase()}`;
+  const stem = String(baseName || '').trim();
+  const fmt = String(outputFormat || '').toLowerCase().replace(/^\./, '');
+  if (!id || !stem || !fmt) return '';
+  // Don't encode the stem's dots; only sanitize path separators.
+  const safeStem = stem.replace(/[\\/]/g, '_');
+  return `${CAD_OUTPUT_FILES_PREFIX_URL}${CAD_CONVERTER_OUTPUT_PREFIX}/${id}/${safeStem}.${fmt}`;
+}
+
+/**
+ * Candidate CDN URLs for a converted file.
+ * Newer workers upload as converter/{id}/{id}.{format} while Mongo still has the
+ * original upload stem in base_name — try both so downloads don't 403.
+ */
+export function buildCadConverterOutputUrlCandidates(file) {
+  const id = file?._id || file?.id || '';
+  const fmt = file?.output_format;
+  const base = file?.base_name;
+  const urls = [];
+  const push = (stem) => {
+    const url = buildCadConverterOutputUrl(id, stem, fmt);
+    if (url && !urls.includes(url)) urls.push(url);
+  };
+  push(base);
+  push(id);
+  if (file?.output_file_url) {
+    const cdn = toCadOutputCdnUrl(file.output_file_url) || file.output_file_url;
+    if (cdn && !urls.includes(cdn)) urls.unshift(cdn);
+  }
+  return urls;
 }
 
 /** Prefer CloudFront for cad-output-files S3 URLs (reports, artifacts, etc.). */
