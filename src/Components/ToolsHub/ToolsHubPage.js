@@ -49,6 +49,14 @@ const QUICK_TOOLS_CARDS = [
     Icon: PenTool,
   },
   {
+    href: '/tools/step-bom-tree',
+    title: 'STEP BOM Tree',
+    description:
+      'Upload a STEP assembly and extract its bill of materials tree — parts, sub-assemblies, and quantities from the CAD product structure.',
+    tags: ['STEP/STP', 'BOM tree', 'Kafka sample_step'],
+    Icon: Network,
+  },
+  {
     href: '/tools/industries',
     title: 'Industries',
     description:
