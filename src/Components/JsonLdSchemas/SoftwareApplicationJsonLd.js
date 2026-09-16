@@ -9,6 +9,7 @@ function SoftwareApplicationJsonLd({
   description,
   price = '0',
   priceCurrency = 'USD',
+  offers,
 }) {
   if (!name || !url) return null;
 
@@ -20,7 +21,7 @@ function SoftwareApplicationJsonLd({
     operatingSystem: 'Web',
     url,
     ...(description ? { description } : {}),
-    offers: {
+    offers: offers || {
       '@type': 'Offer',
       price,
       priceCurrency,
