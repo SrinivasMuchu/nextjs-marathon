@@ -16,7 +16,8 @@ import styles from "./CadMatch.module.css";
 const STAGE_LABELS = {
   DOWNLOAD: "Downloading",
   MESH: "Reading geometry",
-  FINGERPRINT: "Computing shape fingerprint",
+  EMBED: "Computing shape embedding",
+  FINGERPRINT: "Computing shape embedding",
   SEARCH: "Searching library",
 };
 
@@ -162,7 +163,7 @@ export default function CadMatchStatus({ jobId }) {
             <div className={styles.progressFill} />
           </div>
           <p className={styles.phase}>
-            {stage || "Working…"} — this usually takes under a minute.
+            {stage || "Working…"} — computing shape embedding and searching the library.
           </p>
         </div>
       ) : null}
