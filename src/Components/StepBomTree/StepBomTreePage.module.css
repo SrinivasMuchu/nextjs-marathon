@@ -262,7 +262,7 @@
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: #160c24;
+  background: #1e1e1e;
   display: block;
 }
 
@@ -356,7 +356,7 @@
   max-height: 80vh;
   border-radius: 16px;
   border: 1px solid var(--border);
-  background: #160c24;
+  background: #1e1e1e;
 }
 
 .lightbox p {

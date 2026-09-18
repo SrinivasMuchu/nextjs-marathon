@@ -49,8 +49,30 @@ function collectPreviewIds(node, into = []) {
   return into;
 }
 
-function meshForNode(node, partsById) {
+function round1(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n.toFixed(1) : "0.0";
+}
+
+function geomKey(node) {
+  const box = node?.bbox_mm || {};
+  return `${round1(node?.volume_mm3)}|${round1(box.x)}|${round1(box.y)}|${round1(box.z)}|${round1(node?.area_mm2)}`;
+}
+
+function indexMeshesByGeom(node, partsById, into = {}) {
+  if (!node) return into;
+  if (node.preview_id && partsById[node.preview_id]) {
+    const key = geomKey(node);
+    if (!into[key]) into[key] = partsById[node.preview_id];
+  }
+  for (const child of node.children || []) indexMeshesByGeom(child, partsById, into);
+  return into;
+}
+
+function meshForNode(node, partsById, geomIndex) {
   if (node?.preview_id && partsById[node.preview_id]) return partsById[node.preview_id];
+  const byGeom = geomIndex?.[geomKey(node)];
+  if (byGeom) return byGeom;
   const parts = collectPreviewIds(node)
     .map((id) => partsById[id])
     .filter(Boolean);
@@ -80,12 +102,12 @@ function PartThumb({ mesh, size = 72, alt, className, onOpen }) {
   return <img src={src} alt={alt || ""} width={size} height={size} className={className || styles.thumb} />;
 }
 
-function BomNode({ node, depth = 0, partsById, onOpenPhoto }) {
+function BomNode({ node, depth = 0, partsById, geomIndex, onOpenPhoto }) {
   const [open, setOpen] = useState(depth < 2);
   const children = Array.isArray(node?.children) ? node.children : [];
   const hasChildren = children.length > 0;
   const qty = Number(node?.quantity) || 1;
-  const mesh = meshForNode(node, partsById);
+  const mesh = meshForNode(node, partsById, geomIndex);
 
   return (
     <li className={styles.treeItem} style={{ "--depth": depth }}>
@@ -131,6 +153,7 @@ function BomNode({ node, depth = 0, partsById, onOpenPhoto }) {
               node={child}
               depth={depth + 1}
               partsById={partsById}
+              geomIndex={geomIndex}
               onOpenPhoto={onOpenPhoto}
             />
           ))}
@@ -170,6 +193,10 @@ export default function StepBomTreePage() {
     for (const part of previewParts) map[part.id] = part;
     return map;
   }, [previewParts]);
+  const geomIndex = useMemo(
+    () => indexMeshesByGeom(tree, partsById),
+    [partsById, tree],
+  );
 
   const uniqueParts = useMemo(() => {
     const raw = summary?.unique_parts;
@@ -378,7 +405,7 @@ export default function StepBomTreePage() {
               </button>
             </div>
             <ul className={styles.treeList}>
-              <BomNode node={tree} partsById={partsById} onOpenPhoto={openPhoto} />
+              <BomNode node={tree} partsById={partsById} geomIndex={geomIndex} onOpenPhoto={openPhoto} />
             </ul>
           </section>
         ) : null}
@@ -388,7 +415,7 @@ export default function StepBomTreePage() {
             <h2>Parts</h2>
             <div className={styles.photoGrid}>
               {uniqueParts.map((part) => {
-                const mesh = partsById[part.preview_id] || null;
+                const mesh = meshForNode(part, partsById, geomIndex);
                 return (
                   <figure key={part.name} className={styles.photoCard}>
                     <PartThumb
@@ -429,7 +456,7 @@ export default function StepBomTreePage() {
                 </thead>
                 <tbody>
                   {flat.map((row, index) => {
-                    const mesh = partsById[row.preview_id] || null;
+                    const mesh = meshForNode(row, partsById, geomIndex);
                     return (
                       <tr key={`${row.name}-${index}`}>
                         <td>

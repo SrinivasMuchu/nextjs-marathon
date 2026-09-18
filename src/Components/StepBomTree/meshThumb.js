@@ -1,168 +1,127 @@
+import * as THREE from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+
 const thumbCache = new Map();
 
-function triangleList(positions, indices) {
-  const tris = [];
-  if (Array.isArray(indices) && indices.length >= 3) {
-    for (let i = 0; i + 2 < indices.length; i += 3) {
-      tris.push(indices[i], indices[i + 1], indices[i + 2]);
-    }
-    return tris;
+const CAD_BASE_COLOR = "#9a9a9e";
+const CAD_METALNESS = 0.88;
+const CAD_ROUGHNESS = 0.42;
+const CAD_EDGE_COLOR = "#050505";
+const CAD_BG = "#1E1E1E";
+
+let shared = null;
+
+function getSharedRenderer(size) {
+  if (typeof document === "undefined") return null;
+  if (!shared) {
+    const canvas = document.createElement("canvas");
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: false,
+      preserveDrawingBuffer: true,
+      powerPreference: "low-power",
+    });
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.NoToneMapping;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    shared = { canvas, renderer, pmrem, envTex };
   }
-  const count = Math.floor((positions?.length || 0) / 9) * 3;
-  for (let i = 0; i < count; i += 1) tris.push(i);
-  return tris;
+  shared.renderer.setPixelRatio(1);
+  shared.renderer.setSize(size, size, false);
+  shared.renderer.setClearColor(CAD_BG, 1);
+  return shared;
 }
 
-function vertex(positions, index) {
-  const o = index * 3;
-  return [positions[o] || 0, positions[o + 1] || 0, positions[o + 2] || 0];
+function buildGeometry(part) {
+  const positions = Array.isArray(part?.positions) ? part.positions : [];
+  if (positions.length < 9) return null;
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  if (Array.isArray(part.indices) && part.indices.length >= 3) {
+    geometry.setIndex(part.indices);
+  }
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
 }
 
 export function renderMeshThumb(part, size = 96) {
   const positions = part?.positions;
-  const key = `${part?.id || "mesh"}:${size}:${positions?.length || 0}:${part?.indices?.length || 0}`;
+  const renderSize = Math.min(512, Math.max(128, Math.round(size * 2)));
+  const key = `${part?.id || "mesh"}:${renderSize}:${positions?.length || 0}:${part?.indices?.length || 0}`;
   if (thumbCache.has(key)) return thumbCache.get(key);
   if (typeof document === "undefined" || !positions || positions.length < 9) {
     thumbCache.set(key, "");
     return "";
   }
 
-  const tris = triangleList(positions, part.indices);
-  if (tris.length < 3) {
+  try {
+    const ctx = getSharedRenderer(renderSize);
+    if (!ctx) {
+      thumbCache.set(key, "");
+      return "";
+    }
+
+    const geometry = buildGeometry(part);
+    if (!geometry) {
+      thumbCache.set(key, "");
+      return "";
+    }
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(CAD_BG);
+    scene.environment = ctx.envTex;
+
+    const material = new THREE.MeshStandardMaterial({
+      color: CAD_BASE_COLOR,
+      metalness: CAD_METALNESS,
+      roughness: CAD_ROUGHNESS,
+      envMapIntensity: 0.85,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    const edges = new THREE.LineSegments(
+      new THREE.EdgesGeometry(geometry, 22),
+      new THREE.LineBasicMaterial({ color: CAD_EDGE_COLOR }),
+    );
+    scene.add(edges);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.15);
+    keyLight.position.set(2.4, 3.2, 2.8);
+    scene.add(keyLight);
+    const fill = new THREE.DirectionalLight(0xc8d0e8, 0.35);
+    fill.position.set(-2.2, -0.6, -1.6);
+    scene.add(fill);
+
+    if (!geometry.boundingSphere) geometry.computeBoundingSphere();
+    const center = geometry.boundingSphere.center.clone();
+    const radius = Math.max(geometry.boundingSphere.radius, 1e-3);
+    const dist = radius * 2.45;
+    const camera = new THREE.PerspectiveCamera(28, 1, Math.max(dist / 200, 0.01), dist * 20);
+    camera.position.set(center.x + dist * 0.72, center.y + dist * 0.62, center.z + dist * 0.72);
+    camera.lookAt(center);
+    camera.updateProjectionMatrix();
+
+    ctx.renderer.render(scene, camera);
+    const url = ctx.canvas.toDataURL("image/png");
+
+    geometry.dispose();
+    edges.geometry.dispose();
+    material.dispose();
+    edges.material.dispose();
+
+    thumbCache.set(key, url);
+    return url;
+  } catch (err) {
+    console.warn("BOM thumb render failed", err);
     thumbCache.set(key, "");
     return "";
   }
-
-  let minX = Infinity;
-  let minY = Infinity;
-  let minZ = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-  let maxZ = -Infinity;
-  for (let i = 0; i < positions.length; i += 3) {
-    const x = positions[i];
-    const y = positions[i + 1];
-    const z = positions[i + 2];
-    if (x < minX) minX = x;
-    if (y < minY) minY = y;
-    if (z < minZ) minZ = z;
-    if (x > maxX) maxX = x;
-    if (y > maxY) maxY = y;
-    if (z > maxZ) maxZ = z;
-  }
-  const cx = (minX + maxX) / 2;
-  const cy = (minY + maxY) / 2;
-  const cz = (minZ + maxZ) / 2;
-
-  const fwd = [1, 1, 1.2];
-  let fl = Math.hypot(fwd[0], fwd[1], fwd[2]) || 1;
-  fwd[0] /= fl;
-  fwd[1] /= fl;
-  fwd[2] /= fl;
-  const right = [-fwd[1], fwd[0], 0];
-  let rl = Math.hypot(right[0], right[1], right[2]) || 1;
-  right[0] /= rl;
-  right[1] /= rl;
-  const up = [
-    right[1] * fwd[2] - 0 * fwd[1],
-    0 * fwd[0] - right[0] * fwd[2],
-    right[0] * fwd[1] - right[1] * fwd[0],
-  ];
-  let ul = Math.hypot(up[0], up[1], up[2]) || 1;
-  up[0] /= ul;
-  up[1] /= ul;
-  up[2] /= ul;
-
-  const light = [0.45, 0.3, 0.84];
-  let ll = Math.hypot(light[0], light[1], light[2]) || 1;
-  light[0] /= ll;
-  light[1] /= ll;
-  light[2] /= ll;
-
-  const projected = new Array(positions.length / 3);
-  let span = 1;
-  for (let i = 0, v = 0; i < positions.length; i += 3, v += 1) {
-    const dx = positions[i] - cx;
-    const dy = positions[i + 1] - cy;
-    const dz = positions[i + 2] - cz;
-    const x = dx * right[0] + dy * right[1] + dz * right[2];
-    const y = dx * up[0] + dy * up[1] + dz * up[2];
-    const z = dx * fwd[0] + dy * fwd[1] + dz * fwd[2];
-    projected[v] = [x, y, z];
-    span = Math.max(span, Math.abs(x), Math.abs(y));
-  }
-
-  const faces = [];
-  for (let i = 0; i + 2 < tris.length; i += 3) {
-    const a = tris[i];
-    const b = tris[i + 1];
-    const c = tris[i + 2];
-    const pa = projected[a];
-    const pb = projected[b];
-    const pc = projected[c];
-    if (!pa || !pb || !pc) continue;
-    const va = vertex(positions, a);
-    const vb = vertex(positions, b);
-    const vc = vertex(positions, c);
-    const e1x = vb[0] - va[0];
-    const e1y = vb[1] - va[1];
-    const e1z = vb[2] - va[2];
-    const e2x = vc[0] - va[0];
-    const e2y = vc[1] - va[1];
-    const e2z = vc[2] - va[2];
-    let nx = e1y * e2z - e1z * e2y;
-    let ny = e1z * e2x - e1x * e2z;
-    let nz = e1x * e2y - e1y * e2x;
-    const nl = Math.hypot(nx, ny, nz);
-    if (nl < 1e-12) continue;
-    nx /= nl;
-    ny /= nl;
-    nz /= nl;
-    if (nx * fwd[0] + ny * fwd[1] + nz * fwd[2] > 0) {
-      nx = -nx;
-      ny = -ny;
-      nz = -nz;
-    }
-    const shade = Math.max(0.18, Math.min(1, 0.22 + 0.78 * Math.max(0, nx * light[0] + ny * light[1] + nz * light[2])));
-    faces.push({
-      depth: (pa[2] + pb[2] + pc[2]) / 3,
-      a: pa,
-      b: pb,
-      c: pc,
-      shade,
-    });
-  }
-  faces.sort((left, rightFace) => left.depth - rightFace.depth);
-
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#160c24";
-  ctx.fillRect(0, 0, size, size);
-
-  const margin = 0.14;
-  const scale = ((1 - margin) * (size / 2)) / span;
-  const toX = (x) => size / 2 + x * scale;
-  const toY = (y) => size / 2 - y * scale;
-
-  for (const face of faces) {
-    const t = face.shade;
-    const r = Math.round(48 + (186 - 48) * t);
-    const g = Math.round(36 + (168 - 36) * t);
-    const b = Math.round(92 + (255 - 92) * t);
-    ctx.fillStyle = `rgb(${r},${g},${b})`;
-    ctx.beginPath();
-    ctx.moveTo(toX(face.a[0]), toY(face.a[1]));
-    ctx.lineTo(toX(face.b[0]), toY(face.b[1]));
-    ctx.lineTo(toX(face.c[0]), toY(face.c[1]));
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  const url = canvas.toDataURL("image/png");
-  thumbCache.set(key, url);
-  return url;
 }
 
 export function mergeMeshes(parts) {
