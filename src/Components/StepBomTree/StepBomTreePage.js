@@ -54,9 +54,48 @@ function round1(value) {
   return Number.isFinite(n) ? n.toFixed(1) : "0.0";
 }
 
+function canonicalName(value) {
+  let text = String(value || "").replace(/\s+/g, " ").trim();
+  let previous = "";
+  while (text && text !== previous) {
+    previous = text;
+    text = text
+      .replace(/\s*\(\s*solid\s+\d+\s*\)\s*$/i, "")
+      .replace(/[._][A-Za-z]*\d{3,}$/i, "")
+      .replace(/\s+[A-Za-z][A-Za-z0-9_-]*\d{3,}$/i, "")
+      .trim();
+  }
+  return text || String(value || "Part").trim();
+}
+
 function geomKey(node) {
   const box = node?.bbox_mm || {};
-  return `${round1(node?.volume_mm3)}|${round1(box.x)}|${round1(box.y)}|${round1(box.z)}|${round1(node?.area_mm2)}`;
+  const dims = [Number(box.x) || 0, Number(box.y) || 0, Number(box.z) || 0]
+    .map((value) => (Math.round(value * 2) / 2).toFixed(1))
+    .sort((left, right) => Number(left) - Number(right));
+  const vol = Math.abs(Number(node?.volume_mm3) || 0);
+  const volKey = vol >= 50 ? String(Math.round(vol)) : vol.toFixed(1);
+  return `${volKey}|${dims.join("x")}`;
+}
+
+function mergeUniquePartList(parts) {
+  const grouped = new Map();
+  for (const part of parts || []) {
+    const key = `${canonicalName(part?.name)}|${geomKey(part)}`;
+    const qty = Number(part.quantity) || 1;
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.quantity += qty;
+      if (!existing.preview_id && part.preview_id) existing.preview_id = part.preview_id;
+      continue;
+    }
+    grouped.set(key, {
+      ...part,
+      name: canonicalName(part?.name),
+      quantity: qty,
+    });
+  }
+  return Array.from(grouped.values());
 }
 
 function indexMeshesByGeom(node, partsById, into = {}) {
@@ -199,25 +238,14 @@ export default function StepBomTreePage() {
   );
 
   const uniqueParts = useMemo(() => {
-    const raw = summary?.unique_parts;
-    if (Array.isArray(raw) && raw.length) return raw;
-    const grouped = new Map();
-    for (const row of flat) {
-      if (row?.type !== "part") continue;
-      const entry = grouped.get(row.name) || {
-        name: row.name,
-        quantity: 0,
-        preview_id: row.preview_id || "",
-        volume_mm3: row.volume_mm3,
-        area_mm2: row.area_mm2,
-        solid_count: row.solid_count,
-        bbox_mm: row.bbox_mm,
-      };
-      entry.quantity += Number(row.total_quantity) || 1;
-      if (!entry.preview_id && row.preview_id) entry.preview_id = row.preview_id;
-      grouped.set(row.name, entry);
-    }
-    return Array.from(grouped.values());
+    const fromFlat = flat
+      .filter((row) => row?.type === "part")
+      .map((row) => ({
+        ...row,
+        quantity: Number(row.total_quantity) || Number(row.quantity) || 1,
+      }));
+    const fromSummary = Array.isArray(summary?.unique_parts) ? summary.unique_parts : [];
+    return mergeUniquePartList(fromFlat.length ? fromFlat : fromSummary);
   }, [flat, summary]);
 
   const openPhoto = useCallback((mesh, name) => {
@@ -383,7 +411,7 @@ export default function StepBomTreePage() {
             </div>
             <div>
               <span>Unique parts</span>
-              <strong>{summary.unique_part_count || uniqueParts.length}</strong>
+              <strong>{uniqueParts.length}</strong>
             </div>
             <div>
               <span>Total qty</span>
@@ -417,7 +445,7 @@ export default function StepBomTreePage() {
               {uniqueParts.map((part) => {
                 const mesh = meshForNode(part, partsById, geomIndex);
                 return (
-                  <figure key={part.name} className={styles.photoCard}>
+                  <figure key={`${part.name}-${geomKey(part)}`} className={styles.photoCard}>
                     <PartThumb
                       mesh={mesh}
                       size={180}
