@@ -8,7 +8,7 @@ import {
   pollStepBomJob,
   uploadStepBomFile,
 } from "@/api/stepBomApi";
-import { mergeMeshes, renderMeshThumb } from "./meshThumb";
+import { boxMeshFromBbox, mergeMeshes, renderMeshThumb } from "./meshThumb";
 import styles from "./StepBomTreePage.module.css";
 
 const STEP_EXT = /\.(step|stp)$/i;
@@ -54,8 +54,29 @@ function round1(value) {
   return Number.isFinite(n) ? n.toFixed(1) : "0.0";
 }
 
+function repairMojibake(value) {
+  const text = String(value || "");
+  if (!text) return "";
+  try {
+    const bytes = Uint8Array.from([...text].map((ch) => ch.charCodeAt(0)));
+    if (bytes.some((b) => b > 255)) return text;
+    if (!bytes.some((b) => b >= 128)) return text;
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes) || text;
+  } catch {
+    return text;
+  }
+}
+
+function stripInstanceSuffix(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[\s._-]*\d{3,}$/u, "")
+    .trim();
+}
+
 function canonicalName(value) {
-  let text = String(value || "").replace(/\s+/g, " ").trim();
+  let text = repairMojibake(String(value || "")).replace(/\s+/g, " ").trim();
   let previous = "";
   while (text && text !== previous) {
     previous = text;
@@ -63,9 +84,52 @@ function canonicalName(value) {
       .replace(/\s*\(\s*solid\s+\d+\s*\)\s*$/i, "")
       .replace(/[._][A-Za-z]*\d{3,}$/i, "")
       .replace(/\s+[A-Za-z][A-Za-z0-9_-]*\d{3,}$/i, "")
+      .replace(/[\s._-]*\d{3,}$/u, "")
       .trim();
   }
-  return text || String(value || "Part").trim();
+  return text || stripInstanceSuffix(repairMojibake(value)) || "Part";
+}
+
+function isGenericName(value) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  if (!text) return true;
+  if (/^open\s+cascade\s+step\s+translator(?:\s+[\d.]+)*(?:\s+\d+)*$/i.test(text)) return true;
+  if (/^(part|solid|compound|shape|body|imported\s*part)(?:[\s._-]*\d+)*$/i.test(text)) return true;
+  if (/^part\s+\d/i.test(text)) return true;
+  return false;
+}
+
+function partLabel(node) {
+  if (isGenericName(node?.name)) {
+    const size = formatSize(node?.bbox_mm);
+    return size !== "—" ? `Part ${size}` : "Part";
+  }
+  const cleaned = canonicalName(node?.name);
+  if (!cleaned || isGenericName(cleaned)) {
+    const size = formatSize(node?.bbox_mm);
+    return size !== "—" ? `Part ${size}` : "Part";
+  }
+  return cleaned;
+}
+
+function isAssemblyNode(node) {
+  return node?.type === "assembly" || (Array.isArray(node?.children) && node.children.length > 0);
+}
+
+function instanceSuffix(value) {
+  const match = String(value || "").trim().match(/(\d{2,})\s*$/);
+  return match ? match[1] : "";
+}
+
+function assemblyLabel(node) {
+  const raw = String(node?.name || "").trim();
+  if (raw && !isGenericName(raw)) return canonicalName(raw);
+  const inst = instanceSuffix(raw) || instanceSuffix(node?.source_name);
+  return inst ? `Assembly ${inst}` : "Assembly";
+}
+
+function nodeLabel(node) {
+  return isAssemblyNode(node) ? assemblyLabel(node) : partLabel(node);
 }
 
 function geomKey(node) {
@@ -81,7 +145,7 @@ function geomKey(node) {
 function mergeUniquePartList(parts) {
   const grouped = new Map();
   for (const part of parts || []) {
-    const key = `${canonicalName(part?.name)}|${geomKey(part)}`;
+    const key = geomKey(part);
     const qty = Number(part.quantity) || 1;
     const existing = grouped.get(key);
     if (existing) {
@@ -91,21 +155,191 @@ function mergeUniquePartList(parts) {
     }
     grouped.set(key, {
       ...part,
-      name: canonicalName(part?.name),
+      name: partLabel(part),
       quantity: qty,
     });
   }
   return Array.from(grouped.values());
 }
 
-function indexMeshesByGeom(node, partsById, into = {}) {
-  if (!node) return into;
-  if (node.preview_id && partsById[node.preview_id]) {
-    const key = geomKey(node);
-    if (!into[key]) into[key] = partsById[node.preview_id];
+function indexMeshesByGeom(node, partsById, previewParts = [], into = {}) {
+  if (node) {
+    if (node.preview_id && partsById[node.preview_id]) {
+      const key = geomKey(node);
+      if (!into[key]) into[key] = partsById[node.preview_id];
+    }
+    for (const child of node.children || []) indexMeshesByGeom(child, partsById, [], into);
   }
-  for (const child of node.children || []) indexMeshesByGeom(child, partsById, into);
+  for (const part of previewParts) {
+    if (!part?.id || !partsById[part.id]) continue;
+    if (part.bbox_mm || part.volume_mm3) {
+      const key = geomKey(part);
+      if (!into[key]) into[key] = partsById[part.id];
+    }
+  }
   return into;
+}
+
+function childMergeKey(node) {
+  if (isAssemblyNode(node)) {
+    return `asm|${node?.source_name || ""}|${node?.name || ""}`;
+  }
+  return `part|${geomKey(node)}`;
+}
+
+function collapseNode(node) {
+  if (!node) return node;
+  const grouped = new Map();
+  let assemblyIndex = 0;
+  for (const child of node.children || []) {
+    const collapsed = collapseNode(child);
+    if (isAssemblyNode(collapsed)) {
+      grouped.set(`asm|${assemblyIndex}|${collapsed.source_name || collapsed.name || assemblyIndex}`, {
+        ...collapsed,
+        name: assemblyLabel(collapsed),
+        quantity: Number(collapsed.quantity) || 1,
+      });
+      assemblyIndex += 1;
+      continue;
+    }
+    const key = `part|${geomKey(collapsed)}`;
+    const qty = Number(collapsed.quantity) || 1;
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.quantity = (Number(existing.quantity) || 1) + qty;
+      if (!existing.preview_id && collapsed.preview_id) existing.preview_id = collapsed.preview_id;
+      continue;
+    }
+    grouped.set(key, {
+      ...collapsed,
+      name: partLabel(collapsed),
+      quantity: qty,
+    });
+  }
+  const children = Array.from(grouped.values());
+  return {
+    ...node,
+    name: nodeLabel({ ...node, children }),
+    quantity: Number(node.quantity) || 1,
+    children,
+  };
+}
+
+function flattenCollapsed(node, level = 0, parentQty = 1, rows = []) {
+  if (!node) return rows;
+  const qty = Number(node.quantity) || 1;
+  const total = qty * (Number(parentQty) || 1);
+  const box = node.bbox_mm || {};
+  rows.push({
+    level,
+    name: nodeLabel(node),
+    type: node.type === "assembly" ? "Assembly" : "Part",
+    quantity: qty,
+    total_quantity: total,
+    size_x: Number(box.x) || 0,
+    size_y: Number(box.y) || 0,
+    size_z: Number(box.z) || 0,
+    volume_mm3: Number(node.volume_mm3) || 0,
+    area_mm2: Number(node.area_mm2) || 0,
+    solid_count: Number(node.solid_count) || 0,
+    bbox_mm: node.bbox_mm || null,
+    preview_id: node.preview_id || "",
+  });
+  for (const child of node.children || []) {
+    flattenCollapsed(child, level + 1, total, rows);
+  }
+  return rows;
+}
+
+function styleHeader(row) {
+  row.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  row.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF1F2937" },
+  };
+  row.alignment = { vertical: "middle" };
+}
+
+async function downloadBomExcel({ fileName, summary, uniqueParts, treeRows }) {
+  const ExcelJS = (await import("exceljs")).default;
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Marathon STEP BOM";
+  workbook.created = new Date();
+
+  const summarySheet = workbook.addWorksheet("Summary");
+  summarySheet.columns = [
+    { header: "Field", key: "field", width: 28 },
+    { header: "Value", key: "value", width: 40 },
+  ];
+  styleHeader(summarySheet.getRow(1));
+  [
+    ["File", fileName || "step-bom"],
+    ["Assemblies", summary?.assembly_count || 0],
+    ["Unique parts", uniqueParts.length],
+    ["Total quantity", summary?.total_part_quantity || uniqueParts.reduce((sum, part) => sum + (Number(part.quantity) || 0), 0)],
+    ["Tree nodes", treeRows.length || summary?.node_count || 0],
+  ].forEach(([field, value]) => summarySheet.addRow({ field, value }));
+
+  const partsSheet = workbook.addWorksheet("Parts");
+  partsSheet.columns = [
+    { header: "Name", key: "name", width: 42 },
+    { header: "Qty", key: "quantity", width: 10 },
+    { header: "Size X (mm)", key: "size_x", width: 14 },
+    { header: "Size Y (mm)", key: "size_y", width: 14 },
+    { header: "Size Z (mm)", key: "size_z", width: 14 },
+    { header: "Volume (mm³)", key: "volume_mm3", width: 16 },
+    { header: "Area (mm²)", key: "area_mm2", width: 14 },
+  ];
+  styleHeader(partsSheet.getRow(1));
+  uniqueParts.forEach((part) => {
+    const box = part.bbox_mm || {};
+    partsSheet.addRow({
+      name: partLabel(part),
+      quantity: Number(part.quantity) || 1,
+      size_x: Number(box.x) || 0,
+      size_y: Number(box.y) || 0,
+      size_z: Number(box.z) || 0,
+      volume_mm3: Number(part.volume_mm3) || 0,
+      area_mm2: Number(part.area_mm2) || 0,
+    });
+  });
+
+  const treeSheet = workbook.addWorksheet("Assembly tree");
+  treeSheet.columns = [
+    { header: "Level", key: "level", width: 10 },
+    { header: "Name", key: "name", width: 48 },
+    { header: "Type", key: "type", width: 12 },
+    { header: "Qty", key: "quantity", width: 10 },
+    { header: "Total qty", key: "total_quantity", width: 12 },
+    { header: "Size X (mm)", key: "size_x", width: 14 },
+    { header: "Size Y (mm)", key: "size_y", width: 14 },
+    { header: "Size Z (mm)", key: "size_z", width: 14 },
+    { header: "Volume (mm³)", key: "volume_mm3", width: 16 },
+    { header: "Area (mm²)", key: "area_mm2", width: 14 },
+    { header: "Solids", key: "solid_count", width: 10 },
+  ];
+  styleHeader(treeSheet.getRow(1));
+  treeRows.forEach((row) => {
+    const added = treeSheet.addRow({
+      ...row,
+      name: `${"  ".repeat(row.level)}${row.name}`,
+    });
+    if (row.type === "Assembly") {
+      added.font = { bold: true };
+    }
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${(fileName || "step-bom").replace(/\.[^.]+$/, "")}-bom.xlsx`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 function meshForNode(node, partsById, geomIndex) {
@@ -115,13 +349,19 @@ function meshForNode(node, partsById, geomIndex) {
   const parts = collectPreviewIds(node)
     .map((id) => partsById[id])
     .filter(Boolean);
-  if (!parts.length) return null;
   if (parts.length === 1) return parts[0];
-  return mergeMeshes(parts);
+  if (parts.length > 1) return mergeMeshes(parts);
+  if (node?.bbox_mm) return boxMeshFromBbox(node.bbox_mm, `bbox-${geomKey(node)}`);
+  return null;
 }
 
-function PartThumb({ mesh, size = 72, alt, className, onOpen }) {
-  const src = useMemo(() => (mesh ? renderMeshThumb(mesh, size) : ""), [mesh, size]);
+function PartThumb({ mesh, bbox, size = 72, alt, className, onOpen }) {
+  const src = useMemo(() => {
+    const fromMesh = mesh ? renderMeshThumb(mesh, size) : "";
+    if (fromMesh) return fromMesh;
+    if (bbox) return renderMeshThumb(boxMeshFromBbox(bbox, `bbox-${size}`), size);
+    return "";
+  }, [bbox, mesh, size]);
   if (!src) {
     return (
       <div
@@ -147,33 +387,41 @@ function BomNode({ node, depth = 0, partsById, geomIndex, onOpenPhoto }) {
   const hasChildren = children.length > 0;
   const qty = Number(node?.quantity) || 1;
   const mesh = meshForNode(node, partsById, geomIndex);
+  const label = nodeLabel(node);
 
   return (
     <li className={styles.treeItem} style={{ "--depth": depth }}>
       <div className={styles.treeRow}>
-        <button
-          type="button"
-          className={styles.treeToggleBtn}
-          onClick={() => hasChildren && setOpen((prev) => !prev)}
-          aria-expanded={hasChildren ? open : undefined}
-        >
-          <span className={`${styles.treeToggle} ${hasChildren ? "" : styles.treeToggleLeaf}`}>
-            {hasChildren ? (open ? "▾" : "▸") : "•"}
-          </span>
-        </button>
+        {hasChildren ? (
+          <button
+            type="button"
+            className={styles.treeToggleBtn}
+            onClick={() => setOpen((prev) => !prev)}
+            aria-expanded={open}
+            aria-label={open ? `Collapse ${label}` : `Expand ${label}`}
+            title={open ? "Collapse" : "Expand"}
+          >
+            <svg className={`${styles.treeChevron} ${open ? styles.treeChevronOpen : ""}`} viewBox="0 0 24 24" aria-hidden>
+              <path d="M8 4.5 17 12 8 19.5" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        ) : (
+          <span className={styles.treeLeafSlot} aria-hidden />
+        )}
         <PartThumb
           mesh={mesh}
+          bbox={node?.bbox_mm}
           size={72}
-          alt={node?.name}
+          alt={label}
           className={styles.thumb}
-          onOpen={mesh ? () => onOpenPhoto?.(mesh, node?.name) : undefined}
+          onOpen={mesh ? () => onOpenPhoto?.(mesh, label) : undefined}
         />
         <div className={styles.treeBody}>
           <div className={styles.treeTitleRow}>
             <span className={`${styles.typeChip} ${node?.type === "assembly" ? styles.typeAssembly : styles.typePart}`}>
               {node?.type === "assembly" ? "ASM" : "PRT"}
             </span>
-            <span className={styles.treeName}>{node?.name || "Untitled"}</span>
+            <span className={styles.treeName}>{label || "Untitled"}</span>
             <span className={styles.treeQty}>×{qty}</span>
           </div>
           <div className={styles.treeDetails}>
@@ -188,7 +436,7 @@ function BomNode({ node, depth = 0, partsById, geomIndex, onOpenPhoto }) {
         <ul className={styles.treeList}>
           {children.map((child, index) => (
             <BomNode
-              key={`${child?.source_name || child?.name || "node"}-${index}`}
+              key={`${childMergeKey(child)}-${index}`}
               node={child}
               depth={depth + 1}
               partsById={partsById}
@@ -219,6 +467,7 @@ export default function StepBomTreePage() {
 
   const summary = job?.bom_summary || null;
   const tree = job?.bom_tree || null;
+  const displayTree = useMemo(() => (tree ? collapseNode(tree) : null), [tree]);
   const flat = useMemo(
     () => (Array.isArray(job?.bom_flat) ? job.bom_flat : []),
     [job],
@@ -233,8 +482,8 @@ export default function StepBomTreePage() {
     return map;
   }, [previewParts]);
   const geomIndex = useMemo(
-    () => indexMeshesByGeom(tree, partsById),
-    [partsById, tree],
+    () => indexMeshesByGeom(tree, partsById, previewParts),
+    [partsById, previewParts, tree],
   );
 
   const uniqueParts = useMemo(() => {
@@ -311,18 +560,25 @@ export default function StepBomTreePage() {
     [file, submitting],
   );
 
-  const downloadJson = useCallback(() => {
-    if (!tree) return;
-    const blob = new Blob([JSON.stringify({ tree, flat, summary }, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${(file?.name || "step-bom").replace(/\.[^.]+$/, "")}-bom.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }, [file, flat, summary, tree]);
+  const treeRows = useMemo(
+    () => (displayTree ? flattenCollapsed(displayTree) : []),
+    [displayTree],
+  );
+
+  const downloadExcel = useCallback(async () => {
+    if (!displayTree) return;
+    try {
+      await downloadBomExcel({
+        fileName: file?.name || "step-bom",
+        summary,
+        uniqueParts,
+        treeRows,
+      });
+    } catch (err) {
+      const message = err?.message || "Could not download Excel.";
+      toast.error(message);
+    }
+  }, [displayTree, file, summary, treeRows, uniqueParts]);
 
   return (
     <div className={styles.root}>
@@ -424,16 +680,16 @@ export default function StepBomTreePage() {
           </section>
         ) : null}
 
-        {tree ? (
+        {displayTree ? (
           <section className={styles.resultPanel}>
             <div className={styles.resultHeader}>
               <h2>Assembly tree</h2>
-              <button type="button" className={styles.jsonBtn} onClick={downloadJson}>
-                Download JSON
+              <button type="button" className={styles.jsonBtn} onClick={downloadExcel}>
+                Download Excel
               </button>
             </div>
             <ul className={styles.treeList}>
-              <BomNode node={tree} partsById={partsById} geomIndex={geomIndex} onOpenPhoto={openPhoto} />
+              <BomNode node={displayTree} partsById={partsById} geomIndex={geomIndex} onOpenPhoto={openPhoto} />
             </ul>
           </section>
         ) : null}
@@ -448,6 +704,7 @@ export default function StepBomTreePage() {
                   <figure key={`${part.name}-${geomKey(part)}`} className={styles.photoCard}>
                     <PartThumb
                       mesh={mesh}
+                      bbox={part.bbox_mm}
                       size={180}
                       alt={part.name}
                       className={styles.cardThumb}
@@ -466,7 +723,7 @@ export default function StepBomTreePage() {
           </section>
         ) : null}
 
-        {flat.length ? (
+        {treeRows.length ? (
           <section className={styles.resultPanel}>
             <h2>Flat BOM</h2>
             <div className={styles.tableWrap}>
@@ -483,13 +740,14 @@ export default function StepBomTreePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {flat.map((row, index) => {
+                  {treeRows.map((row, index) => {
                     const mesh = meshForNode(row, partsById, geomIndex);
                     return (
                       <tr key={`${row.name}-${index}`}>
                         <td>
                           <PartThumb
                             mesh={mesh}
+                            bbox={row.bbox_mm}
                             size={56}
                             alt={row.name}
                             className={styles.thumb}

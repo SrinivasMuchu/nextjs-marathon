@@ -99,8 +99,13 @@ export function renderMeshThumb(part, size = 96) {
     scene.add(fill);
 
     if (!geometry.boundingSphere) geometry.computeBoundingSphere();
-    const center = geometry.boundingSphere.center.clone();
-    const radius = Math.max(geometry.boundingSphere.radius, 1e-3);
+    const sphere = geometry.boundingSphere;
+    const radius = Math.max(Number(sphere?.radius) || 0, 1e-3);
+    if (!Number.isFinite(radius)) {
+      thumbCache.set(key, "");
+      return "";
+    }
+    const center = sphere.center.clone();
     const dist = radius * 2.45;
     const camera = new THREE.PerspectiveCamera(28, 1, Math.max(dist / 200, 0.01), dist * 20);
     camera.position.set(center.x + dist * 0.72, center.y + dist * 0.62, center.z + dist * 0.72);
@@ -122,6 +127,25 @@ export function renderMeshThumb(part, size = 96) {
     thumbCache.set(key, "");
     return "";
   }
+}
+
+export function boxMeshFromBbox(bbox, id = "bbox") {
+  const x = Math.max(Math.abs(Number(bbox?.x) || 1), 0.2);
+  const y = Math.max(Math.abs(Number(bbox?.y) || 1), 0.2);
+  const z = Math.max(Math.abs(Number(bbox?.z) || 1), 0.2);
+  const hx = x / 2;
+  const hy = y / 2;
+  const hz = z / 2;
+  return {
+    id,
+    positions: [
+      -hx, -hy, -hz, hx, -hy, -hz, hx, hy, -hz, -hx, hy, -hz,
+      -hx, -hy, hz, hx, -hy, hz, hx, hy, hz, -hx, hy, hz,
+    ],
+    indices: [
+      0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 0, 4, 5, 0, 5, 1, 3, 2, 6, 3, 6, 7, 0, 3, 7, 0, 7, 4, 1, 5, 6, 1, 6, 2,
+    ],
+  };
 }
 
 export function mergeMeshes(parts) {
