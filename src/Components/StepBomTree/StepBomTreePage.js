@@ -34,6 +34,45 @@ function formatSize(bbox) {
   return `${formatNumber(x, 1)} × ${formatNumber(y, 1)} × ${formatNumber(z, 1)} mm`;
 }
 
+const STEEL_DENSITY_G_CM3 = 7.85;
+
+function estMassKg(volumeMm3, qty = 1) {
+  const volume = Number(volumeMm3) || 0;
+  const count = Number(qty) || 1;
+  if (volume <= 0) return 0;
+  return (volume * STEEL_DENSITY_G_CM3 * count) / 1e6;
+}
+
+function formatMass(kg) {
+  const n = Number(kg);
+  if (!Number.isFinite(n) || n <= 0) return "—";
+  if (n >= 100) return `${formatNumber(n, 1)} kg`;
+  if (n >= 1) return `${formatNumber(n, 2)} kg`;
+  return `${formatNumber(n * 1000, 1)} g`;
+}
+
+function partNumber(node) {
+  const values = [node?.part_number, node?.source_name, node?.name];
+  for (const raw of values) {
+    const text = String(raw || "").trim();
+    if (/^\d{1,4}$/.test(text)) return text;
+  }
+  return "";
+}
+
+function formatLxWxH(bbox) {
+  if (!bbox) return "";
+  const x = Number(bbox.x);
+  const y = Number(bbox.y);
+  const z = Number(bbox.z);
+  if (![x, y, z].every(Number.isFinite)) return "";
+  return `${x.toFixed(1)} x ${y.toFixed(1)} x ${z.toFixed(1)}`;
+}
+
+function estMassG(volumeMm3, qty = 1) {
+  return Number((estMassKg(volumeMm3, qty) * 1000).toFixed(1));
+}
+
 function statusLabel(status) {
   if (status === "PENDING") return "Queued on Kafka topic sample_step";
   if (status === "PROCESSING") return "FreeCAD is reading the STEP assembly";
@@ -182,7 +221,12 @@ function indexMeshesByGeom(node, partsById, previewParts = [], into = {}) {
 
 function childMergeKey(node) {
   if (isAssemblyNode(node)) {
-    return `asm|${node?.source_name || ""}|${node?.name || ""}`;
+    const kids = Array.isArray(node?.children) ? node.children : [];
+    const nested = kids
+      .map((child) => `${childMergeKey(child)}×${Number(child.quantity) || 1}`)
+      .sort()
+      .join(",");
+    return `asm|${geomKey(node)}|${nested}`;
   }
   return `part|${geomKey(node)}`;
 }
@@ -190,29 +234,21 @@ function childMergeKey(node) {
 function collapseNode(node) {
   if (!node) return node;
   const grouped = new Map();
-  let assemblyIndex = 0;
   for (const child of node.children || []) {
     const collapsed = collapseNode(child);
-    if (isAssemblyNode(collapsed)) {
-      grouped.set(`asm|${assemblyIndex}|${collapsed.source_name || collapsed.name || assemblyIndex}`, {
-        ...collapsed,
-        name: assemblyLabel(collapsed),
-        quantity: Number(collapsed.quantity) || 1,
-      });
-      assemblyIndex += 1;
-      continue;
-    }
-    const key = `part|${geomKey(collapsed)}`;
+    const key = childMergeKey(collapsed);
     const qty = Number(collapsed.quantity) || 1;
     const existing = grouped.get(key);
     if (existing) {
       existing.quantity = (Number(existing.quantity) || 1) + qty;
       if (!existing.preview_id && collapsed.preview_id) existing.preview_id = collapsed.preview_id;
+      if (!existing.part_number) existing.part_number = partNumber(collapsed);
       continue;
     }
     grouped.set(key, {
       ...collapsed,
-      name: partLabel(collapsed),
+      name: nodeLabel(collapsed),
+      part_number: partNumber(collapsed),
       quantity: qty,
     });
   }
@@ -220,6 +256,7 @@ function collapseNode(node) {
   return {
     ...node,
     name: nodeLabel({ ...node, children }),
+    part_number: partNumber(node),
     quantity: Number(node.quantity) || 1,
     children,
   };
@@ -232,6 +269,8 @@ function flattenCollapsed(node, level = 0, parentQty = 1, rows = []) {
   const box = node.bbox_mm || {};
   rows.push({
     level,
+    part_number: partNumber(node),
+    designation: nodeLabel(node),
     name: nodeLabel(node),
     type: node.type === "assembly" ? "Assembly" : "Part",
     quantity: qty,
@@ -239,9 +278,13 @@ function flattenCollapsed(node, level = 0, parentQty = 1, rows = []) {
     size_x: Number(box.x) || 0,
     size_y: Number(box.y) || 0,
     size_z: Number(box.z) || 0,
+    lxwxh: formatLxWxH(node.bbox_mm),
     volume_mm3: Number(node.volume_mm3) || 0,
     area_mm2: Number(node.area_mm2) || 0,
     solid_count: Number(node.solid_count) || 0,
+    mass_kg: estMassKg(node.volume_mm3, total),
+    mass_g: estMassG(node.volume_mm3, 1),
+    material: "Steel (est.)",
     bbox_mm: node.bbox_mm || null,
     preview_id: node.preview_id || "",
   });
@@ -279,28 +322,41 @@ async function downloadBomExcel({ fileName, summary, uniqueParts, treeRows }) {
     ["Unique parts", uniqueParts.length],
     ["Total quantity", summary?.total_part_quantity || uniqueParts.reduce((sum, part) => sum + (Number(part.quantity) || 0), 0)],
     ["Tree nodes", treeRows.length || summary?.node_count || 0],
+    ["Est. mass density", "Mild steel 7.85 g/cm³"],
+    ["Est. mass method", "Solid volume × density (not bounding-box volume)"],
+    ["Est. total mass", formatMass(uniqueParts.reduce((sum, part) => sum + estMassKg(part.volume_mm3, part.quantity), 0))],
   ].forEach(([field, value]) => summarySheet.addRow({ field, value }));
 
   const partsSheet = workbook.addWorksheet("Parts");
   partsSheet.columns = [
-    { header: "Name", key: "name", width: 42 },
+    { header: "Part number", key: "part_number", width: 14 },
+    { header: "Designation", key: "name", width: 42 },
     { header: "Qty", key: "quantity", width: 10 },
+    { header: "L x W x H (mm)", key: "lxwxh", width: 28 },
     { header: "Size X (mm)", key: "size_x", width: 14 },
     { header: "Size Y (mm)", key: "size_y", width: 14 },
     { header: "Size Z (mm)", key: "size_z", width: 14 },
     { header: "Volume (mm³)", key: "volume_mm3", width: 16 },
+    { header: "Est. mass (g)", key: "mass_g", width: 16 },
+    { header: "Est. mass (kg)", key: "mass_kg", width: 16 },
+    { header: "Material", key: "material", width: 16 },
     { header: "Area (mm²)", key: "area_mm2", width: 14 },
   ];
   styleHeader(partsSheet.getRow(1));
   uniqueParts.forEach((part) => {
     const box = part.bbox_mm || {};
     partsSheet.addRow({
+      part_number: partNumber(part),
       name: partLabel(part),
       quantity: Number(part.quantity) || 1,
+      lxwxh: formatLxWxH(box),
       size_x: Number(box.x) || 0,
       size_y: Number(box.y) || 0,
       size_z: Number(box.z) || 0,
       volume_mm3: Number(part.volume_mm3) || 0,
+      mass_g: estMassG(part.volume_mm3, 1),
+      mass_kg: Number(estMassKg(part.volume_mm3, part.quantity).toFixed(4)),
+      material: "Steel (est.)",
       area_mm2: Number(part.area_mm2) || 0,
     });
   });
@@ -308,14 +364,19 @@ async function downloadBomExcel({ fileName, summary, uniqueParts, treeRows }) {
   const treeSheet = workbook.addWorksheet("Assembly tree");
   treeSheet.columns = [
     { header: "Level", key: "level", width: 10 },
-    { header: "Name", key: "name", width: 48 },
+    { header: "Part number", key: "part_number", width: 14 },
+    { header: "Designation", key: "name", width: 48 },
     { header: "Type", key: "type", width: 12 },
     { header: "Qty", key: "quantity", width: 10 },
     { header: "Total qty", key: "total_quantity", width: 12 },
+    { header: "L x W x H (mm)", key: "lxwxh", width: 28 },
     { header: "Size X (mm)", key: "size_x", width: 14 },
     { header: "Size Y (mm)", key: "size_y", width: 14 },
     { header: "Size Z (mm)", key: "size_z", width: 14 },
     { header: "Volume (mm³)", key: "volume_mm3", width: 16 },
+    { header: "Est. mass (g)", key: "mass_g", width: 16 },
+    { header: "Est. mass (kg)", key: "mass_kg", width: 16 },
+    { header: "Material", key: "material", width: 16 },
     { header: "Area (mm²)", key: "area_mm2", width: 14 },
     { header: "Solids", key: "solid_count", width: 10 },
   ];
@@ -324,6 +385,7 @@ async function downloadBomExcel({ fileName, summary, uniqueParts, treeRows }) {
     const added = treeSheet.addRow({
       ...row,
       name: `${"  ".repeat(row.level)}${row.name}`,
+      material: row.material || "—",
     });
     if (row.type === "Assembly") {
       added.font = { bold: true };
@@ -421,13 +483,18 @@ function BomNode({ node, depth = 0, partsById, geomIndex, onOpenPhoto }) {
             <span className={`${styles.typeChip} ${node?.type === "assembly" ? styles.typeAssembly : styles.typePart}`}>
               {node?.type === "assembly" ? "ASM" : "PRT"}
             </span>
-            <span className={styles.treeName}>{label || "Untitled"}</span>
+            <span className={styles.treeName}>
+              {partNumber(node) ? `${partNumber(node)} · ` : ""}
+              {label || "Untitled"}
+            </span>
             <span className={styles.treeQty}>×{qty}</span>
           </div>
           <div className={styles.treeDetails}>
             <span>Size {formatSize(node?.bbox_mm)}</span>
+            {node?.volume_mm3 ? <span>Est. mass {formatMass(estMassKg(node.volume_mm3, qty))}</span> : null}
             {node?.volume_mm3 ? <span>Volume {formatNumber(node.volume_mm3)} mm³</span> : null}
             {node?.area_mm2 ? <span>Area {formatNumber(node.area_mm2)} mm²</span> : null}
+            <span>Material —</span>
             {node?.solid_count ? <span>{node.solid_count} solid{Number(node.solid_count) === 1 ? "" : "s"}</span> : null}
           </div>
         </div>
@@ -674,10 +741,19 @@ export default function StepBomTreePage() {
               <strong>{summary.total_part_quantity || 0}</strong>
             </div>
             <div>
-              <span>Nodes</span>
-              <strong>{summary.node_count || 0}</strong>
+              <span>Est. mass</span>
+              <strong>
+                {formatMass(
+                  uniqueParts.reduce((sum, part) => sum + estMassKg(part.volume_mm3, part.quantity), 0),
+                )}
+              </strong>
             </div>
           </section>
+        ) : null}
+        {summary ? (
+          <p className={styles.statusMeta}>
+            Est. mass uses the solid volume × mild steel 7.85 g/cm³, not the outer box size. Material is not stored in most STEP files.
+          </p>
         ) : null}
 
         {displayTree ? (
@@ -714,7 +790,9 @@ export default function StepBomTreePage() {
                       <strong>{part.name}</strong>
                       <span>×{part.quantity || 1}</span>
                       <small>Size {formatSize(part.bbox_mm)}</small>
+                      {part.volume_mm3 ? <small>Est. mass {formatMass(estMassKg(part.volume_mm3, part.quantity))}</small> : null}
                       {part.volume_mm3 ? <small>Volume {formatNumber(part.volume_mm3)} mm³</small> : null}
+                      <small>Material —</small>
                     </figcaption>
                   </figure>
                 );
@@ -731,12 +809,15 @@ export default function StepBomTreePage() {
                 <thead>
                   <tr>
                     <th>Image</th>
-                    <th>Name</th>
+                    <th>Part number</th>
+                    <th>Designation</th>
                     <th>Type</th>
-                    <th>Size</th>
+                    <th>L × W × H</th>
                     <th>Qty</th>
                     <th>Total qty</th>
-                    <th>Volume (mm³)</th>
+                    <th>Est. mass (g)</th>
+                    <th>Est. mass</th>
+                    <th>Material</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -754,17 +835,20 @@ export default function StepBomTreePage() {
                             onOpen={mesh ? () => openPhoto(mesh, row.name) : undefined}
                           />
                         </td>
+                        <td>{row.part_number || "—"}</td>
                         <td style={{ paddingLeft: 12 + Number(row.level || 0) * 14 }}>
-                          <div className={styles.tableName}>{row.name}</div>
+                          <div className={styles.tableName}>{row.designation || row.name}</div>
                           {row.area_mm2 ? (
                             <div className={styles.treeMeta}>Area {formatNumber(row.area_mm2)} mm²</div>
                           ) : null}
                         </td>
                         <td>{row.type}</td>
-                        <td>{formatSize(row.bbox_mm)}</td>
+                        <td>{row.lxwxh || formatSize(row.bbox_mm)}</td>
                         <td>{row.quantity}</td>
                         <td>{row.total_quantity}</td>
-                        <td>{formatNumber(row.volume_mm3)}</td>
+                        <td>{row.mass_g ? formatNumber(row.mass_g, 1) : "—"}</td>
+                        <td>{formatMass(row.mass_kg)}</td>
+                        <td>{row.material || "—"}</td>
                       </tr>
                     );
                   })}
