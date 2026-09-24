@@ -27,7 +27,13 @@ function mapUserJobToLibraryProps(jobId, job, bundle, { adminMode, getPipelineSt
     geometryPerSheet: bundle.geometryPerSheet,
     viewSelectionResponse: bundle.viewSelectionResponse,
     dimensionSpecs: bundle.dimensionSpecs,
+    dimensionSpecsMeta: bundle.dimensionSpecsMeta,
+    dimensionRejections: bundle.dimensionRejections,
     dimensionsResponse: bundle.dimensionsResponse,
+    availabilityBySheet: bundle.availabilityBySheet,
+    gdtScheme: bundle.gdtScheme,
+    drawingConfigPy: bundle.drawingConfigPy,
+    drawingDetailsJson: bundle.drawingDetailsJson,
     designMeta: {
       page_title: job?.title || "",
       part_name: job?.file_name || "",

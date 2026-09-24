@@ -49,22 +49,31 @@ function normalizeGeometryEntries(geometryPerSheet) {
  * render cleanly. An entry is kept only when:
  *   • The TechDraw projection produced ≥ 1 edge for it. ``edgeCount === 0``
  *     means the SVG/PDF exports are visually blank even though the files
- *     might exist on S3 (this is the "Section A-A" blank-tile case from
- *     the dashboard screenshot).
+ *     might exist on S3.
  *   • If the bundle fetcher ran HEAD probes (``availabilityBySheet``), the
- *     sheet's preview SVG resolved on S3. ``false`` means the file 404'd
- *     or the CDN reported a Content-Length below the empty-shell floor.
- *   • If no availability map is present (older callers, or when probing
- *     was skipped), we don't enforce that part — just the edgeCount rule.
- *
- * Both rules combined give us:
- *   pipeline-clean jobs       → no filtering needed, everything passes
- *   pre-Layer-A legacy jobs   → blank views drop via edgeCount, missing
- *                               files drop via availability map
- *   future S3 deletions       → drop via availability map even when the
- *                               JSONs still reference the sheet
+ *     sheet's preview SVG resolved on S3.
+ *   • When dimension specs (or specs meta) are present, sheets with zero
+ *     dimensions are dropped — blank or undimensioned projections must not
+ *     appear as deliverable sheets. A missing ``sheet_N`` key counts as zero
+ *     when the specs object already has other ``sheet_*`` entries.
  */
-function filterRenderableEntries(entries, availabilityBySheet) {
+function sheetDimCount(dimSource, sheetNum) {
+  if (!dimSource || typeof dimSource !== "object") return null;
+  const keys = Object.keys(dimSource);
+  const hasSheetKeys = keys.some((k) => String(k).startsWith("sheet_"));
+  if (!hasSheetKeys) return null;
+  const key = `sheet_${sheetNum}`;
+  const arr = dimSource[key];
+  if (arr === undefined) return 0;
+  return Array.isArray(arr) ? arr.length : 0;
+}
+
+function filterRenderableEntries(
+  entries,
+  availabilityBySheet,
+  dimensionSpecs,
+  dimensionSpecsMeta,
+) {
   if (!Array.isArray(entries)) return [];
   const hasAvailability =
     availabilityBySheet && typeof availabilityBySheet === "object";
@@ -76,6 +85,10 @@ function filterRenderableEntries(entries, availabilityBySheet) {
         return false;
       }
     }
+    const dimCount =
+      sheetDimCount(dimensionSpecs, e.sheet_num) ??
+      sheetDimCount(dimensionSpecsMeta, e.sheet_num);
+    if (dimCount === 0) return false;
     return true;
   });
 }
@@ -529,7 +542,12 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
   const rawEntries = normalizeGeometryEntries(geometryPerSheet);
   // Single source of truth for "which sheets do we render?" — every
   // downstream consumer (cards, sections, downloads, stats) uses this list.
-  const entries = filterRenderableEntries(rawEntries, availabilityBySheet);
+  const entries = filterRenderableEntries(
+    rawEntries,
+    availabilityBySheet,
+    dimensionSpecs,
+    dimensionSpecsMeta,
+  );
   const totalDimIds = countDimensionIds(dimensionSpecs);
   const productTitle = resolveProductTitle(entries, designMeta);
   const title = buildTwoDDrawingHeroTitle(productTitle);
