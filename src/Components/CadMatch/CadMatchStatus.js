@@ -28,11 +28,20 @@ function statusBadgeClass(status) {
   return styles.badgeRunning;
 }
 
-function QueryPreview({ glbUrl, fileName }) {
+function resolvePreviewUrl(glbUrl, inputFileUrl) {
+  if (glbUrl) return glbUrl;
+  // Native GLB/GLTF uploads can be previewed directly if the worker skipped export.
+  const src = String(inputFileUrl || "");
+  if (/\.(glb|gltf)(\?|#|$)/i.test(src)) return src;
+  return null;
+}
+
+function QueryPreview({ glbUrl, inputFileUrl, fileName, isRunning }) {
   const hostRef = useRef(null);
+  const previewUrl = resolvePreviewUrl(glbUrl, inputFileUrl);
 
   useEffect(() => {
-    if (!glbUrl || typeof window === "undefined") return undefined;
+    if (!previewUrl || typeof window === "undefined") return undefined;
     if (!window.customElements?.get("model-viewer")) {
       const existing = document.querySelector('script[data-cad-match-model-viewer]');
       if (!existing) {
@@ -44,14 +53,14 @@ function QueryPreview({ glbUrl, fileName }) {
         document.head.appendChild(script);
       }
     }
-  }, [glbUrl]);
+  }, [previewUrl]);
 
-  if (glbUrl) {
+  if (previewUrl) {
     return (
       <div className={styles.queryPreview} ref={hostRef}>
         {/* model-viewer is loaded via CDN script above */}
         {React.createElement("model-viewer", {
-          src: glbUrl,
+          src: previewUrl,
           alt: fileName || "Uploaded CAD",
           "camera-controls": true,
           "touch-action": "pan-y",
@@ -66,7 +75,9 @@ function QueryPreview({ glbUrl, fileName }) {
   return (
     <div className={styles.queryPlaceholder}>
       <FileBox size={40} strokeWidth={1.5} />
-      <span>3D preview available after rematch</span>
+      <span>
+        {isRunning ? "Generating 3D preview…" : "3D preview unavailable"}
+      </span>
     </div>
   );
 }
@@ -170,7 +181,7 @@ export default function CadMatchStatus({ jobId }) {
 
       {error ? <div className={styles.error}>{error}</div> : null}
 
-      {showResults || status === "COMPLETED" ? (
+      {isRunning || showResults || status === "COMPLETED" ? (
         <div className={styles.compareLayout}>
           <section className={styles.querySection} aria-label="Uploaded design">
             <div className={styles.sectionHeading}>
@@ -180,7 +191,12 @@ export default function CadMatchStatus({ jobId }) {
             <div className={`${styles.resultCard} ${styles.queryCard}`}>
               <div className={styles.preview}>
                 <span className={styles.queryBadge}>Uploaded</span>
-                <QueryPreview glbUrl={job?.glb_url} fileName={job?.file_name} />
+                <QueryPreview
+                  glbUrl={job?.glb_url}
+                  inputFileUrl={job?.input_file_url}
+                  fileName={job?.file_name}
+                  isRunning={isRunning}
+                />
               </div>
               <div className={styles.resultBody}>
                 <h3 className={styles.resultTitle}>
@@ -191,6 +207,7 @@ export default function CadMatchStatus({ jobId }) {
             </div>
           </section>
 
+          {showResults || status === "COMPLETED" ? (
           <section className={styles.matchesSection} aria-label="Similar designs">
             <div className={styles.sectionHeading}>
               <h2>Similar designs</h2>
@@ -245,6 +262,7 @@ export default function CadMatchStatus({ jobId }) {
               </div>
             ) : null}
           </section>
+          ) : null}
         </div>
       ) : null}
 
