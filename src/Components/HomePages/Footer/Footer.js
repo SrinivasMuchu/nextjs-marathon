@@ -53,6 +53,7 @@ function Footer() {
             <strong>Tools and services</strong>
             <Link href="/tools">All CAD Tools</Link>
             <Link href="/tools/3d-cad-viewer">3D CAD Viewer</Link>
+            <Link href="/tools/step-bom-tree">STEP BOM Tree</Link>
             <Link href="/cad-services">Hire a CAD Designer</Link>
           </div>
 

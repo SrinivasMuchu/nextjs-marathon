@@ -17,6 +17,7 @@ export const CAD_OUTPUT_FILES_BUCKET = 'cad-output-files';
 export const CAD_OUTPUT_FILES_PREFIX_URL = 'https://d1m7wq8q1jgofx.cloudfront.net/';
 export const CAD_VIEWER_OUTPUT_PREFIX = 'viewer';
 export const CAD_CONVERTER_OUTPUT_PREFIX = 'converter';
+export const CAD_STEP_BOM_OUTPUT_PREFIX = 'step-bom';
 export const DESIGN_GLB_PREFIX_URL = 'https://d1d8a3050v4fu6.cloudfront.net/';
 export const USER_PROFILES_PREFIX_URL = 'https://marathon-user-profiles.s3.ap-south-1.amazonaws.com/';
 /** CDN folder for 2D technical drawing bundles (JSON + svg/ + dxf/ + screenshots/ + sheet PDFs). */
@@ -148,6 +149,14 @@ export function buildCadViewerGlbUrl(fileId) {
 
 export function buildCadViewerMetaUrl(fileId) {
   return buildCadViewerOutputUrl(fileId, `${fileId}.json`);
+}
+
+/** STEP BOM outputs: cad-output-files/step-bom/{id}/{filename} */
+export function buildStepBomOutputUrl(jobId, fileName) {
+  const id = encodeURIComponent(jobId || '');
+  if (!id) return '';
+  const safeName = encodeURIComponent(fileName || 'bom_summary.json');
+  return `${CAD_OUTPUT_FILES_PREFIX_URL}${CAD_STEP_BOM_OUTPUT_PREFIX}/${id}/${safeName}`;
 }
 
 /** CAD converter outputs: cad-output-files/converter/{id}/{baseName}.{format} */
