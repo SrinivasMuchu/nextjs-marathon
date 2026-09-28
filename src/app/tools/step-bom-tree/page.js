@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import StepBomTreePage from "@/Components/StepBomTree/StepBomTreePage";
 import { buildPageMetadata } from "@/lib/seo/pageMetadata";
 
@@ -11,5 +12,9 @@ export const metadata = buildPageMetadata({
 });
 
 export default function StepBomTreeToolPage() {
-  return <StepBomTreePage />;
+  return (
+    <Suspense fallback={<div style={{ padding: 24 }}>Loading STEP BOM tool…</div>}>
+      <StepBomTreePage />
+    </Suspense>
+  );
 }

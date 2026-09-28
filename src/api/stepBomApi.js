@@ -78,5 +78,38 @@ export async function pollStepBomJob(jobId, { onUpdate, signal } = {}) {
     }
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
   }
-  throw new Error("Polling cancelled");
+  throw new Error("Polling aborted");
 }
+
+export async function downloadStepBomReport(jobId) {
+  if (!jobId) throw new Error("job id is required");
+  const uuid = getOrCreateStepBomUuid();
+  const res = await fetch(`/api/step-bom-report/${jobId}`, {
+    headers: { "user-uuid": uuid, Accept: "application/pdf,text/html" },
+  });
+  if (!res.ok) {
+    let message = "Could not download BOM accuracy report.";
+    try {
+      const json = await res.json();
+      message = json?.meta?.message || message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  const blob = await res.blob();
+  const contentType = res.headers.get("content-type") || blob.type || "";
+  const disposition = res.headers.get("content-disposition") || "";
+  const match = /filename="?([^"]+)"?/i.exec(disposition);
+  const filename =
+    match?.[1] ||
+    (contentType.includes("pdf") ? "bom-accuracy.pdf" : "bom-accuracy.html");
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+  return { filename, contentType };
+}
+

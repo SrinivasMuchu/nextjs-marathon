@@ -521,7 +521,7 @@
   vertical-align: middle;
 }
 
-.bomTable td:nth-child(2) {
+.bomTable td:nth-child(3) {
   color: #171021;
   font-weight: 600;
 }
@@ -531,15 +531,86 @@
   font-weight: 750 !important;
 }
 
+.bomMass {
+  color: #171021 !important;
+  font-weight: 650 !important;
+  white-space: nowrap;
+}
+
+.bomThumbBtn {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: zoom-in;
+  line-height: 0;
+  border-radius: 8px;
+}
+
+.bomThumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e7dff3;
+  background: #1e1e1e;
+  display: block;
+}
+
+.bomThumbPlaceholder {
+  border-radius: 8px;
+  background: #f4edfc;
+  border: 1px dashed #ddd2ec;
+  flex-shrink: 0;
+}
+
+.bomPhotoModal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(16, 10, 24, 0.72);
+  border: 0;
+  cursor: zoom-out;
+}
+
+.bomPhotoModalImg {
+  max-width: min(720px, 92vw);
+  max-height: 86vh;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #1e1e1e;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
 .bomActions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
   gap: 10px;
   margin-top: 16px;
 }
 
+.bomConfidence {
+  margin-right: auto;
+  color: #655b70;
+  font-size: 13px;
+}
+
+.bomConfidence strong {
+  color: #7025e5;
+  font-weight: 750;
+}
+
+.bomConfidence em {
+  font-style: normal;
+  color: #6d6476;
+}
+
 .bomCopyBtn,
+.bomPdfBtn,
 .bomExportBtn {
   min-height: 40px;
   padding: 0 16px;
@@ -547,6 +618,16 @@
   font-size: 13px;
   font-weight: 750;
   cursor: pointer;
+}
+
+.bomPdfBtn {
+  border: 1px solid #d8c8f4;
+  background: #f7f2fd;
+  color: #5b21b6;
+}
+
+.bomPdfBtn:hover {
+  background: #efe6fb;
 }
 
 .bomExportBtn {

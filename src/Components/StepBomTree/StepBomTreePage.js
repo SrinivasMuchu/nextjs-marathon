@@ -30,7 +30,9 @@ import {
   getOrCreateStepBomUuid,
   pollStepBomJob,
   uploadStepBomFile,
+  downloadStepBomReport,
 } from "@/api/stepBomApi";
+import { boxMeshFromBbox, renderMeshThumb } from "./meshThumb";
 import styles from "./StepBomTreePage.module.css";
 
 const STEP_EXT = /\.(step|stp)$/i;
@@ -253,10 +255,81 @@ function estMassG(volumeMm3, qty = 1) {
   return Number((estMassKg(volumeMm3, qty) * 1000).toFixed(1));
 }
 
+function outcomeScore(status) {
+  return { pass: 1, warn: 0.55, fail: 0.15, na: 0 }[status] || 0;
+}
+
+function usableBomIdentity(row) {
+  const values = [row?.part_number, row?.source_name, row?.name, row?.designation];
+  for (const raw of values) {
+    const text = String(raw || "").trim();
+    if (!text) continue;
+    if (/^(part|solid|body|compound|shape|assembly|product)(\s*\d+)?$/i.test(text)) continue;
+    if (/^part\s+[\d.,]+\s*[×x]\s*/i.test(text)) continue;
+    if (["assembly", "unnamed", "—", "-"].includes(text.toLowerCase())) continue;
+    return true;
+  }
+  return false;
+}
+
+function scoreBomQualityClient({ flat = [], summary = {} } = {}) {
+  const parts = flat.filter((row) => String(row?.type || "").toLowerCase() === "part");
+  const assemblies = flat.filter((row) => String(row?.type || "").toLowerCase() === "assembly");
+  const maxLevel = flat.reduce((max, row) => Math.max(max, Number(row?.level) || 0), 0);
+  const uniquePartCount =
+    Number(summary.unique_part_count) ||
+    (Array.isArray(summary.unique_parts) ? summary.unique_parts.length : parts.length);
+  const assemblyCount = Number(summary.assembly_count) || assemblies.length;
+
+  let structure = "warn";
+  if (!parts.length) structure = "fail";
+  else if (maxLevel <= 0 && assemblyCount <= 1 && uniquePartCount <= 1) structure = "warn";
+  else if (maxLevel >= 1 || assemblyCount >= 1) structure = "pass";
+
+  const identityPct = parts.length
+    ? Math.round((1000 * parts.filter(usableBomIdentity).length) / parts.length) / 10
+    : 0;
+  const identity = !parts.length ? "fail" : identityPct >= 80 ? "pass" : identityPct >= 50 ? "warn" : "fail";
+
+  const totalQty = parts.reduce((sum, part) => sum + (Number(part.quantity) || 1), 0);
+  const quantity = !parts.length ? "fail" : totalQty >= uniquePartCount ? "pass" : "warn";
+
+  const geometryPct = parts.length
+    ? Math.round((1000 * parts.filter((part) => Number(part.volume_mm3) > 0).length) / parts.length) / 10
+    : 0;
+  const geometry = !parts.length ? "fail" : geometryPct >= 95 ? "pass" : geometryPct >= 70 ? "warn" : "fail";
+
+  const previewPct = parts.length
+    ? Math.round((1000 * parts.filter((part) => part.preview_id).length) / parts.length) / 10
+    : 0;
+  const preview = !parts.length ? "fail" : previewPct >= 90 ? "pass" : previewPct >= 60 ? "warn" : "fail";
+
+  const checks = [
+    { status: structure, weight: 0.25 },
+    { status: identity, weight: 0.2 },
+    { status: quantity, weight: 0.2 },
+    { status: geometry, weight: 0.2 },
+    { status: preview, weight: 0.15 },
+  ];
+  const confidence =
+    Math.round(checks.reduce((sum, check) => sum + check.weight * outcomeScore(check.status) * 100, 0) * 10) /
+    10;
+  const statuses = checks.map((check) => check.status);
+  const verdict = statuses.includes("fail") ? "fail" : statuses.includes("warn") ? "warn" : "pass";
+  return {
+    confidence_pct: confidence,
+    verdict_label: {
+      pass: "COMPLETED",
+      warn: "COMPLETED WITH WARNINGS",
+      fail: "COMPLETED WITH ERRORS",
+    }[verdict],
+  };
+}
+
 function statusLabel(status) {
   if (status === "PENDING") return "Queued on Kafka topic sample_step";
-  if (status === "PROCESSING") return "FreeCAD is reading the STEP assembly";
-  if (status === "COMPLETED") return "BOM tree ready";
+  if (status === "PROCESSING") return "Extracting BOM and building accuracy PDF";
+  if (status === "COMPLETED") return "BOM tree + accuracy PDF ready";
   if (status === "FAILED") return "Extraction failed";
   return "Waiting";
 }
@@ -582,6 +655,31 @@ function AssemblyTreeItem({ node, depth = 0 }) {
   );
 }
 
+function BomPartThumb({ mesh, bbox, size = 44, alt, onOpen }) {
+  const src = useMemo(() => {
+    const fromMesh = mesh ? renderMeshThumb(mesh, size) : "";
+    if (fromMesh) return fromMesh;
+    if (bbox) return renderMeshThumb(boxMeshFromBbox(bbox, `bbox-${size}`), size);
+    return "";
+  }, [bbox, mesh, size]);
+
+  if (!src) {
+    return <div className={styles.bomThumbPlaceholder} style={{ width: size, height: size }} aria-hidden />;
+  }
+
+  return (
+    <button
+      type="button"
+      className={styles.bomThumbBtn}
+      onClick={() => onOpen?.(src, alt)}
+      aria-label={alt ? `Open photo of ${alt}` : "Open part photo"}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt || "Part"} className={styles.bomThumb} width={size} height={size} />
+    </button>
+  );
+}
+
 export default function StepBomTreePage() {
   const searchParams = useSearchParams();
   const jobIdFromUrl = searchParams.get("jobId") || searchParams.get("job_id") || "";
@@ -590,6 +688,7 @@ export default function StepBomTreePage() {
   const [submitting, setSubmitting] = useState(false);
   const [job, setJob] = useState(null);
   const [error, setError] = useState("");
+  const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef(null);
   const abortRef = useRef(null);
 
@@ -642,6 +741,13 @@ export default function StepBomTreePage() {
     () => (Array.isArray(job?.bom_flat) ? job.bom_flat : []),
     [job],
   );
+  const partsById = useMemo(() => {
+    const map = {};
+    for (const part of job?.preview_parts || []) {
+      if (part?.id) map[part.id] = part;
+    }
+    return map;
+  }, [job]);
 
   const uniqueParts = useMemo(() => {
     const fromFlat = flat
@@ -732,8 +838,39 @@ export default function StepBomTreePage() {
     }
   }, [displayTree, file, job, summary, treeRows, uniqueParts]);
 
+  const downloadPdf = useCallback(async () => {
+    const pdfUrl = job?.report_pdf_url;
+    const htmlUrl = job?.report_html_url;
+    if (pdfUrl || htmlUrl) {
+      const link = document.createElement("a");
+      link.href = pdfUrl || htmlUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.download = `${(job?.file_name || "step-bom").replace(/\.[^.]+$/, "")}-bom-accuracy.${pdfUrl ? "pdf" : "html"}`;
+      link.click();
+      return;
+    }
+    const jobId = job?.job_id;
+    if (!jobId) {
+      toast.error("No completed job to export.");
+      return;
+    }
+    try {
+      await downloadStepBomReport(jobId);
+      toast.success("BOM accuracy report downloaded.");
+    } catch (err) {
+      toast.error(err?.message || "Could not download PDF report.");
+    }
+  }, [job]);
+
   const showOutput = Boolean(job || displayTree || treeRows.length);
   const jobDone = String(job?.status || "").toUpperCase() === "COMPLETED" && Boolean(displayTree);
+  const bomQuality =
+    job?.bom_quality ||
+    (jobDone
+      ? scoreBomQualityClient({ flat: treeRows, summary: summary || {} })
+      : null);
+  const confidencePct = Number(bomQuality?.confidence_pct);
 
   return (
     <div className={styles.root}>
@@ -905,26 +1042,60 @@ export default function StepBomTreePage() {
                       <thead>
                         <tr>
                           <th>Item</th>
+                          <th>Photo</th>
                           <th>Component</th>
                           <th>Part ID</th>
                           <th>Qty</th>
+                          <th>Est. mass</th>
                           <th>Level</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {treeRows.map((row, index) => (
-                          <tr key={`${row.name}-${index}`}>
-                            <td>{String(index + 1).padStart(2, "0")}</td>
-                            <td>{row.designation || row.name}</td>
-                            <td>{row.part_number || "—"}</td>
-                            <td className={styles.bomQty}>{row.quantity}</td>
-                            <td>{row.level}</td>
-                          </tr>
-                        ))}
+                        {treeRows.map((row, index) => {
+                          const label = row.designation || row.name;
+                          const mesh = row.preview_id ? partsById[row.preview_id] : null;
+                          return (
+                            <tr key={`${row.name}-${index}`}>
+                              <td>{String(index + 1).padStart(2, "0")}</td>
+                              <td>
+                                <BomPartThumb
+                                  mesh={mesh}
+                                  bbox={row.bbox_mm}
+                                  size={44}
+                                  alt={label}
+                                  onOpen={(src, alt) => setPhotoPreview({ src, alt })}
+                                />
+                              </td>
+                              <td>{label}</td>
+                              <td>{row.part_number || "—"}</td>
+                              <td className={styles.bomQty}>{row.quantity}</td>
+                              <td className={styles.bomMass}>
+                                {row.volume_mm3 ? formatMass(row.mass_kg) : "—"}
+                              </td>
+                              <td>{row.level}</td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
                   <div className={styles.bomActions}>
+                    {Number.isFinite(confidencePct) ? (
+                      <span className={styles.bomConfidence}>
+                        BOM confidence <strong>{formatNumber(confidencePct, 1)}%</strong>
+                        {bomQuality?.verdict_label ? (
+                          <em> · {bomQuality.verdict_label}</em>
+                        ) : null}
+                      </span>
+                    ) : null}
+                    <button
+                      type="button"
+                      className={styles.bomPdfBtn}
+                      onClick={downloadPdf}
+                      disabled={!job?.report_pdf_url && !job?.report_html_url && !job?.job_id}
+                    >
+                      Download PDF report
+                    </button>
                     <button type="button" className={styles.bomExportBtn} onClick={downloadExcel}>
                       Export Excel
                     </button>
@@ -1104,6 +1275,23 @@ export default function StepBomTreePage() {
       </section>
 
       <Footer />
+
+      {photoPreview?.src ? (
+        <button
+          type="button"
+          className={styles.bomPhotoModal}
+          onClick={() => setPhotoPreview(null)}
+          aria-label="Close photo preview"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photoPreview.src}
+            alt={photoPreview.alt || "Part"}
+            className={styles.bomPhotoModalImg}
+            onClick={(event) => event.stopPropagation()}
+          />
+        </button>
+      ) : null}
     </div>
   );
 }
