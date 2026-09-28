@@ -3,6 +3,7 @@ import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import StickyCadStrip from '@/Components/CadServicesBanners/StickyCadStrip';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import { CONVERTER_HUB_PAGE } from '@/data/converterHubPage';
+import { getConverterPricingForRender } from '@/lib/converterPricingServer';
 import React from 'react';
 
 const CANONICAL_URL = 'https://marathon-os.com/tools/3d-cad-file-converter';
@@ -17,13 +18,16 @@ export const metadata = buildPageMetadata({
   },
 });
 
-function page() {
+async function page() {
+  const pricing = await getConverterPricingForRender();
+
   return (
     <>
       <ToolPageJsonLd
         name="Free online 3D CAD file converter"
         url={CANONICAL_URL}
         description={CONVERTER_HUB_PAGE.meta.description}
+        offers={pricing.offers}
         breadcrumbLinks={[
           { label: 'Tools', href: '/tools' },
           { label: '3D CAD File Converter', href: '/tools/3d-cad-file-converter' },

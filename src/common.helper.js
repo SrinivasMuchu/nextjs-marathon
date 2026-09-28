@@ -1,5 +1,5 @@
 import { PHOTO_LINK, DESIGN_GLB_PREFIX_URL } from "./config";
-import { FORMAT_ALIASES } from '@/data/librarySeoAllowlist';
+import { FORMAT_ALIASES, isLibraryTagFilterPath } from '@/data/librarySeoAllowlist';
 import { inferLibraryOutput } from '@/data/libraryOutput';
 
 export const textLettersLimit = (text, limitType) => {
@@ -552,7 +552,7 @@ function isLibraryTrackingParam(key) {
 /**
  * Build canonical path + query for library pages, robots, and prev/next for pagination.
  * - Clean landings + ?page=N are self-canonical and indexable (doc §4 / §14).
- * - Any other query (filters, search, tracking): noindex,follow + canonical to clean path.
+ * - Tag-filter paths (/library/tag/{slug}, category+tag) and any other query: noindex,follow.
  * @param {{ path: string, searchParams?: Record<string, string | undefined>, hasNextPage?: boolean }} opts
  * @returns {{ canonicalPath: string, robots?: string, prevPath?: string, nextPath?: string }}
  */
@@ -577,7 +577,7 @@ export function getLibraryCanonicalAndRobots({ path, searchParams = {}, hasNextP
   const canonicalPath = queryString ? `${path}?${queryString}` : path;
 
   let robots;
-  if (hasNonPageQuery) {
+  if (hasNonPageQuery || isLibraryTagFilterPath(path)) {
     robots = 'noindex, follow';
   }
 

@@ -20,7 +20,7 @@ import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import CadFileConversionContent from './CadFileConversionContent'
-import ConverterPricingSection from './ConverterPricingSection'
+import ConverterPricingSectionServer from './ConverterPricingSectionServer'
 import ConvertPairAftercare from './ConvertPairAftercare'
 import ConverterFaq from './ConverterFaq'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
@@ -200,7 +200,7 @@ function ConvertPairPage({ conversionParams }) {
         </div>
       </section>
 
-      <ConverterPricingSection />
+      <ConverterPricingSectionServer />
 
       <section className={styles.benefits} aria-label={`${fromUpper} to ${toUpper} conversion benefits`}>
         <div className={styles.benefitGrid}>

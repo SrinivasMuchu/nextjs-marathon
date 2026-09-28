@@ -69,3 +69,43 @@ export const LIBRARY_STATIC_PREFIXES = [
   '/library/clusters',
   '/library/category/',
 ];
+
+const LIBRARY_RESERVED_SEGMENTS = new Set([
+  'tag',
+  'tags',
+  'cluster',
+  'clusters',
+  'file-format',
+  'category',
+  '2d-technical-drawings',
+]);
+
+const TWO_D_RESERVED_SEGMENTS = new Set(['tag', 'tags', 'cluster', 'clusters']);
+
+/**
+ * Tag filters live in the path, not ?tags=:
+ * /library/tag/{slug}, /library/{category}/{tag}, and 2D equivalents.
+ */
+export function isLibraryTagFilterPath(pathname) {
+  if (!pathname) return false;
+  const parts = String(pathname).split('/').filter(Boolean);
+  if (parts[0] !== 'library') return false;
+
+  if (parts[1] === 'tag' && parts[2]) return true;
+  if (parts[1] === '2d-technical-drawings' && parts[2] === 'tag' && parts[3]) return true;
+
+  if (
+    parts[1] === '2d-technical-drawings' &&
+    parts[2] &&
+    parts[3] &&
+    !TWO_D_RESERVED_SEGMENTS.has(parts[2])
+  ) {
+    return true;
+  }
+
+  if (parts[1] && parts[2] && !LIBRARY_RESERVED_SEGMENTS.has(parts[1])) {
+    return true;
+  }
+
+  return false;
+}

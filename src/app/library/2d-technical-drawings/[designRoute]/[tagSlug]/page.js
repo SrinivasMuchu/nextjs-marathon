@@ -1,6 +1,10 @@
 import { notFound, permanentRedirect } from "next/navigation";
 import TwoDLibrary from "@/Components/Library/TwoDLibrary";
-import { resolveCategorySlugToName, normalizeLibraryTagSlug } from "@/common.helper";
+import {
+  resolveCategorySlugToName,
+  normalizeLibraryTagSlug,
+  getLibraryCanonicalAndRobots,
+} from "@/common.helper";
 import { fetchTwoDLibraryCategories } from "@/api/twoDLibraryDesignsApi";
 import { buildPageMetadata } from "@/lib/seo/pageMetadata";
 import {
@@ -44,10 +48,19 @@ export async function generateMetadata({ params, searchParams }) {
   }`;
   const description = `Browse ${tagLabel} 2D technical drawings in ${categoryName}. Download PDF, SVG and DXF drawing sets for engineering review.`;
 
+  const path = get2DLibraryPath({ categoryName, tagName: tagSlug });
+  const { canonicalPath, robots } = getLibraryCanonicalAndRobots({
+    path,
+    searchParams: searchParams ?? {},
+  });
+
   return buildPageMetadata({
     title,
     description,
-    canonicalPath: get2DLibraryPath({ categoryName, tagName: tagSlug }),
+    canonicalPath,
+    extra: {
+      ...(robots && { robots: { index: false, follow: true } }),
+    },
   });
 }
 

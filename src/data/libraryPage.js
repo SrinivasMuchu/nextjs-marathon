@@ -226,6 +226,7 @@ export {
   getLibraryQuickLinks,
   getLibraryCardConvertTargets,
   getDesignPageDownloadOptions,
+  getDesignPageDrawingHref,
   getPreferredDesignConvertTarget,
   getDesignConversionSocialProofRows,
   getDesignPageSoftwareLine,

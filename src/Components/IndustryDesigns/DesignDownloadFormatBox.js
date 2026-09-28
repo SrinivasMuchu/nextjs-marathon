@@ -54,6 +54,8 @@ export default function DesignDownloadFormatBox({
   const sizeLabel = formatSizeLabel(designData);
   const nativePriceLabel = formatNativePriceLabel(designData?.price);
   const nativeIsFree = !nativePriceLabel;
+  const libraryRoute = String(designData?.route || '').trim();
+  const hasTwoDDrawings = Boolean(designData?.is_two_dims && libraryRoute);
   const options = useMemo(
     () =>
       getDesignPageDownloadOptions({
@@ -61,8 +63,10 @@ export default function DesignDownloadFormatBox({
         designId: designData?._id,
         include2dPdf: true,
         price: designData?.price,
+        libraryRoute,
+        hasTwoDDrawings,
       }),
-    [fileType, designData?._id, designData?.price],
+    [fileType, designData?._id, designData?.price, libraryRoute, hasTwoDDrawings],
   );
 
   const [selectedId, setSelectedId] = useState(options[0]?.id || 'native');
@@ -100,6 +104,9 @@ export default function DesignDownloadFormatBox({
       return <span className={styles.badge}>{nativePriceLabel}</span>;
     }
     if (option.kind === 'drawing') {
+      if (option.hasExistingTwoD) {
+        return <span className={`${styles.badge} ${styles.badgeFree}`}>Available</span>;
+      }
       return <span className={styles.badge}>{drawingLabel}</span>;
     }
     return <span className={styles.badge}>1 credit · {converterLabel}</span>;
@@ -120,7 +127,9 @@ export default function DesignDownloadFormatBox({
         : `Download ${selected.label} — ${nativePriceLabel}`;
     }
     if (selected.kind === 'drawing') {
-      return `Get 2D PDF — ${drawingLabel}`;
+      return selected.hasExistingTwoD
+        ? 'View 2D drawings'
+        : `Get 2D PDF — ${drawingLabel}`;
     }
     return `Convert to ${selected.label} — ${converterLabel}`;
   })();

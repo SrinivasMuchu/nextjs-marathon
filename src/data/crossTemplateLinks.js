@@ -259,6 +259,23 @@ export function isLibraryDesignFree(design) {
 }
 
 /**
+ * Where the design-page "2D PDF" action should go:
+ * - existing drawings → this design's 2D library page
+ * - otherwise → user 2D upload (drawing pipeline), prefilled with the design when possible
+ */
+export function getDesignPageDrawingHref({
+  designId,
+  libraryRoute,
+  hasTwoDDrawings = false,
+} = {}) {
+  const route = String(libraryRoute || '').trim();
+  if (hasTwoDDrawings && route) {
+    return `/library/2d-technical-drawings/${encodeURIComponent(route)}`;
+  }
+  return withLibrarySource('/tools/cad-drawing-pipeline', designId);
+}
+
+/**
  * Download-box options for the 3D design detail page.
  * Native first (priced from design.price when set); convert targets + STEP-only 2D PDF.
  */
@@ -267,6 +284,8 @@ export function getDesignPageDownloadOptions({
   designId,
   include2dPdf = true,
   price = null,
+  libraryRoute = '',
+  hasTwoDDrawings = false,
 } = {}) {
   const raw = String(fileType || 'step').toLowerCase().replace(/^\./, '');
   const from = normalizeLibraryConvertFrom(raw);
@@ -305,16 +324,26 @@ export function getDesignPageDownloadOptions({
 
   // 2D PDF only for STEP/STP designs
   if (include2dPdf && designPageSupports2dPdf(fileType)) {
-    const drawingHref = withLibrarySource('/tools/cad-drawing-pipeline', designId);
+    const existingTwoD = Boolean(hasTwoDDrawings && String(libraryRoute || '').trim());
+    const drawingHref = getDesignPageDrawingHref({
+      designId,
+      libraryRoute,
+      hasTwoDDrawings: existingTwoD,
+    });
     options.push({
       id: 'drawing-pdf',
       kind: 'drawing',
       label: '2D PDF',
-      detail: getConvertTargetBlurb('2D PDF'),
-      blurb: getConvertTargetBlurb('2D PDF'),
+      detail: existingTwoD
+        ? 'View existing drawings'
+        : getConvertTargetBlurb('2D PDF'),
+      blurb: existingTwoD
+        ? 'View existing drawings'
+        : getConvertTargetBlurb('2D PDF'),
       href: drawingHref,
       toLabel: '2D PDF',
       fromLabel: formatDisplayLabel(from),
+      hasExistingTwoD: existingTwoD,
     });
   }
 
@@ -337,6 +366,8 @@ export function getDesignConversionSocialProofRows({
   downloads = 0,
   include2dPdf = true,
   maxConvertRows = 2,
+  libraryRoute = '',
+  hasTwoDDrawings = false,
 } = {}) {
   const convertOptions = getDesignPageDownloadOptions({
     fileType,
@@ -348,13 +379,19 @@ export function getDesignConversionSocialProofRows({
 
   // TechDraw is always STEP → 2D PDF; fine to show on IGES/STL/etc. design pages.
   if (include2dPdf) {
+    const existingTwoD = Boolean(hasTwoDDrawings && String(libraryRoute || '').trim());
     options.push({
       id: 'drawing-pdf',
       kind: 'drawing',
       label: '2D PDF',
       toLabel: '2D PDF',
       fromLabel: 'STEP',
-      href: withLibrarySource('/tools/cad-drawing-pipeline', designId),
+      href: getDesignPageDrawingHref({
+        designId,
+        libraryRoute,
+        hasTwoDDrawings: existingTwoD,
+      }),
+      hasExistingTwoD: existingTwoD,
     });
   }
 

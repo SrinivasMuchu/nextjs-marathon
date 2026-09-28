@@ -11,6 +11,7 @@ export default function ToolPageJsonLd({
   description,
   price = '0',
   priceCurrency = 'USD',
+  offers,
   breadcrumbLinks = [],
 }) {
   return (
@@ -21,6 +22,7 @@ export default function ToolPageJsonLd({
         description={description}
         price={price}
         priceCurrency={priceCurrency}
+        offers={offers}
       />
       <BreadcrumbListJsonLd links={breadcrumbLinks} />
     </>

@@ -11,8 +11,8 @@ import { fetchLibraryConversionStats } from '@/api/libraryConversionStatsApi';
 import { startLibraryFormatConversion } from '@/api/librarySourceApi';
 import {
   getDesignConversionSocialProofRows,
+  getDesignPageDrawingHref,
   getLibraryCardConvertTargets,
-  withLibrarySource,
 } from '@/data/libraryPage';
 import styles from './DesignConversionSocialProof.module.css';
 
@@ -27,11 +27,22 @@ function normalizeToLabel(value) {
  * Prefer API chart_routes (top 2 converts + STEP → 2D PDF on any design page).
  * Headline total = all converter jobs + all techdraw jobs (last 30 days).
  */
-function buildChartFromStats({ fileType, designId, stats }) {
+function buildChartFromStats({
+  fileType,
+  designId,
+  stats,
+  libraryRoute = '',
+  hasTwoDDrawings = false,
+}) {
   const fromKey = String(fileType || 'step').toLowerCase().replace(/^\./, '');
   const fromLabel = String(stats?.from_format || fromKey || 'STEP')
     .replace(/^\./, '')
     .toUpperCase();
+  const drawingHref = getDesignPageDrawingHref({
+    designId,
+    libraryRoute,
+    hasTwoDDrawings,
+  });
 
   const totalConversions = Math.max(
     0,
@@ -47,10 +58,7 @@ function buildChartFromStats({ fileType, designId, stats }) {
       const kind = route.kind === 'drawing' || toLabel === '2D PDF' ? 'drawing' : 'convert';
       const href =
         kind === 'drawing'
-          ? withLibrarySource(
-              route.href || '/tools/cad-drawing-pipeline',
-              designId,
-            )
+          ? drawingHref
           : route.href ||
             `/tools/convert-${fromKey}-to-${toLabel.toLowerCase()}`;
       return {
@@ -95,7 +103,7 @@ function buildChartFromStats({ fileType, designId, stats }) {
     id: 'drawing-pdf',
     fromLabel: 'STEP',
     toLabel: '2D PDF',
-    href: withLibrarySource('/tools/cad-drawing-pipeline', designId),
+    href: drawingHref,
     kind: 'drawing',
     count:
       countByTo.get('2D PDF') || Number(stats?.drawing_conversions) || 0,
@@ -132,6 +140,8 @@ export default function DesignConversionSocialProof({ designData }) {
   const router = useRouter();
   const fileType = designData?.file_type || 'step';
   const designId = designData?._id;
+  const libraryRoute = String(designData?.route || '').trim();
+  const hasTwoDDrawings = Boolean(designData?.is_two_dims && libraryRoute);
   const [stats, setStats] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [apiOk, setApiOk] = useState(false);
@@ -170,18 +180,41 @@ export default function DesignConversionSocialProof({ designData }) {
         downloads: designData?.total_design_downloads,
         include2dPdf: true,
         maxConvertRows: 2,
+        libraryRoute,
+        hasTwoDDrawings,
       }),
-    [fileType, designId, designData?.total_design_downloads],
+    [
+      fileType,
+      designId,
+      designData?.total_design_downloads,
+      libraryRoute,
+      hasTwoDDrawings,
+    ],
   );
 
   const { rows, totalConversions } = useMemo(() => {
     if (!loaded) return { rows: [], totalConversions: 0 };
     if (apiOk && stats) {
-      const built = buildChartFromStats({ fileType, designId, stats });
+      const built = buildChartFromStats({
+        fileType,
+        designId,
+        stats,
+        libraryRoute,
+        hasTwoDDrawings,
+      });
       if (built.rows.length) return built;
     }
     return fallback;
-  }, [loaded, apiOk, stats, fileType, designId, fallback]);
+  }, [
+    loaded,
+    apiOk,
+    stats,
+    fileType,
+    designId,
+    libraryRoute,
+    hasTwoDDrawings,
+    fallback,
+  ]);
 
   const { priceLabel: converterPrice } = useConverterPriceDisplay('$2.99');
   const { totalLabel: drawingPrice } = useTechDrawPriceDisplay();
