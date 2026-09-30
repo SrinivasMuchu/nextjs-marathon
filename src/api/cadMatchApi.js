@@ -11,6 +11,9 @@ const UPLOAD_TIMEOUT_MS = 120_000;
 const POLL_INTERVAL_MS = 3_000;
 const STATUS_REQUEST_TIMEOUT_MS = 60_000;
 const MAX_POLL_TRANSIENT_ERRORS = 24;
+/** Fail poll if worker never updates pipeline_stage (orphaned PROCESSING jobs). */
+const STUCK_PROCESSING_MS = 3 * 60 * 1000;
+const MAX_MATCH_WAIT_MS = 30 * 60 * 1000;
 
 export const CAD_MATCH_ALLOWED_EXT =
   /\.(step|stp|stl|obj|ply|off|iges|igs|glb|gltf)$/i;
@@ -171,11 +174,24 @@ export async function prepareCadMatchJob({ file, onPhase }) {
 /**
  * Poll until COMPLETED or FAILED.
  */
-export async function waitForCadMatchJob(jobId, { signal, onUpdate } = {}) {
+function jobAgeMs(job) {
+  const raw = job?.updatedAt || job?.createdAt;
+  if (!raw) return 0;
+  const t = new Date(raw).getTime();
+  return Number.isFinite(t) ? Date.now() - t : 0;
+}
+
+export async function waitForCadMatchJob(jobId, { signal, onUpdate, startedAt = Date.now() } = {}) {
   let transientErrors = 0;
   while (true) {
     if (signal?.aborted) {
       throw new CadMatchPollError("Polling cancelled.", { jobId, transient: true });
+    }
+    if (Date.now() - startedAt > MAX_MATCH_WAIT_MS) {
+      throw new CadMatchPollError(
+        "Match is taking too long. The CAD worker may be offline — refresh or try again in a few minutes.",
+        { jobId, transient: false },
+      );
     }
     try {
       const job = await getCadMatchJobStatus(jobId);
@@ -186,6 +202,16 @@ export async function waitForCadMatchJob(jobId, { signal, onUpdate } = {}) {
       if (status === "FAILED") {
         throw new CadMatchPollError(
           job?.error_message || "Match failed.",
+          { jobId, job, transient: false },
+        );
+      }
+      if (
+        (status === "PENDING" || status === "PROCESSING") &&
+        !job?.pipeline_stage &&
+        jobAgeMs(job) > STUCK_PROCESSING_MS
+      ) {
+        throw new CadMatchPollError(
+          "Match worker did not start (no progress updates). Ensure CAD Match Docker services are running: freecad_service, fastapi_service (/match), and optionally kafkaconsumer_service.",
           { jobId, job, transient: false },
         );
       }
