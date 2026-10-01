@@ -79,8 +79,8 @@ export const TOOLS_MENU = [
     Icon: FileOutput,
   },
   {
-    href: "/tools/step-bom-tree",
-    title: "STEP BOM Tree",
+    href: "/tools/step-bom-extractor",
+    title: "STEP BOM Extractor",
     subtitle: "Extract BOM and assembly hierarchy",
     Icon: ListTree,
   },

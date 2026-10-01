@@ -865,6 +865,17 @@ export default function StepBomTreePage() {
 
   const showOutput = Boolean(job || displayTree || treeRows.length);
   const jobDone = String(job?.status || "").toUpperCase() === "COMPLETED" && Boolean(displayTree);
+
+  useEffect(() => {
+    if (!showOutput) return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("step-bom-pipeline")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [showOutput]);
   const bomQuality =
     job?.bom_quality ||
     (jobDone
@@ -1009,7 +1020,11 @@ export default function StepBomTreePage() {
       </section>
 
       {showOutput ? (
-        <section className={styles.bomOutput} aria-labelledby="step-bom-output-heading">
+        <section
+          id="step-bom-pipeline"
+          className={styles.bomOutput}
+          aria-labelledby="step-bom-output-heading"
+        >
           <div className={styles.bomOutputInner}>
             <p className={styles.eyebrow}>BOM output</p>
             <h2 id="step-bom-output-heading">See the assembly structure before you export</h2>

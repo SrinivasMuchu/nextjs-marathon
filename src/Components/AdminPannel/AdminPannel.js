@@ -14,6 +14,7 @@ import CadServiceRequestsTable from './CadServiceRequestsTable'
 import TechDrawJobsTable from './TechDrawJobsTable'
 import AdminControlsPanel from './AdminControlsPanel'
 import VendorsTable from './VendorsTable'
+import CadToolStatsDashboard from './CadToolStatsDashboard'
 import styles from './AdminPannel.module.css'
 import AdminPannelAuthentication from './AdminPannelAuthentication'
 import {
@@ -99,6 +100,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
 
   const getTitle = () => {
     switch(activeTab) {
+      case 'stats':
+        return 'CAD Stats'
       case 'designs':
         return 'Designs'
       case 'payments':
@@ -128,6 +131,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
 
   const renderContent = () => {
     switch(activeTab) {
+      case 'stats':
+        return <CadToolStatsDashboard />
       case 'designs':
         return <DesignTable />
       case 'payments':

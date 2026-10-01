@@ -144,7 +144,7 @@ export default function StepBomDashboardCards({
           </div>
         </div>
         <Link
-          href="/tools/step-bom-tree"
+          href="/tools/step-bom-extractor"
           style={{
             borderRadius: "8px",
             border: "2px solid #610BEE",
@@ -188,7 +188,7 @@ export default function StepBomDashboardCards({
           }}
         >
           <p style={{ margin: "0 0 12px", color: "#374151" }}>No STEP BOM jobs yet.</p>
-          <Link href="/tools/step-bom-tree" style={{ color: "#610bee", fontWeight: 600 }}>
+          <Link href="/tools/step-bom-extractor" style={{ color: "#610bee", fontWeight: 600 }}>
             Upload a STEP assembly to start
           </Link>
         </div>
@@ -197,7 +197,7 @@ export default function StepBomDashboardCards({
           {jobs.map((job) => {
             const id = String(job._id || "");
             const title = String(job.file_name || "").trim() || "STEP BOM";
-            const href = `/tools/step-bom-tree?jobId=${encodeURIComponent(id)}`;
+            const href = `/tools/step-bom-extractor?jobId=${encodeURIComponent(id)}`;
             const status = String(job.status || "").toUpperCase();
             const isCompleted = status === "COMPLETED";
 
