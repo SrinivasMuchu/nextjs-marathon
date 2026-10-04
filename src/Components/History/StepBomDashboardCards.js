@@ -197,7 +197,7 @@ export default function StepBomDashboardCards({
           {jobs.map((job) => {
             const id = String(job._id || "");
             const title = String(job.file_name || "").trim() || "STEP BOM";
-            const href = `/tools/step-bom-extractor?jobId=${encodeURIComponent(id)}`;
+            const href = `/tools/step-bom-extractor?fileid=${encodeURIComponent(id)}`;
             const status = String(job.status || "").toUpperCase();
             const isCompleted = status === "COMPLETED";
 

@@ -401,10 +401,51 @@
   font-size: 13px;
 }
 
+.bomActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.bomTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 5px;
+  border: 1px solid #ebe6f0;
+  border-radius: 14px;
+  background: #f7f4fb;
+}
+
+.bomTab {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #655b70;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bomTab:hover {
+  color: #171021;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.bomTabActive {
+  background: #fff;
+  color: #5b21b6;
+  box-shadow: 0 1px 4px rgba(45, 25, 68, 0.08);
+}
+
 .bomOutputCard {
-  display: grid;
-  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.2fr);
-  gap: 0;
+  display: block;
   border: 1px solid #ebe6f0;
   border-radius: 20px;
   background: #fff;
@@ -425,6 +466,278 @@
   margin: 0 0 16px;
   color: #171021;
   font-size: 16px;
+  font-weight: 750;
+}
+
+.reportPane h3 {
+  margin: 0 0 6px;
+}
+
+.reportPane h4 {
+  margin: 22px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e6e0ef;
+  color: #171021;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.reportHero {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.reportPill {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f4edfc;
+  color: #5b21b6;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.reportMuted {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+.reportVerdict {
+  margin: 8px 0 0;
+  font-weight: 750;
+}
+
+.reportScore {
+  text-align: right;
+}
+
+.reportScore span {
+  display: block;
+  color: #667085;
+  font-size: 12px;
+}
+
+.reportScore strong {
+  display: block;
+  color: #7025e5;
+  font-size: 30px;
+  font-weight: 750;
+  line-height: 1.1;
+}
+
+.reportTableWrap {
+  overflow-x: auto;
+}
+
+.reportWide {
+  margin: 0 -6px;
+}
+
+.reportTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.reportTable th,
+.reportTable td {
+  padding: 7px 6px;
+  border-top: 1px solid #ece7f2;
+  text-align: left;
+  vertical-align: top;
+}
+
+.reportTable th {
+  background: #f7f3fc;
+  color: #667085;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.reportCompact th,
+.reportCompact td {
+  font-size: 11px;
+  padding: 4px 5px;
+  white-space: nowrap;
+}
+
+.reportPass {
+  color: #067a46;
+  font-weight: 750;
+}
+
+.reportWarn {
+  color: #a15c00;
+  font-weight: 750;
+}
+
+.reportFail {
+  color: #b42318;
+  font-weight: 750;
+}
+
+.reportNa {
+  color: #667085;
+  font-weight: 750;
+}
+
+.reportNote {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #ece7f2;
+  border-radius: 8px;
+  background: #faf8fc;
+  color: #655b70;
+  font-size: 12px;
+}
+
+.reportStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.reportStats span {
+  display: block;
+  color: #667085;
+  font-size: 11px;
+}
+
+.reportStats strong {
+  color: #171021;
+  font-size: 14px;
+}
+
+.excelApp {
+  background: #f3f3f3;
+}
+
+.excelBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #217346;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.excelFileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.excelCellRef {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.excelGridWrap {
+  overflow: auto;
+  max-height: 72vh;
+  background: #fff;
+}
+
+.excelGrid {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-size: 12px;
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+}
+
+.excelCorner,
+.excelColHead,
+.excelRowHead {
+  background: #e6e6e6;
+  color: #5f5f5f;
+  font-weight: 650;
+  text-align: center;
+  border: 1px solid #d0d0d0;
+  position: sticky;
+}
+
+.excelCorner,
+.excelRowHead {
+  left: 0;
+  z-index: 2;
+  min-width: 36px;
+  width: 36px;
+}
+
+.excelColHead {
+  top: 0;
+  z-index: 1;
+  min-width: 92px;
+}
+
+.excelHeaderCell {
+  background: #217346;
+  color: #fff;
+  font-weight: 750;
+  text-align: left;
+  padding: 7px 8px;
+  border: 1px solid #1b5c38;
+  white-space: nowrap;
+}
+
+.excelGrid td {
+  padding: 6px 8px;
+  border: 1px solid #d4d4d4;
+  color: #1f1f1f;
+  white-space: nowrap;
+  background: #fff;
+}
+
+.excelGrid tbody tr:nth-child(even) td {
+  background: #f8fff6;
+}
+
+.excelBold {
+  font-weight: 750;
+}
+
+.excelSheets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px 8px 0;
+  background: #f3f3f3;
+  border-top: 1px solid #d0d0d0;
+}
+
+.excelSheetTab {
+  min-height: 28px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
+  background: #f3f3f3;
+  color: #3f3f3f;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.excelSheetTab:hover {
+  background: #e9e9e9;
+}
+
+.excelSheetTabActive {
+  background: #fff;
+  border-color: #d0d0d0;
+  color: #217346;
   font-weight: 750;
 }
 
@@ -582,15 +895,6 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: #1e1e1e;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-}
-
-.bomActions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 10px;
-  margin-top: 16px;
 }
 
 .bomConfidence {
@@ -1511,7 +1815,19 @@
 
   .bomOutputPane + .bomOutputPane {
     border-left: 0;
-    border-top: 1px solid #efeaf6;
+    border-top: 0;
+  }
+
+  .reportStats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .reportHero {
+    flex-direction: column;
+  }
+
+  .reportScore {
+    text-align: left;
   }
 }
 

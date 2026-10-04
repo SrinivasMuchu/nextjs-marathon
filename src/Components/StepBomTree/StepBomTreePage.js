@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import {
   AlertTriangle,
@@ -28,11 +28,11 @@ import Link from "next/link";
 import Footer from "@/Components/HomePages/Footer/Footer";
 import {
   getOrCreateStepBomUuid,
-  pollStepBomJob,
   uploadStepBomFile,
   downloadStepBomReport,
 } from "@/api/stepBomApi";
 import { boxMeshFromBbox, renderMeshThumb } from "./meshThumb";
+import { stepBomJobPath } from "@/lib/stepBomRoutes";
 import styles from "./StepBomTreePage.module.css";
 
 const STEP_EXT = /\.(step|stp)$/i;
@@ -517,12 +517,145 @@ function flattenCollapsed(node, level = 0, parentQty = 1, rows = []) {
   return rows;
 }
 
+function dash(value) {
+  if (value == null || value === "") return "—";
+  return String(value);
+}
+
+function fmtXyz(point) {
+  if (!point || typeof point !== "object") return "—";
+  const x = Number(point.x);
+  const y = Number(point.y);
+  const z = Number(point.z);
+  if (![x, y, z].every(Number.isFinite)) return "—";
+  return `${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)}`;
+}
+
+function fmtPositive(value, digits = 1) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return "—";
+  return formatNumber(n, digits);
+}
+
+function checkStatusClass(status) {
+  const key = String(status || "").toLowerCase();
+  if (key === "pass") return styles.reportPass;
+  if (key === "warn") return styles.reportWarn;
+  if (key === "fail") return styles.reportFail;
+  return styles.reportNa;
+}
+
+function excelColumnLabel(index) {
+  let n = index + 1;
+  let label = "";
+  while (n > 0) {
+    const rem = (n - 1) % 26;
+    label = String.fromCharCode(65 + rem) + label;
+    n = Math.floor((n - 1) / 26);
+  }
+  return label;
+}
+
+function excelSheets({ fileName, summary, uniqueParts, treeRows }) {
+  const totalQty =
+    summary?.total_part_quantity ||
+    uniqueParts.reduce((sum, part) => sum + (Number(part.quantity) || 0), 0);
+  const totalMass = uniqueParts.reduce(
+    (sum, part) => sum + estMassKg(part.volume_mm3, part.quantity),
+    0,
+  );
+  return {
+    summary: {
+      id: "summary",
+      name: "Summary",
+      columns: [
+        { key: "field", header: "Field" },
+        { key: "value", header: "Value" },
+      ],
+      rows: [
+        { field: "File", value: fileName || "step-bom" },
+        { field: "Assemblies", value: summary?.assembly_count || 0 },
+        { field: "Unique parts", value: uniqueParts.length },
+        { field: "Total quantity", value: totalQty },
+        { field: "Tree nodes", value: treeRows.length || summary?.node_count || 0 },
+        { field: "Est. mass density", value: "Mild steel 7.85 g/cm³" },
+        { field: "Est. mass method", value: "Solid volume × density (not bounding-box volume)" },
+        { field: "Est. total mass", value: formatMass(totalMass) },
+      ],
+    },
+    parts: {
+      id: "parts",
+      name: "Parts",
+      columns: [
+        { key: "part_number", header: "Part number" },
+        { key: "name", header: "Designation" },
+        { key: "quantity", header: "Qty" },
+        { key: "lxwxh", header: "L x W x H (mm)" },
+        { key: "size_x", header: "Size X (mm)" },
+        { key: "size_y", header: "Size Y (mm)" },
+        { key: "size_z", header: "Size Z (mm)" },
+        { key: "volume_mm3", header: "Volume (mm³)" },
+        { key: "mass_g", header: "Est. mass (g)" },
+        { key: "mass_kg", header: "Est. mass (kg)" },
+        { key: "material", header: "Material" },
+        { key: "area_mm2", header: "Area (mm²)" },
+      ],
+      rows: uniqueParts.map((part) => {
+        const box = part.bbox_mm || {};
+        return {
+          part_number: partNumber(part),
+          name: partLabel(part),
+          quantity: Number(part.quantity) || 1,
+          lxwxh: formatLxWxH(box),
+          size_x: Number(box.x) || 0,
+          size_y: Number(box.y) || 0,
+          size_z: Number(box.z) || 0,
+          volume_mm3: Number(part.volume_mm3) || 0,
+          mass_g: estMassG(part.volume_mm3, 1),
+          mass_kg: Number(estMassKg(part.volume_mm3, part.quantity).toFixed(4)),
+          material: "Steel (est.)",
+          area_mm2: Number(part.area_mm2) || 0,
+        };
+      }),
+    },
+    tree: {
+      id: "tree",
+      name: "Assembly tree",
+      columns: [
+        { key: "level", header: "Level" },
+        { key: "part_number", header: "Part number" },
+        { key: "name", header: "Designation" },
+        { key: "type", header: "Type" },
+        { key: "quantity", header: "Qty" },
+        { key: "total_quantity", header: "Total qty" },
+        { key: "lxwxh", header: "L x W x H (mm)" },
+        { key: "size_x", header: "Size X (mm)" },
+        { key: "size_y", header: "Size Y (mm)" },
+        { key: "size_z", header: "Size Z (mm)" },
+        { key: "volume_mm3", header: "Volume (mm³)" },
+        { key: "mass_g", header: "Est. mass (g)" },
+        { key: "mass_kg", header: "Est. mass (kg)" },
+        { key: "material", header: "Material" },
+        { key: "area_mm2", header: "Area (mm²)" },
+        { key: "solid_count", header: "Solids" },
+      ],
+      rows: treeRows.map((row) => ({
+        ...row,
+        name: `${"  ".repeat(row.level || 0)}${row.name}`,
+        material: row.material || "—",
+      })),
+      boldKey: "type",
+      boldValue: "Assembly",
+    },
+  };
+}
+
 function styleHeader(row) {
   row.font = { bold: true, color: { argb: "FFFFFFFF" } };
   row.fill = {
     type: "pattern",
     pattern: "solid",
-    fgColor: { argb: "FF1F2937" },
+    fgColor: { argb: "FF217346" },
   };
   row.alignment = { vertical: "middle" };
 }
@@ -532,87 +665,22 @@ async function downloadBomExcel({ fileName, summary, uniqueParts, treeRows }) {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "Marathon STEP BOM";
   workbook.created = new Date();
+  const sheets = excelSheets({ fileName, summary, uniqueParts, treeRows });
 
-  const summarySheet = workbook.addWorksheet("Summary");
-  summarySheet.columns = [
-    { header: "Field", key: "field", width: 28 },
-    { header: "Value", key: "value", width: 40 },
-  ];
-  styleHeader(summarySheet.getRow(1));
-  [
-    ["File", fileName || "step-bom"],
-    ["Assemblies", summary?.assembly_count || 0],
-    ["Unique parts", uniqueParts.length],
-    ["Total quantity", summary?.total_part_quantity || uniqueParts.reduce((sum, part) => sum + (Number(part.quantity) || 0), 0)],
-    ["Tree nodes", treeRows.length || summary?.node_count || 0],
-    ["Est. mass density", "Mild steel 7.85 g/cm³"],
-    ["Est. mass method", "Solid volume × density (not bounding-box volume)"],
-    ["Est. total mass", formatMass(uniqueParts.reduce((sum, part) => sum + estMassKg(part.volume_mm3, part.quantity), 0))],
-  ].forEach(([field, value]) => summarySheet.addRow({ field, value }));
-
-  const partsSheet = workbook.addWorksheet("Parts");
-  partsSheet.columns = [
-    { header: "Part number", key: "part_number", width: 14 },
-    { header: "Designation", key: "name", width: 42 },
-    { header: "Qty", key: "quantity", width: 10 },
-    { header: "L x W x H (mm)", key: "lxwxh", width: 28 },
-    { header: "Size X (mm)", key: "size_x", width: 14 },
-    { header: "Size Y (mm)", key: "size_y", width: 14 },
-    { header: "Size Z (mm)", key: "size_z", width: 14 },
-    { header: "Volume (mm³)", key: "volume_mm3", width: 16 },
-    { header: "Est. mass (g)", key: "mass_g", width: 16 },
-    { header: "Est. mass (kg)", key: "mass_kg", width: 16 },
-    { header: "Material", key: "material", width: 16 },
-    { header: "Area (mm²)", key: "area_mm2", width: 14 },
-  ];
-  styleHeader(partsSheet.getRow(1));
-  uniqueParts.forEach((part) => {
-    const box = part.bbox_mm || {};
-    partsSheet.addRow({
-      part_number: partNumber(part),
-      name: partLabel(part),
-      quantity: Number(part.quantity) || 1,
-      lxwxh: formatLxWxH(box),
-      size_x: Number(box.x) || 0,
-      size_y: Number(box.y) || 0,
-      size_z: Number(box.z) || 0,
-      volume_mm3: Number(part.volume_mm3) || 0,
-      mass_g: estMassG(part.volume_mm3, 1),
-      mass_kg: Number(estMassKg(part.volume_mm3, part.quantity).toFixed(4)),
-      material: "Steel (est.)",
-      area_mm2: Number(part.area_mm2) || 0,
+  Object.values(sheets).forEach((sheet) => {
+    const ws = workbook.addWorksheet(sheet.name);
+    ws.columns = sheet.columns.map((col) => ({
+      header: col.header,
+      key: col.key,
+      width: Math.max(12, Math.min(48, col.header.length + 6)),
+    }));
+    styleHeader(ws.getRow(1));
+    sheet.rows.forEach((row) => {
+      const added = ws.addRow(row);
+      if (sheet.boldKey && row[sheet.boldKey] === sheet.boldValue) {
+        added.font = { bold: true };
+      }
     });
-  });
-
-  const treeSheet = workbook.addWorksheet("Assembly tree");
-  treeSheet.columns = [
-    { header: "Level", key: "level", width: 10 },
-    { header: "Part number", key: "part_number", width: 14 },
-    { header: "Designation", key: "name", width: 48 },
-    { header: "Type", key: "type", width: 12 },
-    { header: "Qty", key: "quantity", width: 10 },
-    { header: "Total qty", key: "total_quantity", width: 12 },
-    { header: "L x W x H (mm)", key: "lxwxh", width: 28 },
-    { header: "Size X (mm)", key: "size_x", width: 14 },
-    { header: "Size Y (mm)", key: "size_y", width: 14 },
-    { header: "Size Z (mm)", key: "size_z", width: 14 },
-    { header: "Volume (mm³)", key: "volume_mm3", width: 16 },
-    { header: "Est. mass (g)", key: "mass_g", width: 16 },
-    { header: "Est. mass (kg)", key: "mass_kg", width: 16 },
-    { header: "Material", key: "material", width: 16 },
-    { header: "Area (mm²)", key: "area_mm2", width: 14 },
-    { header: "Solids", key: "solid_count", width: 10 },
-  ];
-  styleHeader(treeSheet.getRow(1));
-  treeRows.forEach((row) => {
-    const added = treeSheet.addRow({
-      ...row,
-      name: `${"  ".repeat(row.level)}${row.name}`,
-      material: row.material || "—",
-    });
-    if (row.type === "Assembly") {
-      added.font = { bold: true };
-    }
   });
 
   const buffer = await workbook.xlsx.writeBuffer();
@@ -680,60 +748,17 @@ function BomPartThumb({ mesh, bbox, size = 44, alt, onOpen }) {
   );
 }
 
-export default function StepBomTreePage() {
-  const searchParams = useSearchParams();
-  const jobIdFromUrl = searchParams.get("jobId") || searchParams.get("job_id") || "";
-  const [file, setFile] = useState(null);
-  const [dragOver, setDragOver] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [job, setJob] = useState(null);
-  const [error, setError] = useState("");
+const OUTPUT_TABS = [
+  { id: "assembly", label: "Assembly" },
+  { id: "bom", label: "Bill of materials" },
+  { id: "report", label: "Report" },
+  { id: "excel", label: "View in Excel" },
+];
+
+export function StepBomOutputSection({ job, error }) {
   const [photoPreview, setPhotoPreview] = useState(null);
-  const fileInputRef = useRef(null);
-  const abortRef = useRef(null);
-
-  useEffect(() => {
-    getOrCreateStepBomUuid();
-    return () => abortRef.current?.abort();
-  }, []);
-
-  useEffect(() => {
-    if (!jobIdFromUrl) return undefined;
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-    let cancelled = false;
-
-    (async () => {
-      setSubmitting(true);
-      setError("");
-      setJob({ status: "PENDING", job_id: jobIdFromUrl });
-      try {
-        const finished = await pollStepBomJob(jobIdFromUrl, {
-          signal: controller.signal,
-          onUpdate: (next) => {
-            if (!cancelled) setJob(next);
-          },
-        });
-        if (!cancelled && finished?.status === "FAILED") {
-          setError(finished.error_message || "BOM extraction failed.");
-        }
-      } catch (err) {
-        if (controller.signal.aborted || cancelled) return;
-        const message = err?.message || "Could not load STEP BOM job.";
-        setError(message);
-        toast.error(message);
-      } finally {
-        if (!cancelled) setSubmitting(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, [jobIdFromUrl]);
-
+  const [activeTab, setActiveTab] = useState("assembly");
+  const [excelSheetId, setExcelSheetId] = useState("summary");
   const summary = job?.bom_summary || null;
   const tree = job?.bom_tree || null;
   const displayTree = useMemo(() => (tree ? collapseNode(tree) : null), [tree]);
@@ -748,7 +773,6 @@ export default function StepBomTreePage() {
     }
     return map;
   }, [job]);
-
   const uniqueParts = useMemo(() => {
     const fromFlat = flat
       .filter((row) => row?.type === "part")
@@ -759,84 +783,48 @@ export default function StepBomTreePage() {
     const fromSummary = Array.isArray(summary?.unique_parts) ? summary.unique_parts : [];
     return mergeUniquePartList(fromFlat.length ? fromFlat : fromSummary);
   }, [flat, summary]);
-
-  const pickFile = useCallback((nextFile) => {
-    if (!nextFile) return;
-    if (!STEP_EXT.test(nextFile.name)) {
-      toast.error("Only .step or .stp files are allowed.");
-      return;
-    }
-    if (nextFile.size > MAX_UPLOAD_BYTES) {
-      toast.error(`File is ${formatMb(nextFile.size)}. Maximum size is ${MAX_UPLOAD_LABEL}.`);
-      return;
-    }
-    setFile(nextFile);
-    setError("");
-    setJob(null);
-  }, []);
-
-  const onDrop = useCallback(
-    (event) => {
-      event.preventDefault();
-      setDragOver(false);
-      pickFile(event.dataTransfer.files?.[0]);
-    },
-    [pickFile],
-  );
-
-  const onSubmit = useCallback(
-    async (event) => {
-      event.preventDefault();
-      if (!file || submitting) return;
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-      setSubmitting(true);
-      setError("");
-      setJob({ status: "PENDING", file_name: file.name });
-      try {
-        const data = await uploadStepBomFile(file);
-        const created = data?.job || data;
-        setJob(created);
-        const jobId = created?.job_id;
-        if (!jobId) throw new Error("Job was queued but no id was returned.");
-        const finished = await pollStepBomJob(jobId, {
-          signal: controller.signal,
-          onUpdate: setJob,
-        });
-        if (finished?.status === "FAILED") {
-          setError(finished.error_message || "BOM extraction failed.");
-        }
-      } catch (err) {
-        const message = err?.message || "Could not start STEP BOM extraction.";
-        setError(message);
-        toast.error(message);
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [file, submitting],
-  );
-
   const treeRows = useMemo(
     () => (displayTree ? flattenCollapsed(displayTree) : []),
     [displayTree],
   );
+  const jobDone = String(job?.status || "").toUpperCase() === "COMPLETED" && Boolean(displayTree);
+  const bomQuality =
+    job?.bom_quality ||
+    (jobDone ? scoreBomQualityClient({ flat: treeRows, summary: summary || {} }) : null);
+  const confidencePct = Number(bomQuality?.confidence_pct);
 
   const downloadExcel = useCallback(async () => {
     if (!displayTree) return;
     try {
       await downloadBomExcel({
-        fileName: file?.name || job?.file_name || "step-bom",
+        fileName: job?.file_name || "step-bom",
         summary,
         uniqueParts,
         treeRows,
       });
     } catch (err) {
-      const message = err?.message || "Could not download Excel.";
-      toast.error(message);
+      toast.error(err?.message || "Could not download Excel.");
     }
-  }, [displayTree, file, job, summary, treeRows, uniqueParts]);
+  }, [displayTree, job, summary, treeRows, uniqueParts]);
+
+  const sheets = useMemo(
+    () =>
+      excelSheets({
+        fileName: job?.file_name || "step-bom",
+        summary,
+        uniqueParts,
+        treeRows,
+      }),
+    [job?.file_name, summary, uniqueParts, treeRows],
+  );
+  const activeExcelSheet = sheets[excelSheetId] || sheets.summary;
+  const reportRows = (flat.length ? flat : treeRows).slice(0, 500);
+  const uniqueReportParts =
+    Array.isArray(summary?.unique_parts) && summary.unique_parts.length
+      ? summary.unique_parts
+      : uniqueParts;
+  const reportStats = bomQuality?.stats || summary || {};
+  const reportChecks = Array.isArray(bomQuality?.checks) ? bomQuality.checks : [];
 
   const downloadPdf = useCallback(async () => {
     const pdfUrl = job?.report_pdf_url;
@@ -863,25 +851,481 @@ export default function StepBomTreePage() {
     }
   }, [job]);
 
-  const showOutput = Boolean(job || displayTree || treeRows.length);
-  const jobDone = String(job?.status || "").toUpperCase() === "COMPLETED" && Boolean(displayTree);
+  return (
+    <>
+      <section className={styles.bomOutput} aria-labelledby="step-bom-output-heading">
+        <div className={styles.bomOutputInner}>
+          <p className={styles.eyebrow}>BOM output</p>
+          <h2 id="step-bom-output-heading">See the assembly structure before you export</h2>
+          <p className={styles.bomOutputIntro}>
+            Switch between the assembly tree, parts list, accuracy report, and spreadsheet view
+            of the same extraction.
+          </p>
+
+          {jobDone ? (
+            <div className={styles.bomActions}>
+              {Number.isFinite(confidencePct) ? (
+                <span className={styles.bomConfidence}>
+                  BOM confidence <strong>{formatNumber(confidencePct, 1)}%</strong>
+                  {bomQuality?.verdict_label ? <em> · {bomQuality.verdict_label}</em> : null}
+                </span>
+              ) : null}
+              <button
+                type="button"
+                className={styles.bomPdfBtn}
+                onClick={downloadPdf}
+                disabled={!job?.report_pdf_url && !job?.report_html_url && !job?.job_id}
+              >
+                Download PDF report
+              </button>
+              <button type="button" className={styles.bomExportBtn} onClick={downloadExcel}>
+                Export Excel
+              </button>
+            </div>
+          ) : null}
+
+          {job && !jobDone ? (
+            <div className={styles.bomOutputStatus} aria-live="polite">
+              <span className={`${styles.statusDot} ${styles[`status_${job.status || "PENDING"}`]}`} />
+              <strong>{statusLabel(job.status)}</strong>
+              {error ? <p className={styles.bomOutputError}>{error}</p> : null}
+            </div>
+          ) : null}
+
+          {jobDone ? (
+            <>
+              <div className={styles.bomTabs} role="tablist" aria-label="BOM output views">
+                {OUTPUT_TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === tab.id}
+                    className={`${styles.bomTab} ${activeTab === tab.id ? styles.bomTabActive : ""}`}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              <div className={styles.bomOutputCard}>
+                {activeTab === "assembly" ? (
+                  <div className={styles.bomOutputPane} role="tabpanel">
+                    <h3>Assembly tree</h3>
+                    <ul className={styles.outputTreeList}>
+                      <AssemblyTreeItem node={displayTree} />
+                    </ul>
+                  </div>
+                ) : null}
+
+                {activeTab === "bom" ? (
+                  <div className={styles.bomOutputPane} role="tabpanel">
+                    <h3>Bill of materials</h3>
+                    <div className={styles.bomTableWrap}>
+                      <table className={styles.bomTable}>
+                        <thead>
+                          <tr>
+                            <th>Item</th>
+                            <th>Photo</th>
+                            <th>Component</th>
+                            <th>Part ID</th>
+                            <th>Qty</th>
+                            <th>Est. mass</th>
+                            <th>Level</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {treeRows.map((row, index) => {
+                            const label = row.designation || row.name;
+                            const mesh = row.preview_id ? partsById[row.preview_id] : null;
+                            return (
+                              <tr key={`${row.name}-${index}`}>
+                                <td>{String(index + 1).padStart(2, "0")}</td>
+                                <td>
+                                  <BomPartThumb
+                                    mesh={mesh}
+                                    bbox={row.bbox_mm}
+                                    size={44}
+                                    alt={label}
+                                    onOpen={(src, alt) => setPhotoPreview({ src, alt })}
+                                  />
+                                </td>
+                                <td>{label}</td>
+                                <td>{row.part_number || "—"}</td>
+                                <td className={styles.bomQty}>{row.quantity}</td>
+                                <td className={styles.bomMass}>
+                                  {row.volume_mm3 ? formatMass(row.mass_kg) : "—"}
+                                </td>
+                                <td>{row.level}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : null}
+
+                {activeTab === "report" ? (
+                  <div className={`${styles.bomOutputPane} ${styles.reportPane}`} role="tabpanel">
+                    <div className={styles.reportHero}>
+                      <div>
+                        <p className={styles.reportPill}>Marathon OS · STEP CAD extraction</p>
+                        <h3>CAD BOM + geometry report</h3>
+                        <p className={styles.reportMuted}>File: {job?.file_name || "step-bom"}</p>
+                        <p className={styles.reportMuted}>
+                          Job: {job?.job_id || "—"}
+                          {bomQuality?.generated_at ? ` · ${bomQuality.generated_at}` : ""}
+                        </p>
+                        {bomQuality?.verdict_label ? (
+                          <p className={styles.reportVerdict}>{bomQuality.verdict_label}</p>
+                        ) : null}
+                      </div>
+                      <div className={styles.reportScore}>
+                        <span>BOM confidence</span>
+                        <strong>
+                          {Number.isFinite(confidencePct) ? `${formatNumber(confidencePct, 1)}%` : "—"}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <h4>1. Accuracy scorecard</h4>
+                    <div className={styles.reportTableWrap}>
+                      <table className={styles.reportTable}>
+                        <thead>
+                          <tr>
+                            <th>Metric</th>
+                            <th>Status</th>
+                            <th>Detail</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reportChecks.length ? (
+                            reportChecks.map((check) => (
+                              <tr key={check.id || check.label}>
+                                <td>{check.label || check.id}</td>
+                                <td className={checkStatusClass(check.status)}>
+                                  {String(check.status || "—").toUpperCase()}
+                                </td>
+                                <td>{check.detail || "—"}</td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={3}>Scorecard is included when the worker finishes the PDF.</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                    {bomQuality?.disclaimer ? (
+                      <p className={styles.reportNote}>{bomQuality.disclaimer}</p>
+                    ) : null}
+
+                    <h4>2. Extracted file summary</h4>
+                    <div className={styles.reportStats}>
+                      <div><span>Assemblies</span><strong>{dash(reportStats.assembly_count)}</strong></div>
+                      <div><span>Unique parts</span><strong>{dash(reportStats.unique_part_count || uniqueParts.length)}</strong></div>
+                      <div><span>Total qty</span><strong>{dash(reportStats.total_part_quantity)}</strong></div>
+                      <div><span>Tree nodes</span><strong>{dash(reportStats.node_count || treeRows.length)}</strong></div>
+                      <div><span>Max level</span><strong>{dash(reportStats.max_level)}</strong></div>
+                      <div><span>Solids</span><strong>{dash(reportStats.total_solid_count)}</strong></div>
+                      <div><span>Faces</span><strong>{dash(reportStats.total_face_count)}</strong></div>
+                      <div><span>Edges</span><strong>{dash(reportStats.total_edge_count)}</strong></div>
+                      <div><span>Overall L×W×H</span><strong>{dash(reportStats.overall_lxwxh)}</strong></div>
+                      <div><span>Total volume</span><strong>{fmtPositive(reportStats.total_volume_mm3)} mm³</strong></div>
+                      <div><span>Total area</span><strong>{fmtPositive(reportStats.total_area_mm2)} mm²</strong></div>
+                      <div><span>Est. total mass</span><strong>{formatMass(reportStats.total_mass_kg)}</strong></div>
+                    </div>
+                    <p className={styles.reportNote}>
+                      Est. mass = BREP solid volume × mild steel 7.85 g/cm³. Material/color only appear when stored in the STEP.
+                    </p>
+
+                    <h4>3. Full bill of materials (all extracted fields)</h4>
+                    <div className={`${styles.reportTableWrap} ${styles.reportWide}`}>
+                      <table className={`${styles.reportTable} ${styles.reportCompact}`}>
+                        <thead>
+                          <tr>
+                            <th>Item</th>
+                            <th>Component</th>
+                            <th>Part ID</th>
+                            <th>Type</th>
+                            <th>Qty</th>
+                            <th>Total qty</th>
+                            <th>Level</th>
+                            <th>L×W×H (mm)</th>
+                            <th>Volume</th>
+                            <th>Area</th>
+                            <th>Est. mass</th>
+                            <th>Solids</th>
+                            <th>Faces</th>
+                            <th>Edges</th>
+                            <th>Verts</th>
+                            <th>Shape</th>
+                            <th>Material</th>
+                            <th>Color</th>
+                            <th>CoM / Placement</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reportRows.length ? (
+                            reportRows.map((row, index) => {
+                              const qty = row.quantity || 1;
+                              const totalQty = row.total_quantity || qty;
+                              const vol = Number(row.volume_mm3) || 0;
+                              let massKg = Number(row.mass_kg) || 0;
+                              if (massKg <= 0 && vol > 0) massKg = estMassKg(vol, totalQty);
+                              return (
+                                <tr key={`report-${index}`}>
+                                  <td>{String(index + 1).padStart(2, "0")}</td>
+                                  <td>{row.designation || row.name || "—"}</td>
+                                  <td>{row.part_number || "—"}</td>
+                                  <td>{row.type || "—"}</td>
+                                  <td>{qty}</td>
+                                  <td>{totalQty}</td>
+                                  <td>{row.level ?? "—"}</td>
+                                  <td>{row.lxwxh || formatLxWxH(row.bbox_mm) || "—"}</td>
+                                  <td>{fmtPositive(vol)}</td>
+                                  <td>{fmtPositive(row.area_mm2)}</td>
+                                  <td>{formatMass(massKg)}</td>
+                                  <td>{row.solid_count || "—"}</td>
+                                  <td>{row.face_count || "—"}</td>
+                                  <td>{row.edge_count || "—"}</td>
+                                  <td>{row.vertex_count || "—"}</td>
+                                  <td>{row.shape_type || "—"}</td>
+                                  <td>{row.material || "—"}</td>
+                                  <td>{row.color_hex || "—"}</td>
+                                  <td>
+                                    {`${fmtXyz(row.center_of_mass_mm)} / ${fmtXyz(row.placement_mm)}`}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={19}>No BOM rows available.</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <h4>4. Unique parts (geometry roll-up)</h4>
+                    <div className={`${styles.reportTableWrap} ${styles.reportWide}`}>
+                      <table className={`${styles.reportTable} ${styles.reportCompact}`}>
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Designation</th>
+                            <th>Part ID</th>
+                            <th>Qty</th>
+                            <th>L×W×H</th>
+                            <th>Volume</th>
+                            <th>Area</th>
+                            <th>Unit mass</th>
+                            <th>Total mass</th>
+                            <th>Faces</th>
+                            <th>Edges</th>
+                            <th>Shape</th>
+                            <th>Material</th>
+                            <th>Color</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {uniqueReportParts.length ? (
+                            uniqueReportParts.map((part, index) => {
+                              const vol = Number(part.volume_mm3) || 0;
+                              let unitMass = Number(part.unit_mass_kg) || 0;
+                              if (unitMass <= 0 && vol > 0) unitMass = estMassKg(vol, 1);
+                              const totalMass = Number(part.mass_kg) || estMassKg(vol, part.quantity);
+                              return (
+                                <tr key={`unique-${index}`}>
+                                  <td>{String(index + 1).padStart(2, "0")}</td>
+                                  <td>{part.name || part.designation || "—"}</td>
+                                  <td>{part.part_number || "—"}</td>
+                                  <td>{part.quantity || 1}</td>
+                                  <td>{part.lxwxh || formatLxWxH(part.bbox_mm) || "—"}</td>
+                                  <td>{fmtPositive(vol)}</td>
+                                  <td>{fmtPositive(part.area_mm2)}</td>
+                                  <td>{formatMass(unitMass)}</td>
+                                  <td>{formatMass(totalMass)}</td>
+                                  <td>{part.face_count || "—"}</td>
+                                  <td>{part.edge_count || "—"}</td>
+                                  <td>{part.shape_type || "—"}</td>
+                                  <td>{part.material || "—"}</td>
+                                  <td>{part.color_hex || "—"}</td>
+                                </tr>
+                              );
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={14}>No unique parts.</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : null}
+
+                {activeTab === "excel" ? (
+                  <div className={styles.excelApp} role="tabpanel">
+                    <div className={styles.excelBar}>
+                      <span className={styles.excelFileName}>
+                        {(job?.file_name || "step-bom").replace(/\.[^.]+$/, "")}-bom.xlsx
+                      </span>
+                      <span className={styles.excelCellRef}>
+                        {excelColumnLabel(0)}1
+                      </span>
+                    </div>
+                    <div className={styles.excelGridWrap}>
+                      <table className={styles.excelGrid}>
+                        <thead>
+                          <tr>
+                            <th className={styles.excelCorner} />
+                            {activeExcelSheet.columns.map((col, index) => (
+                              <th key={col.key} className={styles.excelColHead}>
+                                {excelColumnLabel(index)}
+                              </th>
+                            ))}
+                          </tr>
+                          <tr>
+                            <th className={styles.excelRowHead}>1</th>
+                            {activeExcelSheet.columns.map((col) => (
+                              <th key={`h-${col.key}`} className={styles.excelHeaderCell}>
+                                {col.header}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {activeExcelSheet.rows.map((row, rowIndex) => (
+                            <tr key={`xl-${rowIndex}`}>
+                              <th className={styles.excelRowHead}>{rowIndex + 2}</th>
+                              {activeExcelSheet.columns.map((col) => (
+                                <td
+                                  key={col.key}
+                                  className={
+                                    activeExcelSheet.boldKey &&
+                                    row[activeExcelSheet.boldKey] === activeExcelSheet.boldValue
+                                      ? styles.excelBold
+                                      : undefined
+                                  }
+                                >
+                                  {row[col.key] ?? ""}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className={styles.excelSheets}>
+                      {Object.values(sheets).map((sheet) => (
+                        <button
+                          key={sheet.id}
+                          type="button"
+                          className={`${styles.excelSheetTab} ${
+                            excelSheetId === sheet.id ? styles.excelSheetTabActive : ""
+                          }`}
+                          onClick={() => setExcelSheetId(sheet.id)}
+                        >
+                          {sheet.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </>
+          ) : null}
+
+          {jobDone && job?.time_taken_seconds ? (
+            <p className={styles.bomOutputMeta}>
+              Finished in {formatNumber(job.time_taken_seconds, 2)}s
+              {summary?.assembly_count != null
+                ? ` · ${summary.assembly_count} assemblies · ${uniqueParts.length} unique parts`
+                : null}
+            </p>
+          ) : null}
+        </div>
+      </section>
+      {photoPreview?.src ? (
+        <button
+          type="button"
+          className={styles.bomPhotoModal}
+          onClick={() => setPhotoPreview(null)}
+          aria-label="Close photo preview"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photoPreview.src}
+            alt={photoPreview.alt || "Part"}
+            className={styles.bomPhotoModalImg}
+            onClick={(event) => event.stopPropagation()}
+          />
+        </button>
+      ) : null}
+    </>
+  );
+}
+
+export default function StepBomTreePage() {
+  const router = useRouter();
+  const [file, setFile] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (!showOutput) return undefined;
-    const frame = window.requestAnimationFrame(() => {
-      document.getElementById("step-bom-pipeline")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [showOutput]);
-  const bomQuality =
-    job?.bom_quality ||
-    (jobDone
-      ? scoreBomQualityClient({ flat: treeRows, summary: summary || {} })
-      : null);
-  const confidencePct = Number(bomQuality?.confidence_pct);
+    getOrCreateStepBomUuid();
+  }, []);
+
+  const pickFile = useCallback((nextFile) => {
+    if (!nextFile) return;
+    if (!STEP_EXT.test(nextFile.name)) {
+      toast.error("Only .step or .stp files are allowed.");
+      return;
+    }
+    if (nextFile.size > MAX_UPLOAD_BYTES) {
+      toast.error(`File is ${formatMb(nextFile.size)}. Maximum size is ${MAX_UPLOAD_LABEL}.`);
+      return;
+    }
+    setFile(nextFile);
+    setError("");
+  }, []);
+
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+      setDragOver(false);
+      pickFile(event.dataTransfer.files?.[0]);
+    },
+    [pickFile],
+  );
+
+  const onSubmit = useCallback(
+    async (event) => {
+      event.preventDefault();
+      if (!file || submitting) return;
+      setSubmitting(true);
+      setError("");
+      try {
+        const data = await uploadStepBomFile(file);
+        const created = data?.job || data;
+        const jobId = created?.job_id;
+        if (!jobId) throw new Error("Job was queued but no id was returned.");
+        router.push(stepBomJobPath(jobId));
+      } catch (err) {
+        const message = err?.message || "Could not start STEP BOM extraction.";
+        setError(message);
+        toast.error(message);
+        setSubmitting(false);
+      }
+    },
+    [file, router, submitting],
+  );
 
   return (
     <div className={styles.root}>
@@ -956,7 +1400,6 @@ export default function StepBomTreePage() {
                   className={styles.selectedFileClear}
                   onClick={() => {
                     setFile(null);
-                    setJob(null);
                     setError("");
                   }}
                   aria-label="Remove file"
@@ -1005,8 +1448,9 @@ export default function StepBomTreePage() {
             </div>
 
             <button className={styles.submitBtn} type="submit" disabled={!file || submitting}>
-              {submitting ? "Extracting BOM…" : "Extract BOM"}
+              {submitting ? "Starting…" : "Extract BOM"}
             </button>
+            {error ? <p className={styles.bomOutputError}>{error}</p> : null}
 
             <div className={styles.notice} role="note">
               <Info size={16} aria-hidden />
@@ -1018,118 +1462,6 @@ export default function StepBomTreePage() {
           </form>
         </div>
       </section>
-
-      {showOutput ? (
-        <section
-          id="step-bom-pipeline"
-          className={styles.bomOutput}
-          aria-labelledby="step-bom-output-heading"
-        >
-          <div className={styles.bomOutputInner}>
-            <p className={styles.eyebrow}>BOM output</p>
-            <h2 id="step-bom-output-heading">See the assembly structure before you export</h2>
-            <p className={styles.bomOutputIntro}>
-              The page keeps the engineering hierarchy visible on the left and the flattened parts
-              list on the right, so users can understand both where a component sits and how many
-              times it appears.
-            </p>
-
-            {job && !jobDone ? (
-              <div className={styles.bomOutputStatus} aria-live="polite">
-                <span className={`${styles.statusDot} ${styles[`status_${job.status || "PENDING"}`]}`} />
-                <strong>{statusLabel(job.status)}</strong>
-                {error ? <p className={styles.bomOutputError}>{error}</p> : null}
-              </div>
-            ) : null}
-
-            {jobDone ? (
-              <div className={styles.bomOutputCard}>
-                <div className={styles.bomOutputPane}>
-                  <h3>Assembly tree</h3>
-                  <ul className={styles.outputTreeList}>
-                    <AssemblyTreeItem node={displayTree} />
-                  </ul>
-                </div>
-                <div className={styles.bomOutputPane}>
-                  <h3>Bill of materials</h3>
-                  <div className={styles.bomTableWrap}>
-                    <table className={styles.bomTable}>
-                      <thead>
-                        <tr>
-                          <th>Item</th>
-                          <th>Photo</th>
-                          <th>Component</th>
-                          <th>Part ID</th>
-                          <th>Qty</th>
-                          <th>Est. mass</th>
-                          <th>Level</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {treeRows.map((row, index) => {
-                          const label = row.designation || row.name;
-                          const mesh = row.preview_id ? partsById[row.preview_id] : null;
-                          return (
-                            <tr key={`${row.name}-${index}`}>
-                              <td>{String(index + 1).padStart(2, "0")}</td>
-                              <td>
-                                <BomPartThumb
-                                  mesh={mesh}
-                                  bbox={row.bbox_mm}
-                                  size={44}
-                                  alt={label}
-                                  onOpen={(src, alt) => setPhotoPreview({ src, alt })}
-                                />
-                              </td>
-                              <td>{label}</td>
-                              <td>{row.part_number || "—"}</td>
-                              <td className={styles.bomQty}>{row.quantity}</td>
-                              <td className={styles.bomMass}>
-                                {row.volume_mm3 ? formatMass(row.mass_kg) : "—"}
-                              </td>
-                              <td>{row.level}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className={styles.bomActions}>
-                    {Number.isFinite(confidencePct) ? (
-                      <span className={styles.bomConfidence}>
-                        BOM confidence <strong>{formatNumber(confidencePct, 1)}%</strong>
-                        {bomQuality?.verdict_label ? (
-                          <em> · {bomQuality.verdict_label}</em>
-                        ) : null}
-                      </span>
-                    ) : null}
-                    <button
-                      type="button"
-                      className={styles.bomPdfBtn}
-                      onClick={downloadPdf}
-                      disabled={!job?.report_pdf_url && !job?.report_html_url && !job?.job_id}
-                    >
-                      Download PDF report
-                    </button>
-                    <button type="button" className={styles.bomExportBtn} onClick={downloadExcel}>
-                      Export Excel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
-            {jobDone && job?.time_taken_seconds ? (
-              <p className={styles.bomOutputMeta}>
-                Finished in {formatNumber(job.time_taken_seconds, 2)}s
-                {summary?.assembly_count != null
-                  ? ` · ${summary.assembly_count} assemblies · ${uniqueParts.length} unique parts`
-                  : null}
-              </p>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
 
       <section className={styles.extracts} aria-labelledby="step-bom-extracts-heading">
         <div className={styles.extractsInner}>
@@ -1290,23 +1622,6 @@ export default function StepBomTreePage() {
       </section>
 
       <Footer />
-
-      {photoPreview?.src ? (
-        <button
-          type="button"
-          className={styles.bomPhotoModal}
-          onClick={() => setPhotoPreview(null)}
-          aria-label="Close photo preview"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={photoPreview.src}
-            alt={photoPreview.alt || "Part"}
-            className={styles.bomPhotoModalImg}
-            onClick={(event) => event.stopPropagation()}
-          />
-        </button>
-      ) : null}
     </div>
   );
 }

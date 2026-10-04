@@ -60,6 +60,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/step-bom-extractor/:id',
+        destination: '/tools/step-bom-extractor?fileid=:id',
+        permanent: false,
+      },
+      {
+        source: '/tools/step-bom-extractor/:id',
+        destination: '/tools/step-bom-extractor?fileid=:id',
+        permanent: false,
+      },
+      {
         source: '/tools/:cadFile/file-viewer',
         destination: '/tools/:cadFile-file-viewer',
         permanent: true,
