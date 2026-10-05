@@ -3,14 +3,23 @@ import { ASSET_PREFIX_URL } from "@/config";
 const SITE_ORIGIN = "https://marathon-os.com";
 const DEFAULT_OG_IMAGE = `${ASSET_PREFIX_URL}logo-1.png`;
 
-export function buildSocialMetadata({ title, description, canonicalPath, pageUrl }) {
+export function buildSocialMetadata({
+  title,
+  description,
+  canonicalPath,
+  pageUrl,
+  ogTitle,
+  ogDescription,
+}) {
   const url = pageUrl || `${SITE_ORIGIN}${canonicalPath}`;
   const imageUrl = DEFAULT_OG_IMAGE;
+  const socialTitle = ogTitle || title;
+  const socialDescription = ogDescription || description;
 
   return {
     openGraph: {
-      title,
-      description,
+      title: socialTitle,
+      description: socialDescription,
       url,
       siteName: "Marathon OS",
       type: "website",
@@ -18,8 +27,8 @@ export function buildSocialMetadata({ title, description, canonicalPath, pageUrl
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
+      title: socialTitle,
+      description: socialDescription,
       images: [imageUrl],
     },
   };
@@ -30,6 +39,8 @@ export function buildPageMetadata({
   description,
   canonicalPath,
   pageUrl,
+  ogTitle,
+  ogDescription,
   metadataBase = SITE_ORIGIN,
   extra = {},
 }) {
@@ -38,7 +49,14 @@ export function buildPageMetadata({
     description,
     metadataBase: new URL(metadataBase),
     alternates: { canonical: canonicalPath },
-    ...buildSocialMetadata({ title, description, canonicalPath, pageUrl }),
+    ...buildSocialMetadata({
+      title,
+      description,
+      canonicalPath,
+      pageUrl,
+      ogTitle,
+      ogDescription,
+    }),
     ...extra,
   };
 }

@@ -7,6 +7,7 @@ import KycTab from '../KYC/KycTab'
 import Earnings from '../Earnings/Earnings'
 import Analytics from '../History/Analytics'
 import TechDrawDashboardCards from '../History/TechDrawDashboardCards'
+import StepBomDashboardCards from '../History/StepBomDashboardCards'
 import mobileStyles from './DashboardMobile.module.css'
 
 function TabPanel({ children, value, index, ...other }) {
@@ -42,6 +43,7 @@ function CreatorsRightCont({
     { label: "CAD Viewer", cadType: "CAD_VIEWER" },
     { label: "CAD Convertor", cadType: "CAD_CONVERTER" },
     { label: "2D Drawings", cadType: "CAD_TECHDRAW" },
+    { label: "STEP BOM", cadType: "CAD_STEP_BOM" },
     { label: "Downloads", cadType: "USER_DOWNLOADS" },
     { label: "Analytics", cadType: "ANALYTICS" },
     { label: "KYC", cadType: "USER_KYC" },
@@ -67,20 +69,22 @@ function CreatorsRightCont({
       setValue(0)
     } else if (cadType === 'CAD_TECHDRAW') {
       setValue(3)
-    } else if (cadType === 'USER_DOWNLOADS') {
+    } else if (cadType === 'CAD_STEP_BOM') {
       setValue(4)
-    } else if (cadType === 'ANALYTICS') {
+    } else if (cadType === 'USER_DOWNLOADS') {
       setValue(5)
-    } else if (cadType === 'USER_KYC') {
+    } else if (cadType === 'ANALYTICS') {
       setValue(6)
-    } else if (cadType === 'EARNINGS') {
+    } else if (cadType === 'USER_KYC') {
       setValue(7)
+    } else if (cadType === 'EARNINGS') {
+      setValue(8)
     } else {
       setValue(0) // Default to My CAD Files
     }
 
     // Land on the files table (not the cover) when a tool tab is selected
-    if (cadType === 'CAD_VIEWER' || cadType === 'CAD_CONVERTER' || cadType === 'CAD_TECHDRAW') {
+    if (cadType === 'CAD_VIEWER' || cadType === 'CAD_CONVERTER' || cadType === 'CAD_TECHDRAW' || cadType === 'CAD_STEP_BOM') {
       scrollToTable()
     }
   }, [searchParams])
@@ -180,6 +184,14 @@ function CreatorsRightCont({
             />
           </TabPanel>
           <TabPanel value={value} index={4} style={{ background: '#F6F6F6', height: '100%' }}>
+            <StepBomDashboardCards
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              setTotalPages={setTotalPages}
+            />
+          </TabPanel>
+          <TabPanel value={value} index={5} style={{ background: '#F6F6F6', height: '100%' }}>
             <FileHistoryCards
               type="USER_DOWNLOADS"
               cad_type="USER_DOWNLOADS"
@@ -189,7 +201,7 @@ function CreatorsRightCont({
               setTotalPages={setTotalPages}
             />
           </TabPanel>
-          <TabPanel value={value} index={5} style={{ background: '#F6F6F6', height: '100%' }}>
+          <TabPanel value={value} index={6} style={{ background: '#F6F6F6', height: '100%' }}>
             <Analytics
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -197,10 +209,10 @@ function CreatorsRightCont({
               setTotalPages={setTotalPages}
             />
           </TabPanel>
-          <TabPanel value={value} index={6} style={{ background: '#F6F6F6', height: '100%' }}>
+          <TabPanel value={value} index={7} style={{ background: '#F6F6F6', height: '100%' }}>
             <KycTab />
           </TabPanel>
-          <TabPanel value={value} index={7} style={{ background: '#F6F6F6', height: '100%' }}>
+          <TabPanel value={value} index={8} style={{ background: '#F6F6F6', height: '100%' }}>
             <Earnings />
           </TabPanel>
         </> :
