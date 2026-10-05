@@ -143,7 +143,7 @@ export function buildCadViewerOutputUrl(fileId, fileName) {
 }
 
 export function buildCadViewerGlbUrl(fileId) {
-  return buildCadViewerOutputUrl(fileId, `${fileId}.glb`);
+  return buildCadViewerOutputUrl(fileId, `${fileId}_compressed.glb`);
 }
 
 export function buildCadViewerMetaUrl(fileId) {
