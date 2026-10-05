@@ -137,7 +137,9 @@ export default function CadMatchStatus({ jobId }) {
   const stage = job?.pipeline_stage
     ? STAGE_LABELS[job.pipeline_stage] || job.pipeline_stage
     : null;
-  const matches = Array.isArray(job?.matches) ? job.matches : [];
+  const matches = Array.isArray(job?.matches)
+    ? [...job.matches].sort((a, b) => Number(b?.score || 0) - Number(a?.score || 0))
+    : [];
   const isRunning = status === "PENDING" || status === "PROCESSING";
   const showResults = status === "COMPLETED" || (status === "FAILED" && matches.length > 0);
 

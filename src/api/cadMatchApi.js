@@ -243,7 +243,7 @@ export function cadMatchStatusPath(jobId) {
 export function similarityPercent(score) {
   const n = Number(score);
   if (!Number.isFinite(n)) return null;
-  // Cosine similarity is typically 0–1 for L2-normalized vectors
+  // Display scores are calibrated 0–1 fractions from the match worker.
   const pct = Math.max(0, Math.min(100, Math.round(n * 100)));
-  return pct;
+  return pct > 0 ? pct : null;
 }
