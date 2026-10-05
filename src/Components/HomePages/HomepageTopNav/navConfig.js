@@ -12,6 +12,7 @@ import {
   Network,
   Newspaper,
   RefreshCw,
+  Search,
   SquareStack,
   Users,
   Wrench,
@@ -83,6 +84,12 @@ export const TOOLS_MENU = [
     title: "STEP BOM Extractor",
     subtitle: "Extract BOM and assembly hierarchy",
     Icon: ListTree,
+  },
+  {
+    href: "/tools/part-name-match",
+    title: "Part Name Match",
+    subtitle: "Find designs by part name / title",
+    Icon: Search,
   },
 ];
 

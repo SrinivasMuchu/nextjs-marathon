@@ -9,6 +9,7 @@ import {
   Network,
   PenTool,
   RefreshCw,
+  Search,
 } from 'lucide-react';
 import Footer from '@/Components/HomePages/Footer/Footer';
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs';
@@ -55,6 +56,14 @@ const QUICK_TOOLS_CARDS = [
       'Upload a STEP assembly and extract its bill of materials tree — parts, sub-assemblies, and quantities from the CAD product structure.',
     tags: ['STEP/STP', 'BOM tree', 'Kafka sample_step'],
     Icon: Network,
+  },
+  {
+    href: '/tools/part-name-match',
+    title: 'Part Name Match',
+    description:
+      'Enter a GLB metadata part name and find matching live library designs. Text-match POC on Kafka topic sample_text_match.',
+    tags: ['Part name', 'Title search', 'Kafka sample_text_match'],
+    Icon: Search,
   },
   {
     href: '/tools/industries',

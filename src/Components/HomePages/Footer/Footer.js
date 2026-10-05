@@ -54,6 +54,7 @@ function Footer() {
             <Link href="/tools">All CAD Tools</Link>
             <Link href="/tools/3d-cad-viewer">3D CAD Viewer</Link>
             <Link href="/tools/step-bom-extractor">STEP BOM Extractor</Link>
+            <Link href="/tools/part-name-match">Part Name Match</Link>
             <Link href="/cad-services">Hire a CAD Designer</Link>
           </div>
 
