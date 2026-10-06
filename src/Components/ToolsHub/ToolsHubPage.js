@@ -61,8 +61,8 @@ const QUICK_TOOLS_CARDS = [
     href: '/tools/part-name-match',
     title: 'Part Name Match',
     description:
-      'Enter a GLB metadata part name and find matching live library designs. Text-match POC on Kafka topic sample_text_match.',
-    tags: ['Part name', 'Title search', 'Kafka sample_text_match'],
+      'Enter a GLB metadata part name and find matching live library designs via API Mongo search.',
+    tags: ['Part name', 'GLB metadata', 'API search'],
     Icon: Search,
   },
   {

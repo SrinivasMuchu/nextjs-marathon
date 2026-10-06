@@ -68,8 +68,8 @@ export default function TextMatchView() {
           <h1 className={styles.title}>Find designs by part name</h1>
           <p className={styles.subtitle}>
             Enter a part name from GLB metadata. We search indexed{" "}
-            <code>parts[].name</code> labels across live library designs via the{" "}
-            <code>sample_text_match</code> Kafka flow — not page titles.
+            <code>parts[].name</code> labels across live library designs — not
+            page titles.
           </p>
         </header>
 
