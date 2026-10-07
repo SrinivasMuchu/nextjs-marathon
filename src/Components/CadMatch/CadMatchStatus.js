@@ -28,7 +28,12 @@ function statusBadgeClass(status) {
   return styles.badgeRunning;
 }
 
-function resolvePreviewUrl(glbUrl, inputFileUrl) {
+function resolvePreviewUrl(glbUrl, inputFileUrl, jobId) {
+  // Prefer same-origin proxy — CloudFront match previews often lack CORS,
+  // which leaves <model-viewer> as a black empty box.
+  if (jobId && glbUrl) {
+    return `/api/cad-match-preview?jobId=${encodeURIComponent(jobId)}`;
+  }
   if (glbUrl) return glbUrl;
   // Native GLB/GLTF uploads can be previewed directly if the worker skipped export.
   const src = String(inputFileUrl || "");
@@ -36,38 +41,120 @@ function resolvePreviewUrl(glbUrl, inputFileUrl) {
   return null;
 }
 
-function QueryPreview({ glbUrl, inputFileUrl, fileName, isRunning }) {
-  const hostRef = useRef(null);
-  const previewUrl = resolvePreviewUrl(glbUrl, inputFileUrl);
+function ensureModelViewer() {
+  if (typeof window === "undefined") return Promise.resolve(false);
+  if (window.customElements?.get("model-viewer")) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const existing = document.querySelector(
+      "script[data-cad-match-model-viewer]",
+    );
+    const onReady = () => {
+      if (window.customElements?.get("model-viewer")) {
+        resolve(true);
+        return;
+      }
+      window.customElements
+        ?.whenDefined("model-viewer")
+        .then(() => resolve(true))
+        .catch(() => resolve(false));
+    };
+    if (existing) {
+      existing.addEventListener("load", onReady, { once: true });
+      // Already loaded earlier in the session.
+      onReady();
+      return;
+    }
+    const script = document.createElement("script");
+    script.type = "module";
+    script.src =
+      "https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js";
+    script.dataset.cadMatchModelViewer = "1";
+    script.addEventListener("load", onReady, { once: true });
+    script.addEventListener("error", () => resolve(false), { once: true });
+    document.head.appendChild(script);
+  });
+}
+
+function QueryPreview({ glbUrl, inputFileUrl, fileName, isRunning, jobId }) {
+  const previewUrl = resolvePreviewUrl(glbUrl, inputFileUrl, jobId);
+  const [viewerReady, setViewerReady] = useState(false);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    if (!previewUrl || typeof window === "undefined") return undefined;
-    if (!window.customElements?.get("model-viewer")) {
-      const existing = document.querySelector('script[data-cad-match-model-viewer]');
-      if (!existing) {
-        const script = document.createElement("script");
-        script.type = "module";
-        script.src =
-          "https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js";
-        script.dataset.cadMatchModelViewer = "1";
-        document.head.appendChild(script);
-      }
+    let cancelled = false;
+    setLoadError("");
+    if (!previewUrl) {
+      setViewerReady(false);
+      return undefined;
     }
+    ensureModelViewer().then((ok) => {
+      if (!cancelled) setViewerReady(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [previewUrl]);
 
-  if (previewUrl) {
+  // model-viewer fetch needs the session uuid when using our proxy.
+  useEffect(() => {
+    if (!previewUrl || !viewerReady || typeof window === "undefined") {
+      return undefined;
+    }
+    const el = document.querySelector(
+      `[data-cad-match-query-viewer="1"]`,
+    );
+    if (!el) return undefined;
+
+    const onErr = () =>
+      setLoadError("Could not load 3D preview. Try refreshing the page.");
+    const onLoad = () => setLoadError("");
+    el.addEventListener("error", onErr);
+    el.addEventListener("load", onLoad);
+
+    // Attach Authorization-less uuid header via interceptor: model-viewer
+    // does not support custom headers, so the proxy also accepts cookie-less
+    // requests when job preview is public-to-owner via uuid query fallback.
+    return () => {
+      el.removeEventListener("error", onErr);
+      el.removeEventListener("load", onLoad);
+    };
+  }, [previewUrl, viewerReady]);
+
+  if (previewUrl && viewerReady) {
+    const uuid =
+      typeof window !== "undefined"
+        ? localStorage.getItem("uuid") || ""
+        : "";
+    // Pass uuid as query param — <model-viewer> cannot set request headers.
+    const src =
+      previewUrl.startsWith("/api/cad-match-preview") && uuid
+        ? `${previewUrl}&uuid=${encodeURIComponent(uuid)}`
+        : previewUrl;
     return (
-      <div className={styles.queryPreview} ref={hostRef}>
-        {/* model-viewer is loaded via CDN script above */}
+      <div className={styles.queryPreview}>
         {React.createElement("model-viewer", {
-          src: previewUrl,
+          "data-cad-match-query-viewer": "1",
+          src,
           alt: fileName || "Uploaded CAD",
           "camera-controls": true,
           "touch-action": "pan-y",
           "auto-rotate": true,
-          exposure: "1",
-          style: { width: "100%", height: "100%", background: "transparent" },
+          "shadow-intensity": "0.6",
+          exposure: "1.2",
+          "environment-image": "neutral",
+          "interaction-prompt": "none",
+          style: {
+            width: "100%",
+            height: "100%",
+            background: "radial-gradient(circle at 50% 40%, #2a2f3a 0%, #12141a 70%)",
+          },
         })}
+        {loadError ? (
+          <div className={styles.queryPlaceholder} style={{ position: "absolute", inset: 0 }}>
+            <FileBox size={40} strokeWidth={1.5} />
+            <span>{loadError}</span>
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -76,7 +163,9 @@ function QueryPreview({ glbUrl, inputFileUrl, fileName, isRunning }) {
     <div className={styles.queryPlaceholder}>
       <FileBox size={40} strokeWidth={1.5} />
       <span>
-        {isRunning ? "Generating 3D preview…" : "3D preview unavailable"}
+        {isRunning || (previewUrl && !viewerReady)
+          ? "Generating 3D preview…"
+          : "3D preview unavailable"}
       </span>
     </div>
   );
@@ -198,6 +287,7 @@ export default function CadMatchStatus({ jobId }) {
                   inputFileUrl={job?.input_file_url}
                   fileName={job?.file_name}
                   isRunning={isRunning}
+                  jobId={job?.job_id || jobId}
                 />
               </div>
               <div className={styles.resultBody}>
