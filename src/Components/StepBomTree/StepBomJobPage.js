@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import Footer from "@/Components/HomePages/Footer/Footer";
 import CadFileNotifyPopUp from "@/Components/CommonJsx/CadFileNotifyPopUp";
+import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { pollStepBomJob } from "@/api/stepBomApi";
 import { StepBomOutputSection } from "./StepBomTreePage";
 import cube from "@/Components/CommonJsx/Loaders/Cube.json";
@@ -22,7 +23,33 @@ function statusCopy(status) {
   return status || "Waiting";
 }
 
+function progressBounds(status) {
+  if (status === "PROCESSING") return { floor: 48, cap: 92 };
+  if (status === "PENDING") return { floor: 24, cap: 42 };
+  return { floor: 8, cap: 18 };
+}
+
+function useExtractionProgress(status, running) {
+  const [progress, setProgress] = useState(8);
+
+  useEffect(() => {
+    if (!running) return undefined;
+    const { floor, cap } = progressBounds(status);
+    setProgress((prev) => Math.max(prev, floor));
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        const next = prev + Math.max(0.35, (cap - prev) * 0.08);
+        return Math.min(cap, Math.max(floor, next));
+      });
+    }, 500);
+    return () => clearInterval(timer);
+  }, [status, running]);
+
+  return Math.round(progress);
+}
+
 export default function StepBomJobPage({ jobId }) {
+  const { user } = useContext(contextState);
   const [job, setJob] = useState({ job_id: jobId, status: "LOADING" });
   const [error, setError] = useState("");
   const [showNotifyPopUp, setShowNotifyPopUp] = useState(false);
@@ -62,7 +89,9 @@ export default function StepBomJobPage({ jobId }) {
 
   const status = String(job?.status || "LOADING").toUpperCase();
   const running = status === "LOADING" || status === "PENDING" || status === "PROCESSING";
-  const fileName = job?.file_name || "your STEP file";
+  const fileName = String(job?.file_name || "").trim();
+  const mailId = String(user?.email || "").trim();
+  const progress = useExtractionProgress(status, running);
 
   useEffect(() => {
     if (status !== "PENDING" && status !== "PROCESSING") {
@@ -105,10 +134,15 @@ export default function StepBomJobPage({ jobId }) {
             <h1 className={styles.title}>
               {status === "FAILED"
                 ? "BOM extraction failed"
-                : status === "LOADING"
+                : status === "LOADING" && !fileName
                   ? "Opening STEP BOM"
-                  : `Extracting ${fileName}`}
+                  : "Extracting BOM"}
             </h1>
+            {fileName ? (
+              <p className={styles.fileName} title={fileName}>
+                {fileName}
+              </p>
+            ) : null}
             <p className={styles.subtitle}>
               {status === "FAILED"
                 ? error || job?.error_message || "Please try another file."
@@ -116,9 +150,29 @@ export default function StepBomJobPage({ jobId }) {
                   ? "Loading the saved assembly tree and report."
                   : "The worker is building the assembly tree, quantities, and accuracy report."}
             </p>
+            {running ? (
+              <div className={styles.progressBlock}>
+                <div
+                  className={styles.progressTrack}
+                  role="progressbar"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={progress}
+                  aria-label="BOM extraction progress"
+                >
+                  <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+                </div>
+                <p className={styles.progressPct}>{progress}%</p>
+              </div>
+            ) : null}
             <p className={`${styles.status} ${status === "FAILED" ? styles.failed : ""}`}>
               {statusCopy(status)}
             </p>
+            {running && mailId ? (
+              <p className={styles.notify}>
+                We&apos;ll email <strong>{mailId}</strong> when the BOM is ready.
+              </p>
+            ) : null}
             {status === "FAILED" ? (
               <div className={styles.actions}>
                 <Link href="/tools/step-bom-extractor" className={styles.retryBtn}>
