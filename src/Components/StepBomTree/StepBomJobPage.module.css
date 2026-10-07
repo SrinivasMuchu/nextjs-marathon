@@ -8,6 +8,8 @@
   max-width: 640px;
   margin: 0 auto;
   padding: 32px 20px 64px;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .back {
@@ -29,6 +31,11 @@
   align-items: center;
   justify-content: center;
   text-align: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
   padding: 36px 24px;
   min-height: 420px;
   background: #fff;
@@ -44,17 +51,80 @@
 
 .title {
   margin: 8px 0 8px;
+  width: 100%;
+  max-width: 100%;
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.fileName {
+  margin: 0 0 10px;
+  width: 100%;
+  max-width: 100%;
+  color: #3d3348;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .subtitle {
   margin: 0;
-  max-width: 360px;
+  width: 100%;
+  max-width: 420px;
   color: #5f5668;
   font-size: 14px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.progressBlock {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 18px;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #ece8f5;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #610bee, #a78bfa);
+  transition: width 400ms ease;
+}
+
+.progressPct {
+  margin: 8px 0 0;
+  color: #610bee;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.notify {
+  margin: 14px 0 0;
+  width: 100%;
+  max-width: 420px;
+  color: #5f5668;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.notify strong {
+  color: #21172c;
+  font-weight: 700;
 }
 
 .status {
@@ -89,4 +159,10 @@
   color: #fff;
   font-weight: 600;
   text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressFill {
+    transition: none;
+  }
 }

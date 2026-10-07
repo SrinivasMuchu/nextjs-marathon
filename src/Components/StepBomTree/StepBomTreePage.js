@@ -749,15 +749,15 @@ function BomPartThumb({ mesh, bbox, size = 44, alt, onOpen }) {
 }
 
 const OUTPUT_TABS = [
-  { id: "assembly", label: "Assembly" },
   { id: "bom", label: "Bill of materials" },
+  { id: "assembly", label: "Assembly" },
   { id: "report", label: "Report" },
   { id: "excel", label: "View in Excel" },
 ];
 
 export function StepBomOutputSection({ job, error }) {
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [activeTab, setActiveTab] = useState("assembly");
+  const [activeTab, setActiveTab] = useState("bom");
   const [excelSheetId, setExcelSheetId] = useState("summary");
   const summary = job?.bom_summary || null;
   const tree = job?.bom_tree || null;
