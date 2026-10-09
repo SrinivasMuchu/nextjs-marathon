@@ -48,19 +48,18 @@ export async function uploadStepBomFile(file, onPhase) {
 
 export async function getStepBomStatus(jobId) {
   const headers = userUuidHeader();
-  try {
-    const { data } = await axios.get(`/api/step-bom-status/${jobId}`, {
-      headers,
-      timeout: STATUS_REQUEST_TIMEOUT_MS,
-    });
-    return unwrap(data);
-  } catch (err) {
-    const { data } = await axios.get(`${BASE_URL}/v1/cad-step-bom/status/${jobId}`, {
-      headers,
-      timeout: STATUS_REQUEST_TIMEOUT_MS,
-    });
-    return unwrap(data);
-  }
+  const { data } = await axios.get(`${BASE_URL}/v1/cad-step-bom/status/${jobId}`, {
+    headers,
+    timeout: STATUS_REQUEST_TIMEOUT_MS,
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
+  });
+  return unwrap(data);
+}
+
+function isNotFoundStatus(err) {
+  const message = String(err?.response?.data?.meta?.message || err?.message || "").toLowerCase();
+  return message.includes("not found") || message.includes("invalid job");
 }
 
 export async function pollStepBomJob(jobId, { onUpdate, signal } = {}) {
@@ -69,14 +68,52 @@ export async function pollStepBomJob(jobId, { onUpdate, signal } = {}) {
     try {
       const payload = await getStepBomStatus(jobId);
       const job = payload?.job || payload;
+      if (!job?.status) {
+        throw new Error("STEP BOM job not found.");
+      }
       onUpdate?.(job);
       if (job?.status === "COMPLETED" || job?.status === "FAILED") return job;
       transientErrors = 0;
     } catch (err) {
+      if (signal?.aborted) throw err;
+      if (isNotFoundStatus(err)) throw err;
       transientErrors += 1;
       if (transientErrors > MAX_POLL_TRANSIENT_ERRORS) throw err;
     }
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
   }
-  throw new Error("Polling cancelled");
+  throw new Error("Polling aborted");
 }
+
+export async function downloadStepBomReport(jobId) {
+  if (!jobId) throw new Error("job id is required");
+  const uuid = getOrCreateStepBomUuid();
+  const res = await fetch(`/api/step-bom-report/${jobId}`, {
+    headers: { "user-uuid": uuid, Accept: "application/pdf,text/html" },
+  });
+  if (!res.ok) {
+    let message = "Could not download BOM accuracy report.";
+    try {
+      const json = await res.json();
+      message = json?.meta?.message || message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  const blob = await res.blob();
+  const contentType = res.headers.get("content-type") || blob.type || "";
+  const disposition = res.headers.get("content-disposition") || "";
+  const match = /filename="?([^"]+)"?/i.exec(disposition);
+  const filename =
+    match?.[1] ||
+    (contentType.includes("pdf") ? "bom-accuracy.pdf" : "bom-accuracy.html");
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+  return { filename, contentType };
+}
+

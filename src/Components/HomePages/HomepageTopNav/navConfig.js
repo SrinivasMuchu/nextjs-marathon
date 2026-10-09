@@ -8,6 +8,7 @@ import {
   HelpCircle,
   LayoutGrid,
   Library,
+  ListTree,
   Network,
   Newspaper,
   RefreshCw,
@@ -76,6 +77,12 @@ export const TOOLS_MENU = [
     title: "3D to 2D Drawing Pipeline",
     subtitle: "Generate 2D drawings from 3D CAD",
     Icon: FileOutput,
+  },
+  {
+    href: "/tools/step-bom-extractor",
+    title: "STEP BOM Extractor",
+    subtitle: "Extract BOM and assembly hierarchy",
+    Icon: ListTree,
   },
 ];
 

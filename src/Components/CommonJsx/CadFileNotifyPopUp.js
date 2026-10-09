@@ -99,7 +99,11 @@ function CadFileNotifyPopUp({ setIsApiSlow, action, cad_type }) {
         </button>
         {cad_type? <>
          <h2 className="text-lg font-semibold text-gray-800 mb-1">Stay Updated</h2>
-        <p className="text-sm text-gray-500 mb-5">Conversion can take a while. Get notified when it&#39;s ready.</p>
+        <p className="text-sm text-gray-500 mb-5">
+          {cad_type === "CAD_STEP_BOM"
+            ? "BOM extraction can take a while. Get notified when it&#39;s ready."
+            : "Conversion can take a while. Get notified when it's ready."}
+        </p>
 
         </>:<>
          <h2 className="text-lg font-semibold text-gray-800 mb-1">Verify your Email</h2>

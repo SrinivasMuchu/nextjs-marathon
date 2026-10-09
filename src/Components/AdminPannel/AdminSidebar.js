@@ -12,6 +12,7 @@ import { MdEngineering } from "react-icons/md";
 import { MdDraw } from "react-icons/md";
 import { MdTune } from "react-icons/md";
 import { MdStorefront } from "react-icons/md";
+import { MdBarChart } from "react-icons/md";
 import { MdClose } from "react-icons/md";
 
 function Chevron({ direction = 'left' }) {
@@ -24,6 +25,7 @@ function Chevron({ direction = 'left' }) {
 }
 
 const NAV_ITEMS = [
+  { id: 'stats', label: 'Stats', title: 'CAD Stats Dashboard', Icon: MdBarChart },
   { id: 'designs', label: 'Designs', title: 'Designs', Icon: MdOutlineDesignServices },
   { id: 'payments', label: 'Payments', title: 'Payments', Icon: MdOutlinePayments },
   { id: 'controls', label: 'Controls', title: 'Controls', Icon: MdTune },

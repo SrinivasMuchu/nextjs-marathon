@@ -8,6 +8,7 @@ import {
   Camera,
   ChevronDown,
   LayoutGrid,
+  ListTree,
   MoreHorizontal,
   RefreshCw,
   Scan,
@@ -24,6 +25,7 @@ const NAV = [
   { id: "CAD_VIEWER", label: "CAD Viewer", icon: Box },
   { id: "CAD_CONVERTER", label: "CAD Converter", icon: RefreshCw },
   { id: "CAD_TECHDRAW", label: "2D Drawings", icon: Scan },
+  { id: "CAD_STEP_BOM", label: "STEP BOM", icon: ListTree },
 ];
 
 const MORE_LINKS = [
