@@ -3,8 +3,31 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { X } from 'lucide-react';
 import PopupWrapper from '../CommonJsx/PopupWrapper';
+import { sendGAtagEvent } from '@/common.helper';
+import { CAD_CONVERTER_EVENT } from '@/config';
 import { getFeaturedConverterPack } from '@/lib/converterPricing';
 import styles from './ConverterCreditPlansPopup.module.css';
+
+function planGaParams(option) {
+  if (!option) return {};
+  if (option.kind === 'single') {
+    return {
+      payment_type: 'converter_single_download',
+      pack_id: 'single',
+      pack_name: option.name || 'One-time download',
+      price_label: option.totalLabel || '',
+      credits: '1',
+    };
+  }
+  const pack = option.pack || {};
+  return {
+    payment_type: 'converter_pack',
+    pack_id: pack.id || option.id || '',
+    pack_name: option.name || pack.name || '',
+    price_label: option.totalLabel || pack.price_label || '',
+    credits: pack.credits != null ? String(pack.credits) : '',
+  };
+}
 
 function packBadge(pack) {
   if (pack.featured) return { label: 'RECOMMENDED', tone: 'purple' };
@@ -103,8 +126,21 @@ function ConverterCreditPlansPopup({
 
   const savedBadge = formatSavedBadge(fileType);
 
+  const trackPlanSelected = (option) => {
+    sendGAtagEvent({
+      event_name: 'converter_plan_selected',
+      event_category: CAD_CONVERTER_EVENT,
+      ...planGaParams(option),
+    });
+  };
+
   const handlePrimary = () => {
     if (!selected) return;
+    sendGAtagEvent({
+      event_name: 'converter_plan_checkout_clicked',
+      event_category: CAD_CONVERTER_EVENT,
+      ...planGaParams(selected),
+    });
     if (selected.kind === 'single') {
       onSelectSingle?.();
       return;
@@ -166,7 +202,10 @@ function ConverterCreditPlansPopup({
                         name="converter-credit-plan"
                         value={option.id}
                         checked={checked}
-                        onChange={() => setSelectedId(option.id)}
+                        onChange={() => {
+                          setSelectedId(option.id);
+                          trackPlanSelected(option);
+                        }}
                         className={styles.radioInput}
                       />
                       <span className={styles.radio} aria-hidden />

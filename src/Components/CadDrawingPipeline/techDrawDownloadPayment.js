@@ -5,8 +5,17 @@ import {
   formatTechDrawPrice,
 } from "@/api/cadDrawingPipelineApi";
 import { loadRazorpayScript } from "@/Components/History/converterPayment";
-import { sendClarityEvent } from "@/common.helper";
-import { MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
+import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
+import { CAD_2D_DRAWING_EVENT, MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
+
+function trackTechDrawDownloadPaymentGa(event_name, params = {}) {
+  sendGAtagEvent({
+    event_name,
+    event_category: CAD_2D_DRAWING_EVENT,
+    payment_type: "techdraw_download",
+    ...params,
+  });
+}
 
 /**
  * Ensures the user may download TechDraw deliverables (free path or Razorpay checkout).
@@ -51,6 +60,11 @@ export function ensureTechDrawDownloadAccess({ jobId, jobTitle, fileName, userEm
         if (!prefill.email && userEmail) prefill.email = userEmail;
 
         sendClarityEvent("techdraw_download_payment_opened", { techdraw_funnel: "payment_opened" });
+        trackTechDrawDownloadPaymentGa("techdraw_download_payment_opened", {
+          job_id: jobId || "",
+          amount: order.amount != null ? String(order.amount) : "",
+          currency: order.currency || "USD",
+        });
 
         const options = {
           key: RAZORPAY_KEY_ID,
@@ -69,6 +83,13 @@ export function ensureTechDrawDownloadAccess({ jobId, jobTitle, fileName, userEm
                 razorpay_signature: response.razorpay_signature,
               });
               sendClarityEvent("techdraw_download_payment_success", { techdraw_funnel: "paid" });
+              trackTechDrawDownloadPaymentGa("techdraw_download_payment_success", {
+                job_id: jobId || "",
+                order_id: response.razorpay_order_id || "",
+                payment_id: response.razorpay_payment_id || "",
+                amount: order.amount != null ? String(order.amount) : "",
+                currency: order.currency || "USD",
+              });
               resolve({
                 free: false,
                 paid: true,
@@ -78,6 +99,10 @@ export function ensureTechDrawDownloadAccess({ jobId, jobTitle, fileName, userEm
               });
             } catch (err) {
               sendClarityEvent("techdraw_download_payment_failed", { techdraw_funnel: "payment_failed" });
+              trackTechDrawDownloadPaymentGa("techdraw_download_payment_failed", {
+                job_id: jobId || "",
+                order_id: response.razorpay_order_id || "",
+              });
               reject(err);
             }
           },
@@ -88,6 +113,10 @@ export function ensureTechDrawDownloadAccess({ jobId, jobTitle, fileName, userEm
             ondismiss: () => {
               sendClarityEvent("techdraw_download_payment_cancelled", {
                 techdraw_funnel: "payment_cancelled",
+              });
+              trackTechDrawDownloadPaymentGa("techdraw_download_payment_cancelled", {
+                job_id: jobId || "",
+                order_id: order.orderId || "",
               });
               reject(new Error("Payment cancelled"));
             },

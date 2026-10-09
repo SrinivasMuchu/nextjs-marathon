@@ -5,8 +5,17 @@ import {
   formatTechDrawPrice,
 } from "@/api/cadDrawingPipelineApi";
 import { loadRazorpayScript } from "@/Components/History/converterPayment";
-import { sendClarityEvent } from "@/common.helper";
-import { MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
+import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
+import { CAD_2D_DRAWING_EVENT, MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
+
+function trackTwoDLibraryPaymentGa(event_name, params = {}) {
+  sendGAtagEvent({
+    event_name,
+    event_category: CAD_2D_DRAWING_EVENT,
+    payment_type: "2d_library_download",
+    ...params,
+  });
+}
 
 /**
  * Ensures the user may download 2D library deliverables (free path or Razorpay checkout).
@@ -56,6 +65,11 @@ export function ensureTwoDLibraryDownloadAccess({
         if (!prefill.email && userEmail) prefill.email = userEmail;
 
         sendClarityEvent("2d_library_download_payment_opened", { techdraw_funnel: "payment_opened" });
+        trackTwoDLibraryPaymentGa("2d_library_download_payment_opened", {
+          cad_file_id: cadFileId || "",
+          amount: order.amount != null ? String(order.amount) : "",
+          currency: order.currency || "USD",
+        });
 
         const options = {
           key: RAZORPAY_KEY_ID,
@@ -74,6 +88,13 @@ export function ensureTwoDLibraryDownloadAccess({
                 razorpay_signature: response.razorpay_signature,
               });
               sendClarityEvent("2d_library_download_payment_success", { techdraw_funnel: "paid" });
+              trackTwoDLibraryPaymentGa("2d_library_download_payment_success", {
+                cad_file_id: cadFileId || "",
+                order_id: response.razorpay_order_id || "",
+                payment_id: response.razorpay_payment_id || "",
+                amount: order.amount != null ? String(order.amount) : "",
+                currency: order.currency || "USD",
+              });
               resolve({
                 free: false,
                 paid: true,
@@ -83,6 +104,10 @@ export function ensureTwoDLibraryDownloadAccess({
               });
             } catch (err) {
               sendClarityEvent("2d_library_download_payment_failed", { techdraw_funnel: "payment_failed" });
+              trackTwoDLibraryPaymentGa("2d_library_download_payment_failed", {
+                cad_file_id: cadFileId || "",
+                order_id: response.razorpay_order_id || "",
+              });
               reject(err);
             }
           },
@@ -93,6 +118,10 @@ export function ensureTwoDLibraryDownloadAccess({
             ondismiss: () => {
               sendClarityEvent("2d_library_download_payment_cancelled", {
                 techdraw_funnel: "payment_cancelled",
+              });
+              trackTwoDLibraryPaymentGa("2d_library_download_payment_cancelled", {
+                cad_file_id: cadFileId || "",
+                order_id: order.orderId || "",
               });
               reject(new Error("Payment cancelled"));
             },

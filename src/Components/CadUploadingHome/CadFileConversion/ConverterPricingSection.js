@@ -10,6 +10,8 @@ import { contextState } from '@/Components/CommonJsx/ContextProvider';
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
 import ConverterDownloadFlow from '@/Components/History/ConverterDownloadFlow';
 import { ensureConverterPackPurchase } from '@/Components/History/converterPayment';
+import { sendGAtagEvent } from '@/common.helper';
+import { CAD_CONVERTER_EVENT } from '@/config';
 import styles from './ConverterPricingSection.module.css';
 
 function ConverterPricingSection({
@@ -51,6 +53,15 @@ function ConverterPricingSection({
 
   const handleChoosePack = (pack) => {
     if (!pack) return;
+    sendGAtagEvent({
+      event_name: 'converter_plan_checkout_clicked',
+      event_category: CAD_CONVERTER_EVENT,
+      payment_type: 'converter_pack',
+      pack_id: pack.id || '',
+      pack_name: pack.name || '',
+      price_label: pack.price_label || '',
+      credits: pack.credits != null ? String(pack.credits) : '',
+    });
     if (!user?._id) {
       setPendingPack(pack);
       setShowLogin(true);
