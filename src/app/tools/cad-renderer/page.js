@@ -6,7 +6,7 @@ const CubeLoader = dynamic(() => import('@/Components/CommonJsx/Loaders/CubeLoad
 import axios from "axios";
 import IndustryCadViewer from "@/Components/IndustryDesigns/IndustryCadViewer";
 import { GlbExplodeViewer } from "@/Components/PDMViewer/GlbExplodeViewer";
-import { BASE_URL, DESIGN_GLB_PREFIX_URL, buildCadViewerGlbUrl, buildCadViewerMetaUrl } from "@/config";
+import { BASE_URL, buildCadViewerGlbUrl, buildCadViewerMetaUrl, buildDesignGlbUrl, buildDesignGlbMetaUrl } from "@/config";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
@@ -46,12 +46,12 @@ function DesignViewContent() {
   const glbUrl = useMemo(() => {
     if (!encodedTargetId) return "";
     if (useCadViewerOutput) return buildCadViewerGlbUrl(targetId);
-    return `${DESIGN_GLB_PREFIX_URL}${encodedTargetId}/${encodedTargetId}.glb`;
+    return buildDesignGlbUrl(targetId);
   }, [encodedTargetId, targetId, useCadViewerOutput]);
   const metaUrl = useMemo(() => {
     if (!encodedTargetId) return "";
     if (useCadViewerOutput) return buildCadViewerMetaUrl(targetId);
-    return `${DESIGN_GLB_PREFIX_URL}${encodedTargetId}/${encodedTargetId}.json`;
+    return buildDesignGlbMetaUrl(targetId);
   }, [encodedTargetId, targetId, useCadViewerOutput]);
   const [status, setStatus] = useState(targetId ? "PENDING" : null);
   const [isGlbViewer, setIsGlbViewer] = useState(false);

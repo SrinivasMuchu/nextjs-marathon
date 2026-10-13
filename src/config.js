@@ -151,6 +151,19 @@ export function buildCadViewerMetaUrl(fileId) {
   return buildCadViewerOutputUrl(fileId, `${fileId}.json`);
 }
 
+/** Library / publish-CAD GLB viewer: design-glb/{id}/{id}_compressed.glb (falls back to {id}.glb). */
+export function buildDesignGlbUrl(designId) {
+  const id = encodeURIComponent(designId || '');
+  if (!id) return '';
+  return `${DESIGN_GLB_PREFIX_URL}${id}/${id}_compressed.glb`;
+}
+
+export function buildDesignGlbMetaUrl(designId) {
+  const id = encodeURIComponent(designId || '');
+  if (!id) return '';
+  return `${DESIGN_GLB_PREFIX_URL}${id}/${id}.json`;
+}
+
 /** STEP BOM outputs: cad-output-files/step-bom/{id}/{filename} */
 export function buildStepBomOutputUrl(jobId, fileName) {
   const id = encodeURIComponent(jobId || '');

@@ -1,12 +1,11 @@
 "use client";
 
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import Lottie from "lottie-react";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import cubeAnimation from "../CommonJsx/Loaders/Cube.json";
+import { GlbViewerDownloadOverlay, useGlbSource } from "../PDMViewer/GlbLoadFallback";
 
 const CAD_BASE_COLOR = "#9a9a9e";
 const CAD_METALNESS = 0.88;
@@ -32,7 +31,7 @@ function CadRoomEnvironment() {
 }
 
 function Model({ glbUrl, modelRef, onReady }) {
-  const { scene } = useGLTF(glbUrl);
+  const { scene } = useGLTF(glbUrl, true);
   const model = useMemo(() => {
     const cloned = scene.clone(true);
     const root = new THREE.Group();
@@ -233,53 +232,10 @@ function ViewerController({ action, modelRef }) {
 
 export default function PdmGlbPreviewCanvas({ glbUrl, action }) {
   const modelRef = useRef(null);
-  const [isModelReady, setIsModelReady] = useState(false);
-
-  useEffect(() => {
-    setIsModelReady(false);
-  }, [glbUrl]);
-
-  const showLoadingOverlay = !isModelReady;
+  const glbSource = useGlbSource(glbUrl);
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      {showLoadingOverlay && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 4,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background:
-              "radial-gradient(circle at center, rgba(255,255,255,0.72) 0%, rgba(247,247,248,0.9) 78%)",
-            pointerEvents: "none",
-            transition: "opacity 220ms ease",
-          }}
-          aria-live="polite"
-        >
-          <div
-            style={{
-              minWidth: 190,
-              textAlign: "center",
-              padding: "14px 16px",
-              borderRadius: 12,
-              background: "rgba(255, 255, 255, 0.92)",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 12px 26px rgba(15,23,42,0.1)",
-            }}
-          >
-            <Lottie animationData={cubeAnimation} loop style={{ width: 92, height: 92, margin: "0 auto" }} />
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#1f2937" }}>
-              Loading 3D design...
-            </p>
-            <p style={{ margin: "6px 0 0", fontSize: 12, color: "#64748b" }}>
-              Preparing interactive preview
-            </p>
-          </div>
-        </div>
-      )}
       <Canvas
         camera={{ position: [1.08, 0.81, 1.65], fov: 35 }}
         dpr={[1, 2]}
@@ -296,7 +252,14 @@ export default function PdmGlbPreviewCanvas({ glbUrl, action }) {
         <directionalLight position={[-6, 5, -5]} intensity={0.28} />
         <CadRoomEnvironment />
         <Suspense fallback={null}>
-          <Model glbUrl={glbUrl} modelRef={modelRef} onReady={() => setIsModelReady(true)} />
+          {glbSource.objectUrl ? (
+            <Model
+              key={glbSource.objectUrl}
+              glbUrl={glbSource.objectUrl}
+              modelRef={modelRef}
+              onReady={glbSource.markReady}
+            />
+          ) : null}
         </Suspense>
         <OrbitControls
           makeDefault
@@ -306,6 +269,14 @@ export default function PdmGlbPreviewCanvas({ glbUrl, action }) {
         />
         <ViewerController action={action} modelRef={modelRef} />
       </Canvas>
+      <GlbViewerDownloadOverlay
+        status={glbSource.status}
+        progress={glbSource.progress}
+        progressKnown={glbSource.progressKnown}
+        stage={glbSource.stage}
+        error={glbSource.error}
+        variant="light"
+      />
     </div>
   );
 }

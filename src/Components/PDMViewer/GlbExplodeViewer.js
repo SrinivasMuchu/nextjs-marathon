@@ -11,7 +11,7 @@ import React, {
 } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
-import { GlbLoadFallback } from "./GlbLoadFallback";
+import { GlbViewerDownloadOverlay, useGlbSource } from "./GlbLoadFallback";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
@@ -918,13 +918,26 @@ function ExplodableModel({
   onSectionOffsetChange = null,
   /** Optional: e.g. set which axis the panel slider controls when user grabs a gizmo. */
   onSectionGizmoEngage = null,
+  /** Fired once the GLB scene is parsed and ready to render. */
+  onReady = null,
 }) {
-  const { scene } = useGLTF(url);
+  const { scene } = useGLTF(url, true);
   const { camera, gl, controls, raycaster } = useThree();
   const orbitControlsRef = useRef(controls ?? null);
+  const readyNotifiedRef = useRef(false);
   useLayoutEffect(() => {
     orbitControlsRef.current = controls ?? null;
   }, [controls]);
+
+  useLayoutEffect(() => {
+    readyNotifiedRef.current = false;
+  }, [url]);
+
+  useLayoutEffect(() => {
+    if (!scene || readyNotifiedRef.current) return;
+    readyNotifiedRef.current = true;
+    onReady?.();
+  }, [scene, onReady]);
 
   useLayoutEffect(() => {
     return () => {
@@ -1636,6 +1649,7 @@ export function GlbExplodeViewer({
     () => withAssetCacheBust(metaUrl, cacheBust),
     [metaUrl, cacheBust]
   );
+  const glbSource = useGlbSource(resolvedGlbUrl);
   const [explode, setExplode] = useState(0);
   const [partsMeta, setPartsMeta] = useState([]);
   /** From meta JSON `normalizeTargetMaxSpan` when finite and > 0; null otherwise. */
@@ -2533,28 +2547,36 @@ export function GlbExplodeViewer({
             <CadRoomEnvironment />
 
             <Suspense fallback={null}>
-              <GlbLoadFallback url={resolvedGlbUrl}>
-                {(url) => (
-                  <ExplodableModel
-                    key={url}
-                    url={url}
-                    explode={explode}
-                    activePartName={activePartName}
-                    partsMeta={partsMeta}
-                    normalizeTargetMaxSpan={normalizeTargetMaxSpan}
-                    partVisibility={partVisibility}
-                    onHoverPart={handleHoverPartFromScene}
-                    screenPlaneExplode={screenPlaneExplode}
-                    explodeEnabled={hasPartsMeta}
-                    section={sectionConfig}
-                    sectionInteractionEnabled={sectionAnyAxisOn}
-                    onSectionOffsetChange={handleSectionOffsetFromScene}
-                    onSectionGizmoEngage={handleSectionGizmoEngage}
-                  />
-                )}
-              </GlbLoadFallback>
+              {glbSource.objectUrl ? (
+                <ExplodableModel
+                  key={glbSource.objectUrl}
+                  url={glbSource.objectUrl}
+                  explode={explode}
+                  activePartName={activePartName}
+                  partsMeta={partsMeta}
+                  normalizeTargetMaxSpan={normalizeTargetMaxSpan}
+                  partVisibility={partVisibility}
+                  onHoverPart={handleHoverPartFromScene}
+                  screenPlaneExplode={screenPlaneExplode}
+                  explodeEnabled={hasPartsMeta}
+                  section={sectionConfig}
+                  sectionInteractionEnabled={sectionAnyAxisOn}
+                  onSectionOffsetChange={handleSectionOffsetFromScene}
+                  onSectionGizmoEngage={handleSectionGizmoEngage}
+                  onReady={glbSource.markReady}
+                />
+              ) : null}
             </Suspense>
           </Canvas>
+
+          <GlbViewerDownloadOverlay
+            status={glbSource.status}
+            progress={glbSource.progress}
+            progressKnown={glbSource.progressKnown}
+            stage={glbSource.stage}
+            error={glbSource.error}
+            variant="dark"
+          />
 
           {/* Compact camera D-pad + 2-col views (reference proportions). */}
           <div
