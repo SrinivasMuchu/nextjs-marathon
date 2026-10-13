@@ -11,6 +11,7 @@ import React, {
 } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
+import { GlbLoadFallback } from "./GlbLoadFallback";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
@@ -2532,22 +2533,26 @@ export function GlbExplodeViewer({
             <CadRoomEnvironment />
 
             <Suspense fallback={null}>
-              <ExplodableModel
-                key={resolvedGlbUrl}
-                url={resolvedGlbUrl}
-                explode={explode}
-                activePartName={activePartName}
-                partsMeta={partsMeta}
-                normalizeTargetMaxSpan={normalizeTargetMaxSpan}
-                partVisibility={partVisibility}
-                onHoverPart={handleHoverPartFromScene}
-                screenPlaneExplode={screenPlaneExplode}
-                explodeEnabled={hasPartsMeta}
-                section={sectionConfig}
-                sectionInteractionEnabled={sectionAnyAxisOn}
-                onSectionOffsetChange={handleSectionOffsetFromScene}
-                onSectionGizmoEngage={handleSectionGizmoEngage}
-              />
+              <GlbLoadFallback url={resolvedGlbUrl}>
+                {(url) => (
+                  <ExplodableModel
+                    key={url}
+                    url={url}
+                    explode={explode}
+                    activePartName={activePartName}
+                    partsMeta={partsMeta}
+                    normalizeTargetMaxSpan={normalizeTargetMaxSpan}
+                    partVisibility={partVisibility}
+                    onHoverPart={handleHoverPartFromScene}
+                    screenPlaneExplode={screenPlaneExplode}
+                    explodeEnabled={hasPartsMeta}
+                    section={sectionConfig}
+                    sectionInteractionEnabled={sectionAnyAxisOn}
+                    onSectionOffsetChange={handleSectionOffsetFromScene}
+                    onSectionGizmoEngage={handleSectionGizmoEngage}
+                  />
+                )}
+              </GlbLoadFallback>
             </Suspense>
           </Canvas>
 

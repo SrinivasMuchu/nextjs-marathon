@@ -13,6 +13,7 @@ import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Center, useGLTF } from '@react-three/drei';
+import { GlbLoadFallback } from '../PDMViewer/GlbLoadFallback';
 import * as THREE from 'three';
 
 const HISTORY_PRESET_SEQUENCE = [
@@ -105,7 +106,9 @@ function HistoryGlbHoverPreview({ glbUrl, hovered }) {
         <directionalLight position={[5, 8, 6]} intensity={1.0} />
         <directionalLight position={[-4, 2, -4]} intensity={0.22} />
         <React.Suspense fallback={null}>
-          <HistoryGlbModel glbUrl={glbUrl} hovered={hovered} />
+          <GlbLoadFallback url={glbUrl}>
+            {(url) => <HistoryGlbModel glbUrl={url} hovered={hovered} />}
+          </GlbLoadFallback>
         </React.Suspense>
       </Canvas>
     </div>
