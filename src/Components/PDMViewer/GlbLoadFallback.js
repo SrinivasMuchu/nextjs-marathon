@@ -194,7 +194,7 @@ export function useGlbSource(url) {
 function stageLabel(stage, status) {
   if (status === "decoding") return "Preparing 3D model…";
   if (status === "failed") return "Failed to load model";
-  if (stage === "compressed") return "Downloading compressed model…";
+  if (stage === "compressed") return "Downloading full model…";
   if (stage === "uncompressed") return "Downloading full model…";
   return "Downloading model…";
 }
