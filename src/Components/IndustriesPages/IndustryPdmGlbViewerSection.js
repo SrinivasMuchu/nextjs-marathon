@@ -14,7 +14,7 @@ import {
   MdOutlineLock,
 } from "react-icons/md";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Eye, Minus, Plus } from "lucide-react";
-import { DESIGN_GLB_PREFIX_URL } from "@/config";
+import { buildDesignGlbUrl } from "@/config";
 import styles from "./IndustryPdmGlbViewerSection.module.css";
 
 const PdmGlbPreviewCanvas = dynamic(() => import("./PdmGlbPreviewCanvas"), {
@@ -54,10 +54,10 @@ export default function IndustryPdmGlbViewerSection({ industryData }) {
     return id || FALLBACK_PDM_VIEWER_ID;
   }, [industryData]);
 
-  const glbUrl = useMemo(() => {
-    const encodedId = encodeURIComponent(viewerDesignId);
-    return `${DESIGN_GLB_PREFIX_URL}${encodedId}/${encodedId}.glb`;
-  }, [viewerDesignId]);
+  const glbUrl = useMemo(
+    () => buildDesignGlbUrl(viewerDesignId),
+    [viewerDesignId]
+  );
 
   const pushViewerAction = (type, extra = {}) => {
     setViewerAction({ type, at: Date.now(), ...extra });

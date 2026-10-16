@@ -13,6 +13,7 @@ import HoverImageSequence from '../CommonJsx/RotatedImages';
 import DesignDetailsStats from '../CommonJsx/DesignDetailsStats';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Center, useGLTF } from '@react-three/drei';
+import { GlbViewerDownloadOverlay, useGlbSource } from '../PDMViewer/GlbLoadFallback';
 import * as THREE from 'three';
 
 const HISTORY_PRESET_SEQUENCE = [
@@ -23,12 +24,23 @@ const HISTORY_PRESET_SEQUENCE = [
 ];
 const HISTORY_ISOMETRIC = new THREE.Euler(0.55, 0.75, 0);
 
-function HistoryGlbModel({ glbUrl, hovered }) {
-  const { scene } = useGLTF(glbUrl);
+function HistoryGlbModel({ glbUrl, hovered, onReady }) {
+  const { scene } = useGLTF(glbUrl, true);
   const modelRef = React.useRef(null);
+  const readyNotifiedRef = React.useRef(false);
   const clone = React.useMemo(() => scene.clone(true), [scene]);
   const presetIndexRef = React.useRef(0);
   const elapsedRef = React.useRef(0);
+
+  React.useLayoutEffect(() => {
+    readyNotifiedRef.current = false;
+  }, [glbUrl]);
+
+  React.useLayoutEffect(() => {
+    if (!scene || readyNotifiedRef.current) return;
+    readyNotifiedRef.current = true;
+    onReady?.();
+  }, [scene, onReady]);
 
   useFrame((_, delta) => {
     if (!modelRef.current) return;
@@ -89,8 +101,10 @@ function HistoryGlbModel({ glbUrl, hovered }) {
 }
 
 function HistoryGlbHoverPreview({ glbUrl, hovered }) {
+  const glbSource = useGlbSource(glbUrl);
+
   return (
-    <div style={{ width: '100%', height: '160px', background: '#101018' }}>
+    <div style={{ position: 'relative', width: '100%', height: '160px', background: '#101018' }}>
       <Canvas
         camera={{ position: [0, 0, 3.2], fov: 40 }}
         dpr={[1, 1.5]}
@@ -105,9 +119,24 @@ function HistoryGlbHoverPreview({ glbUrl, hovered }) {
         <directionalLight position={[5, 8, 6]} intensity={1.0} />
         <directionalLight position={[-4, 2, -4]} intensity={0.22} />
         <React.Suspense fallback={null}>
-          <HistoryGlbModel glbUrl={glbUrl} hovered={hovered} />
+          {glbSource.objectUrl ? (
+            <HistoryGlbModel
+              key={glbSource.objectUrl}
+              glbUrl={glbSource.objectUrl}
+              hovered={hovered}
+              onReady={glbSource.markReady}
+            />
+          ) : null}
         </React.Suspense>
       </Canvas>
+      <GlbViewerDownloadOverlay
+        status={glbSource.status}
+        progress={glbSource.progress}
+        progressKnown={glbSource.progressKnown}
+        stage={glbSource.stage}
+        error={glbSource.error}
+        variant="dark"
+      />
     </div>
   );
 }
