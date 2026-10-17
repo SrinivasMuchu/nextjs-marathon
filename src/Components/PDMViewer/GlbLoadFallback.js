@@ -115,52 +115,72 @@ export function useGlbSource(url) {
       error: null,
     });
 
+    const wait = (ms) =>
+      new Promise((resolve) => {
+        const timer = setTimeout(resolve, ms);
+        controller.signal.addEventListener(
+          "abort",
+          () => {
+            clearTimeout(timer);
+            resolve();
+          },
+          { once: true }
+        );
+      });
+
     (async () => {
       let lastError = null;
-      for (const attempt of attempts) {
+      // The file can land a little after status flips. Keep trying instead of
+      // sticking on failed until a manual reload.
+      for (let round = 0; round < 40; round += 1) {
         if (controller.signal.aborted) return;
-        setState((prev) => ({
-          ...prev,
-          status: "loading",
-          progress: 0,
-          progressKnown: false,
-          stage: attempt.stage,
-          objectUrl: null,
-          error: null,
-        }));
-        try {
-          const objectUrl = await downloadGlbWithProgress(
-            attempt.href,
-            (pct) => {
-              if (controller.signal.aborted) return;
-              setState((prev) => ({
-                ...prev,
-                status: "loading",
-                stage: attempt.stage,
-                progress: pct == null ? prev.progress : pct,
-                progressKnown: pct != null,
-              }));
-            },
-            controller.signal
-          );
-          if (controller.signal.aborted) {
-            URL.revokeObjectURL(objectUrl);
-            return;
-          }
-          objectUrlRef.current = objectUrl;
-          setState({
-            status: "decoding",
-            progress: 100,
-            progressKnown: true,
-            stage: attempt.stage,
-            objectUrl,
+        for (const attempt of attempts) {
+          if (controller.signal.aborted) return;
+          setState((prev) => ({
+            ...prev,
+            status: "loading",
+            progress: 0,
+            progressKnown: false,
+            stage: round === 0 ? attempt.stage : "waiting",
+            objectUrl: null,
             error: null,
-          });
-          return;
-        } catch (err) {
-          if (err?.name === "AbortError") return;
-          lastError = err;
+          }));
+          try {
+            const objectUrl = await downloadGlbWithProgress(
+              attempt.href,
+              (pct) => {
+                if (controller.signal.aborted) return;
+                setState((prev) => ({
+                  ...prev,
+                  status: "loading",
+                  stage: attempt.stage,
+                  progress: pct == null ? prev.progress : pct,
+                  progressKnown: pct != null,
+                }));
+              },
+              controller.signal
+            );
+            if (controller.signal.aborted) {
+              URL.revokeObjectURL(objectUrl);
+              return;
+            }
+            objectUrlRef.current = objectUrl;
+            setState({
+              status: "decoding",
+              progress: 100,
+              progressKnown: true,
+              stage: attempt.stage,
+              objectUrl,
+              error: null,
+            });
+            return;
+          } catch (err) {
+            if (err?.name === "AbortError") return;
+            lastError = err;
+          }
         }
+        if (controller.signal.aborted) return;
+        await wait(3000);
       }
       if (controller.signal.aborted) return;
       setState({
@@ -194,6 +214,7 @@ export function useGlbSource(url) {
 function stageLabel(stage, status) {
   if (status === "decoding") return "Preparing 3D model…";
   if (status === "failed") return "Failed to load model";
+  if (stage === "waiting") return "Waiting for the model to finish…";
   if (stage === "compressed") return "Downloading full model…";
   if (stage === "uncompressed") return "Downloading full model…";
   return "Downloading model…";
