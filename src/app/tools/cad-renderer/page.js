@@ -30,7 +30,6 @@ function DesignViewContent() {
   const glbParam = searchParams.get("glb");
   const hasGlbParam = glbParam != null;
   const queryIsGlb = hasGlbParam && /^(true|1|yes)$/i.test(String(glbParam));
-  const readyParam = /^(true|1|yes)$/i.test(String(searchParams.get("ready") || ""));
   const designId = searchParams.get("designId");
   const fileId = searchParams.get("fileId") || searchParams.get("id") || searchParams.get("folderId");
   const targetId = designId || fileId;
@@ -64,14 +63,16 @@ function DesignViewContent() {
       setIsGlbViewer(true);
       return;
     }
-    if (readyParam) {
-      setStatus("COMPLETED");
-      setIsGlbViewer(true);
-      return;
-    }
 
     let cancelled = false;
     let intervalId = null;
+
+    const stopPolling = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
 
     const fetchGlbStatus = async () => {
       try {
@@ -79,6 +80,9 @@ function DesignViewContent() {
           params: { id: targetId, cad_type: "GLB_VIEWER" },
           headers: { "user-uuid": getOrCreateUuid() },
         });
+        if (cancelled) return;
+        if (response?.data?.meta?.success === false) return;
+
         const data = response?.data?.data || {};
         const jobStatus = String(data.status || "PENDING").toUpperCase();
         const isGlb = data.is_glb === true;
@@ -87,40 +91,24 @@ function DesignViewContent() {
           jobStatus === "PROCESSING" ||
           jobStatus === "UPLOADING" ||
           jobStatus === "IN_QUEUE";
-        if (cancelled) return;
 
         // is_glb stays false until the file exists. That is in progress, not a failure.
         if (jobStatus === "COMPLETED" && isGlb) {
           setStatus("COMPLETED");
           setIsGlbViewer(true);
-          if (intervalId) {
-            clearInterval(intervalId);
-            intervalId = null;
-          }
+          stopPolling();
           return;
         }
 
+        setIsGlbViewer(false);
         if (jobStatus === "FAILED") {
           setStatus("FAILED");
-          setIsGlbViewer(false);
-          if (intervalId) {
-            clearInterval(intervalId);
-            intervalId = null;
-          }
           return;
         }
-
         setStatus(inProgress ? jobStatus : "PROCESSING");
-        setIsGlbViewer(false);
       } catch (e) {
-        if (!cancelled) {
-          setStatus("FAILED");
-          setIsGlbViewer(false);
-          if (intervalId) {
-            clearInterval(intervalId);
-            intervalId = null;
-          }
-        }
+        // A dropped poll is not a failed conversion. Keep the in-progress state
+        // and let the next tick pick up PENDING / PROCESSING / COMPLETED.
       }
     };
 
@@ -129,9 +117,9 @@ function DesignViewContent() {
 
     return () => {
       cancelled = true;
-      if (intervalId) clearInterval(intervalId);
+      stopPolling();
     };
-  }, [targetId, useLibraryGlbCdn, isSample, readyParam]);
+  }, [targetId, useLibraryGlbCdn, isSample]);
 
   useEffect(() => {
     if (!targetId || format || useLibraryGlbCdn) return;
@@ -161,21 +149,14 @@ function DesignViewContent() {
         if (response?.data?.data?.file_name) {
           setOriginalFileName(response.data.data.file_name);
         }
-        if (nextStatus === "COMPLETED" || nextStatus === "FAILED") {
+        if (nextStatus === "COMPLETED") {
           if (intervalId) {
             clearInterval(intervalId);
             intervalId = null;
           }
         }
       } catch (e) {
-        if (!cancelled) {
-          setStatus("FAILED");
-          setIsGlbViewer(false);
-          if (intervalId) {
-            clearInterval(intervalId);
-            intervalId = null;
-          }
-        }
+        // Keep polling. A single request error is not a failed conversion.
       }
     };
 
