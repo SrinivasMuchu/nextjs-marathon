@@ -79,16 +79,39 @@ function DesignViewContent() {
           params: { id: targetId, cad_type: "GLB_VIEWER" },
           headers: { "user-uuid": getOrCreateUuid() },
         });
-        const nextStatus = response?.data?.data?.status || "IN_QUEUE";
+        const data = response?.data?.data || {};
+        const jobStatus = String(data.status || "PENDING").toUpperCase();
+        const isGlb = data.is_glb === true;
+        const inProgress =
+          jobStatus === "PENDING" ||
+          jobStatus === "PROCESSING" ||
+          jobStatus === "UPLOADING" ||
+          jobStatus === "IN_QUEUE";
         if (cancelled) return;
-        setStatus(nextStatus);
-        setIsGlbViewer(nextStatus === "COMPLETED");
-        if (nextStatus === "COMPLETED" || nextStatus === "FAILED") {
+
+        // is_glb stays false until the file exists. That is in progress, not a failure.
+        if (jobStatus === "COMPLETED" && isGlb) {
+          setStatus("COMPLETED");
+          setIsGlbViewer(true);
           if (intervalId) {
             clearInterval(intervalId);
             intervalId = null;
           }
+          return;
         }
+
+        if (jobStatus === "FAILED") {
+          setStatus("FAILED");
+          setIsGlbViewer(false);
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
+          return;
+        }
+
+        setStatus(inProgress ? jobStatus : "PROCESSING");
+        setIsGlbViewer(false);
       } catch (e) {
         if (!cancelled) {
           setStatus("FAILED");
