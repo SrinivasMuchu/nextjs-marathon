@@ -7,6 +7,8 @@ import Link from "next/link";
 import { ArrowLeftRight, Info } from "lucide-react";
 import {
   fetchConverterPricingInfo,
+  getConverterPacksFromInfo,
+  getSinglePriceLabelFromInfo,
   isConverterConversionFree,
 } from "@/lib/converterPricing";
 import {
@@ -271,7 +273,7 @@ function CadDropDown({
   const isConvertButtonDisabled = uploadingMessage || disableSelect;
   const isConvertButtonVisible = !!selectedKey;
 
-  if (designVariant === "converterHero") {
+  if (designVariant === "converterHero" || designVariant === "stepToStlHero") {
     const dedicatedPair = Boolean(pairSource && pairTarget);
     const inputFormatLabel = fileExt
       ? formatFieldLabel(fileExt) || normalizeFormatKey(fileExt).toUpperCase()
@@ -298,6 +300,57 @@ function CadDropDown({
         : CONVERTER_HUB_PAGE.convertBeforeSelection;
     const modernButtonDisabled =
       !file || !(selectValueAttr || pairTarget) || Boolean(uploadingMessage) || disableSelect;
+
+    if (designVariant === "stepToStlHero") {
+      const singlePrice = getSinglePriceLabelFromInfo(pricingInfo) || "$2.99";
+      const packs = getConverterPacksFromInfo(pricingInfo);
+      const cheapestPack = packs.reduce((best, pack) => {
+        const credits = Math.max(1, Number(pack.credits) || 1);
+        const amount = Number(pack.price_with_gst) / credits;
+        if (!Number.isFinite(amount)) return best;
+        if (!best || amount < best.amount) {
+          return { amount, label: String(pack.per_credit_label || "").replace(/\s*each$/i, "") };
+        }
+        return best;
+      }, null);
+      const packPrice = cheapestPack?.label || "$1.80";
+
+      return (
+        <div className={heroStyles.converterControls}>
+          <button
+            type="button"
+            className={heroStyles.converterActionButton}
+            onClick={() => {
+              if (!file) {
+                document.querySelector("#cad-file-converter input[type='file']")?.click();
+                return;
+              }
+              handleConvert();
+            }}
+            disabled={Boolean(uploadingMessage) || disableSelect}
+            aria-label={convertLabel}
+          >
+            {convertLabel}
+          </button>
+
+          <div className={heroStyles.converterPricingStatus}>
+            {file ? (
+              <ConverterPricingBanner
+                isFree={isFreeConversion}
+                pricing={pricingInfo?.pricing}
+                isSampleFile={isSampleFile}
+                variant="converterHero"
+              />
+            ) : (
+              <p className={heroStyles.stepPricingNote}>
+                Files under 5 MB convert and download free. Larger files use one credit per completed download: {singlePrice} for a single file, or from {packPrice} each in packs.{" "}
+                <Link href="#converter-pricing-heading">See pricing</Link>
+              </p>
+            )}
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className={heroStyles.converterControls}>

@@ -18,6 +18,7 @@ function ConverterPricingSection({
   initialPacks = [],
   initialSinglePriceLabel = '',
   pricingNote = 'Files under 5 MB convert and download free. Larger files use one credit for one completed download, regardless of file size.',
+  layout = 'default',
 }) {
   const { user, setUser, setUpdatedDetails } = useContext(contextState);
   const [packs, setPacks] = useState(initialPacks);
@@ -78,6 +79,57 @@ function ConverterPricingSection({
   };
 
   return (
+    <>
+      {layout === 'stepToStl' ? (
+        <section className={styles.stepSection} aria-labelledby="converter-pricing-heading">
+          <div className={styles.stepInner}>
+            <p className={styles.stepEyebrow}>Pricing</p>
+            <h2 id="converter-pricing-heading" className={styles.stepHeading}>
+              Free under 5 MB, simple credits above
+            </h2>
+            <p className={styles.stepLead}>
+              Larger files use one credit per completed download, whatever their size. No subscription, credits never expire, and every purchase comes with an invoice.
+            </p>
+            <div className={styles.stepGrid}>
+              {singlePriceLabel ? (
+                <article className={styles.stepCard}>
+                  <p className={styles.stepTier}>Single</p>
+                  <p className={styles.stepPrice}>{singlePriceLabel}</p>
+                  <p className={styles.stepMeta}>1 download</p>
+                  <a href="#cad-file-converter" className={styles.stepCta}>Pay per file</a>
+                </article>
+              ) : null}
+              {packs.map((pack) => (
+                <article
+                  key={pack.id}
+                  className={`${styles.stepCard} ${pack.featured ? styles.stepCardFeatured : ''}`}
+                >
+                  <p className={styles.stepTier}>
+                    {pack.featured ? `${pack.name} · Most popular` : pack.name}
+                  </p>
+                  <p className={styles.stepPrice}>{pack.price_label}</p>
+                  <p className={styles.stepMeta}>
+                    {pack.credits} {pack.credits === 1 ? 'credit' : 'credits'}, {pack.per_credit_label}
+                  </p>
+                  <button
+                    type="button"
+                    className={`${styles.stepCta} ${
+                      pack.featured
+                        ? styles.stepCtaFeatured
+                        : pack.variant === 'solid'
+                          ? styles.stepCtaSolid
+                          : ''
+                    }`}
+                    onClick={() => handleChoosePack(pack)}
+                  >
+                    {pack.cta || `Choose ${pack.name}`}
+                  </button>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : (
     <section className={styles.section} aria-labelledby="converter-pricing-heading">
       <div className={styles.inner}>
         <header className={styles.header}>
@@ -152,6 +204,8 @@ function ConverterPricingSection({
           </p>
         ) : null}
       </div>
+    </section>
+      )}
 
       {showLogin ? <UserLoginPupUp onClose={closeLogin} type="login" /> : null}
       {pendingPack && user?._id && !showLogin ? (
@@ -175,7 +229,7 @@ function ConverterPricingSection({
           }}
         />
       ) : null}
-    </section>
+    </>
   );
 }
 

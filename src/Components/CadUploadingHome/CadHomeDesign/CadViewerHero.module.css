@@ -890,3 +890,165 @@
     display: none;
   }
 }
+
+.stepDropzone {
+  gap: 12px;
+}
+
+.stepDropzone .heroUploadPanelFile {
+  margin-top: 2px;
+  min-height: 38px;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.meshQuality {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+}
+
+.meshQuality > span {
+  color: #1b1426;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.meshQualityTabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 4px;
+  border-radius: 999px;
+  background: #f3eefe;
+}
+
+.meshQualityTabs button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #3d3448;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.meshQualityTabs button[aria-pressed="true"] {
+  background: #fff;
+  color: #6d28d9;
+  box-shadow: 0 1px 3px rgba(48, 20, 80, 0.08);
+}
+
+.meshNote,
+.meshDefaults {
+  margin: 0;
+  color: #8b8296;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.moreOptions {
+  width: 100%;
+  border: 1px solid #e4deec;
+  border-radius: 14px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.moreOptionsToggle {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  color: #1b1426;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.moreOptionsToggle strong {
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.moreOptionsToggle span {
+  margin-left: auto;
+  color: #9a92a6;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.moreOptionsToggle svg {
+  flex: 0 0 auto;
+  color: #6d6578;
+  transition: transform 0.16s ease;
+}
+
+.moreOptionsChevronOpen {
+  transform: rotate(180deg);
+}
+
+.moreOptionsPanel {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.moreOptionsPanel label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #655b70;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.moreOptionsPanel select {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #e3dced;
+  border-radius: 10px;
+  background: #fbfafe;
+  color: #21172c;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.converterPricingStatus > p.stepPricingNote {
+  display: block;
+}
+
+.stepPricingNote a {
+  color: #6d28d9;
+  font-weight: 750;
+  text-underline-offset: 2px;
+}
+
+.stepSampleLine {
+  margin: 4px 0 0;
+  color: #6d6675;
+  font-size: 14px;
+  text-align: center;
+}
+
+.stepSampleLine button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #6d28d9;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

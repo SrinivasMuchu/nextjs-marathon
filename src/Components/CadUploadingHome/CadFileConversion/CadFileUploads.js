@@ -14,14 +14,16 @@ function CadFileUploads({ convert, conversionParams, allowedFormats, initialAllo
       ? (formats.length ? `Supported formats: ${formats.join(', ')}` : 'Supported formats: …')
       : 'Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), DWG (.dwg), DXF (.dxf)';
 
-    const isConverterHero = designVariant === 'converterHero';
+    const isConverterHero = designVariant === 'converterHero' || designVariant === 'stepToStlHero';
 
     const dropInner = isConverterHero ? (
-      <div className={heroStyles.heroUploadPanelContent}>
+      <div className={`${heroStyles.heroUploadPanelContent} ${designVariant === 'stepToStlHero' ? heroStyles.stepDropzone : ''}`}>
         <p className={heroStyles.heroUploadPanelHead}>
           {uniquePage?.dropzoneHead || CONVERTER_HUB_PAGE.dropzoneHead}
         </p>
-        <p className={heroStyles.heroUploadPanelHint}>or choose a file from your computer</p>
+        {designVariant === 'stepToStlHero' ? null : (
+          <p className={heroStyles.heroUploadPanelHint}>or choose a file from your computer</p>
+        )}
         <span className={heroStyles.heroUploadPanelFile}>Browse files</span>
         <p className={heroStyles.heroUploadMaxSize}>Maximum file size: 300 MB</p>
       </div>
