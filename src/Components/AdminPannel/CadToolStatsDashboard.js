@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Eye } from "lucide-react";
+import { toast } from "react-toastify";
 import Pagenation from "@/Components/CommonJsx/Pagenation";
 import Loading from "../CommonJsx/Loaders/Loading";
 import PopupWrapper from "../CommonJsx/PopupWrapper";
@@ -15,6 +16,7 @@ import ConverterHistoryCard, {
 import {
   getAdminCadToolStats,
   getAdminCadToolStatsDetail,
+  getAdminCadToolInputDownload,
 } from "@/api/adminCadToolStatsApi";
 import panelStyles from "./AdminPannel.module.css";
 import styles from "./CadToolStatsDashboard.module.css";
@@ -76,6 +78,7 @@ function CadToolStatsDashboard() {
   const [detailPage, setDetailPage] = useState(1);
   const [detailLoading, setDetailLoading] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [downloadingId, setDownloadingId] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -143,6 +146,30 @@ function CadToolStatsDashboard() {
   const openDetail = (type, date) => {
     setDetailPage(1);
     setSelected({ type, date: date || null });
+  };
+
+  const downloadInputFile = async (row) => {
+    const fileId = String(row.file_id || row._id || "");
+    if (!fileId || !selected?.type || downloadingId) return;
+    setDownloadingId(fileId);
+    try {
+      const data = await getAdminCadToolInputDownload({
+        type: selected.type,
+        fileId,
+      });
+      if (!data?.url) throw new Error("Input file is not available.");
+      const link = document.createElement("a");
+      link.href = data.url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast.error(error?.message || "Could not download the input file.");
+    } finally {
+      setDownloadingId("");
+    }
   };
 
   const selectedLabel = STAT_TYPES.find((item) => item.id === selected?.type)?.label || "";
@@ -256,8 +283,8 @@ function CadToolStatsDashboard() {
                       <th>File ID</th>
                       <th>Org ID</th>
                       <th>Status</th>
-                      <th>User name</th>
                       <th>Email</th>
+                      <th>Input file</th>
                       {isConversion ? (
                         <>
                           <th>Conversion</th>
@@ -290,8 +317,19 @@ function CadToolStatsDashboard() {
                             <td>
                               <span className={statusClass(row.status)}>{row.status || "—"}</span>
                             </td>
-                            <td>{row.user_name || "—"}</td>
                             <td>{row.user_email || "—"}</td>
+                            <td>
+                              <button
+                                type="button"
+                                className={styles.downloadBtn}
+                                disabled={downloadingId === String(row.file_id || row._id || "")}
+                                onClick={() => downloadInputFile(row)}
+                              >
+                                {downloadingId === String(row.file_id || row._id || "")
+                                  ? "Downloading…"
+                                  : "Download"}
+                              </button>
+                            </td>
                             {isConversion ? (
                               <>
                                 <td>{route || "—"}</td>
@@ -351,7 +389,7 @@ function CadToolStatsDashboard() {
               ×
             </button>
             <p className={styles.previewMeta}>
-              <strong>{preview.row.user_name || "Unknown user"}</strong>
+              <strong>{preview.row.file_name || "CAD file"}</strong>
               {preview.row.user_email ? <span>{preview.row.user_email}</span> : null}
             </p>
             {preview.type === "conversion" ? (

@@ -182,6 +182,27 @@
   font-weight: 650;
 }
 
+.downloadBtn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #610bee;
+  font-weight: 650;
+  font-size: 12px;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.downloadBtn:hover:not(:disabled) {
+  background: #f5f3ff;
+  border-color: #610bee;
+}
+
+.downloadBtn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .eyeBtn {
   display: inline-flex;
   align-items: center;
