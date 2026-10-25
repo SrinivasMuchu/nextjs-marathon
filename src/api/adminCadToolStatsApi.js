@@ -41,3 +41,12 @@ export async function getAdminCadToolStatsDetail({
   });
   return unwrap(data);
 }
+
+export async function getAdminCadToolInputDownload({ type, fileId } = {}) {
+  const { data } = await axios.get(`${BASE_URL}/v1/admin-pannel/get-cad-tool-input-download`, {
+    params: { type, file_id: fileId },
+    headers: adminHeaders(),
+    timeout: 30_000,
+  });
+  return unwrap(data);
+}
