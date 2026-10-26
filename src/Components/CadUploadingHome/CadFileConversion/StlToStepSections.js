@@ -601,10 +601,12 @@ function StlToStepClose() {
           </div>
         </div>
       </section>
-      <section className={`${styles.designerCta} ${styles.bgWhite}`} aria-labelledby="stl-cta">
-        <div className={`${styles.designerPanel} ${styles.designerPanelCenter}`}>
-          <h2 id="stl-cta">Need a fully editable CAD model?</h2>
-          <p>Conversion gives you a faceted solid. If you need true holes and curves, feature history, or a model ready for machining or drawings, a CAD designer can rebuild it from your STL or scan.</p>
+      <section className={`${styles.designerCta} ${styles.designerCtaSection} ${styles.bgWhite}`} aria-labelledby="stl-cta">
+        <div className={`${styles.designerPanel} ${styles.designerPanelRow}`}>
+          <div>
+            <h2 id="stl-cta">Need a fully editable CAD model?</h2>
+            <p>Conversion gives you a faceted solid. If you need true holes and curves, feature history, or a model ready for machining or drawings, a CAD designer can rebuild it from your STL or scan.</p>
+          </div>
           <div>
             <Link href="/cad-services">Get a model rebuilt</Link>
             <a href="#cad-file-converter">Convert another STL file</a>

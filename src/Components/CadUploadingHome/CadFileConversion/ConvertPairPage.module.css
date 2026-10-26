@@ -1596,18 +1596,29 @@
   background: #f6f3fb;
 }
 
-.designerPanelCenter {
-  text-align: center;
+.designerCtaSection {
+  padding-top: clamp(56px, 7vw, 88px);
 }
 
-.designerPanelCenter h2,
-.designerPanelCenter p {
-  margin-left: auto;
-  margin-right: auto;
+.designerPanelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
 }
 
-.designerPanelCenter div {
-  justify-content: center;
+.designerPanelRow > div {
+  margin-top: 0;
+}
+
+.designerPanelRow > div:first-child {
+  flex: 1 1 420px;
+}
+
+.designerPanelRow > div:last-child {
+  margin-top: 0;
+  flex: 0 0 auto;
 }
 
 .designerPanel {
