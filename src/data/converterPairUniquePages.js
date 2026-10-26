@@ -5,17 +5,17 @@
 export const UNIQUE_PAIR_PAGES = {
   'stl-to-step': {
     meta: {
-      title: 'Convert STL to STEP Online – Free up to 5 MB | Marathon OS',
+      title: 'STL to STEP Converter – Free Online, STL to STP | Marathon OS',
       description:
-        'Convert STL files to STEP online for mechanical CAD workflows. Secure uploads, files up to 300 MB, free downloads under 5 MB, and no software required.',
+        'Convert STL meshes to STEP (.step, .stp) solids online. Free under 5 MB. Set units, merge flat faces and repair the mesh, then open it in SolidWorks, Fusion or FreeCAD.',
     },
     h1: 'Convert STL to STEP online',
     heroIntro:
-      'Convert an STL (.stl) mesh to a STEP (.step or .stp) file for CAD import, supplier handoff and manufacturing review. Marathon OS preserves the visible mesh geometry in a STEP-compatible representation, but it does not recreate the original sketches, dimensions, constraints or feature history.',
-    badges: ['Free under 5 MB', 'STL → STEP', 'No software installation'],
-    trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
+      'Turn an .stl mesh into a .step file that SolidWorks, Fusion, Inventor, Onshape and FreeCAD open as a solid body. Tell the converter what units the model uses, let it repair the mesh and merge flat faces, then edit, measure or combine the part in CAD. Nothing to install.',
+    badges: ['Free under 5 MB', '.stl to .step and .stp', 'Opens as a solid in CAD'],
+    trust: ['Encrypted uploads', 'Files up to 300 MB', 'Binary and ASCII STL', 'Deleted automatically within 7 days'],
     uploadHeading: 'Upload your STL file',
-    uploadHelper: 'Choose one STL file. This page is already configured to create a STEP or STP output.',
+    uploadHelper: 'Accepts binary and ASCII .stl. Output is .step.',
     dropzoneHead: 'Drag and drop your STL file here',
     convertCta: 'Convert STL to STEP',
     samplePrompt: 'No STL file available? Try a sample mesh to see the conversion workflow.',
@@ -191,36 +191,64 @@ export const UNIQUE_PAIR_PAGES = {
     ],
     designHubHeading: 'Find an existing CAD model before rebuilding one',
     designHubIntro: 'Search the Marathon OS library for a usable starting model. Review dimensions, licensing and manufacturing suitability before using any downloaded file.',
-    faqHeading: 'Frequently asked questions about STL to STEP conversion',
-    faqIntro: 'Clear answers about output quality, editability, pricing, file limits and privacy.',
+    faqHeading: 'STL to STEP questions',
+    faqIntro: 'Answers about editability, file size, units, CAD compatibility, pricing and privacy.',
     faqs: [
       {
-        question: 'How do I convert STL to STEP online?',
-        answer: 'Upload the .stl file, confirm STEP as the preselected output, start the conversion and download the resulting .step or .stp file. Open the result in the application used for the next workflow and verify its scale and geometry.',
-      },
-      {
-        question: 'Does converting STL to STEP create an editable parametric model?',
-        answer: 'No. The STEP result is based on the triangles in the STL. It does not recreate the original sketches, constraints, dimensions or feature tree. A CAD designer must rebuild those features when a clean native model is required.',
-      },
-      {
-        question: 'Will the converted STEP be a solid?',
-        answer: 'It depends on the quality and topology of the source mesh and the conversion result. A watertight, manifold STL may produce a closed shell or solid, while a damaged or open mesh may remain surfaces. Always check the body status after conversion.',
-      },
-      {
-        question: 'Why is the converted model the wrong size?',
-        answer: 'STL does not define a standard unit. The source may have been authored in millimetres, inches or another scale. Measure a known feature and apply the intended unit in the receiving application.',
-      },
-      {
         question: 'Is the STL to STEP converter free?',
-        answer: 'Files under 5 MB can be converted and downloaded free. Larger files use one credit for one completed download.',
+        answer: 'Yes, for STL files under 5 MB. You can convert and download them free with every setting available. Files from 5 MB up to 300 MB use one credit per completed download. A single download costs $2.99 and credit packs bring the price down to $1.80 per file. Credits never expire.',
       },
       {
-        question: 'What is the maximum STL file size?',
-        answer: 'You can upload an STL file up to 300 MB. Very dense meshes may still create large STEP outputs and take longer to process or open.',
+        question: 'What is the difference between STL and STEP?',
+        answer: 'STL stores a surface as triangles and is the standard file for 3D printing. STEP (ISO 10303) stores solid bodies with faces, edges, units and assembly structure, and is the standard file for exchanging CAD models. Converting STL to STEP lets CAD software treat the mesh as a solid, but it does not recover exact geometry the STL never contained.',
       },
       {
-        question: 'How are my files handled?',
-        answer: 'Files are transferred securely, are not published to the public CAD library and are automatically deleted within 7 days. You retain ownership of the uploaded design.',
+        question: 'Will the STEP file be editable in CAD?',
+        answer: 'Yes, as a solid you can measure, cut, extrude into and combine with other bodies. It will not have feature history, so you cannot change a hole diameter or fillet radius by editing a number. For that, the model has to be rebuilt as native CAD features.',
+      },
+      {
+        question: 'Will curved surfaces become smooth?',
+        answer: 'No. The conversion keeps the triangles the STL is made of, so cylinders, fillets and curves stay faceted. Flat areas can be merged into single faces with Merge flat faces. Smooth curves need a rebuilt CAD model.',
+      },
+      {
+        question: 'Why is the STEP file much bigger than the STL?',
+        answer: 'STEP describes every face with its own edges, vertices and plane, so a faceted STEP is often several times larger than the binary STL it came from. Merging flat faces and reducing the triangle count keep the file smaller.',
+      },
+      {
+        question: 'Which units should I choose?',
+        answer: 'Choose the unit the model was designed in. STL files do not store units, so the converter cannot detect them. Most 3D printing models are in millimetres. If the part opens about 25 times too small in CAD, convert again with Inches selected.',
+      },
+      {
+        question: 'Why does my CAD program show a surface instead of a solid?',
+        answer: 'The STL is not watertight. Holes, gaps or overlapping triangles stop it from enclosing a volume, so it can only be converted to surfaces. Keep Repair mesh turned on, or close the holes in a mesh editor and convert again.',
+      },
+      {
+        question: 'How many triangles can I convert?',
+        answer: 'Any STL up to the 300 MB upload limit. CAD programs slow down as the face count grows, though. As a rough guide, meshes under 50,000 triangles open comfortably, and meshes over 200,000 triangles should be reduced first with the Reduce triangles option.',
+      },
+      {
+        question: 'Can I use a converted STEP for CNC machining?',
+        answer: 'For roughing or parts with large flat faces, often yes. For precision holes, bores and curved surfaces, no, because CAM software will machine the facets. Rebuild those features in CAD first, or have a designer rebuild the model.',
+      },
+      {
+        question: 'Should I choose STEP AP214 or AP242?',
+        answer: 'AP214 is the most widely supported version and opens in virtually every CAD program, so it is the default. AP242 is the newer version used for model-based definition. Choose it if your supplier or PLM system asks for it.',
+      },
+      {
+        question: 'Can I open the converted STEP in SolidWorks, Fusion, Onshape or FreeCAD?',
+        answer: 'Yes. All of them import STEP files as solid bodies. Use File, Open in SolidWorks, Inventor and FreeCAD, open or upload the file in Fusion, or use Import files in Onshape.',
+      },
+      {
+        question: 'Can I convert STL to STEP without installing software?',
+        answer: 'Yes. The converter runs in your web browser on Windows, macOS, Linux, iPad and Android, so you do not need CAD software or a plugin. Upload the file, choose your settings and download the STEP.',
+      },
+      {
+        question: 'Can I convert STEP back to STL?',
+        answer: 'Yes, with the STEP to STL converter. That is the right direction for 3D printing, since slicers need a mesh rather than a CAD solid.',
+      },
+      {
+        question: 'Are my files private?',
+        answer: 'Files are transferred over an encrypted connection, are never added to the public Marathon OS CAD library, and are deleted automatically within 7 days. You keep full ownership of your design.',
       },
     ],
     designerTitle: 'Need a truly editable CAD model?',
@@ -1384,12 +1412,12 @@ export const UNIQUE_PAIR_PAGES = {
     },
     h1: 'Convert STEP to STL online',
     heroIntro:
-      'Convert a STEP or STP (.step, .stp) CAD model to STL (.stl) for 3D printing, slicing and rapid prototyping. The converter tessellates CAD surfaces into triangles; always verify units, watertightness, facet density and thin features before printing.',
-    badges: ['Free under 5 MB', 'STEP → STL', 'No software installation'],
-    trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
+      'Upload a .step or .stp CAD model and download a print-ready STL mesh. Choose the mesh quality, output units and how assemblies are split, then open the file in PrusaSlicer, Bambu Studio, Cura or any other slicer. Nothing to install.',
+    badges: ['Free under 5 MB', '.step and .stp to .stl', 'No signup for free files'],
+    trust: ['Encrypted uploads', 'Files up to 300 MB', 'Opens in any slicer', 'Deleted automatically within 7 days'],
     uploadHeading: 'Upload your STEP file',
-    uploadHelper: 'Choose one STEP file. This page is already configured to create STL output.',
-    dropzoneHead: 'Drag and drop your STEP CAD file here',
+    uploadHelper: 'Accepts .step and .stp. Output is .stl.',
+    dropzoneHead: 'Drag and drop your STEP file here',
     convertCta: 'Convert STEP to STL',
     samplePrompt: 'No STEP file available? Try a STEP sample to see the conversion workflow.',
     benefits: [
@@ -1436,12 +1464,15 @@ export const UNIQUE_PAIR_PAGES = {
         cta: 'Hire a CAD designer',
       },
     ],
-    workflowHeading: 'How to convert STEP to STL online',
-    workflowIntro: 'Move from a STEP solid or surface model to a tessellated STL mesh in three steps.',
+    workflowEyebrow: 'Step by step',
+    workflowHeading: 'How to convert STEP to STL',
+    workflowIntro:
+      'To convert STEP to STL online, upload your .step or .stp file above, pick a mesh quality (Standard suits most 3D printing), keep the units in millimetres, then click Convert STEP to STL and download the .stl file. Files under 5 MB are free. STP to STL works exactly the same way, because .stp is just the short extension for STEP.',
     workflowSteps: [
-      ['Upload the STEP file', 'Choose a .step or .stp file up to 300 MB. Ensure the source bodies are complete and correctly scaled.'],
-      ['Convert to STL', 'The route is preconfigured for STL output. Start the conversion without searching through a destination-format menu.'],
-      ['Download and verify', 'Open the .stl in the target slicer. Confirm the intended unit, dimensions, watertightness, orientation and mesh detail before generating toolpaths.'],
+      ['Upload the STEP file', 'Drop a .step or .stp file up to 300 MB onto the converter, or browse for it. Assemblies and multi-body parts are fine.'],
+      ['Choose your settings', 'Pick Draft, Standard or Fine mesh quality, millimetres or inches, and whether to merge parts or export each body separately.'],
+      ['Convert', 'The surfaces in your STEP file are turned into triangles using the tolerances you chose. Most parts finish in seconds.'],
+      ['Download and check', 'Download the .stl and open it in your slicer. Measure one known dimension and look at a curved face before you print.'],
     ],
     workflowCta: 'Convert STEP to STL',
     behaviorHeading: 'What actually happens when STEP is converted to STL?',
@@ -1564,36 +1595,60 @@ export const UNIQUE_PAIR_PAGES = {
     ],
     designHubHeading: 'Find an existing model before rebuilding one',
     designHubIntro: 'Search the Marathon OS library for a usable starting model. Review dimensions, licensing and manufacturing suitability before using a downloaded file.',
-    faqHeading: 'Frequently asked questions about STEP to STL conversion',
-    faqIntro: 'Clear answers about output behaviour, compatibility, pricing, file limits and privacy.',
+    faqHeading: 'STEP to STL questions',
+    faqIntro: 'Answers about quality, file size, units, assemblies, pricing and privacy.',
     faqs: [
       {
-        question: 'How do I convert STEP to STL online?',
-        answer: 'Upload the STEP file (.step, .stp), confirm STL as the preselected output, start the conversion and download the STL result (.stl). Verify it in the application used for the next workflow.',
-      },
-      {
-        question: 'Why convert STEP to STL?',
-        answer: 'Convert STEP to STL when the next workflow requires a triangle mesh—most commonly slicing and 3D printing—while retaining STEP as the editable source of truth.',
-      },
-      {
-        question: 'How accurate is a STEP-to-STL conversion?',
-        answer: 'Accuracy depends on the tessellation used to approximate STEP surfaces with triangles. Inspect curved faces, dimensions and small features; for tolerance-critical work, use a controlled CAD export and record the mesh settings.',
-      },
-      {
-        question: 'Which STEP and STL extensions are supported?',
-        answer: 'This route accepts .step, .stp input and creates .stl output.',
-      },
-      {
         question: 'Is the STEP to STL converter free?',
-        answer: 'Files under 5 MB can be converted and downloaded free. Larger files use one credit for one completed download.',
+        answer: 'Yes, for STEP files under 5 MB. You can convert and download them free with every setting available. Files from 5 MB up to 300 MB use one credit per completed download. A single download costs $2.99 and credit packs bring the price down to $1.80 per file. Credits never expire.',
       },
       {
-        question: 'What is the maximum STEP file size?',
-        answer: 'You can upload a STEP file up to 300 MB. Complex CAD and fine tessellation can create very large triangle counts and slower slicer performance.',
+        question: 'Is there a difference between STEP and STP files?',
+        answer: 'No. .step and .stp are two extensions for the same ISO 10303 format. This converter accepts both and treats them identically.',
       },
       {
-        question: 'How are my files handled?',
-        answer: 'Files are transferred securely, are not published to the public CAD library and are automatically deleted within 7 days. You retain ownership of the uploaded design.',
+        question: 'Does converting STEP to STL lose quality?',
+        answer: 'STL can only store flat triangles, so curved STEP surfaces are approximated. How close the approximation is depends on the mesh quality you choose. For FDM printing, Standard is finer than the printer can reproduce. For resin printing or visible curved surfaces, use Fine. Keep the STEP file as your editable master.',
+      },
+      {
+        question: 'What mesh quality should I use for 3D printing?',
+        answer: 'Standard (0.03 mm chord tolerance, 10° angular tolerance) suits most FDM printing. Use Fine (0.01 mm, 5°) for resin printers, SLS and parts with visible curved surfaces. Use Draft only for previews and quotes.',
+      },
+      {
+        question: 'Can I convert STEP to STL without installing software?',
+        answer: 'Yes. The converter runs in your web browser on Windows, macOS, Linux, iPad and Android, so you don’t need CAD software or a plugin. Upload the file, choose your settings and download the STL.',
+      },
+      {
+        question: 'Why is my STL file so large?',
+        answer: 'A binary STL uses 50 bytes per triangle, so one million triangles is about 50 MB. ASCII STL is roughly four to five times larger. Choose a coarser mesh quality or binary output to reduce file size.',
+      },
+      {
+        question: 'Why is my STL the wrong size in the slicer?',
+        answer: 'STL files do not store units, and slicers assume millimetres. If the part looks 25.4 times too small, it was exported in inches; scale it by 2540%. If it looks 25.4 times too large, scale it by 3.937%. Exporting in millimetres avoids the problem.',
+      },
+      {
+        question: 'Can I convert a STEP assembly into separate STL files?',
+        answer: 'Yes. Under Parts, choose One STL per body and you will download a ZIP with one STL for each solid, named after the part in the STEP file. Choose Single STL to merge every body into one file.',
+      },
+      {
+        question: 'Which STEP versions are supported?',
+        answer: 'The converter reads STEP AP203, AP214 and AP242 files exported from SolidWorks, Fusion, Inventor, CATIA, Creo, NX, Onshape, FreeCAD and other CAD programs.',
+      },
+      {
+        question: 'Can I convert STL back to STEP?',
+        answer: 'Yes, with the STL to STEP converter, but the result is a solid made of triangular faces, not the original smooth CAD geometry. Keep your original STEP file if you will need to edit the design later.',
+      },
+      {
+        question: 'Should I use 3MF instead of STL?',
+        answer: '3MF stores units, colours and multiple objects in one file, and PrusaSlicer, Bambu Studio, OrcaSlicer and Cura all read it. Use 3MF when your slicer supports it and you want those extras. STL is still the safest choice when a print service or older software asks for a mesh.',
+      },
+      {
+        question: 'What is the maximum file size?',
+        answer: 'You can upload STEP files up to 300 MB. Very large assemblies converted at Fine quality can produce STL files with millions of triangles, which may slow down your slicer.',
+      },
+      {
+        question: 'Are my files private?',
+        answer: 'Files are transferred over an encrypted connection, are never added to the public Marathon OS CAD library, and are deleted automatically within 7 days. You keep full ownership of your design.',
       },
     ],
     designerTitle: 'Need a reliable print-ready STL?',

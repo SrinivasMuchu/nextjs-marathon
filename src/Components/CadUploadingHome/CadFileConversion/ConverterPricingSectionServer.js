@@ -39,7 +39,7 @@ function ConverterPricingJsonLd({ packs, singlePrice, currency, pricingNote }) {
   )
 }
 
-async function ConverterPricingSectionServer() {
+async function ConverterPricingSectionServer({ layout = 'default' }) {
   const pricing = await getConverterPricingForRender()
 
   return (
@@ -54,6 +54,7 @@ async function ConverterPricingSectionServer() {
         initialPacks={pricing.packs}
         initialSinglePriceLabel={pricing.singlePriceLabel}
         pricingNote={pricing.pricingNote}
+        layout={layout}
       />
     </>
   )

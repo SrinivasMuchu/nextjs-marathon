@@ -140,6 +140,9 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         to = to.replace(/\.\w+$/, '');
 
         const formats = from ? [`.${from}`] : [];
+        if (formatsSegment === 'step-to-stl' && !formats.includes('.stp')) {
+            formats.push('.stp');
+        }
         const toFormats = to ? [`${to}`] : [];
       
         setFromFormate(from)
@@ -716,6 +719,8 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         }
     };
 
+    const isModernHero = designVariant === 'converterHero' || designVariant === 'stepToStlHero';
+
     return (
         <>
          <div style={{
@@ -744,14 +749,14 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                     accept={(allowedFormats?.length ? allowedFormats : (fromFormate ? [`.${fromFormate}`] : [])).join(", ")}
                     onChange={handleFileChange}
                 />
-                {uploading && designVariant !== 'converterHero' ?
+                {uploading && !isModernHero ?
                     <CadUploadDropDown file={fileConvert} setDisableSelect={setDisableSelect} selectedFileFormate={selectedFileFormate} disableSelect={disableSelect}
                         setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
                         from={fromFormate}
                         folderId={folderId} baseName={baseName} s3Url={s3Url} isSampleFile={isSampleFile}
                         uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed} />
                     : null}
-                {designVariant === 'converterHero' && uploading && fileConvert ? (
+                {isModernHero && uploading && fileConvert ? (
                     <div className={heroStyles.converterSelectedFile}>
                         <span className={heroStyles.converterSelectedFileIcon} aria-hidden>
                             <FileText size={18} strokeWidth={2} />
@@ -782,8 +787,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                     </div>
                 ) : null}
                 {!uploading ? (() => {
-                        const isConverterHero = designVariant === 'converterHero';
-                        const dropClass = isConverterHero ? heroStyles.heroUploadPanelDark : styles["cad-dropzone"];
+                        const dropClass = isModernHero ? heroStyles.heroUploadPanelDark : styles["cad-dropzone"];
                         return (
                     <div
                         className={dropClass}
@@ -791,7 +795,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                         onDragOver={handleDragOver}
                         onClick={handleClick}
                     >
-                        {isConverterHero ? (
+                        {isModernHero ? (
                             <div className={heroStyles.heroUploadPanelInner}>
                                 <span className={heroStyles.heroUploadIconGlyph} aria-hidden>
                                     <Upload size={72} strokeWidth={1.9} />
@@ -813,7 +817,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                     </div>
                         );
                     })() : null}
-                {designVariant === 'converterHero' ? (
+                {isModernHero ? (
                     <CadUploadDropDown
                         file={uploading ? fileConvert : null}
                         setDisableSelect={setDisableSelect}
@@ -835,7 +839,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                 ) : null}
 
             </>}
-            {!uploading && designVariant !== 'converterHero' && heroFormatsLine ? (
+            {!uploading && !isModernHero && heroFormatsLine ? (
                 <p className={heroStyles.formatsBelow}>{heroFormatsLine}</p>
             ) : null}
             {!uploading && (() => {
@@ -850,6 +854,18 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                 // 1. We're not in convert mode (show all), OR
                 // 2. We're in convert mode and have matching files
                 const shouldShow = !convert || (convert && filteredFiles.length > 0);
+
+                if (designVariant === 'stepToStlHero') {
+                    const stepSample = filteredFiles[0];
+                    return !uploading && stepSample ? (
+                        <p className={heroStyles.stepSampleLine}>
+                            No STEP file to hand?{' '}
+                            <button type="button" onClick={() => handleSampleFileUpload(stepSample)}>
+                                Try {stepSample.name}
+                            </button>
+                        </p>
+                    ) : null;
+                }
 
                 const isConverterHero = designVariant === 'converterHero';
                 return shouldShow && (
