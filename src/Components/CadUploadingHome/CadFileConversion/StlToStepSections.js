@@ -224,7 +224,7 @@ function StlToStepSections() {
   return (
     <>
       <nav className={styles.pageNav} aria-label="On this page">
-        <span>On this page</span>
+        <span>On this page:</span>
         {PAGE_LINKS.map(([href, label]) => (
           <a key={href} href={href}>{label}</a>
         ))}
@@ -399,7 +399,7 @@ function StlToStepSections() {
         </div>
       </section>
 
-      <section className={styles.meshSettings} aria-labelledby="stl-prepare">
+      <section className={`${styles.meshSettings} ${styles.bgWhite}`} aria-labelledby="stl-prepare">
         <div className={styles.meshInner}>
           <p className={styles.eyebrow}>Before you convert</p>
           <h2 id="stl-prepare">Prepare the STL for a clean STEP</h2>
@@ -499,7 +499,7 @@ function StlToStepSections() {
         </div>
       </section>
 
-      <section className={styles.hoodSection} aria-labelledby="stl-hood">
+      <section className={`${styles.hoodSection} ${styles.bgSoft}`} aria-labelledby="stl-hood">
         <div className={styles.printGrid}>
           <div>
             <p className={styles.eyebrow}>Under the hood</p>
@@ -523,7 +523,7 @@ function StlToStepSections() {
         </div>
       </section>
 
-      <section className={styles.troubleSection} aria-labelledby="stl-trouble">
+      <section className={`${styles.troubleSection} ${styles.bgWhite}`} aria-labelledby="stl-trouble">
         <div className={styles.meshInner}>
           <p className={styles.eyebrow}>Common problems</p>
           <h2 id="stl-trouble">STL to STEP troubleshooting</h2>
@@ -601,8 +601,8 @@ function StlToStepClose() {
           </div>
         </div>
       </section>
-      <section className={styles.designerCta} aria-labelledby="stl-cta">
-        <div className={styles.designerPanel}>
+      <section className={`${styles.designerCta} ${styles.bgWhite}`} aria-labelledby="stl-cta">
+        <div className={`${styles.designerPanel} ${styles.designerPanelCenter}`}>
           <h2 id="stl-cta">Need a fully editable CAD model?</h2>
           <p>Conversion gives you a faceted solid. If you need true holes and curves, feature history, or a model ready for machining or drawings, a CAD designer can rebuild it from your STL or scan.</p>
           <div>

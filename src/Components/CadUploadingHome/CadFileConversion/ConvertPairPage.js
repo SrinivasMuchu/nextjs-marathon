@@ -439,7 +439,7 @@ function ConvertPairPage({ conversionParams }) {
 
       {isStepToStl ? (
         <nav className={styles.pageNav} aria-label="On this page">
-          <span>On this page</span>
+          <span>On this page:</span>
           {[
             ['#pair-workflow-heading', 'How to convert'],
             ['#mesh-quality-heading', 'Mesh quality'],

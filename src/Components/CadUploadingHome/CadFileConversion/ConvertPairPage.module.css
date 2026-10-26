@@ -1596,6 +1596,20 @@
   background: #f6f3fb;
 }
 
+.designerPanelCenter {
+  text-align: center;
+}
+
+.designerPanelCenter h2,
+.designerPanelCenter p {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.designerPanelCenter div {
+  justify-content: center;
+}
+
 .designerPanel {
   width: 100%;
   max-width: 1240px;
@@ -2107,6 +2121,18 @@
   color: #4e465c;
   font-size: 15px;
   line-height: 1.6;
+}
+
+.bgWhite {
+  background: #fff;
+}
+
+.bgSoft {
+  background: #f6f3fb;
+}
+
+.meshTableCard {
+  border: 1px solid #ece7f1;
 }
 
 @media (max-width: 1000px) {
