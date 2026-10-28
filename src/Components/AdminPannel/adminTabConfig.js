@@ -13,7 +13,7 @@ export const ADMIN_TABS = [
   'vendors',
 ];
 
-export const DEFAULT_ADMIN_TAB = 'designs';
+export const DEFAULT_ADMIN_TAB = 'stats';
 
 const ADMIN_TAB_SET = new Set(ADMIN_TABS);
 

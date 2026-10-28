@@ -1,48 +1,18 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import styles from "./FileHistory.module.css";
+import React, { useMemo, useState } from "react";
 import { IMAGEURLS, toCadOutputCdnUrl } from "@/config";
 import Image from "next/image";
 import Loading from "../CommonJsx/Loaders/Loading";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
-import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
-import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import BrokenImageOutlinedIcon from "@mui/icons-material/BrokenImageOutlined";
-import { SiConvertio } from "react-icons/si";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Box, Download, Eye, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  buildConverterPricingDisplay,
-  fetchConverterPricingInfo,
-  CONVERTER_FREE_SIZE_LIMIT_BYTES,
-} from "@/lib/converterPricing";
-import { hasConverterCredits } from "@/lib/converterCredits";
 import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
 import CadComparisonPopup, { canViewComparison } from "./CadComparisonPopup";
+import styles from "./ConverterList.module.css";
 
-function needsConverterCredit(converterPricing, inputFileSizeBytes) {
-  if (converterPricing?.paid) return false;
-  if (converterPricing?.is_free) return false;
-  const size = Number(inputFileSizeBytes);
-  return Number.isFinite(size) && size >= CONVERTER_FREE_SIZE_LIMIT_BYTES;
-}
-
-function downloadButtonLabel({
-  downloading,
-  converterPricing,
-  inputFileSizeBytes,
-  converterCredits,
-}) {
+function downloadButtonLabel({ downloading, outputFmt }) {
   if (downloading) return "Downloading...";
-  if (!needsConverterCredit(converterPricing, inputFileSizeBytes)) return "Download";
-  if (hasConverterCredits(converterCredits)) return "Download";
-  return "Download · 1 credit";
+  return `Download ${outputFmt}`;
 }
 
 function formatFileSize(bytes) {
@@ -59,36 +29,11 @@ function formatMb(value) {
   return `${n.toFixed(2)} MB`;
 }
 
-function formatTime(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n) || n < 0) return "";
-  if (n < 60) return `${parseFloat(n.toFixed(2))} sec`;
-  if (n < 3600) return `${parseFloat((n / 60).toFixed(2))} min`;
-  return `${parseFloat((n / 3600).toFixed(2))} hr`;
-}
-
 function formatChipLabel(value) {
   const label = String(value || "")
     .replace(/^\./, "")
     .trim();
   return label ? label.toUpperCase() : "CAD";
-}
-
-function formatDotLabel(value) {
-  return `.${formatChipLabel(value)}`;
-}
-
-function summarizeChecks(checks) {
-  if (!checks || typeof checks !== "object") return { passed: 0, total: 0 };
-  const entries = Object.values(checks).filter((outcome) => {
-    const o = String(outcome || "").toLowerCase();
-    return o && o !== "na" && o !== "n/a";
-  });
-  const total = entries.length;
-  const passed = entries.filter(
-    (outcome) => String(outcome).toLowerCase() === "pass",
-  ).length;
-  return { passed, total };
 }
 
 function pickSizes(file) {
@@ -125,40 +70,69 @@ function pickSizes(file) {
   };
 }
 
+function convertedName(file) {
+  const original = file?.file_name || "converted-file";
+  const dot = original.lastIndexOf(".");
+  const base = dot > 0 ? original.slice(0, dot) : original;
+  const ext = String(file?.output_format || "cad").replace(/^\./, "").toLowerCase();
+  return `${base}.${ext}`;
+}
+
+function tidyName(name) {
+  const raw = String(name || "").trim() || "CAD file";
+  const stripped = raw
+    .replace(/_converter_upload_\d+.*$/i, "")
+    .replace(/_viewer_upload_\d+.*$/i, "");
+  const dot = stripped.lastIndexOf(".");
+  const base = dot > 0 ? stripped.slice(0, dot) : stripped;
+  const ext = dot > 0 ? stripped.slice(dot) : "";
+  if (/^[0-9a-f]{16,}$/i.test(base)) {
+    return `${base.slice(0, 8)}…${base.slice(-4)}${ext}`;
+  }
+  return stripped;
+}
+
+function formatShortDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function glyphClass(format) {
+  const key = String(format || "").toLowerCase();
+  if (key === "stl" || key === "obj") return styles.glyphStl;
+  if (key === "iges" || key === "igs") return styles.glyphIges;
+  return "";
+}
+
+function badgeClass(format) {
+  const key = String(format || "").toLowerCase();
+  if (key === "stl" || key === "obj") return styles.badgeStl;
+  if (key === "iges" || key === "igs") return styles.badgeIges;
+  return "";
+}
+
 function snapshotUrl(raw) {
   if (!raw) return "";
   return toCadOutputCdnUrl(raw) || raw;
 }
 
-function PreviewPane({ label, format, src }) {
+function FileThumb({ format, src, alt }) {
   const [broken, setBroken] = useState(false);
-  const showImage = Boolean(src) && !broken;
-
-  return (
-    <div className={styles.comparePane}>
-      <span className={styles.comparePaneTag}>{label}</span>
-      <div className={styles.comparePaneMedia}>
-        {showImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={src}
-            alt={`${format} preview`}
-            className={styles.comparePaneImg}
-            onError={() => setBroken(true)}
-          />
-        ) : (
-          <div className={styles.comparePlaceholder}>
-            <BrokenImageOutlinedIcon className={styles.comparePlaceholderIcon} />
-            <strong className={styles.comparePlaceholderFormat}>
-              {formatDotLabel(format)}
-            </strong>
-            <span className={styles.comparePlaceholderRule} aria-hidden />
-            <span className={styles.comparePlaceholderHint}>No preview available</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  if (src && !broken) {
+    return (
+      <span className={styles.thumb}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} onError={() => setBroken(true)} />
+      </span>
+    );
+  }
+  return <span className={`${styles.glyph} ${glyphClass(format)}`} aria-hidden />;
 }
 
 function CadConvertorFiles({
@@ -173,309 +147,203 @@ function CadConvertorFiles({
   converterCredits = 0,
 }) {
   const router = useRouter();
-  const [pricingNoteTotal, setPricingNoteTotal] = useState("");
   const [comparisonFile, setComparisonFile] = useState(null);
   const [comparisonIndex, setComparisonIndex] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const info = await fetchConverterPricingInfo();
-        if (cancelled) return;
-        const display = buildConverterPricingDisplay(info?.pricing);
-        setPricingNoteTotal(display.totalLabel);
-      } catch {
-        if (!cancelled) setPricingNoteTotal("");
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const files = useMemo(
     () => (Array.isArray(cadConverterFileHistory) ? cadConverterFileHistory : []),
     [cadConverterFileHistory],
   );
 
+  const visible = useMemo(
+    () => files.map((file, index) => ({ file, index })),
+    [files],
+  );
+
+  const openFile = (file, index) => {
+    if (canViewComparison(file)) {
+      setComparisonFile(file);
+      setComparisonIndex(index);
+      return;
+    }
+    if (file?._id) router.push(cadConverterStatusPath(file._id));
+  };
+
   return (
-    <div className={styles.cadViewerContainerContent}>
-      <div className={styles.filesToolbar}>
-        <label className={styles.filesSearch}>
-          <Search size={16} className={styles.filesSearchIcon} />
-          <input
-            type="text"
-            placeholder="Search project"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </label>
-        <Link href="/tools/3d-cad-file-converter" className={styles.filesActionBtn}>
-          <SiConvertio style={{ fontSize: "16px" }} />
-          Convert file
-        </Link>
+    <div className={styles.wrap}>
+      <div className={styles.head}>
+        <div>
+          <h2>My conversions</h2>
+          <p>Original and converted files stay together. Download either one at any time.</p>
+        </div>
+        <div className={styles.tools}>
+          <label className={styles.search}>
+            <Search size={16} />
+            <input
+              type="text"
+              placeholder="Search conversions"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label="Search conversions"
+            />
+          </label>
+        </div>
       </div>
 
       {loading ? (
         <Loading smallScreen={true} />
+      ) : visible.length > 0 ? (
+        <div className={styles.table}>
+          <div className={styles.cols}>
+            <span>Original file</span>
+            <span className={styles.arrowHead} aria-hidden />
+            <span>Converted file</span>
+            <span>Status / date</span>
+            <span>Actions</span>
+          </div>
+          {visible.map(({ file, index }) => {
+            const canView = canViewComparison(file);
+            const completed = String(file.status || "").toUpperCase() === "COMPLETED";
+            const failed =
+              String(file.status || "").toUpperCase() === "FAILED" ||
+              String(file.status || "").toUpperCase() === "ERROR";
+            const inputFmt = formatChipLabel(file.input_format);
+            const outputFmt = formatChipLabel(file.output_format);
+            const sizes = pickSizes(file);
+            const statusLabel = completed ? "Completed" : failed ? "Failed" : "Converting";
+            const dateLabel = formatShortDate(file.createdAt) || file.createdAtFormatted || "";
+            const originalLabel = tidyName(file.file_name || "CAD file");
+            const outputLabel = tidyName(convertedName(file));
+
+            return (
+              <div
+                key={file._id || index}
+                className={styles.row}
+                role="link"
+                tabIndex={0}
+                onClick={() => openFile(file, index)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openFile(file, index);
+                  }
+                }}
+              >
+                <div className={styles.file}>
+                  <FileThumb
+                    format={inputFmt}
+                    src={snapshotUrl(file.input_snapshot_url)}
+                    alt={`${file.file_name || inputFmt} preview`}
+                  />
+                  <div className={styles.fileText}>
+                    <strong title={file.file_name || originalLabel}>{originalLabel}</strong>
+                    <div className={styles.meta}>
+                      <span className={`${styles.badge} ${badgeClass(inputFmt)}`}>{inputFmt}</span>
+                      {sizes.srcSize ? <span>{sizes.srcSize}</span> : null}
+                    </div>
+                  </div>
+                </div>
+
+                <span className={styles.arrow} aria-hidden>→</span>
+                <div className={styles.file}>
+                  <FileThumb
+                    format={outputFmt}
+                    src={snapshotUrl(file.output_snapshot_url)}
+                    alt={`${convertedName(file)} preview`}
+                  />
+                  <div className={styles.fileText}>
+                    <strong title={convertedName(file)}>{outputLabel}</strong>
+                    <div className={styles.meta}>
+                      <span className={`${styles.badge} ${badgeClass(outputFmt)}`}>{outputFmt}</span>
+                      {sizes.outSize ? <span>{sizes.outSize}</span> : null}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.status}>
+                  <span
+                    className={`${styles.pill} ${
+                      completed ? styles.pillDone : failed ? styles.pillFailed : styles.pillBusy
+                    }`}
+                  >
+                    <i />
+                    {statusLabel}
+                  </span>
+                  {dateLabel ? <span className={styles.date}>{dateLabel}</span> : null}
+                </div>
+
+                <div
+                  className={styles.actions}
+                  onClick={(event) => event.stopPropagation()}
+                  onKeyDown={(event) => event.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    className={styles.download}
+                    onClick={() => {
+                      if (!completed) {
+                        if (file._id) router.push(cadConverterStatusPath(file._id));
+                        return;
+                      }
+                      handleDownload(file, index);
+                    }}
+                    disabled={completed ? Boolean(downloading[index]) : !file._id}
+                  >
+                    <Download size={16} />
+                    {completed
+                      ? downloadButtonLabel({
+                          downloading: downloading[index],
+                          outputFmt,
+                        })
+                      : "View status"}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.iconBtn}
+                    aria-label={canView ? "View comparison" : "View result"}
+                    onClick={() => openFile(file, index)}
+                  >
+                    <Eye size={16} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
-        <>
-          {files.length > 0 ? (
-            <>
-            <div className={styles.historyContainer}>
-              {files.map((file, index) => {
-                      const canView = canViewComparison(file);
-                      const completed = file.status === "COMPLETED";
-                      const failed =
-                        String(file.status || "").toUpperCase() === "FAILED" ||
-                        String(file.status || "").toUpperCase() === "ERROR";
-                      const hasPdf = Boolean(completed && file.report_pdf_url);
-                      const inputFmt = formatChipLabel(file.input_format);
-                      const outputFmt = formatChipLabel(file.output_format);
-                      const { passed, total } = summarizeChecks(file.quality_checks);
-                      const verdict = String(file.quality_verdict || "").toLowerCase();
-                      const checksOk =
-                        (total > 0 && passed === total) || verdict === "pass";
-                      const timeLabel = formatTime(file.time_taken_seconds);
-                      const sizes = pickSizes(file);
-                      const sizeLabel =
-                        sizes.srcSize && sizes.outSize
-                          ? `${sizes.srcSize} → ${sizes.outSize}`
-                          : sizes.srcSize || sizes.outSize || "";
-                      const inputPreview = snapshotUrl(file.input_snapshot_url);
-                      const outputPreview = snapshotUrl(file.output_snapshot_url);
-                      const statusLabel = completed
-                        ? "Completed"
-                        : failed
-                          ? "Failed"
-                          : "Converting";
-
-                      return (
-                        <article
-                          key={file._id || index}
-                          className={styles.compareCard}
-                          role={!completed && file._id ? "link" : undefined}
-                          tabIndex={!completed && file._id ? 0 : undefined}
-                          onClick={() => {
-                            if (!completed && file._id) {
-                              router.push(cadConverterStatusPath(file._id));
-                            }
-                          }}
-                          onKeyDown={(event) => {
-                            if (
-                              !completed &&
-                              file._id &&
-                              (event.key === "Enter" || event.key === " ")
-                            ) {
-                              event.preventDefault();
-                              router.push(cadConverterStatusPath(file._id));
-                            }
-                          }}
-                          style={
-                            !completed && file._id ? { cursor: "pointer" } : undefined
-                          }
-                        >
-                          <header className={styles.compareCardHeader}>
-                            <div className={styles.compareCardHeaderLeft}>
-                              <span className={styles.compareBrandIcon} aria-hidden>
-                                <CompareArrowsIcon sx={{ fontSize: 16 }} />
-                              </span>
-                              <div className={styles.compareCardTitles}>
-                                <h3
-                                  className={styles.compareCardTitle}
-                                  title={file.file_name}
-                                >
-                                  {file.file_name || "CAD Comparison"}
-                                </h3>
-                                <p className={styles.compareCardSubtitle}>
-                                  {inputFmt} → {outputFmt}
-                                </p>
-                              </div>
-                            </div>
-                            <span
-                              className={
-                                completed
-                                  ? styles.compareStatusDone
-                                  : failed
-                                    ? styles.compareStatusFailed
-                                    : styles.compareStatusBusy
-                              }
-                            >
-                              {completed ? (
-                                <CheckCircleIcon sx={{ fontSize: 13 }} />
-                              ) : (
-                                <span className={styles.compareStatusDot} aria-hidden />
-                              )}
-                              {statusLabel}
-                            </span>
-                          </header>
-
-                          <div className={styles.comparePreviewRow}>
-                            <PreviewPane
-                              label={`${inputFmt} (Original)`}
-                              format={inputFmt}
-                              src={inputPreview}
-                            />
-                            <span className={styles.compareSwap} aria-hidden>
-                              <CompareArrowsIcon sx={{ fontSize: 14 }} />
-                            </span>
-                            <PreviewPane
-                              label={`${outputFmt} (Converted)`}
-                              format={outputFmt}
-                              src={outputPreview}
-                            />
-                          </div>
-
-                          <div className={styles.compareStatusLines}>
-                            <p className={styles.compareConversionLine}>
-                              <AutoAwesomeIcon sx={{ fontSize: 14 }} />
-                              {inputFmt} → {outputFmt}
-                            </p>
-                            {total > 0 ? (
-                              <p
-                                className={
-                                  checksOk
-                                    ? styles.compareChecksOk
-                                    : styles.compareChecksWarn
-                                }
-                              >
-                                <CheckCircleIcon sx={{ fontSize: 14 }} />
-                                {checksOk ? "Passed" : "Checks"} {passed}/{total}
-                              </p>
-                            ) : (
-                              <p
-                                className={
-                                  completed
-                                    ? styles.compareChecksOk
-                                    : styles.compareChecksWarn
-                                }
-                              >
-                                <CheckCircleIcon sx={{ fontSize: 14 }} />
-                                {completed
-                                  ? "Complete"
-                                  : failed
-                                    ? "Failed"
-                                    : "In progress"}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className={styles.compareMetrics}>
-                            <span title={timeLabel || undefined}>
-                              <ScheduleOutlinedIcon sx={{ fontSize: 14 }} />
-                              {timeLabel || "—"}
-                            </span>
-                            <span title={sizeLabel || undefined}>
-                              <StorageOutlinedIcon sx={{ fontSize: 14 }} />
-                              {sizeLabel || formatFileSize(file.input_file_size_bytes) || "—"}
-                            </span>
-                            <span>
-                              <VerifiedUserOutlinedIcon sx={{ fontSize: 14 }} />
-                              {checksOk || completed ? "OK" : failed ? "Fail" : "…"}
-                            </span>
-                          </div>
-
-                          <div
-                            className={styles.compareActions}
-                            onClick={(event) => event.stopPropagation()}
-                            onKeyDown={(event) => event.stopPropagation()}
-                          >
-                            {hasPdf ? (
-                              <button
-                                type="button"
-                                className={styles.comparePdfBtn}
-                                onClick={() => handleReportDownload(file, index)}
-                                disabled={Boolean(downloadingReport?.[index])}
-                                title="Download quality report PDF (free)"
-                              >
-                                <PictureAsPdfIcon style={{ fontSize: 16 }} />
-                                {downloadingReport?.[index] ? "PDF…" : "PDF"}
-                              </button>
-                            ) : (
-                              <span className={styles.compareActionSlot} aria-hidden />
-                            )}
-                            {canView ? (
-                              <button
-                                type="button"
-                                className={styles.compareViewBtn}
-                                onClick={() => {
-                                  setComparisonFile(file);
-                                  setComparisonIndex(index);
-                                }}
-                                title="View CAD comparison"
-                              >
-                                <VisibilityIcon style={{ fontSize: 16 }} />
-                                Compare
-                              </button>
-                            ) : (
-                              <span className={styles.compareActionSlot} aria-hidden />
-                            )}
-                            <button
-                              type="button"
-                              className={styles.compareDownloadBtn}
-                              onClick={() => {
-                                if (!completed) {
-                                  if (file._id) {
-                                    router.push(cadConverterStatusPath(file._id));
-                                  }
-                                  return;
-                                }
-                                handleDownload(file, index);
-                              }}
-                              disabled={completed ? Boolean(downloading[index]) : !file._id}
-                            >
-                              {completed
-                                ? downloadButtonLabel({
-                                    downloading: downloading[index],
-                                    converterPricing: file.converter_pricing,
-                                    inputFileSizeBytes: file.input_file_size_bytes,
-                                    converterCredits,
-                                  })
-                                : "Status"}
-                            </button>
-                          </div>
-                        </article>
-                      );
-                    })}
-            </div>
-            <p className={styles.converterPricingFootnote}>
-              <span aria-hidden>ℹ️</span>
-              Files under 5 MB download free. Files 5 MB and above are{" "}
-              {pricingNoteTotal || "a small fee"} per conversion. Quality report PDFs are
-              free.
-            </p>
-            </>
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "column",
-                width: "300px",
-                textAlign: "center",
-                gap: "40px",
-              }}
-            >
-              <Image
-                src={IMAGEURLS.nofilesLogo}
-                alt="No files"
-                width={135}
-                height={135}
-              />
-              <span>
-                You don&apos;t have any projects yet.
-                <br />
-                <Link href="/tools/3d-cad-file-converter" style={{ color: "blue" }}>
-                  Upload
-                </Link>{" "}
-                your project files
-              </span>
-            </div>
-          )}
-        </>
+        <div className={styles.empty}>
+          <Image src={IMAGEURLS.nofilesLogo} alt="" width={120} height={120} />
+          <span>
+            You don&apos;t have any conversions yet.
+            <br />
+            <Link href="/tools/3d-cad-file-converter">Convert a file</Link>
+          </span>
+        </div>
       )}
+
+      {!loading && visible.length > 0 ? (
+        <div className={styles.foot}>
+          <span>
+            {visible.length} conversion{visible.length === 1 ? "" : "s"} shown · Select a file to view its comparison and report.
+          </span>
+          <Link href="/dashboard?cad_type=USER_DOWNLOADS">
+            Looking for ready-made CAD designs? Explore downloads →
+          </Link>
+        </div>
+      ) : null}
+
+      <div className={styles.banner}>
+        <div className={styles.bannerMain}>
+          <span className={styles.bannerIcon} aria-hidden>
+            <Box size={18} />
+          </span>
+          <div>
+            <strong>Need a ready-made CAD design instead?</strong>
+            <p>Explore free and premium STEP, STL and DXF models in Design Downloads.</p>
+          </div>
+        </div>
+        <Link href="/library">Explore designs →</Link>
+      </div>
 
       {comparisonFile && canViewComparison(comparisonFile) && (
         <CadComparisonPopup
