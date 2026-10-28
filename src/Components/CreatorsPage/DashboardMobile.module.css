@@ -413,10 +413,11 @@
 
   .rightWrap {
     margin-top: 0 !important;
-    padding: 4px 0 calc(168px + env(safe-area-inset-bottom, 0px));
+    padding: 12px 16px calc(180px + env(safe-area-inset-bottom, 0px)) !important;
     box-sizing: border-box;
   }
 
+  .header,
   .desktopTabs {
     display: none !important;
   }

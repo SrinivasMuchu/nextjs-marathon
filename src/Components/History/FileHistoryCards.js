@@ -504,7 +504,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   };
   return (
     <>
-      <div className={styles.cadViewerContainer} style={{ width: '100%' }}>
+      <div className={`${styles.cadViewerContainer}${cad_type === 'CAD_CONVERTER' ? ` ${styles.cadViewerContainerFlat}` : ''}`} style={{ width: '100%' }}>
         {cad_type === 'CAD_VIEWER' && (
           <CadViewerFiles 
             loading={loading} 

@@ -7,7 +7,6 @@ import {
   Box,
   Camera,
   ChevronDown,
-  LayoutGrid,
   ListTree,
   MoreHorizontal,
   RefreshCw,
@@ -21,18 +20,13 @@ import axios from "axios";
 import styles from "./DashboardMobile.module.css";
 
 const NAV = [
-  { id: "USER_CADS", label: "Projects", icon: LayoutGrid },
-  { id: "CAD_VIEWER", label: "CAD Viewer", icon: Box },
   { id: "CAD_CONVERTER", label: "CAD Converter", icon: RefreshCw },
+  { id: "CAD_VIEWER", label: "CAD Viewer", icon: Box },
   { id: "CAD_TECHDRAW", label: "2D Drawings", icon: Scan },
   { id: "CAD_STEP_BOM", label: "STEP BOM", icon: ListTree },
 ];
 
 const MORE_LINKS = [
-  { id: "USER_DOWNLOADS", label: "Downloads" },
-  { id: "ANALYTICS", label: "Analytics" },
-  { id: "USER_KYC", label: "KYC" },
-  { id: "EARNINGS", label: "Earnings" },
   { id: "USER_PROFILE", label: "Profile" },
 ];
 
@@ -40,7 +34,7 @@ function DashboardMobileChrome() {
   const { user, setUser, setUpdatedDetails } = useContext(contextState);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const cadType = searchParams.get("cad_type") || "USER_CADS";
+  const cadType = searchParams.get("cad_type") || "CAD_CONVERTER";
   const photoInputRef = useRef(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const [nameOpen, setNameOpen] = useState(false);
@@ -56,6 +50,14 @@ function DashboardMobileChrome() {
     setMoreOpen(false);
     setNameOpen(false);
     router.push(`/dashboard?cad_type=${id}`, { scroll: false });
+    requestAnimationFrame(() => {
+      const node = document.getElementById("dashboard-menu-anchor");
+      const header = document.querySelector(".siteStickyHeader");
+      const offset = header?.getBoundingClientRect().height || 0;
+      if (!node) return;
+      const top = node.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
   };
 
   const handleFileUpload = async (e) => {
@@ -138,9 +140,6 @@ function DashboardMobileChrome() {
               <div className={styles.nameMenu}>
                 <button type="button" onClick={() => go("USER_PROFILE")}>
                   Profile
-                </button>
-                <button type="button" onClick={() => go("USER_KYC")}>
-                  KYC
                 </button>
               </div>
             ) : null}

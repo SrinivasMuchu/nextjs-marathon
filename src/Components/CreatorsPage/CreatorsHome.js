@@ -8,8 +8,10 @@ import UserLoginPupUp from '../CommonJsx/UserLoginPupUp'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
 import styles from './Creators.module.css'
+import cadHomeStyles from '../CadUploadingHome/CadHomeDesign/CadHome.module.css'
 import { contextState } from '../CommonJsx/ContextProvider';
 import DashboardMobileChrome from './DashboardMobileChrome';
+import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 
 function CreatorsHome({ creatorId }) {
   // viewer, setViewer
@@ -66,15 +68,34 @@ function CreatorsHome({ creatorId }) {
     <>
       {isVerified && <UserLoginPupUp onClose={() => setIsVerified(false)} type='creator' />}
       {!creatorId ? <DashboardMobileChrome /> : null}
+      {!creatorId ? (
+        <div className={styles.desktopDashboardChrome}>
+          <div className={cadHomeStyles['cad-ad-bar']}>
+            <div className={cadHomeStyles['cad-ad-bar-inner']}>
+              <LeftRightBanner adSlot="9148469534" />
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className={styles.desktopDashboardChrome}>
       <CreatorCoverPage creatorId={creatorId} setIsVerified={setIsVerified}/>
       </div>
+      )}
       <div className={styles.creatorDetails} >
+        {creatorId || showMobileProfile ? (
         <CreatorLeftCont
           creatorId={creatorId}
           setIsVerified={setIsVerified}
           className={showMobileProfile ? styles.showOnMobileProfile : ''}
         />
+        ) : null}
+        {/* Dashboard left-side details hidden
+        <CreatorLeftCont
+          creatorId={creatorId}
+          setIsVerified={setIsVerified}
+          className={showMobileProfile ? styles.showOnMobileProfile : ''}
+        />
+        */}
         {/* <div className={styles.creatorDetailsVertical} style={{ width: '2px', background: '#edf2f7', marginTop: '80px' }} />
         <div className={styles.creatorDetailsHorizontal} style={{ width: '100%', background: '#edf2f7', height: '2px' }} /> */}
         <CreatorsRightCont creatorId={creatorId} />
