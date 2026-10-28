@@ -33,6 +33,10 @@ function AdminControlsPanel() {
   const [techdrawUploadPrice, setTechdrawUploadPrice] = useState("4.99");
   const [techdrawUploadFree, setTechdrawUploadFree] = useState(false);
   const [packs, setPacks] = useState(EMPTY_PACKS);
+  // Converter free plan: FIRST_N_FREE (first N conversions per user) or SIZE_LIMIT (files under X MB)
+  const [freePlan, setFreePlan] = useState("FIRST_N_FREE");
+  const [freeConversions, setFreeConversions] = useState("2");
+  const [freeSizeMb, setFreeSizeMb] = useState("5");
 
   const pricePreview = useMemo(() => {
     const base = Number(converterPrice);
@@ -64,6 +68,9 @@ function AdminControlsPanel() {
     setTwoDLibraryVersionFree(Boolean(data.two_d_library_version_free));
     setTechdrawUploadPrice(String(data.techdraw_upload_price ?? "4.99"));
     setTechdrawUploadFree(Boolean(data.techdraw_upload_free));
+    setFreePlan(data.converter_free_plan === "SIZE_LIMIT" ? "SIZE_LIMIT" : "FIRST_N_FREE");
+    setFreeConversions(String(data.converter_free_conversions ?? "2"));
+    setFreeSizeMb(String(data.converter_free_size_mb ?? "5"));
     if (Array.isArray(data.converter_packs) && data.converter_packs.length) {
       setPacks(
         data.converter_packs.map((pack) => ({
@@ -171,6 +178,37 @@ function AdminControlsPanel() {
     }
   };
 
+  const handleSaveFreePlan = async (event) => {
+    event.preventDefault();
+    const count = Number(freeConversions);
+    const sizeMb = Number(freeSizeMb);
+    if (freePlan === "FIRST_N_FREE" && (!Number.isInteger(count) || count < 0)) {
+      toast.error("Enter a valid number of free conversions (0 or more, whole number).");
+      return;
+    }
+    if (freePlan === "SIZE_LIMIT" && (!Number.isFinite(sizeMb) || sizeMb < 0)) {
+      toast.error("Enter a valid free size limit in MB (0 or greater).");
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = { converter_free_plan: freePlan };
+      if (freePlan === "FIRST_N_FREE") payload.converter_free_conversions = count;
+      if (freePlan === "SIZE_LIMIT") payload.converter_free_size_mb = sizeMb;
+      const data = await updateAdminControls(payload);
+      applyControls(data);
+      toast.success(
+        freePlan === "SIZE_LIMIT"
+          ? `Free plan set: files under ${sizeMb} MB download free.`
+          : `Free plan set: each user's first ${count} conversions download free.`,
+      );
+    } catch (err) {
+      toast.error(err?.message || "Failed to update free plan.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSaveLibraryPrices = async (event) => {
     event.preventDefault();
     const legacy = Number(twoDLibraryPrice);
@@ -273,7 +311,7 @@ function AdminControlsPanel() {
     <div className={styles.panel}>
       <p className={styles.lead}>
         Configure CAD converter, 2D library downloads (previous vs versioned), and user TechDraw
-        upload pricing. Converter files under 5 MB and sample files stay free.
+        upload pricing. Sample files always stay free; other converter files follow the free plan below.
       </p>
 
       <div className={styles.card}>
@@ -292,6 +330,85 @@ function AdminControlsPanel() {
             inputProps={{ "aria-label": "Toggle free converter downloads" }}
           />
         </div>
+      </div>
+
+      <div className={styles.card}>
+        <h3 className={styles.rowTitle}>Converter free plan</h3>
+        <p className={styles.rowHint}>
+          Choose which converted files users can download without paying. Everything else uses
+          1 credit or the single-file price.
+        </p>
+        <form className={styles.libraryPriceForm} onSubmit={handleSaveFreePlan}>
+          <div className={styles.libraryPriceRow}>
+            <label className={styles.libraryPriceRowTitle}>
+              <input
+                type="radio"
+                name="converter_free_plan"
+                value="FIRST_N_FREE"
+                checked={freePlan === "FIRST_N_FREE"}
+                onChange={() => setFreePlan("FIRST_N_FREE")}
+                disabled={saving}
+              />{" "}
+              First N conversions free per user
+            </label>
+            <p className={styles.libraryPriceRowHint}>
+              Each user&apos;s first N completed conversions download free, any file size. From
+              conversion N+1, users pay.
+            </p>
+            <label className={styles.packField}>
+              Free conversions per user
+              <input
+                type="number"
+                min="0"
+                step="1"
+                className={styles.priceInput}
+                value={freeConversions}
+                onChange={(e) => setFreeConversions(e.target.value)}
+                disabled={saving || freePlan !== "FIRST_N_FREE"}
+              />
+            </label>
+          </div>
+
+          <div className={styles.libraryPriceRow}>
+            <label className={styles.libraryPriceRowTitle}>
+              <input
+                type="radio"
+                name="converter_free_plan"
+                value="SIZE_LIMIT"
+                checked={freePlan === "SIZE_LIMIT"}
+                onChange={() => setFreePlan("SIZE_LIMIT")}
+                disabled={saving}
+              />{" "}
+              Files under a size limit free (previous plan)
+            </label>
+            <p className={styles.libraryPriceRowHint}>
+              Input files smaller than the limit download free, no matter how many. Larger files
+              need payment.
+            </p>
+            <label className={styles.packField}>
+              Free size limit (MB)
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                className={styles.priceInput}
+                value={freeSizeMb}
+                onChange={(e) => setFreeSizeMb(e.target.value)}
+                disabled={saving || freePlan !== "SIZE_LIMIT"}
+              />
+            </label>
+          </div>
+
+          {conversionFree ? (
+            <p className={styles.note}>
+              &quot;Free converter downloads&quot; is ON, so every file is free right now. Turn it
+              off for this plan to apply.
+            </p>
+          ) : null}
+          <button type="submit" className={styles.saveBtn} disabled={saving}>
+            Save free plan
+          </button>
+        </form>
       </div>
 
       <div className={styles.card}>

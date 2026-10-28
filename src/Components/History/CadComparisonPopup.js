@@ -3,10 +3,7 @@
 import React, { useMemo, useState } from "react";
 import PopupWrapper from "../CommonJsx/PopupWrapper";
 import { toCadOutputCdnUrl } from "@/config";
-import {
-  buildConverterPricingDisplay,
-  CONVERTER_FREE_SIZE_LIMIT_BYTES,
-} from "@/lib/converterPricing";
+import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 import { hasConverterCredits } from "@/lib/converterCredits";
 import styles from "./CadComparisonPopup.module.css";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
@@ -285,10 +282,6 @@ function priceBadge(file) {
   if (!pricing) return null;
   if (pricing.paid) return "Paid";
   if (pricing.is_free) return "Free";
-  const size = Number(file?.input_file_size_bytes);
-  if (Number.isFinite(size) && size < CONVERTER_FREE_SIZE_LIMIT_BYTES) {
-    return "Free";
-  }
   return buildConverterPricingDisplay(pricing).totalLabel;
 }
 
@@ -296,11 +289,7 @@ function comparisonDownloadLabel(file, downloading, converterCredits) {
   if (downloading) return "Downloading…";
   const outputFmt = String(file?.output_format || "file").toUpperCase();
   const pricing = file?.converter_pricing;
-  if (pricing?.paid || pricing?.is_free) return `Download ${outputFmt}`;
-  const size = Number(file?.input_file_size_bytes);
-  const isFree =
-    Number.isFinite(size) && size > 0 && size < CONVERTER_FREE_SIZE_LIMIT_BYTES;
-  if (isFree || !Number.isFinite(size) || size <= 0) return `Download ${outputFmt}`;
+  if (!pricing || pricing.paid || pricing.is_free) return `Download ${outputFmt}`;
   if (hasConverterCredits(converterCredits)) return `Download ${outputFmt}`;
   return "Download · 1 credit";
 }

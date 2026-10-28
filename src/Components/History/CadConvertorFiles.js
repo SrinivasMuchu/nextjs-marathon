@@ -20,17 +20,18 @@ import { useRouter } from "next/navigation";
 import {
   buildConverterPricingDisplay,
   fetchConverterPricingInfo,
-  CONVERTER_FREE_SIZE_LIMIT_BYTES,
+  getFreeConversionsStatusText,
+  getConverterFreePlanSummary,
 } from "@/lib/converterPricing";
 import { hasConverterCredits } from "@/lib/converterCredits";
 import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
 import CadComparisonPopup, { canViewComparison } from "./CadComparisonPopup";
 
-function needsConverterCredit(converterPricing, inputFileSizeBytes) {
-  if (converterPricing?.paid) return false;
-  if (converterPricing?.is_free) return false;
-  const size = Number(inputFileSizeBytes);
-  return Number.isFinite(size) && size >= CONVERTER_FREE_SIZE_LIMIT_BYTES;
+// Backend sets converter_pricing.is_free per the admin free plan (first N conversions or size limit), plus sample/paid files.
+function needsConverterCredit(converterPricing) {
+  if (!converterPricing) return false;
+  if (converterPricing.paid) return false;
+  return !converterPricing.is_free;
 }
 
 function downloadButtonLabel({
@@ -40,7 +41,7 @@ function downloadButtonLabel({
   converterCredits,
 }) {
   if (downloading) return "Downloading...";
-  if (!needsConverterCredit(converterPricing, inputFileSizeBytes)) return "Download";
+  if (!needsConverterCredit(converterPricing)) return "Download";
   if (hasConverterCredits(converterCredits)) return "Download";
   return "Download · 1 credit";
 }
@@ -174,6 +175,8 @@ function CadConvertorFiles({
 }) {
   const router = useRouter();
   const [pricingNoteTotal, setPricingNoteTotal] = useState("");
+  const [freeConversionsStatus, setFreeConversionsStatus] = useState("");
+  const [freePlanSummary, setFreePlanSummary] = useState(getConverterFreePlanSummary(null));
   const [comparisonFile, setComparisonFile] = useState(null);
   const [comparisonIndex, setComparisonIndex] = useState(null);
 
@@ -185,6 +188,8 @@ function CadConvertorFiles({
         if (cancelled) return;
         const display = buildConverterPricingDisplay(info?.pricing);
         setPricingNoteTotal(display.totalLabel);
+        setFreeConversionsStatus(getFreeConversionsStatusText(info));
+        setFreePlanSummary(getConverterFreePlanSummary(info));
       } catch {
         if (!cancelled) setPricingNoteTotal("");
       }
@@ -441,9 +446,10 @@ function CadConvertorFiles({
             </div>
             <p className={styles.converterPricingFootnote}>
               <span aria-hidden>ℹ️</span>
-              Files under 5 MB download free. Files 5 MB and above are{" "}
-              {pricingNoteTotal || "a small fee"} per conversion. Quality report PDFs are
+              {freePlanSummary} A paid download is{" "}
+              {pricingNoteTotal || "a small fee"} (or 1 credit). Quality report PDFs are
               free.
+              {freeConversionsStatus ? <> <strong>{freeConversionsStatus}</strong></> : null}
             </p>
             </>
           ) : (

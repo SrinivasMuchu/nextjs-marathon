@@ -5,6 +5,8 @@ import {
   fetchConverterPricingInfo,
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
+  getConverterFreePlanSummary,
+  getConverterFreePlanHeading,
 } from '@/lib/converterPricing';
 import { contextState } from '@/Components/CommonJsx/ContextProvider';
 import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
@@ -17,7 +19,8 @@ import styles from './ConverterPricingSection.module.css';
 function ConverterPricingSection({
   initialPacks = [],
   initialSinglePriceLabel = '',
-  pricingNote = 'Files under 5 MB convert and download free. Larger files use one credit for one completed download, regardless of file size.',
+  pricingNote = getConverterFreePlanSummary(null),
+  pricingHeading = getConverterFreePlanHeading(null),
   layout = 'default',
 }) {
   const { user, setUser, setUpdatedDetails } = useContext(contextState);
@@ -85,10 +88,10 @@ function ConverterPricingSection({
           <div className={styles.stepInner}>
             <p className={styles.stepEyebrow}>Pricing</p>
             <h2 id="converter-pricing-heading" className={styles.stepHeading}>
-              Free under 5 MB, simple credits above
+              {pricingHeading}
             </h2>
             <p className={styles.stepLead}>
-              Larger files use one credit per completed download, whatever their size. No subscription, credits never expire, and every purchase comes with an invoice.
+              Paid downloads use one credit per completed download, whatever the file size. No subscription, credits never expire, and every purchase comes with an invoice.
             </p>
             <div className={styles.stepGrid}>
               {singlePriceLabel ? (

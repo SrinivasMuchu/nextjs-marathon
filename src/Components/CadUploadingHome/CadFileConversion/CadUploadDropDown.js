@@ -10,6 +10,8 @@ import {
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
   isConverterConversionFree,
+  getFreeConversionsStatusText,
+  getConverterFreePlanSummary,
 } from "@/lib/converterPricing";
 import {
   ConverterPricingBadge,
@@ -99,6 +101,7 @@ function CadDropDown({
     isSampleFile,
     inputFileSizeBytes: file?.size,
   });
+  const freeConversionsStatus = getFreeConversionsStatusText(pricingInfo);
   const cadFormatOptions = useMemo(
     () => [
       { value: "step", label: ".step" },
@@ -338,12 +341,14 @@ function CadDropDown({
               <ConverterPricingBanner
                 isFree={isFreeConversion}
                 pricing={pricingInfo?.pricing}
+                pricingInfo={pricingInfo}
                 isSampleFile={isSampleFile}
                 variant="converterHero"
               />
             ) : (
               <p className={heroStyles.stepPricingNote}>
-                Files under 5 MB convert and download free. Larger files use one credit per completed download: {singlePrice} for a single file, or from {packPrice} each in packs.{" "}
+                {getConverterFreePlanSummary(pricingInfo)} One credit is {singlePrice} for a single file, or from {packPrice} each in packs.{" "}
+                {freeConversionsStatus ? <strong>{freeConversionsStatus} </strong> : null}
                 <Link href="#converter-pricing-heading">See pricing</Link>
               </p>
             )}
@@ -412,13 +417,15 @@ function CadDropDown({
             <ConverterPricingBanner
               isFree={isFreeConversion}
               pricing={pricingInfo?.pricing}
+              pricingInfo={pricingInfo}
               isSampleFile={isSampleFile}
               variant="converterHero"
             />
           ) : (
             <p>
               <Info size={16} aria-hidden />
-              {CONVERTER_HUB_PAGE.pricingNote}
+              {pricingInfo ? getConverterFreePlanSummary(pricingInfo) : CONVERTER_HUB_PAGE.pricingNote}
+              {freeConversionsStatus ? <> <strong>{freeConversionsStatus}</strong></> : null}
             </p>
           )}
         </div>
@@ -431,6 +438,7 @@ function CadDropDown({
       <ConverterPricingBanner
         isFree={isFreeConversion}
         pricing={pricingInfo?.pricing}
+        pricingInfo={pricingInfo}
         isSampleFile={isSampleFile}
       />
       <div className={`${cadStyles["cad-conversion-table"]} ${cadStyles["cad-conversion-table--dark"]}`}>
