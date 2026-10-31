@@ -1,14 +1,21 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react'
+import axios from 'axios'
 import { Box, Tabs, Tab, Typography } from '@mui/material'
+import {
+  Box as CadBox,
+  ListTree,
+  RefreshCw,
+  Scan,
+} from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { BASE_URL } from '@/config'
 import FileHistoryCards from '../History/FileHistoryCards'
-import KycTab from '../KYC/KycTab'
-import Earnings from '../Earnings/Earnings'
-import Analytics from '../History/Analytics'
 import TechDrawDashboardCards from '../History/TechDrawDashboardCards'
 import StepBomDashboardCards from '../History/StepBomDashboardCards'
+import DashboardWorkspace from './DashboardWorkspace'
 import mobileStyles from './DashboardMobile.module.css'
+import workspaceStyles from './DashboardWorkspace.module.css'
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -28,66 +35,84 @@ function TabPanel({ children, value, index, ...other }) {
   )
 }
 
+const tabs = [
+  { label: "CAD Convertor", cadType: "CAD_CONVERTER", countField: "cadFilesTotal", blurb: "Original and converted files stay together. Download either one at any time.", Icon: RefreshCw },
+  { label: "CAD Viewer", cadType: "CAD_VIEWER", countField: "cadFilesTotal", blurb: "Files you opened in the viewer stay saved with this account.", Icon: CadBox },
+  { label: "2D Drawings", cadType: "CAD_TECHDRAW", countField: "techdrawFilesTotal", blurb: "Technical drawings generated from your CAD files.", Icon: Scan },
+  { label: "STEP BOM", cadType: "CAD_STEP_BOM", countField: "stepBomFilesTotal", blurb: "Bills of materials extracted from your STEP files.", Icon: ListTree },
+]
+
 function CreatorsRightCont({
   creatorId }) {
   const [value, setValue] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [counts, setCounts] = useState({})
   const router = useRouter()
   const searchParams = useSearchParams()
   const tableSectionRef = useRef(null)
 
-  // Tab configuration
-  const tabs = [
-    { label: "Projects", cadType: "USER_CADS" },
-    { label: "CAD Viewer", cadType: "CAD_VIEWER" },
-    { label: "CAD Convertor", cadType: "CAD_CONVERTER" },
-    { label: "2D Drawings", cadType: "CAD_TECHDRAW" },
-    { label: "STEP BOM", cadType: "CAD_STEP_BOM" },
-    { label: "Downloads", cadType: "USER_DOWNLOADS" },
-    { label: "Analytics", cadType: "ANALYTICS" },
-    { label: "KYC", cadType: "USER_KYC" },
-    { label: "Earnings", cadType: "EARNINGS" }
-  ]
-
-  const scrollToTable = () => {
-    // Wait a tick so the active tab panel is painted before scrolling
+  const scrollMenusToTop = () => {
     requestAnimationFrame(() => {
-      tableSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const node = document.getElementById('dashboard-menu-anchor')
+      const header = document.querySelector('.siteStickyHeader')
+      const offset = header?.getBoundingClientRect().height || 0
+      if (!node) return
+      const top = node.getBoundingClientRect().top + window.scrollY - offset
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
     })
   }
 
   useEffect(() => {
+    if (creatorId) return undefined
+    let cancelled = false
+    const counted = tabs.filter((tab) => tab.countField)
+    Promise.all(counted.map(async (tab) => {
+      try {
+        const response = await axios.get(`${BASE_URL}/v1/cad/get-file-history`, {
+          params: { type: tab.cadType, page: 1, limit: 1 },
+          headers: { "user-uuid": localStorage.getItem("uuid") },
+        })
+        const pagination = response.data?.data?.pagination || {}
+        return [tab.cadType, Number(pagination[tab.countField]) || 0]
+      } catch {
+        return [tab.cadType, null]
+      }
+    })).then((entries) => {
+      if (cancelled) return
+      const next = {}
+      entries.forEach(([cadType, total]) => {
+        if (total != null) next[cadType] = total
+      })
+      setCounts(next)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [creatorId])
+
+  useEffect(() => {
+    if (creatorId) return undefined
+    const applyOffset = () => {
+      const header = document.querySelector('.siteStickyHeader')
+      const height = header?.getBoundingClientRect().height || 0
+      document.documentElement.style.setProperty('--dashboard-menu-stick', `${height}px`)
+    }
+    applyOffset()
+    window.addEventListener('resize', applyOffset)
+    return () => window.removeEventListener('resize', applyOffset)
+  }, [creatorId])
+
+  useEffect(() => {
     const cadType = searchParams.get('cad_type')
-
-    // Set active tab based on URL parameter
-    if (cadType === 'CAD_CONVERTER') {
-      setValue(2)
-    } else if (cadType === 'CAD_VIEWER') {
-      setValue(1)
-    } else if (cadType === 'USER_CADS') {
+    if (creatorId) {
       setValue(0)
-    } else if (cadType === 'CAD_TECHDRAW') {
-      setValue(3)
-    } else if (cadType === 'CAD_STEP_BOM') {
-      setValue(4)
-    } else if (cadType === 'USER_DOWNLOADS') {
-      setValue(5)
-    } else if (cadType === 'ANALYTICS') {
-      setValue(6)
-    } else if (cadType === 'USER_KYC') {
-      setValue(7)
-    } else if (cadType === 'EARNINGS') {
-      setValue(8)
-    } else {
-      setValue(0) // Default to My CAD Files
+      return
     }
 
-    // Land on the files table (not the cover) when a tool tab is selected
-    if (cadType === 'CAD_VIEWER' || cadType === 'CAD_CONVERTER' || cadType === 'CAD_TECHDRAW' || cadType === 'CAD_STEP_BOM') {
-      scrollToTable()
-    }
-  }, [searchParams])
+    const index = tabs.findIndex((tab) => tab.cadType === cadType)
+    setValue(index >= 0 ? index : 0)
+  }, [searchParams, creatorId])
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -95,9 +120,9 @@ function CreatorsRightCont({
     setTotalPages(1)
 
     // Update URL with corresponding cad_type (keep scroll; don't jump to page top)
-    const selectedTab = tabs[newValue]
+    const selectedTab = creatorId ? { cadType: 'USER_CADS' } : tabs[newValue]
     router.push(`/dashboard?cad_type=${selectedTab.cadType}`, { scroll: false })
-    scrollToTable()
+    if (!creatorId) scrollMenusToTop()
   }
 
   const getCurrentCadType = () => {
@@ -108,47 +133,50 @@ function CreatorsRightCont({
     <Box
       ref={tableSectionRef}
       id="dashboard-files-table"
-      className={!creatorId ? `${mobileStyles.rightWrap}${searchParams.get('cad_type') === 'USER_PROFILE' ? ` ${mobileStyles.hideOnMobile}` : ''}` : undefined}
-      sx={{ width: '100%', marginTop: '32px', scrollMarginTop: '88px' }}
+      className={!creatorId ? `${mobileStyles.rightWrap} ${workspaceStyles.pagePad}${searchParams.get('cad_type') === 'USER_PROFILE' ? ` ${mobileStyles.hideOnMobile}` : ''}` : undefined}
+      sx={{ width: '100%', minWidth: 0, marginTop: creatorId ? '32px' : '8px', scrollMarginTop: '88px' }}
     >
       {!creatorId ?
         <>
-          <Box className={mobileStyles.desktopTabs} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="creators tabs"
-              variant="scrollable"
-              scrollButtons="auto"
-              allowScrollButtonsMobile
-              sx={{
-                '& .MuiTab-root': {
-                  textTransform: 'none',
-                  fontSize: '1rem',
-                  fontWeight: 500,
-                  color: '#666',
-                  '&.Mui-selected': {
-                    color: '#610bee',
-                  },
-                  '&:hover': {
-                    color: '#610bee',
-                    opacity: 0.8,
-                  }
-                },
-                '& .MuiTabs-indicator': {
-                  backgroundColor: '#610bee',
-                }
-              }}
-            >
-              {tabs.map((tab, index) => (
-                <Tab key={index} label={tab.label} />
-              ))}
-            </Tabs>
-            <Box sx={{ width: '100%', height: '1.5px', background: '#e0e0e0', mt: '-1px' }} />
-          </Box>
-          <TabPanel value={value} index={0} style={{ background: '#F6F6F6', height: '100%' }}>
+          <div className={mobileStyles.workspaceOnly}>
+            <DashboardWorkspace />
+          </div>
+          <div className={workspaceStyles.panel} id="dashboard-menu-anchor">
+          <div className={`${workspaceStyles.tabBar} ${mobileStyles.desktopTabs}`} role="tablist" aria-label="Workspace files">
+            {tabs.map((tab, index) => {
+              const Icon = tab.Icon
+              const selected = value === index
+              return (
+                <button
+                  key={tab.cadType}
+                  type="button"
+                  role="tab"
+                  id={`simple-tab-${index}`}
+                  aria-selected={selected}
+                  aria-controls={`simple-tabpanel-${index}`}
+                  className={selected ? workspaceStyles.tabActive : workspaceStyles.tab}
+                  onClick={() => handleChange(null, index)}
+                >
+                  <Icon size={15} strokeWidth={1.75} />
+                  {tab.label}
+                  {counts[tab.cadType] != null ? (
+                    <span className={workspaceStyles.count}>{counts[tab.cadType]}</span>
+                  ) : null}
+                </button>
+              )
+            })}
+          </div>
+          {tabs[value]?.cadType !== 'CAD_CONVERTER' ? (
+          <div className={`${workspaceStyles.sectionHead} ${mobileStyles.desktopTabs}`}>
+            <div>
+              <h2>{tabs[value]?.label}</h2>
+              <p>{tabs[value]?.blurb}</p>
+            </div>
+          </div>
+          ) : null}
+          <TabPanel value={value} index={0} style={{ background: 'transparent', height: '100%' }}>
             <FileHistoryCards
-              cad_type="USER_CADS"
+              cad_type="CAD_CONVERTER"
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               totalPages={totalPages}
@@ -156,7 +184,7 @@ function CreatorsRightCont({
             />
           </TabPanel>
 
-          <TabPanel value={value} index={1} style={{ background: '#F6F6F6', height: '100%' }}>
+          <TabPanel value={value} index={1} style={{ background: 'transparent', height: '100%' }}>
             <FileHistoryCards
               cad_type="CAD_VIEWER"
               currentPage={currentPage}
@@ -166,16 +194,7 @@ function CreatorsRightCont({
             />
           </TabPanel>
 
-          <TabPanel value={value} index={2} style={{ background: '#F6F6F6', height: '100%' }}>
-            <FileHistoryCards
-              cad_type="CAD_CONVERTER"
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={totalPages}
-              setTotalPages={setTotalPages}
-            />
-          </TabPanel>
-          <TabPanel value={value} index={3} style={{ background: '#F6F6F6', height: '100%' }}>
+          <TabPanel value={value} index={2} style={{ background: 'transparent', height: '100%' }}>
             <TechDrawDashboardCards
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -183,7 +202,7 @@ function CreatorsRightCont({
               setTotalPages={setTotalPages}
             />
           </TabPanel>
-          <TabPanel value={value} index={4} style={{ background: '#F6F6F6', height: '100%' }}>
+          <TabPanel value={value} index={3} style={{ background: 'transparent', height: '100%' }}>
             <StepBomDashboardCards
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -191,30 +210,7 @@ function CreatorsRightCont({
               setTotalPages={setTotalPages}
             />
           </TabPanel>
-          <TabPanel value={value} index={5} style={{ background: '#F6F6F6', height: '100%' }}>
-            <FileHistoryCards
-              type="USER_DOWNLOADS"
-              cad_type="USER_DOWNLOADS"
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={totalPages}
-              setTotalPages={setTotalPages}
-            />
-          </TabPanel>
-          <TabPanel value={value} index={6} style={{ background: '#F6F6F6', height: '100%' }}>
-            <Analytics
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={totalPages}
-              setTotalPages={setTotalPages}
-            />
-          </TabPanel>
-          <TabPanel value={value} index={7} style={{ background: '#F6F6F6', height: '100%' }}>
-            <KycTab />
-          </TabPanel>
-          <TabPanel value={value} index={8} style={{ background: '#F6F6F6', height: '100%' }}>
-            <Earnings />
-          </TabPanel>
+          </div>
         </> :
         <>
           <Tabs

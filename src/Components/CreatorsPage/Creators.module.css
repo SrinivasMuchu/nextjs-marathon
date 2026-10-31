@@ -19,6 +19,8 @@
 }
 .creatorDetails{
     display:flex;
+    align-items: flex-start;
+    background: #f6f5fb;
 }
 .statsContainer {
     color: #001325;
