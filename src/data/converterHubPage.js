@@ -5,7 +5,7 @@ export const CONVERTER_HUB_PAGE = {
       'Convert CAD and 3D files online between STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF. Secure browser-based conversion with 300 MB uploads and auto-delete in 7 days.',
   },
   h1: 'Free online 3D CAD file converter',
-  badges: ['Files under 5 MB free', '10 supported formats', 'No software installation'],
+  badges: ['First 2 downloads free', '10 supported formats', 'No software installation'],
   intro:
     'Convert CAD solids, surface models, polygon meshes and 2D drawings between 10 common engineering formats. Choose the file you have and the format required by your CAD, CAM, 3D-printing, visualization or supplier workflow.',
   expectationNote:
@@ -17,7 +17,7 @@ export const CONVERTER_HUB_PAGE = {
   samplePrompt: 'No file available? Choose a sample that matches the workflow you want to test.',
   outputPlaceholder: 'Choose a compatible format',
   convertBeforeSelection: 'Choose an output format',
-  pricingNote: 'Files under 5 MB convert and download free. Larger files use one credit for one completed download, regardless of file size.',
+  pricingNote: 'Your first 2 file downloads are free, any file size. From file 3 on, each download costs 1 credit or a one-time payment, charged only when you click Download.',
   sampleUseCases: {
     step: 'CAD exchange',
     stl: '3D printing',
@@ -110,7 +110,7 @@ export const CONVERTER_HUB_PAGE = {
     },
     {
       question: 'Is the online CAD converter free?',
-      answer: 'Files under 5 MB can be converted and downloaded free. Larger files use one credit for one completed download.',
+      answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
     },
     {
       question: 'What is the maximum file size?',

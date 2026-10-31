@@ -4,10 +4,13 @@ import {
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
   buildConverterPricingDisplay,
+  getConverterFreePlanSummary,
+  getConverterFreePlanHeading,
 } from '@/lib/converterPricing'
 
-const PRICING_NOTE =
-  'Files under 5 MB convert and download free. Larger files use one credit for one completed download, regardless of file size.'
+// Fallback when pricing-info cannot be loaded; live text follows the admin free plan.
+const PRICING_NOTE = getConverterFreePlanSummary(null)
+const PRICING_HEADING = getConverterFreePlanHeading(null)
 
 /** Anonymous catalog UUID so public pricing-info can render in HTML without a browser session. */
 const CONVERTER_CATALOG_UUID = 'cafec0de-0000-4000-8000-00000cad0001'
@@ -19,6 +22,7 @@ function emptyPricing() {
     singlePrice: 0,
     currency: 'USD',
     pricingNote: PRICING_NOTE,
+    pricingHeading: PRICING_HEADING,
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -52,19 +56,21 @@ async function loadConverterPricingForRender() {
     const singlePriceLabel = getSinglePriceLabelFromInfo(info)
     const singlePrice = Number(display.total) || 0
     const currency = display.currency || 'USD'
+    const pricingNote = getConverterFreePlanSummary(info)
 
     return {
       packs,
       singlePriceLabel,
       singlePrice,
       currency,
-      pricingNote: PRICING_NOTE,
+      pricingNote,
+      pricingHeading: getConverterFreePlanHeading(info),
       offers: {
         '@type': 'AggregateOffer',
         priceCurrency: currency,
         lowPrice: '0',
         highPrice: String(singlePrice || 0),
-        description: PRICING_NOTE,
+        description: pricingNote,
       },
     }
   } catch {

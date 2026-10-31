@@ -73,8 +73,8 @@ export async function generateMetadata({ params }) {
     const fromUpper = from?.toUpperCase() ?? '';
     const toUpper = to?.toUpperCase() ?? '';
     const canonical = `/tools/convert-${conversion}`;
-    const title = uniquePage?.meta?.title || `Convert ${fromUpper} to ${toUpper} Online – Free up to 5 MB | Marathon OS`;
-    const description = uniquePage?.meta?.description || `Convert ${fromUpper} files to ${getConverterMetaToPhrase(to)}. Secure uploads, files up to 300 MB, free downloads under 5 MB, and no software required.`;
+    const title = uniquePage?.meta?.title || `Convert ${fromUpper} to ${toUpper} Online – First 2 Free | Marathon OS`;
+    const description = uniquePage?.meta?.description || `Convert ${fromUpper} files to ${getConverterMetaToPhrase(to)}. Secure uploads, files up to 300 MB, first 2 downloads free, and no software required.`;
 
     return buildPageMetadata({
       title,

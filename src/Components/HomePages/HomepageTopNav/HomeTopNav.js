@@ -21,6 +21,7 @@ import {
   fetchConverterPricingInfo,
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
+  getCreditPlansSubtitle,
 } from "@/lib/converterPricing";
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { toast } from "react-toastify";
@@ -58,6 +59,7 @@ function HomeTopNav() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [showCreditPlans, setShowCreditPlans] = useState(false);
   const [packs, setPacks] = useState([]);
+  const [freePlanInfo, setFreePlanInfo] = useState(null);
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [pendingPack, setPendingPack] = useState(null);
   const topNavRef = useRef(null);
@@ -74,6 +76,7 @@ function HomeTopNav() {
         if (cancelled) return;
         setPacks(getConverterPacksFromInfo(info));
         setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
+        setFreePlanInfo(info);
       })
       .catch(() => {
         if (!cancelled) {
@@ -283,7 +286,7 @@ function HomeTopNav() {
           packs={packs}
           singlePriceLabel={singlePriceLabel}
           title="Pay as you go, cheaper by the pack"
-          subtitle="Files under 5 MB are always free. For everything else, buy credits — 1 credit downloads any file, any size, and credits never expire."
+          subtitle={getCreditPlansSubtitle(freePlanInfo)}
           onClose={() => setShowCreditPlans(false)}
           onSelectPack={(pack) => {
             if (!user?._id) {

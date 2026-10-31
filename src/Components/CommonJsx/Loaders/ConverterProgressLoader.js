@@ -9,8 +9,10 @@ import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
 import { ensureConverterPackPurchase } from "@/Components/History/converterPayment";
 import {
   buildConverterPricingDisplay,
-  CONVERTER_FREE_SIZE_LIMIT_BYTES,
   fetchConverterPricingInfo,
+  isConverterConversionFree,
+  getFreeConversionUseText,
+  getCreditPlansSubtitle,
   getConverterPacksFromInfo,
   getFeaturedConverterPack,
   getSinglePriceLabelFromInfo,
@@ -133,25 +135,37 @@ function ConverterProgressLoader({
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [showPackBanner, setShowPackBanner] = useState(false);
   const [pendingPack, setPendingPack] = useState(null);
+  const [freeQuotaCovered, setFreeQuotaCovered] = useState(false);
+  const [freeConversionsStatus, setFreeConversionsStatus] = useState("");
+  const [freePlanInfo, setFreePlanInfo] = useState(null);
   const inputFormat = fileFormat(fileName);
   const outputLabel = String(outputFormat || "output").toUpperCase();
   const sizeLabel = formatFileSize(fileSize);
-  const isFree =
-    Boolean(isSampleFile) ||
-    (Number.isFinite(Number(fileSize)) &&
-      Number(fileSize) > 0 &&
-      Number(fileSize) < CONVERTER_FREE_SIZE_LIMIT_BYTES);
+  // Free if sample file or free under the admin-selected plan (from pricing-info).
+  const isFree = Boolean(isSampleFile) || freeQuotaCovered;
   const alreadyCovered = isFree || hasConverterCredits(user?.converter_credits);
 
   useEffect(() => {
-    if (alreadyCovered) {
-      setShowPackBanner(false);
-      return;
-    }
+    if (alreadyCovered) setShowPackBanner(false);
+  }, [alreadyCovered]);
+
+  // Always load pricing-info: free downloads are used before credits, so a user
+  // with credits may still get this file free and must not be told a credit is used.
+  useEffect(() => {
+    if (isSampleFile) return undefined;
     let cancelled = false;
     fetchConverterPricingInfo()
       .then((info) => {
         if (!cancelled) {
+          setFreePlanInfo(info);
+          setFreeQuotaCovered(
+            isConverterConversionFree({ pricingInfo: info, inputFileSizeBytes: fileSize }),
+          );
+          setFreeConversionsStatus(
+            isConverterConversionFree({ pricingInfo: info, inputFileSizeBytes: fileSize })
+              ? getFreeConversionUseText(info)
+              : "",
+          );
           setPriceLabel(buildConverterPricingDisplay(info?.pricing).totalLabel);
           setPacks(getConverterPacksFromInfo(info));
           setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
@@ -167,7 +181,7 @@ function ConverterProgressLoader({
     return () => {
       cancelled = true;
     };
-  }, [alreadyCovered]);
+  }, [isSampleFile, fileSize]);
 
 
   const steps = useMemo(() => {
@@ -283,12 +297,17 @@ function ConverterProgressLoader({
 
           <p className={styles.pricing}>
             {isFree ? (
-              <>
-                This conversion is <strong>free</strong> — no payment is required.
-              </>
+              freeConversionsStatus && !isSampleFile ? (
+                <>{freeConversionsStatus}</>
+              ) : (
+                <>
+                  This conversion is <strong>free</strong> — no payment is required.
+                </>
+              )
             ) : hasConverterCredits(user?.converter_credits) ? (
               <>
-                Covered by your credits — <strong>no payment needed</strong> for this download.
+                You&apos;ve used your free downloads. <strong>1 credit</strong> will be used only
+                when you click Download — no payment needed.
               </>
             ) : (
               <>
@@ -312,8 +331,8 @@ function ConverterProgressLoader({
               Buy credits while you wait
             </h2>
             <p className={styles.creditsSubtitle}>
-              Optional — grab a pack now and this file downloads itself the second it&apos;s
-              done.
+              Optional — grab a pack now and you can download this file with 1 credit the
+              second it&apos;s done. Credits are used only when you click Download.
             </p>
 
             <div className={styles.offerBox}>
@@ -364,7 +383,7 @@ function ConverterProgressLoader({
         singlePriceLabel={singlePriceLabel}
         fileType={inputFormat}
         title="Pay as you go, cheaper by the pack"
-        subtitle="Files under 5 MB are always free. For everything else, buy credits — 1 credit downloads any file, any size, and credits never expire."
+        subtitle={getCreditPlansSubtitle(freePlanInfo)}
         onClose={() => setShowPackBanner(false)}
         onSelectSingle={() => setShowPackBanner(false)}
         onSelectPack={(pack) => {

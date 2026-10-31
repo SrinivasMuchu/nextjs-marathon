@@ -3,7 +3,11 @@
 import React from "react";
 import cadStyles from "../CadHomeDesign/CadHome.module.css";
 import heroStyles from "../CadHomeDesign/CadViewerHero.module.css";
-import { buildConverterPricingDisplay } from "@/lib/converterPricing";
+import {
+  buildConverterPricingDisplay,
+  getFreeConversionUseText,
+  getPaidConversionReasonText,
+} from "@/lib/converterPricing";
 
 function ConverterPricingBadge({ isFree, pricing, variant = "dark" }) {
   if (isFree) {
@@ -28,7 +32,7 @@ function ConverterPricingBadge({ isFree, pricing, variant = "dark" }) {
   );
 }
 
-function ConverterPricingBanner({ isFree, pricing, isSampleFile, variant }) {
+function ConverterPricingBanner({ isFree, pricing, isSampleFile, variant, pricingInfo }) {
   const display = buildConverterPricingDisplay(pricing);
   const bannerClass = variant === "converterHero"
     ? `${heroStyles.converterPriceBanner} ${
@@ -55,7 +59,7 @@ function ConverterPricingBanner({ isFree, pricing, isSampleFile, variant }) {
     return (
       <div className={bannerClass}>
         <span className={cadStyles["cad-conversion-banner-icon"]} aria-hidden>🎁</span>
-        <span>This file is under 5 MB — convert and download free.</span>
+        <span>{getFreeConversionUseText(pricingInfo)}</span>
       </div>
     );
   }
@@ -64,8 +68,8 @@ function ConverterPricingBanner({ isFree, pricing, isSampleFile, variant }) {
     <div className={bannerClass}>
       <span className={cadStyles["cad-conversion-banner-icon"]} aria-hidden>ℹ️</span>
       <span>
-        Files 5 MB and above are{" "}
-        <strong>{display.totalLabel}</strong> (incl. tax) to download.
+        {getPaidConversionReasonText(pricingInfo)}{" "}
+        <strong>{display.totalLabel}</strong> (incl. tax) or 1 credit, charged only when you click Download.
       </span>
     </div>
   );

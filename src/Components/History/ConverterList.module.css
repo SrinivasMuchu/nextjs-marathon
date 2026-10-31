@@ -338,6 +338,17 @@
   font-size: 13px;
 }
 
+.pricingNote {
+  margin: 0;
+  color: #8b8498;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.pricingNote strong {
+  color: #3b2a63;
+}
+
 .foot a,
 .banner a {
   color: #610bee;

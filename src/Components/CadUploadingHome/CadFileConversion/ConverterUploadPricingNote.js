@@ -4,12 +4,15 @@ import React, { useEffect, useState } from "react";
 import heroStyles from "../CadHomeDesign/CadViewerHero.module.css";
 import {
   buildConverterPricingDisplay,
-  CONVERTER_FREE_SIZE_LIMIT_MB,
+  getConverterFreePlanSummary,
   fetchConverterPricingInfo,
+  getFreeConversionsStatusText,
 } from "@/lib/converterPricing";
 
 function ConverterUploadPricingNote() {
   const [totalLabel, setTotalLabel] = useState("");
+  const [freeConversionsStatus, setFreeConversionsStatus] = useState("");
+  const [freePlanSummary, setFreePlanSummary] = useState(getConverterFreePlanSummary(null));
 
   useEffect(() => {
     let cancelled = false;
@@ -19,6 +22,8 @@ function ConverterUploadPricingNote() {
         if (cancelled) return;
         const display = buildConverterPricingDisplay(info?.pricing);
         setTotalLabel(display.totalLabel);
+        setFreeConversionsStatus(getFreeConversionsStatusText(info));
+        setFreePlanSummary(getConverterFreePlanSummary(info));
       } catch {
         if (!cancelled) setTotalLabel("");
       }
@@ -30,15 +35,16 @@ function ConverterUploadPricingNote() {
 
   return (
     <p className={heroStyles.heroUploadPricingNote}>
-      Files under {CONVERTER_FREE_SIZE_LIMIT_MB} MB convert and download free.
+      {freePlanSummary}
       {totalLabel ? (
         <>
           {" "}
-          Larger files are <strong>{totalLabel}</strong> per conversion — new file or re-run.
+          A single paid download is <strong>{totalLabel}</strong> or 1 credit — new file or re-run.
         </>
       ) : (
-        <> Larger files require a small fee per conversion — new file or re-run.</>
+        <> After that, each download needs a small fee or 1 credit — new file or re-run.</>
       )}
+      {freeConversionsStatus ? <> <strong>{freeConversionsStatus}</strong></> : null}
     </p>
   );
 }

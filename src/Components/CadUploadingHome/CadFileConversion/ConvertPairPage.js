@@ -190,7 +190,7 @@ const FORMAT_GLANCE = [
   ['Input', '.step and .stp files (STEP AP203, AP214, AP242)'],
   ['Output', '.stl, binary or ASCII, as one file or one per body (ZIP)'],
   ['Maximum upload', '300 MB'],
-  ['Price', 'Free under 5 MB. Larger files $2.99 each, or from $1.80 with credit packs'],
+  ['Price', 'First 2 downloads free, any size. Then $2.99 each, or from $1.80 with credit packs'],
   ['Default settings', 'Standard mesh quality (0.03 mm, 10°), millimetres, binary'],
   ['Works on', 'Any modern browser on Windows, macOS, Linux, iPad and Android'],
   ['File retention', 'Deleted automatically within 7 days, never published'],
@@ -378,7 +378,7 @@ function ConvertPairPage({ conversionParams }) {
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
             <div className={styles.heroBadges}>
-              {(uniquePage?.badges || [`Free under 5 MB`, `${fromUpper} → ${toUpper}`, 'No software installation']).map((badge) => (
+              {(uniquePage?.badges || [`First 2 downloads free`, `${fromUpper} → ${toUpper}`, 'No software installation']).map((badge) => (
                 <span key={badge} className={badge.startsWith('Free') ? styles.freeBadge : undefined}>
                   {badge}
                 </span>
@@ -461,7 +461,7 @@ function ConvertPairPage({ conversionParams }) {
             <p className={styles.eyebrow}>{uniquePage?.workflowEyebrow || 'Step by step'}</p>
             <h2 id="pair-workflow-heading">{uniquePage?.workflowHeading || 'How to convert STEP to STL'}</h2>
             <p className={styles.stepHowIntro}>
-              To convert STEP to STL online, upload your .step or .stp file above, pick a mesh quality (Standard suits most 3D printing), keep the units in millimetres, then click <strong>Convert STEP to STL</strong> and download the .stl file. Files under 5 MB are free. STP to STL works exactly the same way, because .stp is just the short extension for STEP.
+              To convert STEP to STL online, upload your .step or .stp file above, pick a mesh quality (Standard suits most 3D printing), keep the units in millimetres, then click <strong>Convert STEP to STL</strong> and download the .stl file. Your first 2 downloads are free. STP to STL works exactly the same way, because .stp is just the short extension for STEP.
             </p>
             <div className={styles.stepHowGrid}>
               {workflowSteps.map(([title, description], index) => (
