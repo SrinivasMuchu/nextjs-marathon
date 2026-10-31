@@ -10,8 +10,7 @@ import {
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
   isConverterConversionFree,
-  getFreeConversionsStatusText,
-  getConverterFreePlanSummary,
+  getConverterFreePlanShortNote,
 } from "@/lib/converterPricing";
 import {
   ConverterPricingBadge,
@@ -101,7 +100,10 @@ function CadDropDown({
     isSampleFile,
     inputFileSizeBytes: file?.size,
   });
-  const freeConversionsStatus = getFreeConversionsStatusText(pricingInfo);
+  const shortNote = getConverterFreePlanShortNote(
+    pricingInfo,
+    getSinglePriceLabelFromInfo(pricingInfo) || "",
+  );
   const cadFormatOptions = useMemo(
     () => [
       { value: "step", label: ".step" },
@@ -305,7 +307,6 @@ function CadDropDown({
       !file || !(selectValueAttr || pairTarget) || Boolean(uploadingMessage) || disableSelect;
 
     if (designVariant === "stepToStlHero") {
-      const singlePrice = getSinglePriceLabelFromInfo(pricingInfo) || "$2.99";
       const packs = getConverterPacksFromInfo(pricingInfo);
       const cheapestPack = packs.reduce((best, pack) => {
         const credits = Math.max(1, Number(pack.credits) || 1);
@@ -347,8 +348,7 @@ function CadDropDown({
               />
             ) : (
               <p className={heroStyles.stepPricingNote}>
-                {getConverterFreePlanSummary(pricingInfo)} A paid download is {singlePrice} for a single file, or from {packPrice} each in credit packs.{" "}
-                {freeConversionsStatus ? <strong>{freeConversionsStatus} </strong> : null}
+                <strong>{shortNote.lead}</strong> {shortNote.rest} Packs from {packPrice} per file.{" "}
                 <Link href="#converter-pricing-heading">See pricing</Link>
               </p>
             )}
@@ -424,8 +424,9 @@ function CadDropDown({
           ) : (
             <p>
               <Info size={16} aria-hidden />
-              {getConverterFreePlanSummary(pricingInfo)}
-              {freeConversionsStatus ? <> <strong>{freeConversionsStatus}</strong></> : null}
+              <span>
+                <strong>{shortNote.lead}</strong> {shortNote.rest}
+              </span>
             </p>
           )}
         </div>

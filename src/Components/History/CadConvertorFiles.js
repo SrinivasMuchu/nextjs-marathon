@@ -9,8 +9,7 @@ import { useRouter } from "next/navigation";
 import {
   buildConverterPricingDisplay,
   fetchConverterPricingInfo,
-  getFreeConversionsStatusText,
-  getConverterFreePlanSummary,
+  getConverterFreePlanShortNote,
   getConverterDownloadLabel,
 } from "@/lib/converterPricing";
 import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
@@ -162,9 +161,7 @@ function CadConvertorFiles({
   const router = useRouter();
   const [comparisonFile, setComparisonFile] = useState(null);
   const [comparisonIndex, setComparisonIndex] = useState(null);
-  const [pricingNoteTotal, setPricingNoteTotal] = useState("");
-  const [freeConversionsStatus, setFreeConversionsStatus] = useState("");
-  const [freePlanSummary, setFreePlanSummary] = useState(getConverterFreePlanSummary(null));
+  const [shortNote, setShortNote] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -172,11 +169,11 @@ function CadConvertorFiles({
       try {
         const info = await fetchConverterPricingInfo();
         if (cancelled) return;
-        setPricingNoteTotal(buildConverterPricingDisplay(info?.pricing).totalLabel);
-        setFreeConversionsStatus(getFreeConversionsStatusText(info));
-        setFreePlanSummary(getConverterFreePlanSummary(info));
+        setShortNote(
+          getConverterFreePlanShortNote(info, buildConverterPricingDisplay(info?.pricing).totalLabel),
+        );
       } catch {
-        if (!cancelled) setPricingNoteTotal("");
+        if (!cancelled) setShortNote(null);
       }
     })();
     return () => {
@@ -370,9 +367,8 @@ function CadConvertorFiles({
 
       {!loading && visible.length > 0 ? (
         <p className={styles.pricingNote}>
-          {freePlanSummary} A paid download is {pricingNoteTotal || "a small fee"} (or 1 credit).
-          Re-downloading a file you already unlocked is free, and quality report PDFs are free.
-          {freeConversionsStatus ? <> <strong>{freeConversionsStatus}</strong></> : null}
+          {shortNote ? <><strong>{shortNote.lead}</strong> {shortNote.rest} </> : null}
+          Re-downloads and quality reports are free.
         </p>
       ) : null}
 

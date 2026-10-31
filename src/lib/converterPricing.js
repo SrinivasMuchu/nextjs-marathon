@@ -123,6 +123,47 @@ export function getFreeConversionUseText(pricingInfo) {
   return `Free — downloading this file will use 1 of your ${plural(perUser, "free download")} (${remaining} left). Nothing is used until you click Download, and re-downloading it later stays free.`;
 }
 
+/**
+ * One short line for small pricing boxes: a bold `lead` with the user's status and a short `rest`.
+ * e.g. { lead: "2 of 2 free downloads left", rest: "— any file size. Then $2.99 or 1 credit per file." }
+ */
+export function getConverterFreePlanShortNote(pricingInfo, priceLabel = "") {
+  const paid = priceLabel ? `${priceLabel} or 1 credit` : "1 credit";
+  if (pricingInfo?.conversion_free) {
+    return { lead: "All downloads are free right now.", rest: "" };
+  }
+  if (isSizeLimitPlan(pricingInfo)) {
+    return {
+      lead: `Free under ${getFreeSizeLimitMb(pricingInfo)} MB.`,
+      rest: `Bigger files: ${paid}.`,
+    };
+  }
+  const perUser = getFreeConversionsPerUser(pricingInfo);
+  if (perUser === 0) {
+    return { lead: `${paid} per file,`, rest: "charged when you download." };
+  }
+  const known = pricingInfo
+    && pricingInfo.free_conversions_remaining !== undefined
+    && pricingInfo.free_conversions_remaining !== null;
+  if (!known) {
+    return {
+      lead: `First ${plural(perUser, "download")} free`,
+      rest: `— any file size. Then ${paid} per file.`,
+    };
+  }
+  const remaining = getFreeConversionsRemaining(pricingInfo);
+  if (remaining > 0) {
+    return {
+      lead: `${remaining} of ${perUser} free downloads left`,
+      rest: `— any file size. Then ${paid} per file.`,
+    };
+  }
+  return {
+    lead: "Free downloads used.",
+    rest: `Each file is ${paid}, charged when you download.`,
+  };
+}
+
 /** Short heading for the pricing section, e.g. "First 2 downloads free, simple credits after". */
 export function getConverterFreePlanHeading(pricingInfo) {
   if (isSizeLimitPlan(pricingInfo)) {
