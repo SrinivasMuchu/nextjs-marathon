@@ -90,6 +90,24 @@
   line-height: 1.45;
 }
 
+.planOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.planOption input[type="radio"] {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+}
+
+.planNote {
+  margin: 0;
+}
+
 .libraryPriceRow .note {
   margin: 0;
 }

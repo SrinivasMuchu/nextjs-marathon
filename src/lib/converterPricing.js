@@ -70,6 +70,7 @@ function plural(n, word) {
 /**
  * One-sentence description of the active free plan, for pricing notes and popups.
  * Falls back to the first-N wording when pricing-info is not loaded yet.
+ * Free downloads and credits are only used when the user clicks Download.
  */
 export function getConverterFreePlanSummary(pricingInfo) {
   if (pricingInfo?.conversion_free) {
@@ -77,18 +78,18 @@ export function getConverterFreePlanSummary(pricingInfo) {
   }
   if (isSizeLimitPlan(pricingInfo)) {
     const mb = getFreeSizeLimitMb(pricingInfo);
-    return `Files under ${mb} MB convert and download free. Larger files use one credit per completed download.`;
+    return `Files under ${mb} MB convert and download free. Larger files cost 1 credit, used only when you download.`;
   }
   const perUser = getFreeConversionsPerUser(pricingInfo);
   if (perUser === 0) {
-    return "Each completed download uses one credit, regardless of file size.";
+    return "Converting is free. Each file costs 1 credit, used only when you click Download.";
   }
-  return `Your first ${plural(perUser, "conversion")} download free. After that, each completed download uses one credit, regardless of file size.`;
+  return `Your first ${plural(perUser, "file download")} ${perUser === 1 ? "is" : "are"} free, any file size. From file ${perUser + 1} on, each download costs 1 credit or a one-time payment, charged only when you click Download.`;
 }
 
 /**
- * Short status line telling the signed-in user where they stand on free conversions,
- * e.g. "You have 1 of 2 free conversions left." Returns "" when not applicable
+ * Short status line telling the signed-in user where they stand on free downloads,
+ * e.g. "You have 1 of 2 free downloads left." Returns "" when not applicable
  * (size-limit plan, everything free, or pricing-info not loaded).
  */
 export function getFreeConversionsStatusText(pricingInfo) {
@@ -98,14 +99,14 @@ export function getFreeConversionsStatusText(pricingInfo) {
   if (perUser === 0) return "";
   const remaining = getFreeConversionsRemaining(pricingInfo);
   if (remaining > 0) {
-    return `You have ${remaining} of ${plural(perUser, "free conversion")} left.`;
+    return `You have ${remaining} of ${plural(perUser, "free download")} left. Free downloads are used before your credits.`;
   }
-  return `You've used your ${plural(perUser, "free conversion")}. Each new download now uses 1 credit.`;
+  return `You've used your ${plural(perUser, "free download")}. Each new file now costs 1 credit or a one-time payment when you download it.`;
 }
 
 /**
- * Message shown for a conversion that is free under the active plan,
- * e.g. "This is free conversion 1 of 2 — no payment needed. ..."
+ * Message shown for a file that will download free under the active plan,
+ * e.g. "Free — downloading this file uses 1 of your 2 free downloads. ..."
  */
 export function getFreeConversionUseText(pricingInfo) {
   if (!pricingInfo || pricingInfo.conversion_free) {
@@ -119,33 +120,28 @@ export function getFreeConversionUseText(pricingInfo) {
   }
   const perUser = getFreeConversionsPerUser(pricingInfo);
   const remaining = getFreeConversionsRemaining(pricingInfo);
-  const current = Math.min(perUser - remaining + 1, perUser);
-  if (remaining <= 1) {
-    return `This is free conversion ${current} of ${perUser} — no payment needed. Your next conversion will need 1 credit.`;
-  }
-  const left = remaining - 1;
-  return `This is free conversion ${current} of ${perUser} — no payment needed. You'll have ${plural(left, "free conversion")} left after this.`;
+  return `Free — downloading this file will use 1 of your ${plural(perUser, "free download")} (${remaining} left). Nothing is used until you click Download, and re-downloading it later stays free.`;
 }
 
-/** Short heading for the pricing section, e.g. "First 2 conversions free, simple credits after". */
+/** Short heading for the pricing section, e.g. "First 2 downloads free, simple credits after". */
 export function getConverterFreePlanHeading(pricingInfo) {
   if (isSizeLimitPlan(pricingInfo)) {
     return `Free under ${getFreeSizeLimitMb(pricingInfo)} MB, simple credits above`;
   }
   const perUser = getFreeConversionsPerUser(pricingInfo);
   if (perUser === 0) return "Simple credits, no subscription";
-  return `First ${plural(perUser, "conversion")} free, simple credits after`;
+  return `First ${plural(perUser, "download")} free, simple credits after`;
 }
 
 /** Subtitle for the credit-plans popup. */
 export function getCreditPlansSubtitle(pricingInfo) {
-  const tail = "buy credits — 1 credit downloads any file, any size, and credits never expire.";
+  const tail = "buy credits — 1 credit downloads any file, any size, and credits never expire. A credit is used only when you click Download.";
   if (isSizeLimitPlan(pricingInfo)) {
     return `Files under ${getFreeSizeLimitMb(pricingInfo)} MB are always free. For everything else, ${tail}`;
   }
   const perUser = getFreeConversionsPerUser(pricingInfo);
   if (perUser === 0) return `To download, ${tail}`;
-  return `Your first ${plural(perUser, "conversion")} ${perUser === 1 ? "is" : "are"} free. After that, ${tail}`;
+  return `Your first ${plural(perUser, "file download")} ${perUser === 1 ? "is" : "are"} free (any size) and are used before your credits. After that, ${tail}`;
 }
 
 /** Message shown for a conversion that will need payment under the active plan. */
@@ -155,7 +151,32 @@ export function getPaidConversionReasonText(pricingInfo) {
   }
   const perUser = getFreeConversionsPerUser(pricingInfo);
   if (perUser === 0) return "This download is";
-  return `You've used your ${plural(perUser, "free conversion")}. This download is`;
+  return `You've used your ${plural(perUser, "free download")}. Downloading this file costs`;
+}
+
+/** Badge text for a converted file in history, from converter_pricing. */
+export function getConverterFileBadge(converterPricing) {
+  if (!converterPricing) return null;
+  if (converterPricing.paid) return "Paid";
+  if (converterPricing.uses_free_slot) {
+    const left = Number(converterPricing.free_slots_remaining);
+    return Number.isFinite(left) ? `Free · ${left} left` : "Free";
+  }
+  if (converterPricing.is_free) return "Free";
+  return buildConverterPricingDisplay(converterPricing).totalLabel;
+}
+
+/**
+ * Download button label that says what a click will use:
+ * a free download, 1 credit, or a payment. Nothing is used before the click.
+ */
+export function getConverterDownloadLabel({ converterPricing, converterCredits, downloadText = "Download" }) {
+  if (!converterPricing || converterPricing.paid) return downloadText;
+  if (converterPricing.uses_free_slot) return `${downloadText} · free`;
+  if (converterPricing.is_free) return downloadText;
+  if (Number(converterCredits) > 0) return `${downloadText} · uses 1 credit`;
+  const price = buildConverterPricingDisplay(converterPricing).totalLabel;
+  return price ? `${downloadText} · ${price} or 1 credit` : `${downloadText} · 1 credit`;
 }
 
 /** Whether this conversion should show as free before download. */

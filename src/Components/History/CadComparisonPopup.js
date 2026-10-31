@@ -3,8 +3,7 @@
 import React, { useMemo, useState } from "react";
 import PopupWrapper from "../CommonJsx/PopupWrapper";
 import { toCadOutputCdnUrl } from "@/config";
-import { buildConverterPricingDisplay } from "@/lib/converterPricing";
-import { hasConverterCredits } from "@/lib/converterCredits";
+import { getConverterDownloadLabel, getConverterFileBadge } from "@/lib/converterPricing";
 import styles from "./CadComparisonPopup.module.css";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -278,20 +277,17 @@ function summarizeChecks(checks) {
 }
 
 function priceBadge(file) {
-  const pricing = file?.converter_pricing;
-  if (!pricing) return null;
-  if (pricing.paid) return "Paid";
-  if (pricing.is_free) return "Free";
-  return buildConverterPricingDisplay(pricing).totalLabel;
+  return getConverterFileBadge(file?.converter_pricing);
 }
 
 function comparisonDownloadLabel(file, downloading, converterCredits) {
   if (downloading) return "Downloading…";
   const outputFmt = String(file?.output_format || "file").toUpperCase();
-  const pricing = file?.converter_pricing;
-  if (!pricing || pricing.paid || pricing.is_free) return `Download ${outputFmt}`;
-  if (hasConverterCredits(converterCredits)) return `Download ${outputFmt}`;
-  return "Download · 1 credit";
+  return getConverterDownloadLabel({
+    converterPricing: file?.converter_pricing,
+    converterCredits,
+    downloadText: `Download ${outputFmt}`,
+  });
 }
 
 export function hasComparisonPhotos(file) {

@@ -146,10 +146,13 @@ function ConverterProgressLoader({
   const alreadyCovered = isFree || hasConverterCredits(user?.converter_credits);
 
   useEffect(() => {
-    if (alreadyCovered) {
-      setShowPackBanner(false);
-      return;
-    }
+    if (alreadyCovered) setShowPackBanner(false);
+  }, [alreadyCovered]);
+
+  // Always load pricing-info: free downloads are used before credits, so a user
+  // with credits may still get this file free and must not be told a credit is used.
+  useEffect(() => {
+    if (isSampleFile) return undefined;
     let cancelled = false;
     fetchConverterPricingInfo()
       .then((info) => {
@@ -178,7 +181,7 @@ function ConverterProgressLoader({
     return () => {
       cancelled = true;
     };
-  }, [alreadyCovered]);
+  }, [isSampleFile, fileSize]);
 
 
   const steps = useMemo(() => {
@@ -303,7 +306,8 @@ function ConverterProgressLoader({
               )
             ) : hasConverterCredits(user?.converter_credits) ? (
               <>
-                Covered by your credits — <strong>no payment needed</strong> for this download.
+                You&apos;ve used your free downloads. <strong>1 credit</strong> will be used only
+                when you click Download — no payment needed.
               </>
             ) : (
               <>
@@ -327,8 +331,8 @@ function ConverterProgressLoader({
               Buy credits while you wait
             </h2>
             <p className={styles.creditsSubtitle}>
-              Optional — grab a pack now and this file downloads itself the second it&apos;s
-              done.
+              Optional — grab a pack now and you can download this file with 1 credit the
+              second it&apos;s done. Credits are used only when you click Download.
             </p>
 
             <div className={styles.offerBox}>

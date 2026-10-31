@@ -69,7 +69,7 @@ function ConverterPricingBanner({ isFree, pricing, isSampleFile, variant, pricin
       <span className={cadStyles["cad-conversion-banner-icon"]} aria-hidden>ℹ️</span>
       <span>
         {getPaidConversionReasonText(pricingInfo)}{" "}
-        <strong>{display.totalLabel}</strong> (incl. tax) or 1 credit.
+        <strong>{display.totalLabel}</strong> (incl. tax) or 1 credit, charged only when you click Download.
       </span>
     </div>
   );

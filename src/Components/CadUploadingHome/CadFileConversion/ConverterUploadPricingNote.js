@@ -39,10 +39,10 @@ function ConverterUploadPricingNote() {
       {totalLabel ? (
         <>
           {" "}
-          One credit is <strong>{totalLabel}</strong> — new file or re-run.
+          A single paid download is <strong>{totalLabel}</strong> or 1 credit — new file or re-run.
         </>
       ) : (
-        <> Paid downloads need a small fee — new file or re-run.</>
+        <> After that, each download needs a small fee or 1 credit — new file or re-run.</>
       )}
       {freeConversionsStatus ? <> <strong>{freeConversionsStatus}</strong></> : null}
     </p>

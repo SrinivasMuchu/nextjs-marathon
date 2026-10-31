@@ -91,7 +91,7 @@ function ConverterPricingSection({
               {pricingHeading}
             </h2>
             <p className={styles.stepLead}>
-              Paid downloads use one credit per completed download, whatever the file size. No subscription, credits never expire, and every purchase comes with an invoice.
+              After your free downloads, each file costs one credit, whatever the file size, used only when you click Download. No subscription, credits never expire, and every purchase comes with an invoice.
             </p>
             <div className={styles.stepGrid}>
               {singlePriceLabel ? (

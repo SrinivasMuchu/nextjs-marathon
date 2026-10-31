@@ -423,11 +423,22 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           setUser((prev) => ({ ...prev, converter_credits: Number(redeemed.credits) || 0 }));
         }
         await performConverterFileDownload(file, index);
+        if (redeemed?.consumed !== false) {
+          toast.info(`1 credit used for this file. ${Number(redeemed?.credits) || 0} credits left. Re-downloading it is free.`);
+        }
+        setConverterHistoryRefresh((n) => n + 1);
         return;
       }
       if (access.can_download) {
         await performConverterFileDownload(file, index);
-        if (access.reason === 'free_quota' && !file.converter_pricing?.paid) {
+        // First download of a file under the free plan: the backend just used one free slot.
+        if (access.reason === 'free_quota' && file.converter_pricing?.uses_free_slot) {
+          const left = Math.max((Number(file.converter_pricing.free_slots_remaining) || 1) - 1, 0);
+          toast.info(
+            left > 0
+              ? `Free download used. You have ${left} free download${left === 1 ? '' : 's'} left.`
+              : "Free download used. That was your last one — new files will cost 1 credit or a one-time payment.",
+          );
           setConverterHistoryRefresh((n) => n + 1);
         }
         return;

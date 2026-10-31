@@ -53,7 +53,7 @@ const CANNOT_DO = [
 const ROUTE_ROWS = [
   ['How it is made', 'Triangles stitched into a solid automatically', 'Modelled again as features, using the mesh as a reference'],
   ['Time', 'Seconds to minutes', 'Hours to days, depending on complexity'],
-  ['Cost', 'Free under 5 MB, then $1.80–$2.99', 'Quoted per part by a designer'],
+  ['Cost', 'First 2 downloads free, then $1.80–$2.99', 'Quoted per part by a designer'],
   ['Flat faces', { text: 'Clean single faces when merged', tone: 'yes' }, { text: 'Exact', tone: 'yes' }],
   ['Holes, fillets, curves', { text: 'Faceted', tone: 'no' }, { text: 'True cylinders and arcs', tone: 'yes' }],
   ['Edit by changing a dimension', { text: 'No', tone: 'no' }, { text: 'Yes, with full feature history', tone: 'yes' }],
@@ -73,7 +73,7 @@ const GLANCE = [
   ['Input', 'Binary and ASCII .stl files'],
   ['Output', '.step (AP214 by default, AP242 or AP203 on request)'],
   ['Maximum upload', '300 MB'],
-  ['Price', 'Free under 5 MB. Larger files $2.99 each, or from $1.80 with credit packs'],
+  ['Price', 'First 2 downloads free, any size. Then $2.99 each, or from $1.80 with credit packs'],
   ['Default settings', 'Millimetres, mesh repair on, flat faces merged, all triangles kept'],
   ['Works on', 'Any modern browser on Windows, macOS, Linux, iPad and Android'],
   ['File retention', 'Deleted automatically within 7 days, never published'],
@@ -235,7 +235,7 @@ function StlToStepSections() {
           <p className={styles.eyebrow}>Step by step</p>
           <h2 id="stl-how">How to convert STL to STEP</h2>
           <p className={styles.stepHowIntro}>
-            To convert STL to STEP online, upload your .stl file above, choose the units the model was designed in (usually millimetres), keep mesh repair and flat-face merging on, then click <strong>Convert STL to STEP</strong> and download the .step file. Files under 5 MB are free. The result opens as a solid in any CAD program, made up of the same flat facets as the STL.
+            To convert STL to STEP online, upload your .stl file above, choose the units the model was designed in (usually millimetres), keep mesh repair and flat-face merging on, then click <strong>Convert STL to STEP</strong> and download the .step file. Your first 2 downloads are free. The result opens as a solid in any CAD program, made up of the same flat facets as the STL.
           </p>
           <div className={styles.stepHowGrid}>
             {HOW_STEPS.map(([title, description], index) => (

@@ -347,7 +347,7 @@ function CadDropDown({
               />
             ) : (
               <p className={heroStyles.stepPricingNote}>
-                {getConverterFreePlanSummary(pricingInfo)} One credit is {singlePrice} for a single file, or from {packPrice} each in packs.{" "}
+                {getConverterFreePlanSummary(pricingInfo)} A paid download is {singlePrice} for a single file, or from {packPrice} each in credit packs.{" "}
                 {freeConversionsStatus ? <strong>{freeConversionsStatus} </strong> : null}
                 <Link href="#converter-pricing-heading">See pricing</Link>
               </p>
@@ -424,7 +424,7 @@ function CadDropDown({
           ) : (
             <p>
               <Info size={16} aria-hidden />
-              {pricingInfo ? getConverterFreePlanSummary(pricingInfo) : CONVERTER_HUB_PAGE.pricingNote}
+              {getConverterFreePlanSummary(pricingInfo)}
               {freeConversionsStatus ? <> <strong>{freeConversionsStatus}</strong></> : null}
             </p>
           )}

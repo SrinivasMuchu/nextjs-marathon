@@ -22,18 +22,13 @@ import {
   fetchConverterPricingInfo,
   getFreeConversionsStatusText,
   getConverterFreePlanSummary,
+  getConverterDownloadLabel,
 } from "@/lib/converterPricing";
-import { hasConverterCredits } from "@/lib/converterCredits";
 import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
 import CadComparisonPopup, { canViewComparison } from "./CadComparisonPopup";
 
-// Backend sets converter_pricing.is_free per the admin free plan (first N conversions or size limit), plus sample/paid files.
-function needsConverterCredit(converterPricing) {
-  if (!converterPricing) return false;
-  if (converterPricing.paid) return false;
-  return !converterPricing.is_free;
-}
-
+// Backend sets converter_pricing per the admin free plan: uses_free_slot = downloading uses a free slot,
+// free_granted = already unlocked free, paid = paid or credit used.
 function downloadButtonLabel({
   downloading,
   converterPricing,
@@ -41,9 +36,7 @@ function downloadButtonLabel({
   converterCredits,
 }) {
   if (downloading) return "Downloading...";
-  if (!needsConverterCredit(converterPricing)) return "Download";
-  if (hasConverterCredits(converterCredits)) return "Download";
-  return "Download · 1 credit";
+  return getConverterDownloadLabel({ converterPricing, converterCredits });
 }
 
 function formatFileSize(bytes) {
@@ -447,7 +440,7 @@ function CadConvertorFiles({
             <p className={styles.converterPricingFootnote}>
               <span aria-hidden>ℹ️</span>
               {freePlanSummary} A paid download is{" "}
-              {pricingNoteTotal || "a small fee"} (or 1 credit). Quality report PDFs are
+              {pricingNoteTotal || "a small fee"} (or 1 credit). Re-downloading a file you already unlocked is free, and quality report PDFs are
               free.
               {freeConversionsStatus ? <> <strong>{freeConversionsStatus}</strong></> : null}
             </p>
