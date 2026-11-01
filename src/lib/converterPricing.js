@@ -84,7 +84,16 @@ export function getConverterFreePlanSummary(pricingInfo) {
   if (perUser === 0) {
     return "Converting is free. Each file costs 1 credit, used only when you click Download.";
   }
-  return `Your first ${plural(perUser, "file download")} ${perUser === 1 ? "is" : "are"} free, any file size. From file ${perUser + 1} on, each download costs 1 credit or a one-time payment, charged only when you click Download.`;
+  return `Your first ${plural(perUser, "file download")} ${perUser === 1 ? "is" : "are"} free, any size up to 300 MB. From file ${perUser + 1} on, each download costs 1 credit or a one-time payment, charged only when you click Download.`;
+}
+
+/** Short hero badge for the active free plan, e.g. "First 2 downloads free". */
+export function getConverterFreePlanBadge(pricingInfo) {
+  if (pricingInfo?.conversion_free) return "All downloads free";
+  if (isSizeLimitPlan(pricingInfo)) return `Free under ${getFreeSizeLimitMb(pricingInfo)} MB`;
+  const perUser = getFreeConversionsPerUser(pricingInfo);
+  if (perUser === 0) return "Pay per download";
+  return perUser === 1 ? "First download free" : `First ${perUser} downloads free`;
 }
 
 /**
@@ -125,7 +134,7 @@ export function getFreeConversionUseText(pricingInfo) {
 
 /**
  * One short line for small pricing boxes: a bold `lead` with the user's status and a short `rest`.
- * e.g. { lead: "2 of 2 free downloads left", rest: "— any file size. Then $2.99 or 1 credit per file." }
+ * e.g. { lead: "2 of 2 free downloads left", rest: "— any size up to 300 MB. Then $2.99 or 1 credit per file." }
  */
 export function getConverterFreePlanShortNote(pricingInfo, priceLabel = "") {
   const paid = priceLabel ? `${priceLabel} or 1 credit` : "1 credit";
@@ -148,14 +157,14 @@ export function getConverterFreePlanShortNote(pricingInfo, priceLabel = "") {
   if (!known) {
     return {
       lead: `First ${plural(perUser, "download")} free`,
-      rest: `— any file size. Then ${paid} per file.`,
+      rest: `— any size up to 300 MB. Then ${paid} per file.`,
     };
   }
   const remaining = getFreeConversionsRemaining(pricingInfo);
   if (remaining > 0) {
     return {
       lead: `${remaining} of ${perUser} free downloads left`,
-      rest: `— any file size. Then ${paid} per file.`,
+      rest: `— any size up to 300 MB. Then ${paid} per file.`,
     };
   }
   return {
@@ -176,13 +185,13 @@ export function getConverterFreePlanHeading(pricingInfo) {
 
 /** Subtitle for the credit-plans popup. */
 export function getCreditPlansSubtitle(pricingInfo) {
-  const tail = "buy credits — 1 credit downloads any file, any size, and credits never expire. A credit is used only when you click Download.";
+  const tail = "buy credits — 1 credit downloads any file up to 300 MB, and credits never expire. A credit is used only when you click Download.";
   if (isSizeLimitPlan(pricingInfo)) {
     return `Files under ${getFreeSizeLimitMb(pricingInfo)} MB are always free. For everything else, ${tail}`;
   }
   const perUser = getFreeConversionsPerUser(pricingInfo);
   if (perUser === 0) return `To download, ${tail}`;
-  return `Your first ${plural(perUser, "file download")} ${perUser === 1 ? "is" : "are"} free (any size) and are used before your credits. After that, ${tail}`;
+  return `Your first ${plural(perUser, "file download")} ${perUser === 1 ? "is" : "are"} free (any size up to 300 MB) and are used before your credits. After that, ${tail}`;
 }
 
 /** Message shown for a conversion that will need payment under the active plan. */

@@ -190,7 +190,7 @@ const FORMAT_GLANCE = [
   ['Input', '.step and .stp files (STEP AP203, AP214, AP242)'],
   ['Output', '.stl, binary or ASCII, as one file or one per body (ZIP)'],
   ['Maximum upload', '300 MB'],
-  ['Price', 'First 2 downloads free, any size. Then $2.99 each, or from $1.80 with credit packs'],
+  ['Price', 'First 2 downloads free, any size up to 300 MB. Then $2.99 each, or from $1.80 with credit packs'],
   ['Default settings', 'Standard mesh quality (0.03 mm, 10°), millimetres, binary'],
   ['Works on', 'Any modern browser on Windows, macOS, Linux, iPad and Android'],
   ['File retention', 'Deleted automatically within 7 days, never published'],

@@ -466,7 +466,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the STL to IGES converter free?',
-        answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum STL file size?',
@@ -700,7 +700,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the STL to BREP converter free?',
-        answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum STL file size?',
@@ -928,7 +928,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the STEP to IGES converter free?',
-        answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum STEP file size?',
@@ -1154,7 +1154,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the OBJ to STEP converter free?',
-        answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum OBJ file size?',
@@ -1386,7 +1386,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the OBJ to IGES converter free?',
-        answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum OBJ file size?',
@@ -1413,7 +1413,7 @@ export const UNIQUE_PAIR_PAGES = {
     h1: 'Convert STEP to STL online',
     heroIntro:
       'Upload a .step or .stp CAD model and download a print-ready STL mesh. Choose the mesh quality, output units and how assemblies are split, then open the file in PrusaSlicer, Bambu Studio, Cura or any other slicer. Nothing to install.',
-    badges: ['First 2 downloads free', '.step and .stp to .stl', 'Any file size'],
+    badges: ['First 2 downloads free', '.step and .stp to .stl', 'Any size up to 300 MB'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Opens in any slicer', 'Deleted automatically within 7 days'],
     uploadHeading: 'Upload your STEP file',
     uploadHelper: 'Accepts .step and .stp. Output is .stl.',
@@ -1864,7 +1864,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the DXF to DWG converter free?',
-        answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum DXF file size?',
@@ -2098,7 +2098,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the 3DM to STEP converter free?',
-        answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum 3DM file size?',
@@ -2333,7 +2333,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the IGES to STEP converter free?',
-        answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum IGES file size?',

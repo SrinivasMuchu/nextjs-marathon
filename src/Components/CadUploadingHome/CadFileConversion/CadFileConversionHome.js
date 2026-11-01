@@ -16,7 +16,8 @@ import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd'
 import { getConverterFaqQuestions } from '@/data/cadToolFaqs'
-import { CONVERTER_HUB_PAGE } from '@/data/converterHubPage'
+import { CONVERTER_HUB_PAGE, getConverterHubFaqs } from '@/data/converterHubPage'
+import { getConverterPricingForRender } from '@/lib/converterPricingServer'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 
 // Page heading structure: 1 h1 (CadFileConversionHeader); h2 (Pricing, HowItWorks, CadConverterTypes, ConverterFaq); rest h3.
@@ -27,16 +28,17 @@ const converterTrustItems = [
     { title: 'You retain ownership', description: 'Your CAD files and intellectual property remain yours.' },
 ];
 
-function CadFileConversionHome({
+async function CadFileConversionHome({
     convert,
     conversionParams,
     skipPageJsonLd = false,
     skipBreadcrumbSchema = false,
     converterDirectoryParams = {},
 }) {
+    const { pricingInfo } = await getConverterPricingForRender();
     const faqQuestions = convert && conversionParams
         ? getConverterFaqQuestions(conversionParams)
-        : CONVERTER_HUB_PAGE.faqs;
+        : getConverterHubFaqs(pricingInfo);
     const faqDescription = convert && conversionParams
         ? `Find answers about converting files with Marathon OS ${conversionParams.replace(/-/g, ' ')} converter.`
         : CONVERTER_HUB_PAGE.faqIntro;

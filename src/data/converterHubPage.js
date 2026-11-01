@@ -1,3 +1,7 @@
+import { getConverterFreePlanBadge, getConverterFreePlanSummary } from '@/lib/converterPricing'
+
+// Offer text (free count, size limit) is an admin setting: never hard-code it below.
+// Use getConverterHubBadges / getConverterHubFaqs with server pricing-info instead.
 export const CONVERTER_HUB_PAGE = {
   meta: {
     title: 'Free Online CAD File Converter | STEP, STL, IGES, OBJ, 3DM | Marathon OS',
@@ -5,7 +9,8 @@ export const CONVERTER_HUB_PAGE = {
       'Convert CAD and 3D files online between STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF. Secure browser-based conversion with 300 MB uploads and auto-delete in 7 days.',
   },
   h1: 'Free online 3D CAD file converter',
-  badges: ['First 2 downloads free', '10 supported formats', 'No software installation'],
+  // badges[0] (the free-plan offer) is filled in by getConverterHubBadges.
+  badges: [null, '10 supported formats', 'No software installation'],
   intro:
     'Convert CAD solids, surface models, polygon meshes and 2D drawings between 10 common engineering formats. Choose the file you have and the format required by your CAD, CAM, 3D-printing, visualization or supplier workflow.',
   expectationNote:
@@ -17,7 +22,6 @@ export const CONVERTER_HUB_PAGE = {
   samplePrompt: 'No file available? Choose a sample that matches the workflow you want to test.',
   outputPlaceholder: 'Choose a compatible format',
   convertBeforeSelection: 'Choose an output format',
-  pricingNote: 'Your first 2 file downloads are free, any file size. From file 3 on, each download costs 1 credit or a one-time payment, charged only when you click Download.',
   sampleUseCases: {
     step: 'CAD exchange',
     stl: '3D printing',
@@ -110,7 +114,8 @@ export const CONVERTER_HUB_PAGE = {
     },
     {
       question: 'Is the online CAD converter free?',
-      answer: 'Your first 2 file downloads are free, whatever the file size. After that, each file uses one credit, charged only when you click Download.',
+      // Filled in by getConverterHubFaqs from the admin free plan.
+      pricing: true,
     },
     {
       question: 'What is the maximum file size?',
@@ -143,6 +148,16 @@ export const CONVERTER_HUB_PAGE = {
   designerSecondary: 'Start a conversion',
   designHubHeading: 'Find an existing model before starting from scratch',
   designHubIntro: 'Search the Marathon OS library for a usable starting point. Review dimensions, licensing and production suitability before using a downloaded file.',
+}
+
+export function getConverterHubBadges(pricingInfo) {
+  return [getConverterFreePlanBadge(pricingInfo), ...CONVERTER_HUB_PAGE.badges.slice(1)]
+}
+
+export function getConverterHubFaqs(pricingInfo) {
+  return CONVERTER_HUB_PAGE.faqs.map(({ pricing, ...faq }) =>
+    pricing ? { ...faq, answer: getConverterFreePlanSummary(pricingInfo) } : faq,
+  )
 }
 
 export const CONVERTER_FILTER_EVENT = 'marathon-converter-filter'

@@ -5,9 +5,12 @@ import CadFileConversionContent from './CadFileConversionContent'
 import ConvertPageHeroHeading from './ConvertPageHeroHeading'
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 import { Zap, Shield, Clock, HardDrive, Box, MonitorOff } from 'lucide-react'
-import { CONVERTER_HUB_PAGE } from '@/data/converterHubPage'
+import { CONVERTER_HUB_PAGE, getConverterHubBadges } from '@/data/converterHubPage'
+import { getConverterPricingForRender } from '@/lib/converterPricingServer'
 
-function CadFileConversionHeader({ convert, conversionParams }) {
+async function CadFileConversionHeader({ convert, conversionParams }) {
+  const { pricingInfo } = await getConverterPricingForRender()
+  const badges = getConverterHubBadges(pricingInfo)
   return (
     <div className={`${heroStyles.heroPage} ${heroStyles.converterHeroPage}`}>
       <div className={cadHomeStyles['cad-ad-bar']}>
@@ -20,15 +23,15 @@ function CadFileConversionHeader({ convert, conversionParams }) {
           <div className={heroStyles.converterBadgeRow}>
             <div className={`${heroStyles.badge} ${heroStyles.converterBadgePrimary}`}>
               <Zap size={14} strokeWidth={2.2} aria-hidden />
-              <span>{CONVERTER_HUB_PAGE.badges[0]}</span>
+              <span>{badges[0]}</span>
             </div>
             <div className={heroStyles.converterMiniBadge}>
               <Box size={13} aria-hidden />
-              <span>{CONVERTER_HUB_PAGE.badges[1]}</span>
+              <span>{badges[1]}</span>
             </div>
             <div className={heroStyles.converterMiniBadge}>
               <MonitorOff size={13} aria-hidden />
-              <span>{CONVERTER_HUB_PAGE.badges[2]}</span>
+              <span>{badges[2]}</span>
             </div>
           </div>
           {convert ? (
