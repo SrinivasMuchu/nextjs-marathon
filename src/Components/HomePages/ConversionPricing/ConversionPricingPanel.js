@@ -29,8 +29,9 @@ function ConversionPricingPanel({
         </p>
         <h2 className={styles.title}>Choose a credit pack.</h2>
         <p className={styles.lead}>
-          One credit downloads one standard format conversion, up to 300 MB. Credits never
-          expire.
+          Your first 2 file downloads are free, any size. After that, one credit downloads one
+          standard format conversion, up to 300 MB, and is used only when you click Download.
+          Credits never expire.
         </p>
       </header>
 

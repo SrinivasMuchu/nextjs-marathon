@@ -25,7 +25,7 @@ function ConversionFaq() {
     },
     {
       question: "How much does a standard CAD format conversion cost?",
-      answer: `A single standard conversion download costs ${formatPrice}. Credit packs reduce the per-download price further. One credit downloads one converted file of any supported size, and credits never expire.`,
+      answer: `Your first 2 file downloads are free, whatever the file size. After that, a single standard conversion download costs ${formatPrice}. Credit packs reduce the per-download price further. One credit downloads one converted file of any supported size, and credits never expire.`,
     },
     {
       question: "How much does STEP or STP to 2D conversion cost?",

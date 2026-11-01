@@ -25,6 +25,7 @@ import {
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
   buildConverterPricingDisplay,
+  getCreditPlansSubtitle,
 } from '@/lib/converterPricing';
 
 let cachedCadHistory = {};
@@ -37,6 +38,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   const [downloading, setDownloading] = useState({});
   const [downloadingReport, setDownloadingReport] = useState({});
   const [cadConverterFileHistory, setConverterFileHistory] = useState([]);
+  // Bumped after a free-plan download uses a slot, so other files' Free / 1-credit labels refresh.
+  const [converterHistoryRefresh, setConverterHistoryRefresh] = useState(0);
   const [userCadFiles, setUserCadFiles] = useState([]);
   const [userDownloadFiles, setUserDownloadFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +53,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   const [converterBillingDetails, setConverterBillingDetails] = useState(null);
   const [showCreditPlans, setShowCreditPlans] = useState(false);
   const [creditPacks, setCreditPacks] = useState([]);
+  const [freePlanInfo, setFreePlanInfo] = useState(null);
   const [singlePriceLabel, setSinglePriceLabel] = useState('');
   const [pendingPack, setPendingPack] = useState(null);
   // const [publishCadPopUp, setPublishCadPopUp] = useState(null);
@@ -78,6 +82,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         if (cancelled) return;
         setCreditPacks(getConverterPacksFromInfo(info));
         setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
+        setFreePlanInfo(info);
         if (info?.credits != null) {
           setUser((prev) => ({ ...prev, converter_credits: Number(info.credits) || 0 }));
         }
@@ -212,7 +217,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     return () => {
       isMounted = false;
     };
-  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter, creatorId,cadDetailsUpdate]); // Add selectedFilter to dependencies
+  }, [cad_type, currentPage, debouncedSearchTerm, selectedFilter, creatorId,cadDetailsUpdate, converterHistoryRefresh]); // Add selectedFilter to dependencies
 
   // Reset to page 1 when filter changes
   useEffect(() => {
@@ -418,10 +423,24 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           setUser((prev) => ({ ...prev, converter_credits: Number(redeemed.credits) || 0 }));
         }
         await performConverterFileDownload(file, index);
+        if (redeemed?.consumed !== false) {
+          toast.info(`1 credit used for this file. ${Number(redeemed?.credits) || 0} credits left. Re-downloading it is free.`);
+        }
+        setConverterHistoryRefresh((n) => n + 1);
         return;
       }
       if (access.can_download) {
         await performConverterFileDownload(file, index);
+        // First download of a file under the free plan: the backend just used one free slot.
+        if (access.reason === 'free_quota' && file.converter_pricing?.uses_free_slot) {
+          const left = Math.max((Number(file.converter_pricing.free_slots_remaining) || 1) - 1, 0);
+          toast.info(
+            left > 0
+              ? `Free download used. You have ${left} free download${left === 1 ? '' : 's'} left.`
+              : "Free download used. That was your last one — new files will cost 1 credit or a one-time payment.",
+          );
+          setConverterHistoryRefresh((n) => n + 1);
+        }
         return;
       }
 
@@ -588,7 +607,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           packs={creditPacks}
           singlePriceLabel={singlePriceLabel}
           title="Pay as you go, cheaper by the pack"
-          subtitle="Files under 5 MB are always free. For everything else, buy credits — 1 credit downloads any file, any size, and credits never expire."
+          subtitle={getCreditPlansSubtitle(freePlanInfo)}
           onClose={closeCreditPlans}
           onSelectPack={handleSelectPack}
           onSelectSingle={openBillingFromPlans}

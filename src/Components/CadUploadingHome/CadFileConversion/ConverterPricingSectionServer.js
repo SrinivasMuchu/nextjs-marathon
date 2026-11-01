@@ -54,6 +54,7 @@ async function ConverterPricingSectionServer({ layout = 'default' }) {
         initialPacks={pricing.packs}
         initialSinglePriceLabel={pricing.singlePriceLabel}
         pricingNote={pricing.pricingNote}
+        pricingHeading={pricing.pricingHeading}
         layout={layout}
       />
     </>

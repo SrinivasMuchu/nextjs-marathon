@@ -1,18 +1,42 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { IMAGEURLS, toCadOutputCdnUrl } from "@/config";
 import Image from "next/image";
 import Loading from "../CommonJsx/Loaders/Loading";
 import Link from "next/link";
 import { Box, Download, Eye, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  buildConverterPricingDisplay,
+  fetchConverterPricingInfo,
+  getConverterFreePlanShortNote,
+  getConverterDownloadLabel,
+} from "@/lib/converterPricing";
 import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
 import CadComparisonPopup, { canViewComparison } from "./CadComparisonPopup";
 import styles from "./ConverterList.module.css";
 
-function downloadButtonLabel({ downloading, outputFmt }) {
+// Backend sets converter_pricing per the admin free plan: uses_free_slot = downloading uses a free slot,
+// free_granted = already unlocked free, paid = paid or credit used.
+function downloadButtonLabel({ downloading, outputFmt, converterPricing, converterCredits }) {
   if (downloading) return "Downloading...";
-  return `Download ${outputFmt}`;
+  return getConverterDownloadLabel({
+    converterPricing,
+    converterCredits,
+    downloadText: `Download ${outputFmt}`,
+  });
+}
+
+// "Download STEP · uses 1 credit" is too wide for the fixed-width button: put the cost on a second line.
+function DownloadLabel({ text }) {
+  const [main, ...rest] = String(text).split(" · ");
+  if (!rest.length) return main;
+  return (
+    <span className={styles.downloadText}>
+      <span>{main}</span>
+      <small>{rest.join(" · ")}</small>
+    </span>
+  );
 }
 
 function formatFileSize(bytes) {
@@ -149,6 +173,25 @@ function CadConvertorFiles({
   const router = useRouter();
   const [comparisonFile, setComparisonFile] = useState(null);
   const [comparisonIndex, setComparisonIndex] = useState(null);
+  const [shortNote, setShortNote] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const info = await fetchConverterPricingInfo();
+        if (cancelled) return;
+        setShortNote(
+          getConverterFreePlanShortNote(info, buildConverterPricingDisplay(info?.pricing).totalLabel),
+        );
+      } catch {
+        if (!cancelled) setShortNote(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const files = useMemo(
     () => (Array.isArray(cadConverterFileHistory) ? cadConverterFileHistory : []),
@@ -290,12 +333,18 @@ function CadConvertorFiles({
                     disabled={completed ? Boolean(downloading[index]) : !file._id}
                   >
                     <Download size={16} />
-                    {completed
-                      ? downloadButtonLabel({
+                    {completed ? (
+                      <DownloadLabel
+                        text={downloadButtonLabel({
                           downloading: downloading[index],
                           outputFmt,
-                        })
-                      : "View status"}
+                          converterPricing: file.converter_pricing,
+                          converterCredits,
+                        })}
+                      />
+                    ) : (
+                      "View status"
+                    )}
                   </button>
                   <button
                     type="button"
@@ -330,6 +379,13 @@ function CadConvertorFiles({
             Looking for ready-made CAD designs? Explore downloads →
           </Link>
         </div>
+      ) : null}
+
+      {!loading && visible.length > 0 ? (
+        <p className={styles.pricingNote}>
+          {shortNote ? <><strong>{shortNote.lead}</strong> {shortNote.rest} </> : null}
+          Re-downloads and quality reports are free.
+        </p>
       ) : null}
 
       <div className={styles.banner}>
