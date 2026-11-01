@@ -243,8 +243,10 @@ export async function fetchConverterPricingInfo() {
 
 /** Prefer GST-inclusive single download label from pricing-info payload. */
 export function getSinglePriceLabelFromInfo(info) {
-  const fromPricing = buildConverterPricingDisplay(info?.pricing).totalLabel;
-  if (fromPricing) return fromPricing;
+  // buildConverterPricingDisplay defaults a missing price to 0, so only trust a real one;
+  // otherwise server HTML (rendered before pricing loads) says "$0.00".
+  const display = buildConverterPricingDisplay(info?.pricing);
+  if (info?.pricing && display.total > 0) return display.totalLabel;
   return info?.single_price_label || "";
 }
 
