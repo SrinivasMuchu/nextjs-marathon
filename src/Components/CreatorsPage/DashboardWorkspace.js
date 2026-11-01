@@ -227,17 +227,13 @@ function DashboardWorkspace() {
     }
   };
 
-  const handleDownload = async () => {
+  // Called as an onClick handler too, so only an explicit { emailReady: true } skips the email step.
+  const handleDownload = async (options) => {
     if (!latest?._id) return;
-    if (!localStorage.getItem("is_verified")) {
+    const emailReady = options?.emailReady === true;
+    if (!emailReady && (!localStorage.getItem("is_verified") || !user?.email)) {
+      // Take the email first; the login popup's onSuccess resumes this download.
       setNeedsLogin(true);
-      return;
-    }
-    if (!user?.email) {
-      // Without this the click looks dead: we're already on /dashboard, so only the tab below changes.
-      toast.info("Add your email in your profile to download converted files.");
-      router.push("/dashboard?cad_type=USER_PROFILE", { scroll: false });
-      document.getElementById("dashboard-menu-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
     if (!completed) {
@@ -393,7 +389,16 @@ function DashboardWorkspace() {
         </section>
       </div>
 
-      {needsLogin ? <UserLoginPupUp onClose={() => setNeedsLogin(false)} type="dashboard" /> : null}
+      {needsLogin ? (
+        <UserLoginPupUp
+          type="dashboard"
+          onClose={() => setNeedsLogin(false)}
+          onSuccess={() => {
+            setNeedsLogin(false);
+            handleDownload({ emailReady: true });
+          }}
+        />
+      ) : null}
       {showCreditPlans ? (
         <ConverterCreditPlansPopup
           packs={packs}
