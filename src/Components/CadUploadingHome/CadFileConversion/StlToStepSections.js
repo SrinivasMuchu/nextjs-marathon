@@ -73,7 +73,7 @@ const GLANCE = [
   ['Input', 'Binary and ASCII .stl files'],
   ['Output', '.step (AP214 by default, AP242 or AP203 on request)'],
   ['Maximum upload', '300 MB'],
-  ['Price', 'First 2 downloads free, any size. Then $2.99 each, or from $1.80 with credit packs'],
+  ['Price', 'First 2 downloads free, any size up to 300 MB. Then $2.99 each, or from $1.80 with credit packs'],
   ['Default settings', 'Millimetres, mesh repair on, flat faces merged, all triangles kept'],
   ['Works on', 'Any modern browser on Windows, macOS, Linux, iPad and Android'],
   ['File retention', 'Deleted automatically within 7 days, never published'],

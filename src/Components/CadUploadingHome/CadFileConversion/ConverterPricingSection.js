@@ -91,7 +91,7 @@ function ConverterPricingSection({
               {pricingHeading}
             </h2>
             <p className={styles.stepLead}>
-              After your free downloads, each file costs one credit, whatever the file size, used only when you click Download. No subscription, credits never expire, and every purchase comes with an invoice.
+              After your free downloads, each file costs one credit, any size up to 300 MB, used only when you click Download. No subscription, credits never expire, and every purchase comes with an invoice.
             </p>
             <div className={styles.stepGrid}>
               {singlePriceLabel ? (
@@ -142,7 +142,7 @@ function ConverterPricingSection({
           </h2>
           <p className={styles.description}>
             {pricingNote}{' '}
-            <strong>1 credit downloads any file, any size, and credits never expire.</strong>
+            <strong>1 credit downloads any file up to 300 MB, and credits never expire.</strong>
           </p>
         </header>
 

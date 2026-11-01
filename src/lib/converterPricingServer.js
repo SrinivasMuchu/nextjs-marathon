@@ -88,6 +88,6 @@ async function loadConverterPricingForRender() {
 
 export const getConverterPricingForRender = unstable_cache(
   loadConverterPricingForRender,
-  ['converter-pricing-for-render-v2'],
+  ['converter-pricing-for-render-v3'],
   { revalidate: 300 },
 )

@@ -46,7 +46,7 @@ function IndustryHowItWorksSection({ industryName }) {
         </h2>
         <p className={styles.subtitle}>
           View any <span className={styles.industryAccent}>{industryLower}</span> CAD file in three
-          simple steps — no signup, no software.
+          simple steps — no software to install.
         </p>
 
         <div className={styles.cardRow}>
