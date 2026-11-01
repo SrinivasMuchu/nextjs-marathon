@@ -44,7 +44,7 @@ async function getPushSubscription() {
     }
 }
 
-function UserLoginPupUp({ onClose, type }) {
+function UserLoginPupUp({ onClose, type, onSuccess }) {
     const { user, setUser, setUpdatedDetails } = useContext(contextState);
     console.log('Google Client ID:', user.email);
     const route = useRouter();
@@ -188,6 +188,13 @@ function UserLoginPupUp({ onClose, type }) {
 
                 handleRegisterNotifications(googleEmail);
 
+                // Caller resumes its own action (e.g. a download) instead of the reload/redirect below.
+                if (onSuccess) {
+                    setUpdatedDetails(user)
+                    onSuccess(googleEmail)
+                    return
+                }
+
                 if (type === "comments") {
                     setUpdatedDetails(user)
                     onClose()
@@ -311,6 +318,12 @@ function UserLoginPupUp({ onClose, type }) {
 
             // Register for push notifications after login
             await handleRegisterNotifications(email);
+
+            if (onSuccess) {
+                setUpdatedDetails(user)
+                onSuccess(email)
+                return
+            }
 
             if (type === "comments") {
                 setUpdatedDetails(user)
