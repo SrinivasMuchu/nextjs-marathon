@@ -18,6 +18,7 @@ import {
 } from "./ConverterPricingDisplay";
 import { CONVERTER_HUB_PAGE } from "@/data/converterHubPage";
 import { getUniquePairPage } from "@/data/converterPairUniquePages";
+import { useConverterPricingSeed } from "./ConverterPricingSeed";
 
 const FORMAT_ALIASES = {
   stp: "step",
@@ -71,7 +72,8 @@ function CadDropDown({
   setDisableSelect,
   designVariant,
 }) {
-  const [pricingInfo, setPricingInfo] = React.useState(null);
+  const pricingSeed = useConverterPricingSeed();
+  const [pricingInfo, setPricingInfo] = React.useState(pricingSeed);
   const pairDefaultAppliedRef = useRef(false);
 
   const formatFileSize = useCallback((bytes) => {
@@ -87,7 +89,7 @@ function CadDropDown({
       const info = await fetchConverterPricingInfo();
       setPricingInfo(info);
     } catch {
-      setPricingInfo(null);
+      // Keep the server seed so the real price stays on screen.
     }
   }, []);
 

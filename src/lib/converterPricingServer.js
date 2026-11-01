@@ -15,8 +15,15 @@ const PRICING_HEADING = getConverterFreePlanHeading(null)
 /** Anonymous catalog UUID so public pricing-info can render in HTML without a browser session. */
 const CONVERTER_CATALOG_UUID = 'cafec0de-0000-4000-8000-00000cad0001'
 
+/** pricing-info without the catalog visitor's own counts, safe to seed every visitor's first paint. */
+function publicPricingInfo(info) {
+  if (!info) return null
+  return { ...info, credits: null, free_conversions_remaining: null }
+}
+
 function emptyPricing() {
   return {
+    pricingInfo: null,
     packs: [],
     singlePriceLabel: '',
     singlePrice: 0,
@@ -59,6 +66,7 @@ async function loadConverterPricingForRender() {
     const pricingNote = getConverterFreePlanSummary(info)
 
     return {
+      pricingInfo: publicPricingInfo(info),
       packs,
       singlePriceLabel,
       singlePrice,
@@ -80,6 +88,6 @@ async function loadConverterPricingForRender() {
 
 export const getConverterPricingForRender = unstable_cache(
   loadConverterPricingForRender,
-  ['converter-pricing-for-render'],
+  ['converter-pricing-for-render-v2'],
   { revalidate: 300 },
 )

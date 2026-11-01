@@ -6,6 +6,8 @@ import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 import FloatingButton from "@/Components/CommonJsx/FloatingButton";
 import HomeTopNav from "@/Components/HomePages/HomepageTopNav/HomeTopNav";
+import { ConverterPricingSeedProvider } from "@/Components/CadUploadingHome/CadFileConversion/ConverterPricingSeed";
+import { getConverterPricingForRender } from "@/lib/converterPricingServer";
 import AnnouncementBanner from "@/Components/HomePages/AnnouncementBanner/AnnouncementBanner";
 import { CadFormProvider } from "@/Components/CadServicePages/CadFormContext";
 import { ASSET_PREFIX_URL, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
@@ -90,7 +92,9 @@ const websiteJsonLd = {
   inLanguage: "en-US",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  // Cached 5 min; lets converter widgets render real prices in the server HTML.
+  const { pricingInfo } = await getConverterPricingForRender();
 
   return (
     <html lang="en" > 
@@ -266,7 +270,9 @@ export default function RootLayout({ children }) {
               <AnnouncementBanner />
               <HomeTopNav />
             </div>
-            <main role="main">{children}</main>
+            <main role="main">
+              <ConverterPricingSeedProvider pricingInfo={pricingInfo}>{children}</ConverterPricingSeedProvider>
+            </main>
             <FloatingButton />
           </CadFormProvider>
         </ContextWrapper>

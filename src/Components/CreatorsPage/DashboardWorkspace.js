@@ -17,6 +17,7 @@ import UserLoginPupUp from "../CommonJsx/UserLoginPupUp";
 import {
   fetchConverterPricingInfo,
   getConverterPacksFromInfo,
+  getCreditPlansSubtitle,
   getSinglePriceLabelFromInfo,
 } from "@/lib/converterPricing";
 import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
@@ -94,6 +95,7 @@ function DashboardWorkspace() {
   const [credits, setCredits] = useState(Number(user?.converter_credits) || 0);
   const [packs, setPacks] = useState([]);
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
+  const [freePlanInfo, setFreePlanInfo] = useState(null);
   const [latest, setLatest] = useState(null);
   const [loadingLatest, setLoadingLatest] = useState(true);
   const [downloading, setDownloading] = useState(false);
@@ -116,6 +118,7 @@ function DashboardWorkspace() {
         if (cancelled) return;
         setPacks(getConverterPacksFromInfo(info));
         setSinglePriceLabel(getSinglePriceLabelFromInfo(info));
+        setFreePlanInfo(info);
         if (info?.credits != null) {
           const next = Number(info.credits) || 0;
           setCredits(next);
@@ -404,7 +407,7 @@ function DashboardWorkspace() {
           packs={packs}
           singlePriceLabel={singlePriceLabel}
           title="Pay as you go, cheaper by the pack"
-          subtitle="Files under 5 MB are always free. For everything else, buy credits — 1 credit downloads any file, any size, and credits never expire."
+          subtitle={getCreditPlansSubtitle(freePlanInfo)}
           onClose={() => setShowCreditPlans(false)}
           onSelectPack={(pack) => {
             setShowCreditPlans(false);
