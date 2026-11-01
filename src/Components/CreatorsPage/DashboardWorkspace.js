@@ -234,7 +234,10 @@ function DashboardWorkspace() {
       return;
     }
     if (!user?.email) {
-      router.push("/dashboard?cad_type=USER_PROFILE");
+      // Without this the click looks dead: we're already on /dashboard, so only the tab below changes.
+      toast.info("Add your email in your profile to download converted files.");
+      router.push("/dashboard?cad_type=USER_PROFILE", { scroll: false });
+      document.getElementById("dashboard-menu-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
     if (!completed) {

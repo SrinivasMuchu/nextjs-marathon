@@ -27,6 +27,18 @@ function downloadButtonLabel({ downloading, outputFmt, converterPricing, convert
   });
 }
 
+// "Download STEP · uses 1 credit" is too wide for the fixed-width button: put the cost on a second line.
+function DownloadLabel({ text }) {
+  const [main, ...rest] = String(text).split(" · ");
+  if (!rest.length) return main;
+  return (
+    <span className={styles.downloadText}>
+      <span>{main}</span>
+      <small>{rest.join(" · ")}</small>
+    </span>
+  );
+}
+
 function formatFileSize(bytes) {
   const size = Number(bytes);
   if (!Number.isFinite(size) || size <= 0) return "";
@@ -321,14 +333,18 @@ function CadConvertorFiles({
                     disabled={completed ? Boolean(downloading[index]) : !file._id}
                   >
                     <Download size={16} />
-                    {completed
-                      ? downloadButtonLabel({
+                    {completed ? (
+                      <DownloadLabel
+                        text={downloadButtonLabel({
                           downloading: downloading[index],
                           outputFmt,
                           converterPricing: file.converter_pricing,
                           converterCredits,
-                        })
-                      : "View status"}
+                        })}
+                      />
+                    ) : (
+                      "View status"
+                    )}
                   </button>
                   <button
                     type="button"
