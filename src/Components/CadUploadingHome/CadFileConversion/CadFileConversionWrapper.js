@@ -11,7 +11,7 @@ import axios from 'axios'
 import { BASE_URL, CAD_INPUT_FILES_BUCKET } from '@/config';
 import { usePathname } from "next/navigation";
 import { useContext } from 'react';
-import CadUploadDropDown from './CadUploadDropDown'
+import CadUploadDropDown, { needsSourceUnits } from './CadUploadDropDown'
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import { useParams } from 'next/navigation';
 import CadFileNotifyPopUp from "@/Components/CommonJsx/CadFileNotifyPopUp";
@@ -95,6 +95,8 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     const [closeNotifyInfoPopUp, setCloseNotifyInfoPopUp] = useState(false);
   const router = useRouter();
     const [fromFormate, setFromFormate] = useState(initialPair.from)
+    // Units of a mesh upload (STL/OBJ/PLY/OFF) going to STEP/IGES/BREP.
+    const [sourceUnits, setSourceUnits] = useState('mm')
     const librarySourceLoadedRef = useRef('');
 
     // Clarity: tag sessions that land on the converter
@@ -535,6 +537,9 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                     file_name: fileConvert.name,
                     input_file_size_bytes: fileConvert.size,
                     uuid: localStorage.getItem('uuid'),
+                    ...(needsSourceUnits(fileConvert.name.split('.').pop(), selectedFileFormate)
+                        ? { source_units: sourceUnits }
+                        : {}),
                 }, {
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"), // Moved UUID to headers for security
@@ -754,7 +759,8 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                         setSelectedFileFormate={setSelectedFileFormate} CadFileConversion={CadFileConversion} to={toFormate}
                         from={fromFormate}
                         folderId={folderId} baseName={baseName} s3Url={s3Url} isSampleFile={isSampleFile}
-                        uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed} />
+                        uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed}
+                        sourceUnits={sourceUnits} setSourceUnits={setSourceUnits} />
                     : null}
                 {isModernHero && uploading && fileConvert ? (
                     <div className={heroStyles.converterSelectedFile}>
@@ -835,6 +841,8 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                         setUploadingMessage={setUploadingMessage}
                         handleFileConvert={checkingCadFileUploadLimitExceed}
                         designVariant={designVariant}
+                        sourceUnits={sourceUnits}
+                        setSourceUnits={setSourceUnits}
                     />
                 ) : null}
 
