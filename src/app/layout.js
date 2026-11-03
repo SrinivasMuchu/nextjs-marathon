@@ -49,36 +49,33 @@ const organizationJsonLd = {
 
 const jsonLdData = {
   "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
+  "@type": "WebApplication",
   "name": "Marathon OS",
-  "url": "https://marathon-os.com",
-  "image": `${ASSET_PREFIX_URL}logo-1.png`,
-  "description": "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
-  "applicationCategory": "BusinessApplication",
-  "applicationSubCategory": "Product Lifecycle Management Software",
-  "operatingSystem": "Web-based",
-  "softwareVersion": "1.0.0",
-  "offers": {
-    "@type": "Offer",
-    "price": "1500.00",
-    "priceCurrency": "INR",
-    "category": "Subscription",
-    "url": "https://marathon-os.com/#pricing"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Marathon OS",
-    "url": "https://marathon-os.com",
-    "logo": `${ASSET_PREFIX_URL}logo-1.png`
-  },
-  "author": {
-    "@type": "Organization",
-    "name": "Marathon OS",
-    "url": "https://marathon-os.com"
-  },
-  "sameAs": [
-    "https://www.linkedin.com/company/marathon-os"
-  ]
+  "url": `${BASE_URL}/`,
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any (web browser)",
+  "description": "Online CAD tools to convert STEP, STL, IGES, OBJ, 3DM, BREP, PLY, OFF, DXF and DWG files, view CAD models in 3D, extract a BOM and turn STEP models into 2D drawings.",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "First 2 file conversions",
+      "price": "0",
+      "priceCurrency": "USD",
+    },
+    {
+      "@type": "Offer",
+      "name": "Single conversion download",
+      "price": "2.99",
+      "priceCurrency": "USD",
+    },
+    {
+      "@type": "Offer",
+      "name": "STEP to 2D drawing set",
+      "price": "5.99",
+      "priceCurrency": "USD",
+    },
+  ],
+  "publisher": { "@id": `${BASE_URL}/#organization` },
 };
 
 const websiteJsonLd = {

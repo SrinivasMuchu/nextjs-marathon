@@ -24,7 +24,7 @@ import {
 import { fetchTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
 
 const SITE = "https://marathon-os.com";
-const CANONICAL = "/tools/cad-drawing-pipeline";
+const CANONICAL = "/tools/convert-step-to-2d-drawing";
 
 /** Always re-read admin techdraw_upload_price — do not bake price into static HTML. */
 export const dynamic = "force-dynamic";
@@ -47,7 +47,7 @@ export default async function CadDrawingPipelinePage() {
   return (
     <>
       <ToolPageJsonLd
-        name="3D CAD to 2D Technical Drawing Generator"
+        name={PIPELINE_PAGE_TITLE}
         url={`${SITE}${CANONICAL}`}
         description={PIPELINE_PAGE_DESCRIPTION}
         price={priceAmount}

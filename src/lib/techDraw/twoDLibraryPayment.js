@@ -2,7 +2,8 @@ import {
   createTwoDLibraryOrder,
   verifyTwoDLibraryPayment,
 } from "@/api/twoDLibraryPaymentApi";
-import { MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
+import { paymentEventValue, sendClarityEvent, sendGAtagEvent } from "@/common.helper";
+import { CAD_2D_DRAWING_EVENT, MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
 import { loadRazorpayScript } from "@/Components/CadDrawingPipeline/techDrawPayment";
 
 /** Razorpay checkout for one 2D library drawing set (all-in pricing). */
@@ -47,6 +48,24 @@ export function openTwoDLibraryPayment({ cadFileId, billingId, description } = {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
+              });
+              const paidValue = paymentEventValue(order.price_with_gst ?? order.amount);
+              const paidCurrency = order.currency || "USD";
+              sendGAtagEvent({
+                event_name: "2d_library_download_payment_success",
+                event_category: CAD_2D_DRAWING_EVENT,
+                payment_type: "2d_library_download",
+                cad_file_id: cadFileId || "",
+                order_id: response.razorpay_order_id || "",
+                payment_id: response.razorpay_payment_id || "",
+                amount: order.amount != null ? String(order.amount) : "",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: paidValue } : {}),
+              });
+              sendClarityEvent("2d_library_download_payment_success", {
+                techdraw_funnel: "paid",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: String(paidValue) } : {}),
               });
               resolve({
                 razorpay_order_id: response.razorpay_order_id,

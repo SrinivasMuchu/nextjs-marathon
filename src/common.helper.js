@@ -63,6 +63,16 @@ export function sendClarityEvent(eventName, tags) {
   }
 }
 
+/**
+ * Charge in major currency units (for example dollars, not cents).
+ * GA4 only records revenue when this number is sent as `value`.
+ */
+export function paymentEventValue(amount) {
+  const n = Number(amount);
+  if (!Number.isFinite(n)) return null;
+  return Math.round(n * 100) / 100;
+}
+
 export function formatDate(dateString) {
   const date = new Date(dateString);
   const options = { day: 'numeric', month: 'short', year: 'numeric' };

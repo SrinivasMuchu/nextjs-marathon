@@ -2,7 +2,7 @@
  * Google Analytics events for the CAD TechDraw pipeline (upload, payment, progress).
  * Uses sendGAtagEvent from common.helper with event_category CAD_2D_DRAWING_EVENT.
  */
-import { sendGAtagEvent } from "@/common.helper";
+import { paymentEventValue, sendClarityEvent, sendGAtagEvent } from "@/common.helper";
 import { CAD_2D_DRAWING_EVENT } from "@/config";
 
 const CATEGORY = CAD_2D_DRAWING_EVENT;
@@ -105,11 +105,20 @@ export function trackTechDrawPaymentCheckoutOpened({ orderId }) {
 }
 
 /** Payment verified on server after Razorpay success. */
-export function trackTechDrawPaymentCompleted({ orderId, paymentId, jobId } = {}) {
+export function trackTechDrawPaymentCompleted({ orderId, paymentId, jobId, amount, currency } = {}) {
+  const value = paymentEventValue(amount);
+  const paidCurrency = currency || "USD";
   track("techdraw_payment_completed", {
     order_id: orderId || "",
     payment_id: paymentId || "",
     job_id: jobId || "",
+    currency: paidCurrency,
+    ...(value != null ? { value } : {}),
+  });
+  sendClarityEvent("techdraw_payment_completed", {
+    techdraw_funnel: "paid",
+    currency: paidCurrency,
+    ...(value != null ? { value: String(value) } : {}),
   });
 }
 

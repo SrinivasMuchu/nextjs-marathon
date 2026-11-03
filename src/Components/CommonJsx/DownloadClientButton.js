@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import styles from "../IndustryDesigns/IndustryDesign.module.css";
-import { sendGAtagEvent } from "@/common.helper";
+import { paymentEventValue, sendClarityEvent, sendGAtagEvent } from "@/common.helper";
 import React, { useContext, useMemo, useState } from "react";
 import { BASE_URL, CAD_VIEWER_EVENT, RAZORPAY_KEY_ID, MARATHONDETAILS } from "@/config";
 import Tooltip from "@mui/material/Tooltip";
@@ -233,6 +233,24 @@ function DownloadClientButton({
               reject(new Error("Payment verification failed."));
               return;
             }
+
+            const paidValue = paymentEventValue(res.data.data?.amount);
+            const paidCurrency = res.data.data?.currency || "USD";
+            sendGAtagEvent({
+              event_name: "design_purchase_success",
+              event_category: CAD_VIEWER_EVENT,
+              cad_file_id: folderId || "",
+              order_id: response.razorpay_order_id || "",
+              payment_id: response.razorpay_payment_id || "",
+              currency: paidCurrency,
+              ...(paidValue != null
+                ? { value: paidValue, amount: String(paidValue) }
+                : {}),
+            });
+            sendClarityEvent("design_purchase_success", {
+              currency: paidCurrency,
+              ...(paidValue != null ? { value: String(paidValue) } : {}),
+            });
 
             toast.success("Payment successful! Starting download...");
             await downloadMainFile();

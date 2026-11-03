@@ -5,13 +5,10 @@ import { buildPageMetadata } from "@/lib/seo/pageMetadata";
 const CANONICAL = "/tools/step-bom-extractor";
 
 export const metadata = buildPageMetadata({
-  title: "STEP BOM Extractor Online | Extract BOM from STEP Files | Marathon OS",
+  title: "STEP BOM Extractor – Bill of Materials from STEP & STP | Marathon OS",
   description:
-    "Upload a STEP or STP assembly to extract its parts list, quantities and assembly hierarchy. Review the BOM and product structure online with Marathon OS.",
+    "Extract a bill of materials from STEP and STP assemblies online. Get every part name and quantity, then download it as Excel.",
   canonicalPath: CANONICAL,
-  ogTitle: "STEP BOM Extractor Online | Marathon OS",
-  ogDescription:
-    "Extract a bill of materials and assembly tree from STEP or STP files online.",
 });
 
 export default function StepBomExtractorToolPage() {

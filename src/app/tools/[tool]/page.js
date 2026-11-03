@@ -4,7 +4,7 @@ import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd';
 import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
 import { getConverterFaqQuestions, getViewerFaqQuestions } from '@/data/cadToolFaqs';
-import { getUniquePairPage } from '@/data/converterPairUniquePages';
+import { getConverterPairMetadata, getUniquePairPage } from '@/data/converterPairUniquePages';
 import { getConverterPricingForRender } from '@/lib/converterPricingServer';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import { converterTypes } from '@/common.helper';
@@ -68,13 +68,13 @@ export async function generateMetadata({ params }) {
   }
 
   if (isConvert && converterTypes.some((type) => type.path === `/${conversion}`)) {
-    const uniquePage = getUniquePairPage(conversion);
+    const pairMeta = getConverterPairMetadata(conversion);
     const [from, to] = conversion.split('-to-');
     const fromUpper = from?.toUpperCase() ?? '';
     const toUpper = to?.toUpperCase() ?? '';
     const canonical = `/tools/convert-${conversion}`;
-    const title = uniquePage?.meta?.title || `Convert ${fromUpper} to ${toUpper} Online – First 2 Free | Marathon OS`;
-    const description = uniquePage?.meta?.description || `Convert ${fromUpper} files to ${getConverterMetaToPhrase(to)}. Secure uploads, files up to 300 MB, first 2 downloads free, and no software required.`;
+    const title = pairMeta?.title || `Convert ${fromUpper} to ${toUpper} Online – First 2 Free | Marathon OS`;
+    const description = pairMeta?.description || `Convert ${fromUpper} files to ${getConverterMetaToPhrase(to)}. Secure uploads, files up to 300 MB, first 2 downloads free, and no software required.`;
 
     return buildPageMetadata({
       title,
@@ -105,7 +105,7 @@ export default async function ToolPage({ params }) {
       <>
         <FaqPageJsonLd faqSchemaData={viewerFaqs} />
         <ToolPageJsonLd
-          name={meta.h1.replace(/^Free Online /, '')}
+          name={meta.title}
           url={meta.canonicalUrl}
           description={meta.description}
           breadcrumbLinks={[
@@ -122,12 +122,13 @@ export default async function ToolPage({ params }) {
   if (isConvert) {
     if (!converterTypes.some((type) => type.path === `/${conversion}`)) return notFound();
     const uniquePage = getUniquePairPage(conversion);
+    const pairMeta = getConverterPairMetadata(conversion);
     const [from, to] = conversion.split('-to-');
     const fromUpper = from?.toUpperCase() ?? '';
     const toUpper = to?.toUpperCase() ?? '';
-    const softwareName = `Free Online ${fromUpper} to ${toUpper} Converter`;
+    const softwareName = pairMeta?.title || `Free Online ${fromUpper} to ${toUpper} Converter`;
     const softwareUrl = `${BASE_URL}/tools/convert-${conversion}`;
-    const softwareDescription = uniquePage?.heroIntro || uniquePage?.meta?.description;
+    const softwareDescription = pairMeta?.description || uniquePage?.heroIntro;
 
     const converterFaqs = getConverterFaqQuestions(conversion);
     const pricing = await getConverterPricingForRender();
