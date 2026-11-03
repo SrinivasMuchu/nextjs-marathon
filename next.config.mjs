@@ -70,6 +70,11 @@ const nextConfig = {
         permanent: false,
       },
       {
+        source: '/tools/cad-drawing-pipeline',
+        destination: '/tools/convert-step-to-2d-drawing',
+        permanent: true,
+      },
+      {
         source: '/tools/:cadFile/file-viewer',
         destination: '/tools/:cadFile-file-viewer',
         permanent: true,

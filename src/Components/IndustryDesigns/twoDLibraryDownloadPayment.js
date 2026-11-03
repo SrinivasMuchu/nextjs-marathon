@@ -5,7 +5,7 @@ import {
   formatTechDrawPrice,
 } from "@/api/cadDrawingPipelineApi";
 import { loadRazorpayScript } from "@/Components/History/converterPayment";
-import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
+import { paymentEventValue, sendClarityEvent, sendGAtagEvent } from "@/common.helper";
 import { CAD_2D_DRAWING_EVENT, MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
 
 function trackTwoDLibraryPaymentGa(event_name, params = {}) {
@@ -64,6 +64,8 @@ export function ensureTwoDLibraryDownloadAccess({
         const prefill = { ...(order.prefill || {}) };
         if (!prefill.email && userEmail) prefill.email = userEmail;
 
+        const paidValue = paymentEventValue(order.price_with_gst ?? order.amount);
+        const paidCurrency = order.currency || "USD";
         sendClarityEvent("2d_library_download_payment_opened", { techdraw_funnel: "payment_opened" });
         trackTwoDLibraryPaymentGa("2d_library_download_payment_opened", {
           cad_file_id: cadFileId || "",
@@ -87,13 +89,18 @@ export function ensureTwoDLibraryDownloadAccess({
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
               });
-              sendClarityEvent("2d_library_download_payment_success", { techdraw_funnel: "paid" });
+              sendClarityEvent("2d_library_download_payment_success", {
+                techdraw_funnel: "paid",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: String(paidValue) } : {}),
+              });
               trackTwoDLibraryPaymentGa("2d_library_download_payment_success", {
                 cad_file_id: cadFileId || "",
                 order_id: response.razorpay_order_id || "",
                 payment_id: response.razorpay_payment_id || "",
                 amount: order.amount != null ? String(order.amount) : "",
-                currency: order.currency || "USD",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: paidValue } : {}),
               });
               resolve({
                 free: false,

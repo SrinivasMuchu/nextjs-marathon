@@ -5,9 +5,9 @@
 export const UNIQUE_PAIR_PAGES = {
   'stl-to-step': {
     meta: {
-      title: 'STL to STEP Converter – Free Online, STL to STP | Marathon OS',
+      title: 'STL to STEP & STP Converter – Open Meshes as CAD Solids | Marathon OS',
       description:
-        'Convert STL meshes to STEP (.step, .stp) solids online. First 2 downloads free. Set units, merge flat faces and repair the mesh, then open it in SolidWorks, Fusion or FreeCAD.',
+        'Convert STL to STEP or STP online and open the mesh as a solid in SolidWorks, Fusion or Onshape. Mesh repaired, flat faces merged. First 2 files free.',
     },
     h1: 'Convert STL to STEP online',
     heroIntro:
@@ -720,9 +720,9 @@ export const UNIQUE_PAIR_PAGES = {
   },
   'step-to-iges': {
     meta: {
-      title: 'Convert STEP to IGES Online – First 2 Free | Marathon OS',
+      title: 'STEP to IGES Converter – STP to IGS for CAM & Suppliers | Marathon OS',
       description:
-        'Convert STEP or STP files to IGES online for legacy CAD and CAM compatibility. Secure 300 MB uploads, first 2 downloads free and no software required.',
+        'Convert STEP or STP files to IGES (IGS) online for CAM software, suppliers and older CAD systems that need IGES. Up to 300 MB, first 2 files free.',
     },
     h1: 'Convert STEP to IGES online',
     heroIntro:
@@ -946,9 +946,9 @@ export const UNIQUE_PAIR_PAGES = {
   },
   'obj-to-step': {
     meta: {
-      title: 'Convert OBJ to STEP Online – First 2 Free | Marathon OS',
+      title: 'OBJ to STEP & STP Converter – Open OBJ as a CAD Solid | Marathon OS',
       description:
-        'Convert OBJ meshes to STEP online for CAD import and engineering handoff. Secure uploads up to 300 MB, first 2 downloads free and no software required.',
+        'Convert OBJ to STEP or STP online and open the model as a solid in Fusion, Onshape, SolidWorks or Shapr3D. Up to 300 MB, first 2 files free.',
     },
     h1: 'Convert OBJ to STEP online',
     heroIntro:
@@ -1406,9 +1406,9 @@ export const UNIQUE_PAIR_PAGES = {
   },
   'step-to-stl': {
     meta: {
-      title: 'Convert STEP to STL Online – First 2 Free | Marathon OS',
+      title: 'STEP & STP to STL Converter Online – For 3D Printing | Marathon OS',
       description:
-        'Convert STEP or STP files to STL online for 3D printing and slicing. Secure uploads up to 300 MB, first 2 downloads free and no software required.',
+        'Convert STEP and STP files to STL online for 3D printing and slicing in Cura, PrusaSlicer or Bambu Studio. Up to 300 MB, first 2 files free.',
     },
     h1: 'Convert STEP to STL online',
     heroIntro:
@@ -1658,9 +1658,9 @@ export const UNIQUE_PAIR_PAGES = {
   },
   'dxf-to-dwg': {
     meta: {
-      title: 'Convert DXF to DWG Online – First 2 Free | Marathon OS',
+      title: 'DXF to DWG Converter – Convert DXF for AutoCAD Online | Marathon OS',
       description:
-        'Convert DXF drawings to DWG online for AutoCAD and drafting workflows. Secure uploads up to 300 MB, first 2 downloads free and no software required.',
+        'Convert DXF to DWG online and edit the drawing in AutoCAD, BricsCAD or DraftSight. No CAD software needed to convert. Up to 300 MB, first 2 files free.',
     },
     h1: 'Convert DXF to DWG online',
     heroIntro:
@@ -1882,9 +1882,9 @@ export const UNIQUE_PAIR_PAGES = {
   },
   '3dm-to-step': {
     meta: {
-      title: 'Convert 3DM to STEP Online – First 2 Free | Marathon OS',
+      title: '3DM to STEP Converter – Rhino Files to STEP & STP Online | Marathon OS',
       description:
-        'Convert Rhino 3DM files to STEP online for mechanical CAD and CAM workflows. Secure uploads up to 300 MB, first 2 downloads free and no software required.',
+        'Convert Rhino 3DM files to STEP or STP online and share them with SolidWorks, Fusion and CATIA users or manufacturers. Up to 300 MB, first 2 files free.',
     },
     h1: 'Convert 3DM to STEP online',
     heroIntro:
@@ -2118,9 +2118,9 @@ export const UNIQUE_PAIR_PAGES = {
   },
   'iges-to-step': {
     meta: {
-      title: 'Convert IGES to STEP Online – First 2 Free | Marathon OS',
+      title: 'IGES to STEP Converter – Convert IGS Files to STP Online | Marathon OS',
       description:
-        'Convert IGES or IGS files to STEP online for modern CAD and manufacturing workflows. Secure uploads up to 300 MB, first 2 downloads free and no software required.',
+        'Convert IGES and IGS files to STEP or STP online. Bring legacy surfaces and solids into SolidWorks, Fusion or CATIA. Up to 300 MB, first 2 files free.',
     },
     h1: 'Convert IGES to STEP online',
     heroIntro:
@@ -2351,6 +2351,34 @@ export const UNIQUE_PAIR_PAGES = {
       'Conversion can modernize the exchange format, but it cannot invent missing geometry or recover design history. Use a CAD designer when the result needs healing, remodeling, tolerances or target-native features.',
     designerSecondary: 'Convert another IGES file',
   },
+}
+
+/** Sheet meta for pairs that do not have a full unique page. */
+export const CONVERTER_PAIR_META_OVERRIDES = {
+  'obj-to-stl': {
+    title: 'OBJ to STL Converter Online – OBJ Files for 3D Printing | Marathon OS',
+    description:
+      'Convert OBJ to STL online for 3D printing. Turn any OBJ model into an STL for Cura, PrusaSlicer or Bambu Studio. Up to 300 MB, first 2 files free.',
+  },
+  'step-to-3dm': {
+    title: 'STEP to 3DM Converter – Open STEP & STP Files in Rhino | Marathon OS',
+    description:
+      'Convert STEP or STP files to Rhino 3DM online and work on models from SolidWorks, Fusion or CATIA as native Rhino files. Up to 300 MB, first 2 files free.',
+  },
+  'dwg-to-dxf': {
+    title: 'DWG to DXF Converter Online – For Laser Cutting & CNC | Marathon OS',
+    description:
+      'Convert DWG to DXF online for laser cutting, CNC, CAM and CAD programs that can\'t open DWG. No AutoCAD needed. Up to 300 MB, first 2 files free.',
+  },
+}
+
+export function getConverterPairMetadata(conversionParams) {
+  const key = String(conversionParams || '')
+    .toLowerCase()
+    .split('/')
+    .filter(Boolean)
+    .pop()
+  return CONVERTER_PAIR_META_OVERRIDES[key] || UNIQUE_PAIR_PAGES[key]?.meta || null
 }
 
 export function getUniquePairPage(conversionParams) {

@@ -7,7 +7,7 @@ import {
   verifyConverterDownloadPayment,
   verifyConverterPackPayment,
 } from "@/api/converterPaymentApi";
-import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
+import { paymentEventValue, sendClarityEvent, sendGAtagEvent } from "@/common.helper";
 import { CAD_CONVERTER_EVENT, MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
 
 function trackConverterPaymentGa(event_name, params = {}) {
@@ -83,6 +83,8 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
         if (!prefill.email && userEmail) prefill.email = userEmail;
 
         const paymentType = "converter_single_download";
+        const paidValue = paymentEventValue(order.price_with_gst ?? order.amount);
+        const paidCurrency = order.currency || "USD";
         sendClarityEvent("converter_payment_opened", { converter_funnel: "payment_opened" });
         trackConverterPaymentGa("converter_payment_opened", {
           payment_type: paymentType,
@@ -106,13 +108,18 @@ export function ensureConverterDownloadAccess({ converterFileId, fileName, userE
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
               });
-              sendClarityEvent("converter_payment_success", { converter_funnel: "paid" });
+              sendClarityEvent("converter_payment_success", {
+                converter_funnel: "paid",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: String(paidValue) } : {}),
+              });
               trackConverterPaymentGa("converter_payment_success", {
                 payment_type: paymentType,
                 order_id: response.razorpay_order_id || "",
                 payment_id: response.razorpay_payment_id || "",
                 amount: order.amount != null ? String(order.amount) : "",
-                currency: order.currency || "USD",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: paidValue } : {}),
               });
               resolve({
                 free: false,
@@ -191,6 +198,8 @@ export function ensureConverterPackPurchase({ packId, packName, userEmail, billi
 
         const paymentType = "converter_pack";
         const packLabel = packName || packId || "pack";
+        const paidValue = paymentEventValue(order.price_with_gst ?? order.amount);
+        const paidCurrency = order.currency || "USD";
         sendClarityEvent("converter_pack_payment_opened", { converter_funnel: "pack_opened" });
         trackConverterPaymentGa("converter_pack_payment_opened", {
           payment_type: paymentType,
@@ -216,7 +225,11 @@ export function ensureConverterPackPurchase({ packId, packName, userEmail, billi
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
               });
-              sendClarityEvent("converter_pack_payment_success", { converter_funnel: "pack_paid" });
+              sendClarityEvent("converter_pack_payment_success", {
+                converter_funnel: "pack_paid",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: String(paidValue) } : {}),
+              });
               trackConverterPaymentGa("converter_pack_payment_success", {
                 payment_type: paymentType,
                 pack_id: packId || "",
@@ -224,7 +237,8 @@ export function ensureConverterPackPurchase({ packId, packName, userEmail, billi
                 order_id: response.razorpay_order_id || "",
                 payment_id: response.razorpay_payment_id || "",
                 amount: order.amount != null ? String(order.amount) : "",
-                currency: order.currency || "USD",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: paidValue } : {}),
                 credits: verification.credits_granted != null
                   ? String(verification.credits_granted)
                   : "",

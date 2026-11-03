@@ -7,9 +7,9 @@ export const UNIQUE_VIEWER_PAGES = {
   step: {
     breadcrumbLabel: 'STEP File Viewer',
     meta: {
-      title: 'STEP File Viewer | Open STEP and STP Files Online | Marathon OS',
+      title: 'Free STEP File Viewer Online – Open STEP & STP Files in 3D | Marathon OS',
       description:
-        'Open STEP and STP files online to inspect solids, surfaces and assemblies. Private browser-based viewing for files up to 300 MB, with no CAD software required.',
+        'Open STEP and STP files online and view them in 3D. Rotate, zoom and inspect solids and assemblies in your browser, with no CAD software to install.',
     },
     eyebrow: 'Free online tool',
     h1: 'Free Online STEP File Viewer',
@@ -297,9 +297,9 @@ export const UNIQUE_VIEWER_PAGES = {
   iges: {
     breadcrumbLabel: 'IGES File Viewer',
     meta: {
-      title: 'IGES File Viewer | Open IGES and IGS Files Online | Marathon OS',
+      title: 'Free IGES File Viewer Online – Open IGES & IGS Files in 3D | Marathon OS',
       description:
-        'Open IGES and IGS files online to inspect curves, surfaces and gaps. Private browser-based viewing for files up to 300 MB, with no CAD software required.',
+        'Open IGES and IGS files online and view them in 3D. Inspect legacy surfaces and solids from older CAD systems in your browser, no CAD software needed.',
     },
     eyebrow: 'Free online tool',
     h1: 'Free Online IGES File Viewer',

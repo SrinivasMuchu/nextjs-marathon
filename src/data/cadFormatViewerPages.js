@@ -43,9 +43,9 @@ const FORMAT_CONFIG = {
     previewPhrase: 'STEP 3D CAD models',
     supportedInputLabel: 'STEP (.step), STP (.stp)',
     extensions: ['.step', '.stp'],
-    title: 'STEP File Viewer | Open STEP and STP Files Online | Marathon OS',
+    title: 'Free STEP File Viewer Online – Open STEP & STP Files in 3D | Marathon OS',
     description:
-      'Open STEP and STP files online to inspect solids, surfaces and assemblies. Private browser-based viewing for files up to 300 MB, with no CAD software required.',
+      'Open STEP and STP files online and view them in 3D. Rotate, zoom and inspect solids and assemblies in your browser, with no CAD software to install.',
     h1: 'Free Online STEP File Viewer',
     relatedTools: [
       { href: '/tools/convert-step-to-stl', label: 'STEP to STL Converter' },
@@ -77,9 +77,9 @@ const FORMAT_CONFIG = {
     previewPhrase: 'STL mesh models',
     supportedInputLabel: 'STL (.stl)',
     extensions: ['.stl'],
-    title: 'STL File Viewer | Open STL Files Online | Marathon OS',
+    title: 'Free STL File Viewer Online – View STL Files in Your Browser | Marathon OS',
     description:
-      'Open and inspect STL files online for 3D printing checks. Preview mesh models securely in your browser with private uploads and 7-day auto-delete.',
+      'Open and view STL files online in 3D. Rotate, zoom and check your mesh before 3D printing or slicing, right in your browser. No software to install.',
     h1: 'Free Online STL File Viewer',
     relatedTools: [
       { href: '/tools/convert-stl-to-step', label: 'STL to STEP Converter' },
@@ -93,9 +93,9 @@ const FORMAT_CONFIG = {
     previewPhrase: 'OBJ mesh models',
     supportedInputLabel: 'OBJ (.obj)',
     extensions: ['.obj'],
-    title: 'OBJ File Viewer | Open OBJ Files Online | Marathon OS',
+    title: 'Free OBJ File Viewer Online – View OBJ 3D Models in Browser | Marathon OS',
     description:
-      'Open and inspect OBJ files online without installing 3D software. Preview mesh models securely in your browser with private uploads and 7-day auto-delete.',
+      'Open and view OBJ files online in 3D. Rotate, zoom and inspect polygon models and meshes in your browser, with no 3D software to install.',
     h1: 'Free Online OBJ File Viewer',
     relatedTools: [
       { href: '/tools/stl-file-viewer', label: 'STL File Viewer' },
@@ -125,9 +125,9 @@ const FORMAT_CONFIG = {
     previewPhrase: 'IGES surface-based CAD models',
     supportedInputLabel: 'IGES (.igs), IGS (.iges)',
     extensions: ['.igs', '.iges'],
-    title: 'IGES File Viewer | Open IGES and IGS Files Online | Marathon OS',
+    title: 'Free IGES File Viewer Online – Open IGES & IGS Files in 3D | Marathon OS',
     description:
-      'Open IGES and IGS files online to inspect curves, surfaces and gaps. Private browser-based viewing for files up to 300 MB, with no CAD software required.',
+      'Open IGES and IGS files online and view them in 3D. Inspect legacy surfaces and solids from older CAD systems in your browser, no CAD software needed.',
     h1: 'Free Online IGES File Viewer',
     relatedTools: [
       { href: '/tools/convert-iges-to-step', label: 'IGES to STEP Converter' },
@@ -189,9 +189,9 @@ const FORMAT_CONFIG = {
     previewPhrase: 'Rhino 3DM NURBS and mesh models',
     supportedInputLabel: '3DM (.3dm)',
     extensions: ['.3dm'],
-    title: '3DM File Viewer | Open Rhino 3DM Files Online | Marathon OS',
+    title: 'Free 3DM File Viewer Online – Open Rhino Files Without Rhino | Marathon OS',
     description:
-      'Open and inspect Rhino 3DM files online without installing Rhinoceros. Preview NURBS and mesh models securely in your browser with private uploads and 7-day auto-delete.',
+      'Open Rhino 3DM files online and view them in 3D. Rotate, zoom and review Rhino geometry in your browser, without installing Rhino or any CAD software.',
     h1: 'Free Online 3DM File Viewer',
     relatedTools: [
       { href: '/tools/convert-3dm-to-step', label: '3DM to STEP Converter' },

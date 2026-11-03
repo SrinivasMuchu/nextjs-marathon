@@ -1,8 +1,8 @@
 export const PIPELINE_PAGE_TITLE =
-  '3D CAD to 2D Drawing Generator | STEP to PDF, SVG, DXF | Marathon OS';
+  'STEP to 2D Drawing Converter – 3D to 2D PDF & DXF Online | Marathon OS';
 
 export const PIPELINE_PAGE_DESCRIPTION =
-  'Generate 2D technical drawings from 3D CAD files online. Upload STEP, STP, IGES or FreeCAD files and get orthographic views, section cuts, PDF, SVG and DXF outputs.';
+  'Convert STEP and STP 3D models to 2D technical drawings online. Get dimensioned views and sections as PDF, DXF, SVG and PNG in minutes. $5.99 per set.';
 
 export const PIPELINE_H1 = '3D CAD to 2D Technical Drawing Generator';
 

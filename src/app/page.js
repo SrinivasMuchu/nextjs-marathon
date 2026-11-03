@@ -4,9 +4,9 @@ import { buildPageMetadata } from "@/lib/seo/pageMetadata";
 import styles from "./page.module.css";
 
 const CANONICAL_PATH = "/";
-const TITLE = "CAD Converter Experts | 60+ Conversion Tools | Marathon OS";
+const TITLE = "Online CAD Tools to Convert, View & Draw CAD Files | Marathon OS";
 const DESCRIPTION =
-  "Convert STEP, STL, IGES, OBJ, 3DM, BREP, PLY, OFF, DWG and DXF files with 60+ specialist tools, or turn STEP and STP models into 2D drawing sets.";
+  "Convert STEP, STL, IGES, OBJ, 3DM, DXF and DWG files, view CAD models in 3D, extract a BOM and make 2D drawings from STEP online. First 2 files free";
 
 export const metadata = buildPageMetadata({
   title: TITLE,

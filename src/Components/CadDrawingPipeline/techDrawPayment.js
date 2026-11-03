@@ -87,6 +87,8 @@ export function openTechDrawPayment({ description, jobId, billingId } = {}) {
                 orderId: response.razorpay_order_id,
                 paymentId: response.razorpay_payment_id,
                 jobId,
+                amount: order.price_with_gst ?? order.amount,
+                currency: order.currency || "USD",
               });
               resolve({
                 razorpay_order_id: response.razorpay_order_id,

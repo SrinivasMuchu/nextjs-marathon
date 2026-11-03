@@ -5,7 +5,7 @@ import {
   formatTechDrawPrice,
 } from "@/api/cadDrawingPipelineApi";
 import { loadRazorpayScript } from "@/Components/History/converterPayment";
-import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
+import { paymentEventValue, sendClarityEvent, sendGAtagEvent } from "@/common.helper";
 import { CAD_2D_DRAWING_EVENT, MARATHONDETAILS, RAZORPAY_KEY_ID } from "@/config";
 
 function trackTechDrawDownloadPaymentGa(event_name, params = {}) {
@@ -59,6 +59,8 @@ export function ensureTechDrawDownloadAccess({ jobId, jobTitle, fileName, userEm
         const prefill = { ...(order.prefill || {}) };
         if (!prefill.email && userEmail) prefill.email = userEmail;
 
+        const paidValue = paymentEventValue(order.price_with_gst ?? order.amount);
+        const paidCurrency = order.currency || "USD";
         sendClarityEvent("techdraw_download_payment_opened", { techdraw_funnel: "payment_opened" });
         trackTechDrawDownloadPaymentGa("techdraw_download_payment_opened", {
           job_id: jobId || "",
@@ -82,13 +84,18 @@ export function ensureTechDrawDownloadAccess({ jobId, jobTitle, fileName, userEm
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
               });
-              sendClarityEvent("techdraw_download_payment_success", { techdraw_funnel: "paid" });
+              sendClarityEvent("techdraw_download_payment_success", {
+                techdraw_funnel: "paid",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: String(paidValue) } : {}),
+              });
               trackTechDrawDownloadPaymentGa("techdraw_download_payment_success", {
                 job_id: jobId || "",
                 order_id: response.razorpay_order_id || "",
                 payment_id: response.razorpay_payment_id || "",
                 amount: order.amount != null ? String(order.amount) : "",
-                currency: order.currency || "USD",
+                currency: paidCurrency,
+                ...(paidValue != null ? { value: paidValue } : {}),
               });
               resolve({
                 free: false,
