@@ -24,7 +24,7 @@ import cube from "./Cube.json";
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 
-const MESH_EXTS = new Set(["stl", "obj", "ply", "off", "3dm"]);
+const MESH_EXTS = new Set(["stl", "obj", "ply", "off", "3dm", "3mf"]);
 const SOLID_EXTS = new Set(["step", "stp", "iges", "igs", "brep", "brp"]);
 
 function normalizeExt(value) {

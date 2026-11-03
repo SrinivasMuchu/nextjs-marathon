@@ -12,7 +12,7 @@ function CadFileUploads({ convert, conversionParams, allowedFormats, initialAllo
     const formats = (allowedFormats?.length ? allowedFormats : initialAllowedFormats) || [];
     const formatsText = convert
       ? (formats.length ? `Supported formats: ${formats.join(', ')}` : 'Supported formats: …')
-      : 'Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), DWG (.dwg), DXF (.dxf)';
+      : 'Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), 3MF (.3mf), DWG (.dwg), DXF (.dxf)';
 
     const isConverterHero = designVariant === 'converterHero' || designVariant === 'stepToStlHero';
 
