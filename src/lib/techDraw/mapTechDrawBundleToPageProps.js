@@ -110,11 +110,24 @@ function sheetPreviewCandidates(baseUrl, sheetNum, designId, outputS3Prefix = ""
   const id = String(designId || "").trim();
   const base = String(baseUrl || "").replace(/\/$/, "");
   const prefix = String(outputS3Prefix || "").trim();
-  if (isUserPipelineCdnBase(base) || prefix) {
-    const apiUrls = techdrawSheetPreviewUrls(id, n, {
-      userPipeline: isUserPipelineCdnBase(base),
+  const userFolder = prefix.split("/")[0];
+  const userOutput =
+    isUserPipelineCdnBase(base) ||
+    [
+      "freecad-techdraw",
+      "freecad-2d-techdraw",
+      "user-freecad-techdraw",
+      "qwen_tech_draw_designs",
+      "techdraw-output",
+    ].includes(userFolder);
+  if (userOutput) {
+    return techdrawSheetPreviewUrls(id, n, {
+      userPipeline: !prefix,
       outputPrefix: prefix,
     });
+  }
+  if (prefix) {
+    const apiUrls = techdrawSheetPreviewUrls(id, n, { outputPrefix: prefix });
     const direct = directSheetAssetUrls(base, n);
     return [...apiUrls, direct.svg, direct.svgNodim];
   }
@@ -355,13 +368,27 @@ function buildSheetDownloadRows(entries, baseUrl, designId, outputS3Prefix = "",
   return entries.map((e) => {
     const n = Number(e.sheet_num);
     let row;
-    if (userPipeline && !prefix) {
-      const assets = directSheetAssetUrls(baseUrl, n);
+    if (id && userPipeline && !prefix) {
       row = {
         name: e.label,
-        pdf: assets.pdf,
-        svg: assets.svg,
-        dxf: assets.dxf,
+        pdf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "pdf",
+          source: "user",
+          disposition: "attachment",
+        }),
+        svg: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "svg",
+          source: "user",
+          disposition: "attachment",
+        }),
+        dxf: techdrawFileApiUrl(id, {
+          sheet: n,
+          ext: "dxf",
+          source: "user",
+          disposition: "attachment",
+        }),
       };
     } else if (id && prefix) {
       row = {
@@ -659,7 +686,15 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     pdfHref: svgOnly
       ? undefined
       : techdrawBundleZipUrl(designId, { ...zipOpts, format: "pdf" }),
-    freecadHref: `${baseUrl}/technical_drawing_simple.FCStd`,
+    freecadHref: techdrawFileApiUrl(designId, {
+      file: "technical_drawing_simple.FCStd",
+      disposition: "attachment",
+      ...(outputS3Prefix
+        ? { prefix: outputS3Prefix }
+        : userPipeline
+          ? { source: "user" }
+          : {}),
+    }),
     zipHref: techdrawBundleZipUrl(designId, zipOpts),
     svgHref: techdrawBundleZipUrl(designId, { ...zipOpts, format: "svg" }),
     dxfHref: techdrawBundleZipUrl(designId, { ...zipOpts, format: "dxf" }),

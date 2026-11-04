@@ -112,10 +112,31 @@ export default function TechDrawJobLibraryResults({
     };
   }, [adminMode, getDesignPath, getPipelineStatusPath, jobId, job]);
 
-  const triggerBrowserDownload = useCallback((href) => {
+  const triggerBrowserDownload = useCallback(async (href) => {
     if (!href) return;
-    window.open(href, "_blank", "noopener,noreferrer");
-  }, []);
+    const headers = {};
+    if (typeof window !== "undefined") {
+      const uuid = localStorage.getItem("uuid");
+      const adminUuid = localStorage.getItem("admin-uuid");
+      if (uuid) headers["user-uuid"] = uuid;
+      if (adminMode && adminUuid) headers["admin-uuid"] = adminUuid;
+    }
+    const res = await fetch(href, { headers });
+    if (!res.ok) {
+      const payload = await res.json().catch(() => null);
+      throw new Error(payload?.error || "Download failed.");
+    }
+    const match = String(res.headers.get("content-disposition") || "").match(/filename="?([^"]+)"?/i);
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = match?.[1] || "drawing";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  }, [adminMode]);
 
   const closeDownloadFlow = useCallback(() => {
     setOpenDownloadFlow(false);
@@ -126,30 +147,26 @@ export default function TechDrawJobLibraryResults({
   const requestDownload = useCallback(
     async (href) => {
       if (!href) return;
-      if (adminMode) {
-        triggerBrowserDownload(href);
-        return;
-      }
-
       try {
-        const access = await checkTechDrawDownload(jobId);
-        if (access.can_download) {
-          triggerBrowserDownload(href);
-          return;
+        if (!adminMode) {
+          const access = await checkTechDrawDownload(jobId);
+          if (!access.can_download) {
+            pendingHrefRef.current = href;
+            setDownloadPricing(
+              access.pricing || {
+                base_price: prices.base,
+                price: prices.base,
+                price_with_gst: prices.total,
+                currency: prices.currency,
+              },
+            );
+            setOpenDownloadFlow(true);
+            return;
+          }
         }
-
-        pendingHrefRef.current = href;
-        setDownloadPricing(
-          access.pricing || {
-            base_price: prices.base,
-            price: prices.base,
-            price_with_gst: prices.total,
-            currency: prices.currency,
-          },
-        );
-        setOpenDownloadFlow(true);
+        await triggerBrowserDownload(href);
       } catch (err) {
-        toast.error(err?.message || "Could not start download checkout.");
+        toast.error(err?.message || "Could not start download.");
       }
     },
     [adminMode, jobId, prices.base, prices.currency, prices.total, triggerBrowserDownload],
@@ -165,14 +182,14 @@ export default function TechDrawJobLibraryResults({
         userEmail: user?.email,
         billingId,
       });
-      if (href) triggerBrowserDownload(href);
+      if (href) await triggerBrowserDownload(href);
       return result;
     },
     [job?.file_name, job?.title, jobId, triggerBrowserDownload, user?.email],
   );
 
   const downloadHandlers = useMemo(() => {
-    if (adminMode || !pageProps) return {};
+    if (!pageProps) return {};
     const wrap = (href) => () => requestDownload(href);
     return {
       onPdf: pageProps.pdfHref ? wrap(pageProps.pdfHref) : undefined,
@@ -182,7 +199,7 @@ export default function TechDrawJobLibraryResults({
       onFreecad: pageProps.freecadHref ? wrap(pageProps.freecadHref) : undefined,
       onSheetDownload: requestDownload,
     };
-  }, [adminMode, pageProps, requestDownload]);
+  }, [pageProps, requestDownload]);
 
   const converterFile = useMemo(
     () => ({

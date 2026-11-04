@@ -2,7 +2,12 @@ import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
 import JSZip from "jszip";
 import { resolveTechDrawCdnRoot } from "@/lib/techDraw/techDrawCdnRoots";
-import { assertTwoDLibraryDownloadAccess } from "@/lib/techDraw/libraryDownloadAccess";
+import {
+  assertTechDrawDeliverableAccess,
+  classifyTechDrawLocation,
+  signUserOutputFiles,
+  userOutputPrefix,
+} from "@/lib/techDraw/libraryDownloadAccess";
 
 export const runtime = "nodejs";
 /** Allow long ZIP builds on Vercel Pro / similar (ignored elsewhere). */
@@ -23,22 +28,10 @@ function cdnRoot(source, designId, prefix) {
   return resolveTechDrawCdnRoot({ designId, source, prefix });
 }
 
-function isUserPipelineSource(source, prefix) {
-  return Boolean(String(prefix || "").trim()) || source === "user";
-}
-
 async function fetchBytes(url) {
   const res = await fetch(url, CDN_FETCH_INIT);
   if (!res.ok) return null;
   return new Uint8Array(await res.arrayBuffer());
-}
-
-async function fetchFirstBytes(urls) {
-  for (const url of urls) {
-    const bytes = await fetchBytes(url);
-    if (bytes) return bytes;
-  }
-  return null;
 }
 
 function sortGeometryKeys(geometryPerSheet) {
@@ -64,31 +57,10 @@ function rootJsonFiles(source) {
   ];
 }
 
-async function fetchSheetPdf(root, sheetNum) {
-  return fetchFirstBytes([
-    `${root}/sheet_${sheetNum}.pdf`,
-    `${root}/pdf/sheet_${sheetNum}.pdf`,
-  ]);
-}
-
-async function fetchSheetSvg(root, sheetNum) {
-  return fetchFirstBytes([
-    `${root}/svg/sheet_${sheetNum}.svg`,
-    `${root}/svg/sheet_${sheetNum}_nodim.svg`,
-  ]);
-}
-
-async function fetchSheetDxf(root, sheetNum) {
-  return fetchFirstBytes([
-    `${root}/dxf/sheet_${sheetNum}.dxf`,
-    `${root}/sheet_${sheetNum}.dxf`,
-  ]);
-}
-
 /**
- * GET /api/techdraw-bundle-zip?designId=&source=
+ * GET /api/techdraw-bundle-zip?designId=&source=&prefix=
  * Zips published JSON, combined PDF, and per-sheet PDF/SVG/DXF files.
- * source=user reads from user-freecad-techdraw/{designId} on CDN.
+ * Library and user-upload jobs both require their own download check.
  */
 export async function GET(request) {
   const url = new URL(request.url);
@@ -103,20 +75,46 @@ export async function GET(request) {
     return NextResponse.json({ error: "Invalid designId" }, { status: 400 });
   }
 
-  const userPipeline = isUserPipelineSource(source, prefix);
-  if (!userPipeline) {
-    const access = await assertTwoDLibraryDownloadAccess(request, designId);
-    if (!access.ok) {
-      return NextResponse.json(
-        { error: access.message || "payment required" },
-        { status: access.status || 401 },
-      );
-    }
+  const location = classifyTechDrawLocation({ source, prefix, designId });
+  if (!location.ok) {
+    return NextResponse.json({ error: "invalid prefix" }, { status: 400 });
   }
 
-  const root = cdnRoot(source, designId, prefix);
+  const access = await assertTechDrawDeliverableAccess(request, designId, location);
+  if (!access.ok) {
+    return NextResponse.json(
+      { error: access.message || "payment required" },
+      { status: access.status || 401 },
+    );
+  }
 
-  const geoBytes = await fetchBytes(`${root}/geometry_per_sheet.json`);
+  const userPipeline = location.kind === "user";
+  const outputPrefix = userOutputPrefix(location, designId);
+  const root = cdnRoot(userPipeline ? "user" : "", designId, location.prefix);
+  const signedUrlCache = new Map();
+
+  async function readBytes(relativePath) {
+    if (!userPipeline) return fetchBytes(`${root}/${relativePath}`);
+    let signedUrl = signedUrlCache.get(relativePath);
+    if (!signedUrl) {
+      const signed = await signUserOutputFiles(request, designId, outputPrefix, [relativePath]);
+      if (!signed.ok) return null;
+      signedUrl = signed.urls?.[relativePath];
+      if (signedUrl) signedUrlCache.set(relativePath, signedUrl);
+    }
+    if (!signedUrl) return null;
+    return fetchBytes(signedUrl);
+  }
+
+  async function readFirst(relativePaths) {
+    for (const rel of relativePaths) {
+      const buf = await readBytes(rel);
+      if (buf) return buf;
+    }
+    return null;
+  }
+
+  const geoBytes = await readBytes("geometry_per_sheet.json");
   if (!geoBytes) {
     return NextResponse.json({ error: "Bundle not found" }, { status: 404 });
   }
@@ -144,38 +142,38 @@ export async function GET(request) {
     zip.file("geometry_per_sheet.json", geoBytes);
 
     for (const name of rootJsonFiles(userPipeline ? "user" : source)) {
-      const buf = await fetchBytes(`${root}/${name}`);
+      const buf = await readBytes(name);
       if (buf) zip.file(name, buf);
     }
   }
 
   if (includePdf) {
-    const combinedPdf = await fetchFirstBytes([
-      `${root}/technical_drawing_simple.pdf`,
-      `${root}/drawing.pdf`,
+    const combinedPdf = await readFirst([
+      "technical_drawing_simple.pdf",
+      "drawing.pdf",
     ]);
     if (combinedPdf) zip.file("technical_drawing_simple.pdf", combinedPdf);
   }
 
   if (includeAll) {
-    const fcstd = await fetchBytes(`${root}/technical_drawing_simple.FCStd`);
+    const fcstd = await readBytes("technical_drawing_simple.FCStd");
     if (fcstd) zip.file("technical_drawing_simple.FCStd", fcstd);
   }
 
   /* Sequential fetches reduce peak memory vs Promise.all (helps small serverless). */
   for (let i = 1; i <= nSheets; i++) {
     if (includePdf) {
-      const pdf = await fetchSheetPdf(root, i);
+      const pdf = await readFirst([`sheet_${i}.pdf`, `pdf/sheet_${i}.pdf`]);
       if (pdf) zip.file(`pdf/sheet_${i}.pdf`, pdf);
     }
 
     if (includeSvg) {
-      const svg = await fetchSheetSvg(root, i);
+      const svg = await readFirst([`svg/sheet_${i}.svg`, `svg/sheet_${i}_nodim.svg`]);
       if (svg) zip.file(`svg/sheet_${i}.svg`, svg);
     }
 
     if (includeDxf) {
-      const dxf = await fetchSheetDxf(root, i);
+      const dxf = await readFirst([`dxf/sheet_${i}.dxf`, `sheet_${i}.dxf`]);
       if (dxf) zip.file(`dxf/sheet_${i}.dxf`, dxf);
     }
   }

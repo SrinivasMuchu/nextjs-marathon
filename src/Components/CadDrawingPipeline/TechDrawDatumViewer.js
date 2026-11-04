@@ -5,8 +5,8 @@ import { Canvas, useLoader, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
-import { DESIGN_GLB_PREFIX_URL } from "@/config";
-import { techDrawCdnBaseFromPrefix } from "@/lib/techDraw/fetchTechDrawBundleFromPrefix";
+import { techdrawFileApiUrl } from "@/lib/techDraw/techdrawFileApi";
+import { useAuthedTechDrawSrc } from "@/lib/techDraw/authTechDrawFetch";
 import styles from "./CadDrawingPipeline.module.css";
 
 // Unlit fill — always visible on dark UI (no env map / lighting dependency).
@@ -42,8 +42,6 @@ function unit(v) {
 
 export function buildDatumPreviewUrl(job, jobId) {
   if (!job && !jobId) return "";
-  if (job?.datum_preview_url) return String(job.datum_preview_url).trim();
-
   const id = String(jobId || job?._id || job?.id || "").trim();
   const prefix = String(
     job?.datum_preview_prefix ||
@@ -53,12 +51,8 @@ export function buildDatumPreviewUrl(job, jobId) {
     .trim()
     .replace(/^\//, "");
   const file = String(job?.datum_preview_file || "datum_preview.glb").trim().replace(/^\//, "");
-  if (!prefix || !file) return "";
-
-  const base =
-    techDrawCdnBaseFromPrefix(prefix) ||
-    `${DESIGN_GLB_PREFIX_URL.replace(/\/$/, "")}/${prefix}`;
-  return `${base.replace(/\/$/, "")}/${file}`;
+  if (!id || !prefix || !file) return "";
+  return techdrawFileApiUrl(id, { prefix, file });
 }
 
 class ViewerErrorBoundary extends Component {
@@ -605,6 +599,7 @@ export default function TechDrawDatumViewer({
     () => buildDatumPreviewUrl(job, jobId || job?._id || job?.id),
     [job, jobId],
   );
+  const authedPreviewUrl = useAuthedTechDrawSrc(previewUrl);
   const isStl = /\.stl(\?|$)/i.test(previewUrl);
   const pickPool = useMemo(
     () => (pickableCandidates?.length ? pickableCandidates : candidates),
@@ -669,7 +664,7 @@ export default function TechDrawDatumViewer({
         </div>
       </div>
       <div className={styles.datumViewerCanvas}>
-        {!mountCanvas ? (
+        {!mountCanvas || !authedPreviewUrl ? (
           <div className={styles.datumViewerEmpty}>
             <p>Loading 3D preview…</p>
           </div>
@@ -691,7 +686,7 @@ export default function TechDrawDatumViewer({
             >
               <Suspense fallback={null}>
                 <ModelScene
-                  glbUrl={previewUrl}
+                  glbUrl={authedPreviewUrl}
                   isStl={isStl}
                   candidates={candidates}
                   pickPool={pickPool}

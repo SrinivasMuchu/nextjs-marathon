@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useAuthedTechDrawSrc } from "@/lib/techDraw/authTechDrawFetch";
 import styles from "./TwoDDrawingSheetViewerClient.module.css";
 
 function previewSrc(sheet) {
@@ -47,6 +48,8 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [], svgOnly = fa
 
   const active = safeSheets[cur];
   const effectiveMode = svgOnly ? "svg" : viewMode;
+  const pdfSrc = useAuthedTechDrawSrc(active?.pdfUrl || "");
+  const imageSrc = useAuthedTechDrawSrc(previewSrc(active));
 
   return (
     <div className={styles.viewer}>
@@ -122,18 +125,18 @@ export default function TwoDDrawingSheetViewerClient({ sheets = [], svgOnly = fa
       </div>
 
       <div className={styles.stage}>
-        {effectiveMode === "pdf" && active?.pdfUrl ? (
+        {effectiveMode === "pdf" && pdfSrc ? (
           <iframe
             key={`pdf-${cur}`}
             className={styles.stagePdf}
-            src={active.pdfUrl}
+            src={pdfSrc}
             title={`${active.label} PDF`}
           />
-        ) : previewSrc(active) ? (
+        ) : imageSrc ? (
           <img
             key={cur}
             className={styles.stageImg}
-            src={previewSrc(active)}
+            src={imageSrc}
             alt={active.label}
             onError={previewErrorHandler(active)}
           />

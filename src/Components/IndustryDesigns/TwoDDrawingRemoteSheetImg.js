@@ -1,7 +1,9 @@
 "use client";
 
+import { useAuthedTechDrawSrc } from "@/lib/techDraw/authTechDrawFetch";
+
 /**
- * Remote sheet preview: simple direct <img> using provided URL(s).
+ * Remote sheet preview. Customer-upload files are fetched with the signed-in user.
  */
 export default function TwoDDrawingRemoteSheetImg({
   src,
@@ -15,11 +17,12 @@ export default function TwoDDrawingRemoteSheetImg({
     : src
       ? [src, fallbackSrc].filter(Boolean)
       : [];
-  if (!list.length) return null;
+  const resolved = useAuthedTechDrawSrc(list[0] || "");
+  if (!list.length || !resolved) return null;
   return (
     <img
       className={className}
-      src={list[0]}
+      src={resolved}
       alt={alt}
       onError={(e) => {
         const i = parseInt(e.currentTarget.getAttribute("data-preview-attempt") || "0", 10);

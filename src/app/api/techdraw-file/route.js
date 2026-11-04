@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { resolveTechDrawCdnRoot } from "@/lib/techDraw/techDrawCdnRoots";
 import {
-  assertTwoDLibraryDownloadAccess,
-  isGatedLibraryDownload,
+  assertTechDrawDeliverableAccess,
+  classifyTechDrawLocation,
+  fetchFirstSignedUserFile,
+  isPaidTechDrawDeliverable,
+  userOutputPrefix,
 } from "@/lib/techDraw/libraryDownloadAccess";
 
 const DESIGN_ID_RE = /^[a-f0-9]{24}$/;
@@ -20,6 +23,8 @@ function mimeFor(ext) {
   if (ext === "dxf") return "application/dxf";
   if (ext === "pdf") return "application/pdf";
   if (ext === "fcstd") return "application/octet-stream";
+  if (ext === "glb") return "model/gltf-binary";
+  if (ext === "stl") return "model/stl";
   return "application/octet-stream";
 }
 
@@ -94,7 +99,15 @@ export async function GET(request) {
 
   if (file) {
     const lower = file.toLowerCase();
-    if (!lower.endsWith(".pdf") && !lower.endsWith(".fcstd")) {
+    if (lower.includes("..") || lower.includes("/") || lower.includes("\\")) {
+      return NextResponse.json({ error: "invalid file" }, { status: 400 });
+    }
+    if (
+      !lower.endsWith(".pdf") &&
+      !lower.endsWith(".fcstd") &&
+      !lower.endsWith(".glb") &&
+      !lower.endsWith(".stl")
+    ) {
       return NextResponse.json({ error: "invalid file" }, { status: 400 });
     }
   } else {
@@ -106,27 +119,50 @@ export async function GET(request) {
     }
   }
 
-  const gated = isGatedLibraryDownload({
-    source,
-    prefix,
+  const location = classifyTechDrawLocation({ source, prefix, designId });
+  if (!location.ok) {
+    return NextResponse.json({ error: "invalid prefix" }, { status: 400 });
+  }
+
+  const gated = isPaidTechDrawDeliverable({
     ext: file ? file.split(".").pop() : ext,
     disposition: dispositionParam,
     file,
   });
   if (gated) {
-    const access = await assertTwoDLibraryDownloadAccess(request, designId);
+    const access = await assertTechDrawDeliverableAccess(request, designId, location);
     if (!access.ok) {
       return NextResponse.json({ error: access.message || "payment required" }, { status: access.status || 401 });
     }
   }
 
-  const root = resolveTechDrawCdnRoot({ designId, source, prefix });
-  const urls = targetUrls(root, { sheet, ext, variant, file });
-  if (!urls.length) {
+  const relativePaths = targetUrls("rel", { sheet, ext, variant, file }).map((item) =>
+    item.replace(/^rel\//, ""),
+  );
+  if (!relativePaths.length) {
     return NextResponse.json({ error: "invalid params" }, { status: 400 });
   }
 
-  const hit = await fetchFirstOk(urls);
+  let hit = null;
+  if (location.kind === "user") {
+    const signed = await fetchFirstSignedUserFile(
+      request,
+      designId,
+      userOutputPrefix(location, designId),
+      relativePaths,
+    );
+    if (signed?.error) {
+      return NextResponse.json(
+        { error: signed.error.message || "payment required" },
+        { status: signed.error.status || 401 },
+      );
+    }
+    hit = signed?.upstream ? signed : null;
+  } else {
+    const root = resolveTechDrawCdnRoot({ designId, source: "", prefix: location.prefix });
+    const urls = targetUrls(root, { sheet, ext, variant, file });
+    hit = await fetchFirstOk(urls);
+  }
   if (!hit) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
@@ -142,7 +178,7 @@ export async function GET(request) {
     headers: {
       "Content-Type": mimeFor(resolvedExt),
       "Content-Disposition": inline ? "inline" : `attachment; filename="${file || `sheet_${sheet}.${resolvedExt}`}"`,
-      "Cache-Control": gated ? "no-store" : "public, max-age=120, s-maxage=120",
+      "Cache-Control": location.kind === "user" || gated ? "private, no-store" : "public, max-age=120, s-maxage=120",
     },
   });
 }
