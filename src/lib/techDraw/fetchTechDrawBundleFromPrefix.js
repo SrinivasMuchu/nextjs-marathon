@@ -125,10 +125,36 @@ async function loadTechDrawBundleFromBaseUrl(
   };
 }
 
-/** Load user pipeline outputs from CloudFront (prefers job output_s3_prefix when set). */
+function bundleAuthHeaders() {
+  if (typeof window === "undefined") return {};
+  const headers = {};
+  const uuid = localStorage.getItem("uuid");
+  const adminUuid = localStorage.getItem("admin-uuid");
+  if (uuid) headers["user-uuid"] = uuid;
+  if (adminUuid) headers["admin-uuid"] = adminUuid;
+  return headers;
+}
+
+/** Load user pipeline outputs through the signed API, not the public CDN. */
 export async function fetchTechDrawBundleForJob(jobId, outputS3Prefix = "") {
   const id = String(jobId || "").trim();
   if (!JOB_ID_RE.test(id)) return null;
+
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams({ designId: id });
+    const explicit = String(outputS3Prefix || "").trim();
+    if (explicit) params.set("prefix", explicit);
+    try {
+      const res = await fetch(`/api/techdraw-user-bundle?${params}`, {
+        headers: bundleAuthHeaders(),
+        cache: "no-store",
+      });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }
 
   const prefixCandidates = [];
   const explicit = String(outputS3Prefix || "").trim();

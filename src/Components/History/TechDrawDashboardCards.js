@@ -287,7 +287,7 @@ export default function TechDrawDashboardCards({
                       fontWeight: 400,
                     }}
                   >
-                    {formatDate(job.createdAt)}
+                    {formatDate(job.createdAt)} · kept 7 days
                   </span>
                 </div>
               </Link>

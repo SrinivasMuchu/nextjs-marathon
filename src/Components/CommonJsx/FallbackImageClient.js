@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuthedTechDrawSrc } from "@/lib/techDraw/authTechDrawFetch";
 
 export default function FallbackImageClient({
   className,
@@ -17,13 +18,14 @@ export default function FallbackImageClient({
   const [hidden, setHidden] = useState(false);
 
   const currentSrc = list[index] || "";
+  const resolvedSrc = useAuthedTechDrawSrc(currentSrc);
 
-  if (hidden || !currentSrc) return null;
+  if (hidden || !resolvedSrc) return null;
 
   return (
     <img
       className={className}
-      src={currentSrc}
+      src={resolvedSrc}
       alt={alt}
       onError={() => {
         if (index + 1 < list.length) {

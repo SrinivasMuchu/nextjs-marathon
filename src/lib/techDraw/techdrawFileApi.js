@@ -2,8 +2,6 @@
  * Same-origin URLs for /api/techdraw-file (inline SVG/PDF preview + optional download).
  */
 
-import { DESIGN_GLB_PREFIX_URL } from "@/config";
-
 export function techdrawFileApiUrl(
   designId,
   { sheet, ext, source, disposition, variant, file, prefix } = {},
@@ -53,24 +51,11 @@ export function techdrawJobPreviewCandidates(job, sheetNum = 1) {
 
   const outputPrefix = String(job?.output_s3_prefix || "").trim();
   const n = Number(sheetNum);
-  const cdn = DESIGN_GLB_PREFIX_URL.replace(/\/$/, "");
 
-  const urls = techdrawSheetPreviewUrls(id, n, {
-    userPipeline: true,
+  return techdrawSheetPreviewUrls(id, n, {
+    userPipeline: !outputPrefix,
     outputPrefix,
   });
-
-  const prefixPaths = new Set();
-  if (outputPrefix) prefixPaths.add(outputPrefix);
-  prefixPaths.add(`qwen_tech_draw_designs/${id}`);
-  prefixPaths.add(`user-freecad-techdraw/${id}`);
-
-  for (const prefixPath of prefixPaths) {
-    const direct = `${cdn}/${prefixPath}/svg/sheet_${n}.svg`;
-    if (!urls.includes(direct)) urls.push(direct);
-  }
-
-  return urls;
 }
 
 /**
