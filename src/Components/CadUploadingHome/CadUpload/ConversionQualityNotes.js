@@ -4,10 +4,10 @@ import styles from './ConversionQualityNotes.module.css';
 
 const bullets = [
   <>
-    <strong>CAD → Mesh</strong> (STEP/IGES/BREP → STL/OBJ/PLY/3DM): may lose parametric features; output becomes triangles.
+    <strong>CAD → Mesh</strong> (STEP/IGES/BREP → STL/3MF/OBJ/PLY/3DM): may lose parametric features; output becomes triangles.
   </>,
   <>
-    <strong>Mesh → CAD</strong> (STL/OBJ/PLY → STEP/IGES/BREP): may produce surfaces/approximations depending on engine.
+    <strong>Mesh → CAD</strong> (STL/3MF/OBJ/PLY → STEP/IGES/BREP): may produce surfaces/approximations depending on engine.
   </>,
   <>If output looks broken, try converting to <strong>STEP</strong> first, then to your target format.</>,
 ];

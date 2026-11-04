@@ -43,7 +43,7 @@ import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import styles from './ConvertPairPage.module.css'
 
 /** Mesh formats use wireframeImage; solid/surface CAD formats use solidImage. */
-const MESH_VISUAL_FORMATS = new Set(['stl', 'obj', 'off', 'ply'])
+const MESH_VISUAL_FORMATS = new Set(['stl', 'obj', 'off', 'ply', '3mf'])
 const BENEFIT_ICONS = [Download, Box, Workflow, LockKeyhole]
 const RESOURCE_ICONS = [Eye, FileText, Headphones, FolderOpen]
 

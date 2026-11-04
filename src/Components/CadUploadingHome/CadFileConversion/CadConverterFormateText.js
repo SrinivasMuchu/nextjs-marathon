@@ -53,6 +53,11 @@ function CadConverterFormateText({ conversionParams }) {
       route: '3dm',
       description: '3DM is the native file format of Rhinoceros (Rhino), based on the openNURBS toolkit. It stores 3D geometry such as NURBS surfaces, polysurfaces, meshes, and related object data, and is widely used in industrial design, architecture, jewelry, and manufacturing pipelines.'
     },
+    {
+      label: '3MF',
+      route: '3mf',
+      description: '3D Manufacturing Format is a ZIP-based 3D-printing format maintained by the 3MF Consortium. It stores triangle meshes with a declared unit, multiple named objects, colours and materials in one file, and is read by PrusaSlicer, Bambu Studio, OrcaSlicer and Cura.'
+    },
     // {label: 'GLB',
     //   route: 'glb',
     //   description:'Polygon File Format is a widely used file format for representing 3D data, particularly polygonal meshes, in the fields of computer graphics, 3D scanning, and point cloud data. It was originally developed to store data from 3D scanners and has since gained popularity in both academic and commercial applications due to its flexibility in handling a variety of data types.'

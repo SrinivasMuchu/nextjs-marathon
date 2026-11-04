@@ -214,6 +214,7 @@ export const converterTypes = [
   { label: 'STEP to STL', path: '/step-to-stl', oneLiner: 'Convert STEP to STL for 3D printing and slicing.' },
   { label: 'STEP to OFF', path: '/step-to-off', oneLiner: 'Convert STEP to OFF for geometry research workflows.' },
   { label: 'STEP to 3DM', path: '/step-to-3dm', oneLiner: 'Convert STEP to 3DM for Rhino / OpenNURBS workflows.' },
+  { label: 'STEP to 3MF', path: '/step-to-3mf', oneLiner: 'Convert STEP to 3MF for 3D printing with parts and colours kept.' },
 
   { label: 'IGES to BREP', path: '/iges-to-brep', oneLiner: 'Convert IGES to BREP for solid model processing.' },
   { label: 'IGES to STEP', path: '/iges-to-step', oneLiner: 'Convert IGES to STEP for modern CAD compatibility.' },
@@ -222,6 +223,7 @@ export const converterTypes = [
   { label: 'IGES to STL', path: '/iges-to-stl', oneLiner: 'Convert IGES to STL for 3D printing from legacy files.' },
   { label: 'IGES to OFF', path: '/iges-to-off', oneLiner: 'Convert IGES to OFF for geometry research workflows.' },
   { label: 'IGES to 3DM', path: '/iges-to-3dm', oneLiner: 'Convert IGES to 3DM for Rhino / OpenNURBS workflows.' },
+  { label: 'IGES to 3MF', path: '/iges-to-3mf', oneLiner: 'Convert IGES to 3MF for 3D printing from legacy CAD.' },
 
   { label: 'OBJ to BREP', path: '/obj-to-brep', oneLiner: 'Convert OBJ to BREP for solid CAD workflows.' },
   { label: 'OBJ to IGES', path: '/obj-to-iges', oneLiner: 'Convert OBJ to IGES for legacy CAD exchange.' },
@@ -230,6 +232,7 @@ export const converterTypes = [
   { label: 'OBJ to STL', path: '/obj-to-stl', oneLiner: 'Convert OBJ to STL for mesh workflows and 3D printing.' },
   { label: 'OBJ to OFF', path: '/obj-to-off', oneLiner: 'Convert OBJ to OFF for geometry research workflows.' },
   { label: 'OBJ to 3DM', path: '/obj-to-3dm', oneLiner: 'Convert OBJ to 3DM for Rhino mesh/NURBS handoff.' },
+  { label: 'OBJ to 3MF', path: '/obj-to-3mf', oneLiner: 'Convert OBJ to 3MF for slicers that keep units and objects.' },
 
   { label: 'PLY to BREP', path: '/ply-to-brep', oneLiner: 'Convert PLY to BREP for solid CAD workflows.' },
   { label: 'PLY to IGES', path: '/ply-to-iges', oneLiner: 'Convert PLY to IGES for legacy CAD exchange.' },
@@ -238,6 +241,7 @@ export const converterTypes = [
   { label: 'PLY to STL', path: '/ply-to-stl', oneLiner: 'Convert PLY to STL for 3D printing pipelines.' },
   { label: 'PLY to OFF', path: '/ply-to-off', oneLiner: 'Convert PLY to OFF for geometry research workflows.' },
   { label: 'PLY to 3DM', path: '/ply-to-3dm', oneLiner: 'Convert PLY to 3DM for Rhino scan-data workflows.' },
+  { label: 'PLY to 3MF', path: '/ply-to-3mf', oneLiner: 'Convert PLY to 3MF for printing scan data.' },
 
   { label: 'STL to BREP', path: '/stl-to-brep', oneLiner: 'Convert STL to BREP for solid reconstruction workflows.' },
   { label: 'STL to IGES', path: '/stl-to-iges', oneLiner: 'Convert STL to IGES for legacy CAD exchange.' },
@@ -246,6 +250,7 @@ export const converterTypes = [
   { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'Convert STL to STEP for reverse engineering workflows.' },
   { label: 'STL to OFF', path: '/stl-to-off', oneLiner: 'Convert STL to OFF for geometry research workflows.' },
   { label: 'STL to 3DM', path: '/stl-to-3dm', oneLiner: 'Convert STL to 3DM for Rhino mesh workflows.' },
+  { label: 'STL to 3MF', path: '/stl-to-3mf', oneLiner: 'Convert STL to 3MF to add units for modern slicers.' },
 
   { label: 'OFF to BREP', path: '/off-to-brep', oneLiner: 'Convert OFF to BREP for solid CAD workflows.' },
   { label: 'OFF to IGES', path: '/off-to-iges', oneLiner: 'Convert OFF to IGES for legacy CAD exchange.' },
@@ -254,6 +259,7 @@ export const converterTypes = [
   { label: 'OFF to STL', path: '/off-to-stl', oneLiner: 'Convert OFF to STL for 3D printing pipelines.' },
   { label: 'OFF to STEP', path: '/off-to-step', oneLiner: 'Convert OFF to STEP for modern CAD import.' },
   { label: 'OFF to 3DM', path: '/off-to-3dm', oneLiner: 'Convert OFF to 3DM for Rhino geometry workflows.' },
+  { label: 'OFF to 3MF', path: '/off-to-3mf', oneLiner: 'Convert OFF to 3MF for 3D printing pipelines.' },
 
   { label: 'BREP to STEP', path: '/brep-to-step', oneLiner: 'Convert BREP to STEP for CAD/CAM handoff.' },
   { label: 'BREP to IGES', path: '/brep-to-iges', oneLiner: 'Convert BREP to IGES for legacy CAD exchange.' },
@@ -262,6 +268,7 @@ export const converterTypes = [
   { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for additive manufacturing.' },
   { label: 'BREP to OFF', path: '/brep-to-off', oneLiner: 'Convert BREP to OFF for geometry research workflows.' },
   { label: 'BREP to 3DM', path: '/brep-to-3dm', oneLiner: 'Convert BREP to 3DM for Rhino / OpenNURBS workflows.' },
+  { label: 'BREP to 3MF', path: '/brep-to-3mf', oneLiner: 'Convert BREP to 3MF for additive manufacturing.' },
 
   { label: '3DM to BREP', path: '/3dm-to-brep', oneLiner: 'Convert 3DM to BREP for solid CAD workflows.' },
   { label: '3DM to IGES', path: '/3dm-to-iges', oneLiner: 'Convert 3DM to IGES for legacy CAD exchange.' },
@@ -270,6 +277,16 @@ export const converterTypes = [
   { label: '3DM to STL', path: '/3dm-to-stl', oneLiner: 'Convert 3DM to STL for 3D printing pipelines.' },
   { label: '3DM to OFF', path: '/3dm-to-off', oneLiner: 'Convert 3DM to OFF for geometry research workflows.' },
   { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Move Rhino models into CAD/CAM.' },
+  { label: '3DM to 3MF', path: '/3dm-to-3mf', oneLiner: 'Convert 3DM to 3MF for printing Rhino models.' },
+
+  { label: '3MF to BREP', path: '/3mf-to-brep', oneLiner: 'Convert 3MF to BREP for solid CAD workflows.' },
+  { label: '3MF to IGES', path: '/3mf-to-iges', oneLiner: 'Convert 3MF to IGES for legacy CAD exchange.' },
+  { label: '3MF to OBJ', path: '/3mf-to-obj', oneLiner: 'Convert 3MF to OBJ for rendering and visualization.' },
+  { label: '3MF to PLY', path: '/3mf-to-ply', oneLiner: 'Convert 3MF to PLY for mesh interchange.' },
+  { label: '3MF to STL', path: '/3mf-to-stl', oneLiner: 'Convert 3MF to STL for print services and older slicers.' },
+  { label: '3MF to OFF', path: '/3mf-to-off', oneLiner: 'Convert 3MF to OFF for geometry research workflows.' },
+  { label: '3MF to 3DM', path: '/3mf-to-3dm', oneLiner: 'Convert 3MF to 3DM for Rhino mesh workflows.' },
+  { label: '3MF to STEP', path: '/3mf-to-step', oneLiner: 'Convert 3MF to STEP for CAD import from print files.' },
 
   { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 2D CAD exchange.' },
   { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 2D CAD exchange.' },
@@ -333,6 +350,22 @@ const POPULAR_CONVERTER_DESCRIPTIONS = {
   '3dm-to-obj': 'For visualization pipelines',
   '3dm-to-ply': 'For mesh export',
   '3dm-to-off': 'For geometry research workflows',
+  'step-to-3mf': 'For 3D printing with parts and colours kept',
+  'iges-to-3mf': 'For 3D printing from legacy CAD',
+  'obj-to-3mf': 'For slicers that keep units and objects',
+  'ply-to-3mf': 'For printing scan data',
+  'stl-to-3mf': 'To add units for modern slicers',
+  'off-to-3mf': 'For 3D printing pipelines',
+  'brep-to-3mf': 'For additive manufacturing',
+  '3dm-to-3mf': 'For printing Rhino models',
+  '3mf-to-brep': 'For solid CAD workflows',
+  '3mf-to-iges': 'For legacy CAD exchange',
+  '3mf-to-obj': 'For rendering and visualization',
+  '3mf-to-ply': 'For mesh interchange',
+  '3mf-to-stl': 'For print services and older slicers',
+  '3mf-to-off': 'For geometry research workflows',
+  '3mf-to-3dm': 'For Rhino mesh workflows',
+  '3mf-to-step': 'For CAD import from print files',
   'dxf-to-dwg': 'Convert DXF to DWG for 2D CAD exchange',
   'dwg-to-dxf': 'Convert DWG to DXF for 2D CAD exchange',
 };
@@ -361,6 +394,7 @@ export const featuredConversions = [
   { label: 'STL to STEP', path: '/stl-to-step', oneLiner: 'Convert STL to STEP for CAD compatibility and import.' },
   { label: '3DM to STEP', path: '/3dm-to-step', oneLiner: 'Convert Rhino 3DM to STEP for CAD/CAM exchange.' },
   { label: 'BREP to STL', path: '/brep-to-stl', oneLiner: 'Convert BREP to STL for mesh export and 3D printing.' },
+  { label: 'STEP to 3MF', path: '/step-to-3mf', oneLiner: 'Convert STEP to 3MF for 3D printing with parts and colours kept.' },
   { label: 'DWG to DXF', path: '/dwg-to-dxf', oneLiner: 'Convert DWG to DXF for 2D CAD exchange.' },
   { label: 'DXF to DWG', path: '/dxf-to-dwg', oneLiner: 'Convert DXF to DWG for 2D CAD exchange.' },
 ];

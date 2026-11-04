@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { converterTypes, featuredConversions } from '@/common.helper'
 import { getConverterPairContent } from '@/data/converterPairContent'
+import { isCadViewerFormatSlug } from '@/data/cadFormatViewerPages'
 import styles from './ConvertPairAftercare.module.css'
 
 const PRIVACY_ITEMS = [
@@ -45,14 +46,8 @@ function buildRelatedTools(from, to) {
     return item.pair !== `${from}-to-${to}`
   }).slice(0, 4)
 
-  return [
-    ...conversions.map((item) => ({
-      from: item.from.toUpperCase(),
-      to: item.to.toUpperCase(),
-      title: `Convert ${item.from.toUpperCase()} to ${item.to.toUpperCase()}`,
-      description: item.oneLiner,
-      href: `/tools/convert-${item.pair}`,
-    })),
+  // Formats without a viewer page (e.g. 3MF) link to nothing, so skip those cards.
+  const viewerCards = [
     {
       from: to.toUpperCase(),
       viewer: true,
@@ -67,6 +62,17 @@ function buildRelatedTools(from, to) {
       description: 'Check the source geometry before starting a new conversion.',
       href: `/tools/${from}-file-viewer`,
     },
+  ].filter((card) => isCadViewerFormatSlug(card.from.toLowerCase()))
+
+  return [
+    ...conversions.map((item) => ({
+      from: item.from.toUpperCase(),
+      to: item.to.toUpperCase(),
+      title: `Convert ${item.from.toUpperCase()} to ${item.to.toUpperCase()}`,
+      description: item.oneLiner,
+      href: `/tools/convert-${item.pair}`,
+    })),
+    ...viewerCards,
   ]
 }
 

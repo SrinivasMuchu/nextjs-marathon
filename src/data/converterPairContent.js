@@ -82,6 +82,16 @@ const FORMAT_INFO = {
     groups: 'Layers and object groups may be included',
     tools: 'Rhino and OpenNURBS-compatible tools',
   },
+  '3mf': {
+    name: '3MF print file',
+    family: '3D-printing mesh',
+    purpose: '3D printing, slicing and multi-part print jobs',
+    geometry: 'Triangle meshes with declared units',
+    texture: 'Colours supported; textures through extensions',
+    materials: 'Base materials and colours can be stored',
+    groups: 'Multiple named objects in one file',
+    tools: 'PrusaSlicer, Bambu Studio, OrcaSlicer and Cura',
+  },
   dwg: {
     name: 'AutoCAD DWG',
     family: '2D CAD drawing',
@@ -161,6 +171,13 @@ const FORMAT_HERO = {
     kind: 'CAD model',
     into: 'into Rhino 3DM (.3dm) for Rhino, Grasshopper and OpenNURBS workflows',
   },
+  '3mf': {
+    article: 'a',
+    label: '3MF',
+    extensions: '.3mf',
+    kind: 'print file',
+    into: 'into a 3MF (.3mf) file for PrusaSlicer, Bambu Studio, OrcaSlicer, Cura and other 3D-printing workflows',
+  },
   dxf: {
     article: 'a',
     label: 'DXF',
@@ -177,7 +194,7 @@ const FORMAT_HERO = {
   },
 }
 
-const MESH_FORMATS = new Set(['obj', 'ply', 'stl', 'off'])
+const MESH_FORMATS = new Set(['obj', 'ply', 'stl', 'off', '3mf'])
 const DRAWING_FORMATS = new Set(['dwg', 'dxf'])
 const CAD_FORMATS = new Set(['step', 'iges', 'brep'])
 

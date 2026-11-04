@@ -27,6 +27,7 @@ const CONVERTER_META_TO_PHRASE = {
   stl: 'STL online for 3D printing and slicing',
   off: 'OFF online for computational mesh workflows',
   '3dm': '3DM online for Rhino and Grasshopper workflows',
+  '3mf': '3MF online for PrusaSlicer, Bambu Studio and Cura',
   step: 'STEP online for mechanical CAD workflows',
   stp: 'STEP online for mechanical CAD workflows',
   dxf: 'DXF online for CAD, CAM and CNC exchange',

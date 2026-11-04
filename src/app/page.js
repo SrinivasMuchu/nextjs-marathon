@@ -6,7 +6,7 @@ import styles from "./page.module.css";
 const CANONICAL_PATH = "/";
 const TITLE = "Online CAD Tools to Convert, View & Draw CAD Files | Marathon OS";
 const DESCRIPTION =
-  "Convert STEP, STL, IGES, OBJ, 3DM, DXF and DWG files, view CAD models in 3D, extract a BOM and make 2D drawings from STEP online. First 2 files free";
+  "Convert STEP, STL, 3MF, IGES, OBJ, 3DM, DXF and DWG files, view CAD models in 3D, extract a BOM and make 2D drawings from STEP online. First 2 files free";
 
 export const metadata = buildPageMetadata({
   title: TITLE,

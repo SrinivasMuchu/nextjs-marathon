@@ -27,6 +27,7 @@ const FORMAT_EXTENSIONS = {
   brep: '.brp or .brep',
   brp: '.brp or .brep',
   '3dm': '.3dm',
+  '3mf': '.3mf',
   dwg: '.dwg',
   dxf: '.dxf',
 };
@@ -49,6 +50,10 @@ const WHY_CONVERT_HINTS = {
   '3dm-step': 'Converting 3DM to STEP helps move Rhino models into CAD/CAM and manufacturing workflows that expect STEP exchange files.',
   'stl-3dm': 'Converting STL to 3DM lets you bring printable meshes into Rhino for surfacing, editing, and visualization.',
   '3dm-stl': 'Converting 3DM to STL prepares Rhino models for 3D printing, slicing, and mesh-based review.',
+  'step-3mf': 'Converting STEP to 3MF gives slicers such as PrusaSlicer, Bambu Studio, OrcaSlicer and Cura a print file with units, and each solid becomes its own named, coloured object.',
+  '3mf-step': 'Converting 3MF to STEP moves a print file into CAD tools that expect a neutral exchange format. The mesh becomes faceted geometry; it does not recover the original feature history.',
+  'stl-3mf': 'Converting STL to 3MF adds a declared unit to the mesh, so modern slicers open the part at the right size.',
+  '3mf-stl': 'Converting 3MF to STL is useful when a print service or older slicer only accepts STL. Colours and object names are not kept, because STL cannot store them.',
 };
 
 function getWhyConvertAnswer(from, to) {
@@ -116,7 +121,7 @@ export const cadConverterFaqQuestions = [
   {
     question: 'Which file formats are supported?',
     answer:
-      'STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), DWG (.dwg), and DXF (.dxf).',
+      'STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), 3MF (.3mf), DWG (.dwg), and DXF (.dxf).',
   },
   {
     question: 'Is the converter free to use?',

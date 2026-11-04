@@ -21,7 +21,7 @@ function ConversionFaq() {
     {
       question: "Which CAD file formats can I convert?",
       answer:
-        "Marathon OS supports STEP, STP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM, DWG and DXF across more than 60 specialist conversion tools.",
+        "Marathon OS supports STEP, STP, IGES, STL, 3MF, OBJ, PLY, OFF, BREP, 3DM, DWG and DXF across more than 60 specialist conversion tools.",
     },
     {
       question: "How much does a standard CAD format conversion cost?",

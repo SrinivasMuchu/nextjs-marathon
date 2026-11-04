@@ -54,7 +54,7 @@ const jsonLdData = {
   "url": `${BASE_URL}/`,
   "applicationCategory": "DesignApplication",
   "operatingSystem": "Any (web browser)",
-  "description": "Online CAD tools to convert STEP, STL, IGES, OBJ, 3DM, BREP, PLY, OFF, DXF and DWG files, view CAD models in 3D, extract a BOM and turn STEP models into 2D drawings.",
+  "description": "Online CAD tools to convert STEP, STL, 3MF, IGES, OBJ, 3DM, BREP, PLY, OFF, DXF and DWG files, view CAD models in 3D, extract a BOM and turn STEP models into 2D drawings.",
   "offers": [
     {
       "@type": "Offer",
