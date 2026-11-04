@@ -15,7 +15,7 @@ const FAMILIES = [
     icon: Layers,
     title: "Meshes and 3D printing",
     description: "For slicing, printing, scanning, rendering and mesh editing.",
-    formats: ["STL", "OBJ", "PLY", "OFF"],
+    formats: ["STL", "3MF", "OBJ", "PLY", "OFF"],
   },
   {
     number: "03",

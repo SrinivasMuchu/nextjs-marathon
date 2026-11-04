@@ -4,15 +4,15 @@ import { getConverterFreePlanBadge, getConverterFreePlanSummary } from '@/lib/co
 // Use getConverterHubBadges / getConverterHubFaqs with server pricing-info instead.
 export const CONVERTER_HUB_PAGE = {
   meta: {
-    title: 'Free Online CAD File Converter | STEP, STL, IGES, OBJ, 3DM | Marathon OS',
+    title: 'Free Online CAD File Converter | STEP, STL, 3MF, IGES, OBJ, 3DM | Marathon OS',
     description:
-      'Convert CAD and 3D files online between STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF. Secure browser-based conversion with 300 MB uploads and auto-delete in 7 days.',
+      'Convert CAD and 3D files online between STEP, STL, 3MF, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF. Secure browser-based conversion with 300 MB uploads and auto-delete in 7 days.',
   },
   h1: 'Free online 3D CAD file converter',
   // badges[0] (the free-plan offer) is filled in by getConverterHubBadges.
-  badges: [null, '10 supported formats', 'No software installation'],
+  badges: [null, '11 supported formats', 'No software installation'],
   intro:
-    'Convert CAD solids, surface models, polygon meshes and 2D drawings between 10 common engineering formats. Choose the file you have and the format required by your CAD, CAM, 3D-printing, visualization or supplier workflow.',
+    'Convert CAD solids, surface models, polygon meshes and 2D drawings between 11 common engineering formats. Choose the file you have and the format required by your CAD, CAM, 3D-printing, visualization or supplier workflow.',
   expectationNote:
     'Format conversion preserves compatible data. It does not recreate proprietary feature history or information that the destination format cannot store.',
   trust: ['Encrypted uploads', 'Up to 300 MB', 'Automatically deleted within 7 days'],
@@ -51,6 +51,7 @@ export const CONVERTER_HUB_PAGE = {
     { label: 'STEP / STP', filter: 'STEP', description: 'Neutral CAD exchange for boundary-representation geometry, surfaces, solids, assemblies and product structure.', extensions: '.step, .stp', cta: 'View STEP converters' },
     { label: 'IGES / IGS', filter: 'IGES', description: 'Legacy CAD exchange for curves, wireframes and surface geometry.', extensions: '.iges, .igs', cta: 'View IGES converters' },
     { label: 'STL', filter: 'STL', description: 'Triangle-mesh format used for slicing and 3D printing. Standard STL does not define units, materials or feature history.', extensions: '.stl', cta: 'View STL converters' },
+    { label: '3MF', filter: '3MF', description: '3D-printing format read by PrusaSlicer, Bambu Studio, OrcaSlicer and Cura. Stores units, multiple named objects and colours in one file.', extensions: '.3mf', cta: 'View 3MF converters' },
     { label: 'OBJ', filter: 'OBJ', description: 'Polygon-mesh format that can reference materials and textures through separate files.', extensions: '.obj', cta: 'View OBJ converters' },
     { label: 'PLY', filter: 'PLY', description: 'Polygon and scan-data format that can store vertex, face and color attributes.', extensions: '.ply', cta: 'View PLY converters' },
     { label: 'OFF', filter: 'OFF', description: 'Compact polygon-geometry format commonly used in research and geometry-processing workflows.', extensions: '.off', cta: 'View OFF converters' },
@@ -73,7 +74,7 @@ export const CONVERTER_HUB_PAGE = {
   qualityIntro: 'A file extension is also a data model. When formats represent geometry differently, some information must be translated, approximated or omitted.',
   qualityNotes: [
     { title: 'CAD solids and surfaces to mesh', description: 'STEP, IGES, BREP or 3DM geometry is tessellated into triangles or polygons. Parametric features, exact analytic surfaces, assemblies and product metadata may be lost.', cta: 'View CAD-to-mesh routes', filter: 'STEP' },
-    { title: 'Mesh to CAD exchange', description: 'STL, OBJ, PLY or OFF geometry may become faceted surfaces, a sewn shell or a solid where the mesh is valid. Conversion does not recreate sketches, constraints or native feature history.', cta: 'View mesh-to-CAD routes', filter: 'STL' },
+    { title: 'Mesh to CAD exchange', description: 'STL, 3MF, OBJ, PLY or OFF geometry may become faceted surfaces, a sewn shell or a solid where the mesh is valid. Conversion does not recreate sketches, constraints or native feature history.', cta: 'View mesh-to-CAD routes', filter: 'STL' },
     { title: 'CAD exchange to CAD exchange', description: 'Compatible surfaces, solids and topology can be translated, but proprietary features, application metadata, materials and assembly relationships may change.', cta: 'View CAD exchange routes', filter: 'IGES' },
     { title: 'DWG and DXF drawing exchange', description: 'Layers and common entities may transfer, while fonts, external references, proxy objects, dimensions and application-specific data may require review.', cta: 'View drawing routes', filter: 'DWG' },
     { title: 'If the output looks wrong', description: 'First verify that the source opens correctly and matches the expected units. Repair invalid geometry before retrying. Do not automatically convert through STEP unless the documented route is known to improve that specific case.', cta: 'Open CAD viewer', href: '/tools/3d-cad-viewer' },
@@ -82,7 +83,7 @@ export const CONVERTER_HUB_PAGE = {
   useHeading: 'Built for common engineering handoffs',
   useIntro: 'Choose a direct conversion when the geometry is usable and the next tool simply requires another supported format.',
   useCases: [
-    { title: '3D printing', description: 'Convert compatible CAD geometry to STL or another supported mesh for slicing and prototyping.' },
+    { title: '3D printing', description: 'Convert compatible CAD geometry to STL, 3MF or another supported mesh for slicing and prototyping.' },
     { title: 'Supplier handoff', description: 'Provide a neutral file format that a manufacturer, vendor or client can open.' },
     { title: 'CAD inspection', description: 'Create a format that can be opened in a browser viewer or the receiving CAD application for review.' },
     { title: 'Rhino and visualization', description: 'Move compatible geometry between 3DM, STEP, OBJ and other supported workflows.' },
@@ -92,7 +93,7 @@ export const CONVERTER_HUB_PAGE = {
   directoryEyebrow: 'All conversion routes',
   directoryHeading: 'Find the exact input and output pair',
   directoryIntro: 'Choose the format you have, then open the dedicated converter for the result you need. Every dedicated page should arrive with both formats already selected.',
-  directoryFilters: ['All', 'STEP', 'IGES', 'STL', 'OBJ', 'PLY', 'OFF', 'BREP', '3DM', 'DWG', 'DXF'],
+  directoryFilters: ['All', 'STEP', 'IGES', 'STL', '3MF', 'OBJ', 'PLY', 'OFF', 'BREP', '3DM', 'DWG', 'DXF'],
   directoryEmptyTitle: 'No matching conversion found',
   directoryEmptyBody: 'Check the source and destination formats, or use the main converter to see compatible outputs for your file.',
   directoryEmptyCta: 'Use the main converter',
@@ -110,7 +111,7 @@ export const CONVERTER_HUB_PAGE = {
   faqs: [
     {
       question: 'What can I convert with the Marathon OS CAD converter?',
-      answer: 'Marathon OS supports direct routes between selected STEP, STP, IGES, IGS, STL, OBJ, PLY, OFF, BREP, 3DM, DWG and DXF files. Available outputs depend on the detected input format.',
+      answer: 'Marathon OS supports direct routes between selected STEP, STP, IGES, IGS, STL, 3MF, OBJ, PLY, OFF, BREP, 3DM, DWG and DXF files. Available outputs depend on the detected input format.',
     },
     {
       question: 'Is the online CAD converter free?',

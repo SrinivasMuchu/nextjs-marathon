@@ -13,7 +13,7 @@ function ConvertCrossLink({ cadType, uniquePage: uniquePageProp }) {
         <HeadingTag>{uniquePage?.converterHeading || 'Need to convert a CAD file?'}</HeadingTag>
         <p>
           {uniquePage?.converterBody ||
-            'If you need the file in another format, use Marathon OS CAD Converter to convert between STEP, STL, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF.'}
+            'If you need the file in another format, use Marathon OS CAD Converter to convert between STEP, STL, 3MF, IGES, OBJ, PLY, BREP, 3DM, DWG and DXF.'}
         </p>
         <Link
           href={uniquePage?.converterHref || '/tools/3d-cad-file-converter'}
