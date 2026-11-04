@@ -50,6 +50,24 @@ const FORMAT_FIELD_LABELS = {
   dxf: "DXF (.dxf)",
 };
 
+// Mesh files carry no units; the converter reads them as mm unless told.
+const UNITLESS_MESH_FORMATS = ["stl", "obj", "ply", "off"];
+const SOLID_OUTPUT_FORMATS = ["step", "iges", "brep"];
+export const SOURCE_UNIT_OPTIONS = [
+  { value: "mm", label: "Millimetres (mm)" },
+  { value: "cm", label: "Centimetres (cm)" },
+  { value: "m", label: "Metres (m)" },
+  { value: "in", label: "Inches (in)" },
+];
+
+/** True when the job reads a unitless mesh into a solid, so units matter. */
+export function needsSourceUnits(inputExt, outputFormat) {
+  return (
+    UNITLESS_MESH_FORMATS.includes(normalizeFormatKey(inputExt)) &&
+    SOLID_OUTPUT_FORMATS.includes(normalizeFormatKey(outputFormat))
+  );
+}
+
 function formatFieldLabel(key) {
   const normalized = normalizeFormatKey(key);
   if (!normalized) return "";
@@ -71,6 +89,8 @@ function CadDropDown({
   isSampleFile = false,
   setDisableSelect,
   designVariant,
+  sourceUnits = "mm",
+  setSourceUnits,
 }) {
   const pricingSeed = useConverterPricingSeed();
   const [pricingInfo, setPricingInfo] = React.useState(pricingSeed);
@@ -279,6 +299,24 @@ function CadDropDown({
     uploadingMessage || disableSelect || (isDxfOrDwg && filteredOptions.length === 1);
   const isConvertButtonDisabled = uploadingMessage || disableSelect;
   const isConvertButtonVisible = !!selectedKey;
+  const showSourceUnits =
+    typeof setSourceUnits === "function" &&
+    needsSourceUnits(fileExt || pairSource, selectValueAttr || pairTarget);
+  const sourceUnitsSelect = (className) => (
+    <select
+      className={className}
+      value={sourceUnits}
+      onChange={(event) => setSourceUnits(event.target.value)}
+      disabled={Boolean(uploadingMessage) || disableSelect}
+      aria-label="Units the mesh was modelled in"
+    >
+      {SOURCE_UNIT_OPTIONS.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
 
   if (designVariant === "converterHero" || designVariant === "stepToStlHero") {
     const dedicatedPair = Boolean(pairSource && pairTarget);
@@ -404,6 +442,13 @@ function CadDropDown({
           </label>
         </div>
 
+        {showSourceUnits ? (
+          <label className={heroStyles.converterFormatField}>
+            <span>Source units</span>
+            {sourceUnitsSelect(heroStyles.converterOutputSelect)}
+          </label>
+        ) : null}
+
         <button
           type="button"
           className={heroStyles.converterActionButton}
@@ -487,6 +532,12 @@ function CadDropDown({
                   </select>
                   <div className={cadStyles["cad-conversion-format-label"]}>{displayLabel}</div>
                 </div>
+                {showSourceUnits ? (
+                  <label className={cadStyles["cad-conversion-units"]}>
+                    <span>Source units</span>
+                    {sourceUnitsSelect(undefined)}
+                  </label>
+                ) : null}
               </td>
               <td data-label="Pricing">
                 <ConverterPricingBadge
