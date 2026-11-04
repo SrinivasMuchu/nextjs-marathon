@@ -108,7 +108,8 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     useEffect(() => {
         if (!convert) {
             // Include DWG and DXF for converter (even on general converter page)
-            setAllowedFormats([...allowedFilesList, ".dwg", ".dxf"])
+            // 3MF is converter-only (the viewer cannot open it yet).
+            setAllowedFormats([...allowedFilesList, ".3mf", ".dwg", ".dxf"])
             return
         }
 

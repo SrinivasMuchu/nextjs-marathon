@@ -46,6 +46,7 @@ const FORMAT_FIELD_LABELS = {
   ply: "PLY (.ply)",
   off: "OFF (.off)",
   "3dm": "3DM (.3dm)",
+  "3mf": "3MF (.3mf)",
   dwg: "DWG (.dwg)",
   dxf: "DXF (.dxf)",
 };
@@ -136,6 +137,7 @@ function CadDropDown({
       { value: "stl", label: ".stl" },
       { value: "off", label: ".off" },
       { value: "3dm", label: ".3dm" },
+      { value: "3mf", label: ".3mf" },
     ],
     []
   );
