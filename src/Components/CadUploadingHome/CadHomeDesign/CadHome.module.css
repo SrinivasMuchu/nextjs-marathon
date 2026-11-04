@@ -558,6 +558,33 @@
     opacity: 0.65;
 }
 
+/* Source units for mesh → solid. Explicit colours for the same reason as above. */
+.cad-conversion-units {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+.cad-conversion-units select {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 12px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid #a78bfa;
+    background-color: #ffffff;
+    color: #0a0514;
+    color-scheme: light;
+    font-size: 15px;
+}
+
+.cad-conversion-units select:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
 .cad-conversion-format-slot:focus-within .cad-conversion-format-select {
     outline: none;
     border-color: #610bee;
