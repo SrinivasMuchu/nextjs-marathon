@@ -40,7 +40,7 @@ function Footer() {
             <Link href="/tools/convert-stl-to-step">STL to STEP</Link>
             <Link href="/tools/convert-iges-to-step">IGES to STEP</Link>
             <Link href="/tools/convert-dwg-to-dxf">DWG to DXF</Link>
-            <Link href="/tools/cad-drawing-pipeline">STEP or STP to 2D</Link>
+            <Link href="/tools/convert-step-to-2d-drawing">STEP or STP to 2D</Link>
           </div>
 
           <div className={styles.footerColumn}>

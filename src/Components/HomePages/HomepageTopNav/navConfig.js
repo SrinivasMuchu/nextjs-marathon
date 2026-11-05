@@ -73,7 +73,7 @@ export const TOOLS_MENU = [
     Icon: RefreshCw,
   },
   {
-    href: "/tools/cad-drawing-pipeline",
+    href: "/tools/convert-step-to-2d-drawing",
     title: "3D to 2D Drawing Pipeline",
     subtitle: "Generate 2D drawings from 3D CAD",
     Icon: FileOutput,

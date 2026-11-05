@@ -20,7 +20,7 @@ const defaultChecks = [
  * Price comes from admin `techdraw_upload_price`.
  */
 export default function TwoDDrawingCtaBanner({
-  generateHref = "/tools/cad-drawing-pipeline",
+  generateHref = "/tools/convert-step-to-2d-drawing",
   secondaryHref = "",
   title = "Have your own 3D CAD file?",
   description = "Upload a STEP, STP, IGES or FreeCAD file and generate a 2D drawing set with PDF, SVG and DXF outputs.",

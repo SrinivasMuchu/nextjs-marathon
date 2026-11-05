@@ -144,7 +144,7 @@ export default function TechDrawDashboardCards({
           </div>
         </div>
         <Link
-          href="/tools/cad-drawing-pipeline"
+          href="/tools/convert-step-to-2d-drawing"
           style={{
             borderRadius: "8px",
             border: "2px solid #610BEE",
@@ -190,7 +190,7 @@ export default function TechDrawDashboardCards({
           <p style={{ margin: "0 0 12px", color: "#374151" }}>
             No 2D drawing jobs yet.
           </p>
-          <Link href="/tools/cad-drawing-pipeline" style={{ color: "#610bee", fontWeight: 600 }}>
+          <Link href="/tools/convert-step-to-2d-drawing" style={{ color: "#610bee", fontWeight: 600 }}>
             Upload a STEP file to start
           </Link>
         </div>

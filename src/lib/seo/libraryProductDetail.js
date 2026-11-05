@@ -103,7 +103,7 @@ const STEP_DETAIL_LINKS = [
   { label: "Convert STEP to IGES", href: "/tools/convert-step-to-iges" },
   {
     label: "Generate 2D drawings from this CAD file",
-    href: "/tools/cad-drawing-pipeline",
+    href: "/tools/convert-step-to-2d-drawing",
   },
 ];
 
@@ -117,7 +117,7 @@ const IGES_DETAIL_LINKS = [
   { label: "Convert IGES to STEP", href: "/tools/convert-iges-to-step" },
   {
     label: "Generate 2D drawings from this CAD file",
-    href: "/tools/cad-drawing-pipeline",
+    href: "/tools/convert-step-to-2d-drawing",
   },
 ];
 
@@ -172,7 +172,7 @@ export function getLibraryProductDetailToolLinks(
     return links.filter(
       (link) =>
         !link.href.includes("/tools/convert-") &&
-        !link.href.includes("/tools/cad-drawing-pipeline") &&
+        !link.href.includes("/tools/convert-step-to-2d-drawing") &&
         !link.href.includes("/tools/3d-cad-file-converter")
     );
   }

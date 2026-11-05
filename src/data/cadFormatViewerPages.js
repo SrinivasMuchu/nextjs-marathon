@@ -12,6 +12,7 @@ export const CAD_VIEWER_FORMAT_SLUGS = [
   'brep',
   'brp',
   '3dm',
+  '3mf',
   'dxf',
   'dwg',
 ];
@@ -52,7 +53,7 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-step-to-iges', label: 'STEP to IGES Converter' },
       { href: '/tools/convert-stl-to-step', label: 'STL to STEP Converter' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/cad-drawing-pipeline', label: 'CAD Drawing Pipeline' },
+      { href: '/tools/convert-step-to-2d-drawing', label: 'CAD Drawing Pipeline' },
     ],
   },
   stp: {
@@ -69,7 +70,7 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-step-to-iges', label: 'STEP to IGES Converter' },
       { href: '/tools/convert-stl-to-step', label: 'STL to STEP Converter' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/cad-drawing-pipeline', label: 'CAD Drawing Pipeline' },
+      { href: '/tools/convert-step-to-2d-drawing', label: 'CAD Drawing Pipeline' },
     ],
   },
   stl: {
@@ -200,6 +201,23 @@ const FORMAT_CONFIG = {
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
     ],
   },
+  '3mf': {
+    formatName: '3MF',
+    previewPhrase: '3MF print models with named parts and colours',
+    supportedInputLabel: '3MF (.3mf)',
+    extensions: ['.3mf'],
+    title: 'Free 3MF File Viewer Online – Open 3MF Files in Your Browser | Marathon OS',
+    description:
+      'Open and view 3MF files online in 3D. Inspect named parts and colours from PrusaSlicer, Bambu Studio, OrcaSlicer and Cura in your browser, with no slicer to install.',
+    h1: 'Free Online 3MF File Viewer',
+    relatedTools: [
+      { href: '/tools/convert-3mf-to-stl', label: '3MF to STL Converter' },
+      { href: '/tools/convert-stl-to-3mf', label: 'STL to 3MF Converter' },
+      { href: '/tools/convert-3mf-to-step', label: '3MF to STEP Converter' },
+      { href: '/tools/stl-file-viewer', label: 'STL File Viewer' },
+      { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
+    ],
+  },
   dxf: {
     formatName: 'DXF',
     previewPhrase: 'DXF CAD drawings',
@@ -213,7 +231,7 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-dxf-to-dwg', label: 'DXF to DWG Converter' },
       { href: '/tools/dwg-file-viewer', label: 'DWG File Viewer' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/cad-drawing-pipeline', label: 'CAD Drawing Pipeline' },
+      { href: '/tools/convert-step-to-2d-drawing', label: 'CAD Drawing Pipeline' },
     ],
   },
   dwg: {
@@ -229,7 +247,7 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-dwg-to-dxf', label: 'DWG to DXF Converter' },
       { href: '/tools/dxf-file-viewer', label: 'DXF File Viewer' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/cad-drawing-pipeline', label: 'CAD Drawing Pipeline' },
+      { href: '/tools/convert-step-to-2d-drawing', label: 'CAD Drawing Pipeline' },
     ],
   },
 };

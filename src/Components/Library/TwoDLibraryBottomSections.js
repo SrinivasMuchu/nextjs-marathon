@@ -40,7 +40,7 @@ export default function TwoDLibraryBottomSections() {
         <p className={hireStyles.body}>
           Generate your own 2D drawing set from a STEP, STP, IGES or FreeCAD file in minutes.
         </p>
-        <Link href="/tools/cad-drawing-pipeline" className={hireStyles.cta}>
+        <Link href="/tools/convert-step-to-2d-drawing" className={hireStyles.cta}>
           Generate my 2D drawing
         </Link>
       </div>

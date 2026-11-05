@@ -26,7 +26,7 @@ const toolsData = [
         image: IMAGEURLS.cadCapability,
         heading: 'CAD drawing pipeline',
         description: 'Upload STEP and run the TechDraw pipeline on the server—technical sheets and exports.',
-        route: '/tools/cad-drawing-pipeline'
+        route: '/tools/convert-step-to-2d-drawing'
     },
 ]
 

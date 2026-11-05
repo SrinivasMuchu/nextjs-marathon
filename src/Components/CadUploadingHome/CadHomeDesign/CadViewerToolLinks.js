@@ -51,6 +51,12 @@ const VIEWER_TOOLS = [
     pill: '3DM',
     description: 'Preview Rhino 3DM NURBS and mesh models online.',
   },
+  {
+    label: '3MF File Viewer',
+    href: '/tools/3mf-file-viewer',
+    pill: '3MF',
+    description: 'Open 3MF print files and inspect named, coloured parts.',
+  },
 ];
 
 function CadViewerToolLinks({ uniquePage }) {

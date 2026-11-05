@@ -7,7 +7,7 @@ import styles from "./TwoDDrawingRightSidebar.module.css";
 /** Right column: downloads, notices, link to 3D, drawing info, and upload CTA. */
 export default function TwoDDrawingRightSidebar({
   cadModelHref = "/library/industrial-ip67-ethernet-m12-angle-conne-698ec00809bd85d18216b084",
-  generateHref = "/tools/cad-drawing-pipeline",
+  generateHref = "/tools/convert-step-to-2d-drawing",
   pdfHref,
   svgHref,
   dxfHref,

@@ -91,7 +91,7 @@ function ConversionTypes() {
                 <small>PER DRAWING SET</small>
                 <TechDrawPriceAmount />
               </div>
-              <Link className={styles.whiteButton} href="/tools/cad-drawing-pipeline">
+              <Link className={styles.whiteButton} href="/tools/convert-step-to-2d-drawing">
                 Create 2D drawings
                 <ArrowRight size={16} aria-hidden="true" />
               </Link>
