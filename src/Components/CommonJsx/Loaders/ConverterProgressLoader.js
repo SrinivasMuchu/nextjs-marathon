@@ -16,8 +16,11 @@ import {
   getConverterPacksFromInfo,
   getFeaturedConverterPack,
   getSinglePriceLabelFromInfo,
+  buildSingleCreditPack,
 } from "@/lib/converterPricing";
 import { hasConverterCredits } from "@/lib/converterCredits";
+import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
+import { isLoggedInClient } from "@/lib/authSession";
 import styles from "./ConverterProgressLoader.module.css";
 import cube from "./Cube.json";
 
@@ -135,6 +138,7 @@ function ConverterProgressLoader({
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [showPackBanner, setShowPackBanner] = useState(false);
   const [pendingPack, setPendingPack] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
   const [freeQuotaCovered, setFreeQuotaCovered] = useState(false);
   const [freeConversionsStatus, setFreeConversionsStatus] = useState("");
   const [freePlanInfo, setFreePlanInfo] = useState(null);
@@ -385,19 +389,32 @@ function ConverterProgressLoader({
         title="Pay as you go, cheaper by the pack"
         subtitle={getCreditPlansSubtitle(freePlanInfo)}
         onClose={() => setShowPackBanner(false)}
-        onSelectSingle={() => setShowPackBanner(false)}
+        onSelectSingle={() => {
+          setShowPackBanner(false);
+          setPendingPack(buildSingleCreditPack(freePlanInfo?.pricing, singlePriceLabel));
+          if (!isLoggedInClient()) setShowLogin(true);
+        }}
         onSelectPack={(pack) => {
-          if (!user?._id && typeof window !== "undefined" && !localStorage.getItem("is_verified")) {
-            toast.info("Log in to buy credits.");
-            return;
-          }
           setShowPackBanner(false);
           setPendingPack(pack);
+          if (!isLoggedInClient()) {
+            setShowLogin(true);
+          }
         }}
       />
     ) : null}
 
-    {pendingPack ? (
+    {showLogin ? (
+      <UserLoginPupUp
+        type="login"
+        onClose={() => {
+          setShowLogin(false);
+          if (!isLoggedInClient()) setPendingPack(null);
+        }}
+      />
+    ) : null}
+
+    {pendingPack && !showLogin && isLoggedInClient() ? (
       <ConverterDownloadFlow
         mode="pack"
         pack={pendingPack}

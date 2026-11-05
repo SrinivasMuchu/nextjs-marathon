@@ -8,8 +8,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
 import DesignConversionStickyBar from './DesignConversionStickyBar';
 import ConverterCreditPlansPopup from '@/Components/History/ConverterCreditPlansPopup';
 import ConverterDownloadFlow from '@/Components/History/ConverterDownloadFlow';
@@ -18,10 +16,12 @@ import {
   fetchConverterPricingInfo,
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
+  buildSingleCreditPack,
 } from '@/lib/converterPricing';
-import { getPreferredDesignConvertTarget, isLibraryDesignFree } from '@/data/libraryPage';
-import { startLibraryFormatConversion } from '@/api/librarySourceApi';
+import { isLibraryDesignFree } from '@/data/libraryPage';
 import { contextState } from '@/Components/CommonJsx/ContextProvider';
+import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
+import { isLoggedInClient } from '@/lib/authSession';
 
 const LIBRARY_CONVERSION_POPUP_DISMISS_KEY =
   'marathon_library_conversion_popup_dismissed';
@@ -84,12 +84,12 @@ export function useDesignConversion() {
 /** After-download conversion pricing popup — same ConverterCreditPlansPopup UI. */
 export function DesignPostDownloadBannerHost() {
   const ctx = useDesignConversion();
-  const router = useRouter();
   const { user, setUser, setUpdatedDetails } = useContext(contextState);
   const [packs, setPacks] = useState([]);
   const [singlePriceLabel, setSinglePriceLabel] = useState('$2.99');
+  const [singlePricing, setSinglePricing] = useState(null);
   const [pendingPack, setPendingPack] = useState(null);
-  const [starting, setStarting] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     if (!ctx?.showPricingPopup) return undefined;
@@ -99,6 +99,7 @@ export function DesignPostDownloadBannerHost() {
         if (cancelled) return;
         setPacks(getConverterPacksFromInfo(info));
         setSinglePriceLabel(getSinglePriceLabelFromInfo(info) || '$2.99');
+        setSinglePricing(info?.pricing || null);
       })
       .catch(() => {
         if (!cancelled) {
@@ -114,36 +115,6 @@ export function DesignPostDownloadBannerHost() {
   if (!ctx?.showPricingPopup || !ctx.designData) return null;
   if (!isLibraryDesignFree(ctx.designData)) return null;
 
-  const preferred = getPreferredDesignConvertTarget(
-    ctx.designData.file_type,
-    ctx.designData._id,
-  );
-  const outputFormat = String(preferred?.label || 'STL')
-    .toLowerCase()
-    .replace(/^\./, '');
-
-  const startConvert = async () => {
-    if (!ctx.designData?._id) {
-      router.push(preferred?.href || '/tools/3d-cad-file-converter');
-      ctx.dismissPricingPopup();
-      return;
-    }
-    if (starting) return;
-    setStarting(true);
-    try {
-      const result = await startLibraryFormatConversion({
-        designId: ctx.designData._id,
-        outputFormat,
-      });
-      ctx.dismissPricingPopup();
-      router.push(result.statusPath);
-    } catch (err) {
-      toast.error(err?.message || 'Could not start conversion.');
-    } finally {
-      setStarting(false);
-    }
-  };
-
   return (
     <>
       <ConverterCreditPlansPopup
@@ -152,16 +123,27 @@ export function DesignPostDownloadBannerHost() {
         fileType={ctx.designData.file_type}
         onClose={ctx.dismissPricingPopup}
         onDontShowAgain={dismissLibraryConversionPopupPermanently}
-        onSelectSingle={startConvert}
+        onSelectSingle={() => {
+          setPendingPack(buildSingleCreditPack(singlePricing, singlePriceLabel));
+          if (!isLoggedInClient()) setShowLogin(true);
+        }}
         onSelectPack={(pack) => {
-          if (!user?._id && typeof window !== 'undefined' && !localStorage.getItem('is_verified')) {
-            toast.info('Log in to buy credits.');
-            return;
-          }
           setPendingPack(pack);
+          if (!isLoggedInClient()) {
+            setShowLogin(true);
+          }
         }}
       />
-      {pendingPack ? (
+      {showLogin ? (
+        <UserLoginPupUp
+          type="login"
+          onClose={() => {
+            setShowLogin(false);
+            if (!isLoggedInClient()) setPendingPack(null);
+          }}
+        />
+      ) : null}
+      {pendingPack && !showLogin && isLoggedInClient() ? (
         <ConverterDownloadFlow
           mode="pack"
           pack={pendingPack}

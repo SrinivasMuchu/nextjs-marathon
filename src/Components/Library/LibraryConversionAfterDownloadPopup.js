@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
-import { toast } from 'react-toastify';
 import PopupWrapper from '@/Components/CommonJsx/PopupWrapper';
 import ConverterDownloadFlow from '@/Components/History/ConverterDownloadFlow';
 import { ensureConverterPackPurchase } from '@/Components/History/converterPayment';
@@ -12,9 +10,10 @@ import {
   getConverterPacksFromInfo,
   getFeaturedConverterPack,
   getSinglePriceLabelFromInfo,
+  buildSingleCreditPack,
 } from '@/lib/converterPricing';
-import { getPreferredDesignConvertTarget } from '@/data/libraryPage';
-import { startLibraryFormatConversion } from '@/api/librarySourceApi';
+import UserLoginPupUp from '@/Components/CommonJsx/UserLoginPupUp';
+import { isLoggedInClient } from '@/lib/authSession';
 import styles from './LibraryConversionAfterDownloadPopup.module.css';
 
 export const LIBRARY_CONVERSION_POPUP_DISMISS_KEY =
@@ -63,13 +62,13 @@ export default function LibraryConversionAfterDownloadPopup({
   user = null,
   onCreditsUpdated,
 }) {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [singleLabel, setSingleLabel] = useState('$2.99');
+  const [singlePricing, setSinglePricing] = useState(null);
   const [packs, setPacks] = useState([]);
   const [selectedId, setSelectedId] = useState('single');
   const [pendingPack, setPendingPack] = useState(null);
-  const [starting, setStarting] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,6 +78,7 @@ export default function LibraryConversionAfterDownloadPopup({
         const nextPacks = getConverterPacksFromInfo(info);
         setPacks(nextPacks);
         setSingleLabel(getSinglePriceLabelFromInfo(info) || '$2.99');
+        setSinglePricing(info?.pricing || null);
         const featured = getFeaturedConverterPack(nextPacks);
         setSelectedId(featured?.id || 'single');
       })
@@ -137,48 +137,22 @@ export default function LibraryConversionAfterDownloadPopup({
     return `Get ${selected.name} @ ${selected.totalLabel}`;
   })();
 
-  const preferred = getPreferredDesignConvertTarget(fileType, designId);
-  const outputFormat = String(preferred?.label || 'STL')
-    .toLowerCase()
-    .replace(/^\./, '');
-
   const handleDontShowAgain = () => {
     dismissLibraryConversionPopupPermanently();
     onClose?.();
   };
 
-  const startConvertForSingle = async () => {
-    if (!designId) {
-      router.push(preferred?.href || '/tools/3d-cad-file-converter');
-      onClose?.();
-      return;
-    }
-    setStarting(true);
-    try {
-      const result = await startLibraryFormatConversion({
-        designId,
-        outputFormat,
-      });
-      onClose?.();
-      router.push(result.statusPath);
-    } catch (err) {
-      toast.error(err?.message || 'Could not start conversion.');
-    } finally {
-      setStarting(false);
-    }
-  };
-
   const handlePrimary = async () => {
     if (!selected) return;
     if (selected.kind === 'single') {
-      await startConvertForSingle();
-      return;
-    }
-    if (!user?._id && typeof window !== 'undefined' && !localStorage.getItem('is_verified')) {
-      toast.info('Log in to buy credits.');
+      setPendingPack(buildSingleCreditPack(singlePricing, singleLabel));
+      if (!isLoggedInClient()) setShowLogin(true);
       return;
     }
     setPendingPack(selected.pack);
+    if (!isLoggedInClient()) {
+      setShowLogin(true);
+    }
   };
 
   return (
@@ -279,9 +253,9 @@ export default function LibraryConversionAfterDownloadPopup({
                   type="button"
                   className={styles.primary}
                   onClick={handlePrimary}
-                  disabled={loading || starting}
+                  disabled={loading}
                 >
-                  {starting ? 'Starting…' : ctaLabel}
+                  {ctaLabel}
                 </button>
                 <button type="button" className={styles.later} onClick={onClose}>
                   Maybe later
@@ -305,7 +279,16 @@ export default function LibraryConversionAfterDownloadPopup({
         </div>
       </PopupWrapper>
 
-      {pendingPack ? (
+      {showLogin ? (
+        <UserLoginPupUp
+          type="login"
+          onClose={() => {
+            setShowLogin(false);
+            if (!isLoggedInClient()) setPendingPack(null);
+          }}
+        />
+      ) : null}
+      {pendingPack && !showLogin && isLoggedInClient() ? (
         <ConverterDownloadFlow
           mode="pack"
           pack={pendingPack}

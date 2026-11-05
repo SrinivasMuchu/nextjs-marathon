@@ -30,6 +30,12 @@ export function persistAnonymousSession(uuid) {
   setCookie(UUID_COOKIE, id, COOKIE_OPTS);
 }
 
+/** Logged-in means a verified email session, not an anonymous uuid profile. */
+export function isLoggedInClient() {
+  if (typeof window === "undefined") return false;
+  return isTruthyVerified(window.localStorage.getItem("is_verified"));
+}
+
 export function readVerifiedFromStorage() {
   if (typeof window === "undefined") {
     return { uuid: "", isVerified: false };

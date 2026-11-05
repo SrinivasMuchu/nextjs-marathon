@@ -26,6 +26,7 @@ import {
   getSinglePriceLabelFromInfo,
   buildConverterPricingDisplay,
   getCreditPlansSubtitle,
+  buildSingleCreditPack,
 } from '@/lib/converterPricing';
 
 let cachedCadHistory = {};
@@ -475,12 +476,10 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
 
   const openBillingFromPlans = () => {
     setShowCreditPlans(false);
-    setPendingPack(null);
-    if (!pendingConverterDownload) return;
-    sendClarityEvent("converter_billing_address_opened", {
-      converter_funnel: "billing_opened",
-    });
-    setOpenConverterBilling(true);
+    setPendingPack(buildSingleCreditPack(
+      converterBillingDetails?.pricing || freePlanInfo?.pricing,
+      singlePriceLabel,
+    ));
   };
 
   const handleSelectPack = (pack) => {
