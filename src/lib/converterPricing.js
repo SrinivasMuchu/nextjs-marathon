@@ -250,6 +250,18 @@ export async function fetchConverterPricingInfo() {
   return getConverterPricingInfo();
 }
 
+/** One-time download sold like a pack: checkout grants 1 credit. */
+export function buildSingleCreditPack(pricing, priceLabel = "") {
+  return {
+    id: "single",
+    name: "One-time download",
+    credits: 1,
+    price_label: priceLabel || "",
+    description: "1 download credit",
+    pricing: pricing || undefined,
+  };
+}
+
 /** Prefer GST-inclusive single download label from pricing-info payload. */
 export function getSinglePriceLabelFromInfo(info) {
   // buildConverterPricingDisplay defaults a missing price to 0, so only trust a real one;

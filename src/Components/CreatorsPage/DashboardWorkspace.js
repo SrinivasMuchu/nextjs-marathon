@@ -19,6 +19,7 @@ import {
   getConverterPacksFromInfo,
   getCreditPlansSubtitle,
   getSinglePriceLabelFromInfo,
+  buildSingleCreditPack,
 } from "@/lib/converterPricing";
 import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
 import CadComparisonPopup, { canViewComparison } from "../History/CadComparisonPopup";
@@ -415,11 +416,7 @@ function DashboardWorkspace() {
           }}
           onSelectSingle={() => {
             setShowCreditPlans(false);
-            if (creditIntent === "download" && latest?._id) {
-              setOpenBilling(true);
-              return;
-            }
-            toast.info("Choose a credit pack to add credits.");
+            setPendingPack(buildSingleCreditPack(freePlanInfo?.pricing, singlePriceLabel));
           }}
         />
       ) : null}

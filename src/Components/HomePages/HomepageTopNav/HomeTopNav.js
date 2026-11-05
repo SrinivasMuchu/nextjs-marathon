@@ -22,9 +22,11 @@ import {
   getConverterPacksFromInfo,
   getSinglePriceLabelFromInfo,
   getCreditPlansSubtitle,
+  buildSingleCreditPack,
 } from "@/lib/converterPricing";
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
-import { toast } from "react-toastify";
+import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
+import { isLoggedInClient } from "@/lib/authSession";
 import {
   BLOGS_MENU,
   LIBRARY_MENU,
@@ -62,6 +64,7 @@ function HomeTopNav() {
   const [freePlanInfo, setFreePlanInfo] = useState(null);
   const [singlePriceLabel, setSinglePriceLabel] = useState("");
   const [pendingPack, setPendingPack] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
   const topNavRef = useRef(null);
   const dropdownCloseTimeoutRef = useRef(null);
   const pathname = usePathname();
@@ -289,17 +292,29 @@ function HomeTopNav() {
           subtitle={getCreditPlansSubtitle(freePlanInfo)}
           onClose={() => setShowCreditPlans(false)}
           onSelectPack={(pack) => {
-            if (!user?._id) {
-              toast.info("Log in to buy credits.");
-              return;
-            }
             setShowCreditPlans(false);
             setPendingPack(pack);
+            if (!isLoggedInClient()) {
+              setShowLogin(true);
+            }
           }}
-          onSelectSingle={() => setShowCreditPlans(false)}
+          onSelectSingle={() => {
+            setShowCreditPlans(false);
+            setPendingPack(buildSingleCreditPack(freePlanInfo?.pricing, singlePriceLabel));
+            if (!isLoggedInClient()) setShowLogin(true);
+          }}
         />
       ) : null}
-      {pendingPack ? (
+      {showLogin ? (
+        <UserLoginPupUp
+          type="login"
+          onClose={() => {
+            setShowLogin(false);
+            if (!isLoggedInClient()) setPendingPack(null);
+          }}
+        />
+      ) : null}
+      {pendingPack && !showLogin && isLoggedInClient() ? (
         <ConverterDownloadFlow
           mode="pack"
           pack={pendingPack}

@@ -5,6 +5,8 @@ import axios from "axios";
 import { BASE_URL } from "@/config";
 import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 import PopupWrapper from "../CommonJsx/PopupWrapper";
+import UserLoginPupUp from "../CommonJsx/UserLoginPupUp";
+import { isLoggedInClient } from "@/lib/authSession";
 import styles from "./ConverterDownloadFlow.module.css";
 
 function getDataList(response) {
@@ -123,16 +125,19 @@ function ConverterDownloadFlow({
     postalCode: "",
     country: "",
   });
+  const [authed, setAuthed] = useState(() => isLoggedInClient());
 
   useEffect(() => {
+    if (authed !== true) return undefined;
     const handleKeyDown = (event) => {
       if (event.key === "Escape" && !paying) onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose, paying]);
+  }, [authed, onClose, paying]);
 
   useEffect(() => {
+    if (authed !== true) return undefined;
     let active = true;
     const headers = { "user-uuid": localStorage.getItem("uuid") };
 
@@ -179,7 +184,25 @@ function ConverterDownloadFlow({
     return () => {
       active = false;
     };
-  }, [user?.name]);
+  }, [authed, user?.name]);
+
+  if (authed !== true) {
+    if (authed === false) {
+      return (
+        <UserLoginPupUp
+          type="login"
+          onClose={() => {
+            if (isLoggedInClient()) {
+              setAuthed(true);
+              return;
+            }
+            onClose();
+          }}
+        />
+      );
+    }
+    return null;
+  }
 
   const updateField = (event) => {
     const { name, value } = event.target;
@@ -319,8 +342,9 @@ function ConverterDownloadFlow({
       : isProduct
         ? "Payment successful"
         : "Paid — your download started";
+    const creditsAdded = Number(pack?.credits || paymentResult?.credits_granted) || 0;
     const defaultSuccessBody = isPack
-      ? `${pack?.credits || paymentResult?.credits_granted || ""} credits are ready to use.`
+      ? `${creditsAdded} credit${creditsAdded === 1 ? " is" : "s are"} ready to use.`
       : isProduct
         ? product?.successDetail || "Your 2D drawing job is ready to continue."
         : `${convertedFileName(file)} is downloading now.`;

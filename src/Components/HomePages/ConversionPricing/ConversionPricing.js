@@ -12,6 +12,7 @@ import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 import ConverterDownloadFlow from "@/Components/History/ConverterDownloadFlow";
 import { ensureConverterPackPurchase } from "@/Components/History/converterPayment";
 import { sendGAtagEvent } from "@/common.helper";
+import { isLoggedInClient } from "@/lib/authSession";
 import { CAD_CONVERTER_EVENT } from "@/config";
 import ConversionPricingPanel from "./ConversionPricingPanel";
 
@@ -56,12 +57,6 @@ function ConversionPricing() {
     };
   }, []);
 
-  useEffect(() => {
-    if (user?._id && showLogin) {
-      setShowLogin(false);
-    }
-  }, [user?._id, showLogin]);
-
   const handleChoosePack = (pack) => {
     if (!pack) return;
     sendGAtagEvent({
@@ -73,17 +68,15 @@ function ConversionPricing() {
       price_label: pack.price_label || "",
       credits: pack.credits != null ? String(pack.credits) : "",
     });
-    if (!user?._id) {
-      setPendingPack(pack);
-      setShowLogin(true);
-      return;
-    }
     setPendingPack(pack);
+    if (!isLoggedInClient()) {
+      setShowLogin(true);
+    }
   };
 
   const closeLogin = () => {
     setShowLogin(false);
-    if (typeof window !== "undefined" && !localStorage.getItem("uuid")) {
+    if (!isLoggedInClient()) {
       setPendingPack(null);
     }
   };
@@ -103,7 +96,7 @@ function ConversionPricing() {
 
       {showLogin ? <UserLoginPupUp onClose={closeLogin} type="login" /> : null}
 
-      {pendingPack && user?._id && !showLogin ? (
+      {pendingPack && !showLogin && isLoggedInClient() ? (
         <ConverterDownloadFlow
           mode="pack"
           pack={pendingPack}
