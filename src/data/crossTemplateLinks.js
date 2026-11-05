@@ -32,7 +32,7 @@ export const TWO_D_SOURCE_MODEL_LINK = {
 export const TWO_D_DETAIL_LINKS = [
   {
     label: 'Generate your own 2D drawing',
-    href: '/tools/cad-drawing-pipeline',
+    href: '/tools/convert-step-to-2d-drawing',
     description: 'Upload STEP, STP, IGES or FreeCAD — get PDF, SVG and DXF',
     icon: '2D',
   },
@@ -75,7 +75,7 @@ const PRODUCT_TOOL_LINKS = {
   step: [
     { label: 'Open STEP file viewer', href: '/tools/step-file-viewer' },
     { label: 'Convert STEP to STL', href: '/tools/convert-step-to-stl' },
-    { label: 'Generate 2D drawing', href: '/tools/cad-drawing-pipeline' },
+    { label: 'Generate 2D drawing', href: '/tools/convert-step-to-2d-drawing' },
   ],
   stp: 'step',
   stl: [
@@ -85,7 +85,7 @@ const PRODUCT_TOOL_LINKS = {
   iges: [
     { label: 'Open IGES file viewer', href: '/tools/iges-file-viewer' },
     { label: 'Convert IGES to STEP', href: '/tools/convert-iges-to-step' },
-    { label: 'Generate 2D drawing', href: '/tools/cad-drawing-pipeline' },
+    { label: 'Generate 2D drawing', href: '/tools/convert-step-to-2d-drawing' },
   ],
   igs: 'iges',
   obj: [
@@ -104,6 +104,11 @@ const PRODUCT_TOOL_LINKS = {
     { label: 'Open 3DM file viewer', href: '/tools/3dm-file-viewer' },
     { label: 'Convert 3DM to STEP', href: '/tools/convert-3dm-to-step' },
     { label: 'Convert STEP to 3DM', href: '/tools/convert-step-to-3dm' },
+  ],
+  '3mf': [
+    { label: 'Open 3MF file viewer', href: '/tools/3mf-file-viewer' },
+    { label: 'Convert 3MF to STL', href: '/tools/convert-3mf-to-stl' },
+    { label: 'Convert 3MF to STEP', href: '/tools/convert-3mf-to-step' },
   ],
   dxf: [
     { label: 'Open DXF file viewer', href: '/tools/dxf-file-viewer' },
@@ -272,7 +277,7 @@ export function getDesignPageDrawingHref({
   if (hasTwoDDrawings && route) {
     return `/library/2d-technical-drawings/${encodeURIComponent(route)}`;
   }
-  return withLibrarySource('/tools/cad-drawing-pipeline', designId);
+  return withLibrarySource('/tools/convert-step-to-2d-drawing', designId);
 }
 
 /**

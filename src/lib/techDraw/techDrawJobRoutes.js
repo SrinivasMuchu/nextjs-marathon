@@ -19,7 +19,7 @@ export function techDrawDesignPath(jobId) {
 /** Upload page with free-retry context for a failed dimension-extraction job. */
 export function techDrawFreeRetryUploadPath(failedJobId) {
   const id = String(failedJobId || "").trim();
-  return `/tools/cad-drawing-pipeline?freeRetryFor=${encodeURIComponent(id)}`;
+  return `/tools/convert-step-to-2d-drawing?freeRetryFor=${encodeURIComponent(id)}`;
 }
 
 /** Dashboard card / deep link — completed → design page, else pipeline status. */

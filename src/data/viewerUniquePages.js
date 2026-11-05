@@ -585,26 +585,26 @@ export const UNIQUE_VIEWER_PAGES = {
     isHub: true,
     breadcrumbLabel: '3D CAD Viewer',
     meta: {
-      title: 'Free Online 3D CAD Viewer | STEP, IGES, STL, OBJ, 3DM | Marathon OS',
+      title: 'Free Online 3D CAD Viewer | STEP, IGES, STL, OBJ, 3MF | Marathon OS',
       description:
-        'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP and 3DM files online. Private browser-based viewing up to 300 MB, with no CAD software required.',
+        'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM and 3MF files online. Private browser-based viewing up to 300 MB, with no CAD software required.',
     },
     eyebrow: 'Free online tool',
     h1: 'Free Online 3D CAD Viewer',
     heroIntro:
-      'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP and 3DM files online without installing CAD software.',
+      'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM and 3MF files online without installing CAD software.',
     heroIntroSecondary:
       'Upload privately, rotate and inspect the model in 3D, then convert or request repair when the next workflow needs more than a preview.',
     trust: [
       'Free online viewer',
-      '8 supported formats',
+      '9 supported formats',
       'Up to 300 MB',
       'Auto-delete within 7 days',
       'No CAD software needed',
     ],
     dropzoneHead: 'Drag and drop your 3D CAD file here',
     dropzoneHint: 'or click to browse files',
-    acceptedFormatsLabel: 'Accepted: .step, .stp, .iges, .igs, .stl, .obj, .ply, .off, .brep, .brp, .3dm',
+    acceptedFormatsLabel: 'Accepted: .step, .stp, .iges, .igs, .stl, .obj, .ply, .off, .brep, .brp, .3dm, .3mf',
     samplePrompt: 'No file available? Open a verified sample in one of the supported formats.',
     sampleCta: 'Try a sample model',
     sampleGallery: true,
@@ -660,6 +660,12 @@ export const UNIQUE_VIEWER_PAGES = {
         cta: 'View 3DM files',
         href: '/tools/3dm-file-viewer',
       },
+      {
+        title: '3MF (.3mf)',
+        description: '3D-printing package with units, named objects and colours',
+        cta: 'View 3MF files',
+        href: '/tools/3mf-file-viewer',
+      },
     ],
     viewerToolsHeading: 'Most-used CAD viewer tools',
     viewerTools: [
@@ -668,6 +674,7 @@ export const UNIQUE_VIEWER_PAGES = {
       { title: 'IGES File Viewer', description: 'check legacy surfaces', href: '/tools/iges-file-viewer' },
       { title: 'OBJ File Viewer', description: 'inspect polygon models', href: '/tools/obj-file-viewer' },
       { title: '3DM File Viewer', description: 'review Rhino geometry', href: '/tools/3dm-file-viewer' },
+      { title: '3MF File Viewer', description: 'inspect named print parts', href: '/tools/3mf-file-viewer' },
     ],
     designerTitle: 'Need a production-ready native CAD file?',
     designerBody:
@@ -871,7 +878,7 @@ export const UNIQUE_VIEWER_PAGES = {
     ],
     finalHeading: 'Open your CAD file online',
     finalBody:
-      'Upload a supported STEP, IGES, STL, OBJ, PLY, OFF, BREP or 3DM file to inspect it before conversion, quoting or handoff.',
+      'Upload a supported STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM or 3MF file to inspect it before conversion, quoting or handoff.',
     finalCta: 'Upload CAD file',
     finalCtaHref: '#cad-file-viewer',
     finalSecondaryCta: 'Open converter',

@@ -410,6 +410,7 @@ export const cadViewTypes = [
   { label: 'STEP viewer', path: '/step', oneLiner: 'Open STEP/STP assemblies and 3D geometry online.' },
   { label: 'STP viewer', path: '/stp', oneLiner: 'View STP (STEP) CAD files instantly—no install needed.' },
   { label: '3DM viewer', path: '/3dm', oneLiner: 'Preview Rhino 3DM NURBS and mesh models in your browser.' },
+  { label: '3MF viewer', path: '/3mf', oneLiner: 'Open 3MF print files with named parts and colours in your browser.' },
   { label: 'BRP viewer', path: '/brp', oneLiner: 'Inspect BRP (BREP) solid models for design review.' },
   { label: 'IGS viewer', path: '/igs', oneLiner: 'Check IGS/IGES exchange files for collaboration.' },
 ];

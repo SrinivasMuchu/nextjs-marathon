@@ -54,7 +54,7 @@ function mapUserJobToLibraryProps(jobId, job, bundle, { adminMode, getPipelineSt
           { label: "2D Technical Drawings", href: designPath },
         ]
       : [
-          { label: "Drawing pipeline", href: "/tools/cad-drawing-pipeline" },
+          { label: "Drawing pipeline", href: "/tools/convert-step-to-2d-drawing" },
           { label: title, href: pipelinePath },
           { label: "2D Technical Drawings", href: designPath },
         ],
@@ -63,8 +63,8 @@ function mapUserJobToLibraryProps(jobId, job, bundle, { adminMode, getPipelineSt
       title: buildTwoDDrawingHeroTitle(title),
       showFreeDownloadBadge: false,
     },
-    cadModelHref: "/tools/cad-drawing-pipeline",
-    generateHref: "/tools/cad-drawing-pipeline",
+    cadModelHref: "/tools/convert-step-to-2d-drawing",
+    generateHref: "/tools/convert-step-to-2d-drawing",
     showDownloadAllPdfs: false,
     showCadModelLink: false,
   };

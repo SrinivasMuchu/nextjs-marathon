@@ -154,7 +154,7 @@ const WORKFLOW_LINKS = [
     label: "Document",
     title: "STEP to 2D Drawings",
     description: "Turn a supported STEP or STP model into a multi-view drawing workflow.",
-    href: "/tools/cad-drawing-pipeline",
+    href: "/tools/convert-step-to-2d-drawing",
   },
 ];
 

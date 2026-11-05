@@ -1041,12 +1041,22 @@ function ExplodableModel({
         node.material = node.material.clone();
       }
 
-      // GrabCAD-style: uniform gray satin metal + IBL/directional in the Canvas.
+      // 3MF parts keep their display colours (glTF COLOR_0). Everything else
+      // stays the uniform gray satin metal used for CAD review.
+      const vertexColorAttr = node.geometry?.getAttribute?.("color");
+      const hasVertexColors = Boolean(vertexColorAttr && vertexColorAttr.count > 0);
       forEachMeshMaterial(node, (mat) => {
         if (!mat || !mat.color) return;
-        mat.color.set(CAD_BASE_COLOR);
-        if ("metalness" in mat) mat.metalness = CAD_METALNESS;
-        if ("roughness" in mat) mat.roughness = CAD_ROUGHNESS;
+        if (hasVertexColors) {
+          mat.vertexColors = true;
+          mat.color.set("#ffffff");
+          if ("metalness" in mat) mat.metalness = 0.08;
+          if ("roughness" in mat) mat.roughness = 0.5;
+        } else {
+          mat.color.set(CAD_BASE_COLOR);
+          if ("metalness" in mat) mat.metalness = CAD_METALNESS;
+          if ("roughness" in mat) mat.roughness = CAD_ROUGHNESS;
+        }
         if (mat.emissive) mat.emissive.set("#000000");
         if ("emissiveIntensity" in mat) mat.emissiveIntensity = 0;
         if ("envMapIntensity" in mat) mat.envMapIntensity = 1.0;

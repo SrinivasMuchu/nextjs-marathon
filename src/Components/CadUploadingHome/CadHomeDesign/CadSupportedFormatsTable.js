@@ -81,6 +81,18 @@ const FORMAT_ROWS = [
       { label: 'convert 3DM to STEP', href: '/tools/convert-3dm-to-step' },
     ],
   },
+  {
+    format: '3MF',
+    description: '3D printing package with units, named objects and colours',
+    extensions: '.3mf',
+    iconBg: 'rgba(168, 85, 247, 0.24)',
+    iconFg: '#edd5ff',
+    actions: [
+      { label: 'View 3MF files', href: '/tools/3mf-file-viewer' },
+      { label: 'convert 3MF to STL', href: '/tools/convert-3mf-to-stl' },
+      { label: 'convert STL to 3MF', href: '/tools/convert-stl-to-3mf' },
+    ],
+  },
 ];
 
 function CadSupportedFormatsTable() {

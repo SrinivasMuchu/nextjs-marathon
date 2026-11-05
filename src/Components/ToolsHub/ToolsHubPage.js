@@ -41,7 +41,7 @@ const QUICK_TOOLS_CARDS = [
     Icon: RefreshCw,
   },
   {
-    href: '/tools/cad-drawing-pipeline',
+    href: '/tools/convert-step-to-2d-drawing',
     title: 'STEP → 2D Drawings',
     description:
       'Upload a STEP file and get multi-sheet 2D technical drawings — front, top, section and detail views with AI-placed dimensions.',
@@ -105,9 +105,9 @@ const CAD_VIEWER_CARDS = [
     tags: ['Rhino', 'NURBS', 'OpenNURBS'],
   },
   {
-    href: '/tools/3d-cad-viewer',
+    href: '/tools/3mf-file-viewer',
     title: '3MF Viewer',
-    description: 'Preview 3MF files optimized for additive manufacturing.',
+    description: 'Preview 3MF print files with named parts and colours in your browser.',
     tags: ['3D Printing', 'Manufacturing', 'Color'],
   },
 ];

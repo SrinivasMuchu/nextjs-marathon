@@ -90,7 +90,7 @@ function ConversionPricingPanel({
           <ArrowRight size={18} className={styles.directArrow} aria-hidden="true" />
         </Link>
 
-        <Link className={`${styles.directCard} ${styles.directCardDrawing}`} href="/tools/cad-drawing-pipeline">
+        <Link className={`${styles.directCard} ${styles.directCardDrawing}`} href="/tools/convert-step-to-2d-drawing">
           <span className={styles.directIcon}>
             <FileOutput size={20} aria-hidden="true" />
           </span>

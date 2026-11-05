@@ -10,7 +10,7 @@ function CadHeader({ type }) {
   const uniquePage = getUniqueViewerPage(null, { isHub: true })
   const trustLine = uniquePage?.trust?.length
     ? uniquePage.trust.join('  •  ')
-    : 'Free online viewer | STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM | Up to 300 MB | Auto-delete in 7 days | No CAD software needed'
+    : 'Free online viewer | STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM, 3MF | Up to 300 MB | Auto-delete in 7 days | No CAD software needed'
 
   return (
     <div className={heroStyles.heroPage}>
@@ -27,7 +27,7 @@ function CadHeader({ type }) {
         <h1 className={heroStyles.title}>{uniquePage?.h1 || 'Free Online 3D CAD Viewer'}</h1>
         <p className={heroStyles.description}>
           {uniquePage?.heroIntro ||
-            'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP and 3DM files online without installing CAD software.'}
+            'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM and 3MF files online without installing CAD software.'}
         </p>
         {uniquePage?.heroIntroSecondary ? (
           <p className={heroStyles.description}>{uniquePage.heroIntroSecondary}</p>

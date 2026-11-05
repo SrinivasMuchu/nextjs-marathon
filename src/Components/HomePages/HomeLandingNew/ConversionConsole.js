@@ -120,7 +120,7 @@ function ConversionConsole() {
         />
       </div>
 
-      <Link className={styles.consoleAlternative} href="/tools/cad-drawing-pipeline">
+      <Link className={styles.consoleAlternative} href="/tools/convert-step-to-2d-drawing">
         <span className={styles.consoleAltIcon}>
           <FileOutput size={18} aria-hidden="true" />
         </span>

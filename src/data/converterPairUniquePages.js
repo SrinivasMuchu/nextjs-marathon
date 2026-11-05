@@ -1826,7 +1826,7 @@ export const UNIQUE_PAIR_PAGES = {
       { title: 'DWG to DXF', description: 'Create a neutral drawing exchange file', href: '/tools/convert-dwg-to-dxf', from: 'DWG', to: 'DXF' },
       { title: '3D CAD File Converter', description: 'See other supported drawing and model routes', href: '/tools/3d-cad-file-converter', from: 'CAD', viewer: true },
       { title: 'Browse 2D technical drawings', description: 'Review drawing resources', href: '/library/2d-technical-drawings', from: '2D', viewer: true },
-      { title: 'STEP to 2D drawings', description: 'Create views from a 3D model', href: '/tools/cad-drawing-pipeline', from: 'STEP', to: '2D' },
+      { title: 'STEP to 2D drawings', description: 'Create views from a 3D model', href: '/tools/convert-step-to-2d-drawing', from: 'STEP', to: '2D' },
       { title: 'Hire a CAD designer', description: 'Repair or recreate drawing entities', href: '/cad-services', from: 'CAD', viewer: true },
       { title: 'CAD tools', description: 'Browse available Marathon OS tools', href: '/tools', from: 'CAD', viewer: true },
     ],

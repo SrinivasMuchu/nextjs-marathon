@@ -15,7 +15,7 @@ export default function TechDrawJobStatusPage() {
     return (
       <p style={{ padding: 24, fontFamily: "system-ui" }}>
         Missing job id. Start a new drawing from{" "}
-        <Link href="/tools/cad-drawing-pipeline">the pipeline upload page</Link>.
+        <Link href="/tools/convert-step-to-2d-drawing">the pipeline upload page</Link>.
       </p>
     );
   }

@@ -291,7 +291,7 @@ export default function DesignConversionSocialProof({ designData }) {
               <span className={styles.percent}>{row.percent}%</span>
               {row.kind === 'drawing' ? (
                 <Link
-                  href={row.href || '/tools/cad-drawing-pipeline'}
+                  href={row.href || '/tools/convert-step-to-2d-drawing'}
                   className={styles.priceLink}
                 >
                   {price} →

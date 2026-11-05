@@ -103,7 +103,7 @@ export const CONVERTER_HUB_PAGE = {
     { title: 'Open a CAD file', description: 'Inspect geometry, scale and orientation before or after conversion.', href: '/tools/3d-cad-viewer', cta: 'Open CAD viewer' },
     { title: 'Browse CAD models', description: 'Find an existing engineering model that may shorten the design process.', href: '/library', cta: 'Browse 3D models' },
     { title: 'Browse technical drawings', description: 'Review available 2D drawing resources for quoting, documentation and manufacturing.', href: '/library/2d-technical-drawings', cta: 'Browse 2D drawings' },
-    { title: 'Create 2D drawings from STEP', description: 'Turn a supported STEP or STP model into a multi-view drawing set when a format conversion is not enough.', href: '/tools/cad-drawing-pipeline', cta: 'Create 2D drawings' },
+    { title: 'Create 2D drawings from STEP', description: 'Turn a supported STEP or STP model into a multi-view drawing set when a format conversion is not enough.', href: '/tools/convert-step-to-2d-drawing', cta: 'Create 2D drawings' },
     { title: 'Hire a CAD designer', description: 'Request repair, remodeling, tolerances or a production-ready native file.', href: '/cad-services', cta: 'Get CAD design support' },
   ],
   faqHeading: 'Frequently asked questions about CAD file conversion',

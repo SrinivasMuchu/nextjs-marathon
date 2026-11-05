@@ -30,7 +30,7 @@ function ConversionFinalCta() {
           </Link>
           <Link
             className={`${styles.button} ${styles.buttonGhost} ${styles.buttonLarge}`}
-            href="/tools/cad-drawing-pipeline"
+            href="/tools/convert-step-to-2d-drawing"
           >
             Create 2D drawings
           </Link>

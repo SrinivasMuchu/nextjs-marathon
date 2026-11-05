@@ -887,7 +887,7 @@ function ConvertPairPage({ conversionParams }) {
                 { badges: ['STL', 'STEP'], title: 'STL to STEP', body: 'Turn a mesh into a solid for CAD', href: '/tools/convert-stl-to-step' },
                 { badges: ['STEP', 'OBJ'], title: 'STEP to OBJ', body: 'Mesh for rendering and visualisation', href: '/tools/convert-step-to-obj' },
                 { badges: ['OBJ', 'STL'], title: 'OBJ to STL', body: 'Prepare a visual mesh for slicing', href: '/tools/convert-obj-to-stl' },
-                { badges: ['STEP', '2D'], title: 'STEP or STP to 2D drawing', body: 'Dimensioned views from a 3D model, $5.99', href: '/tools/cad-drawing-pipeline' },
+                { badges: ['STEP', '2D'], title: 'STEP or STP to 2D drawing', body: 'Dimensioned views from a 3D model, $5.99', href: '/tools/convert-step-to-2d-drawing' },
               ].map((tool) => (
                 <Link key={tool.href} href={tool.href} className={styles.relatedCard}>
                   <span className={styles.relatedBadges}>
