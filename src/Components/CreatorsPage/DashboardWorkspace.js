@@ -10,7 +10,7 @@ import { BASE_URL, CAD_CONVERTER_EVENT, buildCadConverterOutputUrlCandidates, to
 import { contextState } from "../CommonJsx/ContextProvider";
 import { sendGAtagEvent } from "@/common.helper";
 import { checkConverterDownload, redeemConverterCredit } from "@/api/converterPaymentApi";
-import { ensureConverterDownloadAccess, ensureConverterPackPurchase } from "../History/converterPayment";
+import { ensureConverterDownloadAccess, ensureConverterPackPurchase, trackConverterDashboardDownloadClick } from "../History/converterPayment";
 import ConverterCreditPlansPopup from "../History/ConverterCreditPlansPopup";
 import ConverterDownloadFlow from "../History/ConverterDownloadFlow";
 import UserLoginPupUp from "../CommonJsx/UserLoginPupUp";
@@ -246,6 +246,12 @@ function DashboardWorkspace() {
     }
 
     setDownloading(true);
+    trackConverterDashboardDownloadClick({
+      source: "dashboard_latest",
+      converterFileId: latest._id,
+      converterPricing: latest.converter_pricing,
+      converterCredits: credits,
+    });
     try {
       const access = await checkConverterDownload(latest._id);
       applyCredits(access.credits);
