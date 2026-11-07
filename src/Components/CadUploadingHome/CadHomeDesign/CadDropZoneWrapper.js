@@ -16,6 +16,7 @@ import CadFileLimitExceedPopUp from "@/Components/CommonJsx/CadFileLimitExceedPo
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 import { Upload } from "lucide-react";
 import { applyAllowedFormatsForSlug } from "@/data/cadFormatViewerPages";
+import { useConsumeHomeFile } from "@/Components/HomePages/HomeLandingNew/useConsumeHomeFile";
 
 function parseFormatFromPath(segment) {
   if (!segment || typeof segment !== 'string') return '';
@@ -31,6 +32,11 @@ function CadDropZoneWrapper({ children, isStyled, type, cadType, designVariant, 
     const [verifyEmail, setVerifyEmail] = useState('');
     const pathname = usePathname();
     const { setFile } = useContext(contextState);
+    const [formatsReady, setFormatsReady] = useState(false);
+    const incomingFileHandlerRef = useRef(null);
+    useConsumeHomeFile((incoming) => {
+        incomingFileHandlerRef.current?.(incoming);
+    }, formatsReady);
     const maxFileSizeMB = 300; // Max file size in MB
     const router = useRouter();
     const segment = pathname.split("/")[2] || '';
@@ -42,6 +48,7 @@ function CadDropZoneWrapper({ children, isStyled, type, cadType, designVariant, 
         } else {
             setAllowedFormats(allowedFilesList)
         }
+        setFormatsReady(true);
     }, [type, cadFile]);
 
 
@@ -125,6 +132,7 @@ function CadDropZoneWrapper({ children, isStyled, type, cadType, designVariant, 
         flushSync(() => setFile(file));
         router.push("/tools/cad-uploading");
     };
+    incomingFileHandlerRef.current = validateAndProcessFile;
 
     const handleDragOver = (event) => {
         event.preventDefault();
