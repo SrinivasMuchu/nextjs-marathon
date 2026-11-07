@@ -17,7 +17,7 @@ import CadPublishedFiles from './CadPublishedFiles';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 import { toast } from 'react-toastify';
 import { checkConverterDownload, redeemConverterCredit } from '@/api/converterPaymentApi';
-import { ensureConverterDownloadAccess, ensureConverterPackPurchase } from './converterPayment';
+import { ensureConverterDownloadAccess, ensureConverterPackPurchase, trackConverterDashboardDownloadClick } from './converterPayment';
 import ConverterDownloadFlow from './ConverterDownloadFlow';
 import ConverterCreditPlansPopup from './ConverterCreditPlansPopup';
 import {
@@ -415,6 +415,12 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       }
 
       setDownloading(prev => ({ ...prev, [index]: true }));
+      trackConverterDashboardDownloadClick({
+        source: "dashboard_files",
+        converterFileId: file._id,
+        converterPricing: file.converter_pricing,
+        converterCredits: user?.converter_credits,
+      });
 
       const access = await checkConverterDownload(file._id);
       if (access.credits != null) {

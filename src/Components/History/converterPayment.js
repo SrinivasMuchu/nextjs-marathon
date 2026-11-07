@@ -18,6 +18,39 @@ function trackConverterPaymentGa(event_name, params = {}) {
   });
 }
 
+/**
+ * Dashboard download click. Free and paid are separate event names.
+ * A free conversion or an already unlocked re-download is free; a credit or checkout is paid.
+ */
+export function trackConverterDashboardDownloadClick({
+  source,
+  converterFileId,
+  converterPricing,
+  converterCredits,
+} = {}) {
+  const pricing = converterPricing || null;
+  const free =
+    !pricing ||
+    pricing.paid ||
+    pricing.is_free ||
+    pricing.free_granted ||
+    pricing.uses_free_slot;
+  trackConverterPaymentGa(
+    free
+      ? "converter_dashboard_download_click_free"
+      : "converter_dashboard_download_click_paid",
+    {
+      source: source || "dashboard",
+      converter_file_id: converterFileId || "",
+      ...(free
+        ? {}
+        : {
+            paid_via: Number(converterCredits) > 0 ? "credit" : "checkout",
+          }),
+    },
+  );
+}
+
 export function loadRazorpayScript() {
   return new Promise((resolve) => {
     if (typeof window !== "undefined" && window.Razorpay) return resolve(true);
