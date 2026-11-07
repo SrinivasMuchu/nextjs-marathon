@@ -12,7 +12,7 @@ export const UNIQUE_PAIR_PAGES = {
     h1: 'Convert STL to STEP online',
     heroIntro:
       'Turn an .stl mesh into a .step file that SolidWorks, Fusion, Inventor, Onshape and FreeCAD open as a solid body. Tell the converter what units the model uses, let it repair the mesh and merge flat faces, then edit, measure or combine the part in CAD. Nothing to install.',
-    badges: ['First 2 downloads free', '.stl to .step and .stp', 'Opens as a solid in CAD'],
+    badges: ['First 2 conversions free', '.stl to .step and .stp', 'Opens as a solid in CAD'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Binary and ASCII STL', 'Deleted automatically within 7 days'],
     uploadHeading: 'Upload your STL file',
     uploadHelper: 'Accepts binary and ASCII .stl. Output is .step.',
@@ -196,7 +196,7 @@ export const UNIQUE_PAIR_PAGES = {
     faqs: [
       {
         question: 'Is the STL to STEP converter free?',
-        answer: 'Yes, your first 2 file downloads are free, any size up to 300 MB, with every setting available. After that, each file uses one credit, charged only when you click Download. A single download costs $2.99 and credit packs bring the price down to $1.80 per file. Credits never expire.',
+        answer: 'Yes, your first 2 CAD file conversions are free, any size up to 300 MB, with every setting available. After that, each file uses one credit, charged only when you click Download. A single download costs $2.99 and credit packs bring the price down to $1.80 per file. Credits never expire.',
       },
       {
         question: 'What is the difference between STL and STEP?',
@@ -260,12 +260,12 @@ export const UNIQUE_PAIR_PAGES = {
     meta: {
       title: 'Convert STL to IGES Online – First 2 Free | Marathon OS',
       description:
-        'Convert STL meshes to IGES online for legacy CAD and CAM workflows. Secure uploads up to 300 MB, first 2 downloads free and no software required.',
+        'Convert STL meshes to IGES online for legacy CAD and CAM workflows. Secure uploads up to 300 MB, first 2 conversions free and no software required.',
     },
     h1: 'Convert STL to IGES online',
     heroIntro:
       'Convert an STL (.stl) mesh to IGES (.iges or .igs) for legacy CAD/CAM import and surface-based exchange. The IGES result is derived from the STL triangles; it does not recreate smooth NURBS surfaces, sketches, dimensions, constraints or the original feature history.',
-    badges: ['First 2 downloads free', 'STL → IGES', 'No software installation'],
+    badges: ['First 2 conversions free', 'STL → IGES', 'No software installation'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
     uploadHeading: 'Upload your STL file',
     uploadHelper: 'Choose one STL file. This page is already configured to create IGES output.',
@@ -466,7 +466,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the STL to IGES converter free?',
-        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 CAD file conversions are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum STL file size?',
@@ -486,12 +486,12 @@ export const UNIQUE_PAIR_PAGES = {
     meta: {
       title: 'Convert STL to BREP Online – First 2 Free | Marathon OS',
       description:
-        'Convert STL mesh files to BREP online for Open CASCADE and topology workflows. Secure uploads up to 300 MB, first 2 downloads free and no software required.',
+        'Convert STL mesh files to BREP online for Open CASCADE and topology workflows. Secure uploads up to 300 MB, first 2 conversions free and no software required.',
     },
     h1: 'Convert STL to BREP online',
     heroIntro:
       'Convert an STL (.stl) triangle mesh to BREP (.brep or .brp) for Open CASCADE and topology-based CAD workflows. The result can carry faces, edges and vertices derived from the mesh, but it does not recover smooth analytic surfaces, sketches or feature history.',
-    badges: ['First 2 downloads free', 'STL → BREP', 'No software installation'],
+    badges: ['First 2 conversions free', 'STL → BREP', 'No software installation'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
     uploadHeading: 'Upload your STL file',
     uploadHelper: 'Choose one STL file. This page is already configured to create BREP output.',
@@ -700,7 +700,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the STL to BREP converter free?',
-        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 CAD file conversions are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum STL file size?',
@@ -727,7 +727,7 @@ export const UNIQUE_PAIR_PAGES = {
     h1: 'Convert STEP to IGES online',
     heroIntro:
       'Convert a STEP or STP (.step, .stp) model to IGES (.iges or .igs) for legacy CAD/CAM systems and suppliers that still require surface-based exchange. Compatible curves and surfaces can transfer, but assemblies, solid-body status, names, colors and product metadata may change.',
-    badges: ['First 2 downloads free', 'STEP → IGES', 'No software installation'],
+    badges: ['First 2 conversions free', 'STEP → IGES', 'No software installation'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
     uploadHeading: 'Upload your STEP file',
     uploadHelper: 'Choose one STEP file. This page is already configured to create IGES output.',
@@ -928,7 +928,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the STEP to IGES converter free?',
-        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 CAD file conversions are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum STEP file size?',
@@ -953,7 +953,7 @@ export const UNIQUE_PAIR_PAGES = {
     h1: 'Convert OBJ to STEP online',
     heroIntro:
       'Convert an OBJ (.obj) polygon mesh to STEP (.step or .stp) for CAD import, engineering review and supplier handoff. The result represents the OBJ geometry in a STEP-compatible form; it does not recreate parametric features, smooth analytic surfaces, materials, textures or the original design history.',
-    badges: ['First 2 downloads free', 'OBJ → STEP', 'No software installation'],
+    badges: ['First 2 conversions free', 'OBJ → STEP', 'No software installation'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
     uploadHeading: 'Upload your OBJ file',
     uploadHelper: 'Choose one OBJ file. This page is already configured to create STEP output.',
@@ -1154,7 +1154,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the OBJ to STEP converter free?',
-        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 CAD file conversions are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum OBJ file size?',
@@ -1174,12 +1174,12 @@ export const UNIQUE_PAIR_PAGES = {
     meta: {
       title: 'Convert OBJ to IGES Online – First 2 Free | Marathon OS',
       description:
-        'Convert OBJ mesh files to IGES online for legacy CAD and surface workflows. Secure uploads up to 300 MB, first 2 downloads free and no software required.',
+        'Convert OBJ mesh files to IGES online for legacy CAD and surface workflows. Secure uploads up to 300 MB, first 2 conversions free and no software required.',
     },
     h1: 'Convert OBJ to IGES online',
     heroIntro:
       'Convert an OBJ (.obj) mesh to IGES (.iges or .igs) for legacy CAD/CAM and surface-exchange workflows. The output is derived from polygon faces; it does not restore smooth NURBS surfaces, native features, textures or design history.',
-    badges: ['First 2 downloads free', 'OBJ → IGES', 'No software installation'],
+    badges: ['First 2 conversions free', 'OBJ → IGES', 'No software installation'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
     uploadHeading: 'Upload your OBJ file',
     uploadHelper: 'Choose one OBJ file. This page is already configured to create IGES output.',
@@ -1386,7 +1386,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the OBJ to IGES converter free?',
-        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 CAD file conversions are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum OBJ file size?',
@@ -1413,7 +1413,7 @@ export const UNIQUE_PAIR_PAGES = {
     h1: 'Convert STEP to STL online',
     heroIntro:
       'Upload a .step or .stp CAD model and download a print-ready STL mesh. Choose the mesh quality, output units and how assemblies are split, then open the file in PrusaSlicer, Bambu Studio, Cura or any other slicer. Nothing to install.',
-    badges: ['First 2 downloads free', '.step and .stp to .stl', 'Any size up to 300 MB'],
+    badges: ['First 2 conversions free', '.step and .stp to .stl', 'Any size up to 300 MB'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Opens in any slicer', 'Deleted automatically within 7 days'],
     uploadHeading: 'Upload your STEP file',
     uploadHelper: 'Accepts .step and .stp. Output is .stl.',
@@ -1467,7 +1467,7 @@ export const UNIQUE_PAIR_PAGES = {
     workflowEyebrow: 'Step by step',
     workflowHeading: 'How to convert STEP to STL',
     workflowIntro:
-      'To convert STEP to STL online, upload your .step or .stp file above, pick a mesh quality (Standard suits most 3D printing), keep the units in millimetres, then click Convert STEP to STL and download the .stl file. Your first 2 downloads are free. STP to STL works exactly the same way, because .stp is just the short extension for STEP.',
+      'To convert STEP to STL online, upload your .step or .stp file above, pick a mesh quality (Standard suits most 3D printing), keep the units in millimetres, then click Convert STEP to STL and download the .stl file. Your first 2 conversions are free. STP to STL works exactly the same way, because .stp is just the short extension for STEP.',
     workflowSteps: [
       ['Upload the STEP file', 'Drop a .step or .stp file up to 300 MB onto the converter, or browse for it. Assemblies and multi-body parts are fine.'],
       ['Choose your settings', 'Pick Draft, Standard or Fine mesh quality, millimetres or inches, and whether to merge parts or export each body separately.'],
@@ -1600,7 +1600,7 @@ export const UNIQUE_PAIR_PAGES = {
     faqs: [
       {
         question: 'Is the STEP to STL converter free?',
-        answer: 'Yes, your first 2 file downloads are free, any size up to 300 MB, with every setting available. After that, each file uses one credit, charged only when you click Download. A single download costs $2.99 and credit packs bring the price down to $1.80 per file. Credits never expire.',
+        answer: 'Yes, your first 2 CAD file conversions are free, any size up to 300 MB, with every setting available. After that, each file uses one credit, charged only when you click Download. A single download costs $2.99 and credit packs bring the price down to $1.80 per file. Credits never expire.',
       },
       {
         question: 'Is there a difference between STEP and STP files?',
@@ -1665,7 +1665,7 @@ export const UNIQUE_PAIR_PAGES = {
     h1: 'Convert DXF to DWG online',
     heroIntro:
       'Convert a DXF (.dxf) drawing to DWG (.dwg) for AutoCAD and DWG-compatible drafting workflows. Supported geometry, layers, blocks, dimensions and text can transfer, but fonts, external references, proxy objects, plot settings and application-specific data must be checked after conversion.',
-    badges: ['First 2 downloads free', 'DXF → DWG', 'No software installation'],
+    badges: ['First 2 conversions free', 'DXF → DWG', 'No software installation'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
     uploadHeading: 'Upload your DXF file',
     uploadHelper: 'Choose one DXF file. This page is already configured to create DWG output.',
@@ -1864,7 +1864,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the DXF to DWG converter free?',
-        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 CAD file conversions are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum DXF file size?',
@@ -1889,7 +1889,7 @@ export const UNIQUE_PAIR_PAGES = {
     h1: 'Convert 3DM to STEP online',
     heroIntro:
       'Convert a Rhino 3DM (.3dm) model to STEP (.step or .stp) for mechanical CAD, supplier handoff and CAD/CAM workflows. Compatible NURBS and B-rep geometry can transfer, while Rhino-specific layers, blocks, annotations, materials and mixed mesh data may change or be omitted.',
-    badges: ['First 2 downloads free', '3DM → STEP', 'No software installation'],
+    badges: ['First 2 conversions free', '3DM → STEP', 'No software installation'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
     uploadHeading: 'Upload your 3DM file',
     uploadHelper: 'Choose one 3DM file. This page is already configured to create STEP output.',
@@ -2098,7 +2098,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the 3DM to STEP converter free?',
-        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 CAD file conversions are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum 3DM file size?',
@@ -2125,7 +2125,7 @@ export const UNIQUE_PAIR_PAGES = {
     h1: 'Convert IGES to STEP online',
     heroIntro:
       'Convert an IGES (.iges or .igs) model to STEP (.step or .stp) for modern mechanical CAD, supplier exchange and manufacturing workflows. Compatible curves and trimmed surfaces can transfer, but conversion cannot restore the original feature tree or automatically repair every gap in legacy geometry.',
-    badges: ['First 2 downloads free', 'IGES → STEP', 'No software installation'],
+    badges: ['First 2 conversions free', 'IGES → STEP', 'No software installation'],
     trust: ['Encrypted uploads', 'Files up to 300 MB', 'Automatically deleted within 7 days'],
     uploadHeading: 'Upload your IGES file',
     uploadHelper: 'Choose one IGES file. This page is already configured to create STEP output.',
@@ -2333,7 +2333,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Is the IGES to STEP converter free?',
-        answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
+        answer: 'Your first 2 CAD file conversions are free, any size up to 300 MB. After that, each file uses one credit, charged only when you click Download.',
       },
       {
         question: 'What is the maximum IGES file size?',

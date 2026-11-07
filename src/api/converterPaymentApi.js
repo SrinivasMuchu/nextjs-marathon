@@ -17,6 +17,19 @@ function unwrap(data) {
   return data.data;
 }
 
+/** Quality report (HTML + file info) for one of the user's conversions. Free to view. */
+export async function getConverterReport(converterFileId) {
+  const { data } = await axios.get(
+    `${BASE_URL}${CONVERTER_API_BASE}/report`,
+    {
+      params: { converter_file_id: converterFileId },
+      headers: userUuidHeader(),
+      timeout: 60_000,
+    },
+  );
+  return unwrap(data);
+}
+
 export async function getConverterPricingInfo() {
   const { data } = await axios.get(
     `${BASE_URL}${CONVERTER_API_BASE}/pricing-info`,

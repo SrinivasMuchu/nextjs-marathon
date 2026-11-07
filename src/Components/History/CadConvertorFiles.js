@@ -16,8 +16,9 @@ import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
 import CadComparisonPopup, { canViewComparison } from "./CadComparisonPopup";
 import styles from "./ConverterList.module.css";
 
-// Backend sets converter_pricing per the admin free plan: uses_free_slot = downloading uses a free slot,
-// free_granted = already unlocked free, paid = paid or credit used.
+// Backend sets converter_pricing per the admin free plan: free_granted = one of the first N free conversions,
+// uses_free_slot = still converting and will take a free slot when it completes,
+// paid = paid or credit used.
 function downloadButtonLabel({ downloading, outputFmt, converterPricing, converterCredits }) {
   if (downloading) return "Downloading...";
   return getConverterDownloadLabel({
@@ -370,16 +371,7 @@ function CadConvertorFiles({
         </div>
       )}
 
-      {!loading && visible.length > 0 ? (
-        <div className={styles.foot}>
-          <span>
-            {visible.length} conversion{visible.length === 1 ? "" : "s"} shown · Select a file to view its comparison and report.
-          </span>
-          <Link href="/dashboard?cad_type=USER_DOWNLOADS">
-            Looking for ready-made CAD designs? Explore downloads →
-          </Link>
-        </div>
-      ) : null}
+     
 
       {!loading && visible.length > 0 ? (
         <p className={styles.pricingNote}>

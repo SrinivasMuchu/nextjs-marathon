@@ -153,7 +153,7 @@ function ConverterProgressLoader({
     if (alreadyCovered) setShowPackBanner(false);
   }, [alreadyCovered]);
 
-  // Always load pricing-info: free downloads are used before credits, so a user
+  // Always load pricing-info: free conversions come before credits, so a user
   // with credits may still get this file free and must not be told a credit is used.
   useEffect(() => {
     if (isSampleFile) return undefined;
@@ -310,7 +310,7 @@ function ConverterProgressLoader({
               )
             ) : hasConverterCredits(user?.converter_credits) ? (
               <>
-                You&apos;ve used your free downloads. <strong>1 credit</strong> will be used only
+                You&apos;ve used your free conversions. <strong>1 credit</strong> will be used only
                 when you click Download — no payment needed.
               </>
             ) : (
@@ -323,7 +323,7 @@ function ConverterProgressLoader({
                   "Price is locked"
                 )}
                 {" — "}
-                you&apos;ll only pay when you download.
+                you&apos;ve used your free conversions, so you&apos;ll pay only when you click Download.
               </>
             )}
           </p>

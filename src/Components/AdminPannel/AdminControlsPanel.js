@@ -183,7 +183,7 @@ function AdminControlsPanel() {
     const count = Number(freeConversions);
     const sizeMb = Number(freeSizeMb);
     if (freePlan === "FIRST_N_FREE" && (!Number.isInteger(count) || count < 0)) {
-      toast.error("Enter a valid number of free downloads (0 or more, whole number).");
+      toast.error("Enter a valid number of free conversions (0 or more, whole number).");
       return;
     }
     if (freePlan === "SIZE_LIMIT" && (!Number.isFinite(sizeMb) || sizeMb < 0)) {
@@ -200,7 +200,7 @@ function AdminControlsPanel() {
       toast.success(
         freePlan === "SIZE_LIMIT"
           ? `Free plan set: files under ${sizeMb} MB download free.`
-          : `Free plan set: each user's first ${count} file download${count === 1 ? "" : "s"} free.`,
+          : `Free plan set: each user's first ${count} conversion${count === 1 ? "" : "s"} free.`,
       );
     } catch (err) {
       toast.error(err?.message || "Failed to update free plan.");
@@ -317,9 +317,10 @@ function AdminControlsPanel() {
       <div className={styles.card}>
         <div className={styles.row}>
           <div>
-            <h3 className={styles.rowTitle}>Free converter downloads</h3>
+            <h3 className={styles.rowTitle}>All conversions free</h3>
             <p className={styles.rowHint}>
-              When enabled, users can download all converted files without payment.
+              When enabled, every conversion is free and users can download all converted files
+              without payment. Free conversions (below) are not used while this is on.
             </p>
           </div>
           <Switch
@@ -327,7 +328,7 @@ function AdminControlsPanel() {
             onChange={handleToggleFree}
             disabled={saving}
             color="primary"
-            inputProps={{ "aria-label": "Toggle free converter downloads" }}
+            inputProps={{ "aria-label": "Toggle all conversions free" }}
           />
         </div>
       </div>
@@ -335,8 +336,9 @@ function AdminControlsPanel() {
       <div className={styles.card}>
         <h3 className={styles.rowTitle}>Converter free plan</h3>
         <p className={styles.rowHint}>
-          Choose which converted files users can download without paying. Everything else uses
-          1 credit or the single-file price. Nothing is used until the user clicks Download.
+          Choose which conversions are free. Files from a free conversion download free. Every
+          other file costs 1 credit or the single-file price, charged only when the user clicks
+          Download.
         </p>
         <form className={styles.libraryPriceForm} onSubmit={handleSaveFreePlan}>
           <div className={styles.libraryPriceRow}>
@@ -349,16 +351,17 @@ function AdminControlsPanel() {
                 onChange={() => setFreePlan("FIRST_N_FREE")}
                 disabled={saving}
               />
-              First N downloads free per user
+              First N conversions free per user
             </label>
             <p className={styles.libraryPriceRowHint}>
-              Each user&apos;s first N file downloads are free, any file size. A free download is
-              used only when the user clicks Download (not when converting), free downloads are used
-              before purchased credits, and re-downloading an unlocked file is free. From file N+1,
-              users pay or use 1 credit. Lowering N never locks files a user already unlocked.
+              Each user&apos;s first N completed conversions are free, any file size, download
+              included. A free conversion is used when the conversion completes (failed conversions
+              do not count), not when the user downloads. From conversion N+1, the user pays or
+              uses 1 credit when they click Download. Re-downloading is free. Lowering N never
+              locks files a user already got free.
             </p>
             <label className={styles.packField}>
-              Free downloads per user
+              Free conversions per user
               <input
                 type="number"
                 min="0"
@@ -403,13 +406,13 @@ function AdminControlsPanel() {
 
           {conversionFree ? (
             <p className={`${styles.note} ${styles.planNote}`}>
-              &quot;Free converter downloads&quot; is ON, so every file is free right now. Turn it
-              off for this plan to apply.
+              &quot;All conversions free&quot; is ON, so every file is free right now and no free
+              conversions are used. Turn it off for this plan to apply.
             </p>
           ) : null}
           <p className={`${styles.note} ${styles.planNote}`}>
             In-app messages follow this setting automatically (public pages may take up to 5
-            minutes). The marketing/SEO copy on converter pages says &quot;first 2 downloads
+            minutes). The marketing/SEO copy on converter pages says &quot;first 2 conversions
             free&quot; as fixed text — update it if you change N.
           </p>
           <button type="submit" className={styles.saveBtn} disabled={saving}>
@@ -556,8 +559,9 @@ function AdminControlsPanel() {
       <div className={styles.card}>
         <h3 className={styles.rowTitle}>Single download base price (USD)</h3>
         <p className={styles.rowHint}>
-          Base price before 18% GST. Charged per converted file at Download, only after the
-          user&apos;s free downloads are used and they have no credits.
+          Base price before 18% GST. Charged per converted file at Download, only for files
+          converted after the user&apos;s free conversions are used, and only when they have no
+          credits.
         </p>
         <form className={styles.priceForm} onSubmit={handleSavePrice}>
           <div className={styles.priceInputWrap}>
@@ -588,12 +592,12 @@ function AdminControlsPanel() {
               <strong>Customer pays (incl. GST): {pricePreview.totalLabel}</strong>
             </p>
             {conversionFree ? (
-              <p className={styles.note}>Shown for reference — ignored while free downloads are on.</p>
+              <p className={styles.note}>Shown for reference — ignored while all conversions are free.</p>
             ) : null}
           </div>
         )}
         {conversionFree && !pricePreview && (
-          <p className={styles.note}>Price is ignored while free downloads are enabled.</p>
+          <p className={styles.note}>Price is ignored while all conversions are free.</p>
         )}
       </div>
 
@@ -604,8 +608,8 @@ function AdminControlsPanel() {
           {Number(packs[0]?.credits) > 0
             ? ` — 3 ${packs[0].name} packs add ${Number(packs[0].credits) * 3} downloads`
             : ""}
-          . 1 credit = 1 file download of any size, used only when the user clicks Download,
-          after their free downloads. Credits never expire.
+          . 1 credit = 1 file download of any size, used only when the user clicks Download on
+          a file converted after their free conversions. Credits never expire.
         </p>
         <div className={styles.packGrid}>
           {packs.map((pack) => {

@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import PopupWrapper from "../CommonJsx/PopupWrapper";
 import { toCadOutputCdnUrl } from "@/config";
 import { getConverterDownloadLabel, getConverterFileBadge } from "@/lib/converterPricing";
 import styles from "./CadComparisonPopup.module.css";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CloseIcon from "@mui/icons-material/Close";
@@ -177,10 +179,12 @@ function pickSolidStats(file) {
     out = { ...outSolid, ...step };
   }
 
+  // Solid → mesh jobs store the output file size under payload.meshing, not on the mesh stats.
+  const meshing = file?.quality_meshing || {};
   return {
     kind: "solid",
     srcSize: formatMb(src.size_mb) || formatFileSize(file?.input_file_size_bytes),
-    outSize: formatMb(out.size_mb),
+    outSize: formatMb(out.size_mb) || (meshOut ? formatMb(meshing.size_mb) : null),
     srcVerts: formatCount(src.verts),
     outVerts: formatCount(out.verts),
     srcFaces: formatCount(src.faces || src.tris),
@@ -333,6 +337,7 @@ function CadComparisonPopup({
   downloading,
   converterCredits = 0,
 }) {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const drawing = isDrawingConversion(file);
   const showImages = !drawing && hasComparisonPhotos(file);
@@ -344,10 +349,6 @@ function CadComparisonPopup({
   const outputUrl = useMemo(
     () => toCadOutputCdnUrl(file?.output_snapshot_url) || file?.output_snapshot_url || "",
     [file?.output_snapshot_url],
-  );
-  const htmlUrl = useMemo(
-    () => toCadOutputCdnUrl(file?.report_html_url) || file?.report_html_url || "",
-    [file?.report_html_url],
   );
 
   const inputFmt = String(file?.input_format || "CAD").toUpperCase();
@@ -532,16 +533,21 @@ function CadComparisonPopup({
                 </>
               ) : (
                 <>
-                  <AttrRow
-                    icon={HubOutlinedIcon}
-                    label="Vertices"
-                    value={`${stats.srcVerts || "—"} → ${stats.outVerts || "—"}`}
-                  />
-                  <AttrRow
-                    icon={GridOnOutlinedIcon}
-                    label="Faces"
-                    value={`${stats.srcFaces || "—"} → ${stats.outFaces || "—"}`}
-                  />
+                  {/* Hide rows the report did not measure instead of showing "— → —". */}
+                  {stats.srcVerts || stats.outVerts ? (
+                    <AttrRow
+                      icon={HubOutlinedIcon}
+                      label="Vertices"
+                      value={`${stats.srcVerts || "—"} → ${stats.outVerts || "—"}`}
+                    />
+                  ) : null}
+                  {stats.srcFaces || stats.outFaces ? (
+                    <AttrRow
+                      icon={GridOnOutlinedIcon}
+                      label="Faces"
+                      value={`${stats.srcFaces || "—"} → ${stats.outFaces || "—"}`}
+                    />
+                  ) : null}
                 </>
               )}
 
@@ -593,7 +599,11 @@ function CadComparisonPopup({
             </ul>
 
             <div className={passedOverall ? styles.passBox : styles.warnBox}>
-              <CheckCircleIcon sx={{ fontSize: 28, color: passedOverall ? "#16a34a" : "#d97706" }} />
+              {passedOverall ? (
+                <CheckCircleIcon sx={{ fontSize: 28, color: "#16a34a" }} />
+              ) : (
+                <WarningAmberRoundedIcon sx={{ fontSize: 28, color: "#d97706" }} />
+              )}
               <div>
                 <strong>{passedOverall ? "Passed" : "Review needed"}</strong>
                 <p>
@@ -633,9 +643,12 @@ function CadComparisonPopup({
             <button
               type="button"
               className={styles.detailsBtn}
-              disabled={!htmlUrl}
+              disabled={!file?.report_html_url || !fileId}
               onClick={() => {
-                if (htmlUrl) window.open(htmlUrl, "_blank", "noopener,noreferrer");
+                // Open the report on its own page. The raw report link downloads the file.
+                if (file?.report_html_url && fileId) {
+                  router.push(`/dashboard/conversion-report/${encodeURIComponent(fileId)}`);
+                }
               }}
             >
               <VisibilityIcon sx={{ fontSize: 18 }} />
