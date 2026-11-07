@@ -25,7 +25,8 @@ import {
 } from "@/lib/techDraw/techDrawAnalytics";
 import { fetchLibrarySourceFile } from "@/api/librarySourceApi";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
-import { ArrowRight, ArrowUp, Info } from "lucide-react";
+import { convertedFiles } from "@/common.helper";
+import { ArrowUp, Info } from "lucide-react";
 import styles from "./CadDrawingPipeline.module.css";
 
 function isUserVerified() {
@@ -75,13 +76,22 @@ function isLlmAvailable(eligibility) {
   return true;
 }
 
+function TrustLock() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="6" y="10.5" width="12" height="8.5" rx="1.6" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M9 10.5V8.2a3 3 0 0 1 6 0v2.3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function CadDrawingPipelineView({ initialPrices }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const freeRetryFor = String(searchParams.get("freeRetryFor") || "").trim();
   const isFreeRetryFlow = Boolean(freeRetryFor);
   const [file, setFile] = useState(null);
-  const [formStep, setFormStep] = useState(1);
+  const [sampleLoading, setSampleLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [gdtStandard, setGdtStandard] = useState("ASME");
@@ -109,6 +119,21 @@ export default function CadDrawingPipelineView({ initialPrices }) {
 
   useEffect(() => {
     getOrCreateTechDrawUuid();
+  }, []);
+
+  useEffect(() => {
+    const onApply = (event) => {
+      const note = String(event.detail?.note || "").trim();
+      if (!note) return;
+      setDescription((current) => (current.includes(note) ? current : current.trim() ? `${current.trim()}\n${note}` : note));
+      document.getElementById("cad-pipeline-upload")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      toast.info(event.detail?.toast || "Added to your drawing description.");
+    };
+    window.addEventListener("cad-pipeline-apply", onApply);
+    return () => window.removeEventListener("cad-pipeline-apply", onApply);
   }, []);
 
   const refreshEligibility = useCallback(async () => {
@@ -144,7 +169,6 @@ export default function CadDrawingPipelineView({ initialPrices }) {
     trackTechDrawFileSelected(f);
     setFile(f);
     setError("");
-    setFormStep(2);
   }, []);
 
   // Prefill STEP from library design (?source=designId)
@@ -204,25 +228,34 @@ export default function CadDrawingPipelineView({ initialPrices }) {
       e?.stopPropagation?.();
       if (submitting || submitLockRef.current) return;
       setFile(null);
-      setFormStep(1);
       setError("");
     },
     [submitting],
   );
 
-  const goToPreviousStep = useCallback(() => {
-    if (submitting || submitLockRef.current) return;
-    setFormStep(1);
-  }, [submitting]);
-
-  const goToDetailsStep = useCallback(() => {
-    if (submitting || submitLockRef.current) return;
-    if (!file) {
-      toast.error("Choose a STEP or STP file.");
+  const loadSample = useCallback(async () => {
+    if (submitting || submitLockRef.current || sampleLoading) return;
+    const sample = convertedFiles.find((item) => item.format === "step");
+    if (!sample?.url) {
+      toast.error("Sample STEP file is unavailable.");
       return;
     }
-    setFormStep(2);
-  }, [file, submitting]);
+    setSampleLoading(true);
+    try {
+      const response = await fetch(sample.url);
+      if (!response.ok) throw new Error("sample fetch failed");
+      const blob = await response.blob();
+      pickFile(
+        new File([blob], sample.name || "sample.step", {
+          type: blob.type || "application/octet-stream",
+        }),
+      );
+    } catch {
+      toast.error("Could not load the sample STEP file.");
+    } finally {
+      setSampleLoading(false);
+    }
+  }, [pickFile, sampleLoading, submitting]);
 
   const onDrop = (e) => {
     e.preventDefault();
@@ -250,7 +283,6 @@ export default function CadDrawingPipelineView({ initialPrices }) {
     e.preventDefault();
 
     if (submitLockRef.current || submitting) return;
-    if (formStep !== 2) return;
 
     if (!file) {
       toast.error("Choose a STEP or STP file.");
@@ -425,8 +457,19 @@ export default function CadDrawingPipelineView({ initialPrices }) {
         </div>
       ) : null}
 
-      <div className={styles.pipelineToolPanel}>
-        <form id="cad-pipeline-submit-form" className={styles.pipelineHeroForm} onSubmit={onSubmit}>
+      <div className={styles.heroCard}>
+        <form id="cad-pipeline-submit-form" className={styles.heroForm} onSubmit={onSubmit}>
+          <div className={styles.heroCardHead}>
+            <h2>Upload your STEP file</h2>
+            <span className={styles.heroSecure}>
+              <TrustLock />
+              Secure
+            </span>
+          </div>
+          <p className={styles.heroCardLede}>
+            Choose one STEP file. This page is already set up to create a 2D drawing set.
+          </p>
+
           <input
             ref={fileInputRef}
             type="file"
@@ -438,120 +481,113 @@ export default function CadDrawingPipelineView({ initialPrices }) {
             tabIndex={-1}
           />
 
-          {formStep === 1 ? (
-            <>
-              <div className={styles.pipelineStepHeader}>
-                <span className={styles.pipelineStepNum} aria-hidden>
-                  1
-                </span>
-                <span className={styles.pipelineStepTitle}>Upload your model</span>
-              </div>
-
-              <div
-                className={`${styles.pipelineDropzone} ${dragOver ? styles.pipelineDropzoneDrag : ""} ${
-                  file ? styles.pipelineDropzoneFilled : ""
-                }`}
-                role="button"
-                tabIndex={0}
-                aria-label="Choose STEP or STP file"
-                onClick={openFilePicker}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    openFilePicker();
-                  }
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragOver(true);
-                }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={onDrop}
-              >
-                {file ? (
-                  <div className={styles.pipelineFileRow}>
-                    <span className={styles.pipelineFileBadge} aria-hidden>
-                      STP
-                    </span>
-                    <div className={styles.pipelineFileMeta}>
-                      <div className={styles.pipelineFileName}>{file.name}</div>
-                      <div className={styles.pipelineFileSize}>{formatMb(file.size)} · selected</div>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.pipelineFileRemove}
-                      onClick={clearFile}
-                      disabled={submitting}
-                      aria-label="Remove selected file"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ) : (
-                  <div className={styles.pipelineDropzoneEmpty}>
-                    <span className={styles.pipelineDropzoneIcon} aria-hidden>
-                      <ArrowUp size={26} strokeWidth={1.9} />
-                    </span>
-                    <p className={styles.pipelineDropzoneHeadline}>Drag &amp; drop your STEP file</p>
-                    <p className={styles.pipelineDropzoneSubline}>
-                      or{" "}
-                      <span className={styles.pipelineDropzoneBrowse}>click to browse</span> from your
-                      computer
-                    </p>
-                    <p className={styles.pipelineFormatsLine}>
-                      Supports .step and .stp · max {MAX_UPLOAD_LABEL}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {file ? (
-                <>
-                  <p className={styles.pipelineFormatsLine}>
-                    Supports .step and .stp · max {MAX_UPLOAD_LABEL}
-                  </p>
-                  <button
-                    type="button"
-                    className={styles.pipelineContinueBtn}
-                    onClick={goToDetailsStep}
-                    disabled={submitting}
-                  >
-                    Continue
-                    <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
-                  </button>
-                </>
-              ) : null}
-            </>
-          ) : (
-            <>
-              <div className={styles.pipelineFileStrip}>
-                <span className={styles.pipelineFileStripBadge} aria-hidden>
+          <div
+            className={`${styles.heroDrop} ${dragOver ? styles.heroDropActive : ""}`}
+            onClick={openFilePicker}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={onDrop}
+          >
+            {file ? (
+              <div className={styles.heroFileRow}>
+                <span className={styles.heroFileBadge} aria-hidden>
                   STP
                 </span>
-                <div className={styles.pipelineFileStripMeta}>
-                  <div className={styles.pipelineFileStripName}>{file?.name}</div>
-                  {file ? (
-                    <div className={styles.pipelineFileStripSize}>{formatMb(file.size)}</div>
-                  ) : null}
-                </div>
+                <span className={styles.heroFileMeta}>
+                  <strong>{file.name}</strong>
+                  <small>{formatMb(file.size)} selected</small>
+                </span>
                 <button
                   type="button"
-                  className={styles.pipelineFileStripRemove}
+                  className={styles.heroFileRemove}
                   onClick={clearFile}
                   disabled={submitting}
-                  aria-label="Remove file and start over"
+                  aria-label="Remove selected file"
                 >
                   ×
                 </button>
               </div>
-
-              <div className={`${styles.pipelineStepHeader} ${styles.pipelineStepHeaderTight}`}>
-                <span className={styles.pipelineStepNum} aria-hidden>
-                  2
+            ) : (
+              <>
+                <span className={styles.heroDropIcon} aria-hidden>
+                  <ArrowUp size={18} strokeWidth={2.2} />
                 </span>
-                <span className={styles.pipelineStepTitle}>Describe what you need</span>
-              </div>
+                <p className={styles.heroDropTitle}>Drag and drop your STEP file here</p>
+                <p className={styles.heroDropHint}>or choose a file from your computer</p>
+              </>
+            )}
+            <button
+              type="button"
+              className={styles.heroBrowse}
+              onClick={(event) => {
+                event.stopPropagation();
+                openFilePicker();
+              }}
+              disabled={submitting}
+            >
+              Browse files
+            </button>
+            <p className={styles.heroDropLimit}>Maximum file size: {MAX_UPLOAD_LABEL}</p>
+          </div>
 
+          <div className={styles.heroFormats}>
+            <div>
+              <span>Input format</span>
+              <div className={styles.heroFormatBox}>
+                <strong>STEP (.step, .stp)</strong>
+                <small>{file ? file.name : "STEP file"}</small>
+              </div>
+            </div>
+            <span className={styles.heroFormatArrow} aria-hidden>
+              →
+            </span>
+            <div>
+              <span>Output</span>
+              <div className={styles.heroFormatBox}>
+                <strong>2D drawing set</strong>
+                <small>PDF, DXF, SVG, PNG, FCStd</small>
+              </div>
+            </div>
+          </div>
+
+          {file ? (
+            <button
+              className={styles.heroGenerate}
+              type="submit"
+              disabled={submitting || !llmAvailable}
+              title={!llmAvailable ? llmDownMessage : undefined}
+            >
+              {submitting ? uploadPhase || "Working…" : !llmAvailable ? "AI service unavailable" : "Generate 2D drawings"}
+            </button>
+          ) : (
+            <button type="button" className={`${styles.heroGenerate} ${styles.heroGenerateIdle}`} onClick={openFilePicker}>
+              Generate 2D drawings
+            </button>
+          )}
+
+          <p className={styles.heroPriceNote}>
+            <Info size={15} strokeWidth={1.9} aria-hidden />
+            <span>
+              {prices.totalLabel ? (
+                <>
+                  <strong>{prices.totalLabel} per drawing set</strong>, with every format included.
+                </>
+              ) : (
+                <strong>Every format is included.</strong>
+              )}{" "}
+              Most sets are ready in under 4 minutes.{" "}
+              <a href="#whats-included">What&apos;s included</a>
+            </span>
+          </p>
+
+          {uploadPhase ? <p className={styles.heroPhase}>{uploadPhase}</p> : null}
+
+          {file ? (
+            <details className={styles.heroOptions}>
+              <summary>Drawing options</summary>
               <div className={styles.pipelineInfoTip}>
                 <Info size={15} strokeWidth={1.9} aria-hidden />
                 <p>
@@ -568,7 +604,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
                 className={styles.pipelineHeroInput}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Detailed frigate ship model with realistic dimensions"
+                placeholder="e.g. Bracket, third-angle, millimetres"
                 disabled={submitting}
               />
 
@@ -583,7 +619,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
                 className={styles.pipelineHeroTextarea}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g. A highly detailed frigate ship model designed with dimensions closely matching an actual vessel. Ideal for maritime simulations and design projects."
+                placeholder="Notes for views, units, sheet size, or features to dimension."
                 disabled={submitting}
                 rows={4}
               />
@@ -591,10 +627,9 @@ export default function CadDrawingPipelineView({ initialPrices }) {
               <div className={styles.gdtPanel}>
                 <div className={styles.gdtPanelTitle}>GD&amp;T datums</div>
                 <p className={styles.gdtPanelLead}>
-                  Optional. The drawing engine proposes datum faces from the model. You can
-                  steer that choice, or pick the exact A / B / C frame after views are captured.
+                  Optional. The drawing engine proposes datum faces from the model. You can steer
+                  that choice, or pick the exact A / B / C frame after views are captured.
                 </p>
-
                 <fieldset className={styles.gdtStandardRow} disabled={submitting}>
                   <legend className={styles.pipelineHeroFieldLabel}>Standard</legend>
                   <label className={styles.gdtRadio}>
@@ -618,7 +653,6 @@ export default function CadDrawingPipelineView({ initialPrices }) {
                     ISO GPS
                   </label>
                 </fieldset>
-
                 <label
                   className={`${styles.pipelineHeroFieldLabel} ${styles.pipelineHeroFieldLabelSpaced}`}
                   htmlFor="cad-pipeline-datums"
@@ -630,11 +664,10 @@ export default function CadDrawingPipelineView({ initialPrices }) {
                   className={styles.pipelineHeroTextarea}
                   value={datumPreferences}
                   onChange={(e) => setDatumPreferences(e.target.value)}
-                  placeholder="e.g. Primary datum is the mounting face; locate on the Ø12 dowel bore."
+                  placeholder="e.g. Primary datum is the mounting face."
                   disabled={submitting}
                   rows={3}
                 />
-
                 <label className={styles.gdtCheck}>
                   <input
                     type="checkbox"
@@ -642,67 +675,23 @@ export default function CadDrawingPipelineView({ initialPrices }) {
                     disabled={submitting}
                     onChange={(e) => setChooseDatums(e.target.checked)}
                   />
-                  <span>
-                    I&apos;ll pick datum features A / B / C after the model is analyzed
-                  </span>
+                  <span>I&apos;ll pick datum features A / B / C after the model is analyzed</span>
                 </label>
               </div>
+            </details>
+          ) : null}
 
-              {uploadPhase ? <p className={styles.uploadPhaseHint}>{uploadPhase}</p> : null}
-
-              {needsPaidDownload ? (
-                <p className={styles.uploadPhaseHint} style={{ marginTop: 16 }}>
-                  Generating is free. You&apos;ll pay <strong>{prices.totalLabel}</strong> (incl.
-                  GST) only when you download your drawing set.
-                </p>
-              ) : (
-                <p className={styles.uploadPhaseHint} style={{ marginTop: 16 }}>
-                  Your first drawing-set download is free. Upload and generate at no charge.
-                </p>
-              )}
-
-              <button
-                className={styles.pipelineHeroSubmitBtn}
-                type="submit"
-                disabled={submitting || !llmAvailable || !file}
-                title={!llmAvailable ? llmDownMessage : undefined}
-              >
-                {submitting ? (
-                  <>
-                    <span className={styles.spinner} aria-hidden />
-                    {uploadPhase || "Working…"}
-                  </>
-                ) : !llmAvailable ? (
-                  <>AI service unavailable</>
-                ) : (
-                  <>
-                    Generate drawings
-                    <ArrowRight size={18} strokeWidth={2.1} aria-hidden />
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                className={styles.pipelineBackStep}
-                onClick={goToPreviousStep}
-                disabled={submitting}
-              >
-                ← Go to previous step
-              </button>
-
-              <div className={styles.pipelineCtaMeta}>
-                <span className={styles.pipelineCtaMetaItem}>
-                  <span className={styles.pipelineCtaMetaDot} aria-hidden />
-                  Pay at download · {prices.totalLabel} per drawing set incl. GST
-                </span>
-                <span className={styles.pipelineCtaMetaItem}>
-                  <span className={styles.pipelineCtaMetaDot} aria-hidden />
-                  Ready in under 4 minutes
-                </span>
-              </div>
-            </>
-          )}
+          <p className={styles.heroSampleLine}>
+            No STEP file available? Try a STEP sample to see the drawing workflow.
+          </p>
+          <button
+            type="button"
+            className={styles.heroSampleBtn}
+            onClick={loadSample}
+            disabled={submitting || sampleLoading}
+          >
+            {sampleLoading ? "Loading sample…" : "Try sample.step"}
+          </button>
         </form>
       </div>
 

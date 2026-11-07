@@ -1,17 +1,32 @@
 import CadDrawingPipelineView from "@/Components/CadDrawingPipeline/CadDrawingPipelineView";
-import CadDrawingPipelineOutputFormats from "@/Components/CadDrawingPipeline/CadDrawingPipelineOutputFormats";
-import CadDrawingPipelineFinalCta from "@/Components/CadDrawingPipeline/CadDrawingPipelineFinalCta";
-import CadDrawingPipelineFaq from "@/Components/CadDrawingPipeline/CadDrawingPipelineFaq";
+// Remaining old sections, not yet rebuilt:
+// import CadDrawingPipelineOutputFormats from "@/Components/CadDrawingPipeline/CadDrawingPipelineOutputFormats";
+// import CadDrawingPipelineFinalCta from "@/Components/CadDrawingPipeline/CadDrawingPipelineFinalCta";
+// import CadDrawingPipelineFaq from "@/Components/CadDrawingPipeline/CadDrawingPipelineFaq";
 import Footer from "@/Components/HomePages/Footer/Footer";
-import CadDrawingPipelinePaidCta from "@/Components/CadDrawingPipeline/CadDrawingPipelinePaidCta";
-import CadDrawingPipelineTransparency from "@/Components/CadDrawingPipeline/CadDrawingPipelineTransparency";
-import CadDrawingPipelineHowItWorks from "@/Components/CadDrawingPipeline/CadDrawingPipelineHowItWorks";
-import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawingPipelineProcess";
-import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
-import CadDrawingPipelineInfoSections from "@/Components/CadDrawingPipeline/CadDrawingPipelineInfoSections";
-import CadDrawingPipelineInternalLinks from "@/Components/CadDrawingPipeline/CadDrawingPipelineInternalLinks";
+// import CadDrawingPipelinePaidCta from "@/Components/CadDrawingPipeline/CadDrawingPipelinePaidCta";
+// import CadDrawingPipelineTransparency from "@/Components/CadDrawingPipeline/CadDrawingPipelineTransparency";
+// import CadDrawingPipelineHowItWorks from "@/Components/CadDrawingPipeline/CadDrawingPipelineHowItWorks";
+// import CadDrawingPipelineProcess from "@/Components/CadDrawingPipeline/CadDrawingPipelineProcess";
+// import CadDrawingPipelineSampleSheets from "@/Components/CadDrawingPipeline/CadDrawingPipelineSampleSheets";
+// import CadDrawingPipelineInfoSections from "@/Components/CadDrawingPipeline/CadDrawingPipelineInfoSections";
+// import CadDrawingPipelineInternalLinks from "@/Components/CadDrawingPipeline/CadDrawingPipelineInternalLinks";
 import ToolPageJsonLd from "@/Components/JsonLdSchemas/ToolPageJsonLd";
 import CadDrawingPipelineHeroSection from "@/Components/CadDrawingPipeline/CadDrawingPipelineHeroSection";
+import CadDrawingPipelinePricing from "@/Components/CadDrawingPipeline/CadDrawingPipelinePricing";
+import CadDrawingPipelineReasons from "@/Components/CadDrawingPipeline/CadDrawingPipelineReasons";
+import CadDrawingPipelineWorkflow from "@/Components/CadDrawingPipeline/CadDrawingPipelineWorkflow";
+import CadDrawingPipelineSimpleSteps from "@/Components/CadDrawingPipeline/CadDrawingPipelineSimpleSteps";
+import CadDrawingPipelineDrawingSet from "@/Components/CadDrawingPipeline/CadDrawingPipelineDrawingSet";
+import CadDrawingPipelineFormats from "@/Components/CadDrawingPipeline/CadDrawingPipelineFormats";
+import CadDrawingPipelineCompare from "@/Components/CadDrawingPipeline/CadDrawingPipelineCompare";
+import CadDrawingPipelineUses from "@/Components/CadDrawingPipeline/CadDrawingPipelineUses";
+import CadDrawingPipelineEditGuide from "@/Components/CadDrawingPipeline/CadDrawingPipelineEditGuide";
+import CadDrawingPipelineUnderTheHood from "@/Components/CadDrawingPipeline/CadDrawingPipelineUnderTheHood";
+import CadDrawingPipelineTroubleshooting from "@/Components/CadDrawingPipeline/CadDrawingPipelineTroubleshooting";
+import CadDrawingPipelineOwnership from "@/Components/CadDrawingPipeline/CadDrawingPipelineOwnership";
+import CadDrawingPipelineQuestions from "@/Components/CadDrawingPipeline/CadDrawingPipelineQuestions";
+import CadDrawingPipelineMoreTools from "@/Components/CadDrawingPipeline/CadDrawingPipelineMoreTools";
 import SoftwareApplicationJsonLd from "@/Components/JsonLdSchemas/SoftwareApplicationJsonLd";
 import styles from "@/Components/CadDrawingPipeline/CadDrawingPipeline.module.css";
 import React, { Suspense } from "react";
@@ -22,6 +37,12 @@ import {
   PIPELINE_PAGE_TITLE,
 } from "@/data/cadDrawingPipelinePage";
 import { fetchTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
+import {
+  fetchConverterPricingInfo,
+  getFreeConversionsPerUser,
+  getSinglePriceLabelFromInfo,
+  isSizeLimitPlan,
+} from "@/lib/converterPricing";
 
 const SITE = "https://marathon-os.com";
 const CANONICAL = "/tools/convert-step-to-2d-drawing";
@@ -43,6 +64,18 @@ function PipelineSectionFallback() {
 export default async function CadDrawingPipelinePage() {
   const prices = await fetchTechDrawPriceDisplay();
   const priceAmount = Number(prices.total).toFixed(2);
+  let converterOffer = null;
+  try {
+    const info = await fetchConverterPricingInfo();
+    converterOffer = {
+      priceLabel: getSinglePriceLabelFromInfo(info) || "",
+      freeCount: getFreeConversionsPerUser(info),
+      allFree: Boolean(info?.conversion_free),
+      sizeLimit: isSizeLimitPlan(info),
+    };
+  } catch (err) {
+    console.warn("[converter] pricing-info failed:", err?.message || err);
+  }
 
   return (
     <>
@@ -68,6 +101,25 @@ export default async function CadDrawingPipelinePage() {
           </Suspense>
         </CadDrawingPipelineHeroSection>
 
+        <CadDrawingPipelinePricing
+          initialPrices={prices}
+          initialConverterOffer={converterOffer}
+        />
+        <CadDrawingPipelineReasons />
+        <CadDrawingPipelineWorkflow />
+        <CadDrawingPipelineSimpleSteps initialPrices={prices} />
+        <CadDrawingPipelineDrawingSet />
+        <CadDrawingPipelineFormats />
+        <CadDrawingPipelineCompare initialPrices={prices} />
+        <CadDrawingPipelineUses />
+        <CadDrawingPipelineEditGuide />
+        <CadDrawingPipelineUnderTheHood />
+        <CadDrawingPipelineTroubleshooting />
+        <CadDrawingPipelineOwnership />
+        <CadDrawingPipelineQuestions initialPrices={prices} />
+        <CadDrawingPipelineMoreTools />
+
+        {/* Remaining old sections, not yet rebuilt:
         <div className={styles.page}>
           <CadDrawingPipelineHowItWorks />
           <Suspense fallback={<PipelineSectionFallback />}>
@@ -83,6 +135,7 @@ export default async function CadDrawingPipelinePage() {
         </div>
 
         <CadDrawingPipelineFinalCta initialPrices={prices} />
+        */}
       </div>
       <Footer />
     </>
