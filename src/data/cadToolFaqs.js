@@ -94,7 +94,7 @@ export function getConverterFaqQuestions(conversionParams) {
     },
     {
       question: `Is the ${fromUpper} to ${toUpper} converter free?`,
-      answer: `Your first 2 file downloads on Marathon OS are free, any size up to 300 MB. After that, each download needs a small fee or 1 credit.`,
+      answer: `Your first 2 CAD file conversions on Marathon OS are free, any size up to 300 MB. After that, each converted file needs a small fee or 1 credit, paid only when you download it.`,
     },
     {
       question: 'How is my data stored and secured?',
@@ -125,7 +125,7 @@ export const cadConverterFaqQuestions = [
   },
   {
     question: 'Is the converter free to use?',
-    answer: 'Your first 2 file downloads are free, any size up to 300 MB. After that, each download needs a small fee or 1 credit.',
+    answer: 'Your first 2 CAD file conversions are free, any size up to 300 MB. After that, each converted file needs a small fee or 1 credit, paid only when you download it.',
   },
   {
     question: 'What is the maximum file size?',

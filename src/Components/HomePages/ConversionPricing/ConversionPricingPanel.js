@@ -29,7 +29,7 @@ function ConversionPricingPanel({
         </p>
         <h2 className={styles.title}>Choose a credit pack.</h2>
         <p className={styles.lead}>
-          Your first 2 file downloads are free, any size up to 300 MB. After that, one credit downloads one
+          Your first 2 CAD file conversions are free, any size up to 300 MB. After that, one credit downloads one
           standard format conversion, up to 300 MB, and is used only when you click Download.
           Credits never expire.
         </p>

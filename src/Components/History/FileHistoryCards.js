@@ -316,8 +316,10 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
+      const dot = file?.file_name ? file.file_name.lastIndexOf('.') : -1;
+      // lastIndexOf returns -1 for names without an extension; slice(0, -1) would cut a letter.
       const stem =
-        file?.file_name?.slice(0, file.file_name.lastIndexOf('.')) ||
+        (dot > 0 ? file.file_name.slice(0, dot) : file?.file_name) ||
         file?.base_name ||
         'conversion';
       a.href = downloadUrl;
@@ -431,15 +433,11 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         return;
       }
       if (access.can_download) {
+        // Free conversion (its free slot was used when it converted), already paid, or free plan:
+        // downloading uses nothing.
         await performConverterFileDownload(file, index);
-        // First download of a file under the free plan: the backend just used one free slot.
-        if (access.reason === 'free_quota' && file.converter_pricing?.uses_free_slot) {
-          const left = Math.max((Number(file.converter_pricing.free_slots_remaining) || 1) - 1, 0);
-          toast.info(
-            left > 0
-              ? `Free download used. You have ${left} free download${left === 1 ? '' : 's'} left.`
-              : "Free download used. That was your last one — new files will cost 1 credit or a one-time payment.",
-          );
+        if (access.reason === 'free_quota' && !file.converter_pricing?.free_granted) {
+          // The list was loaded before this file took its free slot: refresh the labels.
           setConverterHistoryRefresh((n) => n + 1);
         }
         return;

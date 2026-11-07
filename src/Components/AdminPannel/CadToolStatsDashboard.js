@@ -69,6 +69,15 @@ function CountButton({ value, onClick }) {
   );
 }
 
+// How a conversion was billed (backend `billing`): first-N free conversions, credit, paid, sample.
+const CONVERSION_BILLING_LABELS = {
+  free_conversion: "Free conversion",
+  credit: "Credit",
+  paid: "Paid",
+  sample: "Sample (free)",
+  unpaid: "Not paid",
+};
+
 function CadToolStatsDashboard() {
   const [rangeFilter, setRangeFilter] = useState("today");
   const [stats, setStats] = useState(null);
@@ -178,7 +187,7 @@ function CadToolStatsDashboard() {
   const isConversion = selected?.type === "conversion";
   const isViewer = selected?.type === "viewer";
   const showEye = isConversion || isViewer;
-  const detailColSpan = 5 + (isConversion ? 4 : 0) + (showEye ? 1 : 0);
+  const detailColSpan = 5 + (isConversion ? 5 : 0) + (showEye ? 1 : 0);
 
   return (
     <div className={styles.page}>
@@ -291,6 +300,7 @@ function CadToolStatsDashboard() {
                           <th>Time taken</th>
                           <th>Quality checks</th>
                           <th>Input size</th>
+                          <th>Billing</th>
                         </>
                       ) : null}
                       {showEye ? <th>View</th> : null}
@@ -344,6 +354,7 @@ function CadToolStatsDashboard() {
                                   )}
                                 </td>
                                 <td>{sizeLabel || "—"}</td>
+                                <td>{CONVERSION_BILLING_LABELS[row.billing] || "—"}</td>
                               </>
                             ) : null}
                             {showEye ? (

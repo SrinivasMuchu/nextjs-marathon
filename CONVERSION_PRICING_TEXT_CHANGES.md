@@ -1,6 +1,12 @@
-# Conversion pricing text changes — "First 2 downloads free"
+# Conversion pricing text changes — "First 2 conversions free"
 
-**New plan:** every user's first 2 CAD file downloads are free, any file size. From the 3rd file, each download costs 1 credit or a one-time payment. A free download or credit is used **only when the user clicks Download**. Converting never uses anything. Free downloads are used before purchased credits, and re-downloading an unlocked file is free.
+**Current plan (Nov 2026):** every user's first 2 completed CAD file conversions are free, any file size, download included. A free conversion is used **when the conversion completes** (failed conversions do not count), not when the user clicks Download. From conversion 3 on, the converted file costs 1 credit or a one-time payment, charged **only when the user clicks Download**. Re-downloading is free.
+
+How the backend counts it (`api_server/server/v1/cadViewer/converterPayment.helper.js`, `claimFreeConversions`): the user's oldest completed, not-yet-unlocked converter files get a free slot (a $0 `payment_info` row with `free_quota_grant: true`) until the admin limit is reached. This runs on the conversion-complete notify, the status poll, the dashboard history, pricing-info and check-download, so it does not depend on the user clicking Download. The slot counter is still `cad_converter_credits.free_downloads_used` (name kept for existing data).
+
+"View Details" in the conversion popup now opens `/dashboard/conversion-report/<id>`, which loads the report through `GET /v1/cad/converter/report` and shows it on the page (the raw S3 report link was downloading the HTML file).
+
+The tables below were written for the earlier "first 2 downloads free" plan; the text in those places now says "conversions" instead of "downloads".
 
 Base URL: `https://marathon-os.com`
 
