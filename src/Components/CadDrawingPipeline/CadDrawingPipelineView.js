@@ -25,6 +25,7 @@ import {
 } from "@/lib/techDraw/techDrawAnalytics";
 import { fetchLibrarySourceFile } from "@/api/librarySourceApi";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
+import { useConsumeHomeFile } from "@/Components/HomePages/HomeLandingNew/useConsumeHomeFile";
 import { convertedFiles } from "@/common.helper";
 import { ArrowUp, Info } from "lucide-react";
 import styles from "./CadDrawingPipeline.module.css";
@@ -170,6 +171,8 @@ export default function CadDrawingPipelineView({ initialPrices }) {
     setFile(f);
     setError("");
   }, []);
+
+  useConsumeHomeFile(pickFile);
 
   // Prefill STEP from library design (?source=designId)
   useEffect(() => {

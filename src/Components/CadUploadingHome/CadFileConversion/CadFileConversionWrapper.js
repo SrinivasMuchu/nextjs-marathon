@@ -31,6 +31,13 @@ import {
     shouldPersistConverterLoadingOverlay,
     showConverterLoadingOverlay,
 } from "@/lib/converterLoadingOverlay";
+import { useConsumeHomeFile } from "@/Components/HomePages/HomeLandingNew/useConsumeHomeFile";
+
+const INPUT_FORMAT_ALIASES = {
+    step: [".step", ".stp"],
+    iges: [".iges", ".igs"],
+    brep: [".brep", ".brp"],
+};
 
 function formatSelectedFileSize(bytes) {
     const size = Number(bytes);
@@ -84,6 +91,11 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     const initialPair = parsePairFromConversionParams(convert, conversionParams);
     const [selectedFileFormate, setSelectedFileFormate] = useState(initialPair.to || '');
     const { setFile, allowedFormats, setAllowedFormats,user } = useContext(contextState);
+    const [routeFormatsReady, setRouteFormatsReady] = useState(false);
+    const incomingFileHandlerRef = useRef(null);
+    useConsumeHomeFile((incoming) => {
+        incomingFileHandlerRef.current?.(incoming);
+    }, routeFormatsReady);
     const maxFileSizeMB = 300; // Max file size in MB
     const [uploadProgressPercent, setUploadProgressPercent] = useState(null);
     const [progressPercent, setProgressPercent] = useState(null);
@@ -109,6 +121,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         if (!convert) {
             // General converter: shared CAD/mesh formats plus drawings.
             setAllowedFormats([...allowedFilesList, ".dwg", ".dxf"])
+            setRouteFormatsReady(true);
             return
         }
 
@@ -141,10 +154,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         from = from.replace(/\.\w+$/, '');
         to = to.replace(/\.\w+$/, '');
 
-        const formats = from ? [`.${from}`] : [];
-        if (formatsSegment === 'step-to-stl' && !formats.includes('.stp')) {
-            formats.push('.stp');
-        }
+        const formats = INPUT_FORMAT_ALIASES[from] || (from ? [`.${from}`] : []);
         const toFormats = to ? [`${to}`] : [];
       
         setFromFormate(from)
@@ -153,6 +163,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         if (toFormats.length === 1) {
             setSelectedFileFormate(toFormats[0]);
         }
+        setRouteFormatsReady(true);
     }, [pathname, convert, conversionParams]);
 
     // Prefill / auto-start converter from library design (?source=designId)
@@ -347,7 +358,6 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     
         setDisableSelect(false)
         setFileConvert(file)
-        // handleFileConvert(file)
         setUploading(true)
 
 
@@ -357,6 +367,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
 
 
     };
+    incomingFileHandlerRef.current = validateAndProcessFile;
 
     const handleDragOver = (event) => {
         event.preventDefault();

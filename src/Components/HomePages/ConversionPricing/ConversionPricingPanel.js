@@ -19,7 +19,7 @@ function ConversionPricingPanel({
   if (!packs.length) return null;
 
   return (
-    <section className={styles.section} id="pricing">
+    <section className={styles.section} id="conversion-pricing">
       <div className={styles.outer}>
         <div className={styles.shell}>
       <header className={styles.heading}>

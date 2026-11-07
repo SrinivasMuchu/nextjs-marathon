@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/Components/HomePages/Footer/Footer";
+import { useConsumeHomeFile } from "@/Components/HomePages/HomeLandingNew/useConsumeHomeFile";
 import {
   getOrCreateStepBomUuid,
   uploadStepBomFile,
@@ -1283,18 +1284,39 @@ export default function StepBomTreePage() {
   }, []);
 
   const pickFile = useCallback((nextFile) => {
-    if (!nextFile) return;
+    if (!nextFile) return false;
     if (!STEP_EXT.test(nextFile.name)) {
       toast.error("Only .step or .stp files are allowed.");
-      return;
+      return false;
     }
     if (nextFile.size > MAX_UPLOAD_BYTES) {
       toast.error(`File is ${formatMb(nextFile.size)}. Maximum size is ${MAX_UPLOAD_LABEL}.`);
-      return;
+      return false;
     }
     setFile(nextFile);
     setError("");
+    return true;
   }, []);
+
+  const beginUpload = useCallback(async (nextFile) => {
+    if (!nextFile) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      const data = await uploadStepBomFile(nextFile);
+      const created = data?.job || data;
+      const jobId = created?.job_id;
+      if (!jobId) throw new Error("Job was queued but no id was returned.");
+      router.push(stepBomJobPath(jobId));
+    } catch (err) {
+      const message = err?.message || "Could not start STEP BOM extraction.";
+      setError(message);
+      toast.error(message);
+      setSubmitting(false);
+    }
+  }, [router]);
+
+  useConsumeHomeFile(pickFile);
 
   const onDrop = useCallback(
     (event) => {
@@ -1306,25 +1328,12 @@ export default function StepBomTreePage() {
   );
 
   const onSubmit = useCallback(
-    async (event) => {
+    (event) => {
       event.preventDefault();
       if (!file || submitting) return;
-      setSubmitting(true);
-      setError("");
-      try {
-        const data = await uploadStepBomFile(file);
-        const created = data?.job || data;
-        const jobId = created?.job_id;
-        if (!jobId) throw new Error("Job was queued but no id was returned.");
-        router.push(stepBomJobPath(jobId));
-      } catch (err) {
-        const message = err?.message || "Could not start STEP BOM extraction.";
-        setError(message);
-        toast.error(message);
-        setSubmitting(false);
-      }
+      beginUpload(file);
     },
-    [file, router, submitting],
+    [file, submitting, beginUpload],
   );
 
   return (
