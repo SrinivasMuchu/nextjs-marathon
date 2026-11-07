@@ -602,18 +602,20 @@ function HomeHero({ initialDrawingPrices, initialConverterInfo }) {
 
               {mode === "view" ? (
                 <div className={styles.mode}>
-                  <div className={styles.setting}>
-                    <label className={styles.lbl} htmlFor="home-view-fmt">File type</label>
-                    <select
-                      id="home-view-fmt"
-                      className={styles.select}
-                      value={viewFmt}
-                      onChange={(event) => setViewFmt(event.target.value)}
-                    >
-                      <FormatOptions groups={VIEW_GROUPS} />
-                    </select>
-                  </div>
-                  <div className={styles.chips} style={{ marginTop: 12 }}>
+                  {picked && fileNote?.ok ? null : (
+                    <div className={styles.setting}>
+                      <label className={styles.lbl} htmlFor="home-view-fmt">File type</label>
+                      <select
+                        id="home-view-fmt"
+                        className={styles.select}
+                        value={viewFmt}
+                        onChange={(event) => setViewFmt(event.target.value)}
+                      >
+                        <FormatOptions groups={VIEW_GROUPS} />
+                      </select>
+                    </div>
+                  )}
+                  <div className={styles.chips} style={{ marginTop: picked && fileNote?.ok ? 0 : 12 }}>
                     <span><Check /> Free</span>
                     <span><Check /> Rotate and zoom</span>
                     <span><Check /> No install</span>
