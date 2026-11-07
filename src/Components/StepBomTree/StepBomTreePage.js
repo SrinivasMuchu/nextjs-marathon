@@ -56,13 +56,13 @@ const EXTRACT_FEATURES = [
     Icon: X,
     title: "Component quantities",
     description:
-      "Count repeated component instances when the STEP assembly structure identifies them consistently.",
+      "Count identical parts, including copies placed at different angles in the assembly.",
   },
   {
     Icon: Hash,
     title: "Names and identifiers",
     description:
-      "Surface available component names, product IDs and other identifiers stored in the source file.",
+      "Surface component names, part numbers and descriptions when they are stored in the source file.",
   },
   {
     Icon: CornerDownRight,
@@ -100,7 +100,7 @@ const OFTEN_AVAILABLE = [
   "Assembly and subassembly relationships",
   "Component or product names",
   "Repeated component instances and quantities",
-  "Part or product identifiers",
+  "Part numbers and descriptions (STEP product ID fields)",
   "Hierarchy level and parent component",
 ];
 
@@ -218,11 +218,24 @@ function formatSize(bbox) {
 
 const STEEL_DENSITY_G_CM3 = 7.85;
 
-function estMassKg(volumeMm3, qty = 1) {
+function estMassKg(volumeMm3, qty = 1, density = STEEL_DENSITY_G_CM3) {
   const volume = Number(volumeMm3) || 0;
   const count = Number(qty) || 1;
+  const rho = Number(density) > 0 ? Number(density) : STEEL_DENSITY_G_CM3;
   if (volume <= 0) return 0;
-  return (volume * STEEL_DENSITY_G_CM3 * count) / 1e6;
+  return (volume * rho * count) / 1e6;
+}
+
+// The extractor sends density_g_cm3 from the STEP material when it recognises it;
+// otherwise mass is a steel estimate and the material column says so.
+function partDensity(node) {
+  const rho = Number(node?.density_g_cm3);
+  return rho > 0 ? rho : STEEL_DENSITY_G_CM3;
+}
+
+function materialLabel(node) {
+  const material = String(node?.material || "").trim();
+  return material || "Steel (est.)";
 }
 
 function formatMass(kg) {
@@ -234,8 +247,10 @@ function formatMass(kg) {
 }
 
 function partNumber(node) {
-  const values = [node?.part_number, node?.source_name, node?.name];
-  for (const raw of values) {
+  // The extractor fills part_number from the STEP product ID; keep it as sent.
+  const given = String(node?.part_number || "").trim();
+  if (given) return given;
+  for (const raw of [node?.source_name, node?.name]) {
     const text = String(raw || "").trim();
     if (/^\d{1,4}$/.test(text)) return text;
   }
@@ -251,8 +266,8 @@ function formatLxWxH(bbox) {
   return `${x.toFixed(1)} x ${y.toFixed(1)} x ${z.toFixed(1)}`;
 }
 
-function estMassG(volumeMm3, qty = 1) {
-  return Number((estMassKg(volumeMm3, qty) * 1000).toFixed(1));
+function estMassG(volumeMm3, qty = 1, density = STEEL_DENSITY_G_CM3) {
+  return Number((estMassKg(volumeMm3, qty, density) * 1000).toFixed(1));
 }
 
 function outcomeScore(status) {
@@ -347,27 +362,15 @@ function repairMojibake(value) {
   }
 }
 
-function stripInstanceSuffix(value) {
-  return String(value || "")
+// Trailing digits are part of real names ("Bearing 6205", "Washer M8 DIN 125");
+// the extractor stops FreeCAD renaming duplicates, so only strip "(solid N)".
+function canonicalName(value) {
+  const text = repairMojibake(String(value || ""))
     .replace(/\s+/g, " ")
     .trim()
-    .replace(/[\s._-]*\d{3,}$/u, "")
+    .replace(/\s*\(\s*solid\s+\d+\s*\)\s*$/i, "")
     .trim();
-}
-
-function canonicalName(value) {
-  let text = repairMojibake(String(value || "")).replace(/\s+/g, " ").trim();
-  let previous = "";
-  while (text && text !== previous) {
-    previous = text;
-    text = text
-      .replace(/\s*\(\s*solid\s+\d+\s*\)\s*$/i, "")
-      .replace(/[._][A-Za-z]*\d{3,}$/i, "")
-      .replace(/\s+[A-Za-z][A-Za-z0-9_-]*\d{3,}$/i, "")
-      .replace(/[\s._-]*\d{3,}$/u, "")
-      .trim();
-  }
-  return text || stripInstanceSuffix(repairMojibake(value)) || "Part";
+  return text || "Part";
 }
 
 function isGenericName(value) {
@@ -412,14 +415,28 @@ function nodeLabel(node) {
   return isAssemblyNode(node) ? assemblyLabel(node) : partLabel(node);
 }
 
+function sig3(value) {
+  const n = Math.abs(Number(value) || 0);
+  return n > 0 && Number.isFinite(n) ? String(Number(n.toPrecision(3))) : "0";
+}
+
+// Same rule as _geom_key in extract_bom_tree.py: rotation-independent volume, area and
+// principal moments, plus the name so mirrored left/right parts stay separate. The
+// assembly-axis bounding box changes with rotation, so it is only the fallback for
+// records without moments.
 function geomKey(node) {
+  const vol = Math.abs(Number(node?.volume_mm3) || 0);
+  const volKey = vol >= 50 ? String(Math.round(vol)) : vol.toFixed(1);
+  const nameKey = isGenericName(node?.name) ? "" : canonicalName(node?.name).toLowerCase();
+  const moments = Array.isArray(node?.principal_moments) ? node.principal_moments : null;
+  if (moments && moments.length === 3) {
+    return `${nameKey}|${volKey}|${sig3(node?.area_mm2)}|${moments.map(sig3).join(",")}`;
+  }
   const box = node?.bbox_mm || {};
   const dims = [Number(box.x) || 0, Number(box.y) || 0, Number(box.z) || 0]
     .map((value) => (Math.round(value * 2) / 2).toFixed(1))
     .sort((left, right) => Number(left) - Number(right));
-  const vol = Math.abs(Number(node?.volume_mm3) || 0);
-  const volKey = vol >= 50 ? String(Math.round(vol)) : vol.toFixed(1);
-  return `${volKey}|${dims.join("x")}`;
+  return `${nameKey}|${volKey}|${dims.join("x")}`;
 }
 
 function mergeUniquePartList(parts) {
@@ -449,7 +466,10 @@ function childMergeKey(node) {
       .map((child) => `${childMergeKey(child)}×${Number(child.quantity) || 1}`)
       .sort()
       .join(",");
-    return `asm|${geomKey(node)}|${nested}`;
+    const vol = Math.abs(Number(node?.volume_mm3) || 0);
+    const volKey = vol >= 50 ? String(Math.round(vol)) : vol.toFixed(1);
+    const nameKey = isGenericName(node?.name) ? "" : canonicalName(node?.name).toLowerCase();
+    return `asm|${nameKey}|${volKey}|${nested}`;
   }
   return `part|${geomKey(node)}`;
 }
@@ -505,9 +525,10 @@ function flattenCollapsed(node, level = 0, parentQty = 1, rows = []) {
     volume_mm3: Number(node.volume_mm3) || 0,
     area_mm2: Number(node.area_mm2) || 0,
     solid_count: Number(node.solid_count) || 0,
-    mass_kg: estMassKg(node.volume_mm3, total),
-    mass_g: estMassG(node.volume_mm3, 1),
-    material: "Steel (est.)",
+    mass_kg: estMassKg(node.volume_mm3, total, partDensity(node)),
+    mass_g: estMassG(node.volume_mm3, 1, partDensity(node)),
+    material: materialLabel(node),
+    description: node.description || "",
     bbox_mm: node.bbox_mm || null,
     preview_id: node.preview_id || "",
   });
@@ -561,9 +582,10 @@ function excelSheets({ fileName, summary, uniqueParts, treeRows }) {
     summary?.total_part_quantity ||
     uniqueParts.reduce((sum, part) => sum + (Number(part.quantity) || 0), 0);
   const totalMass = uniqueParts.reduce(
-    (sum, part) => sum + estMassKg(part.volume_mm3, part.quantity),
+    (sum, part) => sum + estMassKg(part.volume_mm3, part.quantity, partDensity(part)),
     0,
   );
+  const materialDensityParts = uniqueParts.filter((part) => part.mass_basis === "material").length;
   return {
     summary: {
       id: "summary",
@@ -578,7 +600,12 @@ function excelSheets({ fileName, summary, uniqueParts, treeRows }) {
         { field: "Unique parts", value: uniqueParts.length },
         { field: "Total quantity", value: totalQty },
         { field: "Tree nodes", value: treeRows.length || summary?.node_count || 0 },
-        { field: "Est. mass density", value: "Mild steel 7.85 g/cm³" },
+        {
+          field: "Est. mass density",
+          value: materialDensityParts
+            ? `From the STEP material on ${materialDensityParts} part(s); mild steel 7.85 g/cm³ elsewhere`
+            : "Mild steel 7.85 g/cm³ (no material in the STEP file)",
+        },
         { field: "Est. mass method", value: "Solid volume × density (not bounding-box volume)" },
         { field: "Est. total mass", value: formatMass(totalMass) },
       ],
@@ -589,6 +616,7 @@ function excelSheets({ fileName, summary, uniqueParts, treeRows }) {
       columns: [
         { key: "part_number", header: "Part number" },
         { key: "name", header: "Designation" },
+        { key: "description", header: "Description" },
         { key: "quantity", header: "Qty" },
         { key: "lxwxh", header: "L x W x H (mm)" },
         { key: "size_x", header: "Size X (mm)" },
@@ -605,15 +633,16 @@ function excelSheets({ fileName, summary, uniqueParts, treeRows }) {
         return {
           part_number: partNumber(part),
           name: partLabel(part),
+          description: part.description || "",
           quantity: Number(part.quantity) || 1,
           lxwxh: formatLxWxH(box),
           size_x: Number(box.x) || 0,
           size_y: Number(box.y) || 0,
           size_z: Number(box.z) || 0,
           volume_mm3: Number(part.volume_mm3) || 0,
-          mass_g: estMassG(part.volume_mm3, 1),
-          mass_kg: Number(estMassKg(part.volume_mm3, part.quantity).toFixed(4)),
-          material: "Steel (est.)",
+          mass_g: estMassG(part.volume_mm3, 1, partDensity(part)),
+          mass_kg: Number(estMassKg(part.volume_mm3, part.quantity, partDensity(part)).toFixed(4)),
+          material: materialLabel(part),
           area_mm2: Number(part.area_mm2) || 0,
         };
       }),
@@ -625,6 +654,7 @@ function excelSheets({ fileName, summary, uniqueParts, treeRows }) {
         { key: "level", header: "Level" },
         { key: "part_number", header: "Part number" },
         { key: "name", header: "Designation" },
+        { key: "description", header: "Description" },
         { key: "type", header: "Type" },
         { key: "quantity", header: "Qty" },
         { key: "total_quantity", header: "Total qty" },
@@ -691,6 +721,37 @@ async function downloadBomExcel({ fileName, summary, uniqueParts, treeRows }) {
   const link = document.createElement("a");
   link.href = url;
   link.download = `${(fileName || "step-bom").replace(/\.[^.]+$/, "")}-bom.xlsx`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(value, { asText = false } = {}) {
+  let text = value == null ? "" : String(value);
+  // Names come from the uploaded file: stop spreadsheet formula injection.
+  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+  // Keep part numbers like 00123 or 123456789012345 as text when Excel opens the CSV.
+  if (asText && /^\d+$/.test(text) && (text.startsWith("0") || text.length > 11)) {
+    return `"=""${text}"""`;
+  }
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function downloadBomCsv({ fileName, summary, uniqueParts, treeRows }) {
+  const sheet = excelSheets({ fileName, summary, uniqueParts, treeRows }).tree;
+  const lines = [sheet.columns.map((col) => csvCell(col.header)).join(",")];
+  for (const row of sheet.rows) {
+    lines.push(
+      sheet.columns
+        .map((col) => csvCell(row[col.key], { asText: col.key === "part_number" }))
+        .join(","),
+    );
+  }
+  // UTF-8 byte-order mark so Excel reads non-English part names correctly.
+  const blob = new Blob([`\uFEFF${lines.join("\r\n")}\r\n`], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${(fileName || "step-bom").replace(/\.[^.]+$/, "")}-bom.csv`;
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -807,6 +868,20 @@ export function StepBomOutputSection({ job, error }) {
     }
   }, [displayTree, job, summary, treeRows, uniqueParts]);
 
+  const downloadCsv = useCallback(() => {
+    if (!displayTree) return;
+    try {
+      downloadBomCsv({
+        fileName: job?.file_name || "step-bom",
+        summary,
+        uniqueParts,
+        treeRows,
+      });
+    } catch (err) {
+      toast.error(err?.message || "Could not download CSV.");
+    }
+  }, [displayTree, job, summary, treeRows, uniqueParts]);
+
   const sheets = useMemo(
     () =>
       excelSheets({
@@ -880,6 +955,9 @@ export function StepBomOutputSection({ job, error }) {
               </button>
               <button type="button" className={styles.bomExportBtn} onClick={downloadExcel}>
                 Export Excel
+              </button>
+              <button type="button" className={styles.bomExportBtn} onClick={downloadCsv}>
+                Export CSV
               </button>
             </div>
           ) : null}
@@ -1038,7 +1116,7 @@ export function StepBomOutputSection({ job, error }) {
                       <div><span>Est. total mass</span><strong>{formatMass(reportStats.total_mass_kg)}</strong></div>
                     </div>
                     <p className={styles.reportNote}>
-                      Est. mass = BREP solid volume × mild steel 7.85 g/cm³. Material/color only appear when stored in the STEP.
+                      Est. mass = BREP solid volume × density: from the STEP material when the file names a known one, otherwise mild steel 7.85 g/cm³. Material/color only appear when stored in the STEP.
                     </p>
 
                     <h4>3. Full bill of materials (all extracted fields)</h4>
@@ -1074,7 +1152,7 @@ export function StepBomOutputSection({ job, error }) {
                               const totalQty = row.total_quantity || qty;
                               const vol = Number(row.volume_mm3) || 0;
                               let massKg = Number(row.mass_kg) || 0;
-                              if (massKg <= 0 && vol > 0) massKg = estMassKg(vol, totalQty);
+                              if (massKg <= 0 && vol > 0) massKg = estMassKg(vol, totalQty, partDensity(row));
                               return (
                                 <tr key={`report-${index}`}>
                                   <td>{String(index + 1).padStart(2, "0")}</td>
@@ -1136,8 +1214,8 @@ export function StepBomOutputSection({ job, error }) {
                             uniqueReportParts.map((part, index) => {
                               const vol = Number(part.volume_mm3) || 0;
                               let unitMass = Number(part.unit_mass_kg) || 0;
-                              if (unitMass <= 0 && vol > 0) unitMass = estMassKg(vol, 1);
-                              const totalMass = Number(part.mass_kg) || estMassKg(vol, part.quantity);
+                              if (unitMass <= 0 && vol > 0) unitMass = estMassKg(vol, 1, partDensity(part));
+                              const totalMass = Number(part.mass_kg) || estMassKg(vol, part.quantity, partDensity(part));
                               return (
                                 <tr key={`unique-${index}`}>
                                   <td>{String(index + 1).padStart(2, "0")}</td>
