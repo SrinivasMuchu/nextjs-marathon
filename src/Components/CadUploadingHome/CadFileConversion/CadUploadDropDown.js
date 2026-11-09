@@ -2,6 +2,8 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import cadStyles from "../CadHomeDesign/CadHome.module.css";
 import heroStyles from "../CadHomeDesign/CadViewerHero.module.css";
+import homeStyles from "@/Components/HomePages/HomeLandingNew/HomeHero.module.css";
+import pairStyles from "./StepTo3dmHero.module.css";
 import { textLettersLimit } from "./../../../common.helper";
 import Link from "next/link";
 import { ArrowLeftRight, Info } from "lucide-react";
@@ -320,7 +322,7 @@ function CadDropDown({
     </select>
   );
 
-  if (designVariant === "converterHero" || designVariant === "stepToStlHero") {
+  if (designVariant === "converterHero" || designVariant === "stepToStlHero" || designVariant === "step3dmHero") {
     const dedicatedPair = Boolean(pairSource && pairTarget);
     const inputFormatLabel = fileExt
       ? formatFieldLabel(fileExt) || normalizeFormatKey(fileExt).toUpperCase()
@@ -347,6 +349,57 @@ function CadDropDown({
         : CONVERTER_HUB_PAGE.convertBeforeSelection;
     const modernButtonDisabled =
       !file || !(selectValueAttr || pairTarget) || Boolean(uploadingMessage) || disableSelect;
+
+    if (designVariant === "step3dmHero") {
+      const busy = Boolean(uploadingMessage) || disableSelect;
+      const article = ["STL", "OBJ", "OFF", "IGES"].includes(fromUpper) ? "an" : "a";
+      return (
+        <>
+          {showSourceUnits ? (
+            <div className={pairStyles.unitsRow}>
+              <label htmlFor="mesh-source-units">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 14l4-4" /><path d="M3.3 19a10 10 0 1117.4 0" /></svg>
+                Model units
+              </label>
+              <select
+                id="mesh-source-units"
+                className={pairStyles.unitsSelect}
+                value={sourceUnits}
+                onChange={(event) => setSourceUnits(event.target.value)}
+                disabled={busy}
+              >
+                {SOURCE_UNIT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+              <small>STL has no units. Most printable models are millimetres.</small>
+            </div>
+          ) : null}
+          <button
+            type="button"
+            className={homeStyles.go}
+            onClick={() => {
+              if (!file) {
+                document.querySelector("#cad-file-converter input[type='file']")?.click();
+                return;
+              }
+              handleConvert();
+            }}
+            disabled={busy}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            {file ? convertLabel : `Choose ${article} ${fromUpper || "STEP"} file`}
+          </button>
+          <p className={`${homeStyles.fine} ${pairStyles.fineLeft}`}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12l5 5L20 6" /></svg>
+            <span>
+              <strong>{shortNote.lead}</strong>
+              {shortNote.rest ? ` ${shortNote.rest}` : ""} Prices include tax.
+            </span>
+          </p>
+        </>
+      );
+    }
 
     if (designVariant === "stepToStlHero") {
       const packs = getConverterPacksFromInfo(pricingInfo);

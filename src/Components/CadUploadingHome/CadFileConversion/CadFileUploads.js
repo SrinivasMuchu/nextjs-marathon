@@ -2,6 +2,7 @@
 import React from "react";
 import styles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
+import homeStyles from '@/Components/HomePages/HomeLandingNew/HomeHero.module.css'
 import CadFileConversionWrapper from './CadFileConversionWrapper'
 import { getUniquePairPage } from '@/data/converterPairUniquePages'
 import { CONVERTER_HUB_PAGE } from '@/data/converterHubPage'
@@ -14,9 +15,23 @@ function CadFileUploads({ convert, conversionParams, allowedFormats, initialAllo
       ? (formats.length ? `Supported formats: ${formats.join(', ')}` : 'Supported formats: …')
       : 'Supported formats: STEP (.step, .stp), IGES (.igs, .iges), STL (.stl), PLY (.ply), OFF (.off), BREP (.brp, .brep), OBJ (.obj), 3DM (.3dm), 3MF (.3mf), DWG (.dwg), DXF (.dxf)';
 
-    const isConverterHero = designVariant === 'converterHero' || designVariant === 'stepToStlHero';
+    const isStep3dm = designVariant === 'step3dmHero';
+    const isConverterHero = designVariant === 'converterHero' || designVariant === 'stepToStlHero' || isStep3dm;
+    const pairSource = String(conversionParams || '').split('-to-')[0].toLowerCase();
+    const dropCopy = pairSource === 'stl'
+      ? { title: 'Drop your STL file here', hint: '.stl · up to 300 MB' }
+      : { title: 'Drop your STEP file here', hint: '.step or .stp · up to 300 MB' };
 
-    const dropInner = isConverterHero ? (
+    const dropInner = isStep3dm ? (
+      <>
+        <div className={homeStyles.dropIcon} aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16" /></svg>
+        </div>
+        <strong>{dropCopy.title}</strong>
+        <div className={homeStyles.or}>or <span className={homeStyles.browse}>browse files</span></div>
+        <small className={homeStyles.hint}>{dropCopy.hint}</small>
+      </>
+    ) : isConverterHero ? (
       <div className={`${heroStyles.heroUploadPanelContent} ${designVariant === 'stepToStlHero' ? heroStyles.stepDropzone : ''}`}>
         <p className={heroStyles.heroUploadPanelHead}>
           {uniquePage?.dropzoneHead || CONVERTER_HUB_PAGE.dropzoneHead}
@@ -41,6 +56,20 @@ function CadFileUploads({ convert, conversionParams, allowedFormats, initialAllo
           </p>
       </div>
     );
+
+    if (isStep3dm) {
+      return (
+        <CadFileConversionWrapper
+          convert={convert}
+          conversionParams={conversionParams}
+          designVariant={designVariant}
+          heroFormatsLine={formatsText}
+          preferredOutput={preferredOutput}
+        >
+          {dropInner}
+        </CadFileConversionWrapper>
+      );
+    }
 
     return (
         <>

@@ -10,9 +10,10 @@ export function buildSocialMetadata({
   pageUrl,
   ogTitle,
   ogDescription,
+  image,
 }) {
   const url = pageUrl || `${SITE_ORIGIN}${canonicalPath}`;
-  const imageUrl = DEFAULT_OG_IMAGE;
+  const imageUrl = image || DEFAULT_OG_IMAGE;
   const socialTitle = ogTitle || title;
   const socialDescription = ogDescription || description;
 
@@ -23,7 +24,12 @@ export function buildSocialMetadata({
       url,
       siteName: "Marathon OS",
       type: "website",
-      images: [{ url: imageUrl, width: 1200, height: 630, type: "image/png" }],
+      images: [{
+        url: imageUrl,
+        width: 1200,
+        height: 630,
+        type: imageUrl.endsWith(".webp") ? "image/webp" : "image/png",
+      }],
     },
     twitter: {
       card: "summary_large_image",
@@ -41,6 +47,7 @@ export function buildPageMetadata({
   pageUrl,
   ogTitle,
   ogDescription,
+  image,
   metadataBase = SITE_ORIGIN,
   extra = {},
 }) {
@@ -56,6 +63,7 @@ export function buildPageMetadata({
       pageUrl,
       ogTitle,
       ogDescription,
+      image,
     }),
     ...extra,
   };

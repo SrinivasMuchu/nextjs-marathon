@@ -7,7 +7,7 @@ export const UNIQUE_PAIR_PAGES = {
     meta: {
       title: 'STL to STEP & STP Converter – Open Meshes as CAD Solids | Marathon OS',
       description:
-        'Convert STL to STEP or STP online and open the mesh as a solid in SolidWorks, Fusion or Onshape. Mesh repaired, flat faces merged. First 2 files free.',
+        'STL to STEP or STP for SolidWorks, Fusion and Onshape: flat faces merged, holes fitted on clean meshes. Up to 300 MB, first 2 files free.',
     },
     h1: 'Convert STL to STEP online',
     heroIntro:
@@ -1408,7 +1408,7 @@ export const UNIQUE_PAIR_PAGES = {
     meta: {
       title: 'STEP & STP to STL Converter Online – For 3D Printing | Marathon OS',
       description:
-        'Convert STEP and STP files to STL online for 3D printing and slicing in Cura, PrusaSlicer or Bambu Studio. Up to 300 MB, first 2 files free.',
+        'Convert STEP and STP files to a binary STL for 3D printing. Millimetres, a free quality report, up to 300 MB, first 2 files free.',
     },
     h1: 'Convert STEP to STL online',
     heroIntro:
@@ -2364,6 +2364,31 @@ export const CONVERTER_PAIR_META_OVERRIDES = {
     title: 'STEP to 3DM Converter – Open STEP & STP Files in Rhino | Marathon OS',
     description:
       'Convert STEP or STP files to Rhino 3DM online and work on models from SolidWorks, Fusion or CATIA as native Rhino files. Up to 300 MB, first 2 files free.',
+  },
+  'step-to-3mf': {
+    title: 'STEP to 3MF Converter – STP to 3MF for 3D Printing | Marathon OS',
+    description:
+      'Convert STEP or STP to 3MF for Bambu Studio, PrusaSlicer, OrcaSlicer and Cura. One object per part, in millimetres. Up to 300 MB, first 2 files free.',
+  },
+  'step-to-brep': {
+    title: 'Convert STEP to BREP Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STEP or STP to an Open CASCADE BREP file for FreeCAD, CadQuery and gmsh. Exact geometry, up to 300 MB, first 2 files free.',
+  },
+  'step-to-iges': {
+    title: 'STEP to IGES Converter – STP to IGS for CAM & Suppliers | Marathon OS',
+    description:
+      'Convert STEP or STP to IGES (IGS) for CAM software, suppliers and older CAD. Exact geometry in millimetres, up to 300 MB, first 2 files free.',
+  },
+  'step-to-off': {
+    title: 'Convert STEP to OFF Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STEP or STP to a plain-text OFF mesh for CGAL, libigl, Open3D and MeshLab. Millimetres, up to 300 MB, first 2 files free.',
+  },
+  'step-to-ply': {
+    title: 'Convert STEP to PLY Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STEP or STP to a binary PLY mesh for MeshLab, CloudCompare and Open3D. Millimetres, up to 300 MB, first 2 files free.',
   },
   'dwg-to-dxf': {
     title: 'DWG to DXF Converter Online – For Laser Cutting & CNC | Marathon OS',
