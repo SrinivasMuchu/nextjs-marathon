@@ -28,11 +28,6 @@ function mimeFor(ext) {
   return "application/octet-stream";
 }
 
-function cdnRoot(source, designId) {
-  if (source === "user") return `${USER_PREFIX}/${designId}`;
-  return `${LIBRARY_PREFIX}/${designId}`;
-}
-
 /** Ordered CDN paths to try (first match wins). */
 function targetUrls(root, { sheet, ext, variant, file }) {
   if (file) {

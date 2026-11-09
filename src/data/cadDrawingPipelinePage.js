@@ -2,27 +2,24 @@ export const PIPELINE_PAGE_TITLE =
   'STEP to 2D Drawing Converter – 3D to 2D PDF & DXF Online | Marathon OS';
 
 export const PIPELINE_PAGE_DESCRIPTION =
-  'Convert STEP and STP 3D models to 2D technical drawings online. Get dimensioned views and sections as PDF, DXF, SVG and PNG in minutes. $5.99 per set.';
+  'Convert STEP and STP 3D models to 2D technical drawings online. Get dimensioned views and sections as PDF, DXF, SVG and FCStd in minutes. $5.99 per set.';
 
 export const PIPELINE_H1 = '3D CAD to 2D Technical Drawing Generator';
 
 export const PIPELINE_HERO_COPY =
-  'Upload a STEP, STP, IGES or FreeCAD file and generate 2D engineering drawings online. Get orthographic views, section cuts and downloadable PDF, SVG and DXF files from your 3D CAD model.';
+  'Upload a STEP or STP file and generate 2D engineering drawings online. Get orthographic views, section cuts and downloadable PDF, SVG and DXF files from your 3D CAD model.';
 
 export const PIPELINE_HOW_IT_WORKS_COPY =
-  'Upload a STEP, STP, IGES or FreeCAD file. Marathon OS analyzes the geometry, selects drawing views, plans section cuts and generates 2D drawing sheets in PDF, SVG and DXF formats.';
+  'Upload a STEP or STP file. Marathon OS analyzes the geometry, selects drawing views, plans section cuts and generates 2D drawing sheets in PDF, SVG and DXF formats.';
 
 export const PIPELINE_SUPPORTED_INPUTS = [
   'STEP (.step, .stp)',
-  'IGES (.igs, .iges)',
-  'FreeCAD (.FCStd)',
 ];
 
 export const PIPELINE_OUTPUT_FILES = [
   'PDF drawing sheets',
   'SVG drawing sheets',
   'DXF drawing files',
-  'PNG previews',
   'Editable FreeCAD file where available',
 ];
 
@@ -33,7 +30,6 @@ export const PIPELINE_GENERATOR_CREATES = [
   'Detail views',
   'Sheet labels',
   'Basic dimensions where available',
-  'Bill of materials where available',
   'Downloadable drawing files',
 ];
 

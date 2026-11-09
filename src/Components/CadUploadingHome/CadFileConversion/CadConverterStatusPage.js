@@ -6,7 +6,12 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { BASE_URL, CAD_CONVERTER_EVENT } from "@/config";
-import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
+import {
+  converterJobParams,
+  firstTimeForKey,
+  sendClarityEvent,
+  sendGAtagEvent,
+} from "@/common.helper";
 import {
   getCadConverterFileIdFromSearchParams,
   readCadConverterJobPreview,
@@ -132,13 +137,17 @@ function CadConverterStatusPage() {
 
       if (status === "COMPLETED") {
         stopPolling();
-        sendGAtagEvent({
-          event_name: "converter_conversion_success",
-          event_category: CAD_CONVERTER_EVENT,
-        });
-        sendClarityEvent("converter_conversion_success", {
-          converter_funnel: "converted",
-        });
+        if (firstTimeForKey(`ga_conv_ok_${id}`)) {
+          const { failure_stage: _stage, ...jobParams } = converterJobParams(data, id);
+          sendGAtagEvent({
+            event_name: "converter_conversion_success",
+            event_category: CAD_CONVERTER_EVENT,
+            ...jobParams,
+          });
+          sendClarityEvent("converter_conversion_success", {
+            converter_funnel: "converted",
+          });
+        }
         setUploadingMessage("COMPLETED");
         hideConverterLoadingOverlay();
         router.replace(DASHBOARD_HREF);
@@ -147,13 +156,17 @@ function CadConverterStatusPage() {
 
       if (status === "FAILED") {
         stopPolling();
-        sendGAtagEvent({
-          event_name: "converter_conversion_failure",
-          event_category: CAD_CONVERTER_EVENT,
-        });
-        sendClarityEvent("converter_conversion_failure", {
-          converter_funnel: "failed",
-        });
+        // Once per job: reopening a failed job's page used to send it again.
+        if (firstTimeForKey(`ga_conv_fail_${id}`)) {
+          sendGAtagEvent({
+            event_name: "converter_conversion_failure",
+            event_category: CAD_CONVERTER_EVENT,
+            ...converterJobParams(data, id),
+          });
+          sendClarityEvent("converter_conversion_failure", {
+            converter_funnel: "failed",
+          });
+        }
         setUploadingMessage("FAILED");
         hideConverterLoadingOverlay();
         toast.error("Conversion failed. Please try again.");

@@ -15,7 +15,7 @@ const STEPS = [
   {
     n: "03",
     title: "Lay out the sheet",
-    body: "Views are scaled to a standard scale and arranged on your sheet size with the title block.",
+    body: "Views are scaled to a standard scale and arranged on an A0 sheet with the title block.",
   },
   {
     n: "04",
@@ -25,12 +25,12 @@ const STEPS = [
   {
     n: "05",
     title: "Export",
-    body: "The sheet is written to PDF, DXF, SVG and PNG, and saved as an editable FreeCAD file.",
+    body: "The sheet is written to PDF, DXF and SVG, and saved as an editable FreeCAD file.",
   },
   {
     n: "06",
     title: "Delete the files",
-    body: "Your STEP and the drawings are removed automatically within 7 days.",
+    body: "Your drawings stay available to download for 7 days.",
   },
 ];
 

@@ -167,7 +167,7 @@ function IndustryDesign({ design, designData, type }) {
       {!isLibraryDetail ? (
         <TwoDDrawingCtaBanner
           title="Want 2D engineering drawings for this CAD?"
-          description="Upload any STEP, IGES, or FreeCAD file (including this design's source file). Our AI analyses the 3D geometry, picks the best views, places dimensions, and returns a complete 2D drawing set — editable FCStd plus PDF, SVG, and DXF — in under 4 minutes."
+          description="Upload a STEP or STP file (including this design's source file). Our AI analyses the 3D geometry, picks the best views, places dimensions, and returns a complete 2D drawing set — editable FCStd plus PDF, SVG, and DXF — usually within minutes."
         />
       ) : showConversionUpsells ? (
         <TwoDDrawingCtaBanner

@@ -38,7 +38,7 @@ export default function TwoDLibraryBottomSections() {
       >
         <h2 className={styles.cardTitle}>Have a 3D CAD file?</h2>
         <p className={hireStyles.body}>
-          Generate your own 2D drawing set from a STEP, STP, IGES or FreeCAD file in minutes.
+          Generate your own 2D drawing set from a STEP or STP file in minutes.
         </p>
         <Link href="/tools/convert-step-to-2d-drawing" className={hireStyles.cta}>
           Generate my 2D drawing

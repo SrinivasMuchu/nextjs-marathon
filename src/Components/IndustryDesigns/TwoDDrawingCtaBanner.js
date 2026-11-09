@@ -10,7 +10,7 @@ import TwoDDrawingCtaBannerButton from "./TwoDDrawingCtaBannerButton";
 import styles from "./TwoDDrawingCtaBanner.module.css";
 
 const defaultChecks = [
-  "Ready in under 4 minutes",
+  "Usually ready in minutes",
   "9 sheets · editable FCStd + PDF, SVG, DXF",
   "No subscription · pay per file",
 ];
@@ -23,7 +23,7 @@ export default function TwoDDrawingCtaBanner({
   generateHref = "/tools/convert-step-to-2d-drawing",
   secondaryHref = "",
   title = "Have your own 3D CAD file?",
-  description = "Upload a STEP, STP, IGES or FreeCAD file and generate a 2D drawing set with PDF, SVG and DXF outputs.",
+  description = "Upload a STEP or STP file and generate a 2D drawing set with PDF, SVG and DXF outputs.",
   buttonLabel = "Generate my 2D drawing",
   secondaryButtonLabel = "View existing 2D drawings",
   priceSubtext = "per drawing set",

@@ -13,12 +13,12 @@ const STEPS = [
   {
     n: "02",
     title: "Choose the standard",
-    body: "Pick third-angle or first-angle projection, the sheet size and millimetres or inches.",
+    body: "Pick third-angle or first-angle projection.",
   },
   {
     n: "03",
     title: "Generate",
-    body: "Views are projected, laid out, dimensioned and given a title block automatically. Most sets finish in under 4 minutes.",
+    body: "Views are projected, laid out, dimensioned and given a title block automatically. Most sets are usually ready in minutes.",
   },
   {
     n: "04",
@@ -52,9 +52,9 @@ export default function CadDrawingPipelineSimpleSteps({ initialPrices }) {
         <div className={styles.simpleCallout}>
           <p>
             To make a 2D drawing from a STEP file, upload your .step or .stp model, choose
-            third-angle or first-angle projection, pick a sheet size and units, then click{" "}
-            <strong>Generate 2D drawings</strong>. In under 4 minutes you can download a
-            dimensioned drawing set as PDF, DXF, SVG, PNG and an editable FreeCAD file
+            third-angle or first-angle projection, then click{" "}
+            <strong>Generate 2D drawings</strong>. Usually within minutes you can download a
+            dimensioned drawing set as PDF, DXF, SVG and an editable FreeCAD file
             {price ? <>, for {price}</> : null}.
           </p>
         </div>
