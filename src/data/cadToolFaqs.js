@@ -64,9 +64,536 @@ function getWhyConvertAnswer(from, to) {
   return `Converting ${fromUpper} to ${toUpper} helps you move CAD data between tools, suppliers, and workflows without installing desktop software. Marathon OS handles the conversion in the cloud so you can download a ${toUpper} file in seconds.`;
 }
 
+const STEP_TO_3DM_FAQS = [
+  {
+    question: 'How do I convert a STEP file to 3DM?',
+    answer: "Upload your .step or .stp file to the converter at the top of this page and download a Rhino 7 .3dm with the model as one mesh in millimetres. If you have Rhino and need NURBS, open the STEP in Rhino instead; that's free if you already own Rhino. Marathon OS is the paid route: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Will the 3DM have NURBS surfaces?',
+    answer: 'No. Our STEP to 3DM conversion writes a triangle mesh, not NURBS. For editable NURBS, open the STEP in Rhino: Rhino imports STEP as NURBS surfaces and polysurfaces.',
+  },
+  {
+    question: 'Can Rhino open STEP files directly?',
+    answer: "Yes. Rhino opens and imports .step and .stp files as NURBS surfaces and polysurfaces. If you have Rhino, that's the better route for geometry you want to edit.",
+  },
+  {
+    question: 'Is the Marathon OS STEP to 3DM converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert STP to 3DM?',
+    answer: 'Yes. .stp is the short extension for STEP; both convert the same way.',
+  },
+  {
+    question: 'Which Rhino versions open the file?',
+    answer: "It's a Rhino 7 file, so Rhino 7 and Rhino 8 open it. Rhino 6 and earlier can't open Rhino 7 files.",
+  },
+  {
+    question: 'What units does the 3DM use?',
+    answer: "Millimetres, stored as the file's model units.",
+  },
+  {
+    question: 'Can I edit the mesh in Rhino?',
+    answer: "You can move, scale, cut and join it with Rhino's mesh tools. MeshToNURB turns each triangle into a flat surface, which isn't the same as the original NURBS geometry.",
+  },
+  {
+    question: 'Will the assembly stay in separate parts?',
+    answer: 'Every part keeps its assembled position, merged into one mesh object without part names, layers or colours.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every file is meshed at the same setting: a 0.15 mm chord tolerance and about 29° between neighbouring triangles, the same as our STEP to STL converter. There are no quality presets, and a part that won't mesh at that setting is re-meshed slightly coarser. Need a finer mesh? Export from your CAD program at a smaller deviation.",
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 12 checks, including the mesh setting used, the triangle count, a bounding-box match with the STEP, the surface-area ratio, missing area, whether the mesh is watertight and the number of bodies.',
+  },
+  {
+    question: 'Which STEP versions are supported?',
+    answer: 'STEP files from any CAD program that writes AP203, AP214 or AP242, as .step or .stp, up to 300 MB.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does a STEP to 3DM conversion take?',
+    answer: 'It depends on the part. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STEP files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STEP_TO_3MF_FAQS = [
+  {
+    question: 'How do I convert a STEP file to 3MF?',
+    answer: "Upload your .step or .stp file to the converter at the top of this page and download a 3MF with one object per part, in millimetres. Bambu Studio, PrusaSlicer and OrcaSlicer can also import STEP themselves. Marathon OS is the paid route if your slicer can't: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS STEP to 3MF converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert STP to 3MF?',
+    answer: 'Yes. .stp is the short extension for STEP; both convert the same way.',
+  },
+  {
+    question: 'Will each part be a separate object?',
+    answer: 'Yes. Each solid in the STEP becomes its own object in the 3MF, in its assembled position, so you can arrange or assign filaments per part. Loose surfaces in the STEP come through as a separate object.',
+  },
+  {
+    question: 'Will colours carry over?',
+    answer: "They can. When the STEP has colours, each part can take its STEP colour as a 3MF display colour, one colour per part, and parts coloured face by face take their first face's colour. Check them in your slicer before you print. If our part-by-part writer can't process the file, you get one uncoloured object named after the file.",
+  },
+  {
+    question: 'Does the 3MF keep units?',
+    answer: 'Yes. The 3MF stores millimetres, so slicers open it at the right size.',
+  },
+  {
+    question: 'Should I use 3MF or STL?',
+    answer: 'Use 3MF when your slicer reads it: it keeps separate parts and units, and it has room for names and colours. Use STL when a print service or older software asks for it.',
+  },
+  {
+    question: 'Can my slicer open STEP directly?',
+    answer: "Bambu Studio, PrusaSlicer and OrcaSlicer can import STEP and mesh it themselves. Converting to 3MF gives you one file that also opens in slicers that can't, with our mesh setting.",
+  },
+  {
+    question: 'Why do round holes look faceted?',
+    answer: '3MF stores flat triangles, so every curve becomes a chain of short straight edges. The STEP to STL page explains how to keep holes smooth.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every file is meshed at the same setting: a 0.15 mm chord tolerance and about 29° between neighbouring triangles, the same as our STEP to STL converter. There are no quality presets, and a part that won't mesh at that setting is re-meshed slightly coarser. Need a finer mesh? Export from your CAD program at a smaller deviation.",
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: "Yes. Every conversion comes with a free quality report with 12 checks, including the mesh setting used, the triangle count, a bounding-box match with the STEP, the surface-area ratio, missing area, whether each object is watertight and the number of bodies. If your STEP holds loose surfaces, also check the object list in your slicer: they come through as a separate object that isn't a solid.",
+  },
+  {
+    question: 'Which STEP versions are supported?',
+    answer: 'STEP files from any CAD program that writes AP203, AP214 or AP242, as .step or .stp, up to 300 MB.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does a STEP to 3MF conversion take?',
+    answer: 'It depends on the part. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STEP files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STEP_TO_BREP_FAQS = [
+  {
+    question: 'What is a BREP file?',
+    answer: "A .brep (or .brp) file is Open CASCADE's native format for a boundary representation: the exact surfaces, edges and vertices of a shape. FreeCAD, CadQuery, gmsh and other tools built on Open CASCADE read it.",
+  },
+  {
+    question: 'How do I convert a STEP file to BREP?',
+    answer: 'Upload your .step or .stp file to the converter at the top of this page and download one BREP file with the exact geometry. FreeCAD, which is free, can also open a STEP and export BREP. Marathon OS is the paid route: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Is the Marathon OS STEP to BREP converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert STP to BREP?',
+    answer: 'Yes. .stp is the short extension for STEP; both convert the same way.',
+  },
+  {
+    question: 'Does STEP to BREP lose geometry?',
+    answer: "No. Solids and surfaces stay exact; nothing is meshed. BREP drops what's around the geometry: part names, colours, the assembly tree and PMI.",
+  },
+  {
+    question: 'What units does the BREP use?',
+    answer: 'BREP has no unit field. Our STEP reader works in millimetres, so the coordinates are millimetres.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 11 checks, including the number of solids and faces, whether the solids are closed and whether the volume matches the STEP.',
+  },
+  {
+    question: 'Can SolidWorks or Fusion open a BREP file?',
+    answer: "Most commercial CAD programs don't import Open CASCADE .brep files. Send them the STEP instead.",
+  },
+  {
+    question: 'Can I mesh the BREP for FEA?',
+    answer: 'Yes. gmsh and Salome open .brep files directly, so you can mesh the exact geometry.',
+  },
+  {
+    question: 'Is .brp the same as .brep?',
+    answer: 'Yes. Both extensions are used for the same Open CASCADE format.',
+  },
+  {
+    question: 'Can I convert an assembly?',
+    answer: 'Yes. It comes out as one compound shape with every part in its assembled position, without names or the assembly tree.',
+  },
+  {
+    question: 'Can I convert BREP back to STEP?',
+    answer: 'Yes. Our BREP to STEP conversion keeps the geometry exact.',
+  },
+  {
+    question: 'Which STEP versions are supported?',
+    answer: 'STEP files from any CAD program that writes AP203, AP214 or AP242, as .step or .stp, up to 300 MB.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does a STEP to BREP conversion take?',
+    answer: 'It depends on the part. Large assemblies can take a while, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STEP files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STEP_TO_IGES_FAQS = [
+  {
+    question: 'How do I convert a STEP file to IGES?',
+    answer: "Upload your .step or .stp file to the converter at the top of this page and download one IGES file with the exact geometry in millimetres. FreeCAD, which is free, can also open a STEP and export IGES. Marathon OS is the paid route if you don't have CAD at hand: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS STEP to IGES converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert STP to IGES?',
+    answer: 'Yes. .stp is the short extension for STEP; both convert the same way.',
+  },
+  {
+    question: 'What is the difference between IGS and IGES?',
+    answer: 'None. .igs and .iges are two extensions for the same format, and IGES readers accept both.',
+  },
+  {
+    question: 'Will the IGES open as a solid?',
+    answer: 'It can. Closed solids are written in IGES B-rep mode (entity type 186) when they pass our read-back check, and programs that read that mode open them as solids. If the check would lose a solid or too many faces, or the STEP holds surfaces, you get trimmed surfaces (type 144) to knit in your CAD program. Open the file to see which you got.',
+  },
+  {
+    question: 'Does STEP to IGES lose geometry?',
+    answer: 'No. Curves and surfaces stay exact; nothing is meshed. What our IGES drops is everything around the geometry: part names, colours, the assembly tree and PMI.',
+  },
+  {
+    question: 'What units does the IGES use?',
+    answer: 'Millimetres, stored in the file.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 11 checks, including the number of solids and faces, whether the solids are closed and whether the volume matches the STEP.',
+  },
+  {
+    question: 'Should I send a supplier STEP or IGES?',
+    answer: "STEP, if they accept it: it's the current standard, and our IGES doesn't carry names, colours or the assembly tree. Send IGES when their CAM or CAD system asks for it.",
+  },
+  {
+    question: 'Can I convert an assembly?',
+    answer: 'Yes. Every part comes across in its assembled position, but as one model without the assembly tree or part names.',
+  },
+  {
+    question: 'Can I convert IGES back to STEP?',
+    answer: 'Yes. Our IGES to STEP conversion keeps the geometry exact.',
+  },
+  {
+    question: 'Which STEP versions are supported?',
+    answer: 'STEP files from any CAD program that writes AP203, AP214 or AP242, as .step or .stp, up to 300 MB.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does a STEP to IGES conversion take?',
+    answer: 'It depends on the part. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STEP files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STEP_TO_OFF_FAQS = [
+  {
+    question: 'What is an OFF file?',
+    answer: 'OFF (Object File Format) is a plain-text polygon mesh format that came from Geomview. It lists the vertex and face counts, then every vertex, then every face. Geometry libraries such as CGAL and libigl read it, and datasets such as ModelNet use it.',
+  },
+  {
+    question: 'How do I convert a STEP file to OFF?',
+    answer: 'Upload your .step or .stp file to the converter at the top of this page and download one OFF mesh in millimetres. Marathon OS is a paid route: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Is the Marathon OS STEP to OFF converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert STP to OFF?',
+    answer: 'Yes. .stp is the short extension for STEP; both convert the same way.',
+  },
+  {
+    question: 'Is the OFF file ASCII?',
+    answer: 'Yes. OFF is a plain-text format, so you can open it in a text editor or parse it with a few lines of code.',
+  },
+  {
+    question: 'Will it load with my dataset code?',
+    answer: 'It uses the standard layout: the OFF header on its own line, then the counts, vertices and triangles. Standard OFF readers, such as those in Open3D, trimesh, libigl and CGAL, read it.',
+  },
+  {
+    question: 'What units is the OFF in?',
+    answer: 'Millimetres. OFF has no unit field, so normalise or scale the mesh in your own code if you need a different scale.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every file is meshed at the same setting: a 0.15 mm chord tolerance and about 29° between neighbouring triangles, the same as our STEP to STL converter. There are no quality presets, and a part that won't mesh at that setting is re-meshed slightly coarser. Need a finer mesh? Export from your CAD program at a smaller deviation.",
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 12 checks, including the mesh setting used, the triangle count, a bounding-box match with the STEP, the surface-area ratio, missing area, whether the mesh is watertight and the number of bodies.',
+  },
+  {
+    question: 'Will the assembly stay in separate parts?',
+    answer: 'Every part keeps its assembled position, merged into one mesh without part names.',
+  },
+  {
+    question: 'Which STEP versions are supported?',
+    answer: 'STEP files from any CAD program that writes AP203, AP214 or AP242, as .step or .stp, up to 300 MB.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does a STEP to OFF conversion take?',
+    answer: 'It depends on the part. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STEP files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STEP_TO_PLY_FAQS = [
+  {
+    question: 'How do I convert a STEP file to PLY?',
+    answer: 'Upload your .step or .stp file to the converter at the top of this page and download one binary PLY mesh in millimetres. You can also open the STEP in FreeCAD, which is free, and export PLY there. Marathon OS is the paid route if you only have the STEP: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Is the Marathon OS STEP to PLY converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert STP to PLY?',
+    answer: 'Yes. .stp is the short extension for STEP; both convert the same way.',
+  },
+  {
+    question: 'Is the PLY binary or ASCII?',
+    answer: 'Binary, little-endian: the compact form MeshLab, CloudCompare and Open3D read. If you need ASCII, open it in MeshLab and export with Binary encoding turned off.',
+  },
+  {
+    question: 'Does the PLY include colours?',
+    answer: "No. It holds vertex positions and triangles, with no colours. STEP colours don't carry over to PLY.",
+  },
+  {
+    question: 'Can I compare my CAD model with a 3D scan?',
+    answer: 'Yes. Load the PLY and your scan in CloudCompare, align them and run a cloud-to-mesh distance to see where the scan departs from the CAD.',
+  },
+  {
+    question: 'What units is the PLY in?',
+    answer: 'Millimetres. PLY has no unit field, so set the unit or scale in the program you open it in if it expects metres.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every file is meshed at the same setting: a 0.15 mm chord tolerance and about 29° between neighbouring triangles, the same as our STEP to STL converter. There are no quality presets, and a part that won't mesh at that setting is re-meshed slightly coarser. Need a finer mesh? Export from your CAD program at a smaller deviation.",
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 12 checks, including the mesh setting used, the triangle count, a bounding-box match with the STEP, the surface-area ratio, missing area, whether the mesh is watertight and the number of bodies.',
+  },
+  {
+    question: 'Will the assembly stay in separate parts?',
+    answer: 'Every part keeps its assembled position, merged into one mesh without part names.',
+  },
+  {
+    question: 'Which STEP versions are supported?',
+    answer: 'STEP files from any CAD program that writes AP203, AP214 or AP242, as .step or .stp, up to 300 MB.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does a STEP to PLY conversion take?',
+    answer: 'It depends on the part. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STEP files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STEP_TO_STL_FAQS = [
+  {
+    question: 'How do I convert a STEP file to STL for 3D printing?',
+    answer: 'Upload your .step or .stp file to the converter at the top of this page and download one binary STL in millimetres, ready for PrusaSlicer, Bambu Studio, Cura or any other slicer. You can also export STL from your CAD program or from FreeCAD, which is free. Marathon OS is the paid route if you only have the STEP: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Is the Marathon OS STEP to STL converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download, credits never expire and the quality report is free.',
+  },
+  {
+    question: 'Can I convert STP to STL?',
+    answer: 'Yes. .stp is the short extension for STEP; both convert the same way.',
+  },
+  {
+    question: 'Why do round holes come out faceted when I convert STEP to STL?',
+    answer: 'STL stores only flat triangles, so every curve becomes a chain of short straight edges. Our converter uses a 0.15 mm chord tolerance; on three public NIST test parts, holes came out with about 25-28 segments and at most 0.087 mm from the STEP. For smoother holes, export from CAD with a 0.01-0.03 mm deviation and a 5-10° angle.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: 'Every file is meshed at the same setting: a 0.15 mm chord tolerance and about 29° between neighbouring triangles. There are no quality presets. Need a finer mesh for resin prints or small holes? Export the STL from your CAD program with the settings in the export guide on this page.',
+  },
+  {
+    question: 'Does converting STEP to STL lose quality?',
+    answer: 'STL can only store flat triangles, so curved STEP surfaces become small facets, and STL drops units, colours, part names and feature history. For most FDM prints the facets are smaller than the printer can show. For resin prints or visible curves, export from CAD at a finer deviation. Keep the STEP as your editable master.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'Can I 3D print a STEP file directly?',
+    answer: 'Some slicers can. PrusaSlicer, Bambu Studio and OrcaSlicer open STEP files and mesh them on import, where you can set the deflection yourself. Many other slicers, print services and print farms still expect STL.',
+  },
+  {
+    question: 'Why is my STL the wrong size in the slicer?',
+    answer: 'STL files do not store units and slicers assume millimetres. If a part is about 25 times too small, it was written in inches: scale it by 2540%. If it is about 25 times too large, scale it by 3.937%. Our STL is always written in millimetres, the unit slicers assume.',
+  },
+  {
+    question: 'Will the STL be watertight?',
+    answer: "If the STEP contains valid closed solids, the STL is normally closed too. The free quality report re-reads the STL and tells you whether it's watertight. Your slicer will also show a repair warning if it isn't.",
+  },
+  {
+    question: 'Can I convert a STEP assembly to STL?',
+    answer: 'Yes. An assembly comes out as one STL, with every part in its assembled position. Each body stays a separate shell, so you can use Split to objects in your slicer; bodies that touch may split as one object. To print parts separately, you can also export each part from CAD.',
+  },
+  {
+    question: 'Which STEP versions are supported?',
+    answer: 'STEP files from any CAD program that writes AP203, AP214 or AP242, as .step or .stp, up to 300 MB. That includes AP242 files that hold only a mesh.',
+  },
+  {
+    question: 'Is the STL binary or ASCII?',
+    answer: 'Binary, the compact form every slicer reads. A binary STL is four to five times smaller than the same mesh written as ASCII.',
+  },
+  {
+    question: 'How long does a STEP to STL conversion take?',
+    answer: 'It depends on the part. Large assemblies can take several minutes. We email you when the file is ready.',
+  },
+  {
+    question: 'Should I use 3MF instead of STL?',
+    answer: '3MF stores units, colours and multiple named objects, and PrusaSlicer, Bambu Studio, OrcaSlicer and Cura all read it. Convert STEP to 3MF when your slicer supports it. STL is still the safest choice when a print service or older software asks for a mesh.',
+  },
+  {
+    question: 'Can I convert STL back to STEP?',
+    answer: "Yes, with the STL to STEP converter. It rebuilds flat and cylindrical faces as real CAD surfaces where it can, but it can't recover the original feature history. Keep your original STEP if you will need to edit the design.",
+  },
+  {
+    question: 'Are my STEP files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design.",
+  },
+];
+
+const STL_TO_STEP_FAQS = [
+  {
+    question: 'How do I convert STL to STEP?',
+    answer: 'Upload the .stl file to the converter at the top of this page, choose the units the model was made in and download the .step file. It opens in SolidWorks, Fusion, Onshape, Inventor and FreeCAD, and it\'s a solid when the rebuild succeeds. You can also convert an STL yourself in FreeCAD, which is free; holes stay faceted there. Marathon OS is the paid route: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Will the STEP file be editable?',
+    answer: 'When the rebuild succeeds, yes, as a solid body. You can cut, drill, extrude, shell and measure it with normal CAD tools. Flat areas come back as single faces, and on clean meshes many holes and chamfers are fitted as cylinders and cones. It has no feature history, so you edit the geometry directly instead of changing a dimension in a sketch.',
+  },
+  {
+    question: 'Is the Marathon OS STL to STEP converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert STL to STP?',
+    answer: 'Yes. .stp is the short extension for STEP; both are the same ISO 10303 format, and every CAD program that opens one opens the other.',
+  },
+  {
+    question: 'Which STEP version do I get?',
+    answer: 'STEP AP214, in millimetres.',
+  },
+  {
+    question: 'Is this an AI STL to STEP converter?',
+    answer: 'It doesn\'t use generative AI. The rebuild fits planes, cylinders and cones to the mesh with geometry algorithms, so it never invents detail the STL doesn\'t have.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'Why does the STEP open as surfaces instead of a solid?',
+    answer: 'Two reasons: the STL isn\'t watertight, or the mesh went through the faceted fallback (every mesh over 1 million triangles, and any mesh the rebuild can\'t fit), which currently writes surfaces. Repair the mesh, or reduce it below 1 million triangles, and convert again.',
+  },
+  {
+    question: 'Why are the holes in my STEP still faceted?',
+    answer: 'The rebuild couldn\'t fit a cylinder to that mesh. Holes with more segments in the STL fit better, and a CAD designer can rebuild them exactly.',
+  },
+  {
+    question: 'Which units should I choose?',
+    answer: 'The units the model was designed in. STL files do not store units, and models from Printables, Thingiverse, MakerWorld and most slicers are in millimetres. If the part opens about 25 times too small, convert again with inches.',
+  },
+  {
+    question: 'Can I convert a 3D scan or a sculpted model?',
+    answer: 'Yes, but scans and organic shapes have few flat or round areas to fit, so they come back made of many small faces. Meshes over 1 million triangles skip the rebuild and come back as a faceted surface model, up to about 35,000 faces. For engineering use of a scan, having a designer rebuild the part usually gives a better result.',
+  },
+  {
+    question: 'How long does an STL to STEP conversion take?',
+    answer: 'It depends on the mesh. Large or dense meshes can take 10 minutes or more, and we email you when the STEP is ready.',
+  },
+  {
+    question: 'Why is the STEP file bigger than the STL?',
+    answer: 'A STEP is usually 3 to 6 times the size of the STL, because it stores every face with its edges and vertices. Faceted results are at the larger end.',
+  },
+  {
+    question: 'Which programs can open the STEP file?',
+    answer: 'Any program that imports STEP AP214, such as SolidWorks, Fusion, Inventor, Onshape, CATIA, Creo, NX, Solid Edge, FreeCAD and Rhino.',
+  },
+  {
+    question: 'Are my STL files private?',
+    answer: 'Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren\'t added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.',
+  },
+];
+
+/** Swap the single-file price token for the live converter price. */
+export function withConverterFaqPrice(faqs, priceLabel) {
+  const paid = priceLabel ? `${priceLabel} or ` : '';
+  return (faqs || []).map((item) => ({
+    ...item,
+    answer: String(item.answer || '').replaceAll('{{price}}', paid),
+  }));
+}
+
 /** Format-pair FAQs for /tools/convert-{from}-to-{to} pages (B5.2). Falls back to generic list. */
 export function getConverterFaqQuestions(conversionParams) {
   if (!conversionParams) return cadConverterFaqQuestions;
+
+  const pairKey = String(conversionParams).toLowerCase().split('/').filter(Boolean).pop();
+  if (pairKey === 'step-to-3dm') return STEP_TO_3DM_FAQS;
+  if (pairKey === 'step-to-3mf') return STEP_TO_3MF_FAQS;
+  if (pairKey === 'step-to-brep') return STEP_TO_BREP_FAQS;
+  if (pairKey === 'step-to-iges') return STEP_TO_IGES_FAQS;
+  if (pairKey === 'step-to-off') return STEP_TO_OFF_FAQS;
+  if (pairKey === 'step-to-ply') return STEP_TO_PLY_FAQS;
+  if (pairKey === 'step-to-stl') return STEP_TO_STL_FAQS;
+  if (pairKey === 'stl-to-step') return STL_TO_STEP_FAQS;
 
   const uniquePage = getUniquePairPage(conversionParams);
   if (uniquePage?.faqs?.length) return uniquePage.faqs;

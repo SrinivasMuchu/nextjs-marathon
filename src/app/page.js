@@ -1,5 +1,6 @@
 import HomePage from "@/Components/Home/HomePage";
 import FaqPageJsonLd from "@/Components/JsonLdSchemas/FaqPageJsonLd";
+import { IMAGEURLS } from "@/config";
 import { buildPageMetadata } from "@/lib/seo/pageMetadata";
 import styles from "./page.module.css";
 
@@ -12,6 +13,7 @@ export const metadata = buildPageMetadata({
   title: TITLE,
   description: DESCRIPTION,
   canonicalPath: CANONICAL_PATH,
+  image: IMAGEURLS.ogHome,
   extra: {
     keywords:
       "CAD model library, CAD models download, free CAD models, online CAD viewer, 3D file converter, STEP viewer online, IGES viewer online, STL viewer online, STEP to STL, IGES to STEP, STL to OBJ, engineering CAD models, mechanical CAD files, 3D CAD designs",

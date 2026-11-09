@@ -3,9 +3,10 @@ import ConvertPairPage from '@/Components/CadUploadingHome/CadFileConversion/Con
 import FaqPageJsonLd from '@/Components/JsonLdSchemas/FaqPageJsonLd';
 import ToolPageJsonLd from '@/Components/JsonLdSchemas/ToolPageJsonLd';
 import SoftwareApplicationJsonLd from '@/Components/JsonLdSchemas/SoftwareApplicationJsonLd';
-import { getConverterFaqQuestions, getViewerFaqQuestions } from '@/data/cadToolFaqs';
+import { getConverterFaqQuestions, getViewerFaqQuestions, withConverterFaqPrice } from '@/data/cadToolFaqs';
 import { getConverterPairMetadata, getUniquePairPage } from '@/data/converterPairUniquePages';
 import { getConverterPricingForRender } from '@/lib/converterPricingServer';
+import { IMAGEURLS } from '@/config';
 import { buildPageMetadata } from '@/lib/seo/pageMetadata';
 import { converterTypes } from '@/common.helper';
 import {
@@ -32,6 +33,18 @@ const CONVERTER_META_TO_PHRASE = {
   stp: 'STEP online for mechanical CAD workflows',
   dxf: 'DXF online for CAD, CAM and CNC exchange',
   dwg: 'DWG online for native AutoCAD editing',
+};
+
+const CONVERTER_OG_IMAGES = {
+  'step-to-3dm': IMAGEURLS.ogStepTo3dm,
+  'step-to-3mf': IMAGEURLS.ogStepTo3mf,
+  'step-to-brep': IMAGEURLS.ogStepToBrep,
+  'step-to-iges': IMAGEURLS.ogStepToIges,
+  'step-to-obj': IMAGEURLS.ogStepToObj,
+  'step-to-off': IMAGEURLS.ogStepToOff,
+  'step-to-ply': IMAGEURLS.ogStepToPly,
+  'step-to-stl': IMAGEURLS.ogStepToStl,
+  'stl-to-step': IMAGEURLS.ogStlToStep,
 };
 
 function getConverterMetaToPhrase(to) {
@@ -81,6 +94,7 @@ export async function generateMetadata({ params }) {
       title,
       description,
       canonicalPath: canonical,
+      image: CONVERTER_OG_IMAGES[conversion],
     });
   }
 
@@ -131,8 +145,11 @@ export default async function ToolPage({ params }) {
     const softwareUrl = `${BASE_URL}/tools/convert-${conversion}`;
     const softwareDescription = pairMeta?.description || uniquePage?.heroIntro;
 
-    const converterFaqs = getConverterFaqQuestions(conversion);
     const pricing = await getConverterPricingForRender();
+    const converterFaqs = withConverterFaqPrice(
+      getConverterFaqQuestions(conversion),
+      pricing.singlePriceLabel,
+    );
 
     return (
       <>

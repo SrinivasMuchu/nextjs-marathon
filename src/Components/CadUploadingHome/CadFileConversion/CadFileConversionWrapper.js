@@ -6,6 +6,8 @@ import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import styles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
+import homeStyles from '@/Components/HomePages/HomeLandingNew/HomeHero.module.css'
+import pairStyles from './StepTo3dmHero.module.css'
 import { toast } from "react-toastify";
 import axios from 'axios'
 import { BASE_URL, CAD_INPUT_FILES_BUCKET } from '@/config';
@@ -98,6 +100,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     }, routeFormatsReady);
     const maxFileSizeMB = 300; // Max file size in MB
     const [uploadProgressPercent, setUploadProgressPercent] = useState(null);
+    const [dropOver, setDropOver] = useState(false);
     const [progressPercent, setProgressPercent] = useState(null);
     const [conversionSteps, setConversionSteps] = useState(null);
     const partLoadedByIndexRef = useRef([]);
@@ -735,7 +738,11 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         }
     };
 
-    const isModernHero = designVariant === 'converterHero' || designVariant === 'stepToStlHero';
+    const isStep3dm = designVariant === 'step3dmHero';
+    const isModernHero = designVariant === 'converterHero' || designVariant === 'stepToStlHero' || isStep3dm;
+    const sampleFile = convertedFiles.find((sample) => (
+        !convert || !fromFormate || sample.format === fromFormate.toLowerCase()
+    ));
 
     return (
         <>
@@ -773,7 +780,19 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                         uploadingMessage={uploadingMessage} setUploadingMessage={setUploadingMessage} handleFileConvert={checkingCadFileUploadLimitExceed}
                         sourceUnits={sourceUnits} setSourceUnits={setSourceUnits} />
                     : null}
-                {isModernHero && uploading && fileConvert ? (
+                {isStep3dm ? (
+                    <div className={pairStyles.signin}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6" /></svg>
+                        <p>Sign in with Google or an emailed code to upload your own file. The sample file works without signing in.</p>
+                        {sampleFile ? (
+                            <button type="button" className={pairStyles.sample} onClick={() => handleSampleFileUpload(sampleFile)}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9z" /><path d="M4 7.5 12 12l8-4.5M12 12v9" /></svg>
+                                Try a sample {(fromFormate || 'STEP').toUpperCase()} file
+                            </button>
+                        ) : null}
+                    </div>
+                ) : null}
+                {isModernHero && uploading && fileConvert && !isStep3dm ? (
                     <div className={heroStyles.converterSelectedFile}>
                         <span className={heroStyles.converterSelectedFileIcon} aria-hidden>
                             <FileText size={18} strokeWidth={2} />
@@ -804,15 +823,18 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                     </div>
                 ) : null}
                 {!uploading ? (() => {
-                        const dropClass = isModernHero ? heroStyles.heroUploadPanelDark : styles["cad-dropzone"];
+                        const dropClass = isStep3dm
+                            ? `${homeStyles.drop} ${pairStyles.dropHit} ${dropOver ? homeStyles.dropOver : ""}`
+                            : isModernHero ? heroStyles.heroUploadPanelDark : styles["cad-dropzone"];
                         return (
                     <div
                         className={dropClass}
-                        onDrop={handleDrop}
-                        onDragOver={handleDragOver}
+                        onDrop={(event) => { setDropOver(false); handleDrop(event); }}
+                        onDragOver={(event) => { handleDragOver(event); if (isStep3dm) setDropOver(true); }}
+                        onDragLeave={() => setDropOver(false)}
                         onClick={handleClick}
                     >
-                        {isModernHero ? (
+                        {isStep3dm ? children : isModernHero ? (
                             <div className={heroStyles.heroUploadPanelInner}>
                                 <span className={heroStyles.heroUploadIconGlyph} aria-hidden>
                                     <Upload size={72} strokeWidth={1.9} />
@@ -834,6 +856,23 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                     </div>
                         );
                     })() : null}
+                {isStep3dm && uploading && fileConvert ? (
+                    <div className={homeStyles.chosen}>
+                        <span>
+                            <span className={homeStyles.chosenName}>{textLettersLimit(fileConvert.name, 42)}</span>{" "}
+                            <span className={homeStyles.chosenSize}>({formatSelectedFileSize(fileConvert.size)})</span>
+                        </span>
+                        <span className={`${homeStyles.tag} ${homeStyles.tagOk}`}>STEP file ready</span>
+                        <button
+                            type="button"
+                            className={pairStyles.remove}
+                            onClick={clearSelectedFile}
+                            disabled={Boolean(uploadingMessage) || disableSelect}
+                        >
+                            Remove
+                        </button>
+                    </div>
+                ) : null}
                 {isModernHero ? (
                     <CadUploadDropDown
                         file={uploading ? fileConvert : null}
@@ -873,6 +912,8 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                 // 1. We're not in convert mode (show all), OR
                 // 2. We're in convert mode and have matching files
                 const shouldShow = !convert || (convert && filteredFiles.length > 0);
+
+                if (designVariant === 'step3dmHero') return null;
 
                 if (designVariant === 'stepToStlHero') {
                     const stepSample = filteredFiles[0];
