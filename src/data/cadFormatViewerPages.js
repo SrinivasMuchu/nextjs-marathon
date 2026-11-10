@@ -53,7 +53,7 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-step-to-iges', label: 'STEP to IGES Converter' },
       { href: '/tools/convert-stl-to-step', label: 'STL to STEP Converter' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/convert-step-to-2d-drawing', label: 'CAD Drawing Pipeline' },
+      { href: '/tools/convert-step-to-2d-drawing', label: 'STEP to 2D Drawing' },
     ],
   },
   stp: {
@@ -70,7 +70,7 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-step-to-iges', label: 'STEP to IGES Converter' },
       { href: '/tools/convert-stl-to-step', label: 'STL to STEP Converter' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/convert-step-to-2d-drawing', label: 'CAD Drawing Pipeline' },
+      { href: '/tools/convert-step-to-2d-drawing', label: 'STEP to 2D Drawing' },
     ],
   },
   stl: {
@@ -231,7 +231,7 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-dxf-to-dwg', label: 'DXF to DWG Converter' },
       { href: '/tools/dwg-file-viewer', label: 'DWG File Viewer' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/convert-step-to-2d-drawing', label: 'CAD Drawing Pipeline' },
+      { href: '/tools/convert-step-to-2d-drawing', label: 'STEP to 2D Drawing' },
     ],
   },
   dwg: {
@@ -247,7 +247,7 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-dwg-to-dxf', label: 'DWG to DXF Converter' },
       { href: '/tools/dxf-file-viewer', label: 'DXF File Viewer' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/convert-step-to-2d-drawing', label: 'CAD Drawing Pipeline' },
+      { href: '/tools/convert-step-to-2d-drawing', label: 'STEP to 2D Drawing' },
     ],
   },
 };
