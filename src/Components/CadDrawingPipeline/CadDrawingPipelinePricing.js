@@ -15,8 +15,8 @@ const DRAWING_SET = [
   "Front, top, side and isometric views",
   "Section views and dimensions",
   "Title block in your chosen standard",
-  "PDF, DXF, SVG, PNG and FCStd files",
-  "Ready in under 4 minutes",
+  "PDF, DXF, SVG and FCStd files",
+  "Usually ready in minutes",
 ];
 
 const PRODUCTION = [

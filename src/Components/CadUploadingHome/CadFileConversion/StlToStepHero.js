@@ -193,7 +193,7 @@ export default function StlToStepHero() {
           <h2 id="glance-title" className={home.srOnly}>STL to STEP converter at a glance</h2>
           <dl className={styles.glanceList}>
             <div><dt>Converts</dt><dd>STL (binary or ASCII) to STEP and STP. Over 8,000 STL files converted to STEP so far.</dd></div>
-            <div><dt>You get</dt><dd>One STEP file (AP214, millimetres). When the rebuild succeeds it&apos;s a solid; meshes over 1 million triangles come back as a faceted surface model.</dd></div>
+            <div><dt>You get</dt><dd>One STEP file (AP214, millimetres). When the rebuild succeeds it&apos;s a solid; meshes over 1 million triangles come back as flat faces, still a solid if the mesh is watertight.</dd></div>
             <div><dt>File size</dt><dd>Up to 300 MB. We email you when the STEP is ready.</dd></div>
             <div><dt>Price</dt><dd>{priceSentence}</dd></div>
           </dl>
@@ -274,7 +274,7 @@ export default function StlToStepHero() {
           </div>
           <p className={styles.honest}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg>
-            <span>Sculpts and scans have few flat or round areas to fit, and meshes over 1 million triangles skip the rebuild and come back as a faceted surface model, up to about 35,000 faces. After download, open the STEP and look at a hole: a rebuilt hole is one cylindrical face; a faceted one is many strips.</span>
+            <span>Sculpts and scans have few flat or round areas to fit, and meshes over 1 million triangles skip the rebuild and come back as up to about 35,000 flat faces (a solid if the mesh is watertight). After download, open the STEP and look at a hole: a rebuilt hole is one cylindrical face; a faceted one is many strips.</span>
           </p>
         </div>
       </section>

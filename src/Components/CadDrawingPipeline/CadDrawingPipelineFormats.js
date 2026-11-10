@@ -10,20 +10,14 @@ const FORMATS = [
   {
     id: "format-dxf",
     name: "DXF",
-    use: "Editing the drawing in 2D CAD, or reusing view outlines for laser, waterjet or plasma profiles.",
-    opens: "AutoCAD, DraftSight, LibreCAD, QCAD, most CAM software",
+    use: "Layered DXF of each drawing sheet, with real dimension entities, for editing in 2D CAD. It is at drawing scale, not 1:1 part geometry.",
+    opens: "AutoCAD, DraftSight, LibreCAD, QCAD",
   },
   {
     id: "format-svg",
     name: "SVG",
     use: "Web pages, manuals and diagrams that need clean, scalable line art.",
     opens: "Browsers, Inkscape, Illustrator, Figma",
-  },
-  {
-    id: "format-png",
-    name: "PNG",
-    use: "Quick previews in chats, slides and documents.",
-    opens: "Any image viewer",
   },
   {
     id: "format-fcstd",
@@ -42,7 +36,7 @@ export default function CadDrawingPipelineFormats() {
           Which format to use
         </h2>
         <p className={styles.formatsLede}>
-          Every drawing set includes all five formats, so you can send the right one to each person
+          Every drawing set includes all four formats, so you can send the right one to each person
           without converting again.
         </p>
 

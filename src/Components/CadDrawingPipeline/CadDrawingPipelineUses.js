@@ -7,7 +7,7 @@ const USES = [
   },
   {
     title: "Cutting flat parts",
-    body: "Use the DXF view outline as a starting profile for laser, waterjet or plasma cutting, after deleting the border and dimensions.",
+    body: "Use the DXF view outline as a starting profile for laser, waterjet or plasma cutting, after deleting the border and dimensions and scaling it back to 1:1 (the DXF is at drawing scale).",
   },
   {
     title: "Checking a downloaded model",
@@ -19,7 +19,7 @@ const USES = [
   },
   {
     title: "Manuals and documentation",
-    body: "Drop SVG or PNG views into assembly guides, datasheets and product pages.",
+    body: "Drop SVG views into assembly guides, datasheets and product pages.",
   },
   {
     title: "A head start on drafting",

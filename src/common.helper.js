@@ -45,6 +45,43 @@ export function sendGAtagEvent(eventData) {
   window.gtag("event", event_name, eventParams);
 }
 
+/** GA params for a converter job, from the /v1/cad/get-status payload. */
+export function converterJobParams(data = {}, jobId) {
+  const bytes = Number(data.input_file_size_bytes) || 0;
+  const mb = bytes / (1024 * 1024);
+  let sizeBucket = "";
+  if (bytes) {
+    if (mb < 5) sizeBucket = "lt5";
+    else if (mb < 10) sizeBucket = "5_10";
+    else if (mb < 50) sizeBucket = "10_50";
+    else if (mb < 100) sizeBucket = "50_100";
+    else if (mb < 200) sizeBucket = "100_200";
+    else sizeBucket = "200_300";
+  }
+  return {
+    job_id: String(jobId || data.folderId || ""),
+    format_in: String(data.input_format || "").replace(/^\./, "").toLowerCase(),
+    format_out: String(data.output_format || "").replace(/^\./, "").toLowerCase(),
+    size_bucket: sizeBucket,
+    ...(data.convert_stage ? { failure_stage: String(data.convert_stage) } : {}),
+  };
+}
+
+/**
+ * True the first time it is called for this key in this browser, false after.
+ * Keeps one-per-job events (conversion success/failure) from repeating when a
+ * status page is reopened. Fails open if storage is unavailable.
+ */
+export function firstTimeForKey(key) {
+  try {
+    if (window.localStorage.getItem(key) === "1") return false;
+    window.localStorage.setItem(key, "1");
+  } catch {
+    /* storage blocked: send the event */
+  }
+  return true;
+}
+
 /**
  * Microsoft Clarity custom event (+ optional session tags for filtering).
  * Events show under Clarity → Filters → Custom events / Custom tags.

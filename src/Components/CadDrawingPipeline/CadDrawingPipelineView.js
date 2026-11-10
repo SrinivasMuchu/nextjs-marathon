@@ -551,7 +551,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
               <span>Output</span>
               <div className={styles.heroFormatBox}>
                 <strong>2D drawing set</strong>
-                <small>PDF, DXF, SVG, PNG, FCStd</small>
+                <small>PDF, DXF, SVG, FCStd</small>
               </div>
             </div>
           </div>
@@ -581,7 +581,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
               ) : (
                 <strong>Every format is included.</strong>
               )}{" "}
-              Most sets are ready in under 4 minutes.{" "}
+              Most sets are usually ready in minutes.{" "}
               <a href="#whats-included">What&apos;s included</a>
             </span>
           </p>
@@ -594,8 +594,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
               <div className={styles.pipelineInfoTip}>
                 <Info size={15} strokeWidth={1.9} aria-hidden />
                 <p>
-                  A clear title and description help the engine place dimensions, section views, and
-                  manufacturing-ready measurements more accurately.
+                  A clear title and description help the engine choose views, sections and dimensions.
                 </p>
               </div>
 
@@ -622,7 +621,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
                 className={styles.pipelineHeroTextarea}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Notes for views, units, sheet size, or features to dimension."
+                placeholder="Notes for views, sections, or features to dimension."
                 disabled={submitting}
                 rows={4}
               />

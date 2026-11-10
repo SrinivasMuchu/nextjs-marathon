@@ -7,8 +7,8 @@ const REASONS = [
     icon: "download",
   },
   {
-    title: "From exact STEP geometry",
-    body: "Views and dimensions come from the solid model itself, not from a mesh or screenshot.",
+    title: "Measured from STEP geometry",
+    body: "Views and dimensions come from the solid model itself, not from a mesh or screenshot. Check critical dimensions against your model before manufacturing.",
     icon: "cube",
   },
   {
@@ -18,7 +18,7 @@ const REASONS = [
   },
   {
     title: "Private file handling",
-    body: "Uploads stay out of the public CAD library and are deleted within 7 days.",
+    body: "Uploads stay out of the public CAD library.",
     icon: "lock",
   },
 ];

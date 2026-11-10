@@ -123,8 +123,8 @@ const PRINT_CHECKS = [
 const HOOD_STEPS = [
   ['Read the STEP file', 'Every solid and assembly instance is loaded with its position and the units stored in the file.'],
   ['Check the geometry', 'Open shells and invalid faces are detected before meshing, so problems show up as a clear message instead of a broken STL.'],
-  ['Mesh each face', 'Surfaces are converted to triangles using the chord and angular tolerance of your chosen quality preset.'],
-  ['Write the STL', 'The mesh is saved as binary or ASCII, in millimetres or inches, as one file or a ZIP with one file per body.'],
+  ['Mesh each face', 'Surfaces are converted to triangles at a fixed 0.15 mm chord / 29° angle. Faces that fail are retried at coarser settings.'],
+  ['Write the STL', 'The mesh is saved as one binary STL, in millimetres.'],
   ['Delete the files', 'The uploaded STEP and the converted STL are removed automatically within 7 days.'],
 ]
 
@@ -133,17 +133,15 @@ const TROUBLE_CARDS = [
     icon: Hexagon,
     title: 'Curves look faceted',
     body: 'The mesh is too coarse for the size of the part or the finish you need.',
-    fix: 'Fix: reconvert at Fine, or Custom with a chord tolerance of 0.01 mm.',
-    link: 'Switch to Fine quality',
-    href: '#cad-file-converter',
+    fix: 'The converter meshes at 0.15 mm / 29° (measured max deviation 0.087 mm on NIST test parts). For a finer mesh, export the STL from your CAD program with a smaller deviation.',
+    link: 'See CAD export settings',
+    href: '#desktop-heading',
   },
   {
     icon: File,
     title: 'The STL is enormous',
-    body: 'The mesh is finer than the printer can use, or the file is ASCII. A binary STL uses 50 bytes per triangle; ASCII is roughly five times bigger.',
-    fix: 'Fix: use Standard or Draft quality with Binary STL.',
-    link: 'Use Standard, binary',
-    href: '#cad-file-converter',
+    body: 'Large assemblies produce many triangles. Our STL is binary, at 50 bytes per triangle, so one million triangles is about 50 MB.',
+    fix: 'Fix: simplify the mesh in your slicer or a mesh editor.',
   },
   {
     icon: Pencil,
@@ -173,9 +171,9 @@ const TROUBLE_CARDS = [
     icon: Eye,
     title: 'Small holes or walls disappeared',
     body: 'The features are below the mesh resolution or below what the printer can produce.',
-    fix: 'Fix: use Custom with a 5° angular tolerance. If walls are under the printer’s minimum, the design needs thickening.',
-    link: 'Set custom tolerances',
-    href: '#cad-file-converter',
+    fix: 'Fix: export the STL from your CAD program with a 5° (or smaller) angular deviation. If walls are under the printer’s minimum, the design needs thickening.',
+    link: 'See CAD export settings',
+    href: '#desktop-heading',
   },
 ]
 
@@ -203,19 +201,19 @@ function MeshPreview({ sides, radius = 68 }) {
 
 const FORMAT_GLANCE = [
   ['Input', '.step and .stp files (STEP AP203, AP214, AP242)'],
-  ['Output', '.stl, binary or ASCII, as one file or one per body (ZIP)'],
+  ['Output', '.stl (binary), one file'],
   ['Maximum upload', '300 MB'],
   ['Price', 'First 2 conversions free, any size up to 300 MB. Then $2.99 each, or from $1.80 with credit packs'],
-  ['Default settings', 'Standard mesh quality (0.03 mm, 10°), millimetres, binary'],
+  ['Mesh settings', 'Fixed 0.15 mm chord / 29° angle (max deviation 0.087 mm on NIST test parts), millimetres, binary'],
   ['Works on', 'Any modern browser on Windows, macOS, Linux, iPad and Android'],
   ['File retention', 'Deleted automatically within 7 days, never published'],
 ]
 
 const FORMAT_KEPT = [
-  'The outer shape of every solid, within the tolerance you chose',
-  'Dimensions, written in the units you select (millimetres by default)',
+  'The outer shape of every solid, within 0.15 mm of the CAD surface',
+  'Dimensions, written in millimetres',
   'Position and orientation of each part in the assembly',
-  'Separate bodies, as shells in one STL or as separate files',
+  'Separate bodies, as separate shells in one STL',
   'Closed, watertight volumes, when the STEP solids are valid',
 ]
 
@@ -244,16 +242,9 @@ const FORMAT_CHOICES = [
 const FORMAT_LOST = [
   'Exact cylinders, NURBS and fillets, which become triangles',
   'Feature history, sketches and constraints',
-  'Assembly tree and part names (kept only as file names in per-body mode)',
+  'Assembly tree and part names',
   'Colours, materials and PMI or GD&T annotations',
   'The unit label itself, since STL has no field for it',
-]
-
-const MESH_PRESETS = [
-  ['Draft', '0.1 mm', '20°', 'Quick previews, large FDM parts, sending a model for a quote', 'Smallest'],
-  ['Standard', '0.03 mm', '10°', 'Most FDM printing with 0.4 mm nozzles and 0.1–0.3 mm layers', 'Moderate'],
-  ['Fine', '0.01 mm', '5°', 'Resin (SLA, MSLA) printing, SLS, visible curved surfaces, small threads', 'Largest'],
-  ['Custom', 'You choose', 'You choose', 'Matching a print service’s or simulation tool’s mesh specification', 'Varies'],
 ]
 
 const COMPARISON_ROWS = [
@@ -489,7 +480,7 @@ function ConvertPairPage({ conversionParams }) {
           <span>On this page:</span>
           {[
             ['#pair-workflow-heading', 'How to convert'],
-            ['#mesh-quality-heading', 'Mesh quality'],
+            ['#mesh-quality-heading', 'Mesh settings'],
             ['#formats-heading', 'STEP and STL explained'],
             ['#units-heading', 'Units and scale'],
             ['#compare-heading', 'STEP vs STL vs 3MF'],
@@ -508,7 +499,7 @@ function ConvertPairPage({ conversionParams }) {
             <p className={styles.eyebrow}>{uniquePage?.workflowEyebrow || 'Step by step'}</p>
             <h2 id="pair-workflow-heading">{uniquePage?.workflowHeading || 'How to convert STEP to STL'}</h2>
             <p className={styles.stepHowIntro}>
-              To convert STEP to STL online, upload your .step or .stp file above, pick a mesh quality (Standard suits most 3D printing), keep the units in millimetres, then click <strong>Convert STEP to STL</strong> and download the .stl file. Your first 2 conversions are free. STP to STL works exactly the same way, because .stp is just the short extension for STEP.
+              To convert STEP to STL online, upload your .step or .stp file above, then click <strong>Convert STEP to STL</strong> and download the .stl file. Your first 2 conversions are free. STP to STL works exactly the same way, because .stp is just the short extension for STEP.
             </p>
             <div className={styles.stepHowGrid}>
               {workflowSteps.map(([title, description], index) => (
@@ -530,7 +521,7 @@ function ConvertPairPage({ conversionParams }) {
         <section className={styles.meshSettings} aria-labelledby="mesh-quality-heading">
           <div className={styles.meshInner}>
             <p className={styles.eyebrow}>Mesh settings</p>
-            <h2 id="mesh-quality-heading">Choose the right mesh quality</h2>
+            <h2 id="mesh-quality-heading">How fine is the mesh?</h2>
             <p className={styles.meshLead}>
               STEP stores exact curves. STL can only store flat triangles, so every curved face has to be approximated. Two settings decide how closely the triangles follow the original surface, and how big the file gets.
             </p>
@@ -545,49 +536,18 @@ function ConvertPairPage({ conversionParams }) {
               </article>
             </div>
             <div className={styles.meshTableCard}>
-              <h3>Mesh quality presets</h3>
-              <div className={styles.meshTableWrap}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Preset</th>
-                      <th>Chord tolerance</th>
-                      <th>Angular tolerance</th>
-                      <th>Best for</th>
-                      <th>File size</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {MESH_PRESETS.map(([preset, chord, angle, bestFor, size]) => (
-                      <tr key={preset}>
-                        <th scope="row">
-                          {preset}
-                          {preset === 'Standard' ? <span className={styles.meshDefault}>Default</span> : null}
-                        </th>
-                        <td>{chord}</td>
-                        <td>{angle}</td>
-                        <td>{bestFor}</td>
-                        <td>{size}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <h3>The setting we use</h3>
+              <p>Every STEP to STL conversion is meshed at 0.15 mm chord tolerance and 29° angular tolerance. Faces that fail to mesh are retried at coarser settings. Measured on NIST test parts, the largest deviation from the CAD surface was 0.087 mm, finer than a typical FDM layer. There is no quality setting to choose yet; for a finer mesh, export the STL from your CAD program.</p>
             </div>
             <div className={styles.meshExamples}>
               <article>
                 <MeshPreview sides={8} radius={62} />
-                <h3>Draft</h3>
+                <h3>Too coarse</h3>
                 <p>Facets are visible on curved faces</p>
               </article>
               <article>
-                <MeshPreview sides={20} radius={70} />
-                <h3>Standard</h3>
-                <p>Smoother than a typical FDM layer can show</p>
-              </article>
-              <article>
                 <MeshPreview radius={74} />
-                <h3>Fine</h3>
+                <h3>0.15 mm / 29° (ours)</h3>
                 <p>Follows the true curve closely</p>
               </article>
             </div>
@@ -657,7 +617,7 @@ function ConvertPairPage({ conversionParams }) {
               <p className={styles.eyebrow}>Units and scale</p>
               <h2 id="units-heading">Get the size right first time</h2>
               <p>An STL file stores coordinates such as 25.4 with no unit attached, and slicers read those numbers as millimetres. If a model is written out in inches, a part that should be one inch wide shows up as one millimetre wide.</p>
-              <p>This converter reads the units in your STEP file and writes the STL in millimetres unless you choose inches, so parts open in the slicer at their real size. Before printing, measure one dimension you know, such as an overall length or a hole diameter.</p>
+              <p>This converter reads the units in your STEP file and writes the STL in millimetres, so parts open in the slicer at their real size. Before printing, measure one dimension you know, such as an overall length or a hole diameter.</p>
               <p>If a file from somewhere else arrives at the wrong size, scale it in the slicer. In PrusaSlicer, Bambu Studio and OrcaSlicer, use the scale fields in the object panel. In Cura, use the Scale tool with uniform scaling turned on.</p>
             </div>
             <div className={styles.scaleCard}>
@@ -758,7 +718,7 @@ function ConvertPairPage({ conversionParams }) {
               <p className={styles.eyebrow}>Desktop alternatives</p>
               <h2 id="desktop-heading">Export STL from your CAD software</h2>
               <p>If you have the original CAD model, exporting STL directly works well. Use this converter when you only have the STEP file, don’t have a CAD licence on your machine, or want the same mesh settings every time.</p>
-              <p>In every program, look for three things: binary output, millimetre units, and a deviation or resolution setting that matches the quality presets above.</p>
+              <p>In every program, look for three things: binary output, millimetre units, and a deviation or resolution setting of 0.15 mm or finer.</p>
             </div>
             <div className={styles.desktopList}>
               {DESKTOP_EXPORTS.map((program) => (
@@ -846,7 +806,7 @@ function ConvertPairPage({ conversionParams }) {
                   </div>
                   <p>{body}</p>
                   <p className={styles.troubleFix}>{fix}</p>
-                  <Link href={href}>{link}</Link>
+                  {link && href ? <Link href={href}>{link}</Link> : null}
                 </article>
               ))}
             </div>

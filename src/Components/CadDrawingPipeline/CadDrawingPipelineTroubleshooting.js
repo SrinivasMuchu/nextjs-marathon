@@ -13,15 +13,6 @@ const PROBLEMS = [
     href: "#how-to-edit",
   },
   {
-    icon: "sheet",
-    title: "Dimensions overlap or look crowded",
-    body: "A detailed part on a small sheet leaves too little room between views.",
-    fix: "Fix: generate on A3 or ANSI B instead of A4 or ANSI A.",
-    link: "Switch to A3",
-    note: "Generate on A3 or ANSI B instead of A4 or ANSI A.",
-    toast: "A3 sheet size added to your drawing description.",
-  },
-  {
     icon: "dots",
     title: "Too many dashed hidden lines",
     body: "Parts with lots of internal features show every hidden edge, which can make views hard to read.",
@@ -29,15 +20,6 @@ const PROBLEMS = [
     link: "Turn off hidden lines",
     note: "Turn hidden lines off and rely on section views for internal detail.",
     toast: "Hidden lines off added to your drawing description.",
-  },
-  {
-    icon: "pencil",
-    title: "Dimensions are in the wrong units",
-    body: "The drawing was generated in millimetres but you work in inches, or the other way round.",
-    fix: "Fix: choose the units you need and generate again.",
-    link: "Switch to inches",
-    note: "Dimension the drawing in inches.",
-    toast: "Inches added to your drawing description.",
   },
   {
     icon: "info",

@@ -15,7 +15,7 @@ export default function CadDrawingPipelineCompare({ initialPrices }) {
     ["Tolerances and fits", "bad", "Not added", "good", "Yes"],
     ["GD&T", "bad", "Not added", "good", "Yes"],
     ["Threads, finish, material notes", "bad", "Not added", "good", "Yes"],
-    ["Turnaround", "plain", "Under 4 minutes", "plain", "Usually a few days"],
+    ["Turnaround", "plain", "Usually minutes", "plain", "Usually a few days"],
     ["Price", "plain", price ? `${price} per set` : "", "plain", "Quoted per part"],
     [
       "Best for",

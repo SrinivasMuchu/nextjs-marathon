@@ -14,8 +14,8 @@ function buildQuestions(price) {
       question: "How much does a STEP to 2D drawing cost?",
       answer: (
         <p>
-          {priceSentence} One set covers one STEP or STP model and includes every view and all five
-          file formats: PDF, DXF, SVG, PNG and FCStd. There is no subscription.
+          {priceSentence} One set covers one STEP or STP model and includes every view and all four
+          file formats: PDF, DXF, SVG and FCStd. There is no subscription.
         </p>
       ),
     },
@@ -23,7 +23,7 @@ function buildQuestions(price) {
       question: "How long does it take to generate the drawings?",
       answer: (
         <p>
-          Most drawing sets are ready in under 4 minutes. Very large or complex models can take a
+          Most drawing sets are usually ready in minutes. Very large or complex models can take a
           little longer.
         </p>
       ),
@@ -34,7 +34,7 @@ function buildQuestions(price) {
         <p>
           Front, top and side views in the projection you choose, an isometric view, section views
           through internal features, overall and main feature dimensions, and a title block with
-          part name, scale, units and projection. You download it as PDF, DXF, SVG, PNG and an
+          part name, scale, units and projection. You download it as PDF, DXF, SVG and an
           editable FreeCAD file.
         </p>
       ),
@@ -83,7 +83,7 @@ function buildQuestions(price) {
       answer: (
         <p>
           Yes. Every drawing set includes a DXF of the full sheet, which opens in AutoCAD,
-          DraftSight, LibreCAD and most CAM software.
+          DraftSight and LibreCAD. It is the drawing sheet at drawing scale, not 1:1 part geometry.
         </p>
       ),
     },
@@ -124,8 +124,9 @@ function buildQuestions(price) {
       question: "Are my files private?",
       answer: (
         <p>
-          Files are transferred over an encrypted connection, are never added to the public Marathon
-          OS CAD library, and are deleted automatically within 7 days. You keep full ownership of
+          Files are transferred over an encrypted connection and are never added to the public Marathon
+          OS CAD library. Rendered views of your part are sent to our AI provider to plan the drawing.
+          Download access ends after 7 days. You keep full ownership of
           your design.
         </p>
       ),

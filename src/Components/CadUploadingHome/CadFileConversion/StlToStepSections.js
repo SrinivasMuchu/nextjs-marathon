@@ -31,8 +31,8 @@ const PAGE_LINKS = [
 
 const HOW_STEPS = [
   ['Upload the STL', 'Drop a binary or ASCII .stl file up to 300 MB onto the converter. The triangle count appears as soon as the file is chosen.'],
-  ['Set the units', 'STL has no unit field, so choose millimetres, inches or centimetres to match how the model was made.'],
-  ['Convert', 'The mesh is repaired, flat areas are merged into single faces and the triangles are stitched into a closed solid.'],
+  ['Set the units', 'STL has no unit field, so choose millimetres, centimetres, metres or inches to match how the model was made.'],
+  ['Convert', 'The mesh is repaired, flat areas are merged into single faces and the triangles are stitched into a closed shell, which becomes a solid in most cases.'],
   ['Open in CAD', 'Download the .step and open it in SolidWorks, Fusion, Onshape, FreeCAD or any program that reads STEP.'],
 ]
 
@@ -71,7 +71,7 @@ const FORMAT_ROWS = [
 
 const GLANCE = [
   ['Input', 'Binary and ASCII .stl files'],
-  ['Output', '.step (AP214 by default, AP242 or AP203 on request)'],
+  ['Output', '.step (AP214), in millimetres'],
   ['Maximum upload', '300 MB'],
   ['Price', 'First 2 conversions free, any size up to 300 MB. Then $2.99 each, or from $1.80 with credit packs'],
   ['Default settings', 'Millimetres, mesh repair on, flat faces merged, all triangles kept'],
@@ -81,13 +81,13 @@ const GLANCE = [
 
 const TRIANGLE_ROWS = [
   ['Under 50,000', 'Opens quickly in most CAD programs', 'Convert as is'],
-  ['50,000 to 200,000', 'Usable, but slower to rotate and edit', 'Keep Merge flat faces on'],
-  ['Over 200,000', 'Slow imports, and some programs may refuse the file', 'Reduce to 50% or 25% first'],
+  ['50,000 to 200,000', 'Usable, but slower to rotate and edit', 'Convert as is; flat faces are merged automatically'],
+  ['Over 200,000', 'Slow imports, and some programs may refuse the file', 'Reduce in a mesh editor before uploading'],
 ]
 
 const PREPARE_CARDS = [
   ['Works well', 'Mechanical and printable parts', 'Brackets, enclosures, mounts and other models with large flat faces convert into compact, easy-to-edit solids.'],
-  ['Works, with care', 'Organic or highly curved models', 'Figures and sculpted shapes have no flat areas to merge, so every triangle stays a face. Reduce the triangle count first.'],
+  ['Works, with care', 'Organic or highly curved models', 'Figures and sculpted shapes have no flat areas to merge, so every triangle stays a face. Reduce the triangle count in a mesh editor before uploading.'],
   ['Consider a rebuild', '3D scans', 'Scans often hold millions of triangles plus noise and holes. For engineering use, a rebuilt model from the scan is usually the better result.'],
 ]
 
@@ -146,10 +146,10 @@ const CAD_PROGRAMS = [
 const HOOD_STEPS = [
   ['Read the STL', 'Binary or ASCII is detected automatically, and coordinates are scaled by the units you chose.'],
   ['Repair the mesh', 'Duplicate vertices are joined, flipped triangles are corrected and small holes are closed.'],
-  ['Reduce, if asked', 'The triangle count is cut to your chosen percentage while keeping the overall shape.'],
-  ['Build the solid', 'Each triangle becomes a planar face, and the faces are sewn into a closed shell and turned into a solid.'],
+  ['Simplify very large meshes', 'Meshes over about 1 million triangles are simplified to roughly 35,000 flat faces, so fine detail is lost.'],
+  ['Build the solid', 'Each triangle becomes a planar face, and the faces are sewn into a closed shell, which becomes a solid in most cases.'],
   ['Merge flat faces', 'Neighbouring faces on the same plane are combined, so a flat side becomes one face instead of hundreds.'],
-  ['Write the STEP', 'The solid is saved in the STEP version you picked, with the units recorded in the file.'],
+  ['Write the STEP', 'The solid is saved as a STEP file, in millimetres.'],
   ['Delete the files', 'The uploaded STL and the converted STEP are removed automatically within 7 days.'],
 ]
 
@@ -157,10 +157,8 @@ const TROUBLE = [
   {
     icon: Hexagon,
     title: 'CAD shows a surface, not a solid',
-    body: 'The STL is not watertight. Holes, gaps or overlapping triangles stop it from enclosing a volume, so the converter outputs surfaces instead.',
-    fix: 'Fix: convert with Repair mesh on. If it is still open, close the holes in a mesh editor and convert again.',
-    link: 'Turn on mesh repair',
-    href: '#cad-file-converter',
+    body: 'Two possible causes. The STL may not be watertight: holes or gaps stop it enclosing a volume. Or the mesh was too large or complex to rebuild, so the converter fell back to plain facets, which can arrive as a surface body. We’re fixing that case.',
+    fix: 'Fix: close the holes in a mesh editor, or reduce a very dense mesh, and convert again.',
   },
   {
     icon: Pencil,
@@ -174,17 +172,13 @@ const TROUBLE = [
     icon: File,
     title: 'The STEP is huge or CAD freezes',
     body: 'Every triangle became a face. Dense meshes produce STEP files several times larger than the STL.',
-    fix: 'Fix: reduce triangles to 50% and keep Merge flat faces on.',
-    link: 'Reduce to 50%',
-    href: '#cad-file-converter',
+    fix: 'Fix: reduce the mesh in a mesh editor before uploading.',
   },
   {
     icon: Layers,
     title: 'Flat sides are split into hundreds of faces',
-    body: 'Flat-face merging was turned off, or the flat areas are not perfectly flat in the mesh.',
-    fix: 'Fix: convert with Merge flat faces on.',
-    link: 'Turn on face merging',
-    href: '#cad-file-converter',
+    body: 'The flat areas are not perfectly flat in the mesh, so neighbouring triangles are not merged.',
+    fix: 'Fix: flatten or remesh those areas in a mesh editor, then convert again.',
   },
   {
     icon: AlertCircle,
@@ -235,7 +229,7 @@ function StlToStepSections() {
           <p className={styles.eyebrow}>Step by step</p>
           <h2 id="stl-how">How to convert STL to STEP</h2>
           <p className={styles.stepHowIntro}>
-            To convert STL to STEP online, upload your .stl file above, choose the units the model was designed in (usually millimetres), keep mesh repair and flat-face merging on, then click <strong>Convert STL to STEP</strong> and download the .step file. Your first 2 conversions are free. The result opens as a solid in any CAD program, made up of the same flat facets as the STL.
+            To convert STL to STEP online, upload your .stl file above, choose the units the model was designed in (usually millimetres), then click <strong>Convert STL to STEP</strong> and download the .step file. Your first 2 conversions are free. The result opens as a solid in any CAD program, made up of the same flat facets as the STL.
           </p>
           <div className={styles.stepHowGrid}>
             {HOW_STEPS.map(([title, description], index) => (
@@ -537,7 +531,7 @@ function StlToStepSections() {
                 </div>
                 <p>{body}</p>
                 <p className={styles.troubleFix}>{fix}</p>
-                <Link href={href}>{link}</Link>
+                {link && href ? <Link href={href}>{link}</Link> : null}
               </article>
             ))}
           </div>

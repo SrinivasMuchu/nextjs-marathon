@@ -66,7 +66,7 @@ export default function CadDrawingPipelineHeroSection({
           <p className={styles.heroLede}>
             Upload a STEP or STP (.step, .stp) model and get a complete technical drawing set:
             front, top and side views, an isometric view, section cuts, dimensions and a title
-            block. Download it as PDF, DXF, SVG and PNG, plus an editable FreeCAD file. No CAD
+            block. Download it as PDF, DXF and SVG, plus an editable FreeCAD file. No CAD
             software or drafting skills needed.
           </p>
 
@@ -81,11 +81,11 @@ export default function CadDrawingPipelineHeroSection({
             </li>
             <li>
               <TrustIcon type="clock" />
-              Ready in under 4 minutes
+              Usually ready in minutes
             </li>
             <li>
               <TrustIcon type="lock" />
-              Automatically deleted within 7 days
+              Download access for 7 days
             </li>
           </ul>
         </div>

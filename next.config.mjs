@@ -121,6 +121,17 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // File-proxy routes (/api/techdraw-file etc.) were getting indexed:
+        // ~15k impressions, 0 clicks a week. Library HTML pages stay indexable.
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+      {
         source: '/tools/cad-renderer',
         headers: [
           {

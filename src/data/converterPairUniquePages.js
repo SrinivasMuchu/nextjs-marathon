@@ -208,11 +208,11 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Will curved surfaces become smooth?',
-        answer: 'No. The conversion keeps the triangles the STL is made of, so cylinders, fillets and curves stay faceted. Flat areas can be merged into single faces with Merge flat faces. Smooth curves need a rebuilt CAD model.',
+        answer: 'No. The conversion keeps the triangles the STL is made of, so cylinders, fillets and curves stay faceted. Flat areas are merged into single faces automatically. Smooth curves need a rebuilt CAD model.',
       },
       {
         question: 'Why is the STEP file much bigger than the STL?',
-        answer: 'STEP describes every face with its own edges, vertices and plane, so a faceted STEP is often several times larger than the binary STL it came from. Merging flat faces and reducing the triangle count keep the file smaller.',
+        answer: 'STEP describes every face with its own edges, vertices and plane, so a faceted STEP is often several times larger than the binary STL it came from. Flat faces are merged automatically; reducing a dense mesh before upload keeps the file smaller.',
       },
       {
         question: 'Which units should I choose?',
@@ -220,11 +220,11 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Why does my CAD program show a surface instead of a solid?',
-        answer: 'The STL is not watertight. Holes, gaps or overlapping triangles stop it from enclosing a volume, so it can only be converted to surfaces. Keep Repair mesh turned on, or close the holes in a mesh editor and convert again.',
+        answer: 'Two possible causes. The STL may not be watertight: holes or gaps stop it enclosing a volume, so close the holes in a mesh editor and try again. Or the mesh was too large or complex to rebuild, so the converter fell back to plain facets, which can arrive as a surface body. We’re fixing that case.',
       },
       {
         question: 'How many triangles can I convert?',
-        answer: 'Any STL up to the 300 MB upload limit. CAD programs slow down as the face count grows, though. As a rough guide, meshes under 50,000 triangles open comfortably, and meshes over 200,000 triangles should be reduced first with the Reduce triangles option.',
+        answer: 'Files up to 300 MB. Meshes over about 1 million triangles are simplified to roughly 35,000 flat faces before conversion, so fine detail is lost. For best results, reduce very dense meshes before you upload. As a rough guide, meshes under 50,000 triangles open comfortably in CAD.',
       },
       {
         question: 'Can I use a converted STEP for CNC machining?',
@@ -1467,11 +1467,11 @@ export const UNIQUE_PAIR_PAGES = {
     workflowEyebrow: 'Step by step',
     workflowHeading: 'How to convert STEP to STL',
     workflowIntro:
-      'To convert STEP to STL online, upload your .step or .stp file above, pick a mesh quality (Standard suits most 3D printing), keep the units in millimetres, then click Convert STEP to STL and download the .stl file. Your first 2 conversions are free. STP to STL works exactly the same way, because .stp is just the short extension for STEP.',
+      'To convert STEP to STL online, upload your .step or .stp file above, then click Convert STEP to STL and download the .stl file. Your first 2 conversions are free. STP to STL works exactly the same way, because .stp is just the short extension for STEP.',
     workflowSteps: [
       ['Upload the STEP file', 'Drop a .step or .stp file up to 300 MB onto the converter, or browse for it. Assemblies and multi-body parts are fine.'],
-      ['Choose your settings', 'Pick Draft, Standard or Fine mesh quality, millimetres or inches, and whether to merge parts or export each body separately.'],
-      ['Convert', 'The surfaces in your STEP file are turned into triangles using the tolerances you chose. Most parts finish in seconds.'],
+      ['Pick the output', 'Choose STL as the output format. The mesh is written in millimetres.'],
+      ['Convert', 'The surfaces in your STEP file are turned into triangles at 0.15 mm chord / 29°. Most parts finish in seconds.'],
       ['Download and check', 'Download the .stl and open it in your slicer. Measure one known dimension and look at a curved face before you print.'],
     ],
     workflowCta: 'Convert STEP to STL',
@@ -1608,19 +1608,19 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Does converting STEP to STL lose quality?',
-        answer: 'STL can only store flat triangles, so curved STEP surfaces are approximated. How close the approximation is depends on the mesh quality you choose. For FDM printing, Standard is finer than the printer can reproduce. For resin printing or visible curved surfaces, use Fine. Keep the STEP file as your editable master.',
+        answer: 'STL can only store flat triangles, so curved STEP surfaces are approximated. We mesh at 0.15 mm chord / 29°; measured max deviation on NIST test parts is 0.087 mm, finer than a typical FDM layer. Keep the STEP file as your editable master.',
       },
       {
         question: 'What mesh quality should I use for 3D printing?',
-        answer: 'Standard (0.03 mm chord tolerance, 10° angular tolerance) suits most FDM printing. Use Fine (0.01 mm, 5°) for resin printers, SLS and parts with visible curved surfaces. Use Draft only for previews and quotes.',
+        answer: 'The converter uses one fixed setting: 0.15 mm chord, 29° angle (max deviation 0.087 mm on NIST test parts). That suits FDM printing. For resin or SLS parts with visible curves, export the STL from your CAD program at a finer deviation.',
       },
       {
         question: 'Can I convert STEP to STL without installing software?',
-        answer: 'Yes. The converter runs in your web browser on Windows, macOS, Linux, iPad and Android, so you don’t need CAD software or a plugin. Upload the file, choose your settings and download the STL.',
+        answer: 'Yes. The converter runs in your web browser on Windows, macOS, Linux, iPad and Android, so you don’t need CAD software or a plugin. Upload the file, convert and download the STL.',
       },
       {
         question: 'Why is my STL file so large?',
-        answer: 'A binary STL uses 50 bytes per triangle, so one million triangles is about 50 MB. ASCII STL is roughly four to five times larger. Choose a coarser mesh quality or binary output to reduce file size.',
+        answer: 'A binary STL uses 50 bytes per triangle, so one million triangles is about 50 MB. We always write binary STL. To reduce file size, simplify the mesh in your slicer or a mesh editor.',
       },
       {
         question: 'Why is my STL the wrong size in the slicer?',
@@ -1628,7 +1628,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'Can I convert a STEP assembly into separate STL files?',
-        answer: 'Yes. Under Parts, choose One STL per body and you will download a ZIP with one STL for each solid, named after the part in the STEP file. Choose Single STL to merge every body into one file.',
+        answer: 'Not yet. Every body is written into one STL file, as separate shells. Most slicers can split it with a Split to objects or Split to parts command.',
       },
       {
         question: 'Which STEP versions are supported?',
@@ -1644,7 +1644,7 @@ export const UNIQUE_PAIR_PAGES = {
       },
       {
         question: 'What is the maximum file size?',
-        answer: 'You can upload STEP files up to 300 MB. Very large assemblies converted at Fine quality can produce STL files with millions of triangles, which may slow down your slicer.',
+        answer: 'You can upload STEP files up to 300 MB. Very large assemblies can produce STL files with millions of triangles, which may slow down your slicer.',
       },
       {
         question: 'Are my files private?',

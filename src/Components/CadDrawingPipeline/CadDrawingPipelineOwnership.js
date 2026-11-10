@@ -6,8 +6,8 @@ const POINTS = [
     body: "Files are uploaded and downloaded over an encrypted connection.",
   },
   {
-    title: "Automatic deletion",
-    body: "Your STEP file and generated drawings are deleted automatically within 7 days.",
+    title: "7-day access",
+    body: "Generated drawings can be downloaded for 7 days.",
   },
   {
     title: "You keep ownership",

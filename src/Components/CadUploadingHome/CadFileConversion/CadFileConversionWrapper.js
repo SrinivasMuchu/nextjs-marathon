@@ -345,7 +345,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         } else if (fileSizeMB < 300) {
             sendGAtagEvent({ event_name: 'converter_file_upload_200_300mb', event_category: CAD_CONVERTER_EVENT });
         } else {
-            sendGAtagEvent({ event_name: 'converter_file_upload_size_exceeded', event_category: CAD_CONVERTER_EVENT });
+            sendGAtagEvent({ event_name: 'converter_file_upload_size_exceeded', event_category: CAD_CONVERTER_EVENT, format_in: fileExtension.replace('.', ''), size_mb: Math.round(fileSizeMB) });
         }
         if (!allowedFormats.includes(fileExtension)) {
             toast.error("❌ Invalid file format! Please upload a supported 3D file.");
@@ -518,7 +518,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                     }
 
                 } else {
-                    sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
+                    sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT, reason: 'signed_url', format_in: fileExtension.replace('.', ''), size_mb: Math.round(fileSizeMB) })
                     toast.error("⚠️ Error generating signed URL.");
                     hideConverterLoadingOverlay();
                     setLoading(false);
@@ -526,7 +526,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
 
                 }
             } catch (e) {
-                sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT })
+                sendGAtagEvent({ event_name: 'converter_file_upload_error', event_category: CAD_CONVERTER_EVENT, reason: String(e?.message || 'upload_failed').slice(0, 100), format_in: fileExtension.replace('.', ''), size_mb: Math.round(fileSizeMB) })
                 console.error(e);
                   hideConverterLoadingOverlay();
                   setLoading(false);
@@ -539,7 +539,13 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
 
     const CadFileConversion = async (url) => {
         try {
-            sendGAtagEvent({ event_name: `converter_file_${fileConvert.name.slice(fileConvert.name.lastIndexOf(".")).toLowerCase()}_${selectedFileFormate}`, event_category: CAD_CONVERTER_EVENT })
+            sendGAtagEvent({
+                event_name: `converter_file_${fileConvert.name.slice(fileConvert.name.lastIndexOf(".")).toLowerCase()}_${selectedFileFormate}`,
+                event_category: CAD_CONVERTER_EVENT,
+                format_in: fileConvert.name.split('.').pop().toLowerCase(),
+                format_out: String(selectedFileFormate || '').replace('.', '').toLowerCase(),
+                size_mb: Math.round((fileConvert.size || 0) / (1024 * 1024)),
+            })
           
             const response = await axios.post(
                 `${BASE_URL}/v1/cad/file-conversion`,
