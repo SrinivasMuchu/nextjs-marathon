@@ -18,9 +18,10 @@ function CadFileUploads({ convert, conversionParams, allowedFormats, initialAllo
     const isStep3dm = designVariant === 'step3dmHero';
     const isConverterHero = designVariant === 'converterHero' || designVariant === 'stepToStlHero' || isStep3dm;
     const pairSource = String(conversionParams || '').split('-to-')[0].toLowerCase();
-    const dropCopy = pairSource === 'stl'
-      ? { title: 'Drop your STL file here', hint: '.stl · up to 300 MB' }
-      : { title: 'Drop your STEP file here', hint: '.step or .stp · up to 300 MB' };
+    const dropCopy = {
+      stl: { title: 'Drop your STL file here', hint: '.stl · up to 300 MB' },
+      iges: { title: 'Drop your IGES file here', hint: '.iges or .igs · up to 300 MB' },
+    }[pairSource] || { title: 'Drop your STEP file here', hint: '.step or .stp · up to 300 MB' };
 
     const dropInner = isStep3dm ? (
       <>

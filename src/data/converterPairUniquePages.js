@@ -2360,6 +2360,46 @@ export const CONVERTER_PAIR_META_OVERRIDES = {
     description:
       'Convert OBJ to STL online for 3D printing. Turn any OBJ model into an STL for Cura, PrusaSlicer or Bambu Studio. Up to 300 MB, first 2 files free.',
   },
+  'iges-to-step': {
+    title: 'IGES to STEP Converter – Convert IGS Files to STP Online | Marathon OS',
+    description:
+      'Convert IGES or IGS to STEP (STP) for SolidWorks, Fusion and CATIA. Exact geometry in millimetres, up to 300 MB, first 2 files free.',
+  },
+  'iges-to-stl': {
+    title: 'Convert IGES to STL Online – First 2 Free | Marathon OS',
+    description:
+      'Convert IGES or IGS to a binary STL in millimetres for 3D printing and slicers. Solids or surfaces, up to 300 MB, first 2 files free.',
+  },
+  'iges-to-ply': {
+    title: 'Convert IGES to PLY Online – First 2 Free | Marathon OS',
+    description:
+      'Convert IGES or IGS to a binary PLY mesh for MeshLab, CloudCompare and Open3D. Millimetres, up to 300 MB, first 2 files free.',
+  },
+  'iges-to-off': {
+    title: 'Convert IGES to OFF Online – First 2 Free | Marathon OS',
+    description:
+      'Convert IGES or IGS to a plain-text OFF mesh for CGAL, libigl, Open3D and MeshLab. Millimetres, up to 300 MB, first 2 files free.',
+  },
+  'iges-to-obj': {
+    title: 'Convert IGES to OBJ Online – First 2 Free | Marathon OS',
+    description:
+      'Convert IGES or IGS to OBJ for Blender, Unity and rendering. One OBJ mesh in millimetres, up to 300 MB, first 2 files free.',
+  },
+  'iges-to-brep': {
+    title: 'Convert IGES to BREP Online – First 2 Free | Marathon OS',
+    description:
+      'Convert IGES or IGS to an Open CASCADE BREP file for FreeCAD, CadQuery and gmsh. Exact geometry, up to 300 MB, first 2 files free.',
+  },
+  'iges-to-3mf': {
+    title: 'Convert IGES to 3MF Online – First 2 Free | Marathon OS',
+    description:
+      'Convert IGES or IGS to 3MF for Bambu Studio, PrusaSlicer, OrcaSlicer and Cura. One object per solid, in millimetres. Up to 300 MB, first 2 files free.',
+  },
+  'iges-to-3dm': {
+    title: 'Convert IGES to 3DM Online – First 2 Free | Marathon OS',
+    description:
+      'Convert IGES or IGS to a Rhino 3DM mesh in millimetres. Need NURBS? Rhino opens IGES directly. Up to 300 MB, first 2 files free.',
+  },
   'step-to-3dm': {
     title: 'STEP to 3DM Converter – Open STEP & STP Files in Rhino | Marathon OS',
     description:

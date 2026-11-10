@@ -572,6 +572,514 @@ const STL_TO_STEP_FAQS = [
   },
 ];
 
+const IGES_TO_3DM_FAQS = [
+  {
+    question: 'How do I convert an IGES file to 3DM?',
+    answer: "Upload your .iges or .igs file to the converter at the top of this page and download a Rhino 7 .3dm with the model as one mesh in millimetres. If you have Rhino and need NURBS, open the IGES in Rhino instead; that's free if you already own Rhino. Marathon OS is the paid route: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Will the 3DM have NURBS surfaces?',
+    answer: 'No. Our IGES to 3DM conversion writes a triangle mesh, not NURBS. For editable NURBS, open the IGES in Rhino: Rhino imports IGES as NURBS surfaces and polysurfaces.',
+  },
+  {
+    question: 'Can Rhino open IGES files directly?',
+    answer: "Yes. Rhino opens and imports .iges and .igs files as NURBS surfaces and polysurfaces. If you have Rhino, that's the better route for geometry you want to edit.",
+  },
+  {
+    question: 'Is the Marathon OS IGES to 3DM converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert IGS to 3DM?',
+    answer: 'Yes. .igs is the short extension for IGES; both convert the same way.',
+  },
+  {
+    question: 'Which Rhino versions open the file?',
+    answer: "It's a Rhino 7 file, so Rhino 7 and Rhino 8 open it. Rhino 6 and earlier can't open Rhino 7 files.",
+  },
+  {
+    question: 'What units does the 3DM use?',
+    answer: "Millimetres, stored as the file's model units. We read the unit stored in the IGES, so an inch file comes out at the right size.",
+  },
+  {
+    question: 'Can I edit the mesh in Rhino?',
+    answer: "You can move, scale, cut and join it with Rhino's mesh tools. MeshToNURB turns each triangle into a flat surface, which isn't the same as the original NURBS geometry.",
+  },
+  {
+    question: 'Will the assembly stay in separate parts?',
+    answer: 'Every part keeps its assembled position, merged into one mesh object without part names, layers or colours.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every IGES is meshed at a 1.0 mm chord tolerance and about 29° between neighbouring triangles. On files under 20,000 faces and 200 solids, a part that doesn't come out closed is meshed again finer, down to 0.1 mm. Meshes over 100,000 triangles are reduced to about 100,000, unless that would open the mesh or change its size. There are no quality presets.",
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 12 checks, including whether the mesh is watertight, degenerate triangles, mesh uniformity, a bounding-box match with the IGES and how much of the surface the mesh covers. For a surface-only IGES, the solid and watertight checks are marked not applicable.',
+  },
+  {
+    question: 'Which IGES files can I upload?',
+    answer: 'IGES files from any CAD program, as .iges or .igs, up to 300 MB. We read both solids (type 186) and trimmed surfaces (type 144). Files that use commas as decimal points, which some SolidWorks setups write, are fixed before reading.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an IGES to 3DM conversion take?',
+    answer: 'It depends on the file. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my IGES files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const IGES_TO_3MF_FAQS = [
+  {
+    question: 'How do I convert an IGES file to 3MF?',
+    answer: 'Upload your .iges or .igs file to the converter at the top of this page and download a 3MF with one object per solid, in millimetres. Marathon OS is a paid route: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Is the Marathon OS IGES to 3MF converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert IGS to 3MF?',
+    answer: 'Yes. .igs is the short extension for IGES; both convert the same way.',
+  },
+  {
+    question: 'Will each part be a separate object?',
+    answer: "Yes. Each solid becomes its own object in its assembled position, so you can arrange or assign filaments per part. Parts without solids, such as trimmed surfaces, come through as surface objects, and loose surfaces can each become a separate object.",
+  },
+  {
+    question: 'Will colours carry over?',
+    answer: "They can. When the IGES has colours, each part can take its IGES colour as a 3MF display colour, one colour per part, and parts coloured face by face take their first face's colour. Check them in your slicer before you print. If our part-by-part writer can't process the file, you get one uncoloured object named after the file.",
+  },
+  {
+    question: 'Does the 3MF keep units?',
+    answer: 'Yes. The 3MF stores millimetres, so slicers open it at the right size. We read the unit stored in the IGES, so an inch file comes out at the right size.',
+  },
+  {
+    question: 'Should I use 3MF or STL?',
+    answer: 'Use 3MF when your slicer reads it: it keeps separate parts and units, and it has room for names and colours. Use STL when a print service or older software asks for it.',
+  },
+  {
+    question: 'What if my IGES is only surfaces?',
+    answer: 'It converts, but the objects are surfaces, not solids, and slicers need closed solids to print. Knit the surfaces into a solid in your CAD program first, or hire a CAD designer to do it.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every part is meshed at a 0.15 mm chord tolerance and about 29° between neighbouring triangles. A part that won't mesh at that setting is re-meshed slightly coarser. There are no quality presets.",
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: "Yes. Every conversion comes with a free quality report with 12 checks, including whether the mesh is watertight, degenerate triangles, a bounding-box match with the IGES and how much of the surface the mesh covers. If your IGES holds loose surfaces, also check the object list in your slicer: they come through as objects that aren't solids.",
+  },
+  {
+    question: 'Which IGES files can I upload?',
+    answer: 'IGES files from any CAD program, as .iges or .igs, up to 300 MB. We read both solids (type 186) and trimmed surfaces (type 144). Files that use commas as decimal points, which some SolidWorks setups write, are fixed before reading.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an IGES to 3MF conversion take?',
+    answer: 'It depends on the file. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my IGES files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const IGES_TO_BREP_FAQS = [
+  {
+    question: 'What is a BREP file?',
+    answer: "A .brep (or .brp) file is Open CASCADE's native format for a boundary representation: the exact surfaces, edges and vertices of a shape. FreeCAD, CadQuery, gmsh and other tools built on Open CASCADE read it.",
+  },
+  {
+    question: 'How do I convert an IGES file to BREP?',
+    answer: 'Upload your .iges or .igs file to the converter at the top of this page and download one BREP file with the exact geometry. FreeCAD, which is free, can also open an IGES and export BREP. Marathon OS is the paid route: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Is the Marathon OS IGES to BREP converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert IGS to BREP?',
+    answer: 'Yes. .igs is the short extension for IGES; both convert the same way.',
+  },
+  {
+    question: 'Does IGES to BREP lose geometry?',
+    answer: "No. Curves and surfaces stay exact; nothing is meshed. BREP drops what's around the geometry: part names, colours, layers and any assembly structure.",
+  },
+  {
+    question: 'Will the BREP be a solid?',
+    answer: "If the IGES holds B-rep solids (type 186), the BREP holds solids. If it holds trimmed surfaces (type 144), the BREP holds the same loose faces: we don't sew them.",
+  },
+  {
+    question: 'What units does the BREP use?',
+    answer: 'BREP has no unit field. The coordinates are millimetres. We read the unit stored in the IGES, so an inch file comes out at the right size.',
+  },
+  {
+    question: 'Can SolidWorks or Fusion open a BREP file?',
+    answer: "Most commercial CAD programs don't import Open CASCADE .brep files. Convert IGES to STEP for them instead.",
+  },
+  {
+    question: 'Can I mesh the BREP for FEA?',
+    answer: 'Yes. gmsh and Salome open .brep files directly, so you can mesh the exact geometry.',
+  },
+  {
+    question: 'Is .brp the same as .brep?',
+    answer: 'Yes. Both extensions are used for the same Open CASCADE format.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 11 checks, including a valid B-rep, the number of solids, a face count match with the IGES, a bounding-box match and whether surface types are preserved.',
+  },
+  {
+    question: 'Can I convert BREP back to IGES?',
+    answer: 'Yes. Our BREP to IGES conversion keeps the geometry exact.',
+  },
+  {
+    question: 'Which IGES files can I upload?',
+    answer: 'IGES files from any CAD program, as .iges or .igs, up to 300 MB. We read both solids (type 186) and trimmed surfaces (type 144). Files that use commas as decimal points, which some SolidWorks setups write, are fixed before reading.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an IGES to BREP conversion take?',
+    answer: 'It depends on the file. Large assemblies can take a while, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my IGES files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const IGES_TO_OBJ_FAQS = [
+  {
+    question: 'How do I convert an IGES file to OBJ?',
+    answer: "Upload your .iges or .igs file to the converter at the top of this page and download one OBJ mesh in millimetres. FreeCAD, which is free, can also open an IGES and export OBJ. Marathon OS is the paid route if you don't have CAD at hand: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS IGES to OBJ converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert IGS to OBJ?',
+    answer: 'Yes. .igs is the short extension for IGES; both convert the same way.',
+  },
+  {
+    question: 'Why is my OBJ 1000 times too big in Blender?',
+    answer: "OBJ files don't store units. Ours is written in millimetres, and Blender reads 1 unit as 1 metre. Set Scale to 0.001 in Blender's OBJ importer, or scale the object after import.",
+  },
+  {
+    question: 'Does the OBJ include materials or colours?',
+    answer: "No. You get one .obj file with no .mtl material file, so IGES colours don't carry over. Assign materials in your 3D tool after import. If you need separate parts, IGES to 3MF writes one object per solid and can carry a display colour for each.",
+  },
+  {
+    question: 'Will the assembly stay in separate parts?',
+    answer: 'Every part keeps its assembled position, but the OBJ holds them as one mesh object without part names. In Blender, Separate › By Loose Parts splits it into pieces.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every IGES is meshed at a 1.0 mm chord tolerance and about 29° between neighbouring triangles. On files under 20,000 faces and 200 solids, a part that doesn't come out closed is meshed again finer, down to 0.1 mm. Meshes over 100,000 triangles are reduced to about 100,000, unless that would open the mesh or change its size. There are no quality presets.",
+  },
+  {
+    question: 'Can I get a finer mesh?',
+    answer: "Yes, two ways. Export the mesh from your CAD program at a smaller deviation; FreeCAD, which is free, opens IGES files. Or convert IGES to STEP first: our STEP to OBJ converter meshes at a 0.15 mm chord tolerance. That's two conversions.",
+  },
+  {
+    question: 'How do I reduce the triangle count for games or the web?',
+    answer: "Meshes over 100,000 triangles are already reduced to about 100,000. To go lower, decimate after import, for example with Blender's Decimate modifier.",
+  },
+  {
+    question: 'What if my IGES is only surfaces?',
+    answer: 'It still converts. Trimmed surfaces are meshed and their edges welded, but gaps between surfaces can leave the mesh open. For surface-only files, the quality report marks the solid and watertight checks as not applicable, so check the mesh before you print it.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 12 checks, including whether the mesh is watertight, degenerate triangles, mesh uniformity, a bounding-box match with the IGES and how much of the surface the mesh covers. For a surface-only IGES, the solid and watertight checks are marked not applicable.',
+  },
+  {
+    question: 'Can I convert OBJ back to IGES?',
+    answer: "Yes. Our OBJ to IGES conversion rebuilds an IGES file from the mesh. Curved areas may stay faceted, and there's no feature tree. Keep your original IGES if you will need the exact geometry.",
+  },
+  {
+    question: 'Which IGES files can I upload?',
+    answer: 'IGES files from any CAD program, as .iges or .igs, up to 300 MB. We read both solids (type 186) and trimmed surfaces (type 144). Files that use commas as decimal points, which some SolidWorks setups write, are fixed before reading.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an IGES to OBJ conversion take?',
+    answer: 'It depends on the file. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my IGES files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const IGES_TO_OFF_FAQS = [
+  {
+    question: 'What is an OFF file?',
+    answer: 'OFF (Object File Format) is a plain-text polygon mesh format that came from Geomview. It lists the vertex and face counts, then every vertex, then every face. Geometry libraries such as CGAL and libigl read it, and datasets such as ModelNet use it.',
+  },
+  {
+    question: 'How do I convert an IGES file to OFF?',
+    answer: 'Upload your .iges or .igs file to the converter at the top of this page and download one OFF mesh in millimetres. Marathon OS is a paid route: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Is the Marathon OS IGES to OFF converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert IGS to OFF?',
+    answer: 'Yes. .igs is the short extension for IGES; both convert the same way.',
+  },
+  {
+    question: 'Is the OFF file ASCII?',
+    answer: 'Yes. OFF is a plain-text format, so you can open it in a text editor or parse it with a few lines of code.',
+  },
+  {
+    question: 'Will it load with my dataset code?',
+    answer: 'It uses the standard layout: the OFF header on its own line, then the counts, vertices and triangles. Standard OFF readers, such as those in Open3D, trimesh, libigl and CGAL, read it.',
+  },
+  {
+    question: 'What units is the OFF in?',
+    answer: 'Millimetres. OFF has no unit field, so normalise or scale the mesh in your own code if you need a different scale. We read the unit stored in the IGES, so an inch file comes out at the right size.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every IGES is meshed at a 1.0 mm chord tolerance and about 29° between neighbouring triangles. On files under 20,000 faces and 200 solids, a part that doesn't come out closed is meshed again finer, down to 0.1 mm. Meshes over 100,000 triangles are reduced to about 100,000, unless that would open the mesh or change its size. There are no quality presets.",
+  },
+  {
+    question: 'Can I get a finer mesh?',
+    answer: "Yes, two ways. Export the mesh from your CAD program at a smaller deviation; FreeCAD, which is free, opens IGES files. Or convert IGES to STEP first: our STEP to OFF converter meshes at a 0.15 mm chord tolerance. That's two conversions.",
+  },
+  {
+    question: 'Will the assembly stay in separate parts?',
+    answer: 'Every part keeps its assembled position, merged into one mesh without part names.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 12 checks, including whether the mesh is watertight, degenerate triangles, mesh uniformity, a bounding-box match with the IGES and how much of the surface the mesh covers. For a surface-only IGES, the solid and watertight checks are marked not applicable.',
+  },
+  {
+    question: 'Which IGES files can I upload?',
+    answer: 'IGES files from any CAD program, as .iges or .igs, up to 300 MB. We read both solids (type 186) and trimmed surfaces (type 144). Files that use commas as decimal points, which some SolidWorks setups write, are fixed before reading.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an IGES to OFF conversion take?',
+    answer: 'It depends on the file. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my IGES files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const IGES_TO_PLY_FAQS = [
+  {
+    question: 'How do I convert an IGES file to PLY?',
+    answer: "Upload your .iges or .igs file to the converter at the top of this page and download one binary PLY mesh in millimetres. FreeCAD, which is free, can also open an IGES and export a mesh. Marathon OS is the paid route if you don't have CAD at hand: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS IGES to PLY converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert IGS to PLY?',
+    answer: 'Yes. .igs is the short extension for IGES; both convert the same way.',
+  },
+  {
+    question: 'Is the PLY binary or ASCII?',
+    answer: 'Binary, little-endian: the compact form MeshLab, CloudCompare and Open3D read. If you need ASCII, open it in MeshLab and export with Binary encoding turned off.',
+  },
+  {
+    question: 'Does the PLY include colours?',
+    answer: "No. IGES colours don't carry over to our PLY.",
+  },
+  {
+    question: 'Can I compare my CAD model with a 3D scan?',
+    answer: 'Yes. Load the PLY and your scan in CloudCompare, align them and run a cloud-to-mesh distance to see where the scan departs from the CAD. At our setting, facets on large curves can sit up to about 1 mm from the true surface, so keep that in mind when you read small distances.',
+  },
+  {
+    question: 'What units is the PLY in?',
+    answer: 'Millimetres. PLY has no unit field, so set the unit or scale in the program you open it in if it expects metres. We read the unit stored in the IGES, so an inch file comes out at the right size.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every IGES is meshed at a 1.0 mm chord tolerance and about 29° between neighbouring triangles. On files under 20,000 faces and 200 solids, a part that doesn't come out closed is meshed again finer, down to 0.1 mm. Meshes over 100,000 triangles are reduced to about 100,000, unless that would open the mesh or change its size. There are no quality presets.",
+  },
+  {
+    question: 'Can I get a finer mesh?',
+    answer: "Yes, two ways. Export the mesh from your CAD program at a smaller deviation; FreeCAD, which is free, opens IGES files. Or convert IGES to STEP first: our STEP to PLY converter meshes at a 0.15 mm chord tolerance. That's two conversions.",
+  },
+  {
+    question: 'Will the assembly stay in separate parts?',
+    answer: 'Every part keeps its assembled position, merged into one mesh without part names.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 12 checks, including whether the mesh is watertight, degenerate triangles, mesh uniformity, a bounding-box match with the IGES and how much of the surface the mesh covers. For a surface-only IGES, the solid and watertight checks are marked not applicable.',
+  },
+  {
+    question: 'Which IGES files can I upload?',
+    answer: 'IGES files from any CAD program, as .iges or .igs, up to 300 MB. We read both solids (type 186) and trimmed surfaces (type 144). Files that use commas as decimal points, which some SolidWorks setups write, are fixed before reading.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an IGES to PLY conversion take?',
+    answer: 'It depends on the file. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my IGES files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const IGES_TO_STEP_FAQS = [
+  {
+    question: 'How do I convert an IGES file to STEP?',
+    answer: "Upload your .iges or .igs file to the converter at the top of this page and download one STEP file with the exact geometry in millimetres. FreeCAD, which is free, can also open an IGES and export STEP. Marathon OS is the paid route if you don't have CAD at hand: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS IGES to STEP converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert IGS to STP?',
+    answer: 'Yes. .igs is the short extension for IGES and .stp for STEP; they convert the same way.',
+  },
+  {
+    question: 'Will the STEP be a solid?',
+    answer: "If the IGES holds B-rep solids (type 186), they're written as STEP solids. If it holds trimmed surfaces (type 144), the STEP holds the same surfaces: we don't sew them, so knit them in your CAD program. In a file where we rebuild a face whose trim STEP can't store, the faces are written as separate surfaces.",
+  },
+  {
+    question: 'Does IGES to STEP lose geometry?',
+    answer: "No. Curves and surfaces stay exact; nothing is meshed. What doesn't carry over is the information around the geometry: part names, colours, layers and any assembly structure.",
+  },
+  {
+    question: 'What units does the STEP use?',
+    answer: 'Millimetres. We read the unit stored in the IGES, so an inch file comes out at the right size.',
+  },
+  {
+    question: 'Why convert IGES to STEP?',
+    answer: 'STEP is the current ISO standard for exchanging exact 3D models, and most CAD programs, suppliers and CAM tools read it. IGES is older, and many IGES files hold only surfaces. Converting gives you the same geometry in the format people ask for.',
+  },
+  {
+    question: 'Can I convert an assembly?',
+    answer: 'Yes. Every part comes across in its assembled position, as one model without part names or the assembly tree.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 11 checks, including a valid B-rep, the number of solids, a face count match with the IGES, a bounding-box match and whether surface types are preserved.',
+  },
+  {
+    question: 'Can I convert STEP back to IGES?',
+    answer: 'Yes. Our STEP to IGES conversion keeps the geometry exact. Closed solids can be written as IGES B-rep solids; otherwise you get trimmed surfaces.',
+  },
+  {
+    question: 'Which IGES files can I upload?',
+    answer: 'IGES files from any CAD program, as .iges or .igs, up to 300 MB. We read both solids (type 186) and trimmed surfaces (type 144). Files that use commas as decimal points, which some SolidWorks setups write, are fixed before reading.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an IGES to STEP conversion take?',
+    answer: 'It depends on the file. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my IGES files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const IGES_TO_STL_FAQS = [
+  {
+    question: 'How do I convert an IGES file to STL?',
+    answer: "Upload your .iges or .igs file to the converter at the top of this page and download one binary STL in millimetres. FreeCAD, which is free, can also open an IGES and export STL. Marathon OS is the paid route if you don't have CAD at hand: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS IGES to STL converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Can I convert IGS to STL?',
+    answer: 'Yes. .igs is the short extension for IGES; both convert the same way.',
+  },
+  {
+    question: 'Will the STL be watertight?',
+    answer: "We work to make it watertight: we weld the edges, close small gaps and, on smaller files, mesh a part again finer when it stays open. The quality report says whether each solid came out watertight. An IGES of loose surfaces can leave gaps we can't close.",
+  },
+  {
+    question: 'Is the STL binary or ASCII?',
+    answer: "Binary. It's smaller than ASCII, and every slicer reads it.",
+  },
+  {
+    question: 'What units is the STL in?',
+    answer: 'Millimetres. STL has no unit field, and most slicers read STL as millimetres, so the part comes in at the right size. We read the unit stored in the IGES, so an inch file comes out at the right size.',
+  },
+  {
+    question: 'What mesh settings does the converter use?',
+    answer: "Every IGES is meshed at a 1.0 mm chord tolerance and about 29° between neighbouring triangles. On files under 20,000 faces and 200 solids, a part that doesn't come out closed is meshed again finer, down to 0.1 mm. Meshes over 100,000 triangles are reduced to about 100,000, unless that would open the mesh or change its size. There are no quality presets.",
+  },
+  {
+    question: 'Can I get a finer mesh?',
+    answer: "Yes, two ways. Export the mesh from your CAD program at a smaller deviation; FreeCAD, which is free, opens IGES files. Or convert IGES to STEP first: our STEP to STL converter meshes at a 0.15 mm chord tolerance. That's two conversions.",
+  },
+  {
+    question: 'What if my IGES is only surfaces?',
+    answer: 'It still converts. Trimmed surfaces are meshed and their edges welded, but gaps between surfaces can leave the mesh open. For surface-only files, the quality report marks the solid and watertight checks as not applicable, so check the mesh before you print it.',
+  },
+  {
+    question: 'Will the assembly stay in separate parts?',
+    answer: 'Every part keeps its assembled position, merged into one mesh without part names.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 12 checks, including whether the mesh is watertight, degenerate triangles, mesh uniformity, a bounding-box match with the IGES and how much of the surface the mesh covers. For a surface-only IGES, the solid and watertight checks are marked not applicable.',
+  },
+  {
+    question: 'Can I convert an STL back to IGES?',
+    answer: "Yes. Our STL to IGES conversion rebuilds an IGES file from the mesh. Curved areas may stay faceted, and there's no feature tree. Keep your original IGES if you will need the exact geometry.",
+  },
+  {
+    question: 'Which IGES files can I upload?',
+    answer: 'IGES files from any CAD program, as .iges or .igs, up to 300 MB. We read both solids (type 186) and trimmed surfaces (type 144). Files that use commas as decimal points, which some SolidWorks setups write, are fixed before reading.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an IGES to STL conversion take?',
+    answer: 'It depends on the file. Large assemblies can take several minutes, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my IGES files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
 /** Swap the single-file price token for the live converter price. */
 export function withConverterFaqPrice(faqs, priceLabel) {
   const paid = priceLabel ? `${priceLabel} or ` : '';
@@ -594,6 +1102,14 @@ export function getConverterFaqQuestions(conversionParams) {
   if (pairKey === 'step-to-ply') return STEP_TO_PLY_FAQS;
   if (pairKey === 'step-to-stl') return STEP_TO_STL_FAQS;
   if (pairKey === 'stl-to-step') return STL_TO_STEP_FAQS;
+  if (pairKey === 'iges-to-3dm') return IGES_TO_3DM_FAQS;
+  if (pairKey === 'iges-to-3mf') return IGES_TO_3MF_FAQS;
+  if (pairKey === 'iges-to-brep') return IGES_TO_BREP_FAQS;
+  if (pairKey === 'iges-to-obj') return IGES_TO_OBJ_FAQS;
+  if (pairKey === 'iges-to-off') return IGES_TO_OFF_FAQS;
+  if (pairKey === 'iges-to-ply') return IGES_TO_PLY_FAQS;
+  if (pairKey === 'iges-to-step') return IGES_TO_STEP_FAQS;
+  if (pairKey === 'iges-to-stl') return IGES_TO_STL_FAQS;
 
   const uniquePage = getUniquePairPage(conversionParams);
   if (uniquePage?.faqs?.length) return uniquePage.faqs;
