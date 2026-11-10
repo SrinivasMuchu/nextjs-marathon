@@ -540,7 +540,7 @@ const STL_TO_STEP_FAQS = [
   },
   {
     question: 'Why does the STEP open as surfaces instead of a solid?',
-    answer: 'Two reasons: the STL isn\'t watertight, or the mesh went through the faceted fallback (every mesh over 1 million triangles, and any mesh the rebuild can\'t fit), which currently writes surfaces. Repair the mesh, or reduce it below 1 million triangles, and convert again.',
+    answer: 'Two possible causes. The STL may not be watertight: holes, gaps or overlapping triangles stop it enclosing a volume. Repair the mesh and convert again. Or, on some very fine or complex meshes, the rebuilt faces don\'t close into a solid. The free quality report\'s Closed solid check tells you which you got.',
   },
   {
     question: 'Why are the holes in my STEP still faceted?',
@@ -552,7 +552,7 @@ const STL_TO_STEP_FAQS = [
   },
   {
     question: 'Can I convert a 3D scan or a sculpted model?',
-    answer: 'Yes, but scans and organic shapes have few flat or round areas to fit, so they come back made of many small faces. Meshes over 1 million triangles skip the rebuild and come back as a faceted surface model, up to about 35,000 faces. For engineering use of a scan, having a designer rebuild the part usually gives a better result.',
+    answer: 'Yes, but scans and organic shapes have few flat or round areas to fit, so they come back made of many small faces. Meshes over 1 million triangles skip the rebuild and come back as up to about 35,000 flat faces, a solid if the mesh is watertight. For engineering use of a scan, having a designer rebuild the part usually gives a better result.',
   },
   {
     question: 'How long does an STL to STEP conversion take?',
