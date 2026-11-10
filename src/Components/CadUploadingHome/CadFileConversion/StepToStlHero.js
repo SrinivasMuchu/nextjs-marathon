@@ -136,10 +136,10 @@ export default function StepToStlHero() {
   return (
     <>
       <section className={home.hero} aria-labelledby="hero-title">
-        <div className={`${home.wrap} ${styles.grid}`}>
-          <div>
-            <nav className={styles.crumbs} aria-label="Breadcrumb">
-              <ol>
+        <div className={`${home.wrap} ${styles.layout}`}>
+          <div className={`${home.copy} ${styles.copy}`}>
+            <nav aria-label="Breadcrumb">
+              <ol className={styles.crumbs}>
                 <li><Link href="/">Home</Link></li>
                 <li><Link href="/tools">Tools</Link></li>
                 <li><Link href="/tools/3d-cad-file-converter">CAD converter</Link></li>
@@ -168,7 +168,7 @@ export default function StepToStlHero() {
                 <span className={`${styles.badge} ${styles.badgeCad}`}>STEP</span>
                 <div><b>From STEP</b><small>.step or .stp</small></div>
               </div>
-              <span className={styles.routeArrow} aria-hidden="true">
+              <span className={styles.arrow} aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
               </span>
               <div className={styles.routeCell}>
@@ -194,12 +194,21 @@ export default function StepToStlHero() {
           </div>
 
           <div className={styles.art}>
-            <ul className={home.ticks}>
-              <li>Files up to 300 MB</li>
-              <li>Binary STL in millimetres</li>
-              <li>Opens in any slicer</li>
+            <ul className={`${home.ticks} ${styles.ticks}`} aria-label="Key facts">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z" /><path d="M14 3v5h5M9 13h6M9 17h4" /></svg>
+                Files up to 300 MB
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 3 8v8l9 5 9-5V8z" /><path d="M3 8l9 5 9-5M12 13v8M3 16l9-8 9 8" /></svg>
+                Binary STL in millimetres
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 18h12M6 14h12a2 2 0 002-2V8H4v4a2 2 0 002 2zM8 8V5h8v3" /></svg>
+                Opens in any slicer
+              </li>
             </ul>
-            <figure className={home.viz}><StepViz /></figure>
+            <figure className={`${home.viz} ${styles.viz}`}><StepViz /></figure>
           </div>
         </div>
       </section>
