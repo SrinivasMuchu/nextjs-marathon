@@ -92,6 +92,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
   const freeRetryFor = String(searchParams.get("freeRetryFor") || "").trim();
   const isFreeRetryFlow = Boolean(freeRetryFor);
   const [file, setFile] = useState(null);
+  const [formStep, setFormStep] = useState("upload");
   const [sampleLoading, setSampleLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -153,6 +154,14 @@ export default function CadDrawingPipelineView({ initialPrices }) {
     refreshEligibility();
   }, [refreshEligibility]);
 
+  useEffect(() => {
+    if (formStep !== "details") return;
+    document.getElementById("cad-pipeline-upload")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [formStep]);
+
   const pickFile = useCallback((f) => {
     if (!f) return;
     if (!STEP_EXT.test(f.name)) {
@@ -170,6 +179,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
     trackTechDrawFileSelected(f);
     setFile(f);
     setError("");
+    setFormStep("details");
   }, []);
 
   useConsumeHomeFile(pickFile);
@@ -232,6 +242,7 @@ export default function CadDrawingPipelineView({ initialPrices }) {
       if (submitting || submitLockRef.current) return;
       setFile(null);
       setError("");
+      setFormStep("upload");
     },
     [submitting],
   );
@@ -286,6 +297,11 @@ export default function CadDrawingPipelineView({ initialPrices }) {
     e.preventDefault();
 
     if (submitLockRef.current || submitting) return;
+
+    if (formStep !== "details") {
+      if (file) setFormStep("details");
+      return;
+    }
 
     if (!file) {
       toast.error("Choose a STEP or STP file.");
@@ -463,14 +479,19 @@ export default function CadDrawingPipelineView({ initialPrices }) {
       <div className={styles.heroCard}>
         <form id="cad-pipeline-submit-form" className={styles.heroForm} onSubmit={onSubmit}>
           <div className={styles.heroCardHead}>
-            <h2>Upload your STEP file</h2>
+            <h2>{formStep === "details" ? "Drawing details" : "Upload your STEP file"}</h2>
             <span className={styles.heroSecure}>
               <TrustLock />
               Secure
             </span>
           </div>
+          <p className={styles.heroStepEyebrow}>
+            {formStep === "details" ? "Step 2 of 2" : "Step 1 of 2"}
+          </p>
           <p className={styles.heroCardLede}>
-            Choose one STEP file. This page is already set up to create a 2D drawing set.
+            {formStep === "details"
+              ? "Add a title, description, and drawing standard before the pipeline starts."
+              : "Choose one STEP file. The next step asks for the drawing title and description."}
           </p>
 
           <input
@@ -484,18 +505,9 @@ export default function CadDrawingPipelineView({ initialPrices }) {
             tabIndex={-1}
           />
 
-          <div
-            className={`${styles.heroDrop} ${dragOver ? styles.heroDropActive : ""}`}
-            onClick={openFilePicker}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragOver(true);
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={onDrop}
-          >
-            {file ? (
-              <div className={styles.heroFileRow}>
+          {formStep === "details" && file ? (
+            <>
+              <div className={styles.heroFileBar}>
                 <span className={styles.heroFileBadge} aria-hidden>
                   STP
                 </span>
@@ -505,92 +517,14 @@ export default function CadDrawingPipelineView({ initialPrices }) {
                 </span>
                 <button
                   type="button"
-                  className={styles.heroFileRemove}
-                  onClick={clearFile}
+                  className={styles.heroFileChange}
+                  onClick={openFilePicker}
                   disabled={submitting}
-                  aria-label="Remove selected file"
                 >
-                  ×
+                  Change
                 </button>
               </div>
-            ) : (
-              <>
-                <span className={styles.heroDropIcon} aria-hidden>
-                  <ArrowUp size={18} strokeWidth={2.2} />
-                </span>
-                <p className={styles.heroDropTitle}>Drag and drop your STEP file here</p>
-                <p className={styles.heroDropHint}>or choose a file from your computer</p>
-              </>
-            )}
-            <button
-              type="button"
-              className={styles.heroBrowse}
-              onClick={(event) => {
-                event.stopPropagation();
-                openFilePicker();
-              }}
-              disabled={submitting}
-            >
-              Browse files
-            </button>
-            <p className={styles.heroDropLimit}>Maximum file size: {MAX_UPLOAD_LABEL}</p>
-          </div>
 
-          <div className={styles.heroFormats}>
-            <div>
-              <span>Input format</span>
-              <div className={styles.heroFormatBox}>
-                <strong>STEP (.step, .stp)</strong>
-                <small>{file ? file.name : "STEP file"}</small>
-              </div>
-            </div>
-            <span className={styles.heroFormatArrow} aria-hidden>
-              →
-            </span>
-            <div>
-              <span>Output</span>
-              <div className={styles.heroFormatBox}>
-                <strong>2D drawing set</strong>
-                <small>PDF, DXF, SVG, PNG, FCStd</small>
-              </div>
-            </div>
-          </div>
-
-          {file ? (
-            <button
-              className={styles.heroGenerate}
-              type="submit"
-              disabled={submitting || !llmAvailable}
-              title={!llmAvailable ? llmDownMessage : undefined}
-            >
-              {submitting ? uploadPhase || "Working…" : !llmAvailable ? "AI service unavailable" : "Generate 2D drawings"}
-            </button>
-          ) : (
-            <button type="button" className={`${styles.heroGenerate} ${styles.heroGenerateIdle}`} onClick={openFilePicker}>
-              Generate 2D drawings
-            </button>
-          )}
-
-          <p className={styles.heroPriceNote}>
-            <Info size={15} strokeWidth={1.9} aria-hidden />
-            <span>
-              {prices.totalLabel ? (
-                <>
-                  <strong>{prices.totalLabel} per drawing set</strong>, with every format included.
-                </>
-              ) : (
-                <strong>Every format is included.</strong>
-              )}{" "}
-              Most sets are ready in under 4 minutes.{" "}
-              <a href="#whats-included">What&apos;s included</a>
-            </span>
-          </p>
-
-          {uploadPhase ? <p className={styles.heroPhase}>{uploadPhase}</p> : null}
-
-          {file ? (
-            <details className={styles.heroOptions}>
-              <summary>Drawing options</summary>
               <div className={styles.pipelineInfoTip}>
                 <Info size={15} strokeWidth={1.9} aria-hidden />
                 <p>
@@ -681,20 +615,144 @@ export default function CadDrawingPipelineView({ initialPrices }) {
                   <span>I&apos;ll pick datum features A / B / C after the model is analyzed</span>
                 </label>
               </div>
-            </details>
-          ) : null}
 
-          <p className={styles.heroSampleLine}>
-            No STEP file available? Try a STEP sample to see the drawing workflow.
+              <button
+                className={styles.heroGenerate}
+                type="submit"
+                disabled={submitting || !llmAvailable}
+                title={!llmAvailable ? llmDownMessage : undefined}
+              >
+                {submitting ? uploadPhase || "Working…" : !llmAvailable ? "AI service unavailable" : "Generate 2D drawings"}
+              </button>
+
+              <button
+                type="button"
+                className={styles.heroBack}
+                onClick={() => setFormStep("upload")}
+                disabled={submitting}
+              >
+                Back to file
+              </button>
+            </>
+          ) : (
+            <>
+              <div
+                className={`${styles.heroDrop} ${dragOver ? styles.heroDropActive : ""}`}
+                onClick={openFilePicker}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={onDrop}
+              >
+                {file ? (
+                  <div className={styles.heroFileRow}>
+                    <span className={styles.heroFileBadge} aria-hidden>
+                      STP
+                    </span>
+                    <span className={styles.heroFileMeta}>
+                      <strong>{file.name}</strong>
+                      <small>{formatMb(file.size)} selected</small>
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.heroFileRemove}
+                      onClick={clearFile}
+                      disabled={submitting}
+                      aria-label="Remove selected file"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <span className={styles.heroDropIcon} aria-hidden>
+                      <ArrowUp size={18} strokeWidth={2.2} />
+                    </span>
+                    <p className={styles.heroDropTitle}>Drag and drop your STEP file here</p>
+                    <p className={styles.heroDropHint}>or choose a file from your computer</p>
+                  </>
+                )}
+                <button
+                  type="button"
+                  className={styles.heroBrowse}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    openFilePicker();
+                  }}
+                  disabled={submitting}
+                >
+                  Browse files
+                </button>
+                <p className={styles.heroDropLimit}>Maximum file size: {MAX_UPLOAD_LABEL}</p>
+              </div>
+
+              <div className={styles.heroFormats}>
+                <div>
+                  <span>Input format</span>
+                  <div className={styles.heroFormatBox}>
+                    <strong>STEP (.step, .stp)</strong>
+                    <small>{file ? file.name : "STEP file"}</small>
+                  </div>
+                </div>
+                <span className={styles.heroFormatArrow} aria-hidden>
+                  →
+                </span>
+                <div>
+                  <span>Output</span>
+                  <div className={styles.heroFormatBox}>
+                    <strong>2D drawing set</strong>
+                    <small>PDF, DXF, SVG, PNG, FCStd</small>
+                  </div>
+                </div>
+              </div>
+
+              {file ? (
+                <button
+                  className={styles.heroGenerate}
+                  type="button"
+                  onClick={() => setFormStep("details")}
+                  disabled={submitting}
+                >
+                  Continue
+                </button>
+              ) : (
+                <button type="button" className={`${styles.heroGenerate} ${styles.heroGenerateIdle}`} onClick={openFilePicker}>
+                  Generate 2D drawings
+                </button>
+              )}
+
+              <p className={styles.heroSampleLine}>
+                No STEP file available? Try a STEP sample to see the drawing workflow.
+              </p>
+              <button
+                type="button"
+                className={styles.heroSampleBtn}
+                onClick={loadSample}
+                disabled={submitting || sampleLoading}
+              >
+                {sampleLoading ? "Loading sample…" : "Try sample.step"}
+              </button>
+            </>
+          )}
+
+          <p className={styles.heroPriceNote}>
+            <Info size={15} strokeWidth={1.9} aria-hidden />
+            <span>
+              {prices.totalLabel ? (
+                <>
+                  <strong>{prices.totalLabel} per drawing set</strong>, with every format included.
+                </>
+              ) : (
+                <strong>Every format is included.</strong>
+              )}{" "}
+              Most sets are ready in under 4 minutes.{" "}
+              <a href="#whats-included">What&apos;s included</a>
+            </span>
           </p>
-          <button
-            type="button"
-            className={styles.heroSampleBtn}
-            onClick={loadSample}
-            disabled={submitting || sampleLoading}
-          >
-            {sampleLoading ? "Loading sample…" : "Try sample.step"}
-          </button>
+
+          {uploadPhase ? <p className={styles.heroPhase}>{uploadPhase}</p> : null}
         </form>
       </div>
 
