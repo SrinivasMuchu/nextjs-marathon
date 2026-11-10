@@ -107,10 +107,26 @@ export const IMAGEURLS = {
 
   solidImage:`${MARATHON_ASSET_PREFIX_URL}solid-image.webp`,
   wireframeImage:`${MARATHON_ASSET_PREFIX_URL}wireframe-image.webp`,
-  
-  // ImageSquare.svg
-  // open-answer.webp
-  // Add more images as needed
+
+  // og images for step and home
+  ogHome: `${ASSET_PREFIX_URL}og-images/home.webp`,
+  ogStepTo3dm: `${ASSET_PREFIX_URL}og-images/step-to-3dm.webp`,
+  ogStepTo3mf: `${ASSET_PREFIX_URL}og-images/step-to-3mf.webp`,
+  ogStepToBrep: `${ASSET_PREFIX_URL}og-images/step-to-brep.webp`,
+  ogStepToIges: `${ASSET_PREFIX_URL}og-images/step-to-iges.webp`,
+  ogStepToObj: `${ASSET_PREFIX_URL}og-images/step-to-obj.webp`,
+  ogStepToOff: `${ASSET_PREFIX_URL}og-images/step-to-off.webp`,
+  ogStepToPly: `${ASSET_PREFIX_URL}og-images/step-to-ply.webp`,
+  ogStepToStl: `${ASSET_PREFIX_URL}og-images/step-to-stl.webp`,
+  ogStlToStep: `${ASSET_PREFIX_URL}og-images/stl-to-step.webp`,
+  ogIgesTo3dm: `${ASSET_PREFIX_URL}og-images/iges-to-3dm.webp`,
+  ogIgesTo3mf: `${ASSET_PREFIX_URL}og-images/iges-to-3mf.webp`,
+  ogIgesToBrep: `${ASSET_PREFIX_URL}og-images/iges-to-brep.webp`,
+  ogIgesToObj: `${ASSET_PREFIX_URL}og-images/iges-to-obj.webp`,
+  ogIgesToOff: `${ASSET_PREFIX_URL}og-images/iges-to-off.webp`,
+  ogIgesToPly: `${ASSET_PREFIX_URL}og-images/iges-to-ply.webp`,
+  ogIgesToStep: `${ASSET_PREFIX_URL}og-images/iges-to-step.webp`,
+  ogIgesToStl: `${ASSET_PREFIX_URL}og-images/iges-to-stl.webp`,
 };
 
 

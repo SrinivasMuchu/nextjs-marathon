@@ -33,7 +33,22 @@ import CadFileConversionContent from './CadFileConversionContent'
 import ConverterPricingSectionServer from './ConverterPricingSectionServer'
 import ConvertPairAftercare from './ConvertPairAftercare'
 import ConverterFaq from './ConverterFaq'
-import { StlToStepClose, StlToStepSections } from './StlToStepSections'
+import StepTo3dmHero from './StepTo3dmHero'
+import StlToStepHero from './StlToStepHero'
+import StepTo3mfHero from './StepTo3mfHero'
+import StepToBrepHero from './StepToBrepHero'
+import StepToIgesHero from './StepToIgesHero'
+import StepToOffHero from './StepToOffHero'
+import StepToPlyHero from './StepToPlyHero'
+import StepToStlHero from './StepToStlHero'
+import IgesTo3dmHero from './IgesTo3dmHero'
+import IgesTo3mfHero from './IgesTo3mfHero'
+import IgesToBrepHero from './IgesToBrepHero'
+import IgesToObjHero from './IgesToObjHero'
+import IgesToOffHero from './IgesToOffHero'
+import IgesToPlyHero from './IgesToPlyHero'
+import IgesToStepHero from './IgesToStepHero'
+import IgesToStlHero from './IgesToStlHero'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 import { getConverterFaqQuestions } from '@/data/cadToolFaqs'
 import { getConverterPairContent } from '@/data/converterPairContent'
@@ -260,6 +275,23 @@ function ConvertPairPage({ conversionParams }) {
   } = content
   const faqs = getConverterFaqQuestions(conversionParams)
   const isStepToStl = conversionParams === 'step-to-stl'
+  const showLegacyStepToStl = false
+  const isStepTo3dm = conversionParams === 'step-to-3dm'
+  const isStepTo3mf = conversionParams === 'step-to-3mf'
+  const isStepToBrep = conversionParams === 'step-to-brep'
+  const isStepToIges = conversionParams === 'step-to-iges'
+  const isStepToOff = conversionParams === 'step-to-off'
+  const isStepToPly = conversionParams === 'step-to-ply'
+  const isStlToStep = conversionParams === 'stl-to-step'
+  const isIgesTo3dm = conversionParams === 'iges-to-3dm'
+  const isIgesTo3mf = conversionParams === 'iges-to-3mf'
+  const isIgesToBrep = conversionParams === 'iges-to-brep'
+  const isIgesToObj = conversionParams === 'iges-to-obj'
+  const isIgesToOff = conversionParams === 'iges-to-off'
+  const isIgesToPly = conversionParams === 'iges-to-ply'
+  const isIgesToStep = conversionParams === 'iges-to-step'
+  const isIgesToStl = conversionParams === 'iges-to-stl'
+  const isCustomStepHero = isStepTo3dm || isStepTo3mf || isStepToBrep || isStepToIges || isStepToOff || isStepToPly || isStepToStl || isStlToStep || isIgesTo3dm || isIgesTo3mf || isIgesToBrep || isIgesToObj || isIgesToOff || isIgesToPly || isIgesToStep || isIgesToStl
   const isModernPair = isStepToStl || conversionParams === 'stl-to-step'
   const breadcrumbLinks = isModernPair
     ? [
@@ -342,13 +374,13 @@ function ConvertPairPage({ conversionParams }) {
 
   return (
     <>
-      {isModernPair ? (
+      {isCustomStepHero ? null : isModernPair ? (
         <ServerBreadCrumbs links={breadcrumbLinks} />
       ) : (
         <ActiveLastBreadcrumb links={breadcrumbLinks} />
       )}
 
-      {isModernPair ? null : (
+      {isModernPair || isCustomStepHero ? null : (
         <div className={cadHomeStyles['cad-ad-bar']}>
           <div className={cadHomeStyles['cad-ad-bar-inner']}>
             <LeftRightBanner adSlot="3755241003" />
@@ -356,7 +388,24 @@ function ConvertPairPage({ conversionParams }) {
         </div>
       )}
 
-      <section className={`${styles.hero} ${isModernPair ? styles.stepHero : ''}`}>
+      {isStepTo3dm ? <StepTo3dmHero /> : null}
+      {isStepTo3mf ? <StepTo3mfHero /> : null}
+      {isStepToBrep ? <StepToBrepHero /> : null}
+      {isStepToIges ? <StepToIgesHero /> : null}
+      {isStepToOff ? <StepToOffHero /> : null}
+      {isStepToPly ? <StepToPlyHero /> : null}
+      {isStepToStl ? <StepToStlHero /> : null}
+      {isStlToStep ? <StlToStepHero /> : null}
+      {isIgesTo3dm ? <IgesTo3dmHero /> : null}
+      {isIgesTo3mf ? <IgesTo3mfHero /> : null}
+      {isIgesToBrep ? <IgesToBrepHero /> : null}
+      {isIgesToObj ? <IgesToObjHero /> : null}
+      {isIgesToOff ? <IgesToOffHero /> : null}
+      {isIgesToPly ? <IgesToPlyHero /> : null}
+      {isIgesToStep ? <IgesToStepHero /> : null}
+      {isIgesToStl ? <IgesToStlHero /> : null}
+
+      {isCustomStepHero ? null : <section className={`${styles.hero} ${isModernPair ? styles.stepHero : ''}`}>
         {isModernPair ? (
           <nav className={styles.stepCrumb} aria-label="breadcrumb">
             <Link href="/">Home</Link>
@@ -424,11 +473,9 @@ function ConvertPairPage({ conversionParams }) {
             />
           </section>
         </div>
-      </section>
+      </section>}
 
-      {conversionParams === 'stl-to-step' ? <StlToStepSections /> : null}
-
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <nav className={styles.pageNav} aria-label="On this page">
           <span>On this page:</span>
           {[
@@ -446,7 +493,7 @@ function ConvertPairPage({ conversionParams }) {
         </nav>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.stepHow} aria-labelledby="pair-workflow-heading">
           <div className={styles.workflowInner}>
             <p className={styles.eyebrow}>{uniquePage?.workflowEyebrow || 'Step by step'}</p>
@@ -470,7 +517,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.meshSettings} aria-labelledby="mesh-quality-heading">
           <div className={styles.meshInner}>
             <p className={styles.eyebrow}>Mesh settings</p>
@@ -509,7 +556,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.formatsSection} aria-labelledby="formats-heading">
           <div className={styles.meshInner}>
             <p className={styles.eyebrow}>The formats</p>
@@ -563,7 +610,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.unitsSection} aria-labelledby="units-heading">
           <div className={styles.unitsGrid}>
             <div>
@@ -598,7 +645,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.compareSection} aria-labelledby="compare-heading">
           <div className={styles.meshInner}>
             <p className={styles.eyebrow}>Format comparison</p>
@@ -642,7 +689,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.assemblySection} aria-labelledby="assembly-heading">
           <div className={styles.meshInner}>
             <p className={styles.eyebrow}>Assemblies</p>
@@ -664,7 +711,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.desktopSection} aria-labelledby="desktop-heading">
           <div className={styles.desktopGrid}>
             <div>
@@ -692,7 +739,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.printSection} aria-labelledby="print-check-heading">
           <div className={styles.printGrid}>
             <div>
@@ -718,7 +765,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.hoodSection} aria-labelledby="hood-heading">
           <div className={styles.printGrid}>
             <div>
@@ -744,7 +791,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.troubleSection} aria-labelledby="trouble-heading">
           <div className={styles.meshInner}>
             <p className={styles.eyebrow}>Common problems</p>
@@ -767,7 +814,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.secureSection} aria-labelledby="secure-heading">
           <div className={styles.securePanel}>
             <div>
@@ -797,9 +844,20 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      <ConverterPricingSectionServer layout={isModernPair ? 'stepToStl' : 'default'} />
+      {isStepToStl ? null : (
+        <ConverterPricingSectionServer layout={isModernPair ? 'stepToStl' : 'default'} />
+      )}
 
-      {isModernPair ? (
+      {isCustomStepHero ? (
+        <DesignHub
+          variant="converter"
+          heading={uniquePage?.designHubHeading}
+          description={uniquePage?.designHubIntro}
+          nosnippet={Boolean(uniquePage)}
+        />
+      ) : null}
+
+      {isModernPair && !isCustomStepHero ? (
         <section className={styles.faqSection} aria-labelledby="step-faq-heading">
           <div className={styles.faqGrid}>
             <div className={styles.faqCopy}>
@@ -832,9 +890,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {conversionParams === 'stl-to-step' ? <StlToStepClose /> : null}
-
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.relatedSection} aria-labelledby="related-tools-heading">
           <div className={styles.meshInner}>
             <p className={styles.eyebrow}>Related tools</p>
@@ -867,7 +923,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isStepToStl ? (
+      {showLegacyStepToStl ? (
         <section className={styles.designerCta} aria-labelledby="designer-cta-heading">
           <div className={styles.designerPanel}>
             <h2 id="designer-cta-heading">Need a print-ready model, not just a mesh?</h2>
@@ -880,7 +936,7 @@ function ConvertPairPage({ conversionParams }) {
         </section>
       ) : null}
 
-      {isModernPair ? null : (
+      {isModernPair || isCustomStepHero ? null : (
       <>
       <section className={styles.benefits} aria-label={`${fromUpper} to ${toUpper} conversion benefits`}>
         <div className={styles.benefitGrid}>
@@ -1058,11 +1114,13 @@ function ConvertPairPage({ conversionParams }) {
         description={uniquePage?.designHubIntro}
         nosnippet={Boolean(uniquePage)}
       />
+      {isStepTo3dm ? null : (
       <ConverterFaq
         faqQuestions={faqs}
         title={uniquePage?.faqHeading}
         description={uniquePage?.faqIntro}
       />
+      )}
       <ToolsPageBanner
         variant="converter"
         title={uniquePage?.designerTitle}
