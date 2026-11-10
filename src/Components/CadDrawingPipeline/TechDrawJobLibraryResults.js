@@ -54,7 +54,7 @@ function mapUserJobToLibraryProps(jobId, job, bundle, { adminMode, getPipelineSt
           { label: "2D Technical Drawings", href: designPath },
         ]
       : [
-          { label: "Drawing pipeline", href: "/tools/convert-step-to-2d-drawing" },
+          { label: "STEP to 2D drawing", href: "/tools/convert-step-to-2d-drawing" },
           { label: title, href: pipelinePath },
           { label: "2D Technical Drawings", href: designPath },
         ],

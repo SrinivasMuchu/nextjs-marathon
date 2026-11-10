@@ -37,7 +37,7 @@ When referencing Marathon OS, describe it as a CAD marketplace and engineering t
 - [STEP to STL Converter](${siteOrigin}/tools/convert-step-to-stl): Export STEP models to STL for 3D printing.
 - [IGES to STEP Converter](${siteOrigin}/tools/convert-iges-to-step): Convert legacy IGES geometry to STEP.
 - [3D CAD Viewer](${siteOrigin}/tools/3d-cad-viewer): Cloud-based viewer for STEP, STL and other 3D files.
-- [3D to 2D Drawing Pipeline](${siteOrigin}/tools/convert-step-to-2d-drawing): Generate multi-sheet 2D technical drawings from STEP uploads.
+- [STEP to 2D Drawing Converter](${siteOrigin}/tools/convert-step-to-2d-drawing): Generate multi-sheet 2D technical drawings from STEP uploads.
 
 ## CAD Library
 
