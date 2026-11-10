@@ -45,6 +45,14 @@ const CONVERTER_OG_IMAGES = {
   'step-to-ply': IMAGEURLS.ogStepToPly,
   'step-to-stl': IMAGEURLS.ogStepToStl,
   'stl-to-step': IMAGEURLS.ogStlToStep,
+  'iges-to-3dm': IMAGEURLS.ogIgesTo3dm,
+  'iges-to-3mf': IMAGEURLS.ogIgesTo3mf,
+  'iges-to-brep': IMAGEURLS.ogIgesToBrep,
+  'iges-to-obj': IMAGEURLS.ogIgesToObj,
+  'iges-to-off': IMAGEURLS.ogIgesToOff,
+  'iges-to-ply': IMAGEURLS.ogIgesToPly,
+  'iges-to-step': IMAGEURLS.ogIgesToStep,
+  'iges-to-stl': IMAGEURLS.ogIgesToStl,
 };
 
 function getConverterMetaToPhrase(to) {

@@ -41,6 +41,14 @@ import StepToIgesHero from './StepToIgesHero'
 import StepToOffHero from './StepToOffHero'
 import StepToPlyHero from './StepToPlyHero'
 import StepToStlHero from './StepToStlHero'
+import IgesTo3dmHero from './IgesTo3dmHero'
+import IgesTo3mfHero from './IgesTo3mfHero'
+import IgesToBrepHero from './IgesToBrepHero'
+import IgesToObjHero from './IgesToObjHero'
+import IgesToOffHero from './IgesToOffHero'
+import IgesToPlyHero from './IgesToPlyHero'
+import IgesToStepHero from './IgesToStepHero'
+import IgesToStlHero from './IgesToStlHero'
 import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 import { getConverterFaqQuestions } from '@/data/cadToolFaqs'
 import { getConverterPairContent } from '@/data/converterPairContent'
@@ -284,7 +292,15 @@ function ConvertPairPage({ conversionParams }) {
   const isStepToOff = conversionParams === 'step-to-off'
   const isStepToPly = conversionParams === 'step-to-ply'
   const isStlToStep = conversionParams === 'stl-to-step'
-  const isCustomStepHero = isStepTo3dm || isStepTo3mf || isStepToBrep || isStepToIges || isStepToOff || isStepToPly || isStepToStl || isStlToStep
+  const isIgesTo3dm = conversionParams === 'iges-to-3dm'
+  const isIgesTo3mf = conversionParams === 'iges-to-3mf'
+  const isIgesToBrep = conversionParams === 'iges-to-brep'
+  const isIgesToObj = conversionParams === 'iges-to-obj'
+  const isIgesToOff = conversionParams === 'iges-to-off'
+  const isIgesToPly = conversionParams === 'iges-to-ply'
+  const isIgesToStep = conversionParams === 'iges-to-step'
+  const isIgesToStl = conversionParams === 'iges-to-stl'
+  const isCustomStepHero = isStepTo3dm || isStepTo3mf || isStepToBrep || isStepToIges || isStepToOff || isStepToPly || isStepToStl || isStlToStep || isIgesTo3dm || isIgesTo3mf || isIgesToBrep || isIgesToObj || isIgesToOff || isIgesToPly || isIgesToStep || isIgesToStl
   const isModernPair = isStepToStl || conversionParams === 'stl-to-step'
   const breadcrumbLinks = isModernPair
     ? [
@@ -389,6 +405,14 @@ function ConvertPairPage({ conversionParams }) {
       {isStepToPly ? <StepToPlyHero /> : null}
       {isStepToStl ? <StepToStlHero /> : null}
       {isStlToStep ? <StlToStepHero /> : null}
+      {isIgesTo3dm ? <IgesTo3dmHero /> : null}
+      {isIgesTo3mf ? <IgesTo3mfHero /> : null}
+      {isIgesToBrep ? <IgesToBrepHero /> : null}
+      {isIgesToObj ? <IgesToObjHero /> : null}
+      {isIgesToOff ? <IgesToOffHero /> : null}
+      {isIgesToPly ? <IgesToPlyHero /> : null}
+      {isIgesToStep ? <IgesToStepHero /> : null}
+      {isIgesToStl ? <IgesToStlHero /> : null}
 
       {isCustomStepHero ? null : <section className={`${styles.hero} ${isModernPair ? styles.stepHero : ''}`}>
         {isModernPair ? (
