@@ -28,6 +28,11 @@ const STATUSES = [
   { id: "failed", label: "Failed", key: "failed" },
 ];
 
+const PAYMENT_STATUSES = [
+  ...STATUSES,
+  { id: "initiated", label: "Initiated", key: "initiated" },
+];
+
 const PAYMENT_TYPE_LABELS = {
   CAD_LIBRARY: "Library",
   CAD_TECHDRAW: "TechDraw",
@@ -75,18 +80,32 @@ function statusClass(status) {
     return `${panelStyles.badge} ${panelStyles.badgeSuccess}`;
   }
   if (normalized === "failed") return `${panelStyles.badge} ${panelStyles.badgeDanger}`;
-  if (normalized === "pending" || normalized === "processing" || normalized === "uploading") {
+  if (
+    normalized === "pending" ||
+    normalized === "processing" ||
+    normalized === "uploading" ||
+    normalized === "initiated"
+  ) {
     return `${panelStyles.badge} ${panelStyles.badgeWarn}`;
   }
   return `${panelStyles.badge} ${panelStyles.badgeInfo}`;
 }
 
+function paymentStatusLabel(status) {
+  if (status === "success") return "Success";
+  if (status === "failed") return "Failed";
+  if (status === "initiated") return "Initiated";
+  return status || "—";
+}
+
 function TrackCard({ section, bucket, windowId, selected, onSelect }) {
-  const paid = section.id === "payments" ? formatMoney(bucket?.amounts) : "";
+  const isPaymentCard = section.id === "payments";
+  const stats = isPaymentCard ? PAYMENT_STATUSES : STATUSES;
+  const paid = isPaymentCard ? formatMoney(bucket?.amounts) : "";
   return (
     <div className={styles.card}>
       <span className={styles.cardLabel}>{section.label}</span>
-      {STATUSES.map((item) => {
+      {stats.map((item) => {
         const active =
           selected?.section === section.id &&
           selected?.window === windowId &&
@@ -105,7 +124,7 @@ function TrackCard({ section, bucket, windowId, selected, onSelect }) {
         );
       })}
       {paid ? <span className={styles.amount}>Success {paid}</span> : null}
-      {(bucket?.pending || 0) > 0 ? (
+      {!isPaymentCard && (bucket?.pending || 0) > 0 ? (
         <span className={styles.amount}>{bucket.pending} other</span>
       ) : null}
     </div>
@@ -187,7 +206,7 @@ function UserTrackPanel() {
 
   const selectedSection = SECTIONS.find((item) => item.id === selected?.section);
   const selectedWindow = WINDOWS.find((item) => item.id === selected?.window);
-  const selectedStatus = STATUSES.find((item) => item.id === selected?.status);
+  const selectedStatus = PAYMENT_STATUSES.find((item) => item.id === selected?.status);
   const isPayments = selected?.section === "payments";
 
   return (
@@ -273,7 +292,7 @@ function UserTrackPanel() {
                               <th>Status</th>
                               <th>Amount</th>
                               <th>Method</th>
-                              <th>Order</th>
+                              <th>Razorpay ID</th>
                             </>
                           ) : (
                             <>
@@ -301,7 +320,7 @@ function UserTrackPanel() {
                                 <td>{formatWhen(row.createdAt)}</td>
                                 <td>{PAYMENT_TYPE_LABELS[row.payment_type] || row.payment_type || "—"}</td>
                                 <td>
-                                  <span className={statusClass(row.status)}>{row.status || "—"}</span>
+                                  <span className={statusClass(row.status)}>{paymentStatusLabel(row.status)}</span>
                                 </td>
                                 <td>
                                   {row.amount == null
@@ -309,7 +328,7 @@ function UserTrackPanel() {
                                     : formatMoney([{ currency: row.currency, amount: row.amount }])}
                                 </td>
                                 <td>{row.payment_method || "—"}</td>
-                                <td className={styles.mono}>{row.razorpay_order_id || row.razorpay_payment_id || "—"}</td>
+                                <td className={styles.mono}>{row.razorpay_payment_id || "—"}</td>
                               </tr>
                             ) : (
                               <tr key={row._id}>
