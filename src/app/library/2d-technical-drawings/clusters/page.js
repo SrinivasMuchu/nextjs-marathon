@@ -12,6 +12,7 @@ export const metadata = {
   description:
     'Browse curated 2D drawing build kits with verified mating parts — motion kits, hardware packs, robotics, drones and more on Marathon OS.',
   openGraph: {
+    url: CANONICAL_PATH,
     title: '2D Drawing Build Kits & Collections | Marathon OS',
     description:
       'Browse curated 2D drawing build kits with verified mating parts — motion kits, hardware packs, robotics, drones and more on Marathon OS.',

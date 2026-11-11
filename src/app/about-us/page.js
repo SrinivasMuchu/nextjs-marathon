@@ -3,6 +3,7 @@ export const metadata = {
   description:
     "Discover the story behind Marathon OS — a platform built to streamline hardware lifecycle management for engineering and manufacturing teams.",
   openGraph: {
+    url: "/about-us",
     images: [
       {
         url: "https://marathon-web-assets.s3.ap-south-1.amazonaws.com/logo-1.png",

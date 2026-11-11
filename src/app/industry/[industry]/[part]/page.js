@@ -14,6 +14,7 @@ export async function generateMetadata({ params }) {
       .join(' ')} | Marathon OS`,
     description: `Upload and view CAD files online—no software required. Explore components like the ${part.replace('-', ' ')} Head in the ${industry.replace('-', ' ')} for seamless design collaboration.`,
     openGraph: {
+      url: `/industry/${industry}/${part}`,
       images: [
         {
           url: `${ASSET_PREFIX_URL}logo-1.png`,

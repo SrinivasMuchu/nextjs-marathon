@@ -35,6 +35,16 @@ const GA_TRACKING_ID = "G-6P47TN4FMC";
 const LINKEDIN_PARTNER_ID = "9449508";
 const BASE_URL = "https://marathon-os.com";
 
+// A raw og:url in <head> is not part of the Metadata API merge, so it stayed
+// on every page (and disagreed with pages that set openGraph.url). "./" resolves
+// to the current path on the canonical host. A page openGraph object replaces this.
+export const metadata = {
+  metadataBase: new URL(BASE_URL),
+  openGraph: {
+    url: "./",
+  },
+};
+
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -153,7 +163,6 @@ export default async function RootLayout({ children }) {
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.marathon-os.com" />
         <meta property="og:site_name" content="Marathon OS" />
         <meta name="google-adsense-account" content={GOOGLE_ADSENSE_CLIENT_ID} />
         <link

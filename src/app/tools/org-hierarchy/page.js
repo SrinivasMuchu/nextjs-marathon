@@ -14,6 +14,7 @@ export const metadata = {
   description:
     "Create professional organizational charts effortlessly with our free Org Chart Creator. Customize and visualize team structures with an easy-to-use online chart maker. Try it now!",
   openGraph: {
+    url: CANONICAL_PATH,
     images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
   },
   metadataBase: new URL('https://marathon-os.com'),

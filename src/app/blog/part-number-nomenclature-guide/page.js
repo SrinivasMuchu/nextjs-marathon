@@ -3,7 +3,7 @@ export const metadata = {
   title: "Part Number Nomenclature: A Complete Guide to Structured Part Identification | Marathon OS",
   description:
     "Learn everything about Part Number Nomenclature, including its importance, best practices, common formats, and real-world examples. Discover how a structured part numbering system enhances inventory management, traceability, and supply chain efficiency.",
-    openGraph: {images: [
+    openGraph: {url: "/blog/part-number-nomenclature-guide", images: [
       
       {
         url: "https://d2o2bcehk92sin.cloudfront.net/part_blog_img_compressed.webp",

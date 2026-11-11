@@ -10,6 +10,7 @@ export const metadata = {
   description:
     'Browse Marathon OS industry CAD viewer pages: open sector-specific landing pages to upload and review STEP, IGES, STL, and more in your browser.',
   openGraph: {
+    url: CANONICAL_PATH,
     title: 'Industry CAD Viewers — Browse by Sector | Marathon OS',
     description:
       'Browse Marathon OS industry CAD viewer pages: open sector-specific landing pages to upload and review STEP, IGES, STL, and more in your browser.',

@@ -10,6 +10,7 @@ export const metadata = {
   description:
     'Browse all part types and functions in the Marathon OS 2D technical drawings library. Filter drawings by category and tag.',
   openGraph: {
+    url: CANONICAL_PATH,
     title: '2D Drawing Parts & Functions — Browse All Tags | Marathon OS',
     description:
       'Browse all part types and functions in the Marathon OS 2D technical drawings library. Filter drawings by category and tag.',
