@@ -78,6 +78,19 @@ const CONVERSION_BILLING_LABELS = {
   unpaid: "Not paid",
 };
 
+// How a paid conversion was paid on Razorpay (backend `payment_method`). Only Apple Pay is
+// called out; other methods (card, upi, ...) stay plain "Paid".
+const PAYMENT_METHOD_LABELS = {
+  apple_pay: "Apple Pay",
+};
+
+function conversionBillingLabel(row) {
+  const base = CONVERSION_BILLING_LABELS[row?.billing];
+  if (!base) return "—";
+  const method = row.billing === "paid" ? PAYMENT_METHOD_LABELS[row.payment_method] : null;
+  return method ? `${base} · ${method}` : base;
+}
+
 function CadToolStatsDashboard() {
   const [rangeFilter, setRangeFilter] = useState("today");
   const [stats, setStats] = useState(null);
@@ -354,7 +367,7 @@ function CadToolStatsDashboard() {
                                   )}
                                 </td>
                                 <td>{sizeLabel || "—"}</td>
-                                <td>{CONVERSION_BILLING_LABELS[row.billing] || "—"}</td>
+                                <td>{conversionBillingLabel(row)}</td>
                               </>
                             ) : null}
                             {showEye ? (
