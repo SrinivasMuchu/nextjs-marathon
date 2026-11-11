@@ -6,7 +6,7 @@ export const metadata = {
   description:
     "Create professional organizational charts effortlessly with our free Org Chart Creator. Customize and visualize team structures with an easy-to-use online chart maker. Try it now!",
   ...PRIVATE_PAGE_ROBOTS,
-  openGraph: {images: [
+  openGraph: {url: "/tools/org-hierarchy/chart-maker", images: [
       {
         url: `${ASSET_PREFIX_URL}logo-1.png`,
         width: 1200,

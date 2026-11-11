@@ -4,7 +4,7 @@ export const metadata = {
     title: "Terms and Conditions | Marathon OS",
     description:
     "Review the terms and conditions for using Marathon OS. Understand your rights, responsibilities, and the rules that govern access to our platform.",
-      openGraph: {images: [
+      openGraph: {url: "/terms-and-conditions", images: [
         {
           url: `${ASSET_PREFIX_URL}logo-1.png`,
           width: 1200,

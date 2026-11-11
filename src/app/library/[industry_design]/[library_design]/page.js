@@ -21,6 +21,7 @@ export async function generateMetadata({ params, searchParams }) {
       title: `File Viewer – Instantly Open & Explore | Marathon OS`,
       description: `View files instantly with Marathon OS CAD Viewer. No software installation required—just upload, view, and explore complex 3D models in seconds.`,
       openGraph: {
+        url: `/library/${industry_design}/${library_design}`,
         images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
       },
       metadataBase: new URL('https://marathon-os.com'),
@@ -70,6 +71,7 @@ export async function generateMetadata({ params, searchParams }) {
     title,
     description,
     openGraph: {
+      url: canonicalPath,
       images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
     },
     ...(robots && { robots: { index: false, follow: true } }),

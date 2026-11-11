@@ -25,6 +25,7 @@ export async function generateMetadata({ params }) {
       title: `${data.data.meta_title} | Marathon OS`,
       description: data.data.meta_description,
       openGraph: {
+        url: `/industry/${industry}`,
         images: [{
           url: `${ASSET_PREFIX_URL}logo-1.png`,
           width: 1200,

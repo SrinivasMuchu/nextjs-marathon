@@ -9,6 +9,7 @@ export const metadata = {
   description:
     'Browse all CAD part types and functions in the Marathon OS 3D library. Filter models by fasteners, bearings, gears, actuators, and more.',
   openGraph: {
+    url: CANONICAL_PATH,
     title: 'CAD Parts & Functions — Browse All Tags | Marathon OS',
     description:
       'Browse all CAD part types and functions in the Marathon OS 3D library. Filter models by fasteners, bearings, gears, actuators, and more.',

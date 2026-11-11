@@ -5,6 +5,7 @@ export const metadata = {
   description:
     "Easily upload and share your CAD designs. Showcase your work, connect with like-minded professionals, and get regular updates on how your designs are performing. Be a part of the growing community of engineers and makers on Marathon-OS.",
   openGraph: {
+    url: "/publish-cad",
     images: [
       {
         url: `${ASSET_PREFIX_URL}logo-1.png`,

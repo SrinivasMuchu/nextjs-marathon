@@ -10,6 +10,7 @@ export const metadata = {
   description:
     'Marathon OS resources: engineering guides, references, and downloads for CAD and hardware teams.',
   openGraph: {
+    url: CANONICAL_PATH,
     title: 'Resources — Guides & References | Marathon OS',
     description:
       'Marathon OS resources: engineering guides, references, and downloads for CAD and hardware teams.',

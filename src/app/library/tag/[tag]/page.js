@@ -37,6 +37,7 @@ export async function generateMetadata({ params, searchParams }) {
     description,
     ...(robots && { robots: { index: false, follow: true } }),
     openGraph: {
+      url: canonicalPath,
       images: [{ url: `${ASSET_PREFIX_URL}logo-1.png`, width: 1200, height: 630, type: 'image/png' }],
     },
     metadataBase: new URL(base),

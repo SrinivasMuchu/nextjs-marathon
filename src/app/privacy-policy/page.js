@@ -4,7 +4,7 @@ export const metadata = {
     title: "Privacy Policy | Marathon OS",
     description:
       "Learn how Marathon OS collects, uses, and protects your personal data. We value your privacy and are committed to safeguarding your information.",
-      openGraph: {images: [
+      openGraph: {url: "/privacy-policy", images: [
         {
           url: `${ASSET_PREFIX_URL}logo-1.png`,
           width: 1200,
