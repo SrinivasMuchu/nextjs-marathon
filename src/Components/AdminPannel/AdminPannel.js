@@ -15,6 +15,7 @@ import TechDrawJobsTable from './TechDrawJobsTable'
 import AdminControlsPanel from './AdminControlsPanel'
 import VendorsTable from './VendorsTable'
 import CadToolStatsDashboard from './CadToolStatsDashboard'
+import UserTrackPanel from './UserTrackPanel'
 import styles from './AdminPannel.module.css'
 import AdminPannelAuthentication from './AdminPannelAuthentication'
 import {
@@ -102,6 +103,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
     switch(activeTab) {
       case 'stats':
         return 'CAD Stats'
+      case 'user-track':
+        return 'User track'
       case 'designs':
         return 'Designs'
       case 'payments':
@@ -133,6 +136,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
     switch(activeTab) {
       case 'stats':
         return <CadToolStatsDashboard />
+      case 'user-track':
+        return <UserTrackPanel />
       case 'designs':
         return <DesignTable />
       case 'payments':
