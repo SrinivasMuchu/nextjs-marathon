@@ -1,5 +1,6 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
 import styles from './AdminPannel.module.css'
@@ -7,74 +8,15 @@ import { formatDate } from '@/common.helper'
 import Pagenation from '@/Components/CommonJsx/Pagenation'
 import Loading from '../CommonJsx/Loaders/Loading'
 import SearchIcon from '@mui/icons-material/Search';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { toast } from 'react-toastify'
 
-// Transfer status definitions
-const TRANSFER_STATUS_DEFINITIONS = Object.freeze([
-    { code: 'pending_payment', label: 'Pending Payment', meaning: 'Buyer payment not confirmed' },
-    { code: 'payment_received', label: 'Payment Received', meaning: 'Buyer payment confirmed' },
-    { code: 'on_hold', label: 'On Hold / Under Review', meaning: 'Fraud/KYC verification' },
-    { code: 'scheduled', label: 'Scheduled for Payout', meaning: 'Added to upcoming payout' },
-    { code: 'processing_payout', label: 'Processing Payout', meaning: 'Transfer in progress' },
-    { code: 'transferred', label: 'Transferred', meaning: 'Payout successfully sent' },
-    { code: 'failed', label: 'Failed', meaning: 'Payout failed; retry needed' },
-    { code: 'refunded', label: 'Refunded', meaning: 'Buyer refund / reversal' },
-]);
-
-function statusBadge(status) {
-  const base = styles.badge
-  const statusCode = status?.toLowerCase?.() || status
-  
-  switch (statusCode) {
-    case 'transferred':
-    case 'payment_received':
-    case 'scheduled':
-    case 'approved':
-    case true:
-    case 'true':
-      return `${base} ${styles.badgeSuccess}`
-    
-    case 'pending_payment':
-    case 'on_hold':
-    case 'processing_payout':
-    case 'pending':
-      return `${base} ${styles.badgeWarn}`
-    
-    case 'failed':
-    case 'refunded':
-    case 'rejected':
-    case 'reject':
-      return `${base} ${styles.badgeDanger}`
-    
-    default:
-      return `${base} ${styles.badgeWarn}`
-  }
+function formatPaymentAmount(amount) {
+  const value = Number(amount)
+  if (!Number.isFinite(value)) return '—'
+  return `$${value.toFixed(2)}`
 }
 
-// Helper function to get display text for status
-function getStatusDisplayText(status) {
-  const statusCode = status?.toLowerCase?.() || status
-  const statusDef = TRANSFER_STATUS_DEFINITIONS.find(s => s.code === statusCode)
-  
-  if (statusDef) {
-    return statusDef.label
-  }
-  
-  // Legacy status handling
-  if (statusCode === true || statusCode === 'true' || statusCode === 'approved') {
-    return 'Approved'
-  }
-  if (statusCode === 'rejected' || statusCode === 'reject') {
-    return 'Rejected'
-  }
-  if (statusCode === 'pending') {
-    return 'Pending'
-  }
-  
-  return status || 'Pending'
-}
-
-// Helper function to check if actions are allowed for a status
 function canPerformActions(status) {
   const statusCode = status?.toLowerCase?.() || status
   
@@ -92,6 +34,102 @@ function canPerformActions(status) {
   ]
   
   return actionableStatuses.includes(statusCode)
+}
+
+function PaymentActions({ canAct, submittingAction, onApprove, onReject }) {
+  const [open, setOpen] = useState(false)
+  const [menuPos, setMenuPos] = useState(null)
+  const buttonRef = useRef(null)
+  const menuRef = useRef(null)
+  const busy = Boolean(submittingAction)
+
+  useEffect(() => {
+    if (!open) return undefined
+    const close = (event) => {
+      const target = event.target
+      if (
+        target instanceof Node &&
+        (buttonRef.current?.contains(target) || menuRef.current?.contains(target))
+      ) {
+        return
+      }
+      setOpen(false)
+    }
+    const onKey = (event) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    document.addEventListener('keydown', onKey)
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    return () => {
+      document.removeEventListener('mousedown', close)
+      document.removeEventListener('keydown', onKey)
+      window.removeEventListener('scroll', close, true)
+      window.removeEventListener('resize', close)
+    }
+  }, [open])
+
+  const toggle = () => {
+    const rect = buttonRef.current?.getBoundingClientRect()
+    if (!rect) return
+    setMenuPos({
+      top: rect.bottom + 6,
+      left: Math.max(8, rect.right - 148),
+    })
+    setOpen((current) => !current)
+  }
+
+  const menu = open && menuPos
+    ? createPortal(
+        <div
+          ref={menuRef}
+          className={styles.actionMenu}
+          style={{ top: menuPos.top, left: menuPos.left }}
+        >
+          <button
+            type="button"
+            className={styles.actionApprove}
+            onClick={() => {
+              setOpen(false)
+              onApprove()
+            }}
+            disabled={busy || !canAct}
+          >
+            {submittingAction === 'approve' ? 'Approving…' : 'Approve'}
+          </button>
+          <button
+            type="button"
+            className={styles.actionReject}
+            onClick={() => {
+              setOpen(false)
+              onReject()
+            }}
+            disabled={busy || !canAct}
+          >
+            {submittingAction === 'reject' ? 'Rejecting…' : 'Reject'}
+          </button>
+        </div>,
+        document.body,
+      )
+    : null
+
+  return (
+    <>
+      <button
+        ref={buttonRef}
+        type="button"
+        className={styles.menuBtn}
+        onClick={toggle}
+        aria-label="Payment actions"
+        aria-expanded={open}
+        disabled={busy}
+      >
+        <MoreVertIcon fontSize="small" />
+      </button>
+      {menu}
+    </>
+  )
 }
 
 function PaymentsTable() {
@@ -372,13 +410,13 @@ function PaymentsTable() {
           <thead>
             <tr>
               <th>ID</th>
+              <th>Email</th>
               <th>Order ID</th>
               <th>Amount</th>
               <th>Razorpay ID</th>
               <th>Conversion</th>
-              <th>Status</th>
               <th>Date</th>
-              <th>Actions</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -397,31 +435,19 @@ function PaymentsTable() {
                   return (
                     <tr key={id} className={styles.row}>
                       <td>{p._id}</td>
+                      <td>{p.user_email || '—'}</td>
                       <td>{p.razorpay_order_id}</td>
-                      <td>${p.amount}</td>
+                      <td>{formatPaymentAmount(p.amount)}</td>
                       <td>{p.razorpay_payment_id}</td>
                       <td>{p.conversion || '—'}</td>
-                      <td><span className={statusBadge(p.transfered_to_publisher)}>{getStatusDisplayText(p.transfered_to_publisher)}</span></td>
                       <td>{formatDate(p.createdAt)}</td>
                       <td>
-                        <div className={styles.actionCell}>
-                          <button
-                            type="button"
-                            className={`${styles.actionBtn} ${styles.actionApprove}`}
-                            onClick={() => handleApproveClick(p._id)}
-                            disabled={isSubmitting || !canAct}
-                          >
-                            {submitting[id] === 'approve' ? 'Approving…' : 'Approve'}
-                          </button>
-                          <button
-                            type="button"
-                            className={`${styles.actionBtn} ${styles.actionReject}`}
-                            onClick={() => handleActions('reject', p._id)}
-                            disabled={isSubmitting || !canAct}
-                          >
-                            {submitting[p._id] === 'reject' ? 'Rejecting…' : 'Reject'}
-                          </button>
-                        </div>
+                        <PaymentActions
+                          canAct={canAct}
+                          submittingAction={isSubmitting ? submitting[id] : ''}
+                          onApprove={() => handleApproveClick(id)}
+                          onReject={() => handleActions('reject', id)}
+                        />
                       </td>
                     </tr>
                   )
@@ -445,9 +471,21 @@ function PaymentsTable() {
               <div key={id} className={styles.mobileCard}>
                 <div className={styles.mobileCardHeader}>
                   <h3 className={styles.mobileCardTitle}>{p.conversion || 'Payment'}</h3>
-                  <span className={styles.mobileCardAside}>${p.amount}</span>
+                  <div className={styles.mobileCardAsideRow}>
+                    <span className={styles.mobileCardAside}>{formatPaymentAmount(p.amount)}</span>
+                    <PaymentActions
+                      canAct={canAct}
+                      submittingAction={isSubmitting ? submitting[id] : ''}
+                      onApprove={() => handleApproveClick(id)}
+                      onReject={() => handleActions('reject', id)}
+                    />
+                  </div>
                 </div>
                 <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardField}>
+                    <span className={styles.mobileCardLabel}>Email</span>
+                    <span className={styles.mobileCardValue}>{p.user_email || '—'}</span>
+                  </div>
                   <div className={styles.mobileCardField}>
                     <span className={styles.mobileCardLabel}>Order ID</span>
                     <span className={styles.mobileCardValue}>{p.razorpay_order_id || '—'}</span>
@@ -457,29 +495,8 @@ function PaymentsTable() {
                     <span className={styles.mobileCardValue}>{p.razorpay_payment_id || '—'}</span>
                   </div>
                   <div className={styles.mobileCardMeta}>
-                    <span className={statusBadge(p.transfered_to_publisher)}>
-                      {getStatusDisplayText(p.transfered_to_publisher)}
-                    </span>
                     <span className={styles.mobileCardDate}>Date: {formatDate(p.createdAt)}</span>
                   </div>
-                </div>
-                <div className={styles.mobileCardActions}>
-                  <button
-                    type="button"
-                    className={`${styles.actionBtn} ${styles.actionApprove}`}
-                    onClick={() => handleApproveClick(p._id)}
-                    disabled={isSubmitting || !canAct}
-                  >
-                    {submitting[id] === 'approve' ? 'Approving…' : 'Approve'}
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.actionBtn} ${styles.actionReject}`}
-                    onClick={() => handleActions('reject', p._id)}
-                    disabled={isSubmitting || !canAct}
-                  >
-                    {submitting[p._id] === 'reject' ? 'Rejecting…' : 'Reject'}
-                  </button>
                 </div>
               </div>
             )
