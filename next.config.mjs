@@ -1,3 +1,17 @@
+// NEXT_PUBLIC_* values are inlined into the browser bundle. Refuse to start or
+// build if one looks like a secret (e.g. a Razorpay key secret) — secrets must
+// live only on the backend.
+const PUBLIC_SECRET_PATTERN = /SECRET|PRIVATE_KEY|PASSWORD/i;
+const leakedPublicSecrets = Object.keys(process.env).filter(
+  (name) => name.startsWith('NEXT_PUBLIC_') && PUBLIC_SECRET_PATTERN.test(name),
+);
+if (leakedPublicSecrets.length) {
+  throw new Error(
+    `Refusing to build: these NEXT_PUBLIC_ env vars look like secrets and would be exposed to browsers: ${leakedPublicSecrets.join(', ')}. ` +
+      'Remove them (keep secrets server-side only).',
+  );
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {

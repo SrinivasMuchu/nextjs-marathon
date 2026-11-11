@@ -148,7 +148,6 @@ export const CAD_HIRE_DESIGNER_EVENT = 'HIRE_DESIGNER'
 export const CAD_LIBRARY_EVENT = 'LIBRARY'
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 export const GOOGLE_ADSENSE_CLIENT_ID = process.env.NEXT_GOOGLE_ADS_CLIENT_ID
-export const RAZORPAY_SECRET = process.env.NEXT_PUBLIC_RAZORPAY_SECRET_ID
 export const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
 
 /** CAD viewer tool outputs: cad-output-files/viewer/{id}/{filename} */
