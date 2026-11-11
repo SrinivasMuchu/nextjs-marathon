@@ -188,6 +188,15 @@ export default function TechDrawJobLibraryResults({
     [job?.file_name, job?.title, jobId, triggerBrowserDownload, user?.email],
   );
 
+  // Free first set needs a verified email: after login, re-check and skip checkout if free.
+  const handleTechDrawAuthed = useCallback(async () => {
+    const access = await checkTechDrawDownload(jobId);
+    if (!access.can_download) return false;
+    const href = pendingHrefRef.current;
+    if (href) await triggerBrowserDownload(href);
+    return true;
+  }, [jobId, triggerBrowserDownload]);
+
   const downloadHandlers = useMemo(() => {
     if (!pageProps) return {};
     const wrap = (href) => () => requestDownload(href);
@@ -249,6 +258,7 @@ export default function TechDrawJobLibraryResults({
           user={user}
           onClose={closeDownloadFlow}
           onPay={handleTechDrawPayment}
+          onAuthed={handleTechDrawAuthed}
           onDownloadAgain={() => {
             const href = pendingHrefRef.current;
             if (href) triggerBrowserDownload(href);

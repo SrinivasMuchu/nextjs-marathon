@@ -103,6 +103,8 @@ function ConverterDownloadFlow({
   onClose,
   onPay,
   onDownloadAgain,
+  /** Optional: after login, return true when no payment is needed (flow closes). */
+  onAuthed,
 }) {
   const isPack = mode === "pack";
   const isProduct = Boolean(product) && !isPack;
@@ -191,8 +193,18 @@ function ConverterDownloadFlow({
       return (
         <UserLoginPupUp
           type="login"
-          onClose={() => {
+          onClose={async () => {
             if (isLoggedInClient()) {
+              if (onAuthed) {
+                try {
+                  if (await onAuthed()) {
+                    onClose();
+                    return;
+                  }
+                } catch {
+                  // fall through to checkout
+                }
+              }
               setAuthed(true);
               return;
             }
