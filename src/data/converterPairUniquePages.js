@@ -2355,6 +2355,46 @@ export const UNIQUE_PAIR_PAGES = {
 
 /** Sheet meta for pairs that do not have a full unique page. */
 export const CONVERTER_PAIR_META_OVERRIDES = {
+  '3mf-to-3dm': {
+    title: '3MF to 3DM Converter – 3MF to Rhino 3DM Mesh | Marathon OS',
+    description:
+      'Convert 3MF to a Rhino 7 3DM file with the model as one mesh, in millimetres. Opens in Rhino 7 and 8. Up to 300 MB, first 2 files free.',
+  },
+  '3mf-to-brep': {
+    title: '3MF to BREP Converter – 3MF to Open CASCADE BREP | Marathon OS',
+    description:
+      'Convert 3MF to Open CASCADE BREP for FreeCAD, CadQuery and gmsh, with flat areas merged into single faces, in millimetres. Up to 300 MB, first 2 files free.',
+  },
+  '3mf-to-iges': {
+    title: '3MF to IGES Converter – Convert 3MF to IGS Online | Marathon OS',
+    description:
+      'Convert 3MF to IGES (IGS) for CAM, Rhino and older CAD, with flat areas merged into single faces, in millimetres. Up to 300 MB, first 2 files free.',
+  },
+  '3mf-to-obj': {
+    title: '3MF to OBJ Converter – Convert 3MF to OBJ Online | Marathon OS',
+    description:
+      'Convert 3MF to OBJ for Blender, Unity, Unreal and web 3D. Every object in place, units converted to millimetres. Up to 300 MB, first 2 files free.',
+  },
+  '3mf-to-off': {
+    title: '3MF to OFF Converter – Convert 3MF to OFF Online | Marathon OS',
+    description:
+      'Convert 3MF to a plain-text OFF mesh in millimetres for CGAL, libigl, Open3D and MeshLab. Every object in place. Up to 300 MB, first 2 files free.',
+  },
+  '3mf-to-ply': {
+    title: '3MF to PLY Converter – Convert 3MF to PLY Online | Marathon OS',
+    description:
+      'Convert 3MF to a binary PLY mesh in millimetres for MeshLab, CloudCompare and Open3D. Every object in place, up to 300 MB, first 2 files free.',
+  },
+  '3mf-to-step': {
+    title: '3MF to STEP Converter – Convert 3MF to STEP & STP | Marathon OS',
+    description:
+      'Convert 3MF to STEP or STP for SolidWorks, Fusion and Onshape, with flat areas merged into single faces, in millimetres. Up to 300 MB, first 2 files free.',
+  },
+  '3mf-to-stl': {
+    title: '3MF to STL Converter – Convert 3MF to STL Online | Marathon OS',
+    description:
+      'Convert 3MF to STL for any slicer or print service. Every object in place, units converted to millimetres, up to 300 MB, first 2 files free.',
+  },
   'obj-to-stl': {
     title: 'OBJ to STL Converter Online – OBJ Files for 3D Printing | Marathon OS',
     description:

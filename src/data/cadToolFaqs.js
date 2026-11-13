@@ -4,6 +4,7 @@
  */
 
 import { getUniquePairPage } from '@/data/converterPairUniquePages'
+import { THREE_MF_PAIR_FAQS } from '@/data/threeMfPairFaqs'
 import { getUniqueViewerPage } from '@/data/viewerUniquePages'
 
 function parseConversionParams(conversionParams) {
@@ -1110,6 +1111,7 @@ export function getConverterFaqQuestions(conversionParams) {
   if (pairKey === 'iges-to-ply') return IGES_TO_PLY_FAQS;
   if (pairKey === 'iges-to-step') return IGES_TO_STEP_FAQS;
   if (pairKey === 'iges-to-stl') return IGES_TO_STL_FAQS;
+  if (THREE_MF_PAIR_FAQS[pairKey]) return THREE_MF_PAIR_FAQS[pairKey];
 
   const uniquePage = getUniquePairPage(conversionParams);
   if (uniquePage?.faqs?.length) return uniquePage.faqs;
