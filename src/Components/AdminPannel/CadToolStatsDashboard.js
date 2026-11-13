@@ -33,6 +33,14 @@ const STAT_TYPES = [
   { id: "stepbom", label: "STEP BOM" },
 ];
 
+const SUMMARY_STATS = [
+  { id: "conversion", label: "Conversions", statKey: "conversion" },
+  { id: "conversion_downloads", label: "Downloads", statKey: "conversion_downloads", downloadedOnly: true },
+  { id: "viewer", label: "Viewer", statKey: "viewer" },
+  { id: "techdraw", label: "TechDraw", statKey: "techdraw" },
+  { id: "stepbom", label: "STEP BOM", statKey: "stepbom" },
+];
+
 const RANGE_OPTIONS = [
   { id: "today", label: "Today" },
   { id: "yesterday", label: "Yesterday" },
@@ -91,6 +99,12 @@ function conversionBillingLabel(row) {
   return method ? `${base} · ${method}` : base;
 }
 
+function downloadStatusLabel(row) {
+  if (!row?.downloaded) return "No";
+  const count = Number(row.download_count) || 1;
+  return count > 1 ? `Yes · ${count}` : "Yes";
+}
+
 function CadToolStatsDashboard() {
   const [rangeFilter, setRangeFilter] = useState("today");
   const [stats, setStats] = useState(null);
@@ -137,6 +151,7 @@ function CadToolStatsDashboard() {
           range: rangeFilter,
           page: detailPage,
           limit: 20,
+          downloaded: Boolean(selected.downloadedOnly),
         });
         if (!cancelled) setDetail(data);
       } catch (error) {
@@ -165,9 +180,19 @@ function CadToolStatsDashboard() {
     return () => window.removeEventListener("keydown", onKey);
   }, [preview]);
 
-  const openDetail = (type, date) => {
+  const openDetail = (type, date, downloadedOnly = false) => {
     setDetailPage(1);
-    setSelected({ type, date: date || null });
+    setSelected({
+      type: downloadedOnly ? "conversion" : type,
+      date: date || null,
+      downloadedOnly: Boolean(downloadedOnly),
+    });
+  };
+
+  const summaryActive = (item) => {
+    if (!selected || selected.date) return false;
+    if (item.downloadedOnly) return selected.type === "conversion" && selected.downloadedOnly;
+    return selected.type === item.id && !selected.downloadedOnly;
   };
 
   const downloadInputFile = async (row) => {
@@ -194,13 +219,21 @@ function CadToolStatsDashboard() {
     }
   };
 
-  const selectedLabel = STAT_TYPES.find((item) => item.id === selected?.type)?.label || "";
+  const selectedLabel = selected?.downloadedOnly
+    ? "Downloads"
+    : STAT_TYPES.find((item) => item.id === selected?.type)?.label || "";
   const rangeLabel = RANGE_OPTIONS.find((item) => item.id === rangeFilter)?.label || "Today";
-  const totals = stats?.totals || { conversion: 0, viewer: 0, techdraw: 0, stepbom: 0 };
+  const totals = stats?.totals || {
+    conversion: 0,
+    conversion_downloads: 0,
+    viewer: 0,
+    techdraw: 0,
+    stepbom: 0,
+  };
   const isConversion = selected?.type === "conversion";
   const isViewer = selected?.type === "viewer";
   const showEye = isConversion || isViewer;
-  const detailColSpan = 5 + (isConversion ? 5 : 0) + (showEye ? 1 : 0);
+  const detailColSpan = 5 + (isConversion ? 6 : 0) + (showEye ? 1 : 0);
 
   return (
     <div className={styles.page}>
@@ -231,15 +264,15 @@ function CadToolStatsDashboard() {
       ) : (
         <>
           <div className={styles.cards}>
-            {STAT_TYPES.map((item) => (
+            {SUMMARY_STATS.map((item) => (
               <button
                 key={item.id}
                 type="button"
-                className={`${styles.card} ${selected?.type === item.id && !selected?.date ? styles.cardActive : ""}`}
-                onClick={() => openDetail(item.id, null)}
+                className={`${styles.card} ${summaryActive(item) ? styles.cardActive : ""}`}
+                onClick={() => openDetail(item.statKey, null, Boolean(item.downloadedOnly))}
               >
                 <span className={styles.cardLabel}>{item.label}</span>
-                <span className={styles.cardValue}>{totals[item.id] || 0}</span>
+                <span className={styles.cardValue}>{totals[item.statKey] || 0}</span>
               </button>
             ))}
           </div>
@@ -249,7 +282,7 @@ function CadToolStatsDashboard() {
               <thead>
                 <tr>
                   <th>Date</th>
-                  {STAT_TYPES.map((item) => (
+                  {SUMMARY_STATS.map((item) => (
                     <th key={item.id}>{item.label}</th>
                   ))}
                 </tr>
@@ -257,7 +290,7 @@ function CadToolStatsDashboard() {
               <tbody>
                 {(stats?.days || []).length === 0 ? (
                   <tr>
-                    <td colSpan={5} className={styles.empty}>
+                    <td colSpan={SUMMARY_STATS.length + 1} className={styles.empty}>
                       No activity in this range.
                     </td>
                   </tr>
@@ -265,11 +298,11 @@ function CadToolStatsDashboard() {
                   (stats?.days || []).map((row) => (
                     <tr key={row.date}>
                       <td>{row.date}</td>
-                      {STAT_TYPES.map((item) => (
+                      {SUMMARY_STATS.map((item) => (
                         <td key={item.id}>
                           <CountButton
-                            value={row[item.id]}
-                            onClick={() => openDetail(item.id, row.date)}
+                            value={row[item.statKey]}
+                            onClick={() => openDetail(item.statKey, row.date, Boolean(item.downloadedOnly))}
                           />
                         </td>
                       ))}
@@ -314,6 +347,7 @@ function CadToolStatsDashboard() {
                           <th>Quality checks</th>
                           <th>Input size</th>
                           <th>Billing</th>
+                          <th>Downloaded</th>
                         </>
                       ) : null}
                       {showEye ? <th>View</th> : null}
@@ -368,6 +402,16 @@ function CadToolStatsDashboard() {
                                 </td>
                                 <td>{sizeLabel || "—"}</td>
                                 <td>{conversionBillingLabel(row)}</td>
+                                <td>
+                                  <span
+                                    className={row.downloaded ? styles.downloadedYes : styles.downloadedNo}
+                                    title={row.downloaded && row.downloaded_at
+                                      ? `First saved ${new Date(row.downloaded_at).toLocaleString()}`
+                                      : undefined}
+                                  >
+                                    {downloadStatusLabel(row)}
+                                  </span>
+                                </td>
                               </>
                             ) : null}
                             {showEye ? (
