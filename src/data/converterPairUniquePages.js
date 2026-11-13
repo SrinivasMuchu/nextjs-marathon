@@ -2355,6 +2355,41 @@ export const UNIQUE_PAIR_PAGES = {
 
 /** Sheet meta for pairs that do not have a full unique page. */
 export const CONVERTER_PAIR_META_OVERRIDES = {
+  'stl-to-ply': {
+    title: 'Convert STL to PLY Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STL to a binary PLY mesh for MeshLab, CloudCompare and Open3D. The same triangles, no repair. Up to 300 MB, first 2 files free.',
+  },
+  'stl-to-off': {
+    title: 'Convert STL to OFF Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STL to a plain-text OFF mesh for CGAL, libigl, Open3D and MeshLab. The same triangles. Up to 300 MB, first 2 files free.',
+  },
+  'stl-to-obj': {
+    title: 'Convert STL to OBJ Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STL to OBJ for Blender, Unity, Unreal and web 3D. The same triangles, with no repair or reduction. Up to 300 MB, first 2 files free.',
+  },
+  'stl-to-iges': {
+    title: 'Convert STL to IGES Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STL meshes to IGES (IGS) for CAM, Rhino and older CAD, with flat areas merged into single faces, in millimetres. Up to 300 MB, first 2 files free.',
+  },
+  'stl-to-brep': {
+    title: 'Convert STL to BREP Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STL meshes to Open CASCADE BREP for FreeCAD, CadQuery and gmsh, with flat areas merged into single faces. Up to 300 MB, first 2 files free.',
+  },
+  'stl-to-3mf': {
+    title: 'Convert STL to 3MF Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STL to 3MF for Bambu Studio, PrusaSlicer, OrcaSlicer and Cura. One object, units in millimetres, same triangles. Up to 300 MB, first 2 files free.',
+  },
+  'stl-to-3dm': {
+    title: 'Convert STL to 3DM Online – First 2 Free | Marathon OS',
+    description:
+      'Convert STL to a Rhino 7 3DM file with the mesh as one object, in millimetres. Opens in Rhino 7 and 8. Up to 300 MB, first 2 files free.',
+  },
   'obj-to-stl': {
     title: 'OBJ to STL Converter Online – OBJ Files for 3D Printing | Marathon OS',
     description:

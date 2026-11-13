@@ -35,6 +35,13 @@ import ConvertPairAftercare from './ConvertPairAftercare'
 import ConverterFaq from './ConverterFaq'
 import StepTo3dmHero from './StepTo3dmHero'
 import StlToStepHero from './StlToStepHero'
+import StlTo3dmHero from './StlTo3dmHero'
+import StlTo3mfHero from './StlTo3mfHero'
+import StlToBrepHero from './StlToBrepHero'
+import StlToIgesHero from './StlToIgesHero'
+import StlToObjHero from './StlToObjHero'
+import StlToOffHero from './StlToOffHero'
+import StlToPlyHero from './StlToPlyHero'
 import StepTo3mfHero from './StepTo3mfHero'
 import StepToBrepHero from './StepToBrepHero'
 import StepToIgesHero from './StepToIgesHero'
@@ -283,6 +290,13 @@ function ConvertPairPage({ conversionParams }) {
   const isStepToOff = conversionParams === 'step-to-off'
   const isStepToPly = conversionParams === 'step-to-ply'
   const isStlToStep = conversionParams === 'stl-to-step'
+  const isStlTo3dm = conversionParams === 'stl-to-3dm'
+  const isStlTo3mf = conversionParams === 'stl-to-3mf'
+  const isStlToBrep = conversionParams === 'stl-to-brep'
+  const isStlToIges = conversionParams === 'stl-to-iges'
+  const isStlToObj = conversionParams === 'stl-to-obj'
+  const isStlToOff = conversionParams === 'stl-to-off'
+  const isStlToPly = conversionParams === 'stl-to-ply'
   const isIgesTo3dm = conversionParams === 'iges-to-3dm'
   const isIgesTo3mf = conversionParams === 'iges-to-3mf'
   const isIgesToBrep = conversionParams === 'iges-to-brep'
@@ -291,7 +305,7 @@ function ConvertPairPage({ conversionParams }) {
   const isIgesToPly = conversionParams === 'iges-to-ply'
   const isIgesToStep = conversionParams === 'iges-to-step'
   const isIgesToStl = conversionParams === 'iges-to-stl'
-  const isCustomStepHero = isStepTo3dm || isStepTo3mf || isStepToBrep || isStepToIges || isStepToOff || isStepToPly || isStepToStl || isStlToStep || isIgesTo3dm || isIgesTo3mf || isIgesToBrep || isIgesToObj || isIgesToOff || isIgesToPly || isIgesToStep || isIgesToStl
+  const isCustomStepHero = isStepTo3dm || isStepTo3mf || isStepToBrep || isStepToIges || isStepToOff || isStepToPly || isStepToStl || isStlToStep || isStlTo3dm || isStlTo3mf || isStlToBrep || isStlToIges || isStlToObj || isStlToOff || isStlToPly || isIgesTo3dm || isIgesTo3mf || isIgesToBrep || isIgesToObj || isIgesToOff || isIgesToPly || isIgesToStep || isIgesToStl
   const isModernPair = isStepToStl || conversionParams === 'stl-to-step'
   const breadcrumbLinks = isModernPair
     ? [
@@ -396,6 +410,13 @@ function ConvertPairPage({ conversionParams }) {
       {isStepToPly ? <StepToPlyHero /> : null}
       {isStepToStl ? <StepToStlHero /> : null}
       {isStlToStep ? <StlToStepHero /> : null}
+      {isStlTo3dm ? <StlTo3dmHero /> : null}
+      {isStlTo3mf ? <StlTo3mfHero /> : null}
+      {isStlToBrep ? <StlToBrepHero /> : null}
+      {isStlToIges ? <StlToIgesHero /> : null}
+      {isStlToObj ? <StlToObjHero /> : null}
+      {isStlToOff ? <StlToOffHero /> : null}
+      {isStlToPly ? <StlToPlyHero /> : null}
       {isIgesTo3dm ? <IgesTo3dmHero /> : null}
       {isIgesTo3mf ? <IgesTo3mfHero /> : null}
       {isIgesToBrep ? <IgesToBrepHero /> : null}
