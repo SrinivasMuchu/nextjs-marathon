@@ -207,8 +207,8 @@ export default function ThreeMfToPlyHero() {
             <p>3MF stores meshes plus units, objects and colours. PLY stores vertices and faces.</p>
           </div>
           <div className={styles.keepLose}>
-            <article className={styles.keep}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg></span>What the PLY keeps</h3><ul><li>Every triangle of every object</li><li>Each object's position</li><li>The size, converted to millimetres</li></ul></article>
-            <article className={styles.lose}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg></span>What it leaves behind</h3><ul><li>Separate objects: they're merged into one mesh</li><li>Object names, colours and painted regions</li><li>The unit label (PLY has no unit field)</li></ul></article>
+            <article className={styles.keep}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg></span>What the PLY keeps</h3><ul><li>Every triangle of every object</li><li>Each object&apos;s position</li><li>The size, converted to millimetres</li></ul></article>
+            <article className={styles.lose}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg></span>What it leaves behind</h3><ul><li>Separate objects: they&apos;re merged into one mesh</li><li>Object names, colours and painted regions</li><li>The unit label (PLY has no unit field)</li></ul></article>
           </div>
           
         </div>
@@ -219,14 +219,14 @@ export default function ThreeMfToPlyHero() {
           <div className={home.sh}>
             <p className={home.eyebrow}>What we read from your 3MF</p>
             <h2 className={home.platformTitle} id="rs-title">Every object, in one mesh</h2>
-            <p>3MF holds more than geometry. Here's what comes across and what stays behind.</p>
+            <p>3MF holds more than geometry. Here&apos;s what comes across and what stays behind.</p>
           </div>
           <div className={styles.choose}>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3MF</span><b>Every object, in place</b></span><p>Every object in the build comes across in its position, merged into one mesh.</p></div>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3MF</span><b>Units converted</b></span><p>3MF stores its unit. We convert it to millimetres, so an inch 3MF comes out at the right size.</p></div>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>PLY</span><b>Geometry only</b></span><p>Object names, colours, painted regions, print settings and plates stay in the 3MF.</p></div>
           </div>
-          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>We don't repair, smooth or reduce the mesh. Slicer projects can hold modifier meshes and support blockers; we read every mesh, so those come through as geometry too.</span></p>
+          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>We don&apos;t repair, smooth or reduce the mesh. Slicer projects can hold modifier meshes and support blockers; we read every mesh, so those come through as geometry too.</span></p>
           <div className={styles.fixes}><div><b>Compare a print with the model</b><span>Scan the print, load both in CloudCompare, align them and compute cloud-to-mesh distances.</span></div><div><b>Need ASCII PLY?</b><span>Open the binary PLY in MeshLab and export it with Binary encoding turned off.</span></div><div><b>Need points, not a mesh?</b><span>Sample points on the mesh in CloudCompare or MeshLab.</span></div></div>
         </div>
       </section>

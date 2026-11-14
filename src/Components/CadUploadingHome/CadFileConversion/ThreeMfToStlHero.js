@@ -189,7 +189,7 @@ export default function ThreeMfToStlHero() {
             <p className={home.eyebrow}>How to convert 3MF to STL</p>
             <h2 className={home.platformTitle} id="how-title">3MF to STL in <span className={home.grad}>four steps</span></h2>
           </div>
-          <div className={styles.answer}><p><b>To convert 3MF to STL,</b> sign in, upload the .3mf above and download the .stl. Every object in the build comes across in its place, merged into one binary STL, and the unit stored in the 3MF is converted to millimetres. Colours, object names and print settings stay in the 3MF, because STL can't hold them.</p></div>
+          <div className={styles.answer}><p><b>To convert 3MF to STL,</b> sign in, upload the .3mf above and download the .stl. Every object in the build comes across in its place, merged into one binary STL, and the unit stored in the 3MF is converted to millimetres. Colours, object names and print settings stay in the 3MF, because STL can&apos;t hold them.</p></div>
           <ol className={styles.steps}>
             <li><span className={styles.stepIcon} aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16" /></svg></span><h3>Upload</h3><p>Sign in, then drop a .3mf file up to 300 MB onto the converter.</p></li>
             <li><span className={styles.stepIcon} aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="19" r="3" /><circle cx="18" cy="5" r="3" /><path d="M9 19h8.5a3.5 3.5 0 000-7h-11a3.5 3.5 0 010-7H15" /></svg></span><h3>Convert</h3><p>Every object is read in its place, converted to millimetres and written as one STL.</p></li>
@@ -207,8 +207,8 @@ export default function ThreeMfToStlHero() {
             <p>3MF stores meshes plus units, objects, colours and settings. STL stores triangles.</p>
           </div>
           <div className={styles.keepLose}>
-            <article className={styles.keep}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg></span>What the STL keeps</h3><ul><li>Every triangle of every object</li><li>Each object's position</li><li>The size, converted to millimetres</li></ul></article>
-            <article className={styles.lose}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg></span>What it leaves behind</h3><ul><li>Separate objects: they're merged into one STL</li><li>Object names, colours and painted regions</li><li>Print settings, plates and the unit label (STL has no unit field)</li></ul></article>
+            <article className={styles.keep}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg></span>What the STL keeps</h3><ul><li>Every triangle of every object</li><li>Each object&apos;s position</li><li>The size, converted to millimetres</li></ul></article>
+            <article className={styles.lose}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg></span>What it leaves behind</h3><ul><li>Separate objects: they&apos;re merged into one STL</li><li>Object names, colours and painted regions</li><li>Print settings, plates and the unit label (STL has no unit field)</li></ul></article>
           </div>
           <p className={styles.honest}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>Need to edit the part in CAD? <Link href="/tools/convert-3mf-to-step">3MF to STEP</Link> rebuilds flat areas as single faces. STL keeps the triangles as they are.</span></p>
         </div>
@@ -219,14 +219,14 @@ export default function ThreeMfToStlHero() {
           <div className={home.sh}>
             <p className={home.eyebrow}>What we read from your 3MF</p>
             <h2 className={home.platformTitle} id="rs-title">Every object, in one STL</h2>
-            <p>3MF holds more than geometry. Here's what comes across and what stays behind.</p>
+            <p>3MF holds more than geometry. Here&apos;s what comes across and what stays behind.</p>
           </div>
           <div className={styles.choose}>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3MF</span><b>Every object, in place</b></span><p>Every object in the build comes across in its position, merged into one STL.</p></div>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3MF</span><b>Units converted</b></span><p>3MF stores its unit. We convert it to millimetres, so an inch 3MF comes out at the right size.</p></div>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>STL</span><b>Geometry only</b></span><p>Object names, colours, painted regions, print settings and plates stay in the 3MF.</p></div>
           </div>
-          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>We don't repair, smooth or reduce the mesh. Slicer projects can hold modifier meshes and support blockers; we read every mesh, so those come through as geometry too.</span></p>
+          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>We don&apos;t repair, smooth or reduce the mesh. Slicer projects can hold modifier meshes and support blockers; we read every mesh, so those come through as geometry too.</span></p>
           <div className={styles.fixes}><div><b>Need separate STLs?</b><span>Bambu Studio, PrusaSlicer and OrcaSlicer can split the STL into parts, or export one STL per object from the 3MF.</span></div><div><b>Need colours?</b><span>Keep the 3MF for colour prints. STL has no standard colour data.</span></div><div><b>Need to edit it?</b><span><Link href="/tools/convert-3mf-to-step">3MF to STEP</Link> rebuilds flat areas as single faces for CAD.</span></div></div>
         </div>
       </section>

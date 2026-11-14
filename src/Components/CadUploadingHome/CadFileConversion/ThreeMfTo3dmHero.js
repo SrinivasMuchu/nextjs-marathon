@@ -204,11 +204,11 @@ export default function ThreeMfTo3dmHero() {
           <div className={home.sh}>
             <p className={home.eyebrow}>3MF vs 3DM</p>
             <h2 className={home.platformTitle} id="wc-title">What changes when 3MF becomes 3DM</h2>
-            <p>3MF stores meshes plus units, objects and colours. Our 3DM stores the mesh in Rhino's own format.</p>
+            <p>3MF stores meshes plus units, objects and colours. Our 3DM stores the mesh in Rhino&apos;s own format.</p>
           </div>
           <div className={styles.keepLose}>
-            <article className={styles.keep}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg></span>What the 3DM keeps</h3><ul><li>Every triangle of every object</li><li>Each object's position</li><li>Units: millimetres, stored in the file</li><li>One mesh you can view, render or use in Grasshopper</li></ul></article>
-            <article className={styles.lose}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg></span>What it leaves behind</h3><ul><li>Separate objects: they're merged into one mesh</li><li>Object names, colours and materials</li><li>NURBS surfaces: a 3MF never had them</li></ul></article>
+            <article className={styles.keep}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg></span>What the 3DM keeps</h3><ul><li>Every triangle of every object</li><li>Each object&apos;s position</li><li>Units: millimetres, stored in the file</li><li>One mesh you can view, render or use in Grasshopper</li></ul></article>
+            <article className={styles.lose}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg></span>What it leaves behind</h3><ul><li>Separate objects: they&apos;re merged into one mesh</li><li>Object names, colours and materials</li><li>NURBS surfaces: a 3MF never had them</li></ul></article>
           </div>
           <p className={styles.honest}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>Need faces you can edit in Rhino? <Link href="/tools/convert-3mf-to-step">3MF to STEP</Link> rebuilds flat areas as single faces, which Rhino opens as polysurfaces.</span></p>
         </div>
@@ -219,15 +219,15 @@ export default function ThreeMfTo3dmHero() {
           <div className={home.sh}>
             <p className={home.eyebrow}>Read this first</p>
             <h2 className={home.platformTitle} id="rs-title">A Rhino mesh, not NURBS</h2>
-            <p>Our 3DM keeps the 3MF's triangles. Here's when that's what you want.</p>
+            <p>Our 3DM keeps the 3MF&apos;s triangles. Here&apos;s when that&apos;s what you want.</p>
           </div>
           <div className={styles.choose}>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3DM</span><b>What our 3DM is</b></span><p>A Rhino 7 file with every object of your 3MF as one mesh object, in millimetres. Good for viewing, rendering, Grasshopper mesh tools and sending a mesh to a Rhino user.</p></div>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3MF</span><b>Units converted</b></span><p>3MF stores its unit. We convert it to millimetres, so the model opens at the right size.</p></div>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3DM</span><b>No Rhino?</b></span><p>The free <Link href="/tools/3dm-file-viewer">3DM viewer</Link> opens the converted file in your browser.</p></div>
           </div>
-          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>We don't repair, smooth or reduce the mesh. Object names, colours and print settings stay in the 3MF.</span></p>
-          <div className={styles.fixes}><div><b>For viewing and renders</b><span>The mesh displays and renders in Rhino as it is; curved areas show their facets up close.</span></div><div><b>For Grasshopper</b><span>Mesh components work on the file directly; there's no NURBS to rebuild.</span></div><div><b>For editing</b><span>Mesh tools can move, cut and join it. MeshToNURB turns each triangle into a flat surface, which isn't a smooth NURBS model.</span></div></div>
+          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>We don&apos;t repair, smooth or reduce the mesh. Object names, colours and print settings stay in the 3MF.</span></p>
+          <div className={styles.fixes}><div><b>For viewing and renders</b><span>The mesh displays and renders in Rhino as it is; curved areas show their facets up close.</span></div><div><b>For Grasshopper</b><span>Mesh components work on the file directly; there&apos;s no NURBS to rebuild.</span></div><div><b>For editing</b><span>Mesh tools can move, cut and join it. MeshToNURB turns each triangle into a flat surface, which isn&apos;t a smooth NURBS model.</span></div></div>
         </div>
       </section>
 
@@ -267,7 +267,7 @@ export default function ThreeMfTo3dmHero() {
             <div><b>Grasshopper</b><span className={styles.yes}>Mesh tools</span></div>
             <div><b>rhino3dm (Python)</b><span className={styles.yes}>Reads it</span></div>
             <div><b>rhino3dm.js (web)</b><span className={styles.yes}>Reads it</span></div>
-            <div><b>Rhino 6 and earlier</b><span className={styles.no}>Can't open v7 files</span></div>
+            <div><b>Rhino 6 and earlier</b><span className={styles.no}>Can&apos;t open v7 files</span></div>
           </div>
           <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>The file stores millimetres as its model units. If your Rhino template uses another unit, Rhino asks how to handle the difference when you import it.</span></p>
         </div>
@@ -279,7 +279,7 @@ export default function ThreeMfTo3dmHero() {
             <div><p className={home.eyebrow}>Related conversions</p><h2 className={home.platformTitle} id="rel-title">More 3MF and 3DM tools</h2></div>
             <Link className={styles.more} href="/tools/3d-cad-file-converter">All 74 conversion routes <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></Link>
           </div>
-          <p className={styles.reverseNote}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 7h13l-4-4M17 17H4l4 4" /></svg><span>Going the other way? You can also <Link href="/tools/convert-3dm-to-3mf">turn 3DM files into 3MF</Link>. The 3DM's meshes are written as one 3MF object.</span></p>
+          <p className={styles.reverseNote}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 7h13l-4-4M17 17H4l4 4" /></svg><span>Going the other way? You can also <Link href="/tools/convert-3dm-to-3mf">turn 3DM files into 3MF</Link>. The 3DM&apos;s meshes are written as one 3MF object.</span></p>
           <div className={styles.hub}>
             <div className={styles.hubCard}>
               <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9z" /><path d="M4 7.5 12 12l8-4.5M12 12v9" /></svg>Convert 3MF to…</h3>

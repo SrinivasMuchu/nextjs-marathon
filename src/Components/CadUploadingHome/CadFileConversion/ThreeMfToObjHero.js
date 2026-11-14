@@ -194,7 +194,7 @@ export default function ThreeMfToObjHero() {
             <li><span className={styles.stepIcon} aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16" /></svg></span><h3>Upload</h3><p>Sign in, then drop a .3mf file up to 300 MB onto the converter.</p></li>
             <li><span className={styles.stepIcon} aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="19" r="3" /><circle cx="18" cy="5" r="3" /><path d="M9 19h8.5a3.5 3.5 0 000-7h-11a3.5 3.5 0 010-7H15" /></svg></span><h3>Convert</h3><p>Every object is read in its place, converted to millimetres and written as one OBJ mesh.</p></li>
             <li><span className={styles.stepIcon} aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4v12M7 11l5 5 5-5M4 20h16" /></svg></span><h3>Download</h3><p>We email you when the OBJ is ready. Download one .obj file.</p></li>
-            <li><span className={styles.stepIcon} aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 14l4-4" /><path d="M3.3 19a10 10 0 1117.4 0" /></svg></span><h3>Import</h3><p>Blender reads 1 unit as 1 metre, so set the importer's Scale to 0.001.</p></li>
+            <li><span className={styles.stepIcon} aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 14l4-4" /><path d="M3.3 19a10 10 0 1117.4 0" /></svg></span><h3>Import</h3><p>Blender reads 1 unit as 1 metre, so set the importer&apos;s Scale to 0.001.</p></li>
           </ol>
         </div>
       </section>
@@ -207,8 +207,8 @@ export default function ThreeMfToObjHero() {
             <p>3MF stores meshes plus units, objects and colours. OBJ stores polygons.</p>
           </div>
           <div className={styles.keepLose}>
-            <article className={styles.keep}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg></span>What the OBJ keeps</h3><ul><li>Every triangle of every object</li><li>Each object's position</li><li>The size, converted to millimetres</li></ul></article>
-            <article className={styles.lose}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg></span>What it leaves behind</h3><ul><li>Separate objects: they're merged into one mesh</li><li>Object names, colours and materials (no .mtl file is written)</li><li>The unit label (OBJ has no unit field)</li></ul></article>
+            <article className={styles.keep}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg></span>What the OBJ keeps</h3><ul><li>Every triangle of every object</li><li>Each object&apos;s position</li><li>The size, converted to millimetres</li></ul></article>
+            <article className={styles.lose}><h3><span className={styles.mark} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg></span>What it leaves behind</h3><ul><li>Separate objects: they&apos;re merged into one mesh</li><li>Object names, colours and materials (no .mtl file is written)</li><li>The unit label (OBJ has no unit field)</li></ul></article>
           </div>
           <p className={styles.honest}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>Need separate pieces? In Blender, Separate › By Loose Parts splits the mesh back into bodies.</span></p>
         </div>
@@ -219,15 +219,15 @@ export default function ThreeMfToObjHero() {
           <div className={home.sh}>
             <p className={home.eyebrow}>What we read from your 3MF</p>
             <h2 className={home.platformTitle} id="rs-title">Every object, in one mesh</h2>
-            <p>3MF holds more than geometry. Here's what comes across and what stays behind.</p>
+            <p>3MF holds more than geometry. Here&apos;s what comes across and what stays behind.</p>
           </div>
           <div className={styles.choose}>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3MF</span><b>Every object, in place</b></span><p>Every object in the build comes across in its position, merged into one mesh.</p></div>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3MF</span><b>Units converted</b></span><p>3MF stores its unit. We convert it to millimetres, so an inch 3MF comes out at the right size.</p></div>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>OBJ</span><b>Geometry only</b></span><p>Object names, colours, painted regions, print settings and plates stay in the 3MF.</p></div>
           </div>
-          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>We don't repair, smooth or reduce the mesh. Slicer projects can hold modifier meshes and support blockers; we read every mesh, so those come through as geometry too.</span></p>
-          <div className={styles.fixes}><div><b>For renders</b><span>Shade Smooth in Blender softens the facets on screen without adding triangles.</span></div><div><b>For games and the web</b><span>Cut the triangle count after import, for example with Blender's Decimate modifier.</span></div><div><b>For materials</b><span>Assign materials and textures in your 3D tool after import.</span></div></div>
+          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>We don&apos;t repair, smooth or reduce the mesh. Slicer projects can hold modifier meshes and support blockers; we read every mesh, so those come through as geometry too.</span></p>
+          <div className={styles.fixes}><div><b>For renders</b><span>Shade Smooth in Blender softens the facets on screen without adding triangles.</span></div><div><b>For games and the web</b><span>Cut the triangle count after import, for example with Blender&apos;s Decimate modifier.</span></div><div><b>For materials</b><span>Assign materials and textures in your 3D tool after import.</span></div></div>
         </div>
       </section>
 
@@ -245,7 +245,7 @@ export default function ThreeMfToObjHero() {
               <tbody>
                 <tr><th scope="row">Geometry</th><td>Triangle meshes</td><td className={styles.hl}>Polygons (ours are triangles)</td><td>Triangles</td></tr>
                 <tr><th scope="row">Units</th><td>Stored</td><td className={styles.hl}>Not stored (ours is mm)</td><td>Not stored</td></tr>
-                <tr><th scope="row">Colours and materials</th><td>Yes</td><td className={styles.hl}>Separate .mtl file (we don't write one)</td><td>No standard colour data</td></tr>
+                <tr><th scope="row">Colours and materials</th><td>Yes</td><td className={styles.hl}>Separate .mtl file (we don&apos;t write one)</td><td>No standard colour data</td></tr>
                 <tr><th scope="row">Best for</th><td>Modern slicers</td><td className={styles.hl}>Rendering, games and web 3D</td><td>3D printing</td></tr>
               </tbody>
             </table>

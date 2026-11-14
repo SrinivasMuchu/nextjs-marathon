@@ -193,7 +193,7 @@ export default function ThreeMfToStepHero() {
             <p className={home.eyebrow}>How to convert 3MF to STEP</p>
             <h2 className={home.platformTitle} id="how-title">3MF to STEP in <span className={home.grad}>four steps</span></h2>
           </div>
-          <div className={styles.answer}><p><b>To convert 3MF to STEP,</b> sign in, upload the .3mf above and download the .step. We read the unit stored in the 3MF, rebuild the mesh with flat areas merged into single faces and fit cylinders and free-form surfaces where the mesh allows. Curved areas may stay faceted, and there's no feature tree. 3MF to STP is the same conversion.</p></div>
+          <div className={styles.answer}><p><b>To convert 3MF to STEP,</b> sign in, upload the .3mf above and download the .step. We read the unit stored in the 3MF, rebuild the mesh with flat areas merged into single faces and fit cylinders and free-form surfaces where the mesh allows. Curved areas may stay faceted, and there&apos;s no feature tree. 3MF to STP is the same conversion.</p></div>
           <ol className={styles.steps}>
             <li><span className={styles.stepIcon} aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16" /></svg></span><h3>Upload</h3><p>Sign in, then drop a .3mf file up to 300 MB onto the converter.</p></li>
             <li><span className={styles.stepIcon} aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="19" r="3" /><circle cx="18" cy="5" r="3" /><path d="M9 19h8.5a3.5 3.5 0 000-7h-11a3.5 3.5 0 010-7H15" /></svg></span><h3>Convert</h3><p>Flat areas are merged into single faces, and curved areas are fitted where the mesh allows.</p></li>
@@ -230,7 +230,7 @@ export default function ThreeMfToStepHero() {
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeCad}`}>STEP</span><b>Curved areas</b></span><p>Cylinders and free-form surfaces are fitted where the mesh is clean enough. Elsewhere, curved areas stay faceted.</p></div>
             <div><span className={styles.chooseTop}><span className={`${styles.badge} ${styles.badgeMesh}`}>3MF</span><b>Large meshes</b></span><p>Meshes over 1 million triangles skip the rebuild and come back as a faceted surface model, up to about 35,000 faces.</p></div>
           </div>
-          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>Every object in the 3MF is rebuilt in its place, in millimetres. There's no feature tree: you edit the geometry directly. After download, look at a hole: a fitted hole is one cylindrical face; a faceted one is many strips.</span></p>
+          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>Every object in the 3MF is rebuilt in its place, in millimetres. There&apos;s no feature tree: you edit the geometry directly. After download, look at a hole: a fitted hole is one cylindrical face; a faceted one is many strips.</span></p>
           
         </div>
       </section>
@@ -273,7 +273,7 @@ export default function ThreeMfToStepHero() {
             <div><b>FreeCAD</b><span className={styles.yes}>Imports STEP</span></div>
             <div><b>Rhino</b><span className={styles.yes}>Imports STEP</span></div>
           </div>
-          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>If the STEP opens as surfaces, use your CAD program's knit, sew or stitch command to make a solid, or repair the mesh and convert again.</span></p>
+          <p className={styles.unitNote}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.5" /></svg><span>If the STEP opens as surfaces, use your CAD program&apos;s knit, sew or stitch command to make a solid, or repair the mesh and convert again.</span></p>
         </div>
       </section>
 
