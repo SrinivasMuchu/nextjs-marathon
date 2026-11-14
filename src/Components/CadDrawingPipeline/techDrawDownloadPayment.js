@@ -1,6 +1,7 @@
 import {
   checkTechDrawDownload,
   createTechDrawOrder,
+  redeemTechDrawCredits,
   verifyTechDrawPayment,
   formatTechDrawPrice,
 } from "@/api/cadDrawingPipelineApi";
@@ -15,6 +16,50 @@ function trackTechDrawDownloadPaymentGa(event_name, params = {}) {
     payment_type: "techdraw_download",
     ...params,
   });
+}
+
+/** GA4 + Clarity for the "pay with converter credits" path (event names: techdraw_credits_*). */
+export function trackTechDrawCreditsEvent(action, params = {}) {
+  const event_name = `techdraw_credits_${action}`;
+  sendClarityEvent(event_name, { techdraw_funnel: `credits_${action}` });
+  trackTechDrawDownloadPaymentGa(event_name, {
+    payment_type: "techdraw_credits",
+    ...Object.fromEntries(
+      Object.entries(params).map(([key, value]) => [key, value == null ? "" : String(value)]),
+    ),
+  });
+}
+
+/**
+ * Spend converter credits to unlock a completed drawing.
+ * Resolves with the API result ({ ok, reason, credits, credits_used, credit_cost, message });
+ * `ok: false` is a normal outcome (e.g. insufficient_credits), not an exception.
+ */
+export async function unlockTechDrawWithCredits({ jobId, expectedCost }) {
+  try {
+    const result = await redeemTechDrawCredits(jobId, expectedCost);
+    if (result.ok) {
+      if (result.credits_used > 0) {
+        trackTechDrawCreditsEvent("used", {
+          job_id: jobId,
+          credits_used: result.credits_used,
+          credits_left: result.credits,
+        });
+      }
+    } else if (result.reason === "insufficient_credits") {
+      trackTechDrawCreditsEvent("insufficient", {
+        job_id: jobId,
+        credit_cost: result.credit_cost,
+        credits: result.credits,
+      });
+    } else {
+      trackTechDrawCreditsEvent("failed", { job_id: jobId, reason: result.reason });
+    }
+    return result;
+  } catch (err) {
+    trackTechDrawCreditsEvent("failed", { job_id: jobId, reason: "network" });
+    throw err;
+  }
 }
 
 /**
