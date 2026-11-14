@@ -30,9 +30,11 @@ export async function getAdminCadToolStatsDetail({
   date,
   page = 1,
   limit = 20,
+  downloaded = false,
 } = {}) {
   const params = { type, range, page, limit };
   if (date) params.date = date;
+  if (downloaded) params.downloaded = 1;
 
   const { data } = await axios.get(`${BASE_URL}/v1/admin-pannel/get-cad-tool-stats-detail`, {
     params,

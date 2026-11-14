@@ -16,7 +16,7 @@ import CadConvertorFiles from './CadConvertorFiles';
 import CadPublishedFiles from './CadPublishedFiles';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 import { toast } from 'react-toastify';
-import { checkConverterDownload, redeemConverterCredit } from '@/api/converterPaymentApi';
+import { checkConverterDownload, recordConverterDownload, redeemConverterCredit } from '@/api/converterPaymentApi';
 import { ensureConverterDownloadAccess, ensureConverterPackPurchase, trackConverterDashboardDownloadClick } from './converterPayment';
 import ConverterDownloadFlow from './ConverterDownloadFlow';
 import ConverterCreditPlansPopup from './ConverterCreditPlansPopup';
@@ -288,6 +288,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     window.URL.revokeObjectURL(downloadUrl);
 
     sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT });
+    recordConverterDownload(file?._id);
     setDownloading(prev => ({ ...prev, [index]: false }));
   };
 

@@ -38,6 +38,22 @@ export async function getConverterPricingInfo() {
   return unwrap(data);
 }
 
+/** Record that the owner saved the converted file. Never throws; the download already succeeded. */
+export async function recordConverterDownload(converterFileId) {
+  if (!converterFileId) return null;
+  try {
+    const { data } = await axios.post(
+      `${BASE_URL}${CONVERTER_API_BASE}/record-download`,
+      { converter_file_id: converterFileId },
+      { headers: userUuidHeader(), timeout: 15_000 },
+    );
+    return unwrap(data);
+  } catch (error) {
+    console.error("recordConverterDownload:", error);
+    return null;
+  }
+}
+
 export async function checkConverterDownload(converterFileId) {
   const { data } = await axios.post(
     `${BASE_URL}${CONVERTER_API_BASE}/check-download`,
