@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { BASE_URL, CAD_CONVERTER_EVENT, buildCadConverterOutputUrlCandidates, toCadOutputCdnUrl } from "@/config";
 import { contextState } from "../CommonJsx/ContextProvider";
 import { sendGAtagEvent } from "@/common.helper";
-import { checkConverterDownload, redeemConverterCredit } from "@/api/converterPaymentApi";
+import { checkConverterDownload, recordConverterDownload, redeemConverterCredit } from "@/api/converterPaymentApi";
 import { ensureConverterDownloadAccess, ensureConverterPackPurchase, trackConverterDashboardDownloadClick } from "../History/converterPayment";
 import ConverterCreditPlansPopup from "../History/ConverterCreditPlansPopup";
 import ConverterDownloadFlow from "../History/ConverterDownloadFlow";
@@ -88,6 +88,7 @@ async function downloadConvertedFile(file) {
     event_name: "converter_file_upload_download",
     event_category: CAD_CONVERTER_EVENT,
   });
+  recordConverterDownload(file?._id);
 }
 
 function DashboardWorkspace() {

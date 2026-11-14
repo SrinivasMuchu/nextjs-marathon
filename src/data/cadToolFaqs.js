@@ -1081,6 +1081,415 @@ const IGES_TO_STL_FAQS = [
   },
 ];
 
+const STL_TO_3DM_FAQS = [
+  {
+    question: 'How do I convert an STL file to 3DM?',
+    answer: 'Upload the .stl file to the converter at the top of this page and download a Rhino 7 .3dm with the mesh as one object, in millimetres. If you have Rhino, you can also import the STL there and save a .3dm. Marathon OS is the paid route: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Will the 3DM have NURBS surfaces?',
+    answer: 'No. An STL is triangles, and our 3DM keeps them as a mesh. For faces you can edit, convert STL to STEP and open the STEP in Rhino.',
+  },
+  {
+    question: 'Can Rhino open STL files directly?',
+    answer: 'Yes. Rhino imports .stl files as meshes. Convert here when someone asks for a .3dm file.',
+  },
+  {
+    question: 'Is the Marathon OS STL to 3DM converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Which Rhino versions open the file?',
+    answer: "It's a Rhino 7 file, so Rhino 7 and Rhino 8 open it. Rhino 6 and earlier can't open Rhino 7 files.",
+  },
+  {
+    question: 'What units does the 3DM use?',
+    answer: 'Millimetres, stored in the file. We read the STL as millimetres, because STL has no unit field. If your STL was modelled in inches, the part opens 25.4 times too small: scale it by 25.4 in Rhino.',
+  },
+  {
+    question: 'Does the converter change my mesh?',
+    answer: 'No. We write the same triangles to 3DM: nothing is repaired, smoothed, reduced or remeshed. If the STL has holes or flipped triangles, the 3DM has them too.',
+  },
+  {
+    question: 'Can I edit the mesh in Rhino?',
+    answer: "You can move, scale, cut and join it with Rhino's mesh tools. MeshToNURB turns each triangle into a flat surface, which isn't a smooth NURBS model.",
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 11 checks, including whether the source and the output are watertight, manifold edges, degenerate triangles and a bounding-box match with the STL.',
+  },
+  {
+    question: 'Which STL files can I upload?',
+    answer: 'Binary or ASCII .stl files up to 300 MB, from any CAD program, slicer, 3D scanner or model site.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an STL to 3DM conversion take?',
+    answer: 'It depends on the file. Large meshes take longer, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STL files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STL_TO_3MF_FAQS = [
+  {
+    question: 'How do I convert an STL file to 3MF?',
+    answer: "Upload the .stl file to the converter at the top of this page and download a 3MF with your mesh as one object, in millimetres. Most slicers can also open the STL and save a 3MF project themselves. Marathon OS is the paid route if you'd rather not: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS STL to 3MF converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Why convert STL to 3MF?',
+    answer: "3MF stores the unit, so slicers open the part at the right size without guessing, and it's the project format modern slicers use. If your slicer opens the STL fine and nobody asks for 3MF, you don't need to convert.",
+  },
+  {
+    question: 'Does the converter change my mesh?',
+    answer: 'No. We write the same triangles to 3MF: nothing is repaired, smoothed, reduced or remeshed. If the STL has holes or flipped triangles, the 3MF has them too.',
+  },
+  {
+    question: 'What units does the 3MF use?',
+    answer: 'Millimetres, stored in the file. We read the STL as millimetres, because STL has no unit field. If your STL was modelled in inches, the part opens 25.4 times too small: scale it by 25.4 in the slicer.',
+  },
+  {
+    question: 'Will separate parts become separate objects?',
+    answer: 'No. An STL is one list of triangles, so you get one object. Bambu Studio, PrusaSlicer and OrcaSlicer can split it into parts. For one object per part, convert from the original CAD file instead, for example STEP to 3MF.',
+  },
+  {
+    question: 'Will colours carry over?',
+    answer: 'No. STL has no standard colour data, so the 3MF object has no colour. Set colours and filaments in the slicer.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 11 checks, including whether the source and the output are watertight, manifold edges, degenerate triangles and a bounding-box match with the STL.',
+  },
+  {
+    question: 'Can I convert 3MF back to STL?',
+    answer: 'Yes. Our 3MF to STL conversion merges every object into one STL, scaled to millimetres.',
+  },
+  {
+    question: 'Which STL files can I upload?',
+    answer: 'Binary or ASCII .stl files up to 300 MB, from any CAD program, slicer, 3D scanner or model site.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an STL to 3MF conversion take?',
+    answer: 'It depends on the file. Large meshes take longer, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STL files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STL_TO_BREP_FAQS = [
+  {
+    question: 'How do I convert an STL file to BREP?',
+    answer: 'Upload the .stl file to the converter at the top of this page, choose the units the model was made in and download the BREP file. FreeCAD, which is free, can also turn a mesh into a shape and export BREP, but every triangle becomes a face there. Marathon OS is the paid route: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Is the Marathon OS STL to BREP converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'What is a BREP file?',
+    answer: "A .brep (or .brp) file is Open CASCADE's native format for a boundary representation: the surfaces, edges and vertices of a shape. FreeCAD, CadQuery, gmsh and other tools built on Open CASCADE read it.",
+  },
+  {
+    question: 'Which units should I choose?',
+    answer: 'The units the model was designed in. STL files do not store units, and models from Printables, Thingiverse, MakerWorld and most slicers are in millimetres. If the part opens about 25 times too small, convert again with inches.',
+  },
+  {
+    question: 'Why does the BREP open as surfaces instead of a solid?',
+    answer: "Two reasons: the STL isn't watertight, or the mesh went through the faceted fallback (every mesh over 1 million triangles, and any mesh the rebuild can't fit), which currently writes surfaces. Repair the mesh, or reduce it below 1 million triangles, and convert again.",
+  },
+  {
+    question: 'Why are the holes still faceted?',
+    answer: 'The rebuild couldn\'t fit a cylinder to that mesh. Holes with more segments in the STL fit better, and a CAD designer can rebuild them exactly.',
+  },
+  {
+    question: 'Do you repair the mesh first?',
+    answer: 'Meshes up to 800,000 triangles are cleaned before the rebuild: degenerate and duplicate triangles are removed, triangles are oriented consistently and small pinholes are closed. Large openings are left alone, because filling them would invent a wall. Bigger meshes go in as they are.',
+  },
+  {
+    question: 'Is this an AI STL to BREP converter?',
+    answer: "It doesn't use generative AI. The rebuild fits planes, cylinders and free-form surfaces to the mesh with geometry algorithms, so it never invents detail the STL doesn't have.",
+  },
+  {
+    question: 'Can I convert a 3D scan or a sculpted model?',
+    answer: 'Yes, but scans and organic shapes have few flat or round areas to fit, so they come back made of many small faces. Meshes over 1 million triangles skip the rebuild and come back as a faceted surface model, up to about 35,000 faces. For engineering use of a scan, having a designer rebuild the part usually gives a better result.',
+  },
+  {
+    question: 'Can SolidWorks or Fusion open a BREP file?',
+    answer: "Most commercial CAD programs don't import Open CASCADE .brep files. Convert STL to STEP for them instead; it uses the same rebuild.",
+  },
+  {
+    question: 'Can I mesh the BREP for FEA?',
+    answer: 'Yes. gmsh and Salome open .brep files directly.',
+  },
+  {
+    question: 'Is .brp the same as .brep?',
+    answer: 'Yes. Both extensions are used for the same Open CASCADE format.',
+  },
+  {
+    question: 'Which STL files can I upload?',
+    answer: 'Binary or ASCII .stl files up to 300 MB, from any CAD program, slicer, 3D scanner or model site.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an STL to BREP conversion take?',
+    answer: 'It depends on the mesh. Large or dense meshes can take 10 minutes or more, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STL files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STL_TO_IGES_FAQS = [
+  {
+    question: 'How do I convert an STL file to IGES?',
+    answer: 'Upload the .stl file to the converter at the top of this page, choose the units the model was made in and download the IGES file. FreeCAD, which is free, can also turn a mesh into a shape and export IGES, but every triangle becomes a face there. Marathon OS is the paid route: first 2 files free, then {{price}}1 credit per file.',
+  },
+  {
+    question: 'Is the Marathon OS STL to IGES converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'What is the difference between IGS and IGES?',
+    answer: 'None. .igs and .iges are two extensions for the same format, and IGES readers accept both.',
+  },
+  {
+    question: 'Which units should I choose?',
+    answer: 'The units the model was designed in. STL files do not store units, and models from Printables, Thingiverse, MakerWorld and most slicers are in millimetres. If the part opens about 25 times too small, convert again with inches.',
+  },
+  {
+    question: 'Will the IGES open as a solid?',
+    answer: "It can. When the rebuild gives a closed solid that passes our read-back check, it's written in IGES B-rep mode (type 186), which CAD programs open as a solid. If the STL isn't watertight, or the mesh went through the faceted fallback (every mesh over 1 million triangles, and any mesh the rebuild can't fit), you get trimmed surfaces to knit in your CAD program.",
+  },
+  {
+    question: 'Why are the holes still faceted?',
+    answer: "The rebuild couldn't fit a cylinder to that mesh. Holes with more segments in the STL fit better, and a CAD designer can rebuild them exactly.",
+  },
+  {
+    question: 'Do you repair the mesh first?',
+    answer: 'Meshes up to 800,000 triangles are cleaned before the rebuild: degenerate and duplicate triangles are removed, triangles are oriented consistently and small pinholes are closed. Large openings are left alone, because filling them would invent a wall. Bigger meshes go in as they are.',
+  },
+  {
+    question: 'Is this an AI STL to IGES converter?',
+    answer: "It doesn't use generative AI. The rebuild fits planes, cylinders and free-form surfaces to the mesh with geometry algorithms, so it never invents detail the STL doesn't have.",
+  },
+  {
+    question: 'Can I convert a 3D scan or a sculpted model?',
+    answer: 'Yes, but scans and organic shapes have few flat or round areas to fit, so they come back made of many small faces. Meshes over 1 million triangles skip the rebuild and come back as a faceted surface model, up to about 35,000 faces. For engineering use of a scan, having a designer rebuild the part usually gives a better result.',
+  },
+  {
+    question: 'Should I send a supplier STEP or IGES?',
+    answer: "STEP, if they accept it: it's the current standard, and STL to STEP uses the same rebuild. Send IGES when their CAM or CAD system asks for it.",
+  },
+  {
+    question: 'Which STL files can I upload?',
+    answer: 'Binary or ASCII .stl files up to 300 MB, from any CAD program, slicer, 3D scanner or model site.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an STL to IGES conversion take?',
+    answer: 'It depends on the mesh. Large or dense meshes can take 10 minutes or more, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STL files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STL_TO_OBJ_FAQS = [
+  {
+    question: 'How do I convert an STL file to OBJ?',
+    answer: "Upload the .stl file to the converter at the top of this page and download one OBJ mesh. Blender, which is free, also imports STL and exports OBJ. Marathon OS is the paid route if you'd rather not install anything: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS STL to OBJ converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Does the converter change my mesh?',
+    answer: 'No. We write the same triangles to OBJ: nothing is repaired, smoothed, reduced or remeshed. If the STL has holes or flipped triangles, the OBJ has them too.',
+  },
+  {
+    question: 'What units is the OBJ in?',
+    answer: 'The same numbers as your STL. Neither format stores units, so a millimetre STL gives a millimetre OBJ, and an inch STL gives an inch OBJ.',
+  },
+  {
+    question: 'Why is my OBJ 1000 times too big in Blender?',
+    answer: "OBJ files don't store units, and Blender reads 1 unit as 1 metre. A millimetre model comes in 1000 times too big. Set Scale to 0.001 in Blender's OBJ importer, or scale the object after import.",
+  },
+  {
+    question: 'Does the OBJ include materials or colours?',
+    answer: 'No. You get one .obj file with no .mtl material file. Assign materials in your 3D tool after import.',
+  },
+  {
+    question: 'Will separate bodies stay separate?',
+    answer: 'They come across in one mesh object, each in its place. In Blender, Separate › By Loose Parts splits them into pieces.',
+  },
+  {
+    question: 'Can I reduce the triangle count?',
+    answer: "Not here: this route keeps every triangle. Decimate after import, for example with Blender's Decimate modifier.",
+  },
+  {
+    question: 'Will the OBJ look smoother than the STL?',
+    answer: 'No. OBJ stores the same flat triangles, so curves look as faceted as they did in the STL. Shade Smooth in Blender softens them on screen.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 11 checks, including whether the source and the output are watertight, manifold edges, degenerate triangles and a bounding-box match with the STL.',
+  },
+  {
+    question: 'Can I convert OBJ back to STL?',
+    answer: 'Yes. Our OBJ to STL conversion splits polygons into triangles; nothing else changes.',
+  },
+  {
+    question: 'Which STL files can I upload?',
+    answer: 'Binary or ASCII .stl files up to 300 MB, from any CAD program, slicer, 3D scanner or model site.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an STL to OBJ conversion take?',
+    answer: 'It depends on the file. Large meshes take longer, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STL files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STL_TO_OFF_FAQS = [
+  {
+    question: 'What is an OFF file?',
+    answer: 'OFF (Object File Format) is a plain-text polygon mesh format that came from Geomview. It lists the vertex and face counts, then every vertex, then every face. Geometry libraries such as CGAL and libigl read it, and datasets such as ModelNet use it.',
+  },
+  {
+    question: 'How do I convert an STL file to OFF?',
+    answer: "Upload the .stl file to the converter at the top of this page and download one OFF mesh. MeshLab, which is free, also opens STL and exports OFF. Marathon OS is the paid route if you'd rather not install anything: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS STL to OFF converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Is the OFF file ASCII?',
+    answer: 'Yes. OFF is a plain-text format, so you can open it in a text editor or parse it with a few lines of code.',
+  },
+  {
+    question: 'Will it load with my dataset code?',
+    answer: 'It uses the standard layout: the OFF header on its own line, then the counts, vertices and triangles. Standard OFF readers, such as those in Open3D, trimesh, libigl and CGAL, read it.',
+  },
+  {
+    question: 'Does the converter change my mesh?',
+    answer: 'No. We write the same triangles to OFF: nothing is repaired, smoothed, reduced or remeshed. If the STL has holes or flipped triangles, the OFF has them too.',
+  },
+  {
+    question: 'What units is the OFF in?',
+    answer: 'The same numbers as your STL. Neither format stores units, so a millimetre STL gives a millimetre OFF, and an inch STL gives an inch OFF.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 11 checks, including whether the source and the output are watertight, manifold edges, degenerate triangles and a bounding-box match with the STL.',
+  },
+  {
+    question: 'Can I convert OFF back to STL?',
+    answer: 'Yes. Our OFF to STL conversion splits faces into triangles; nothing else changes.',
+  },
+  {
+    question: 'Which STL files can I upload?',
+    answer: 'Binary or ASCII .stl files up to 300 MB, from any CAD program, slicer, 3D scanner or model site.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an STL to OFF conversion take?',
+    answer: 'It depends on the file. Large meshes take longer, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STL files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
+const STL_TO_PLY_FAQS = [
+  {
+    question: 'How do I convert an STL file to PLY?',
+    answer: "Upload the .stl file to the converter at the top of this page and download one binary PLY. MeshLab, which is free, also opens STL and exports PLY. Marathon OS is the paid route if you'd rather not install anything: first 2 files free, then {{price}}1 credit per file.",
+  },
+  {
+    question: 'Is the Marathon OS STL to PLY converter free?',
+    answer: 'First 2 files free, any size up to 300 MB. After that, {{price}}1 credit per file. Credit packs bring it down to $1.80 per file. Prices include tax, you pay only when you click Download and credits never expire.',
+  },
+  {
+    question: 'Is the PLY binary or ASCII?',
+    answer: 'Binary, little-endian: the compact form MeshLab, CloudCompare and Open3D read. If you need ASCII, open it in MeshLab and export with Binary encoding turned off.',
+  },
+  {
+    question: 'Does the converter change my mesh?',
+    answer: 'No. We write the same triangles to PLY: nothing is repaired, smoothed, reduced or remeshed. If the STL has holes or flipped triangles, the PLY has them too.',
+  },
+  {
+    question: 'Does the PLY include colours?',
+    answer: 'No. The PLY has no colours.',
+  },
+  {
+    question: 'What units is the PLY in?',
+    answer: 'The same numbers as your STL. Neither format stores units, so a millimetre STL gives a millimetre PLY, and an inch STL gives an inch PLY.',
+  },
+  {
+    question: 'Can I compare a print or scan with the STL?',
+    answer: 'Yes. Load the PLY and your scan in CloudCompare, align them and run a cloud-to-mesh distance to see where they differ.',
+  },
+  {
+    question: 'Do I get a quality report?',
+    answer: 'Yes. Every conversion comes with a free quality report with 11 checks, including whether the source and the output are watertight, manifold edges, degenerate triangles and a bounding-box match with the STL.',
+  },
+  {
+    question: 'Can I convert PLY back to STL?',
+    answer: "Yes. Our PLY to STL conversion splits faces into triangles; PLY colours don't carry over to STL.",
+  },
+  {
+    question: 'Which STL files can I upload?',
+    answer: 'Binary or ASCII .stl files up to 300 MB, from any CAD program, slicer, 3D scanner or model site.',
+  },
+  {
+    question: 'Do I need an account?',
+    answer: 'To upload your own file, sign in with Google or an emailed code. The sample file works without signing in.',
+  },
+  {
+    question: 'How long does an STL to PLY conversion take?',
+    answer: 'It depends on the file. Large meshes take longer, and we email you when the file is ready.',
+  },
+  {
+    question: 'Are my STL files private?',
+    answer: "Uploads and downloads use HTTPS. Uploaded and converted files are deleted automatically after 7 days, and converted files aren't added to the public CAD library unless you publish them. You keep ownership of your design. See the Privacy Policy.",
+  },
+];
+
 /** Swap the single-file price token for the live converter price. */
 export function withConverterFaqPrice(faqs, priceLabel) {
   const paid = priceLabel ? `${priceLabel} or ` : '';
@@ -1103,6 +1512,13 @@ export function getConverterFaqQuestions(conversionParams) {
   if (pairKey === 'step-to-ply') return STEP_TO_PLY_FAQS;
   if (pairKey === 'step-to-stl') return STEP_TO_STL_FAQS;
   if (pairKey === 'stl-to-step') return STL_TO_STEP_FAQS;
+  if (pairKey === 'stl-to-3dm') return STL_TO_3DM_FAQS;
+  if (pairKey === 'stl-to-3mf') return STL_TO_3MF_FAQS;
+  if (pairKey === 'stl-to-brep') return STL_TO_BREP_FAQS;
+  if (pairKey === 'stl-to-iges') return STL_TO_IGES_FAQS;
+  if (pairKey === 'stl-to-obj') return STL_TO_OBJ_FAQS;
+  if (pairKey === 'stl-to-off') return STL_TO_OFF_FAQS;
+  if (pairKey === 'stl-to-ply') return STL_TO_PLY_FAQS;
   if (pairKey === 'iges-to-3dm') return IGES_TO_3DM_FAQS;
   if (pairKey === 'iges-to-3mf') return IGES_TO_3MF_FAQS;
   if (pairKey === 'iges-to-brep') return IGES_TO_BREP_FAQS;
