@@ -134,6 +134,14 @@ export const IMAGEURLS = {
   ogIgesToPly: `${ASSET_PREFIX_URL}og-images/iges-to-ply.webp`,
   ogIgesToStep: `${ASSET_PREFIX_URL}og-images/iges-to-step.webp`,
   ogIgesToStl: `${ASSET_PREFIX_URL}og-images/iges-to-stl.webp`,
+  og3mfTo3dm: `${ASSET_PREFIX_URL}og-images/3mf-to-3dm.webp`,
+  og3mfToBrep: `${ASSET_PREFIX_URL}og-images/3mf-to-brep.webp`,
+  og3mfToIges: `${ASSET_PREFIX_URL}og-images/3mf-to-iges.webp`,
+  og3mfToObj: `${ASSET_PREFIX_URL}og-images/3mf-to-obj.webp`,
+  og3mfToOff: `${ASSET_PREFIX_URL}og-images/3mf-to-off.webp`,
+  og3mfToPly: `${ASSET_PREFIX_URL}og-images/3mf-to-ply.webp`,
+  og3mfToStep: `${ASSET_PREFIX_URL}og-images/3mf-to-step.webp`,
+  og3mfToStl: `${ASSET_PREFIX_URL}og-images/3mf-to-stl.webp`,
 };
 
 
