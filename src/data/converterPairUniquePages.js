@@ -2394,6 +2394,7 @@ export const CONVERTER_PAIR_META_OVERRIDES = {
     title: '3MF to STL Converter – Convert 3MF to STL Online | Marathon OS',
     description:
       'Convert 3MF to STL for any slicer or print service. Every object in place, units converted to millimetres, up to 300 MB, first 2 files free.',
+  },
   'stl-to-ply': {
     title: 'Convert STL to PLY Online – First 2 Free | Marathon OS',
     description:
