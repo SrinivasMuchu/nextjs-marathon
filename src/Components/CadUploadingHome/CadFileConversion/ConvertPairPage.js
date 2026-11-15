@@ -26,7 +26,6 @@ import {
 } from 'lucide-react'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import ServerBreadCrumbs from '@/Components/CommonJsx/ServerBreadCrumbs'
-import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 import Footer from '@/Components/HomePages/Footer/Footer'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import CadFileConversionContent from './CadFileConversionContent'
@@ -68,7 +67,6 @@ import ToolsPageBanner from '@/Components/CadServicesBanners/ToolsPageBanner'
 import { getConverterFaqQuestions } from '@/data/cadToolFaqs'
 import { getConverterPairContent } from '@/data/converterPairContent'
 import { IMAGEURLS } from '@/config'
-import cadHomeStyles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import styles from './ConvertPairPage.module.css'
 
@@ -408,14 +406,6 @@ function ConvertPairPage({ conversionParams }) {
         <ServerBreadCrumbs links={breadcrumbLinks} />
       ) : (
         <ActiveLastBreadcrumb links={breadcrumbLinks} />
-      )}
-
-      {isModernPair || isCustomStepHero ? null : (
-        <div className={cadHomeStyles['cad-ad-bar']}>
-          <div className={cadHomeStyles['cad-ad-bar-inner']}>
-            <LeftRightBanner adSlot="3755241003" />
-          </div>
-        </div>
       )}
 
       {isStepTo3dm ? <StepTo3dmHero /> : null}
