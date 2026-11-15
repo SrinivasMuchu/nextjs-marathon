@@ -11,6 +11,7 @@ import { getConverterPricingForRender } from "@/lib/converterPricingServer";
 import AnnouncementBanner from "@/Components/HomePages/AnnouncementBanner/AnnouncementBanner";
 import { CadFormProvider } from "@/Components/CadServicePages/CadFormContext";
 import { ASSET_PREFIX_URL, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
+import AdSenseScript from "@/Components/CommonJsx/Adsense/AdSenseScript";
 
 
 
@@ -240,13 +241,6 @@ export default async function RootLayout({ children }) {
           }}
         /> */}
         <Script
-          id="google-adsense"
-          strategy="afterInteractive"
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${GOOGLE_ADSENSE_CLIENT_ID}`}
-          crossOrigin="anonymous"
-        />
-
-        <Script
           id="json-ld-organization"
           type="application/ld+json"
           strategy="beforeInteractive"
@@ -270,6 +264,7 @@ export default async function RootLayout({ children }) {
       <body className={`${inter.variable} ${roboto.variable}`}>
         <ToastProvider />
         <CreateLocalStorage />
+        <AdSenseScript />
         <ContextWrapper>
           <CadFormProvider>
             <div className="siteStickyHeader">

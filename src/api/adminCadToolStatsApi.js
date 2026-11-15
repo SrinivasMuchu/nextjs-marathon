@@ -31,10 +31,12 @@ export async function getAdminCadToolStatsDetail({
   page = 1,
   limit = 20,
   downloaded = false,
+  failed = false,
 } = {}) {
   const params = { type, range, page, limit };
   if (date) params.date = date;
   if (downloaded) params.downloaded = 1;
+  if (failed) params.failed = 1;
 
   const { data } = await axios.get(`${BASE_URL}/v1/admin-pannel/get-cad-tool-stats-detail`, {
     params,
@@ -50,5 +52,14 @@ export async function getAdminCadToolInputDownload({ type, fileId } = {}) {
     headers: adminHeaders(),
     timeout: 30_000,
   });
+  return unwrap(data);
+}
+
+export async function rerunAdminCadTool({ type, fileId } = {}) {
+  const { data } = await axios.post(
+    `${BASE_URL}/v1/admin-pannel/rerun-cad-tool`,
+    { type, file_id: fileId },
+    { headers: adminHeaders(), timeout: 30_000 },
+  );
   return unwrap(data);
 }

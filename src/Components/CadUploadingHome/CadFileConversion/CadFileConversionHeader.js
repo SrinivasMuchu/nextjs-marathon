@@ -1,9 +1,7 @@
 import React from 'react'
-import cadHomeStyles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import CadFileConversionContent from './CadFileConversionContent'
 import ConvertPageHeroHeading from './ConvertPageHeroHeading'
-import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 import { Zap, Shield, Clock, HardDrive, Box, MonitorOff } from 'lucide-react'
 import { CONVERTER_HUB_PAGE, getConverterHubBadges } from '@/data/converterHubPage'
 import { getConverterPricingForRender } from '@/lib/converterPricingServer'
@@ -13,11 +11,6 @@ async function CadFileConversionHeader({ convert, conversionParams }) {
   const badges = getConverterHubBadges(pricingInfo)
   return (
     <div className={`${heroStyles.heroPage} ${heroStyles.converterHeroPage}`}>
-      <div className={cadHomeStyles['cad-ad-bar']}>
-        <div className={cadHomeStyles['cad-ad-bar-inner']}>
-          <LeftRightBanner adSlot="3755241003" />
-        </div>
-      </div>
       <div className={heroStyles.converterHeroInner}>
         <div className={heroStyles.converterHeroCopy}>
           <div className={heroStyles.converterBadgeRow}>

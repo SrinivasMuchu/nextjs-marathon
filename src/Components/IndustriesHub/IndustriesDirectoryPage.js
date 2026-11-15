@@ -4,8 +4,6 @@ import Image from 'next/image';
 import { Building2 } from 'lucide-react';
 import Footer from '@/Components/HomePages/Footer/Footer';
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs';
-import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner';
-import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css';
 import { BASE_URL, MARATHON_ASSET_PREFIX_URL } from '@/config';
 import { textLettersLimit } from '@/common.helper';
 import styles from './IndustriesDirectoryPage.module.css';
@@ -86,11 +84,6 @@ export default async function IndustriesDirectoryPage() {
           { label: 'Industries', href: '/tools/industries' },
         ]}
       />
-      <div className={cadHomeStyles['cad-ad-bar']}>
-        <div className={cadHomeStyles['cad-ad-bar-inner']}>
-          <LeftRightBanner adSlot="3755241003" />
-        </div>
-      </div>
 
       <header className={styles.hero}>
         <div className={styles.heroInner}>

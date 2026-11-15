@@ -12,8 +12,6 @@ import {
 } from 'lucide-react';
 import Footer from '@/Components/HomePages/Footer/Footer';
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs';
-import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner';
-import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css';
 import heroStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadViewerHero.module.css';
 import styles from './ToolsHubPage.module.css';
 
@@ -197,11 +195,6 @@ export default function ToolsHubPage() {
     <div className={styles.page}>
       <ActiveLastBreadcrumb links={[{ label: 'tools', href: '/tools' }]} />
       <div className={heroStyles.heroPage}>
-        <div className={cadHomeStyles['cad-ad-bar']}>
-          <div className={cadHomeStyles['cad-ad-bar-inner']}>
-            <LeftRightBanner adSlot="3755241003" />
-          </div>
-        </div>
         <header className={styles.hero}>
           <div className={styles.heroInner}>
             <p className={styles.badge}>Free Online CAD Tools</p>

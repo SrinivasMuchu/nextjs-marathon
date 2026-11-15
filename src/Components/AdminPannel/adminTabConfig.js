@@ -3,6 +3,7 @@ export const ADMIN_TABS = [
   'user-track',
   'designs',
   'payments',
+  'credits',
   'controls',
   'viewed-list',
   'downloaded-list',
