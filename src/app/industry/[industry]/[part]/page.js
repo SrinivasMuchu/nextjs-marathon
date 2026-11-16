@@ -39,11 +39,11 @@ async function IndustryPart({ params }) {
     const [industryResponse, partResponse] = await Promise.all([
       fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
         method: 'GET',
-        cache: 'no-store',
+        next: { revalidate: 3600 },
       }),
       fetch(`${BASE_URL}/v1/cad/get-industry-part-data?route=${part}`, {
         method: 'GET',
-        cache: 'no-store',
+        next: { revalidate: 3600 },
       }),
     ]);
 
