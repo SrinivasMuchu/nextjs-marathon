@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/design-meta-data?route=${design}`, {
       method: 'GET',
-      cache: 'no-store',
+      next: { revalidate: 3600 },
     });
 
     if (!response.ok) {
@@ -55,7 +55,7 @@ export default async function PartDesigns({ params }) {
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-part-design?design_route=${design}`, {
       method: 'GET',
-      cache: 'no-store',
+      next: { revalidate: 3600 },
     });
 
     if (!response.ok) {
