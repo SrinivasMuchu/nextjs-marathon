@@ -19,7 +19,7 @@ export const cadDesignBriefGuideArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'A strong CAD design brief states the product or drawing scope, key dimensions, function, interfaces, target manufacturing or printing process, required file formats, deadline, and acceptance criteria. The more specific you are, the fewer revision cycles you pay for.',
+        'A strong CAD design brief states the product or drawing scope, key dimensions, function, interfaces, target manufacturing or printing process, required file formats, deadline, and acceptance criteria. The more specific you are, the fewer revision cycles you pay for. Hand that brief to [Marathon OS CAD services](/cad-services). It is step one of [how to hire a CAD designer online](/resources/hire-a-cad-designer-online-what-to-look-for-and-how-to-get-started).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const cadDesignBriefGuideArticle = {
       id: 'what-is-brief',
       title: 'What is a CAD design brief?',
       paragraphs: [
-        'A CAD design brief is the written agreement of intent before modeling or drafting starts: it aligns you and the designer on deliverables, standards, and success criteria so quotes reflect real work—not guesswork.',
+        'A CAD design brief is the written agreement of intent before modeling or drafting starts: it aligns you and the designer on deliverables, standards, and success criteria so quotes reflect real work—not guesswork. The same detail keeps the [CAD design pricing guide](/resources/how-much-does-cad-design-cost-pricing-guide-for-3d-modeling-and-drafting) accurate. Product teams can follow the [CAD design outsourcing guide](/resources/cad-design-outsourcing-a-complete-guide-for-product-teams). If you already have a model, open it in the [3D CAD viewer](/tools/3d-cad-viewer) and note what is missing.',
       ],
     },
     {

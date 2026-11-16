@@ -19,7 +19,7 @@ export const fusion360DesignServiceArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'Hiring a Fusion 360 designer online means submitting your brief to a service that matches you with a qualified Fusion 360 modeler or drafter. The best services deliver native files plus exports for suppliers and stakeholders, with clear timelines and revision rounds.',
+        'Hiring a Fusion 360 designer online means submitting your brief to a service that matches you with a qualified Fusion 360 modeler or drafter. The best services deliver native files plus exports for suppliers and stakeholders, with clear timelines and revision rounds. Order the model from [Marathon OS CAD services](/cad-services), or compare a [SolidWorks designer](/resources/hire-a-solidworks-designer-online-production-ready-files-in-24-hours).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const fusion360DesignServiceArticle = {
       id: 'what-designer-does',
       title: 'What does a Fusion 360 designer do?',
       paragraphs: [
-        'A Fusion 360 designer creates accurate 3D models and/or 2D drawings in Fusion 360, producing files that can go directly into manufacturing, prototyping, documentation, or stakeholder review. The key is deliverables: clean feature history, correct dimensions, and exports your suppliers can use.',
+        'A Fusion 360 designer creates accurate 3D models and/or 2D drawings in Fusion 360, producing files that can go directly into manufacturing, prototyping, documentation, or stakeholder review. The key is deliverables: clean feature history, correct dimensions, and exports your suppliers can use. Broader product work is in [3D product modeling](/resources/3d-product-modeling-service-from-concept-to-production-ready-cad-file). Exchange formats with the [CAD file converter](/tools/3d-cad-file-converter).',
       ],
     },
     {

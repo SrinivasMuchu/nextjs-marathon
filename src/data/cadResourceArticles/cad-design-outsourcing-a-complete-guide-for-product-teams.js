@@ -19,7 +19,7 @@ export const cadDesignOutsourcingGuideArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'CAD design outsourcing means handing CAD modeling and drafting work to an external designer or service so your team can move faster. The best outsourcing setups deliver production-ready files (native CAD + STEP/DWG/STL exports), include revisions, and protect IP with clear ownership and NDAs.',
+        'CAD design outsourcing means handing CAD modeling and drafting work to an external designer or service so your team can move faster. The best outsourcing setups deliver production-ready files (native CAD + STEP/DWG/STL exports), include revisions, and protect IP with clear ownership and NDAs. [Marathon OS CAD services](/cad-services) is built for that handoff. Compare it with a [freelance CAD designer](/resources/freelance-cad-designer-vs-cad-service-platform-which-is-right-for-your-project).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const cadDesignOutsourcingGuideArticle = {
       id: 'what-is-outsourcing',
       title: 'What is CAD design outsourcing?',
       paragraphs: [
-        'Outsourcing CAD design means contracting external CAD specialists to create 3D models, 2D drawings, conversions, or revisions. For product teams, it’s a capacity lever—use it when internal engineers are overloaded, when you need a specialized tool, or when you need faster iteration without hiring.',
+        'Outsourcing CAD design means contracting external CAD specialists to create 3D models, 2D drawings, conversions, or revisions. For product teams, it’s a capacity lever—use it when internal engineers are overloaded, when you need a specialized tool, or when you need faster iteration without hiring. Price the work with the [CAD design pricing guide](/resources/how-much-does-cad-design-cost-pricing-guide-for-3d-modeling-and-drafting), and for native parts see [how to hire a SolidWorks designer](/resources/hire-a-solidworks-designer-online-production-ready-files-in-24-hours). Move supplier files through the [CAD file converter](/tools/3d-cad-file-converter).',
       ],
     },
     {

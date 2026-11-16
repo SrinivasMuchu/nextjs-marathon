@@ -4,10 +4,39 @@ import Footer from '@/Components/HomePages/Footer/Footer'
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs'
 import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css'
-import { getResourceHubCategoryBySlug } from '@/Components/ResourcesHub/resourceHubLinks'
+import { getRelatedResourceGuides, getResourceHubCategoryBySlug } from '@/Components/ResourcesHub/resourceHubLinks'
+import {
+  CAD_RESOURCE_AUTHOR,
+  CAD_RESOURCE_PUBLISHED_AT,
+} from '@/data/cadResourceArticles/schema'
 import CadArticleDescribeProjectButton from './CadArticleDescribeProjectButton'
+import { parseCadResourceInline } from './cadResourceInline'
 import styles from './CadResourceArticle.module.css'
-import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
+
+function formatArticleDate(isoDate) {
+  const [year, month, day] = String(isoDate || '').split('-').map(Number)
+  if (!year || !month || !day) return isoDate
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(year, month - 1, day)))
+}
+
+/** @param {{ text?: string }} props */
+function InlineText({ text }) {
+  const parts = parseCadResourceInline(text || '')
+  return parts.map((part, index) =>
+    typeof part === 'string' ? (
+      <span key={index}>{part}</span>
+    ) : (
+      <Link key={`${part.href}-${index}`} href={part.href} className={styles.inlineLink}>
+        {part.label}
+      </Link>
+    )
+  )
+}
 
 /**
  * @param {object} props
@@ -16,6 +45,10 @@ import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 export default function CadResourceArticle({ article }) {
   const canonicalPath = `/resources/${article.slug}`
   const category = getResourceHubCategoryBySlug(article.slug)
+  const relatedGuides = getRelatedResourceGuides(article.slug)
+  const publishedAt = article.publishedAt || CAD_RESOURCE_PUBLISHED_AT
+  const author = article.author?.name ? article.author : CAD_RESOURCE_AUTHOR
+  const authorHref = author.path || author.url || CAD_RESOURCE_AUTHOR.path
 
   return (
     <div className={styles.page}>
@@ -38,6 +71,13 @@ export default function CadResourceArticle({ article }) {
         <div className={styles.heroInner}>
           <p className={styles.heroBadge}>{article.hero.badge}</p>
           <h1 className={styles.heroH1}>{article.hero.title}</h1>
+          <p className={styles.byline}>
+            <span>
+              By <Link href={authorHref}>{author.name}</Link>
+            </span>
+            <span aria-hidden="true">·</span>
+            <time dateTime={publishedAt}>{formatArticleDate(publishedAt)}</time>
+          </p>
           <p className={styles.heroLead}>{article.hero.lead}</p>
           <div className={styles.heroActions}>
             <CadArticleDescribeProjectButton>{article.hero.primaryCtaLabel}</CadArticleDescribeProjectButton>
@@ -69,7 +109,21 @@ export default function CadResourceArticle({ article }) {
           ) : null}
         </div>
       </section>
-      <DesignHub/>
+      {relatedGuides.length > 0 ? (
+        <section className={styles.related} aria-labelledby="related-guides">
+          <h2 id="related-guides">Related guides</h2>
+          <ul className={styles.relatedList}>
+            {relatedGuides.map((guide) => (
+              <li key={guide.href}>
+                <Link href={guide.href} className={styles.relatedLink}>
+                  <span className={styles.relatedTitle}>{guide.title}</span>
+                  <span className={styles.relatedDesc}>{guide.description}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <Footer />
     </div>
   )
@@ -82,7 +136,9 @@ function CadResourceSection({ section }) {
       return (
         <div className={styles.quickAnswer}>
           {section.paragraphs.map((text, i) => (
-            <p key={i}>{text}</p>
+            <p key={i}>
+              <InlineText text={text} />
+            </p>
           ))}
         </div>
       )
@@ -92,7 +148,9 @@ function CadResourceSection({ section }) {
         <section className={styles.section} aria-labelledby={section.id}>
           <h2 id={section.id}>{section.title}</h2>
           {section.paragraphs.map((text, i) => (
-            <p key={i}>{text}</p>
+            <p key={i}>
+              <InlineText text={text} />
+            </p>
           ))}
         </section>
       )
@@ -101,7 +159,11 @@ function CadResourceSection({ section }) {
       return (
         <section className={styles.section} aria-labelledby={section.id}>
           <h2 id={section.id}>{section.title}</h2>
-          {section.intro ? <p>{section.intro}</p> : null}
+          {section.intro ? (
+            <p>
+              <InlineText text={section.intro} />
+            </p>
+          ) : null}
           <ul className={styles.cardGrid}>
             {section.cards.map((c) => (
               <li key={c.title} className={styles.card}>
@@ -109,7 +171,9 @@ function CadResourceSection({ section }) {
                   {c.icon}
                 </span>
                 <h3 className={styles.cardTitle}>{c.title}</h3>
-                <p className={styles.cardBody}>{c.body}</p>
+                <p className={styles.cardBody}>
+                  <InlineText text={c.body} />
+                </p>
               </li>
             ))}
           </ul>
@@ -120,11 +184,17 @@ function CadResourceSection({ section }) {
       return (
         <section className={styles.section} aria-labelledby={section.id}>
           <h2 id={section.id}>{section.title}</h2>
-          {section.intro ? <p>{section.intro}</p> : null}
+          {section.intro ? (
+            <p>
+              <InlineText text={section.intro} />
+            </p>
+          ) : null}
           {section.blocks.map((block) => (
             <div key={block.title} className={styles.h3Block}>
               <h3>{block.title}</h3>
-              <p>{block.body}</p>
+              <p>
+                <InlineText text={block.body} />
+              </p>
             </div>
           ))}
         </section>
@@ -135,7 +205,11 @@ function CadResourceSection({ section }) {
       return (
         <section className={styles.section} aria-labelledby={section.id}>
           <h2 id={section.id}>{section.title}</h2>
-          {section.intro ? <p className={styles.tableIntro}>{section.intro}</p> : null}
+          {section.intro ? (
+            <p className={styles.tableIntro}>
+              <InlineText text={section.intro} />
+            </p>
+          ) : null}
           <div className={styles.tableWrap}>
             <table className={fourCol ? styles.tableWide : styles.table}>
               <thead>
@@ -158,7 +232,11 @@ function CadResourceSection({ section }) {
               </tbody>
             </table>
           </div>
-          {section.outro ? <p className={styles.tableOutro}>{section.outro}</p> : null}
+          {section.outro ? (
+            <p className={styles.tableOutro}>
+              <InlineText text={section.outro} />
+            </p>
+          ) : null}
         </section>
       )
     }
@@ -167,11 +245,15 @@ function CadResourceSection({ section }) {
       return (
         <section className={styles.section} aria-labelledby={section.id}>
           <h2 id={section.id}>{section.title}</h2>
-          {section.intro ? <p>{section.intro}</p> : null}
+          {section.intro ? (
+            <p>
+              <InlineText text={section.intro} />
+            </p>
+          ) : null}
           <ul className={styles.briefList}>
             {section.items.map((item) => (
               <li key={item.term}>
-                <strong>{item.term}</strong> — {item.text}
+                <strong>{item.term}</strong> — <InlineText text={item.text} />
               </li>
             ))}
           </ul>
@@ -182,13 +264,19 @@ function CadResourceSection({ section }) {
       return (
         <section className={styles.section} aria-labelledby={section.id}>
           <h2 id={section.id}>{section.title}</h2>
-          {section.intro ? <p>{section.intro}</p> : null}
+          {section.intro ? (
+            <p>
+              <InlineText text={section.intro} />
+            </p>
+          ) : null}
           <div className={styles.steps}>
             {section.steps.map((step, i) => (
               <div key={step.title} className={styles.step}>
                 <div className={styles.stepNum}>{i + 1}</div>
                 <h3>{step.title}</h3>
-                <p>{step.body}</p>
+                <p>
+                  <InlineText text={step.body} />
+                </p>
               </div>
             ))}
           </div>
@@ -222,7 +310,9 @@ function CadResourceSection({ section }) {
             {section.items.map((item) => (
               <details key={item.q} className={styles.faqItem} open={section.defaultOpen ?? false}>
                 <summary>{item.q}</summary>
-                <p className={styles.faqAnswer}>{item.a}</p>
+                <p className={styles.faqAnswer}>
+                  <InlineText text={item.a} />
+                </p>
               </details>
             ))}
           </div>

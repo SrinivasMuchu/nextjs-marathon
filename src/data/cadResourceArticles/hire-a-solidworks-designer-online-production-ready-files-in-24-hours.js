@@ -19,7 +19,7 @@ export const hireSolidWorksDesignerArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'Hiring a SolidWorks designer online means submitting your brief to a service that matches you with a qualified SolidWorks modeler or drafter. The best services deliver native files plus exports for suppliers and stakeholders, with clear timelines and revision rounds.',
+        'Hiring a SolidWorks designer online means submitting your brief to a service that matches you with a qualified SolidWorks modeler or drafter. The best services deliver native files plus exports for suppliers and stakeholders, with clear timelines and revision rounds. Book the work through [Marathon OS CAD services](/cad-services). If the part lives in Fusion, use the [Fusion 360 design service](/resources/fusion-360-design-service-get-a-custom-3d-model-from-a-vetted-designer).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const hireSolidWorksDesignerArticle = {
       id: 'what-designer-does',
       title: 'What does a SolidWorks designer do?',
       paragraphs: [
-        'A SolidWorks designer creates accurate 3D models and/or 2D drawings in SolidWorks, producing files that can go directly into manufacturing, prototyping, documentation, or stakeholder review. The key is deliverables: clean feature history, correct dimensions, and exports your suppliers can use.',
+        'A SolidWorks designer creates accurate 3D models and/or 2D drawings in SolidWorks, producing files that can go directly into manufacturing, prototyping, documentation, or stakeholder review. The key is deliverables: clean feature history, correct dimensions, and exports your suppliers can use. Mechanical scope is covered in [mechanical engineering CAD](/resources/mechanical-engineering-cad-design-service-get-expert-cad-work-done-fast). Inspect the STEP file in the [3D CAD viewer](/tools/3d-cad-viewer).',
       ],
     },
     {

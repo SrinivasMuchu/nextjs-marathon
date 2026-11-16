@@ -19,7 +19,7 @@ export const mechanicalEngineeringCadServiceArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'A mechanical engineering CAD design service provides specialized deliverables—native CAD (as required), STEP/IGES, drawings (optional)—created by vetted designers. The best providers clarify requirements upfront, deliver files that suppliers can use, include revisions, and protect your IP with clear ownership.',
+        'A mechanical engineering CAD design service provides specialized deliverables—native CAD (as required), STEP/IGES, drawings (optional)—created by vetted designers. The best providers clarify requirements upfront, deliver files that suppliers can use, include revisions, and protect your IP with clear ownership. Send the job to [Marathon OS CAD services](/cad-services). See [hire a SolidWorks designer](/resources/hire-a-solidworks-designer-online-production-ready-files-in-24-hours) for native files.',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const mechanicalEngineeringCadServiceArticle = {
       id: 'what-is-mechanical-cad',
       title: 'What is mechanical engineering CAD design?',
       paragraphs: [
-        'Mechanical engineering CAD design is a deliverable-focused service: you’re hiring for parts, assemblies, and documentation that behave in the real world—not a generic render. The goal is production-ready geometry and drawings with correct interfaces, tolerances where needed, and export formats your vendors expect.',
+        'Mechanical engineering CAD design is a deliverable-focused service: you’re hiring for parts, assemblies, and documentation that behave in the real world—not a generic render. The goal is production-ready geometry and drawings with correct interfaces, tolerances where needed, and export formats your vendors expect. Flat patterns are [sheet metal CAD design](/resources/sheet-metal-cad-design-service-custom-parts-for-fabrication). Read the assembly tree with the [STEP BOM extractor](/tools/step-bom-extractor).',
       ],
     },
     {
