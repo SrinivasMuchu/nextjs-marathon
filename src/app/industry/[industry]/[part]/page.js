@@ -2,17 +2,27 @@ import IndustryParts from '@/Components/IndustryParts/IndustryParts';
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import { notFound } from 'next/navigation'; // 👈
 
+function labelFromSlug(slug) {
+  return String(slug || '')
+    .split('-')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function wordsFromSlug(slug) {
+  return String(slug || '').replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 export async function generateMetadata({ params }) {
   const industry = params['industry'];
   const part = params['part'];
+  const partLabel = labelFromSlug(part);
+  const industryLabel = labelFromSlug(industry);
 
   return {
-    title: `${part.split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')} Head CAD Viewer | ${industry.split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')} | Marathon OS`,
-    description: `Upload and view CAD files online—no software required. Explore components like the ${part.replace('-', ' ')} Head in the ${industry.replace('-', ' ')} for seamless design collaboration.`,
+    title: `${partLabel} CAD Viewer | ${industryLabel} | Marathon OS`,
+    description: `Upload and view CAD files online—no software required. Explore components like the ${wordsFromSlug(part)} in the ${wordsFromSlug(industry)} for seamless design collaboration.`,
     openGraph: {
       url: `/industry/${industry}/${part}`,
       images: [
