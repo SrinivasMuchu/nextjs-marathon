@@ -21,8 +21,13 @@ export async function generateMetadata({ params }) {
       notFound(); // 👈 No data = 404
     }
 
+    const metaTitle = String(data.data.meta_title || '').trim();
+    const title = /\|\s*Marathon OS\s*$/i.test(metaTitle)
+      ? metaTitle
+      : `${metaTitle} | Marathon OS`;
+
     return {
-      title: `${data.data.meta_title} | Marathon OS`,
+      title,
       description: data.data.meta_description,
       openGraph: {
         url: `/industry/${industry}`,

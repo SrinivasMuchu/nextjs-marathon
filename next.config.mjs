@@ -119,6 +119,21 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/industry/energy,-power-and-utilities/:slug*',
+        destination: '/industry/energy-power-and-utilities/:slug*',
+        permanent: true,
+      },
+      {
+        source: '/industry/industrial-tooling,-dies-and-molds/:slug*',
+        destination: '/industry/industrial-tooling-dies-and-molds/:slug*',
+        permanent: true,
+      },
+      {
+        source: '/industry/fire-safety,-security-and-surveillance-hardware/:slug*',
+        destination: '/industry/fire-safety-security-and-surveillance-hardware/:slug*',
+        permanent: true,
+      },
+      {
         source: '/dashboard/2d-technical-drawing/design/:id',
         destination: '/dashboard/2d-technical-drawing/:id',
         permanent: true,

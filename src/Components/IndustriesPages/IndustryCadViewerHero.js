@@ -46,16 +46,16 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
           <span>Free online tool</span>
         </div>
         <h1 id="industry-cad-hero-heading" className={heroStyles.title}>
-          Free Online CAD Viewer for
+          Free Online CAD Viewer for{' '}
+          {partSlug && partDisplayName ? (
+            <>
+              <span className={heroStyles.subtitle}>{partDisplayName}</span>
+              <span className={heroStyles.heroIndustryBracket}>({industryLabel})</span>
+            </>
+          ) : (
+            <span className={heroStyles.subtitle}>{industryLabel}</span>
+          )}
         </h1>
-        {partSlug && partDisplayName ? (
-          <>
-            <p className={heroStyles.subtitle}>{partDisplayName}</p>
-            <p className={heroStyles.heroIndustryBracket}>({industryLabel})</p>
-          </>
-        ) : (
-          <p className={heroStyles.subtitle}>{industryLabel}</p>
-        )}
         <p className={heroStyles.secureTagline}>Secure, Fast &amp; Cloud-Based</p>
         <p className={`${heroStyles.description} ${heroStyles.industryDescriptionWide}`}>{description}</p>
         <div className={heroStyles.trustRow} role="list">
