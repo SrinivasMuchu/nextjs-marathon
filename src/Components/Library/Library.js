@@ -36,7 +36,7 @@ import LibraryHeroSearch from './LibraryHeroSearch';
 // import LibraryHubCards from './LibraryHubCards';
 import LibraryCategoryScroller from './LibraryCategoryScroller';
 import LibraryDiscoverySections from './LibraryDiscoverySections';
-import { getLibraryClusterPath } from '@/api/libraryClustersApi';
+import { getLibraryClusterPath, getLibraryClustersPath } from '@/api/libraryClustersApi';
 import {
   LIBRARY_DEFAULT_H1,
   LIBRARY_DEFAULT_INTRO,
@@ -86,7 +86,7 @@ function buildLibraryHref(params) {
   });
 }
 
-async function Library({ searchParams, pageConfig = null }) {
+async function Library({ searchParams, pageConfig = null, clusterName = '' }) {
   
   const searchQuery = searchParams?.search || '';
   const category = searchParams?.category || '';
@@ -108,6 +108,7 @@ async function Library({ searchParams, pageConfig = null }) {
   const twoDimsParam = outputApi.two_dims || '';
   const clusterId = (searchParams?.cluster_id || '').trim();
   const clusterSlug = (searchParams?.cluster_slug || '').trim();
+  const clusterLabel = String(clusterName || '').trim();
 
   // Read UUID from cookies (server-side)
   const cookieStore = cookies();
@@ -210,17 +211,19 @@ async function Library({ searchParams, pageConfig = null }) {
 
   const heroTitle = pageConfig?.h1
     ? pageConfig.h1
-    : categoryLabel && tagLabel
-      ? `${tagLabel} CAD Models in ${categoryLabel}`
-      : categoryLabel
-        ? `${categoryLabel} CAD Models`
-        : tagLabel
-          ? `${tagLabel} CAD Models`
-          : showHubExperience
-            ? LIBRARY_HUB_H1
-            : searchQuery
-              ? `Search results for "${searchQuery}"`
-              : LIBRARY_DEFAULT_H1;
+    : clusterLabel
+      ? clusterLabel
+      : categoryLabel && tagLabel
+        ? `${tagLabel} CAD Models in ${categoryLabel}`
+        : categoryLabel
+          ? `${categoryLabel} CAD Models`
+          : tagLabel
+            ? `${tagLabel} CAD Models`
+            : showHubExperience
+              ? LIBRARY_HUB_H1
+              : searchQuery
+                ? `Search results for "${searchQuery}"`
+                : LIBRARY_DEFAULT_H1;
 
   const heroDescription = pageConfig?.intro
     ? pageConfig.intro
@@ -235,7 +238,13 @@ async function Library({ searchParams, pageConfig = null }) {
             : LIBRARY_DEFAULT_INTRO;
 
   const breadcrumbSchemaLinks = [{ label: 'Library', href: '/library' }];
-  if (categoryLabel) {
+  if (clusterLabel) {
+    breadcrumbSchemaLinks.push({
+      label: 'Build kits',
+      href: getLibraryClustersPath('3d'),
+    });
+    breadcrumbSchemaLinks.push({ label: clusterLabel });
+  } else if (categoryLabel) {
     if (tagLabel) {
       breadcrumbSchemaLinks.push({
         label: categoryLabel,
@@ -270,7 +279,17 @@ async function Library({ searchParams, pageConfig = null }) {
           <nav className={styles["library-hero-breadcrumb"]} aria-label="Breadcrumb">
             <Link href="/" className={styles["library-hero-breadcrumb-link"]}>Home</Link>
             <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
-            {categoryLabel || tagLabel ? (
+            {clusterLabel ? (
+              <>
+                <Link href="/library" className={styles["library-hero-breadcrumb-link"]}>Library</Link>
+                <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                <Link href={getLibraryClustersPath('3d')} className={styles["library-hero-breadcrumb-link"]}>
+                  Build kits
+                </Link>
+                <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                <span className={styles["library-hero-breadcrumb-current"]}>{clusterLabel}</span>
+              </>
+            ) : categoryLabel || tagLabel ? (
               <>
                 <Link href="/library" className={styles["library-hero-breadcrumb-link"]}>Library</Link>
                 {categoryLabel ? (
