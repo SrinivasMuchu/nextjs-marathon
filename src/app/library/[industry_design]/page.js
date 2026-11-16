@@ -38,6 +38,7 @@ export async function generateMetadata({ params, searchParams }) {
             {
               categoryLabels: design.category_labels,
               tagLabels: design.tag_labels,
+              route: segment,
             }
           );
 

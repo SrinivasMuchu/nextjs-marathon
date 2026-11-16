@@ -76,7 +76,11 @@ import {
   isPhoneAccessoryProduct,
 } from "./libraryProductDetail";
 
-/** {Clean Name} {FORMAT} CAD Model Download | Marathon OS */
+/**
+ * Sample routes (ObjectId ending in 0): `{Name} | Marathon OS` at 60 characters or fewer.
+ * Other routes keep `{Clean Name} {FORMAT} CAD Model Download | Marathon OS`.
+ * Set LIBRARY_SHORT_TITLE_ROLLOUT=all after the sample shows no CTR loss.
+ */
 export function buildLibraryDetailMetadata(productName, fileType, options = {}) {
   const name = cleanLibraryProductName(productName);
   const isPhoneAccessory =
@@ -87,7 +91,9 @@ export function buildLibraryDetailMetadata(productName, fileType, options = {}) 
       tagLabels: options.tagLabels,
     });
 
-  const title = buildLibraryDetailTitle(productName, fileType);
+  const title = buildLibraryDetailTitle(productName, fileType, {
+    route: options.route,
+  });
   const description = buildLibraryDetailMetaDescription(productName, fileType, {
     isPhoneAccessory,
   });

@@ -86,10 +86,111 @@ export function buildLibraryDetailMetaDescription(name, fileType, { isPhoneAcces
   return `Download the ${cleanName} CAD model in ${format} format. Preview the 3D file online and use it for ${useCasePhrase}.`;
 }
 
-export function buildLibraryDetailTitle(name, fileType) {
+/** Google truncates SERP titles around this length. */
+export const LIBRARY_DETAIL_TITLE_MAX = 60;
+
+const LIBRARY_DETAIL_TITLE_BRAND = " | Marathon OS";
+
+/**
+ * Short titles go out on a sample first. Search Console can compare CTR
+ * for design routes whose ObjectId ends in this hex digit (~1/16 of pages)
+ * with the regex `/library/.*[a-fA-F0-9]{23}0$`.
+ * LIBRARY_SHORT_TITLE_ROLLOUT=all ships the short title on every product page.
+ * LIBRARY_SHORT_TITLE_ROLLOUT=off keeps the legacy title everywhere.
+ */
+const LIBRARY_SHORT_TITLE_SAMPLE_DIGIT = "0";
+
+const DOWNLOADABLE_CAD_SUFFIX =
+  /(?:\s*[-–—|:]\s*)?downloadable\s+cad\s+representation\s*$/i;
+
+const TRAILING_CAD_MODEL =
+  /\s+(?:-\s*)?(?:detailed\s+)?(?:3d\s+)?cad\s+models?(?:\s+for\b.*)?$/i;
+
+const LEADING_CAD_BOILERPLATE =
+  /^(?:a\s+)?(?:(?:high[- ](?:precision|quality)|detailed)\s+)?(?:3d\s+)?cad\s+models?\s+of\s+/i;
+
+const TITLE_ONLY_BOILERPLATE = /^(?:3d|cad|model|3d\s+cad|cad\s+model|3d\s+model)$/i;
+
+/** Name used in the short SERP title: drop repeated CAD boilerplate, then cap. */
+export function libraryProductTitleName(name) {
+  let cleaned = String(name || "")
+    .trim()
+    .replace(/\.(step|stp|stl|iges|igs|obj|ply|off|dxf|dwg|brp|brep)$/i, "");
+
+  let previous = "";
+  while (cleaned && cleaned !== previous) {
+    previous = cleaned;
+    cleaned = cleaned
+      .replace(DOWNLOADABLE_CAD_SUFFIX, "")
+      .replace(TRAILING_CAD_MODEL, "")
+      .replace(LEADING_CAD_BOILERPLATE, "")
+      .replace(/^[-–—|:]+|[-–—|:]+$/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  if (!cleaned || TITLE_ONLY_BOILERPLATE.test(cleaned)) return "3D CAD Model";
+  return cleaned;
+}
+
+export function capLibraryProductTitleName(name, maxLength) {
+  const clean = String(name || "").replace(/\s+/g, " ").trim();
+  if (clean.length <= maxLength) return clean;
+
+  const window = clean.slice(0, maxLength + 1);
+  const space = window.lastIndexOf(" ");
+  const minKeep = Math.ceil(maxLength * 0.6);
+  let cut = space >= minKeep ? clean.slice(0, space) : clean.slice(0, maxLength);
+  cut = cut
+    .replace(/[\s,;:|/\\\-–—(&]+$/g, "")
+    .replace(/(?:\s+(?:and|or|for|with|of|the|a|an|to|in|on|from|by|via|&))+$/i, "")
+    .trim();
+  return cut || clean.slice(0, maxLength).trim();
+}
+
+/** `{Name} | Marathon OS`, with the name capped so the full title is at most 60 characters. */
+export function buildCappedLibraryDetailTitle(name) {
+  const maxName = LIBRARY_DETAIL_TITLE_MAX - LIBRARY_DETAIL_TITLE_BRAND.length;
+  const capped = capLibraryProductTitleName(libraryProductTitleName(name), maxName);
+  return `${capped}${LIBRARY_DETAIL_TITLE_BRAND}`;
+}
+
+export function libraryRouteObjectId(route) {
+  const matches = String(route || "").toLowerCase().match(/[a-f0-9]{24}/g);
+  return matches ? matches[matches.length - 1] : "";
+}
+
+export function isLibraryShortTitleSample(route) {
+  return libraryRouteObjectId(route).endsWith(LIBRARY_SHORT_TITLE_SAMPLE_DIGIT);
+}
+
+export function libraryShortTitleMode() {
+  const mode = String(process.env.LIBRARY_SHORT_TITLE_ROLLOUT || "sample")
+    .trim()
+    .toLowerCase();
+  if (mode === "all" || mode === "on") return "all";
+  if (mode === "off" || mode === "legacy" || mode === "control") return "off";
+  return "sample";
+}
+
+export function shouldUseShortLibraryDetailTitle(route) {
+  const mode = libraryShortTitleMode();
+  if (mode === "all") return true;
+  if (mode === "off") return false;
+  return isLibraryShortTitleSample(route);
+}
+
+export function buildLegacyLibraryDetailTitle(name, fileType) {
   const cleanName = cleanLibraryProductName(name);
   const format = formatLibraryFileType(fileType);
   return `${cleanName} ${format} CAD Model Download | Marathon OS`;
+}
+
+export function buildLibraryDetailTitle(name, fileType, options = {}) {
+  if (shouldUseShortLibraryDetailTitle(options.route)) {
+    return buildCappedLibraryDetailTitle(name);
+  }
+  return buildLegacyLibraryDetailTitle(name, fileType);
 }
 
 export function getFormatDownloadLabel(fileType) {
