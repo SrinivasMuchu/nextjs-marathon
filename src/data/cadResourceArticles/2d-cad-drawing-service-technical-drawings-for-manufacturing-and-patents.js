@@ -19,7 +19,7 @@ export const cad2dDrawingServiceArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'A 2D CAD drawing service provides specialized deliverables—DWG/DXF, PDF, dimensioned drawing set—created by vetted designers. The best providers clarify requirements upfront, deliver files that suppliers can use, include revisions, and protect your IP with clear ownership.',
+        'A 2D CAD drawing service provides specialized deliverables—DWG/DXF, PDF, dimensioned drawing set—created by vetted designers. The best providers clarify requirements upfront, deliver files that suppliers can use, include revisions, and protect your IP with clear ownership. Order the set from [Marathon OS CAD services](/cad-services). Native AutoCAD work is [AutoCAD drafting services](/resources/autocad-drafting-services-online-2d-drawings-conversions-and-technical-docs).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const cad2dDrawingServiceArticle = {
       id: 'what-is-2d',
       title: 'What is 2D CAD drawing?',
       paragraphs: [
-        '2D CAD drawing is a deliverable-focused service: you’re hiring for an output, not a tool. The goal is a drawing set that can be manufactured, quoted, filed, or reviewed—accurate dimensions, clear notes and tolerances, and the formats your workflow requires.',
+        '2D CAD drawing is a deliverable-focused service: you’re hiring for an output, not a tool. The goal is a drawing set that can be manufactured, quoted, filed, or reviewed—accurate dimensions, clear notes and tolerances, and the formats your workflow requires. PDF sources go through [PDF to CAD conversion](/resources/pdf-to-cad-conversion-service-get-editable-dwg-step-files-from-any-drawing). Write the sheet list with the [CAD design brief guide](/resources/how-to-write-a-cad-design-brief-templates-and-tips-for-getting-accurate-quotes), and try the [STEP to 2D drawing tool](/tools/convert-step-to-2d-drawing) on a model you already have.',
       ],
     },
     {

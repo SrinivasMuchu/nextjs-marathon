@@ -19,7 +19,7 @@ export const cadDesignCostPricingGuideArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'CAD design pricing depends on scope, complexity, required drawings, file formats, revision rounds, and turnaround—not a single universal rate. Strong briefs and clear deliverables reduce rework and keep quotes predictable.',
+        'CAD design pricing depends on scope, complexity, required drawings, file formats, revision rounds, and turnaround—not a single universal rate. Strong briefs and clear deliverables reduce rework and keep quotes predictable. Quote it through [Marathon OS CAD services](/cad-services). The scope document is the [CAD design brief guide](/resources/how-to-write-a-cad-design-brief-templates-and-tips-for-getting-accurate-quotes).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const cadDesignCostPricingGuideArticle = {
       id: 'what-is-cad-design-cost',
       title: 'What is “CAD design cost”?',
       paragraphs: [
-        'CAD design cost is the price to produce a defined set of modeling and/or drafting outputs—parts, assemblies, 2D documentation, conversions, and exports—within agreed standards and timelines. Comparing quotes fairly means comparing the same scope, quality bar, and revision policy.',
+        'CAD design cost is the price to produce a defined set of modeling and/or drafting outputs—parts, assemblies, 2D documentation, conversions, and exports—within agreed standards and timelines. Comparing quotes fairly means comparing the same scope, quality bar, and revision policy. Vendor choice is in [best CAD design services online](/resources/best-cad-design-services-online-in-2025-a-comparison-guide) and [how to hire a CAD designer](/resources/hire-a-cad-designer-online-what-to-look-for-and-how-to-get-started). Confirm the deliverable in the [3D CAD viewer](/tools/3d-cad-viewer) before you accept a quote.',
       ],
     },
     {

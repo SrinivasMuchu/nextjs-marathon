@@ -19,7 +19,7 @@ export const bestCadDesignServices2025Article = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'The “best” CAD design service depends on your project: marketplaces offer volume and choice but require vetting; design networks help match talent; managed CAD services emphasize speed, defined deliverables, and predictable revisions.',
+        'The “best” CAD design service depends on your project: marketplaces offer volume and choice but require vetting; design networks help match talent; managed CAD services emphasize speed, defined deliverables, and predictable revisions. [Marathon OS CAD services](/cad-services) is the managed option. The split with freelancers is [freelance vs. a CAD platform](/resources/freelance-cad-designer-vs-cad-service-platform-which-is-right-for-your-project).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const bestCadDesignServices2025Article = {
       id: 'what-is-comparison',
       title: 'What does comparing CAD services mean?',
       paragraphs: [
-        'You’re choosing a delivery model as much as a person: how designers are vetted, how work is scoped, what files you receive, how revisions work, and who owns the IP. A good comparison lines up those variables instead of focusing only on headline price.',
+        'You’re choosing a delivery model as much as a person: how designers are vetted, how work is scoped, what files you receive, how revisions work, and who owns the IP. A good comparison lines up those variables instead of focusing only on headline price. Process detail is in [online CAD design services](/resources/online-cad-design-services-how-they-work-and-when-to-use-one). Rates are in the [CAD design pricing guide](/resources/how-much-does-cad-design-cost-pricing-guide-for-3d-modeling-and-drafting). Check a file in the [3D CAD viewer](/tools/3d-cad-viewer) before you commit.',
       ],
     },
     {

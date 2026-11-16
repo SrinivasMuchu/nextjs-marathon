@@ -19,7 +19,7 @@ export const onlineCadDesignServicesArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'Online CAD design services are a managed way to get 3D models, 2D drawings, and CAD conversions from vetted designers. Instead of searching freelancer profiles, you submit a brief and receive production-ready deliverables (native CAD + exports like STEP, STL, and DWG) on a clear timeline.',
+        'Online CAD design services are a managed way to get 3D models, 2D drawings, and CAD conversions from vetted designers. Instead of searching freelancer profiles, you submit a brief and receive production-ready deliverables (native CAD + exports like STEP, STL, and DWG) on a clear timeline. [Marathon OS CAD services](/cad-services) works this way. See [how to hire a CAD designer online](/resources/hire-a-cad-designer-online-what-to-look-for-and-how-to-get-started) and [CAD design outsourcing](/resources/cad-design-outsourcing-a-complete-guide-for-product-teams).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const onlineCadDesignServicesArticle = {
       id: 'what-are-online-cad-services',
       title: 'What are online CAD design services?',
       paragraphs: [
-        'Online CAD design services provide on-demand access to engineers and drafters who create CAD deliverables for manufacturing, prototyping, patents, and construction documentation. The key difference from marketplaces is process: vetted talent, defined deliverables, and a timeline you can plan around.',
+        'Online CAD design services provide on-demand access to engineers and drafters who create CAD deliverables for manufacturing, prototyping, patents, and construction documentation. The key difference from marketplaces is process: vetted talent, defined deliverables, and a timeline you can plan around. Convert the files you receive with the [CAD file converter](/tools/3d-cad-file-converter).',
       ],
     },
     {

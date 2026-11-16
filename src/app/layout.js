@@ -43,6 +43,8 @@ export const metadata = {
   metadataBase: new URL(BASE_URL),
   openGraph: {
     url: "./",
+    type: "website",
+    siteName: "Marathon OS",
   },
 };
 
@@ -163,7 +165,6 @@ export default async function RootLayout({ children }) {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/png" />
-        <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Marathon OS" />
         <meta name="google-adsense-account" content={GOOGLE_ADSENSE_CLIENT_ID} />
         <link

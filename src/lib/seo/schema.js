@@ -59,6 +59,58 @@ export function buildImageObjectSchemas(imageUrls, name = 'Preview image') {
   }));
 }
 
+/**
+ * Schema.org Article for a resource guide.
+ * @param {object} props
+ * @param {string} props.headline
+ * @param {string} [props.description]
+ * @param {string} props.url - Canonical page URL
+ * @param {string} props.datePublished - ISO date
+ * @param {string} [props.dateModified]
+ * @param {string} props.authorName
+ * @param {string} [props.authorUrl]
+ * @param {string} props.image - Absolute image URL
+ */
+export function buildArticleSchema({
+  headline,
+  description,
+  url,
+  datePublished,
+  dateModified,
+  authorName,
+  authorUrl,
+  image,
+}) {
+  const imageUrl = image;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline,
+    ...(description ? { description } : {}),
+    image: [imageUrl],
+    datePublished,
+    dateModified: dateModified || datePublished,
+    author: {
+      '@type': 'Organization',
+      name: authorName,
+      ...(authorUrl ? { url: authorUrl } : {}),
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Marathon OS',
+      url: SITE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: imageUrl,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url,
+    },
+  };
+}
+
 export function jsonLdScriptProps(schema) {
   return {
     type: 'application/ld+json',

@@ -19,7 +19,7 @@ export const hireCadDesignerOnlineArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'Hiring a CAD designer online means submitting your project brief to a platform that matches you with a qualified engineer or drafter. The best services use pre-vetted designers, support common formats like STEP, DWG, and STL, and deliver production-ready files — not just concept sketches. Marathon OS CAD Services does exactly this, with a typical turnaround of 24 hours.',
+        'Hiring a CAD designer online means submitting your project brief to a platform that matches you with a qualified engineer or drafter. The best services use pre-vetted designers, support common formats like STEP, DWG, and STL, and deliver production-ready files — not just concept sketches. Marathon OS CAD Services does exactly this, with a typical turnaround of 24 hours. Compare [online CAD design services](/resources/online-cad-design-services-how-they-work-and-when-to-use-one) with [Marathon OS CAD services](/cad-services), and preview a sample in the [3D CAD viewer](/tools/3d-cad-viewer).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const hireCadDesignerOnlineArticle = {
       id: 'what-designer-does',
       title: 'What Does a CAD Designer Actually Do?',
       paragraphs: [
-        "A CAD designer (Computer-Aided Design designer) creates precise 2D drawings or 3D models of physical products, components, and structures using specialized software. Their output is not just a visual — it's an engineering file that can go directly into manufacturing, 3D printing, patent applications, or supplier quotes.",
+        "A CAD designer (Computer-Aided Design designer) creates precise 2D drawings or 3D models of physical products, components, and structures using specialized software. Their output is not just a visual — it's an engineering file that can go directly into manufacturing, 3D printing, patent applications, or supplier quotes. For a longer engagement, weigh a [freelance CAD designer against a platform](/resources/freelance-cad-designer-vs-cad-service-platform-which-is-right-for-your-project). Discipline-specific notes live in the [mechanical engineering CAD](/resources/mechanical-engineering-cad-design-service-get-expert-cad-work-done-fast) guide.",
         'CAD designers work across a wide range of disciplines. A mechanical CAD designer creates parts and assemblies for machines, enclosures, and hardware products. An architectural drafter produces floor plans, elevations, and construction documentation. A product designer models consumer goods from sketch to manufacturing-ready geometry. What unites all of them is precision — measurements, tolerances, and file formats that meet real-world production standards.',
         "When you hire a CAD designer online, you're not just getting a 3D image. You're getting a file that a CNC machine can cut, a factory can quote, or a 3D printer can build from.",
       ],

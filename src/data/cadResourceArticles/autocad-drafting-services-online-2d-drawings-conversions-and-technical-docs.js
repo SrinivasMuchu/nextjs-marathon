@@ -19,7 +19,7 @@ export const autocadDraftingServicesArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'Hiring an AutoCAD designer online means submitting your brief to a service that matches you with a qualified AutoCAD modeler or drafter. The best services deliver native files plus exports for suppliers and stakeholders, with clear timelines and revision rounds.',
+        'Hiring an AutoCAD designer online means submitting your brief to a service that matches you with a qualified AutoCAD modeler or drafter. The best services deliver native files plus exports for suppliers and stakeholders, with clear timelines and revision rounds. Send the drawings through [Marathon OS CAD services](/cad-services). The sheet-set overview is the [2D CAD drawing service](/resources/2d-cad-drawing-service-technical-drawings-for-manufacturing-and-patents).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const autocadDraftingServicesArticle = {
       id: 'what-designer-does',
       title: 'What does an AutoCAD designer do?',
       paragraphs: [
-        'An AutoCAD designer creates accurate 2D drawings (and 3D when needed) in AutoCAD, producing files that can go directly into manufacturing, prototyping, documentation, or stakeholder review. The key is deliverables: clean layers and standards, correct dimensions, and exports your suppliers can use.',
+        'An AutoCAD designer creates accurate 2D drawings (and 3D when needed) in AutoCAD, producing files that can go directly into manufacturing, prototyping, documentation, or stakeholder review. The key is deliverables: clean layers and standards, correct dimensions, and exports your suppliers can use. Scanned originals start with [PDF to CAD conversion](/resources/pdf-to-cad-conversion-service-get-editable-dwg-step-files-from-any-drawing). You can also make sheets from a model with the [STEP to 2D drawing tool](/tools/convert-step-to-2d-drawing).',
       ],
     },
     {

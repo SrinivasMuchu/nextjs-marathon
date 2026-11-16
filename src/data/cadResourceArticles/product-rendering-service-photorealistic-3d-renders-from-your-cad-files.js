@@ -19,7 +19,7 @@ export const productRenderingServiceArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'A product rendering service produces visualization deliverables—high-res PNG/JPG renders, scene files (optional), turntable (optional)—from your CAD or 3D data. The best providers clarify look-dev upfront, deliver files ready for web and print, include revisions, and protect your IP with clear ownership.',
+        'A product rendering service produces visualization deliverables—high-res PNG/JPG renders, scene files (optional), turntable (optional)—from your CAD or 3D data. The best providers clarify look-dev upfront, deliver files ready for web and print, include revisions, and protect your IP with clear ownership. Order the images from [Marathon OS CAD services](/cad-services). Build the source in [3D product modeling](/resources/3d-product-modeling-service-from-concept-to-production-ready-cad-file).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const productRenderingServiceArticle = {
       id: 'what-is-rendering',
       title: 'What is product rendering?',
       paragraphs: [
-        'Product rendering is a deliverable-focused service: you’re hiring for pixels and motion that sell the design—not for a CAD tool license. The goal is consistent, photorealistic imagery (and optional turntables) that match materials, lighting, and brand—aligned with your CAD so updates stay in sync.',
+        'Product rendering is a deliverable-focused service: you’re hiring for pixels and motion that sell the design—not for a CAD tool license. The goal is consistent, photorealistic imagery (and optional turntables) that match materials, lighting, and brand—aligned with your CAD so updates stay in sync. Preview the CAD in the [3D CAD viewer](/tools/3d-cad-viewer), then make a still in the [CAD renderer](/tools/cad-renderer).',
       ],
     },
     {
