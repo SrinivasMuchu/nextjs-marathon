@@ -172,6 +172,8 @@ function UserLoginPupUp({ onClose, type, onSuccess }) {
                 email: googleEmail,
                 fullname: userName,
                 sso: true,
+                // Server verifies this Google ID token and takes the email from it.
+                credential: response.credential,
             }, {
                 headers: {
                     "user-uuid": localStorage.getItem("uuid"),
