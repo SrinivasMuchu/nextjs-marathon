@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { ArrowRight, Check, CreditCard, Download, Plus } from "lucide-react";
 import { toast } from "react-toastify";
-import { BASE_URL, CAD_CONVERTER_EVENT, buildCadConverterOutputUrlCandidates, toCadOutputCdnUrl } from "@/config";
+import { BASE_URL, toCadOutputCdnUrl } from "@/config";
+import { downloadConverterFile } from "@/lib/converterDownload";
 import { contextState } from "../CommonJsx/ContextProvider";
-import { sendGAtagEvent } from "@/common.helper";
-import { checkConverterDownload, recordConverterDownload, redeemConverterCredit } from "@/api/converterPaymentApi";
+import { checkConverterDownload, redeemConverterCredit } from "@/api/converterPaymentApi";
 import { ensureConverterDownloadAccess, ensureConverterPackPurchase, trackConverterDashboardDownloadClick } from "../History/converterPayment";
 import ConverterCreditPlansPopup from "../History/ConverterCreditPlansPopup";
 import ConverterDownloadFlow from "../History/ConverterDownloadFlow";
@@ -51,45 +51,8 @@ function cheapestPackLabel(packs) {
   return best?.label || "";
 }
 
-async function downloadConvertedFile(file) {
-  const candidates = buildCadConverterOutputUrlCandidates(file);
-  if (!candidates.length) {
-    throw new Error("Download URL is missing for this conversion.");
-  }
-
-  let response = null;
-  let lastError = null;
-  for (const url of candidates) {
-    try {
-      response = await fetch(url);
-      if (response.ok) break;
-      lastError = new Error(`HTTP error! status: ${response.status}`);
-      response = null;
-    } catch (err) {
-      lastError = err;
-      response = null;
-    }
-  }
-  if (!response?.ok) throw lastError || new Error("Download failed.");
-
-  const blob = await response.blob();
-  const downloadUrl = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  const original = file?.file_name || "design";
-  const dot = original.lastIndexOf(".");
-  const stem = dot > 0 ? original.slice(0, dot) : original;
-  a.href = downloadUrl;
-  a.download = `${stem}_converted.${file.output_format || "cad"}`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  window.URL.revokeObjectURL(downloadUrl);
-  sendGAtagEvent({
-    event_name: "converter_file_upload_download",
-    event_category: CAD_CONVERTER_EVENT,
-  });
-  recordConverterDownload(file?._id);
-}
+/** Signed, owner-checked download (see downloadConverterFile). */
+const downloadConvertedFile = downloadConverterFile;
 
 function DashboardWorkspace() {
   const { user, setUser } = useContext(contextState);
@@ -264,6 +227,12 @@ function DashboardWorkspace() {
       }
       if (access.can_download) {
         await downloadConvertedFile(latest);
+        return;
+      }
+      if (access.reason === "email_verification_required") {
+        // The server has no verified email for this account yet: verify, then resume.
+        toast.info("Verify your email to download this file free.");
+        setNeedsLogin(true);
         return;
       }
       setCreditIntent("download");
