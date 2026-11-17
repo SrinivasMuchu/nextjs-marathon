@@ -131,6 +131,12 @@ const CAD_CONVERTER_CARDS = [
     tags: ['Solid to Mesh', '3D Printing', 'CAD'],
   },
   {
+    href: '/tools/convert-dxf-to-dwg',
+    title: 'DXF to DWG Converter',
+    description: 'Convert DXF drawings to DWG for AutoCAD, BricsCAD and DraftSight.',
+    tags: ['2D', 'AutoCAD', 'Drawings'],
+  },
+  {
     href: '/tools/convert-iges-to-step',
     title: 'IGES to STEP Converter',
     description: 'Upgrade legacy IGES files to modern STEP format.',

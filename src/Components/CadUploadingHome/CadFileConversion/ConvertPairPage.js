@@ -319,7 +319,7 @@ function ConvertPairPage({ conversionParams }) {
   const is3mfToPly = conversionParams === '3mf-to-ply'
   const is3mfToStep = conversionParams === '3mf-to-step'
   const is3mfToStl = conversionParams === '3mf-to-stl'
-  const isCustomStepHero = isStepTo3dm || isStepTo3mf || isStepToBrep || isStepToIges || isStepToOff || isStepToPly || isStepToStl || isStlToStep || isIgesTo3dm || isIgesTo3mf || isIgesToBrep || isIgesToObj || isIgesToOff || isIgesToPly || isIgesToStep || isIgesToStl || is3mfTo3dm || is3mfToBrep || is3mfToIges || is3mfToObj || is3mfToOff || is3mfToPly || is3mfToStep || is3mfToStl
+  const isCustomStepHero = isStepTo3dm || isStepTo3mf || isStepToBrep || isStepToIges || isStepToOff || isStepToPly || isStepToStl || isStlToStep || isStlTo3dm || isStlTo3mf || isStlToBrep || isStlToIges || isStlToObj || isStlToOff || isStlToPly || isIgesTo3dm || isIgesTo3mf || isIgesToBrep || isIgesToObj || isIgesToOff || isIgesToPly || isIgesToStep || isIgesToStl || is3mfTo3dm || is3mfToBrep || is3mfToIges || is3mfToObj || is3mfToOff || is3mfToPly || is3mfToStep || is3mfToStl
   const isModernPair = isStepToStl || conversionParams === 'stl-to-step'
   const breadcrumbLinks = isModernPair
     ? [
@@ -402,7 +402,15 @@ function ConvertPairPage({ conversionParams }) {
 
   return (
     <>
-      {isCustomStepHero ? null : isModernPair ? (
+      {isCustomStepHero ? (
+        <ServerBreadCrumbs
+          links={[
+            { label: 'Tools', href: '/tools' },
+            { label: 'CAD converter', href: '/tools/3d-cad-file-converter' },
+            { label: `${fromUpper} to ${toUpper}`, href: `/tools/convert-${conversionParams}` },
+          ]}
+        />
+      ) : isModernPair ? (
         <ServerBreadCrumbs links={breadcrumbLinks} />
       ) : (
         <ActiveLastBreadcrumb links={breadcrumbLinks} />
