@@ -29,6 +29,11 @@ import LibraryListingPageJsonLd from '../JsonLdSchemas/LibraryListingPageJsonLd'
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
 import { formatLibraryFacetLabel } from '@/lib/seo/libraryLabels';
+import {
+  categoryHeroDescription,
+  categoryTagHeroDescription,
+  tagHeroDescription,
+} from '@/lib/seo/listingCopy';
 import { inferLibraryOutput, libraryOutputToApiFilters } from '@/data/libraryOutput';
 import LibraryProductCard from './LibraryProductCard';
 import LibraryHireCtaCard from './LibraryHireCtaCard';
@@ -231,11 +236,11 @@ async function Library({ searchParams, pageConfig = null, clusterName = '' }) {
   const heroDescription = pageConfig?.intro
     ? pageConfig.intro
     : categoryLabel && tagLabel
-      ? `Browse ${tagLabel} CAD models within ${categoryLabel}. Preview online and download STEP/STP, IGES, STL and more. Filter by file type, price and popularity.`
+      ? categoryTagHeroDescription(tagLabel, categoryLabel)
       : categoryLabel
-        ? `Explore ${categoryLabel} CAD models for engineering workflows. Preview online and download STEP/STP, IGES, STL and more. Filter by tags, file type, price and popularity.`
+        ? categoryHeroDescription(categoryLabel)
         : tagLabel
-          ? `Browse ${tagLabel} CAD models used in real projects. Preview online and download STEP/STP, IGES, STL and more. Filter by category, file type, price and popularity.`
+          ? tagHeroDescription(tagLabel)
           : showHubExperience
             ? LIBRARY_HUB_INTRO
             : LIBRARY_DEFAULT_INTRO;

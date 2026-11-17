@@ -3,9 +3,9 @@ export const productDevelopmentCadInventorsStartupsArticle = {
   slug: 'product-development-cad-services-for-inventors-and-startups',
   breadcrumbLastLabel: 'Product development CAD for inventors & startups',
   metadata: {
-    title: 'Product Development CAD Service — Production-Ready Deliverables | Marathon OS',
+    title: 'Product Development CAD for Startups | Marathon OS',
     description:
-      'Get product development cad from vetted CAD experts. Receive 3D CAD model, STEP for quotes, STL for prototypes, drawings (optional). Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'CAD for inventors and startups: a 3D model, STEP for quotes, STL for prototypes, and drawings if you need them.',
   },
   hero: {
     badge: 'CAD Services · Inventors & startups',

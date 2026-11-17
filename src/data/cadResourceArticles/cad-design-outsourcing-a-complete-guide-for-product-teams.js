@@ -3,9 +3,9 @@ export const cadDesignOutsourcingGuideArticle = {
   slug: 'cad-design-outsourcing-a-complete-guide-for-product-teams',
   breadcrumbLastLabel: 'CAD design outsourcing guide',
   metadata: {
-    title: 'CAD Design Outsourcing — A Complete Guide for Product Teams | Marathon OS',
+    title: 'CAD Design Outsourcing Guide | Marathon OS',
     description:
-      'Learn when to outsource CAD design, how to choose a partner, and how to write briefs that produce production-ready files. Get matched with vetted CAD designers for fast delivery.',
+      'When product teams should outsource CAD, how to pick a partner, and what a brief needs so files arrive production-ready.',
   },
   hero: {
     badge: 'CAD Services · Guide',

@@ -3,7 +3,7 @@ export const cadDesignBriefGuideArticle = {
   slug: 'how-to-write-a-cad-design-brief-templates-and-tips-for-getting-accurate-quotes',
   breadcrumbLastLabel: 'How to write a CAD design brief',
   metadata: {
-    title: 'How to Write a CAD Design Brief: Templates & Tips | Marathon OS',
+    title: 'How to Write a CAD Design Brief | Marathon OS',
     description:
       'Write CAD briefs that get accurate quotes: checklist, example prompts, dimensions, formats, and manufacturing context—fewer revisions and faster delivery.',
   },

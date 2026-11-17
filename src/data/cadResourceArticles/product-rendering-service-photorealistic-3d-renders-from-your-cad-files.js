@@ -3,9 +3,9 @@ export const productRenderingServiceArticle = {
   slug: 'product-rendering-service-photorealistic-3d-renders-from-your-cad-files',
   breadcrumbLastLabel: 'Product rendering service',
   metadata: {
-    title: 'Product Rendering Service — Production-Ready Deliverables | Marathon OS',
+    title: 'Product Rendering from CAD Files | Marathon OS',
     description:
-      'Get product rendering from vetted CAD experts. Receive high-res PNG/JPG renders, scene files (optional), turntable (optional). Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Photorealistic product renders from your CAD: stills, optional turntables and scene files for web, decks or review.',
   },
   hero: {
     badge: 'CAD Services · Visualization',

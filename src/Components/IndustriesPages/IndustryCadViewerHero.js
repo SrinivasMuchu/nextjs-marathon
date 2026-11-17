@@ -25,13 +25,13 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
           .join(' ')
       : '');
 
+  const shortDescription = industryData?.short_description?.trim() || '';
   const description = partName
-    ? (industryData?.description?.trim()
-        ? industryData.description.trim()
-        : `A lightweight online tool to view, inspect, and share 3D CAD files — ideal for reviewing models like the ${partDisplayName || partName} without installing software.`)
+    ? (shortDescription
+        || `Review the ${partDisplayName || partName} on its own, including the interfaces a ${industryLower} reviewer actually checks.`)
     : (industryData?.usage?.trim()
-        ? industryData.usage.trim()
-        : `A lightweight online tool to view, inspect, and share 3D CAD files for ${industryLower} teams — no software installation required.`);
+        || industryData?.description?.trim()
+        || `How ${industryLower} teams pass models between design, suppliers, and people who do not run CAD.`);
 
   return (
     <div className={heroStyles.heroPage}>

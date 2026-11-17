@@ -3,9 +3,9 @@ export const productModelingServiceArticle = {
   slug: '3d-product-modeling-service-from-concept-to-production-ready-cad-file',
   breadcrumbLastLabel: '3D product modeling service',
   metadata: {
-    title: '3D Product Modeling Service — Production-Ready Deliverables | Marathon OS',
+    title: '3D Product Modeling Service | Marathon OS',
     description:
-      'Get 3D product modeling from vetted CAD experts. Receive native CAD (as required), STEP/IGES exports, STL (if needed). Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Production 3D product models with native CAD, STEP or IGES for quotes, and STL when you need a print. Revisions included.',
   },
   hero: {
     badge: 'CAD Services · Product modeling',

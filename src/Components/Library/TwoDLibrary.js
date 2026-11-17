@@ -5,6 +5,11 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { BASE_URL } from '@/config';
+import {
+  twoDCategoryHeroDescription,
+  twoDCategoryTagHeroDescription,
+  twoDTagHeroDescription,
+} from '@/lib/seo/listingCopy';
 import { fetchCadTagsByRank, fetchLibraryFiltersTagsPage, TAGS_PAGE_SIZE } from '@/api/cadTagsApi';
 import { fetchLibraryClusters, getLibraryClusterPath } from '@/api/libraryClustersApi';
 import { fetchTwoDLibraryCategories } from '@/api/twoDLibraryDesignsApi';
@@ -207,11 +212,11 @@ export default async function TwoDLibrary({
 
   const heroDescription =
     categoryLabel && tagLabel
-      ? `Browse ${tagLabel} 2D technical drawings in ${categoryLabel}. Download drawing sets with orthographic views, section cuts and PDF, SVG and DXF files.`
+      ? twoDCategoryTagHeroDescription(tagLabel, categoryLabel)
       : categoryLabel
-        ? `Browse ${categoryLabel} 2D technical drawings generated from 3D CAD models. Download PDF, SVG and DXF drawing sets for engineering review.`
+        ? twoDCategoryHeroDescription(categoryLabel)
         : tagLabel
-          ? `Browse ${tagLabel} 2D technical drawings. Download drawing sets with orthographic views, section cuts and PDF, SVG and DXF files.`
+          ? twoDTagHeroDescription(tagLabel)
           : showHubExperience
             ? TWO_D_LIBRARY_HUB_INTRO
             : TWO_D_LIBRARY_INTRO;

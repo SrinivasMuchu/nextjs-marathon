@@ -3,9 +3,9 @@ export const stlFileDesignServiceArticle = {
   slug: 'stl-file-design-service-3d-print-ready-models-on-demand',
   breadcrumbLastLabel: 'STL file design service',
   metadata: {
-    title: 'STL File Design Service — Production-Ready Deliverables | Marathon OS',
+    title: 'STL File Design for 3D Printing | Marathon OS',
     description:
-      'Get STL file design from vetted CAD experts. Receive STL, STEP (optional), native CAD (optional). Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Print-ready STL models on demand, with optional STEP or native CAD if the part also has to be edited later.',
   },
   hero: {
     badge: 'CAD Services · 3D printing',

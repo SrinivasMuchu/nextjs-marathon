@@ -3,9 +3,9 @@ export const architecturalCadDraftingServicesArticle = {
   slug: 'architectural-cad-drafting-services-floor-plans-elevations-and-as-builts',
   breadcrumbLastLabel: 'Architectural CAD drafting services',
   metadata: {
-    title: 'Architectural CAD Drafting Service — Production-Ready Deliverables | Marathon OS',
+    title: 'Architectural CAD Drafting Service | Marathon OS',
     description:
-      'Get architectural cad drafting from vetted CAD experts. Receive DWG/DXF, PDF set, as-built updates. Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Floor plans, elevations and as-builts in DWG, DXF and PDF, drawn by vetted architectural drafters from your sketches or markups.',
   },
   hero: {
     badge: 'CAD Services · Architecture',

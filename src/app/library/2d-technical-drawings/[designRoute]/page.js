@@ -7,6 +7,7 @@ import { BASE_URL, TECH_DRAW_LIBRARY_PREFIX } from "@/config";
 import { resolveCategorySlugToName } from "@/common.helper";
 import { fetchTwoDLibraryCategories } from "@/api/twoDLibraryDesignsApi";
 import { buildPageMetadata, buildTwoDDrawingMetadata } from "@/lib/seo/pageMetadata";
+import { twoDCategoryDescription } from "@/lib/seo/listingCopy";
 import { fetchTechDrawBundle } from "@/lib/techDraw/fetchTechDrawBundle";
 import { mapTechDrawBundleToPageProps } from "@/lib/techDraw/mapTechDrawBundleToPageProps";
 import {
@@ -103,7 +104,7 @@ export async function generateMetadata({ params, searchParams }) {
   const title = `${categoryName} 2D Technical Drawings | PDF, SVG, DXF | Marathon OS${
     page > 1 ? ` - Page ${page}` : ""
   }`;
-  const description = `Browse ${categoryName} 2D technical drawings generated from 3D CAD models. Download PDF, SVG and DXF drawing sets for engineering review.`;
+  const description = twoDCategoryDescription(categoryName);
 
   return buildPageMetadata({
     title,

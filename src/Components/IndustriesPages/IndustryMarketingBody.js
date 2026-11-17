@@ -97,6 +97,15 @@ function splitRolesList(csv, fallbackCsv) {
 function IndustryMarketingBody({ industryData }) {
   const industry = (industryData?.industry || 'your industry').trim();
   const industryLower = industry.toLowerCase();
+  const partLabel = String(industryData?.part_name || '').trim();
+  const isPart = Boolean(partLabel);
+  const shortDescription = String(industryData?.short_description || '').trim();
+  const useCases = String(industryData?.use_cases || '').trim();
+  const usage = String(industryData?.industry_usage || industryData?.usage || '').trim();
+  const sectorSummary = String(
+    (isPart ? industryData?.industry_description : industryData?.description) || ''
+  ).trim();
+  const formatList = String(industryData?.cad_file_formats || '').trim();
 
   const whoDaily = splitRoles(
     industryData?.roles_view_cad_files,
@@ -121,15 +130,19 @@ function IndustryMarketingBody({ industryData }) {
       <section className={styles.blockAlt} aria-labelledby="industry-s1-heading">
         <div className={styles.inner}>
           <article className={styles.storyCard}>
-            <span className={styles.storyBadge}>Design review</span>
+            <span className={styles.storyBadge}>{isPart ? 'This part' : 'Design review'}</span>
             <h2 id="industry-s1-heading" className={styles.storyTitle}>
-              How {industryLower} teams use CAD viewers for design review
+              {isPart
+                ? `What a ${partLabel} is for in ${industryLower}`
+                : `How ${industryLower} uses CAD`}
             </h2>
             <p className={styles.storyBody}>
-              In {industryLower}, teams use CAD viewers to inspect models, validate interfaces, and align
-              stakeholders during reviews and handoffs. A browser-based viewer makes it easier to open files
-              quickly, inspect geometry, and keep discussions anchored to the same 3D model without
-              specialized desktop setups.
+              {isPart
+                ? `${shortDescription || `${partLabel} is a ${industryLower} component with its own interfaces.`} ${
+                    useCases ? `Typical work: ${useCases}.` : ''
+                  }`
+                : usage ||
+                  `${industry} keeps its own models, suppliers, and review habits. Open those files in the browser when the person in the review does not run CAD.`}
             </p>
           </article>
         </div>
@@ -142,9 +155,11 @@ function IndustryMarketingBody({ industryData }) {
             What file formats are supported?
           </h2>
           <p className={styles.lead}>
-            Marathon OS supports common 3D exchange formats used across industry workflows, including
-            STEP, IGES, STL, PLY, OFF, and BREP. These formats help teams share engineering geometry and
-            meshes across different tools while keeping reviews fast and accessible.
+            {isPart
+              ? `${partLabel} handoffs in ${industryLower} usually arrive as ${formatList || 'STEP or STL'}. The viewer also opens IGES, PLY, OFF, and BREP when the export is something else.`
+              : formatList
+                ? `${industry} most often exchanges ${formatList}. Other reviews still arrive as STEP, IGES, STL, PLY, OFF, or BREP, and those open here too.`
+                : `${industry} reviews mix STEP and IGES solids with STL, PLY, OFF, and BREP meshes. Each of those opens in the browser.`}
           </p>
           <div className={styles.formatGrid}>
             {FORMAT_CARDS.map(({ title, description, Icon }) => (
@@ -213,13 +228,15 @@ function IndustryMarketingBody({ industryData }) {
           <article className={styles.storyCard}>
             <span className={styles.storyBadge}>Workflow</span>
             <h2 id="industry-s4-heading" className={styles.storyTitle}>
-              How teams review CAD files without heavy desktop software
+              {isPart
+                ? `Review a ${partLabel} without a CAD seat`
+                : `Who in ${industryLower} still needs the model`}
             </h2>
             <p className={styles.storyBody}>
-              Instead of routing every model through a CAD specialist or dedicated workstation, teams can
-              upload files to Marathon OS and preview them online. This keeps cross-functional reviews moving
-              and reduces delays caused by software installs, license access, or high-performance hardware
-              requirements.
+              {isPart
+                ? `A ${partLabel} review is about this component: fit, interfaces, and the file a supplier sent. People who do not run ${industryLower} CAD can open that model in the browser instead of waiting on a screenshot.`
+                : sectorSummary ||
+                  `${industry} buyers, field staff, and suppliers often need the model without a CAD license. The browser preview is for that handoff.`}
             </p>
           </article>
         </div>

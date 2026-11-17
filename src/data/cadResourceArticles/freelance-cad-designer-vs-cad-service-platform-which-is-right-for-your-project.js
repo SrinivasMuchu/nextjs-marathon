@@ -3,9 +3,9 @@ export const freelanceVsPlatformArticle = {
   slug: 'freelance-cad-designer-vs-cad-service-platform-which-is-right-for-your-project',
   breadcrumbLastLabel: 'Freelancer vs. CAD platform',
   metadata: {
-    title: 'Freelance CAD Designer vs CAD Service Platform (Comparison) | Marathon OS',
+    title: 'Freelancer vs CAD Service Platform | Marathon OS',
     description:
-      'Compare freelancers vs managed CAD services across vetting, timelines, revisions, and IP. Choose the best option for your project and get production-ready files fast.',
+      'Freelancer versus managed CAD platform: vetting, timelines, revisions and who owns the files when the project ends.',
   },
   hero: {
     badge: 'CAD Services · Guide',
