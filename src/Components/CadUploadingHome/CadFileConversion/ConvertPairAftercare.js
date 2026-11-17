@@ -32,19 +32,43 @@ function parsePair(item) {
   return { ...item, pair, from, to }
 }
 
+const PDF_TO_CAD_GUIDE = {
+  from: 'PDF',
+  viewer: true,
+  title: 'PDF to CAD conversion',
+  description: 'Have a PDF drawing instead? Get an editable DWG, DXF or STEP file.',
+  href: '/resources/pdf-to-cad-conversion-service-get-editable-dwg-step-files-from-any-drawing',
+}
+
+function toRelatedCard(item) {
+  return {
+    from: item.from.toUpperCase(),
+    to: item.to.toUpperCase(),
+    title: `Convert ${item.from.toUpperCase()} to ${item.to.toUpperCase()}`,
+    description: item.oneLiner,
+    href: `/tools/convert-${item.pair}`,
+  }
+}
+
 function buildRelatedTools(from, to) {
   const parsed = converterTypes.map(parsePair)
-  const prioritized = [
-    ...parsed.filter((item) => item.from === to && item.to === from),
-    ...parsed.filter((item) => item.from === from && item.to !== to),
-    ...parsed.filter((item) => item.to === to && item.from !== from),
-  ]
+  const current = `${from}-to-${to}`
+  const reverse = parsed.filter((item) => item.from === to && item.to === from)
+  const sameOutput = parsed.filter((item) => item.to === to && item.from !== from)
+  const sameSource = parsed.filter((item) => item.from === from && item.to !== to && item.to !== from)
+
   const seen = new Set()
-  const conversions = prioritized.filter((item) => {
-    if (seen.has(item.pair)) return false
+  const conversions = []
+  const push = (item) => {
+    if (!item || seen.has(item.pair) || item.pair === current || conversions.length >= 4) return
     seen.add(item.pair)
-    return item.pair !== `${from}-to-${to}`
-  }).slice(0, 4)
+    conversions.push(item)
+  }
+  // Reverse first, then same-output siblings (IGES→STL next to STEP→STL), then other routes from this source.
+  reverse.forEach(push)
+  sameOutput.slice(0, 2).forEach(push)
+  sameSource.forEach(push)
+  sameOutput.slice(2).forEach(push)
 
   // Formats without a viewer page (e.g. 3MF) link to nothing, so skip those cards.
   const viewerCards = [
@@ -65,15 +89,23 @@ function buildRelatedTools(from, to) {
   ].filter((card) => isCadViewerFormatSlug(card.from.toLowerCase()))
 
   return [
-    ...conversions.map((item) => ({
-      from: item.from.toUpperCase(),
-      to: item.to.toUpperCase(),
-      title: `Convert ${item.from.toUpperCase()} to ${item.to.toUpperCase()}`,
-      description: item.oneLiner,
-      href: `/tools/convert-${item.pair}`,
-    })),
+    ...conversions.map(toRelatedCard),
     ...viewerCards,
   ]
+}
+
+function withSameOutputSiblings(curated, generated, to) {
+  const hrefs = new Set(curated.map((tool) => tool.href))
+  const siblings = generated.filter(
+    (tool) => tool.to && String(tool.to).toLowerCase() === String(to).toLowerCase() && !hrefs.has(tool.href)
+  )
+  return siblings.length ? [...curated, ...siblings.slice(0, 2)] : curated
+}
+
+function withPdfToCadGuide(tools, from, to) {
+  const isDrawingPair = [from, to].some((format) => format === 'dxf' || format === 'dwg')
+  if (!isDrawingPair || tools.some((tool) => tool.href === PDF_TO_CAD_GUIDE.href)) return tools
+  return [...tools, PDF_TO_CAD_GUIDE]
 }
 
 function getChecks(to, toUpper) {
@@ -103,7 +135,14 @@ const PROBLEM_ICONS = [Maximize2, ImageOff, AlertTriangle, Waves, Box, Eye]
 function ConvertPairAftercare({ conversionParams }) {
   const { from, to, fromUpper, toUpper, uniquePage } = getConverterPairContent(conversionParams)
   const checks = uniquePage?.checks || getChecks(to, toUpper)
-  const relatedTools = uniquePage?.relatedTools || buildRelatedTools(from, to)
+  const generatedTools = buildRelatedTools(from, to)
+  const relatedTools = withPdfToCadGuide(
+    uniquePage?.relatedTools
+      ? withSameOutputSiblings(uniquePage.relatedTools, generatedTools, to)
+      : generatedTools,
+    from,
+    to,
+  )
 
   const defaultProblems = [
     {
