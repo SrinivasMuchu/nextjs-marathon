@@ -6,6 +6,7 @@ import {
   getLibraryPath,
   getLibraryCanonicalAndRobots,
 } from '@/common.helper';
+import { formatLibraryFacetLabel } from '@/lib/seo/libraryLabels';
 
 function requireValidTagSlug(rawSlug) {
   const slug = normalizeLibraryTagSlug(rawSlug);
@@ -15,7 +16,7 @@ function requireValidTagSlug(rawSlug) {
 
 export async function generateMetadata({ params, searchParams }) {
   const tagSlug = requireValidTagSlug(params?.tag || '');
-  const tagLabel = tagSlug.replace(/-/g, ' ');
+  const tagLabel = formatLibraryFacetLabel(tagSlug);
   const page = parseInt(searchParams?.page) || 1;
 
   const title = `${tagLabel} CAD Models | STEP, STL, IGES Downloads | Marathon OS${page > 1 ? ` - Page ${page}` : ''}`;
