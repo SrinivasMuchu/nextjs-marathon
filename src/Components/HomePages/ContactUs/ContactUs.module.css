@@ -90,7 +90,7 @@
     justify-content:center;
     flex-direction:column;
 }
-.contactus-conversation-text h1{
+.contactus-conversation-text h2{
     font-size: 24px;
     font-weight: 700;
 }
@@ -108,7 +108,7 @@
    width: 85%;
     text-align:center;
 }
-.contactus-conversation-header h1{
+.contactus-conversation-header h2{
     font-weight:800;
     font-size:32px;
     text-align:center;

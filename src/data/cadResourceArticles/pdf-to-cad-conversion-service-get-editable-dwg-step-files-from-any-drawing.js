@@ -3,9 +3,9 @@ export const pdfToCadConversionServiceArticle = {
   slug: 'pdf-to-cad-conversion-service-get-editable-dwg-step-files-from-any-drawing',
   breadcrumbLastLabel: 'PDF to CAD conversion service',
   metadata: {
-    title: 'PDF to CAD Conversion Service — Editable DWG, DXF & STEP | Marathon OS',
+    title: 'PDF to CAD Conversion Service | Marathon OS',
     description:
-      'Convert PDF drawings to editable CAD: DWG/DXF, clean PDF exports, and STEP when 3D reconstruction is required. Vetted drafters, revisions included—submit your files and scope.',
+      'Turn PDF drawings into editable DWG or DXF, with STEP when the sheet needs a 3D rebuild. Revisions included.',
   },
   hero: {
     badge: 'CAD Services · Conversion',

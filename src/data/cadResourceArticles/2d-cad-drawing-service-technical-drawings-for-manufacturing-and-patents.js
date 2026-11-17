@@ -3,9 +3,9 @@ export const cad2dDrawingServiceArticle = {
   slug: '2d-cad-drawing-service-technical-drawings-for-manufacturing-and-patents',
   breadcrumbLastLabel: '2D CAD drawing service',
   metadata: {
-    title: '2D CAD Drawing Service — Production-Ready Deliverables | Marathon OS',
+    title: '2D CAD Drawings for Manufacturing | Marathon OS',
     description:
-      'Get 2D CAD drawing from vetted CAD experts. Receive DWG/DXF, PDF, dimensioned drawing set. Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Dimensioned 2D drawings for manufacturing and patents: DWG, DXF and PDF sets with views, tolerances and notes from a vetted drafter.',
   },
   hero: {
     badge: 'CAD Services · 2D drawings',

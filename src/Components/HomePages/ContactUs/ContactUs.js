@@ -68,11 +68,11 @@ function ContactUs() {
         <div className={styles["contactus-message"]}>
           <div className={styles["contactus-conversation"]}>
             <div className={styles["contactus-conversation-text"]}>
-              <h1>Send us a message</h1>
+              <h2>Send us a message</h2>
               <FooterForm getIntouch={true} />
             </div>
             <div className={styles["contactus-conversation-header"]}>
-              <h1>Let&rsquo;s Start a Conversation</h1>
+              <h2>Let&rsquo;s Start a Conversation</h2>
               <p>We&rsquo;re here to help and answer any question you might have. We look forward to hearing from you.</p>
             </div>
           </div>

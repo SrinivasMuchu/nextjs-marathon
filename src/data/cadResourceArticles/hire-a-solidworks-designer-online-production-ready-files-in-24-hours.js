@@ -3,9 +3,9 @@ export const hireSolidWorksDesignerArticle = {
   slug: 'hire-a-solidworks-designer-online-production-ready-files-in-24-hours',
   breadcrumbLastLabel: 'Hire a SolidWorks designer',
   metadata: {
-    title: 'SolidWorks Design Service — Vetted SolidWorks Experts | Marathon OS',
+    title: 'Hire a SolidWorks Designer | Marathon OS',
     description:
-      'Hire a vetted SolidWorks designer online. Get native SLDPRT, SLDASM, SLDDRW files plus exports like STEP, IGES, DWG, DXF, STL. Submit your brief and receive production-ready deliverables fast.',
+      'Native SLDPRT, SLDASM and SLDDRW from a vetted SolidWorks designer, with STEP, DWG or STL exports for suppliers.',
   },
   hero: {
     badge: 'CAD Services · SolidWorks',

@@ -1,5 +1,6 @@
 import IndustryParts from '@/Components/IndustryParts/IndustryParts';
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
+import { partMetaDescription } from '@/lib/seo/listingCopy';
 import { notFound } from 'next/navigation'; // 👈
 
 function labelFromSlug(slug) {
@@ -10,19 +11,42 @@ function labelFromSlug(slug) {
     .join(' ');
 }
 
-function wordsFromSlug(slug) {
-  return String(slug || '').replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
 export async function generateMetadata({ params }) {
   const industry = params['industry'];
   const part = params['part'];
   const partLabel = labelFromSlug(part);
   const industryLabel = labelFromSlug(industry);
 
+  let partName = partLabel;
+  let industryName = industryLabel;
+  let shortDescription = '';
+  try {
+    const [industryResponse, partResponse] = await Promise.all([
+      fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
+        method: 'GET',
+        next: { revalidate: 3600 },
+      }),
+      fetch(`${BASE_URL}/v1/cad/get-industry-part-data?route=${part}`, {
+        method: 'GET',
+        next: { revalidate: 3600 },
+      }),
+    ]);
+    if (industryResponse.ok && partResponse.ok) {
+      const [industryData, partData] = await Promise.all([
+        industryResponse.json(),
+        partResponse.json(),
+      ]);
+      partName = partData?.data?.part_name || partLabel;
+      industryName = industryData?.data?.industry || industryLabel;
+      shortDescription = partData?.data?.short_description || '';
+    }
+  } catch (error) {
+    console.error('Failed to fetch part metadata:', error);
+  }
+
   return {
-    title: `${partLabel} CAD Viewer | ${industryLabel} | Marathon OS`,
-    description: `Upload and view CAD files online—no software required. Explore components like the ${wordsFromSlug(part)} in the ${wordsFromSlug(industry)} for seamless design collaboration.`,
+    title: `${partName} CAD Viewer | ${industryName} | Marathon OS`,
+    description: partMetaDescription({ partName, industryName, shortDescription }),
     openGraph: {
       url: `/industry/${industry}/${part}`,
       images: [
@@ -73,6 +97,8 @@ async function IndustryPart({ params }) {
     const combinedData = {
       ...industryData.data,
       ...partData.data,
+      industry_description: industryData.data.description || '',
+      industry_usage: industryData.data.usage || '',
     };
 
     return (

@@ -3,9 +3,9 @@ export const sheetMetalCadDesignServiceArticle = {
   slug: 'sheet-metal-cad-design-service-custom-parts-for-fabrication',
   breadcrumbLastLabel: 'Sheet metal CAD design service',
   metadata: {
-    title: 'Sheet Metal CAD Design Service — Production-Ready Deliverables | Marathon OS',
+    title: 'Sheet Metal CAD Design Service | Marathon OS',
     description:
-      'Get sheet metal CAD design from vetted CAD experts. Receive STEP, DXF flat pattern, drawing (optional). Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Sheet metal CAD with bends, flat DXF patterns and STEP for the shop, plus a drawing when the fabricator needs one.',
   },
   hero: {
     badge: 'CAD Services · Sheet metal',

@@ -115,47 +115,7 @@ export default async function RootLayout({ children }) {
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* Intercept and modify Google Fonts loading to add font-display=swap */}
-        <Script
-          strategy="beforeInteractive"
-          id="font-display-swap"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Intercept link tags for Google Fonts
-                const observer = new MutationObserver(function(mutations) {
-                  mutations.forEach(function(mutation) {
-                    mutation.addedNodes.forEach(function(node) {
-                      if (node.nodeName === 'LINK' && node.href && node.href.includes('fonts.googleapis.com')) {
-                        // Add display=swap parameter if not present
-                        if (!node.href.includes('display=')) {
-                          const separator = node.href.includes('?') ? '&' : '?';
-                          node.href = node.href + separator + 'display=swap';
-                        }
-                      }
-                    });
-                  });
-                });
-                
-                // Observe document head for new link tags
-                observer.observe(document.head, {
-                  childList: true,
-                  subtree: false
-                });
-                
-                // Also check existing link tags
-                document.querySelectorAll('link[href*="fonts.googleapis.com"]').forEach(function(link) {
-                  if (!link.href.includes('display=')) {
-                    const separator = link.href.includes('?') ? '&' : '?';
-                    link.href = link.href + separator + 'display=swap';
-                  }
-                });
-              })();
-            `,
-          }}
-        />
-        
+
         <link rel="icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
 
         <link rel="apple-touch-icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />

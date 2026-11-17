@@ -11,6 +11,7 @@ import {
   getLibraryPath,
   getLibraryCanonicalAndRobots,
 } from '@/common.helper';
+import { categoryTagListingDescription } from '@/lib/seo/listingCopy';
 
 export async function generateMetadata({ params, searchParams }) {
   const { industry_design, library_design } = params;
@@ -59,7 +60,7 @@ export async function generateMetadata({ params, searchParams }) {
   });
 
   const description = categoryName && tagLabel
-    ? `Find ${tagLabel} CAD models in ${categoryName}. Download STEP/STP, IGES, STL and more. Filter by file type, price & popularity. Preview online.`
+    ? categoryTagListingDescription(tagLabel, categoryName)
     : `Browse 3D CAD models in ${categoryName || 'the library'}${tagLabel ? ` tagged with ${tagLabel}` : ''}.`;
 
   const base = 'https://marathon-os.com';

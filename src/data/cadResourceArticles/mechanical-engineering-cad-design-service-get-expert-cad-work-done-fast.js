@@ -3,9 +3,9 @@ export const mechanicalEngineeringCadServiceArticle = {
   slug: 'mechanical-engineering-cad-design-service-get-expert-cad-work-done-fast',
   breadcrumbLastLabel: 'Mechanical engineering CAD service',
   metadata: {
-    title: 'Mechanical Engineering CAD Design Service — Production-Ready Deliverables | Marathon OS',
+    title: 'Mechanical Engineering CAD Service | Marathon OS',
     description:
-      'Get mechanical engineering CAD design from vetted CAD experts. Receive native CAD (as required), STEP/IGES, drawings (optional). Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Mechanical CAD for parts and assemblies: native models, STEP or IGES, and drawings when the supplier needs them.',
   },
   hero: {
     badge: 'CAD Services · Mechanical',

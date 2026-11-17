@@ -4,13 +4,20 @@ import { librarySeoGuard } from '@/middleware/librarySeoGuard';
 /**
  * Case-only redirects must use exact pathname checks. next.config redirects match
  * case-insensitively on some hosts, which loops /tools/3D-cad-viewer → itself.
+ * Every path segment is lowercased, including product slugs.
  */
+function lowercasePath(pathname) {
+  const next = pathname.toLowerCase();
+  return next === pathname ? null : next;
+}
+
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
+  const lowerPath = lowercasePath(pathname);
 
-  if (pathname === '/tools/3D-cad-viewer') {
+  if (lowerPath) {
     const url = request.nextUrl.clone();
-    url.pathname = '/tools/3d-cad-viewer';
+    url.pathname = lowerPath;
     return NextResponse.redirect(url, 308);
   }
 
@@ -23,6 +30,6 @@ export async function middleware(request) {
 }
 
 export const config = {
-  // Include bare `/library` — `/library/:path*` alone can miss query-only root URLs.
-  matcher: ['/tools/3D-cad-viewer', '/library', '/library/:path*'],
+  // Skip API, Next internals, and files with an extension. Include bare `/library`.
+  matcher: ['/((?!api/|_next/|.*\\..*).*)'],
 };

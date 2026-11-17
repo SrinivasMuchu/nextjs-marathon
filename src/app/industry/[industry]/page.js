@@ -1,5 +1,6 @@
 import Industry from "@/Components/IndustriesPages/Industry";
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
+import { industryMetaDescription } from '@/lib/seo/listingCopy';
 import { notFound } from 'next/navigation'; // 👈 Important
 
 export async function generateMetadata({ params }) {
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }) {
 
     return {
       title,
-      description: data.data.meta_description,
+      description: industryMetaDescription(data.data),
       openGraph: {
         url: `/industry/${industry}`,
         images: [{

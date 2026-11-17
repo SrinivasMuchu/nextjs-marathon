@@ -3,9 +3,9 @@ export const hireCadDesignerOnlineArticle = {
   slug: 'hire-a-cad-designer-online-what-to-look-for-and-how-to-get-started',
   breadcrumbLastLabel: 'Hire a CAD designer online',
   metadata: {
-    title: 'Hire a CAD Designer Online — Vetted Experts, 24-Hour Delivery | Marathon OS',
+    title: 'Hire a CAD Designer Online | Marathon OS',
     description:
-      'Need to hire a CAD designer online? Marathon OS connects you with vetted professionals in SolidWorks, Fusion 360, AutoCAD & more. Describe your project — get production-ready files in 24 hours.',
+      'What to check before you hire a CAD designer: native files, revisions, IP and tool fit across SolidWorks, Fusion 360 and AutoCAD.',
   },
   hero: {
     badge: 'CAD Services · Guide',

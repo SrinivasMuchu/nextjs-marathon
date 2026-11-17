@@ -5,7 +5,7 @@ export const revitModelingServicesArticle = {
   metadata: {
     title: 'Revit Design Service — Vetted Revit Experts | Marathon OS',
     description:
-      'Hire a vetted Revit designer online. Get native RVT files plus exports like DWG, PDF, IFC (if requested). Submit your brief and receive production-ready deliverables fast.',
+      'Native Revit models for architects and engineers, with DWG, PDF or IFC exports when the project asks for them.',
   },
   hero: {
     badge: 'CAD Services · Revit',

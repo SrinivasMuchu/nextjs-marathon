@@ -3,9 +3,9 @@ export const autocadDraftingServicesArticle = {
   slug: 'autocad-drafting-services-online-2d-drawings-conversions-and-technical-docs',
   breadcrumbLastLabel: 'AutoCAD drafting services',
   metadata: {
-    title: 'AutoCAD Design Service — Vetted AutoCAD Experts | Marathon OS',
+    title: 'Hire an AutoCAD Designer Online | Marathon OS',
     description:
-      'Hire a vetted AutoCAD designer online. Get native DWG, DXF files plus exports like PDF, DWG, DXF. Submit your brief and receive production-ready deliverables fast.',
+      'Native DWG and DXF from a vetted AutoCAD drafter, plus PDF exports for review. Send the sketch or legacy file to start.',
   },
   hero: {
     badge: 'CAD Services · AutoCAD',

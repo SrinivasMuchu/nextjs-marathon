@@ -3,9 +3,9 @@ export const cadDesignCostPricingGuideArticle = {
   slug: 'how-much-does-cad-design-cost-pricing-guide-for-3d-modeling-and-drafting',
   breadcrumbLastLabel: 'How much does CAD design cost?',
   metadata: {
-    title: 'How Much Does CAD Design Cost? 3D Modeling & Drafting Pricing Guide | Marathon OS',
+    title: 'CAD Design Cost and Pricing Guide | Marathon OS',
     description:
-      'Learn what drives CAD design pricing: complexity, part count, drawings, rush timelines, and quote checklists. Compare hourly vs fixed-price models and brief for accurate estimates.',
+      'What changes a CAD quote: part count, drawings, complexity and rush time, plus hourly versus fixed-price models.',
   },
   hero: {
     badge: 'CAD Guides · Pricing',

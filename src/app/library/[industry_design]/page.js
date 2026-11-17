@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { resolveCategorySlugToName, getLibraryPath, getLibraryCanonicalAndRobots } from '@/common.helper';
 import { buildLibraryDetailMetadata, buildPageMetadata } from '@/lib/seo/pageMetadata';
 import { formatLibraryFacetLabel } from '@/lib/seo/libraryLabels';
+import { categoryListingDescription } from '@/lib/seo/listingCopy';
 import { LIBRARY_CATEGORY_PAGES } from '@/data/libraryPage';
 import axios from 'axios';
 
@@ -69,7 +70,7 @@ export async function generateMetadata({ params, searchParams }) {
     (page > 1 ? ` - Page ${page}` : '');
   const description =
     pageConfig?.description ||
-    `Download ${categoryLabel} 3D CAD models in STEP/STP, IGES, STL and more. Filter by tags, file type, price & popularity. Preview online.`;
+    categoryListingDescription(categoryLabel);
 
   const path = getLibraryPath({ categoryName });
   const { canonicalPath, robots, prevPath, nextPath } = getLibraryCanonicalAndRobots({

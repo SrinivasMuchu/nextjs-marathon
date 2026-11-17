@@ -3,9 +3,9 @@ export const fusion360DesignServiceArticle = {
   slug: 'fusion-360-design-service-get-a-custom-3d-model-from-a-vetted-designer',
   breadcrumbLastLabel: 'Fusion 360 design service',
   metadata: {
-    title: 'Fusion 360 Design Service — Vetted Fusion 360 Experts | Marathon OS',
+    title: 'Hire a Fusion 360 Designer | Marathon OS',
     description:
-      'Hire a vetted Fusion 360 designer online. Get native F3D, F3Z files plus exports like STEP, IGES, STL, DWG, DXF. Submit your brief and receive production-ready deliverables fast.',
+      'Native Fusion 360 files (F3D, F3Z) plus STEP, STL or drawings from a vetted designer. Send the brief to get a model back.',
   },
   hero: {
     badge: 'CAD Services · Fusion 360',

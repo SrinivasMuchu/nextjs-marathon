@@ -3,9 +3,9 @@ export const onlineCadDesignServicesArticle = {
   slug: 'online-cad-design-services-how-they-work-and-when-to-use-one',
   breadcrumbLastLabel: 'Online CAD design services',
   metadata: {
-    title: 'Online CAD Design Services — Production-Ready Files Fast | Marathon OS',
+    title: 'How Online CAD Design Services Work | Marathon OS',
     description:
-      'Use online CAD design services to get 3D models, 2D drawings, and conversions without hiring. Submit your brief—get matched with a vetted designer and receive production-ready files fast.',
+      'How an online CAD service runs from brief to files: matching, revisions and when it beats hiring a full-time designer.',
   },
   hero: {
     badge: 'CAD Services · Guide',
