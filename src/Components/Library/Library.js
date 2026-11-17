@@ -28,6 +28,7 @@ import { cookies } from 'next/headers';
 import LibraryListingPageJsonLd from '../JsonLdSchemas/LibraryListingPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
+import { formatLibraryFacetLabel } from '@/lib/seo/libraryLabels';
 import { inferLibraryOutput, libraryOutputToApiFilters } from '@/data/libraryOutput';
 import LibraryProductCard from './LibraryProductCard';
 import LibraryHireCtaCard from './LibraryHireCtaCard';
@@ -93,7 +94,7 @@ async function Library({ searchParams, pageConfig = null, clusterName = '' }) {
   const page = parseInt(searchParams?.page) || 1;
   const limit =  22;
   const tags = searchParams?.tags || ''; // raw cad_tag_name (e.g. "103-linear-bearing")
-  const tagLabel = tags ? tags.replace(/-/g, ' ') : ''; // nicer display in H1/description
+  const tagLabel = tags ? formatLibraryFacetLabel(tags) : '';
   const sort = searchParams?.sort || '';
   const recency = searchParams?.recency || '';
   const freePaid = searchParams?.free_paid || '';
@@ -199,7 +200,9 @@ async function Library({ searchParams, pageConfig = null, clusterName = '' }) {
         cat?.industry_category_name === category ||
         cat?.industry_category_label === category
     ) || null;
-  const categoryLabel = activeCategory?.industry_category_label || category;
+  const categoryLabel = formatLibraryFacetLabel(
+    activeCategory?.industry_category_label || category
+  );
 
   // const showHubExperience =
   //   !pageConfig && !categoryLabel && !tagLabel && !searchQuery && !fileFormat;
