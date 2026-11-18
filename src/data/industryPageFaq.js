@@ -33,27 +33,27 @@ export function getIndustryCadViewerFaq(industryData) {
     {
       question: 'What’s the maximum upload size?',
       answer:
-        'The viewer messaging on Marathon OS states uploads up to 300 MB. For larger datasets, teams typically split assemblies or use simplified review files.',
+        'Uploads are supported up to 300 MB. For larger datasets, teams typically split assemblies or use simplified review files.',
     },
     {
       question: 'Will my uploaded files stay private?',
       answer:
-        'Marathon OS states uploads are private and automatically deleted after 7 days, which helps reduce long-term exposure of shared files.',
+        'Uploads use HTTPS. Files stay private and are deleted automatically after 7 days. See the Privacy Policy for details.',
     },
     {
       question: 'Does this work without downloads or plugins?',
       answer:
-        'Yes. The viewer is positioned as browser-based, so teams can preview models without installing desktop software or browser plugins.',
+        'Yes. The viewer runs in the browser, so you can preview models without installing desktop CAD software or browser plugins.',
     },
     {
-      question: 'Can I use this for faster cross-team reviews?',
+      question: 'Can I use this for cross-team reviews?',
       answer:
-        'Yes. A single 3D preview helps keep discussions aligned and reduces time spent sharing screenshots or exporting multiple view files.',
+        'Yes. Share one browser link to a 3D preview so reviewers can inspect the same model without exchanging screenshots or extra view exports.',
     },
     {
       question: 'Is Marathon OS free to try?',
       answer:
-        'The site positions the viewer as free to use for online preview, with demo and product options available depending on team needs.',
+        'Yes. You can preview CAD files online for free, with uploads up to 300 MB. Paid product options are available when a team needs more than online preview.',
     },
   ];
 }
