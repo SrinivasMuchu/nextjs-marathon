@@ -1,5 +1,7 @@
 import axios from "axios";
 import { BASE_URL } from "@/config";
+// Adds x-device-id to our API calls (converter free files are limited per device).
+import "@/lib/deviceId";
 
 const CONVERTER_API_BASE = "/v1/cad/converter";
 
@@ -61,6 +63,26 @@ export async function checkConverterDownload(converterFileId) {
     { headers: userUuidHeader(), timeout: 30_000 },
   );
   return unwrap(data);
+}
+
+/**
+ * Short-lived signed URL(s) for a converted file (the only way to fetch it).
+ * Throws an Error with `.reason` (payment_required, credit_required, expired,
+ * not_found) when the file isn't unlocked.
+ */
+export async function getConverterDownloadUrl(converterFileId) {
+  const { data } = await axios.post(
+    `${BASE_URL}${CONVERTER_API_BASE}/download-url`,
+    { converter_file_id: converterFileId },
+    { headers: userUuidHeader(), timeout: 30_000 },
+  );
+  if (!data?.meta?.success) {
+    const error = new Error(data?.meta?.message || "Download failed.");
+    error.reason = data?.data?.reason || "";
+    error.access = data?.data || null;
+    throw error;
+  }
+  return data.data;
 }
 
 export async function createConverterDownloadOrder(converterFileId, billingId) {
