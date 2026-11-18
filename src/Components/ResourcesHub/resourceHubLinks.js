@@ -179,6 +179,19 @@ export const RESOURCE_HUB_SECTIONS = [
       },
     ],
   },
+  {
+    id: 'engineering-references',
+    heading: 'Engineering references',
+    links: [
+      {
+        href: '/blog/part-number-nomenclature-guide',
+        title: 'Part Number Nomenclature Guide',
+        description:
+          'How to structure and read part numbers: formats, best practices, and real-world examples for inventory and manufacturing.',
+        navLabel: 'Part number nomenclature guide',
+      },
+    ],
+  },
 ]
 
 export const RESOURCE_HUB_LINKS = RESOURCE_HUB_SECTIONS.flatMap((section) => section.links)

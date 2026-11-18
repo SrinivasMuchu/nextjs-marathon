@@ -30,6 +30,10 @@ const SECTION_META = {
     subtitle: 'Compare options and use decision guides before committing scope.',
     icon: Scale,
   },
+  'engineering-references': {
+    subtitle: 'Reference articles for part identification and engineering workflows.',
+    icon: BookOpen,
+  },
 }
 
 function getCardType(item) {

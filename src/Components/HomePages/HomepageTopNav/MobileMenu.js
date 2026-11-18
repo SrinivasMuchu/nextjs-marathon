@@ -10,7 +10,6 @@ import DemoPopUp from "@/Components/HomePages/RequestDemo/DemoPopUp";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import {
-  BLOGS_MENU,
   LIBRARY_MENU,
   MOBILE_MAIN_NAV,
   TOOLS_MENU,
@@ -86,7 +85,6 @@ function MobileMenu({ onClose, creditsButton }) {
   const openSubmenu = (item) => {
     if (item.id === "library") pushPanel({ type: "library", title: "Library" });
     else if (item.id === "tools") pushPanel({ type: "tools", title: "Tools" });
-    else if (item.id === "blogs") pushPanel({ type: "blogs", title: "Blogs" });
   };
 
   const renderMainNav = () => (
@@ -94,7 +92,12 @@ function MobileMenu({ onClose, creditsButton }) {
       {MOBILE_MAIN_NAV.map((item) => (
         <li key={item.id}>
           {item.type === "anchor" ? (
-            <NavRow Icon={item.Icon} label={item.label} onClick={(e) => handleAnchorClick(e, item.anchor)} />
+            <NavRow
+              href={item.href || "/#why-us"}
+              Icon={item.Icon}
+              label={item.label}
+              onClick={(e) => handleAnchorClick(e, item.anchor)}
+            />
           ) : item.type === "link" ? (
             <NavRow
               href={item.href}
@@ -121,16 +124,6 @@ function MobileMenu({ onClose, creditsButton }) {
     </ul>
   );
 
-  const renderBlogsPanel = () => (
-    <ul className={styles.mobileNavList}>
-      {BLOGS_MENU.map(({ href, title, Icon }) => (
-        <li key={href}>
-          <NavRow href={href} Icon={Icon} label={title} onClick={handleClose} />
-        </li>
-      ))}
-    </ul>
-  );
-
   const renderToolsPanel = () => (
     <ul className={styles.mobileNavList}>
       {TOOLS_MENU.map(({ href, title, Icon }) => (
@@ -148,10 +141,6 @@ function MobileMenu({ onClose, creditsButton }) {
   if (currentPanel?.type === "library") {
     panelContent = renderLibraryPanel();
     panelTitle = "Library";
-    onBack = popPanel;
-  } else if (currentPanel?.type === "blogs") {
-    panelContent = renderBlogsPanel();
-    panelTitle = "Blogs";
     onBack = popPanel;
   } else if (currentPanel?.type === "tools") {
     panelContent = renderToolsPanel();
