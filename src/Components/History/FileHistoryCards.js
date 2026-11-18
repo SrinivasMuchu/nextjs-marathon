@@ -416,15 +416,6 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
         return;
       }
 
-      if (access.reason === 'email_verification_required') {
-        // The server has no verified email for this browser's account yet.
-        setDownloading(prev => ({ ...prev, [index]: false }));
-        toast.info('Verify your email to download this file free.');
-        setPendingAction({ action: 'download', file, index });
-        setIsEmailVerify(true);
-        return;
-      }
-
       setDownloading(prev => ({ ...prev, [index]: false }));
       setPendingConverterDownload({ file, index });
       setConverterBillingDetails({

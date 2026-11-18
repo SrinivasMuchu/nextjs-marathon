@@ -66,9 +66,9 @@ export async function checkConverterDownload(converterFileId) {
 }
 
 /**
- * Short-lived signed URL for a converted file (the only way to fetch it).
- * Throws an Error with `.reason` (e.g. email_verification_required, payment_required,
- * credit_required, expired, not_found) when the file isn't unlocked.
+ * Short-lived signed URL(s) for a converted file (the only way to fetch it).
+ * Throws an Error with `.reason` (payment_required, credit_required, expired,
+ * not_found) when the file isn't unlocked.
  */
 export async function getConverterDownloadUrl(converterFileId) {
   const { data } = await axios.post(

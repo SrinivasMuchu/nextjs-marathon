@@ -229,12 +229,6 @@ function DashboardWorkspace() {
         await downloadConvertedFile(latest);
         return;
       }
-      if (access.reason === "email_verification_required") {
-        // The server has no verified email for this account yet: verify, then resume.
-        toast.info("Verify your email to download this file free.");
-        setNeedsLogin(true);
-        return;
-      }
       setCreditIntent("download");
       if (access.pricing) {
         setSinglePriceLabel(access.pricing.total_label || access.pricing.price_label || singlePriceLabel);
