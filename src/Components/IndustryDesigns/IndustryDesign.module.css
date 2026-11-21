@@ -779,6 +779,30 @@ border: 1px solid  #D1D4D7;
 
 
 
+/* Leaderboard above the H1. Heights match the filled AdSense unit
+   (280px from ~600px wide, a square on narrow screens) so the title
+   does not move when the ad arrives. */
+.productTopAd {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.productTopAdInner {
+  width: 100%;
+  max-width: 970px;
+  margin: 0 auto;
+  min-height: 280px;
+}
+
+@media (max-width: 599px) {
+  .productTopAdInner {
+    min-height: 100vw;
+  }
+}
+
 /* new design styling – header matches second image */
 .industryDesignHeaderDetails {
     display: flex;

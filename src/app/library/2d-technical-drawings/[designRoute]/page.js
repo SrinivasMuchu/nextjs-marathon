@@ -14,6 +14,7 @@ import {
   buildTwoDDrawingHeroStatsFromGeometry,
   buildTwoDDrawingHeroTitle,
 } from "@/lib/techDraw/twoDDrawingPageHelpers";
+import { libraryProductBreadcrumbs } from "@/lib/seo/productBreadcrumbs";
 import {
   TWO_D_LIBRARY_BASE,
   TWO_D_LIBRARY_TITLE,
@@ -149,11 +150,11 @@ async function renderDesignPage(designRoute) {
   const title = String(design?.page_title || design?.part_name || "2D Technical Drawing Set").trim();
   const cadModelHref = `/library/${encodeURIComponent(designRoute)}`;
   const { description: pageDescription } = buildTwoDDrawingMetadata(title);
-  const breadcrumbLinks = [
-    { label: "Library", href: "/library" },
-    { label: "2D Technical Drawings", href: TWO_D_LIBRARY_BASE },
-    { label: title },
-  ];
+  const breadcrumbLinks = libraryProductBreadcrumbs({
+    design,
+    productLabel: title,
+    library: "2d",
+  });
 
   const savedAtUtc =
     bundle.viewSelectionResponse?.saved_at_utc ||
