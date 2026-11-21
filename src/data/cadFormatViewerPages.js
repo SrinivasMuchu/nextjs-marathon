@@ -17,6 +17,70 @@ export const CAD_VIEWER_FORMAT_SLUGS = [
   'dwg',
 ];
 
+/**
+ * stp, igs and brp are extension aliases of step, iges and brep.
+ * Public results already list /tools/stp-file-viewer and /tools/brp-file-viewer
+ * under their own titles, so those URLs stay self-canonical. /tools does not
+ * repeat them. Each primary viewer links its alias once (see getViewerAliasLink).
+ */
+export const CAD_VIEWER_ALIAS_OF = {
+  stp: 'step',
+  igs: 'iges',
+  brp: 'brep',
+};
+
+/** Primary viewers on /tools, in the same format order as the converter directory. */
+export const CAD_VIEWER_HUB_ORDER = [
+  'step',
+  'iges',
+  'stl',
+  '3mf',
+  'obj',
+  'ply',
+  'off',
+  'brep',
+  '3dm',
+];
+
+const HUB_VIEWER_COPY = {
+  step: {
+    description: 'View STEP solid models from any CAD software.',
+    tags: ['Solid Model', 'CAD', 'Engineering'],
+  },
+  iges: {
+    description: 'Open legacy IGES surface and wireframe models.',
+    tags: ['Surface', 'Wireframe', 'Legacy'],
+  },
+  stl: {
+    description: 'Inspect STL meshes for 3D printing checks.',
+    tags: ['3D Printing', 'Mesh', 'Prototyping'],
+  },
+  '3mf': {
+    description: 'Preview 3MF print files with named parts and colours in your browser.',
+    tags: ['3D Printing', 'Manufacturing', 'Color'],
+  },
+  obj: {
+    description: 'View OBJ mesh models and 3D assets in your browser.',
+    tags: ['Mesh', '3D Assets', 'Textures'],
+  },
+  ply: {
+    description: 'Open PLY point clouds and polygon meshes online.',
+    tags: ['Point Cloud', 'Polygon', 'Scan Data'],
+  },
+  off: {
+    description: 'Preview OFF polygon meshes used in geometry research.',
+    tags: ['Polygon', 'Research', 'Mesh'],
+  },
+  brep: {
+    description: 'Open BREP boundary representation models in the browser.',
+    tags: ['Open CASCADE', 'Solid', 'Topology'],
+  },
+  '3dm': {
+    description: 'Preview Rhino 3DM NURBS and mesh models in your browser.',
+    tags: ['Rhino', 'NURBS', 'OpenNURBS'],
+  },
+};
+
 const DEFAULT_RELATED_TOOLS = [
   { href: '/tools/3d-cad-viewer', label: '3D CAD Viewer' },
   { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
@@ -254,6 +318,31 @@ const FORMAT_CONFIG = {
 
 export function isCadViewerFormatSlug(slug) {
   return Boolean(slug && FORMAT_CONFIG[slug.toLowerCase()]);
+}
+
+export function getViewerAliasLink(slug) {
+  const key = String(slug || '').toLowerCase();
+  const aliasSlug = Object.keys(CAD_VIEWER_ALIAS_OF).find((alias) => CAD_VIEWER_ALIAS_OF[alias] === key);
+  if (!aliasSlug) return null;
+  const alias = FORMAT_CONFIG[aliasSlug];
+  return {
+    href: `/tools/${aliasSlug}-file-viewer`,
+    label: `${alias.formatName} File Viewer`,
+    title: `${alias.formatName} File Viewer`,
+    description: `Same viewer for the .${aliasSlug} extension`,
+  };
+}
+
+export function getToolsHubViewerCards() {
+  return CAD_VIEWER_HUB_ORDER.filter((slug) => FORMAT_CONFIG[slug] && !CAD_VIEWER_ALIAS_OF[slug]).map((slug) => {
+    const copy = HUB_VIEWER_COPY[slug];
+    return {
+      href: `/tools/${slug}-file-viewer`,
+      title: `${FORMAT_CONFIG[slug].formatName} Viewer`,
+      description: copy.description,
+      tags: copy.tags,
+    };
+  });
 }
 
 export function getCadViewerFormatConfig(slug) {

@@ -1,5 +1,46 @@
 const JOB_PREVIEW_KEY = "cadConverterJobPreview";
 
+/** Same order as `CONVERTER_HUB_PAGE.directoryFilters`, without "All". */
+export const CAD_CONVERTER_GROUP_ORDER = [
+  "STEP",
+  "IGES",
+  "STL",
+  "3MF",
+  "OBJ",
+  "PLY",
+  "OFF",
+  "BREP",
+  "3DM",
+  "DWG",
+  "DXF",
+];
+
+/**
+ * Group dedicated converter routes by source format.
+ * `routes` is `popularCadConverterTypes` so the boxes stay the converter page's boxes.
+ */
+export function getCadConverterRouteGroups(routes, order = CAD_CONVERTER_GROUP_ORDER) {
+  const groups = new Map();
+
+  (routes || []).forEach((item) => {
+    if (!groups.has(item.from)) groups.set(item.from, []);
+    groups.get(item.from).push(item);
+  });
+
+  return [...groups.entries()]
+    .sort((a, b) => {
+      const aIndex = order.indexOf(a[0]);
+      const bIndex = order.indexOf(b[0]);
+      return (aIndex === -1 ? 99 : aIndex) - (bIndex === -1 ? 99 : bIndex);
+    })
+    .map(([from, items]) => ({ from, items }));
+}
+
+export function cadConverterHref(path) {
+  const pair = String(path || "").replace(/^\//, "");
+  return `/tools/convert-${pair}`;
+}
+
 /** Status page for an in-progress / finished converter job (`?fileid=`). */
 export function cadConverterStatusPath(fileId) {
   const id = String(fileId || "").trim();
