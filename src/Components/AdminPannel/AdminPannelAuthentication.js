@@ -3,18 +3,22 @@ import React,{useState} from 'react'
 import styles from './AdminPannel.module.css'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
+import { isTestingServerHost, persistTestingAdminSession } from '@/lib/testingServerGate'
 
-function AdminPannelAuthentication({setIsAuthenticated,setShowLogin}) {
+function AdminPannelAuthentication({setIsAuthenticated,setShowLogin, title = 'Admin Login', subtitle = '', solid = false}) {
      // 'designs' | 'payments'
     //   const [isAuthenticated, setIsAuthenticated] = useState(false)
     //   const [showLogin, setShowLogin] = useState(false)
       const [email, setEmail] = useState('')
       const [password, setPassword] = useState('')
       const [loading, setLoading] = useState(false)
+      const [error, setError] = useState('')
     
     const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setError('')
+    let signedIn = false
 
     try {
       // Replace with your actual API endpoint
@@ -24,24 +28,29 @@ function AdminPannelAuthentication({setIsAuthenticated,setShowLogin}) {
       })
 
       if (response.data.meta.success) {
-       
-        localStorage.setItem('admin-uuid', response.data.data.admin_uuid)
+        const adminUuid = response.data.data.admin_uuid
+        localStorage.setItem('admin-uuid', adminUuid)
+        if (solid || isTestingServerHost(window.location.hostname)) {
+          persistTestingAdminSession(adminUuid)
+        }
+        signedIn = true
         setIsAuthenticated(true)
         setShowLogin(false)
       } else {
-        alert('Invalid credentials')
+        setError(response.data?.meta?.message || 'Invalid credentials')
       }
     } catch (error) {
       console.error('Login error:', error)
-    
+      setError(error?.response?.data?.meta?.message || 'Invalid credentials')
     } finally {
-      setLoading(false)
+      if (!signedIn) setLoading(false)
     }
   }
    return (
-      <div className={styles.loginOverlay}>
+      <div className={solid ? `${styles.loginOverlay} ${styles.loginOverlaySolid}` : styles.loginOverlay}>
         <div className={styles.loginPopup}>
-          <h2>Admin Login</h2>
+          <h2>{title}</h2>
+          {subtitle ? <p className={styles.loginSubtitle}>{subtitle}</p> : null}
           <form onSubmit={handleLogin}>
             <div className={styles.formGroup}>
               <label htmlFor="email">Email</label>
@@ -65,6 +74,7 @@ function AdminPannelAuthentication({setIsAuthenticated,setShowLogin}) {
                 placeholder="Enter your password"
               />
             </div>
+            {error ? <p className={styles.loginError}>{error}</p> : null}
             <button type="submit" disabled={loading} className={styles.submitBtn}>
               {loading ? 'Logging in...' : 'Submit'}
             </button>
