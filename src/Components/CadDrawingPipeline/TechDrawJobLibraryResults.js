@@ -20,6 +20,7 @@ import {
   techDrawPipelineStatusPath,
 } from "@/lib/techDraw/techDrawJobRoutes";
 import { checkTechDrawDownload, getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
+import { scheduleFeedbackPrompt } from "@/lib/feedbackPrompt";
 import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 import {
   ensureTechDrawDownloadAccess,
@@ -126,8 +127,7 @@ export default function TechDrawJobLibraryResults({
     };
   }, [adminMode, getDesignPath, getPipelineStatusPath, jobId, job]);
 
-  const triggerBrowserDownload = useCallback(async (href) => {
-    if (!href) return;
+  const saveDrawingDownload = useCallback(async (href) => {
     const headers = {};
     if (typeof window !== "undefined") {
       const uuid = localStorage.getItem("uuid");
@@ -151,6 +151,20 @@ export default function TechDrawJobLibraryResults({
     link.remove();
     URL.revokeObjectURL(objectUrl);
   }, [adminMode]);
+
+  const triggerBrowserDownload = useCallback(async (href) => {
+    if (!href) return;
+    // Rating card 3 s after the download starts (cancelled if it fails first).
+    const cancelPrompt = !adminMode && jobId
+      ? scheduleFeedbackPrompt({ jobId, jobType: "drawing" })
+      : () => {};
+    try {
+      await saveDrawingDownload(href);
+    } catch (err) {
+      cancelPrompt();
+      throw err;
+    }
+  }, [adminMode, jobId, saveDrawingDownload]);
 
   const closeDownloadFlow = useCallback(() => {
     setCheckoutStep(null);
@@ -417,6 +431,7 @@ export default function TechDrawJobLibraryResults({
           onClose={closeDownloadFlow}
           onPay={handleTechDrawPayment}
           onAuthed={handleTechDrawAuthed}
+          feedbackJob={!adminMode && jobId ? { jobId, jobType: "drawing" } : undefined}
           onDownloadAgain={() => {
             const href = pendingHrefRef.current;
             if (href) triggerBrowserDownload(href);

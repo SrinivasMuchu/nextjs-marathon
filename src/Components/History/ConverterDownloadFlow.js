@@ -8,6 +8,7 @@ import PopupWrapper from "../CommonJsx/PopupWrapper";
 import UserLoginPupUp from "../CommonJsx/UserLoginPupUp";
 import { isLoggedInClient } from "@/lib/authSession";
 import styles from "./ConverterDownloadFlow.module.css";
+import SuccessFeedbackPanel from "@/Components/Feedback/SuccessFeedbackPanel";
 
 function getDataList(response) {
   const payload = response?.data;
@@ -103,6 +104,8 @@ function ConverterDownloadFlow({
   onClose,
   onPay,
   onDownloadAgain,
+  /** Job to rate on the success screen; defaults to the converter file. `{ jobId, jobType }`. */
+  feedbackJob,
   /** Optional: after login, return true when no payment is needed (flow closes). */
   onAuthed,
 }) {
@@ -381,6 +384,12 @@ function ConverterDownloadFlow({
               Done
             </button>
           )}
+          {!isPack && !isProduct && (feedbackJob?.jobId || file?._id) ? (
+            <SuccessFeedbackPanel
+              jobId={feedbackJob?.jobId || file._id}
+              jobType={feedbackJob?.jobType || "converter"}
+            />
+          ) : null}
           <div className={styles.successLinks}>
             {invoiceUrl && (
               <a href={invoiceUrl} target="_blank" rel="noreferrer">View invoice</a>
