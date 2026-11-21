@@ -1,6 +1,7 @@
 import { CAD_CONVERTER_EVENT } from "@/config";
 import { sendGAtagEvent } from "@/common.helper";
 import { getConverterDownloadUrl, recordConverterDownload } from "@/api/converterPaymentApi";
+import { scheduleFeedbackPrompt } from "@/lib/feedbackPrompt";
 
 function saveBlob(blob, fileName) {
   const href = window.URL.createObjectURL(blob);
@@ -38,6 +39,17 @@ function fallbackFileName(file) {
  */
 export async function downloadConverterFile(file) {
   if (!file?._id) throw new Error("Download URL is missing for this conversion.");
+  // Rating card 3 s after the download starts (cancelled if the download fails first).
+  const cancelPrompt = scheduleFeedbackPrompt({ jobId: file._id, jobType: "converter" });
+  try {
+    await fetchAndSaveConverterFile(file);
+  } catch (err) {
+    cancelPrompt();
+    throw err;
+  }
+}
+
+async function fetchAndSaveConverterFile(file) {
   const data = await getConverterDownloadUrl(file._id);
   const urls = (Array.isArray(data?.urls) && data.urls.length ? data.urls : [data?.url]).filter(Boolean);
   if (!urls.length) throw new Error("Download URL is missing for this conversion.");

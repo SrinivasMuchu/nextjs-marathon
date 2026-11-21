@@ -72,10 +72,10 @@
 .cols,
 .row {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) 24px minmax(220px, 1fr) 132px 196px;
+  grid-template-columns: minmax(220px, 1fr) 24px minmax(220px, 1fr) 132px 252px;
   gap: 16px;
   align-items: center;
-  min-width: 860px;
+  min-width: 916px;
 }
 
 .cols span:last-child {

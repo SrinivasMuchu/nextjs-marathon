@@ -15,6 +15,7 @@ import { getOrCreateTechDrawUuid } from "@/api/cadDrawingPipelineApi";
 import { techDrawJobHref } from "@/lib/techDraw/techDrawJobRoutes";
 import { techdrawJobPreviewCandidates } from "@/lib/techDraw/techdrawFileApi";
 import styles from "./FileHistory.module.css";
+import RateJobButton from "@/Components/Feedback/RateJobButton";
 
 function formatDate(dateString) {
   if (!dateString) return "";
@@ -290,6 +291,11 @@ export default function TechDrawDashboardCards({
                     {formatDate(job.createdAt)} · kept 7 days
                   </span>
                 </div>
+                {isCompleted && id ? (
+                  <div style={{ position: "absolute", right: 10, bottom: 10, zIndex: 2 }}>
+                    <RateJobButton jobId={id} jobType="drawing" feedback={job.feedback} />
+                  </div>
+                ) : null}
               </Link>
             );
           })}
