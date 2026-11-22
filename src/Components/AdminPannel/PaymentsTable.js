@@ -11,7 +11,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { toast } from 'react-toastify'
 
-function formatPaymentAmount(amount) {
+function formatPaymentAmount(amount, payment) {
+  // Credit unlocks are $0 rows: show what was spent instead of "$0.00".
+  if (payment?.paid_with_credit) {
+    const used = Number(payment.credits_used)
+    return used > 0 ? `${used} credit${used === 1 ? '' : 's'}` : 'Credit'
+  }
   const value = Number(amount)
   if (!Number.isFinite(value)) return '—'
   return `$${value.toFixed(2)}`
@@ -437,7 +442,7 @@ function PaymentsTable() {
                       <td>{p._id}</td>
                       <td>{p.user_email || '—'}</td>
                       <td>{p.razorpay_order_id}</td>
-                      <td>{formatPaymentAmount(p.amount)}</td>
+                      <td>{formatPaymentAmount(p.amount, p)}</td>
                       <td>{p.razorpay_payment_id}</td>
                       <td>{p.conversion || '—'}</td>
                       <td>{formatDate(p.createdAt)}</td>
@@ -472,7 +477,7 @@ function PaymentsTable() {
                 <div className={styles.mobileCardHeader}>
                   <h3 className={styles.mobileCardTitle}>{p.conversion || 'Payment'}</h3>
                   <div className={styles.mobileCardAsideRow}>
-                    <span className={styles.mobileCardAside}>{formatPaymentAmount(p.amount)}</span>
+                    <span className={styles.mobileCardAside}>{formatPaymentAmount(p.amount, p)}</span>
                     <PaymentActions
                       canAct={canAct}
                       submittingAction={isSubmitting ? submitting[id] : ''}

@@ -3,9 +3,9 @@ export const sheetMetalCadDesignServiceArticle = {
   slug: 'sheet-metal-cad-design-service-custom-parts-for-fabrication',
   breadcrumbLastLabel: 'Sheet metal CAD design service',
   metadata: {
-    title: 'Sheet Metal CAD Design Service — Production-Ready Deliverables | Marathon OS',
+    title: 'Sheet Metal CAD Design Service | Marathon OS',
     description:
-      'Get sheet metal CAD design from vetted CAD experts. Receive STEP, DXF flat pattern, drawing (optional). Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Sheet metal CAD with bends, flat DXF patterns and STEP for the shop, plus a drawing when the fabricator needs one.',
   },
   hero: {
     badge: 'CAD Services · Sheet metal',
@@ -19,7 +19,7 @@ export const sheetMetalCadDesignServiceArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'A sheet metal CAD design service provides specialized deliverables—STEP, DXF flat pattern, drawing (optional)—created by vetted designers. The best providers clarify requirements upfront, deliver files that suppliers can use, include revisions, and protect your IP with clear ownership.',
+        'A sheet metal CAD design service provides specialized deliverables—STEP, DXF flat pattern, drawing (optional)—created by vetted designers. The best providers clarify requirements upfront, deliver files that suppliers can use, include revisions, and protect your IP with clear ownership. Get the package from [Marathon OS CAD services](/cad-services). The wider model is [3D product modeling](/resources/3d-product-modeling-service-from-concept-to-production-ready-cad-file).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const sheetMetalCadDesignServiceArticle = {
       id: 'what-is-sheet-metal',
       title: 'What is sheet metal CAD design?',
       paragraphs: [
-        'Sheet metal CAD design is a deliverable-focused service: you’re hiring for fabrication-ready outputs, not a generic model. The goal is geometry and drawings a shop can cut, bend, and quote—correct thickness, bend relief, flat patterns, and the formats your workflow requires.',
+        'Sheet metal CAD design is a deliverable-focused service: you’re hiring for fabrication-ready outputs, not a generic model. The goal is geometry and drawings a shop can cut, bend, and quote—correct thickness, bend relief, flat patterns, and the formats your workflow requires. Assemblies around those parts are [mechanical engineering CAD](/resources/mechanical-engineering-cad-design-service-get-expert-cad-work-done-fast). Neutral files move through the [CAD file converter](/tools/3d-cad-file-converter).',
       ],
     },
     {

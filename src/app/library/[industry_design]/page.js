@@ -4,6 +4,8 @@ import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
 import { notFound } from 'next/navigation';
 import { resolveCategorySlugToName, getLibraryPath, getLibraryCanonicalAndRobots } from '@/common.helper';
 import { buildLibraryDetailMetadata, buildPageMetadata } from '@/lib/seo/pageMetadata';
+import { formatLibraryFacetLabel } from '@/lib/seo/libraryLabels';
+import { categoryListingDescription } from '@/lib/seo/listingCopy';
 import { LIBRARY_CATEGORY_PAGES } from '@/data/libraryPage';
 import axios from 'axios';
 
@@ -38,6 +40,7 @@ export async function generateMetadata({ params, searchParams }) {
             {
               categoryLabels: design.category_labels,
               tagLabels: design.tag_labels,
+              route: segment,
             }
           );
 
@@ -60,13 +63,14 @@ export async function generateMetadata({ params, searchParams }) {
 
   const page = parseInt(searchParams?.page, 10) || 1;
   const pageConfig = LIBRARY_CATEGORY_PAGES[segment];
+  const categoryLabel = formatLibraryFacetLabel(categoryName);
   const title =
     (pageConfig?.title ||
-      `${categoryName} CAD Models | STEP, STL, IGES Downloads | Marathon OS`) +
+      `${categoryLabel} CAD Models | STEP, STL, IGES Downloads | Marathon OS`) +
     (page > 1 ? ` - Page ${page}` : '');
   const description =
     pageConfig?.description ||
-    `Download ${categoryName} 3D CAD models in STEP/STP, IGES, STL and more. Filter by tags, file type, price & popularity. Preview online.`;
+    categoryListingDescription(categoryLabel);
 
   const path = getLibraryPath({ categoryName });
   const { canonicalPath, robots, prevPath, nextPath } = getLibraryCanonicalAndRobots({

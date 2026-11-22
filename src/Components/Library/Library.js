@@ -28,6 +28,12 @@ import { cookies } from 'next/headers';
 import LibraryListingPageJsonLd from '../JsonLdSchemas/LibraryListingPageJsonLd';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { getLibraryPath, getLibraryPathWithQuery } from '@/common.helper';
+import { formatLibraryFacetLabel } from '@/lib/seo/libraryLabels';
+import {
+  categoryHeroDescription,
+  categoryTagHeroDescription,
+  tagHeroDescription,
+} from '@/lib/seo/listingCopy';
 import { inferLibraryOutput, libraryOutputToApiFilters } from '@/data/libraryOutput';
 import LibraryProductCard from './LibraryProductCard';
 import LibraryHireCtaCard from './LibraryHireCtaCard';
@@ -36,7 +42,7 @@ import LibraryHeroSearch from './LibraryHeroSearch';
 // import LibraryHubCards from './LibraryHubCards';
 import LibraryCategoryScroller from './LibraryCategoryScroller';
 import LibraryDiscoverySections from './LibraryDiscoverySections';
-import { getLibraryClusterPath } from '@/api/libraryClustersApi';
+import { getLibraryClusterPath, getLibraryClustersPath } from '@/api/libraryClustersApi';
 import {
   LIBRARY_DEFAULT_H1,
   LIBRARY_DEFAULT_INTRO,
@@ -86,14 +92,14 @@ function buildLibraryHref(params) {
   });
 }
 
-async function Library({ searchParams, pageConfig = null }) {
+async function Library({ searchParams, pageConfig = null, clusterName = '' }) {
   
   const searchQuery = searchParams?.search || '';
   const category = searchParams?.category || '';
   const page = parseInt(searchParams?.page) || 1;
   const limit =  22;
   const tags = searchParams?.tags || ''; // raw cad_tag_name (e.g. "103-linear-bearing")
-  const tagLabel = tags ? tags.replace(/-/g, ' ') : ''; // nicer display in H1/description
+  const tagLabel = tags ? formatLibraryFacetLabel(tags) : '';
   const sort = searchParams?.sort || '';
   const recency = searchParams?.recency || '';
   const freePaid = searchParams?.free_paid || '';
@@ -108,6 +114,7 @@ async function Library({ searchParams, pageConfig = null }) {
   const twoDimsParam = outputApi.two_dims || '';
   const clusterId = (searchParams?.cluster_id || '').trim();
   const clusterSlug = (searchParams?.cluster_slug || '').trim();
+  const clusterLabel = String(clusterName || '').trim();
 
   // Read UUID from cookies (server-side)
   const cookieStore = cookies();
@@ -198,7 +205,9 @@ async function Library({ searchParams, pageConfig = null }) {
         cat?.industry_category_name === category ||
         cat?.industry_category_label === category
     ) || null;
-  const categoryLabel = activeCategory?.industry_category_label || category;
+  const categoryLabel = formatLibraryFacetLabel(
+    activeCategory?.industry_category_label || category
+  );
 
   // const showHubExperience =
   //   !pageConfig && !categoryLabel && !tagLabel && !searchQuery && !fileFormat;
@@ -210,32 +219,40 @@ async function Library({ searchParams, pageConfig = null }) {
 
   const heroTitle = pageConfig?.h1
     ? pageConfig.h1
-    : categoryLabel && tagLabel
-      ? `${tagLabel} CAD Models in ${categoryLabel}`
-      : categoryLabel
-        ? `${categoryLabel} CAD Models`
-        : tagLabel
-          ? `${tagLabel} CAD Models`
-          : showHubExperience
-            ? LIBRARY_HUB_H1
-            : searchQuery
-              ? `Search results for "${searchQuery}"`
-              : LIBRARY_DEFAULT_H1;
+    : clusterLabel
+      ? clusterLabel
+      : categoryLabel && tagLabel
+        ? `${tagLabel} CAD Models in ${categoryLabel}`
+        : categoryLabel
+          ? `${categoryLabel} CAD Models`
+          : tagLabel
+            ? `${tagLabel} CAD Models`
+            : showHubExperience
+              ? LIBRARY_HUB_H1
+              : searchQuery
+                ? `Search results for "${searchQuery}"`
+                : LIBRARY_DEFAULT_H1;
 
   const heroDescription = pageConfig?.intro
     ? pageConfig.intro
     : categoryLabel && tagLabel
-      ? `Browse ${tagLabel} CAD models within ${categoryLabel}. Preview online and download STEP/STP, IGES, STL and more. Filter by file type, price and popularity.`
+      ? categoryTagHeroDescription(tagLabel, categoryLabel)
       : categoryLabel
-        ? `Explore ${categoryLabel} CAD models for engineering workflows. Preview online and download STEP/STP, IGES, STL and more. Filter by tags, file type, price and popularity.`
+        ? categoryHeroDescription(categoryLabel)
         : tagLabel
-          ? `Browse ${tagLabel} CAD models used in real projects. Preview online and download STEP/STP, IGES, STL and more. Filter by category, file type, price and popularity.`
+          ? tagHeroDescription(tagLabel)
           : showHubExperience
             ? LIBRARY_HUB_INTRO
             : LIBRARY_DEFAULT_INTRO;
 
   const breadcrumbSchemaLinks = [{ label: 'Library', href: '/library' }];
-  if (categoryLabel) {
+  if (clusterLabel) {
+    breadcrumbSchemaLinks.push({
+      label: 'Build kits',
+      href: getLibraryClustersPath('3d'),
+    });
+    breadcrumbSchemaLinks.push({ label: clusterLabel });
+  } else if (categoryLabel) {
     if (tagLabel) {
       breadcrumbSchemaLinks.push({
         label: categoryLabel,
@@ -270,7 +287,17 @@ async function Library({ searchParams, pageConfig = null }) {
           <nav className={styles["library-hero-breadcrumb"]} aria-label="Breadcrumb">
             <Link href="/" className={styles["library-hero-breadcrumb-link"]}>Home</Link>
             <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
-            {categoryLabel || tagLabel ? (
+            {clusterLabel ? (
+              <>
+                <Link href="/library" className={styles["library-hero-breadcrumb-link"]}>Library</Link>
+                <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                <Link href={getLibraryClustersPath('3d')} className={styles["library-hero-breadcrumb-link"]}>
+                  Build kits
+                </Link>
+                <span className={styles["library-hero-breadcrumb-sep"]}>/</span>
+                <span className={styles["library-hero-breadcrumb-current"]}>{clusterLabel}</span>
+              </>
+            ) : categoryLabel || tagLabel ? (
               <>
                 <Link href="/library" className={styles["library-hero-breadcrumb-link"]}>Library</Link>
                 {categoryLabel ? (

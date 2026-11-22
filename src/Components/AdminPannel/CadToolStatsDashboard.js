@@ -17,6 +17,7 @@ import {
   getAdminCadToolStats,
   getAdminCadToolStatsDetail,
   getAdminCadToolInputDownload,
+  rerunAdminCadTool,
 } from "@/api/adminCadToolStatsApi";
 import panelStyles from "./AdminPannel.module.css";
 import styles from "./CadToolStatsDashboard.module.css";
@@ -39,7 +40,20 @@ const SUMMARY_STATS = [
   { id: "viewer", label: "Viewer", statKey: "viewer" },
   { id: "techdraw", label: "TechDraw", statKey: "techdraw" },
   { id: "stepbom", label: "STEP BOM", statKey: "stepbom" },
+  { id: "failed", label: "Failed", statKey: "failed", failedOnly: true },
 ];
+
+const FAILED_TYPES = [
+  { id: "conversion", label: "Conversions", countKey: "conversion_failed" },
+  { id: "viewer", label: "Viewer", countKey: "viewer_failed" },
+  { id: "techdraw", label: "TechDraw", countKey: "techdraw_failed" },
+  { id: "stepbom", label: "STEP BOM", countKey: "stepbom_failed" },
+];
+
+function preferredFailedType(bucket) {
+  const found = FAILED_TYPES.find((item) => Number(bucket?.[item.countKey]) > 0);
+  return found?.id || "conversion";
+}
 
 const RANGE_OPTIONS = [
   { id: "today", label: "Today" },
@@ -68,10 +82,11 @@ function qualitySummary(row) {
   return { text: `${ok ? "Passed" : "Checks"} ${passed}/${total}`, ok };
 }
 
-function CountButton({ value, onClick }) {
+function CountButton({ value, onClick, tone }) {
   const count = Number(value) || 0;
+  const failedTone = tone === "failed" && count > 0 ? styles.countBtnFailed : "";
   return (
-    <button type="button" className={styles.countBtn} onClick={onClick}>
+    <button type="button" className={`${styles.countBtn} ${failedTone}`} onClick={onClick}>
       {count}
     </button>
   );
@@ -115,6 +130,7 @@ function CadToolStatsDashboard() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [preview, setPreview] = useState(null);
   const [downloadingId, setDownloadingId] = useState("");
+  const [rerunningId, setRerunningId] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -152,6 +168,7 @@ function CadToolStatsDashboard() {
           page: detailPage,
           limit: 20,
           downloaded: Boolean(selected.downloadedOnly),
+          failed: Boolean(selected.failedOnly),
         });
         if (!cancelled) setDetail(data);
       } catch (error) {
@@ -180,19 +197,47 @@ function CadToolStatsDashboard() {
     return () => window.removeEventListener("keydown", onKey);
   }, [preview]);
 
-  const openDetail = (type, date, downloadedOnly = false) => {
+  const openDetail = (type, date, downloadedOnly = false, failedOnly = false) => {
     setDetailPage(1);
     setSelected({
       type: downloadedOnly ? "conversion" : type,
       date: date || null,
       downloadedOnly: Boolean(downloadedOnly),
+      failedOnly: Boolean(failedOnly) && !downloadedOnly,
     });
   };
 
   const summaryActive = (item) => {
     if (!selected || selected.date) return false;
+    if (item.failedOnly) return Boolean(selected.failedOnly);
+    if (selected.failedOnly) return false;
     if (item.downloadedOnly) return selected.type === "conversion" && selected.downloadedOnly;
     return selected.type === item.id && !selected.downloadedOnly;
+  };
+
+  const rerunFailed = async (row) => {
+    const fileId = String(row.file_id || row._id || "");
+    if (!fileId || !selected?.type || rerunningId) return;
+    setRerunningId(fileId);
+    try {
+      await rerunAdminCadTool({ type: selected.type, fileId });
+      toast.success("Rerun queued. The job is pending again.");
+      setDetail((current) => {
+        if (!current?.rows) return current;
+        return {
+          ...current,
+          rows: current.rows.map((item) => {
+            const id = String(item.file_id || item._id || "");
+            if (id !== fileId) return item;
+            return { ...item, status: "PENDING", rerun_queued: true, error_message: "" };
+          }),
+        };
+      });
+    } catch (error) {
+      toast.error(error?.message || "Could not rerun this job.");
+    } finally {
+      setRerunningId("");
+    }
   };
 
   const downloadInputFile = async (row) => {
@@ -219,9 +264,11 @@ function CadToolStatsDashboard() {
     }
   };
 
-  const selectedLabel = selected?.downloadedOnly
-    ? "Downloads"
-    : STAT_TYPES.find((item) => item.id === selected?.type)?.label || "";
+  const selectedLabel = selected?.failedOnly
+    ? `Failed ${STAT_TYPES.find((item) => item.id === selected?.type)?.label || ""}`
+    : selected?.downloadedOnly
+      ? "Downloads"
+      : STAT_TYPES.find((item) => item.id === selected?.type)?.label || "";
   const rangeLabel = RANGE_OPTIONS.find((item) => item.id === rangeFilter)?.label || "Today";
   const totals = stats?.totals || {
     conversion: 0,
@@ -229,11 +276,15 @@ function CadToolStatsDashboard() {
     viewer: 0,
     techdraw: 0,
     stepbom: 0,
+    failed: 0,
   };
   const isConversion = selected?.type === "conversion";
   const isViewer = selected?.type === "viewer";
   const showEye = isConversion || isViewer;
-  const detailColSpan = 5 + (isConversion ? 6 : 0) + (showEye ? 1 : 0);
+  const detailColSpan = 6 + (isConversion ? 6 : 0) + (showEye ? 1 : 0);
+  const failedBucket = selected?.date
+    ? (stats?.days || []).find((row) => row.date === selected.date) || {}
+    : totals;
 
   return (
     <div className={styles.page}>
@@ -269,10 +320,16 @@ function CadToolStatsDashboard() {
                 key={item.id}
                 type="button"
                 className={`${styles.card} ${summaryActive(item) ? styles.cardActive : ""}`}
-                onClick={() => openDetail(item.statKey, null, Boolean(item.downloadedOnly))}
+                onClick={() => (
+                  item.failedOnly
+                    ? openDetail(preferredFailedType(totals), null, false, true)
+                    : openDetail(item.statKey, null, Boolean(item.downloadedOnly))
+                )}
               >
                 <span className={styles.cardLabel}>{item.label}</span>
-                <span className={styles.cardValue}>{totals[item.statKey] || 0}</span>
+                <span className={`${styles.cardValue} ${item.failedOnly ? styles.cardValueFailed : ""}`}>
+                  {totals[item.statKey] || 0}
+                </span>
               </button>
             ))}
           </div>
@@ -302,7 +359,12 @@ function CadToolStatsDashboard() {
                         <td key={item.id}>
                           <CountButton
                             value={row[item.statKey]}
-                            onClick={() => openDetail(item.statKey, row.date, Boolean(item.downloadedOnly))}
+                            tone={item.failedOnly ? "failed" : ""}
+                            onClick={() => (
+                              item.failedOnly
+                                ? openDetail(preferredFailedType(row), row.date, false, true)
+                                : openDetail(item.statKey, row.date, Boolean(item.downloadedOnly))
+                            )}
                           />
                         </td>
                       ))}
@@ -323,6 +385,20 @@ function CadToolStatsDashboard() {
               {selected.date ? ` · ${selected.date}` : ` · ${rangeLabel.toLowerCase()}`}
               {detail?.total != null ? ` (${detail.total})` : ""}
             </h3>
+            {selected.failedOnly ? (
+              <div className={styles.filterGroup}>
+                {FAILED_TYPES.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`${styles.filterBtn} ${selected.type === item.id ? styles.filterBtnActive : ""}`}
+                    onClick={() => openDetail(item.id, selected.date, false, true)}
+                  >
+                    {item.label} ({Number(failedBucket[item.countKey]) || 0})
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           {detailLoading ? (
@@ -351,6 +427,7 @@ function CadToolStatsDashboard() {
                         </>
                       ) : null}
                       {showEye ? <th>View</th> : null}
+                      <th>Rerun</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -362,27 +439,35 @@ function CadToolStatsDashboard() {
                       </tr>
                     ) : (
                       (detail?.rows || []).map((row) => {
+                        const rowId = String(row.file_id || row._id || "");
+                        const failed = String(row.status || "").toUpperCase() === "FAILED";
+                        const queued = Boolean(row.rerun_queued);
                         const quality = isConversion ? qualitySummary(row) : null;
                         const route = isConversion ? conversionRouteLabel(row) : "";
                         const takenSeconds = Number(row.time_taken_seconds);
                         const timeLabel = isConversion && takenSeconds > 0 ? formatTime(takenSeconds) : "";
                         const sizeLabel = isConversion ? formatFileSize(row.input_file_size_bytes) : "";
                         return (
-                          <tr key={String(row.file_id || row._id)}>
-                            <td className={styles.mono}>{String(row.file_id || row._id || "—")}</td>
+                          <tr key={rowId}>
+                            <td className={styles.mono}>{rowId || "—"}</td>
                             <td className={styles.mono}>{String(row.org_id || "—")}</td>
                             <td>
                               <span className={statusClass(row.status)}>{row.status || "—"}</span>
+                              {row.error_message ? (
+                                <div className={styles.errorNote} title={row.error_message}>
+                                  {row.error_message}
+                                </div>
+                              ) : null}
                             </td>
                             <td>{row.user_email || "—"}</td>
                             <td>
                               <button
                                 type="button"
                                 className={styles.downloadBtn}
-                                disabled={downloadingId === String(row.file_id || row._id || "")}
+                                disabled={downloadingId === rowId}
                                 onClick={() => downloadInputFile(row)}
                               >
-                                {downloadingId === String(row.file_id || row._id || "")
+                                {downloadingId === rowId
                                   ? "Downloading…"
                                   : "Download"}
                               </button>
@@ -426,6 +511,20 @@ function CadToolStatsDashboard() {
                                 </button>
                               </td>
                             ) : null}
+                            <td>
+                              {failed || queued ? (
+                                <button
+                                  type="button"
+                                  className={styles.rerunBtn}
+                                  disabled={!failed || rerunningId === rowId}
+                                  onClick={() => rerunFailed(row)}
+                                >
+                                  {rerunningId === rowId ? "Rerunning…" : queued ? "Queued" : "Rerun"}
+                                </button>
+                              ) : (
+                                "—"
+                              )}
+                            </td>
                           </tr>
                         );
                       })

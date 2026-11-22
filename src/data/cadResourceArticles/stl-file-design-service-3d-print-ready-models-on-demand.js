@@ -3,9 +3,9 @@ export const stlFileDesignServiceArticle = {
   slug: 'stl-file-design-service-3d-print-ready-models-on-demand',
   breadcrumbLastLabel: 'STL file design service',
   metadata: {
-    title: 'STL File Design Service — Production-Ready Deliverables | Marathon OS',
+    title: 'STL File Design for 3D Printing | Marathon OS',
     description:
-      'Get STL file design from vetted CAD experts. Receive STL, STEP (optional), native CAD (optional). Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Print-ready STL models on demand, with optional STEP or native CAD if the part also has to be edited later.',
   },
   hero: {
     badge: 'CAD Services · 3D printing',
@@ -19,7 +19,7 @@ export const stlFileDesignServiceArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'An STL file design service provides specialized deliverables—STL, STEP (optional), native CAD (optional)—created by vetted designers. The best providers clarify requirements upfront, deliver meshes that printers can slice reliably, include revisions, and protect your IP with clear ownership.',
+        'An STL file design service provides specialized deliverables—STL, STEP (optional), native CAD (optional)—created by vetted designers. The best providers clarify requirements upfront, deliver meshes that printers can slice reliably, include revisions, and protect your IP with clear ownership. Request the mesh from [Marathon OS CAD services](/cad-services). The modeling scope is [3D product modeling](/resources/3d-product-modeling-service-from-concept-to-production-ready-cad-file).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const stlFileDesignServiceArticle = {
       id: 'what-is-stl-design',
       title: 'What is STL file design?',
       paragraphs: [
-        'STL file design is a deliverable-focused service: you’re hiring for print-ready mesh output, not a generic render. The goal is watertight, properly scaled geometry that your slicer and printer can handle—correct units, adequate wall thickness, and optional STEP/native CAD when you need editable source.',
+        'STL file design is a deliverable-focused service: you’re hiring for print-ready mesh output, not a generic render. The goal is watertight, properly scaled geometry that your slicer and printer can handle—correct units, adequate wall thickness, and optional STEP/native CAD when you need editable source. Confirm scale in the [3D CAD viewer](/tools/3d-cad-viewer), and make a still with the [CAD renderer](/tools/cad-renderer) when you need a picture of the print.',
       ],
     },
     {

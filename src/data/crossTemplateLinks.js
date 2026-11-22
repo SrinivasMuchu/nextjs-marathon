@@ -61,6 +61,12 @@ export const TWO_D_DETAIL_LINKS = [
     icon: 'conv',
   },
   {
+    label: 'Convert DXF to DWG',
+    href: '/tools/convert-dxf-to-dwg',
+    description: 'Turn a DXF exchange drawing into a DWG file for AutoCAD',
+    icon: '2D',
+  },
+  {
     label: 'Get manual drafting support',
     href: '/cad-services',
     description: 'Work with vetted CAD designers for production-ready drawings',

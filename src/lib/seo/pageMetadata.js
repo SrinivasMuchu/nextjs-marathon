@@ -1,4 +1,5 @@
 import { ASSET_PREFIX_URL } from "@/config";
+import { normalizeLibraryUnitsAndAcronyms } from "./libraryLabels";
 
 const SITE_ORIGIN = "https://marathon-os.com";
 const DEFAULT_OG_IMAGE = `${ASSET_PREFIX_URL}logo-1.png`;
@@ -70,13 +71,20 @@ export function buildPageMetadata({
 }
 
 import {
+  LIBRARY_DETAIL_TITLE_MAX,
   buildLibraryDetailMetaDescription,
   buildLibraryDetailTitle,
+  capLibraryProductTitleName,
   cleanLibraryProductName,
   isPhoneAccessoryProduct,
+  libraryProductTitleName,
 } from "./libraryProductDetail";
 
-/** {Clean Name} {FORMAT} CAD Model Download | Marathon OS */
+/**
+ * Sample routes (ObjectId ending in 0): `{Name} | Marathon OS` at 60 characters or fewer.
+ * Other routes keep `{Clean Name} {FORMAT} CAD Model Download | Marathon OS`.
+ * Set LIBRARY_SHORT_TITLE_ROLLOUT=all after the sample shows no CTR loss.
+ */
 export function buildLibraryDetailMetadata(productName, fileType, options = {}) {
   const name = cleanLibraryProductName(productName);
   const isPhoneAccessory =
@@ -87,7 +95,9 @@ export function buildLibraryDetailMetadata(productName, fileType, options = {}) 
       tagLabels: options.tagLabels,
     });
 
-  const title = buildLibraryDetailTitle(productName, fileType);
+  const title = buildLibraryDetailTitle(productName, fileType, {
+    route: options.route,
+  });
   const description = buildLibraryDetailMetaDescription(productName, fileType, {
     isPhoneAccessory,
   });
@@ -95,7 +105,6 @@ export function buildLibraryDetailMetadata(productName, fileType, options = {}) 
   return { title, description, name, isPhoneAccessory };
 }
 
-/** Manager spec: {Product Name} 2D CAD Drawing Sheets - PDF, DXF & SVG | Marathon OS */
 function humanizeViewName(name) {
   const raw = String(name || "").trim().toLowerCase();
   if (!raw) return null;
@@ -163,9 +172,16 @@ export function deriveTwoDDrawingMetaFromGeometry(geometryPerSheet) {
   };
 }
 
+/** Short document title. The previous template ran to about 116 characters. */
+const TWO_D_DRAWING_TITLE_SUFFIX = " 2D Drawing | Marathon OS";
+
 export function buildTwoDDrawingMetadata(productName) {
-  const name = String(productName || "Product").trim();
-  const title = `${name} 2D Technical Drawing | PDF, SVG, DXF | Marathon OS`;
+  const raw = String(productName || "").trim();
+  const cleaned = raw ? libraryProductTitleName(raw) : "Product";
+  const name = normalizeLibraryUnitsAndAcronyms(cleaned);
+  const maxName = LIBRARY_DETAIL_TITLE_MAX - TWO_D_DRAWING_TITLE_SUFFIX.length;
+  const titleName = capLibraryProductTitleName(name, maxName) || "Product";
+  const title = `${titleName}${TWO_D_DRAWING_TITLE_SUFFIX}`;
   const description = `Download 2D technical drawings for ${name}. Includes orthographic views, section cuts and downloadable PDF, SVG and DXF files generated from the 3D CAD model.`;
   return { title, description, name };
 }

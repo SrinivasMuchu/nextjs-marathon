@@ -32,6 +32,7 @@ function AdminControlsPanel() {
   const [twoDLibraryVersionFree, setTwoDLibraryVersionFree] = useState(false);
   const [techdrawUploadPrice, setTechdrawUploadPrice] = useState("4.99");
   const [techdrawUploadFree, setTechdrawUploadFree] = useState(false);
+  const [techdrawCreditCost, setTechdrawCreditCost] = useState("2");
   const [packs, setPacks] = useState(EMPTY_PACKS);
   // Converter free plan: FIRST_N_FREE (first N conversions per user) or SIZE_LIMIT (files under X MB)
   const [freePlan, setFreePlan] = useState("FIRST_N_FREE");
@@ -68,6 +69,7 @@ function AdminControlsPanel() {
     setTwoDLibraryVersionFree(Boolean(data.two_d_library_version_free));
     setTechdrawUploadPrice(String(data.techdraw_upload_price ?? "4.99"));
     setTechdrawUploadFree(Boolean(data.techdraw_upload_free));
+    setTechdrawCreditCost(String(data.techdraw_credit_cost ?? "2"));
     setFreePlan(data.converter_free_plan === "SIZE_LIMIT" ? "SIZE_LIMIT" : "FIRST_N_FREE");
     setFreeConversions(String(data.converter_free_conversions ?? "2"));
     setFreeSizeMb(String(data.converter_free_size_mb ?? "5"));
@@ -226,6 +228,11 @@ function AdminControlsPanel() {
       toast.error("Enter a valid user-upload TechDraw price (0 or greater).");
       return;
     }
+    const creditCost = Number(techdrawCreditCost);
+    if (!Number.isInteger(creditCost) || creditCost < 0) {
+      toast.error("Enter credits per 2D drawing as a whole number (0 turns credits off).");
+      return;
+    }
     setSaving(true);
     try {
       const data = await updateAdminControls({
@@ -235,6 +242,7 @@ function AdminControlsPanel() {
         two_d_library_version_free: twoDLibraryVersionFree,
         techdraw_upload_price: upload,
         techdraw_upload_free: techdrawUploadFree,
+        techdraw_credit_cost: creditCost,
       });
       applyControls(data);
       toast.success("2D library and upload prices updated.");
@@ -548,6 +556,23 @@ function AdminControlsPanel() {
                 Paid uploads charge ${uploadCheckout} (incl. GST). First job may still be free.
               </p>
             ) : null}
+            <label className={styles.packField}>
+              Credits per 2D drawing
+              <input
+                type="number"
+                min="0"
+                step="1"
+                className={styles.priceInput}
+                value={techdrawCreditCost}
+                onChange={(e) => setTechdrawCreditCost(e.target.value)}
+                disabled={saving}
+              />
+            </label>
+            <p className={styles.note}>
+              {Number(techdrawCreditCost) > 0
+                ? `Users can unlock a finished drawing with ${techdrawCreditCost} converter credits instead of paying.`
+                : "0 turns the credit option off (drawings are not free)."}
+            </p>
           </div>
 
           <button type="submit" className={styles.saveBtn} disabled={saving}>

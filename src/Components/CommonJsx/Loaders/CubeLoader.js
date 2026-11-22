@@ -3,7 +3,9 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import Lottie from 'lottie-react';
 import cube from './Cube.json';
 import LeftRightBanner from '../Adsense/AdsBanner';
+import { isAdFreePath } from '../Adsense/AdSenseScript';
 import { contextState } from '../ContextProvider';
+import { usePathname } from 'next/navigation';
 import ConverterProgressLoader from './ConverterProgressLoader';
 
 const statusMessages = {
@@ -30,7 +32,8 @@ function CubeLoader({
   isSampleFile,
   onCancel,
 }) {
-   const { user } = useContext(contextState); 
+   const { user } = useContext(contextState);
+  const hideAds = isAdFreePath(usePathname()); 
 
 
   const [fakeProgress, setFakeProgress] = useState(0);
@@ -94,7 +97,9 @@ function CubeLoader({
     <div style={{ width: '100%', minHeight: '100vh', display: 'flex', alignItems: 'center', 
     justifyContent: 'space-between', background: 'white', color: '#1f2937' }}>
       <div style={{ width: '300px', height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>
-              <LeftRightBanner adSlot={type === 'convert' ? "9130570279" : "7541354101"} />
+              {hideAds ? null : (
+                <LeftRightBanner adSlot={type === 'convert' ? "9130570279" : "7541354101"} />
+              )}
 
       </div>
       <div style={{
@@ -256,7 +261,9 @@ function CubeLoader({
      
       
       <div style={{ width: '300px', height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>
-               <LeftRightBanner adSlot={type === 'convert' ? "2565161929" : "1112495361"} />
+               {hideAds ? null : (
+                 <LeftRightBanner adSlot={type === 'convert' ? "2565161929" : "1112495361"} />
+               )}
 
       </div>
      

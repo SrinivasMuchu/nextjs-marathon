@@ -3,9 +3,9 @@ export const freelanceVsPlatformArticle = {
   slug: 'freelance-cad-designer-vs-cad-service-platform-which-is-right-for-your-project',
   breadcrumbLastLabel: 'Freelancer vs. CAD platform',
   metadata: {
-    title: 'Freelance CAD Designer vs CAD Service Platform (Comparison) | Marathon OS',
+    title: 'Freelancer vs CAD Service Platform | Marathon OS',
     description:
-      'Compare freelancers vs managed CAD services across vetting, timelines, revisions, and IP. Choose the best option for your project and get production-ready files fast.',
+      'Freelancer versus managed CAD platform: vetting, timelines, revisions and who owns the files when the project ends.',
   },
   hero: {
     badge: 'CAD Services · Guide',
@@ -19,7 +19,7 @@ export const freelanceVsPlatformArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'A freelance CAD designer is an individual contractor you hire directly. A CAD service platform is a managed service that matches you with vetted designers and delivers defined outputs. Freelancers can be great for long-term relationships, while platforms reduce risk and speed up delivery for production-ready files.',
+        'A freelance CAD designer is an individual contractor you hire directly. A CAD service platform is a managed service that matches you with vetted designers and delivers defined outputs. Freelancers can be great for long-term relationships, while platforms reduce risk and speed up delivery for production-ready files. [Marathon OS CAD services](/cad-services) is the managed side of that choice. Read [how online CAD design services work](/resources/online-cad-design-services-how-they-work-and-when-to-use-one).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const freelanceVsPlatformArticle = {
       id: 'difference',
       title: 'What’s the difference between a freelance CAD designer and a service platform?',
       paragraphs: [
-        'Freelancers are self-managed: you find, vet, and coordinate. Platforms provide process: pre-vetted talent, clearer timelines, and built-in revision/IP policies.',
+        'Freelancers are self-managed: you find, vet, and coordinate. Platforms provide process: pre-vetted talent, clearer timelines, and built-in revision/IP policies. The [2025 comparison of CAD design services](/resources/best-cad-design-services-online-in-2025-a-comparison-guide) lines up the same tradeoffs. Open a sample model in the [3D CAD viewer](/tools/3d-cad-viewer).',
       ],
     },
     {

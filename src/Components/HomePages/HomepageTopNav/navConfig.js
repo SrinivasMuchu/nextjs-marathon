@@ -1,5 +1,4 @@
 import {
-  BookOpen,
   Box,
   Building2,
   Eye,
@@ -29,15 +28,6 @@ export const LIBRARY_MENU = [
     title: "2D Library",
     subtitle: "Browse 2D technical drawings",
     Icon: SquareStack,
-  },
-];
-
-export const BLOGS_MENU = [
-  {
-    href: "/blog/part-number-nomenclature-guide",
-    title: "Part Number Nomenclature Guide",
-    subtitle: "How to structure and read part numbers",
-    Icon: BookOpen,
   },
 ];
 
@@ -100,5 +90,11 @@ export const MOBILE_MAIN_NAV = [
   },
   { id: "tools", label: "Tools", type: "submenu", items: TOOLS_MENU, Icon: Wrench },
   { id: "resources", label: "Resources", href: "/resources", type: "link", Icon: FileText },
-  { id: "blogs", label: "Blogs", type: "submenu", items: BLOGS_MENU, Icon: Newspaper },
+  {
+    id: "blog",
+    label: "Blog",
+    href: "/blog/part-number-nomenclature-guide",
+    type: "link",
+    Icon: Newspaper,
+  },
 ];

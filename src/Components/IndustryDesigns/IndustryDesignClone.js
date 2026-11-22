@@ -65,8 +65,8 @@ function IndustryDesignClone({ design, designData, type }) {
           {/* <HomeTopNav /> */}
          
             
-            <div style={{width:'100%',display:'flex',justifyContent:'center',boxSizing:'border-box',position:'relative',minHeight:'100px'}}>
-                <div style={{width:'100%',maxWidth:'970px',margin:'0 auto'}}>
+            <div className={styles.productTopAd}>
+                <div className={styles.productTopAdInner}>
                     <LeftRightBanner adSlot="4923244212"/>
                 </div>
             </div>

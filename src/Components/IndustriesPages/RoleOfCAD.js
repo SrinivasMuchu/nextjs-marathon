@@ -36,7 +36,7 @@ async function RoleOfCAD({industryData,part_name,industry}) {
      <div className={styles['role-of-cad']} style={designId ? {} : { textAlign: 'center', justifyContent: 'center' }}>
        <div className={styles['role-of-cad-content']}>
          <h2 style={designId ? {} : { textAlign: 'center' }}>{industryData.part_name} Essentials</h2>
-         <p style={designId ? {} : { textAlign: 'center' }}>{industryData.description}</p>
+         <p style={designId ? {} : { textAlign: 'center' }}>{industryData.short_description || industryData.industry_description}</p>
          <span>Used for</span>
          <p style={designId ? {} : { textAlign: 'center' }}>{industryData.use_cases}</p>
          <span>Common CAD File Formats</span>

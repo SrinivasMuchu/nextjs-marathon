@@ -1,8 +1,5 @@
- // 👈 Add this at the top
-
 import React from 'react';
 import styles from '../Tools/Tools.module.css';
-import Image from 'next/image';
 import LibraryScroll from './LibraryScroll';
 import { DESIGN_GLB_PREFIX_URL } from '@/config';
 
@@ -25,7 +22,6 @@ const categories = [
     _id: '6812139aabe872202f9758d3',
     thumbnail: `${DESIGN_GLB_PREFIX_URL}6812139aabe872202f9758d3/sprite_0_0.webp`
   },
-  
   {
     title: "Electrical",
     route: 'electrical',
@@ -50,7 +46,7 @@ const categories = [
     _id: '680bbcc635a26ccc297a036d',
     thumbnail: `${DESIGN_GLB_PREFIX_URL}680bbcc635a26ccc297a036d/sprite_0_0.webp`
   },
-   {
+  {
     title: "Manufacturing & CNC",
     route: 'machine-design',
     _id: '681c0dbef88b4b11bc92d3c7',
@@ -80,9 +76,6 @@ const categories = [
     _id: '681073ea53cff792537302dd',
     thumbnail: `${DESIGN_GLB_PREFIX_URL}681073ea53cff792537302dd/sprite_0_0.webp`
   },
-  
- 
- 
 ];
 
 function LibraryDetails() {
@@ -90,10 +83,9 @@ function LibraryDetails() {
     <div className={styles['library-tools-page']} style={{ position: 'relative' }}>
       <div className={styles['tools-page-header']}>
         <h3>CAD Design Library</h3>
-        <p>3D CAD designs for engineering and product development. Browse models across industries to accelerate design inspiration and collaboration.</p>
+        <p>3D CAD designs for engineering and product development. Browse models across industries to accelerate design inspiration and collaboration.</p>
       </div>
       <LibraryScroll categories={categories}/>
-      
     </div>
   );
 }

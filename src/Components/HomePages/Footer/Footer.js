@@ -52,6 +52,7 @@ function Footer() {
           <div className={styles.footerColumn}>
             <strong>Tools and services</strong>
             <Link href="/tools">All CAD Tools</Link>
+            <Link href="/tools/industries">Industry CAD viewers</Link>
             <Link href="/tools/3d-cad-viewer">3D CAD Viewer</Link>
             <Link href="/tools/step-bom-extractor">STEP BOM Extractor</Link>
             <Link href="/cad-services">Hire a CAD Designer</Link>
@@ -60,6 +61,7 @@ function Footer() {
           <div className={styles.footerColumn}>
             <strong>Company</strong>
             <Link href="/">Home</Link>
+            <Link href="/resources">Resources</Link>
             <Link href="/about-us">About Us</Link>
             <Link href="/contact-us">Contact Us</Link>
           </div>

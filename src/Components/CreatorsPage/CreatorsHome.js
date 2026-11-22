@@ -8,10 +8,8 @@ import UserLoginPupUp from '../CommonJsx/UserLoginPupUp'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
 import styles from './Creators.module.css'
-import cadHomeStyles from '../CadUploadingHome/CadHomeDesign/CadHome.module.css'
 import { contextState } from '../CommonJsx/ContextProvider';
 import DashboardMobileChrome from './DashboardMobileChrome';
-import LeftRightBanner from '../CommonJsx/Adsense/AdsBanner';
 
 function CreatorsHome({ creatorId }) {
   // viewer, setViewer
@@ -68,19 +66,11 @@ function CreatorsHome({ creatorId }) {
     <>
       {isVerified && <UserLoginPupUp onClose={() => setIsVerified(false)} type='creator' />}
       {!creatorId ? <DashboardMobileChrome /> : null}
-      {!creatorId ? (
+      {creatorId ? (
         <div className={styles.desktopDashboardChrome}>
-          <div className={cadHomeStyles['cad-ad-bar']}>
-            <div className={cadHomeStyles['cad-ad-bar-inner']}>
-              <LeftRightBanner adSlot="9148469534" />
-            </div>
-          </div>
+          <CreatorCoverPage creatorId={creatorId} setIsVerified={setIsVerified}/>
         </div>
-      ) : (
-      <div className={styles.desktopDashboardChrome}>
-      <CreatorCoverPage creatorId={creatorId} setIsVerified={setIsVerified}/>
-      </div>
-      )}
+      ) : null}
       <div className={styles.creatorDetails} >
         {creatorId || showMobileProfile ? (
         <CreatorLeftCont

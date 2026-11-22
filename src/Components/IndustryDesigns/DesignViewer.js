@@ -11,6 +11,13 @@ import Image from "next/image";
 const wrapDeg = (deg) => ((deg % 360) + 360) % 360;
 const step = 30;
 
+function spriteViewAlt(designData, xDeg, yDeg) {
+  const name =
+    String(designData?.page_title || designData?.part_name || "").trim() ||
+    "3D CAD model";
+  return `${name}, viewed at ${wrapDeg(xDeg)}° by ${wrapDeg(yDeg)}°`;
+}
+
 // Define angle views (constant, outside component)
 const ANGLE_VIEWS = [
   { x: 0,   y: 0,   type: 'angle' },
@@ -582,7 +589,7 @@ export default function DesignViewer({
               <Image
                 className={styles.frame}
                 src={src}
-                alt={`sprite x=${xDeg} y=${yDeg}`}
+                alt={spriteViewAlt(designData, xDeg, yDeg)}
                 width={1200}
                 height={650}
                 draggable={false}
