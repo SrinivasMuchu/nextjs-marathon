@@ -13,8 +13,6 @@ export const CAD_VIEWER_FORMAT_SLUGS = [
   'brp',
   '3dm',
   '3mf',
-  'dxf',
-  'dwg',
 ];
 
 /**
@@ -280,38 +278,6 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-3mf-to-step', label: '3MF to STEP Converter' },
       { href: '/tools/stl-file-viewer', label: 'STL File Viewer' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-    ],
-  },
-  dxf: {
-    formatName: 'DXF',
-    previewPhrase: 'DXF CAD drawings',
-    supportedInputLabel: 'DXF (.dxf)',
-    extensions: ['.dxf'],
-    title: 'DXF File Viewer | Open DXF Drawings Online | Marathon OS',
-    description:
-      'Open and inspect DXF drawings online without installing CAD software. Preview CAD drawings securely in your browser with private uploads and 7-day auto-delete.',
-    h1: 'Free Online DXF File Viewer',
-    relatedTools: [
-      { href: '/tools/convert-dxf-to-dwg', label: 'DXF to DWG Converter' },
-      { href: '/tools/dwg-file-viewer', label: 'DWG File Viewer' },
-      { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/convert-step-to-2d-drawing', label: 'STEP to 2D Drawing' },
-    ],
-  },
-  dwg: {
-    formatName: 'DWG',
-    previewPhrase: 'DWG CAD drawings',
-    supportedInputLabel: 'DWG (.dwg)',
-    extensions: ['.dwg'],
-    title: 'DWG File Viewer | Open DWG Drawings Online | Marathon OS',
-    description:
-      'Open and inspect DWG drawings online without installing CAD software. Preview CAD drawings securely in your browser with private uploads and 7-day auto-delete.',
-    h1: 'Free Online DWG File Viewer',
-    relatedTools: [
-      { href: '/tools/convert-dwg-to-dxf', label: 'DWG to DXF Converter' },
-      { href: '/tools/dxf-file-viewer', label: 'DXF File Viewer' },
-      { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
-      { href: '/tools/convert-step-to-2d-drawing', label: 'STEP to 2D Drawing' },
     ],
   },
 };

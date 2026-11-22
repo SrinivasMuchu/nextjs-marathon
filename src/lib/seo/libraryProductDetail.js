@@ -238,12 +238,10 @@ const OFF_DETAIL_LINKS = [
 ];
 
 const DXF_DETAIL_LINKS = [
-  { label: "Open this DXF file online", href: "/tools/dxf-file-viewer" },
   { label: "Convert DXF to DWG", href: "/tools/convert-dxf-to-dwg" },
 ];
 
 const DWG_DETAIL_LINKS = [
-  { label: "Open this DWG file online", href: "/tools/dwg-file-viewer" },
   { label: "Convert DWG to DXF", href: "/tools/convert-dwg-to-dxf" },
 ];
 
