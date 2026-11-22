@@ -12,6 +12,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EmailOTP from '../CommonJsx/EmailOTP';
 import { sendGAtagEvent } from '@/common.helper';
 import { FaCamera } from "react-icons/fa";
+import MyQuotes from "@/Components/Feedback/MyQuotes";
 function ProfilePage() {
   const photoInputRef = useRef(null);
   const [isEmailVerify, setIsEmailVerify] = useState(false);
@@ -509,6 +510,7 @@ function ProfilePage() {
               </button>
             )}
           </div>
+          <MyQuotes />
         </div>
       </div>
 

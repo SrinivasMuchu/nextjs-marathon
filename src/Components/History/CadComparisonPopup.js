@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import PopupWrapper from "../CommonJsx/PopupWrapper";
 import { toCadOutputCdnUrl } from "@/config";
 import { getConverterDownloadLabel, getConverterFileBadge } from "@/lib/converterPricing";
 import styles from "./CadComparisonPopup.module.css";
+import { recordFeedbackJobEvent } from "@/api/feedbackApi";
+import { sendGAtagEvent } from "@/common.helper";
+import AbandonFeedback from "../Feedback/AbandonFeedback";
+import FeedbackDialog from "../Feedback/FeedbackDialog";
+import feedbackStyles from "../Feedback/Feedback.module.css";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
@@ -339,7 +344,18 @@ function CadComparisonPopup({
 }) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [askOpen, setAskOpen] = useState(false);
+  const [answered, setAnswered] = useState(false);
   const drawing = isDrawingConversion(file);
+  const viewedId = file?._id && file?.status === "COMPLETED" && !file?.sample_file ? String(file._id) : "";
+  // Flow 11a: opening the comparison counts as "viewed"; the footer gets a quiet "Not what you expected?".
+  const showAbandonLink = Boolean(viewedId) && !file?.downloaded && !answered;
+
+  useEffect(() => {
+    if (!viewedId) return;
+    recordFeedbackJobEvent({ jobId: viewedId, event: "result_viewed" });
+    sendGAtagEvent({ event_name: "converter_result_viewed", event_category: "FEEDBACK", event_label: "comparison" });
+  }, [viewedId]);
   const showImages = !drawing && hasComparisonPhotos(file);
 
   const inputUrl = useMemo(
@@ -640,6 +656,11 @@ function CadComparisonPopup({
             {copied && <em>Copied</em>}
           </button>
           <div className={styles.footerActions}>
+            {showAbandonLink ? (
+              <button type="button" className={feedbackStyles.linkBtn} onClick={() => setAskOpen(true)}>
+                Not what you expected?
+              </button>
+            ) : null}
             <button
               type="button"
               className={styles.detailsBtn}
@@ -666,6 +687,17 @@ function CadComparisonPopup({
           </div>
         </footer>
       </div>
+      {askOpen ? (
+        <FeedbackDialog label="Not what you expected?" onClose={() => setAskOpen(false)}>
+          <AbandonFeedback
+            jobId={viewedId}
+            jobType="converter"
+            source="abandon_link"
+            onDone={() => setAnswered(true)}
+            onClose={() => setAskOpen(false)}
+          />
+        </FeedbackDialog>
+      ) : null}
     </PopupWrapper>
   );
 }

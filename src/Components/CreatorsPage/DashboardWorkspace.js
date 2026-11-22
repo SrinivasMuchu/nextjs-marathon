@@ -12,6 +12,7 @@ import { contextState } from "../CommonJsx/ContextProvider";
 import { checkConverterDownload, redeemConverterCredit } from "@/api/converterPaymentApi";
 import { ensureConverterDownloadAccess, ensureConverterPackPurchase, trackConverterDashboardDownloadClick } from "../History/converterPayment";
 import ConverterCreditPlansPopup from "../History/ConverterCreditPlansPopup";
+import DashboardFeedbackCards from "../Feedback/DashboardFeedbackCards";
 import ConverterDownloadFlow from "../History/ConverterDownloadFlow";
 import UserLoginPupUp from "../CommonJsx/UserLoginPupUp";
 import {
@@ -363,6 +364,8 @@ function DashboardWorkspace() {
         </section>
       </div>
 
+      <DashboardFeedbackCards className={styles.feedbackCards} />
+
       {needsLogin ? (
         <UserLoginPupUp
           type="dashboard"
@@ -380,6 +383,7 @@ function DashboardWorkspace() {
           title="Pay as you go, cheaper by the pack"
           subtitle={getCreditPlansSubtitle(freePlanInfo)}
           onClose={() => setShowCreditPlans(false)}
+          feedbackJob={latest?._id && !latest.sample_file ? { jobId: latest._id, jobType: "converter" } : null}
           onSelectPack={(pack) => {
             setShowCreditPlans(false);
             setPendingPack(pack);

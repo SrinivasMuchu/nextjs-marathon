@@ -115,3 +115,19 @@
     width: 100%;
   }
 }
+
+/* Flow 11a: quiet card in the margin — never pops up by itself. */
+.marginCard {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 5;
+  width: 260px;
+  box-shadow: 0 10px 30px rgba(32, 16, 64, 0.12);
+}
+
+@media (max-width: 900px) {
+  .marginCard {
+    display: none;
+  }
+}

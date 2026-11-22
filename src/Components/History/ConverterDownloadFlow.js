@@ -371,6 +371,12 @@ function ConverterDownloadFlow({
           <div className={styles.successIcon}>✓</div>
           <h2>{successTitle || defaultSuccessTitle}</h2>
           <p>{successBody || defaultSuccessBody}</p>
+          {!isPack && !isProduct && (feedbackJob?.jobId || file?._id) ? (
+            <SuccessFeedbackPanel
+              jobId={feedbackJob?.jobId || file._id}
+              jobType={feedbackJob?.jobType || "converter"}
+            />
+          ) : null}
           <p>
             {invoice ? <>Invoice <strong>#{invoice}</strong> was emailed to {user?.email}.</> :
               <>Your invoice was emailed to {user?.email}.</>}
@@ -384,12 +390,6 @@ function ConverterDownloadFlow({
               Done
             </button>
           )}
-          {!isPack && !isProduct && (feedbackJob?.jobId || file?._id) ? (
-            <SuccessFeedbackPanel
-              jobId={feedbackJob?.jobId || file._id}
-              jobType={feedbackJob?.jobType || "converter"}
-            />
-          ) : null}
           <div className={styles.successLinks}>
             {invoiceUrl && (
               <a href={invoiceUrl} target="_blank" rel="noreferrer">View invoice</a>

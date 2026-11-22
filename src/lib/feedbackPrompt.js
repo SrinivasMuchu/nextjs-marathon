@@ -33,3 +33,26 @@ export function scheduleFeedbackPrompt(args, delayMs = FEEDBACK_PROMPT_DELAY_MS)
   const timer = window.setTimeout(() => requestFeedbackPrompt(args), delayMs);
   return () => window.clearTimeout(timer);
 }
+
+/** Flow 3 "stopped waiting": the user cancelled while the job still runs on the server. */
+export function requestStoppedWaitingPrompt({ jobId, jobType = "converter" }) {
+  if (typeof window === "undefined" || !jobId) return;
+  window.dispatchEvent(new CustomEvent(FEEDBACK_PROMPT_EVENT, {
+    detail: { jobId: String(jobId), jobType, source: "failed_job", kind: "stopped" },
+  }));
+}
+
+// Drawing sheet previews on screen, so the rating form can offer "Mark the problem" (flow 2b).
+const drawingSheets = new Map();
+
+/** sheets: [{ sheet: 1, src: "https://…/svg/sheet_1.svg", label }] */
+export function registerDrawingSheets(jobId, sheets) {
+  if (!jobId) return () => {};
+  const id = String(jobId);
+  drawingSheets.set(id, Array.isArray(sheets) ? sheets : []);
+  return () => drawingSheets.delete(id);
+}
+
+export function getDrawingSheets(jobId) {
+  return jobId ? drawingSheets.get(String(jobId)) || [] : [];
+}

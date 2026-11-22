@@ -13,6 +13,9 @@ export const ADMIN_TABS = [
   'cad-service-requests',
   'techdraw-jobs',
   'vendors',
+  'feedback-dashboard',
+  'feedback-cases',
+  'feedback-quotes',
 ];
 
 export const DEFAULT_ADMIN_TAB = 'stats';

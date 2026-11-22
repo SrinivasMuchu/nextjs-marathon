@@ -4,7 +4,8 @@
   position: fixed;
   left: 20px;
   bottom: 20px;
-  z-index: 2147483001; /* above the floating CAD button (bottom-right) */
+  /* Above download and checkout popups (2147483100), under toasts. */
+  z-index: 2147483400;
   box-sizing: border-box;
   width: 380px;
   max-width: calc(100vw - 32px);
@@ -384,4 +385,324 @@
   align-items: center;
   padding-right: 0;
   text-align: center;
+}
+
+/* ---------- Flow 6b: "Can we quote your review?" ---------- */
+.quoteBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+  padding: 14px;
+  border: 1px solid #ebe7f2;
+  border-radius: 12px;
+  background: #faf8ff;
+  text-align: left;
+}
+
+.quoteText {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 3px solid #610bee;
+  background: #fff;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #2b2538;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #e3dded;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  color: #1f1a2b;
+  background: #fff;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #610bee;
+  box-shadow: 0 0 0 3px rgba(97, 11, 238, 0.12);
+}
+
+/* ---------- Flow 1e: after-use due on the row star ---------- */
+.rateBtnDue {
+  position: relative;
+}
+
+.rateBtnDue::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #610bee;
+}
+
+/* ---------- Flows 3 / 11: one-reason pickers ---------- */
+.reasonList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reason {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #e3dded;
+  border-radius: 12px;
+  background: #fff;
+  color: #2b2538;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.reason:hover {
+  border-color: #c9b5f5;
+}
+
+.reasonOn {
+  border-color: #610bee;
+  background: #f3ecff;
+  font-weight: 600;
+}
+
+.linkBtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #610bee;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.linkBtn:hover {
+  color: #4a08b8;
+}
+
+/* Failed / stuck job card (flow 3a) */
+.failedCard {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 520px;
+  margin: 16px auto 0;
+  padding: 20px;
+  border: 1px solid #ebe7f2;
+  border-radius: 16px;
+  background: #fff;
+  text-align: left;
+}
+
+.failedCard .title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f1a2b;
+  overflow-wrap: anywhere;
+}
+
+/* Margin card on the quality report page (flow 11a) */
+.sideCard {
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid #ebe7f2;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.sideCard p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #3b3548;
+}
+
+/* Dashboard cards: G2 invite (flow 7b), files about to be deleted (11d) */
+.dashCard {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #ebe7f2;
+  border-radius: 14px;
+  background: #fff;
+  position: relative;
+  min-width: 0;
+}
+
+.dashCard .dashTitle {
+  margin: 0;
+  padding-right: 28px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f1a2b;
+}
+
+.dashCard .dashText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #4a4458;
+}
+
+.dashFiles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashFile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  color: #2b2538;
+}
+
+.dashFileName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  font-weight: 600;
+}
+
+.dashActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Converter page reviews (flow 8b) */
+.reviewsSection {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 16px;
+}
+
+.reviewsHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.reviewsHead h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #1f1a2b;
+}
+
+.reviewsAvg {
+  font-size: 14px;
+  color: #4a4458;
+}
+
+.reviewsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.reviewCard {
+  margin: 0;
+  padding: 18px;
+  border: 1px solid #ebe7f2;
+  border-radius: 14px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reviewCard blockquote {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #2b2538;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.reviewCard figcaption {
+  font-size: 13px;
+  color: #6b6578;
+}
+
+.reviewStars {
+  color: #b7791f;
+  letter-spacing: 2px;
+  font-size: 14px;
+}
+
+/* Account settings: your quotes (flow 6d) */
+.quotesList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quoteRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #ebe7f2;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.quoteRow p {
+  margin: 0;
+  font-size: 14px;
+  color: #2b2538;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
 }

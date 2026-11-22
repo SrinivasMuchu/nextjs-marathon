@@ -17,6 +17,9 @@ import AdminControlsPanel from './AdminControlsPanel'
 import VendorsTable from './VendorsTable'
 import CadToolStatsDashboard from './CadToolStatsDashboard'
 import UserTrackPanel from './UserTrackPanel'
+import FeedbackDashboard from './FeedbackDashboard'
+import FeedbackCases from './FeedbackCases'
+import FeedbackQuotes from './FeedbackQuotes'
 import styles from './AdminPannel.module.css'
 import AdminPannelAuthentication from './AdminPannelAuthentication'
 import {
@@ -130,6 +133,12 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
         return 'TechDraw Uploads'
       case 'vendors':
         return 'Vendors'
+      case 'feedback-dashboard':
+        return 'Feedback loop'
+      case 'feedback-cases':
+        return 'Feedback cases'
+      case 'feedback-quotes':
+        return 'Testimonial quotes'
       default:
         return 'Admin Panel'
     }
@@ -165,6 +174,12 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
         return <TechDrawJobsTable />
       case 'vendors':
         return <VendorsTable />
+      case 'feedback-dashboard':
+        return <FeedbackDashboard />
+      case 'feedback-cases':
+        return <FeedbackCases />
+      case 'feedback-quotes':
+        return <FeedbackQuotes />
       default:
         return <DesignTable />
     }

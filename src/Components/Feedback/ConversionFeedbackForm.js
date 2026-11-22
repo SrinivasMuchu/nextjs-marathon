@@ -5,7 +5,15 @@ import { Star } from "lucide-react";
 import { toast } from "react-toastify";
 import { submitFeedback } from "@/api/feedbackApi";
 import { sendGAtagEvent } from "@/common.helper";
+import QuoteConsent from "./QuoteConsent";
+import MarkProblem from "./MarkProblem";
+import { getDrawingSheets } from "@/lib/feedbackPrompt";
 import styles from "./Feedback.module.css";
+
+/** 1d — shown only while the server says the consented-file store and its 30-day deletion exist (D8). */
+export const FILE_CONSENT_TEXT =
+  "Our engineers may copy and open this file to find the problem, and email me. " +
+  "We use it only for this fix, never for training, and delete our copy within 30 days.";
 
 const STAR_LABELS = ["", "Unusable", "Poor", "OK", "Good", "Excellent"];
 const FEEDBACK_EVENT = "FEEDBACK";
@@ -76,6 +84,11 @@ export default function ConversionFeedbackForm({
   centered = false,
   onSaved,
   onCancel,
+  /** The email rating page saves through its own signed-token endpoint. */
+  submitFn = submitFeedback,
+  channel = "in_app",
+  /** Hide the "change it from your dashboard" hint (email page, logged out). */
+  dashboardHint = true,
 }) {
   const { job, content, moment, feedback } = context;
   const isDrawing = job.job_type === "drawing";
@@ -93,8 +106,14 @@ export default function ConversionFeedbackForm({
   );
   const [contactOk, setContactOk] = useState(Boolean(current?.contact_ok));
   const [hideReview, setHideReview] = useState(Boolean(current?.hide_review));
+  const [consentFile, setConsentFile] = useState(false);
+  const [marks, setMarks] = useState([]);
+  const sheets = useMemo(() => (isDrawing ? getDrawingSheets(job._id) : []), [isDrawing, job._id]);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
+  const [savedFeedback, setSavedFeedback] = useState(null);
+  const [quoteAsk, setQuoteAsk] = useState(false);
+  const consentEnabled = Boolean(context.consent_enabled) && channel === "in_app";
 
   const low = rating > 0 && rating <= 3;
   const high = rating >= 4;
@@ -117,21 +136,35 @@ export default function ConversionFeedbackForm({
     const list = content?.low_tags || [];
     if (!list.some((t) => t.group)) return [{ key: "all", title: null, tags: list }];
     const titles = { views: "Views", dimensions: "Dimensions", sheet: "Sheet and files" };
-    return ["views", "dimensions", "sheet"].map((g) => ({
-      key: g, title: titles[g], tags: list.filter((t) => t.group === g),
+    // Flow 2: the chip order follows the purpose. Laser/CNC → 1:1 DXF first; Quote / Machining → callouts and
+    // missing dimensions first.
+    const first = {
+      laser_cnc: { groups: ["sheet", "dimensions", "views"], tags: ["dxf_not_1to1"] },
+      quote: { groups: ["dimensions", "views", "sheet"], tags: ["hole_thread_callouts", "dims_missing"] },
+      machining: { groups: ["dimensions", "views", "sheet"], tags: ["hole_thread_callouts", "dims_missing"] },
+    }[purpose] || { groups: ["views", "dimensions", "sheet"], tags: [] };
+    const rank = (t) => {
+      const i = first.tags.indexOf(t.id);
+      return i === -1 ? first.tags.length : i;
+    };
+    return first.groups.map((g) => ({
+      key: g,
+      title: titles[g],
+      tags: list.filter((t) => t.group === g).map((t, i) => ({ t, i }))
+        .sort((a, b) => rank(a.t) - rank(b.t) || a.i - b.i).map(({ t }) => t),
     })).filter((g) => g.tags.length);
-  }, [content]);
+  }, [content, purpose]);
 
   async function save() {
     if (!rating) return;
     setSaving(true);
     try {
-      const data = await submitFeedback({
+      const data = await submitFn({
         job_id: job._id,
         job_type: job.job_type,
         rating,
         source,
-        channel: "in_app",
+        channel,
         purpose: purpose || undefined,
         tags,
         other_tags: low ? otherTags : [],
@@ -139,10 +172,14 @@ export default function ConversionFeedbackForm({
         comment,
         contact_ok: low ? contactOk : false,
         hide_review: high && isAfterUse ? hideReview : false,
+        consent_file: low && consentEnabled ? consentFile : false,
+        marks: low && isDrawing ? marks : [],
       });
       sendGAtagEvent({ event_name: "feedback_details_sent", event_category: FEEDBACK_EVENT, event_label: job.route_family });
+      setSavedFeedback(data?.feedback || null);
+      setQuoteAsk(Boolean(data?.quote_ask));
       setDone(true);
-      onSaved?.(data.feedback);
+      onSaved?.(data?.feedback);
     } catch (err) {
       toast.error(err?.message || "Couldn't save your rating. Please try again.");
     } finally {
@@ -156,11 +193,12 @@ export default function ConversionFeedbackForm({
         <p className={styles.thanksTitle}>Thanks — that helps us fix the right things.</p>
         <p className={styles.muted}>
           {low
-            ? contactOk
+            ? contactOk || consentFile
               ? "An engineer will read this and may email you about it."
-              : "We read every rating. You can change it from your dashboard."
-            : "You can change your rating any time from your dashboard."}
+              : dashboardHint ? "We read every rating. You can change it from your dashboard." : "We read every rating."
+            : dashboardHint ? "You can change your rating any time from your dashboard." : null}
         </p>
+        {high && quoteAsk ? <QuoteConsent feedback={savedFeedback} /> : null}
         {onCancel ? (
           <button type="button" className={styles.secondaryBtn} onClick={onCancel}>Close</button>
         ) : null}
@@ -172,7 +210,9 @@ export default function ConversionFeedbackForm({
     ? "How did it hold up?"
     : isDrawing
       ? "Was this drawing usable?"
-      : "How did your file turn out?";
+      : job.library
+        ? "How did this model convert?"
+        : "How did your file turn out?";
 
   return (
     <div className={`${styles.form} ${compact ? styles.compact : ""}`}>
@@ -232,6 +272,10 @@ export default function ConversionFeedbackForm({
         </>
       ) : null}
 
+      {low && isDrawing && sheets.length ? (
+        <MarkProblem sheets={sheets} marks={marks} onChange={setMarks} />
+      ) : null}
+
       {high ? (
         <div className={styles.group}>
           <label className={styles.label} htmlFor={`fb-review-${job._id}`}>
@@ -281,6 +325,12 @@ export default function ConversionFeedbackForm({
             <input type="checkbox" checked={contactOk} onChange={(e) => setContactOk(e.target.checked)} />
             <span>You can email me about this problem</span>
           </label>
+          {consentEnabled ? (
+            <label className={styles.check}>
+              <input type="checkbox" checked={consentFile} onChange={(e) => setConsentFile(e.target.checked)} />
+              <span>{FILE_CONSENT_TEXT}</span>
+            </label>
+          ) : null}
         </div>
       ) : null}
 
@@ -312,7 +362,7 @@ export default function ConversionFeedbackForm({
             </button>
           ) : null}
           <button type="button" className={styles.primaryBtn} onClick={save} disabled={saving}>
-            {saving ? "Saving…" : current ? "Update rating" : "Send"}
+            {saving ? "Saving…" : channel === "email" ? "Save rating" : current ? "Update rating" : "Send"}
           </button>
         </div>
       ) : null}

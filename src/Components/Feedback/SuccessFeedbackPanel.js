@@ -14,7 +14,12 @@ import styles from "./Feedback.module.css";
 export default function SuccessFeedbackPanel({ jobId, jobType = "converter" }) {
   const [context, setContext] = useState(null);
 
-  useEffect(() => markFeedbackInline(jobId), [jobId]);
+  // Block the corner card only once these stars are actually on screen.
+  // Marking the job earlier hid the download card even when this panel rendered nothing.
+  useEffect(() => {
+    if (!context) return undefined;
+    return markFeedbackInline(jobId);
+  }, [jobId, context]);
 
   useEffect(() => {
     if (!jobId) return undefined;

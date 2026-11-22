@@ -13,6 +13,7 @@ import {
 import { isFreeRetryAvailable } from "@/api/techDrawErrors";
 import TechDrawDimensionExtractionFailedModal from "./TechDrawDimensionExtractionFailedModal";
 import TechDrawDatumPicker from "./TechDrawDatumPicker";
+import FailedJobFeedback from "@/Components/Feedback/FailedJobFeedback";
 import { consumeJobLogs, formatStatusConsoleLine } from "@/api/consoleStatus";
 import {
   derivePipelineStageUi,
@@ -521,6 +522,11 @@ export default function CadDrawingPipelineStatus({
               ) : null}
             </div>
           </div>
+        ) : null}
+
+        {/* Flow 3: failed, or stuck behind "Still processing on server" — one question, no stars. */}
+        {!adminMode && jobId && (overallStatus === "FAILED" || (error && overallStatus === "PROCESSING")) ? (
+          <FailedJobFeedback key={`${jobId}-${overallStatus}`} jobId={jobId} jobType="drawing" />
         ) : null}
 
         {result && !error ? (

@@ -23,6 +23,8 @@ import {
   showConverterLoadingOverlay,
   updateConverterLoadingOverlay,
 } from "@/lib/converterLoadingOverlay";
+import { requestStoppedWaitingPrompt } from "@/lib/feedbackPrompt";
+import FailedJobFeedback from "@/Components/Feedback/FailedJobFeedback";
 
 const CONVERTER_TOOL_HREF = "/tools/3d-cad-file-converter";
 const DASHBOARD_HREF = "/dashboard?cad_type=CAD_CONVERTER";
@@ -46,6 +48,8 @@ function CadConverterStatusPage() {
   const [notFound, setNotFound] = useState(false);
   const stopPollingRef = useRef(false);
   const pollIntervalRef = useRef(null);
+  const uploadingMessageRef = useRef(uploadingMessage);
+  uploadingMessageRef.current = uploadingMessage;
 
   useEffect(() => {
     fileIdRef.current = fileId;
@@ -99,6 +103,12 @@ function CadConverterStatusPage() {
   const handleCancel = useCallback(() => {
     stopPolling();
     hideConverterLoadingOverlay();
+    // Cancel only stops polling; the job keeps running. Ask once what they needed (flow 3, "stopped waiting").
+    const id = fileIdRef.current;
+    const failedAlready = uploadingMessageRef.current === "FAILED";
+    if (id && !failedAlready) {
+      window.setTimeout(() => requestStoppedWaitingPrompt({ jobId: id }), 1500);
+    }
     router.push(CONVERTER_TOOL_HREF);
   }, [router, stopPolling]);
 
@@ -290,6 +300,7 @@ function CadConverterStatusPage() {
             Open dashboard
           </Link>
         </div>
+        {!notFound && fileId ? <FailedJobFeedback jobId={fileId} jobType="converter" /> : null}
       </main>
     );
   }

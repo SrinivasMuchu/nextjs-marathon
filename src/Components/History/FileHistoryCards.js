@@ -580,6 +580,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           title="Pay as you go, cheaper by the pack"
           subtitle={getCreditPlansSubtitle(freePlanInfo)}
           onClose={closeCreditPlans}
+          feedbackJob={pendingConverterDownload?.file?._id && !pendingConverterDownload.file.sample_file
+            ? { jobId: pendingConverterDownload.file._id, jobType: 'converter' } : null}
           onSelectPack={handleSelectPack}
           onSelectSingle={openBillingFromPlans}
         />

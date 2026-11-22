@@ -30,15 +30,20 @@ export default function RateJobButton({ jobId, jobType = "converter", feedback, 
   }, [jobId, jobType]);
 
   const rated = Boolean(current?.rating);
-  const label = rated ? `Your rating: ${current.rating} of 5. Change rating` : "Rate this conversion";
+  // 1e: "You rated 5/5 · How did it hold up?" once the after-use ask is due and no email asked it.
+  const due = rated && current?.moment === "first_impression" && current?.after_use_due;
+  const noun = jobType === "drawing" ? "drawing" : "conversion";
+  const label = due
+    ? `You rated ${current.rating}/5 · How did it hold up?`
+    : rated ? `Your rating: ${current.rating} of 5. Change rating` : `Rate this ${noun}`;
 
   return (
     <>
       <button
         type="button"
-        className={`${styles.rateBtn} ${rated ? styles.rateBtnRated : ""} ${className}`}
+        className={`${styles.rateBtn} ${rated ? styles.rateBtnRated : ""} ${due ? styles.rateBtnDue : ""} ${className}`}
         aria-label={label}
-        title={rated ? `You rated ${current.rating}/5` : "Rate this conversion"}
+        title={due ? label : rated ? `You rated ${current.rating}/5` : `Rate this ${noun}`}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();

@@ -30,6 +30,7 @@ import Footer from '@/Components/HomePages/Footer/Footer'
 import DesignHub from '@/Components/HomePages/DesignHub/DesignHub'
 import CadFileConversionContent from './CadFileConversionContent'
 import ConverterPricingSectionServer from './ConverterPricingSectionServer'
+import ConverterReviews from '@/Components/Feedback/ConverterReviews'
 import ConvertPairAftercare from './ConvertPairAftercare'
 import ConverterFaq from './ConverterFaq'
 import StepTo3dmHero from './StepTo3dmHero'
@@ -886,6 +887,9 @@ function ConvertPairPage({ conversionParams }) {
           </div>
         </section>
       ) : null}
+
+      {/* Flow 8b: moderated quotes under the hero (renders nothing until a quote is published). */}
+      <ConverterReviews conversionParams={conversionParams} />
 
       {isStepToStl ? null : (
         <ConverterPricingSectionServer layout={isModernPair ? 'stepToStl' : 'default'} />

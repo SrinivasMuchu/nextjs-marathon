@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import PopupWrapper from '../CommonJsx/PopupWrapper';
 import { sendGAtagEvent } from '@/common.helper';
 import { CAD_CONVERTER_EVENT } from '@/config';
 import { getFeaturedConverterPack } from '@/lib/converterPricing';
+import { getFeedbackContext, recordFeedbackJobEvent, submitFeedback } from '@/api/feedbackApi';
 import styles from './ConverterCreditPlansPopup.module.css';
+import feedbackStyles from '../Feedback/Feedback.module.css';
 
 function planGaParams(option) {
   if (!option) return {};
@@ -64,7 +66,62 @@ function ConverterCreditPlansPopup({
   onSelectPack,
   onSelectSingle,
   onDontShowAgain,
+  /** { jobId, jobType } of the file behind this paywall: enables flow 11b's one-tap "why not?" on close. */
+  feedbackJob = null,
 }) {
+  const [askReasons, setAskReasons] = useState(null); // paywall_close_reasons when this user may be asked
+  const [asking, setAsking] = useState(false);
+  const closedRef = useRef(false);
+  const jobId = feedbackJob?.jobId ? String(feedbackJob.jobId) : '';
+  const jobType = feedbackJob?.jobType || 'converter';
+
+  useEffect(() => {
+    if (!jobId) return undefined;
+    let alive = true;
+    recordFeedbackJobEvent({ jobId, jobType, event: 'paywall_shown' });
+    sendGAtagEvent({ event_name: 'converter_paywall_shown', event_category: 'FEEDBACK' });
+    getFeedbackContext(jobId, jobType)
+      .then((ctx) => {
+        // At most once per user per 30 days, never for samples or already-answered files (server decides).
+        if (alive && ctx?.paywall_ask && ctx?.content?.paywall_close_reasons?.length) {
+          setAskReasons(ctx.content.paywall_close_reasons);
+        }
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [jobId, jobType]);
+
+  const finishClose = useCallback(() => {
+    if (closedRef.current) return;
+    closedRef.current = true;
+    if (jobId) {
+      recordFeedbackJobEvent({ jobId, jobType, event: 'paywall_closed' });
+      sendGAtagEvent({ event_name: 'converter_paywall_closed', event_category: 'FEEDBACK' });
+    }
+    onClose?.();
+  }, [jobId, jobType, onClose]);
+
+  /** Closing without paying: one tap, then it closes (11b). */
+  const requestClose = useCallback(() => {
+    if (askReasons && !asking) {
+      setAsking(true);
+      return;
+    }
+    finishClose();
+  }, [askReasons, asking, finishClose]);
+
+  const answerClose = (reasonId) => {
+    submitFeedback({
+      job_id: jobId,
+      job_type: jobType,
+      kind: 'abandoned',
+      source: 'paywall_close',
+      abandon_reason: reasonId,
+    }).catch(() => {});
+    sendGAtagEvent({ event_name: 'converter_abandon_reason', event_category: 'FEEDBACK', event_label: `paywall_close:${reasonId}` });
+    finishClose();
+  };
+
   const featured = useMemo(() => getFeaturedConverterPack(packs), [packs]);
   const [selectedId, setSelectedId] = useState(() => featured?.id || 'single');
 
@@ -74,11 +131,11 @@ function ConverterCreditPlansPopup({
 
   useEffect(() => {
     const onKey = (event) => {
-      if (event.key === 'Escape') onClose?.();
+      if (event.key === 'Escape') requestClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [requestClose]);
 
   const options = useMemo(() => {
     const singleLabel = singlePriceLabel || '$2.99';
@@ -150,12 +207,12 @@ function ConverterCreditPlansPopup({
 
   const handleDontShow = () => {
     onDontShowAgain?.();
-    onClose?.();
+    finishClose();
   };
 
   return (
     <PopupWrapper>
-      <div className={styles.backdrop} onClick={onClose} role="presentation">
+      <div className={styles.backdrop} onClick={requestClose} role="presentation">
         <section
           className={styles.modal}
           role="dialog"
@@ -175,7 +232,7 @@ function ConverterCreditPlansPopup({
               <button
                 type="button"
                 className={styles.closeBtn}
-                onClick={onClose}
+                onClick={requestClose}
                 aria-label="Close plans"
               >
                 <X size={16} strokeWidth={2.25} />
@@ -188,7 +245,22 @@ function ConverterCreditPlansPopup({
           </header>
 
           <div className={styles.body}>
-            {options.length ? (
+            {asking ? (
+              <div className={feedbackStyles.form} aria-live="polite">
+                <p className={feedbackStyles.label}>Before you go — what stopped you?</p>
+                <div className={feedbackStyles.reasonList}>
+                  {askReasons.map((r) => (
+                    <button key={r.id} type="button" className={feedbackStyles.reason} onClick={() => answerClose(r.id)}>
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+                <div className={feedbackStyles.actionsRow}>
+                  <button type="button" className={feedbackStyles.secondaryBtn} onClick={finishClose}>Skip</button>
+                </div>
+              </div>
+            ) : null}
+            {asking ? null : options.length ? (
               <div className={styles.list} role="radiogroup" aria-label="Credit plans">
                 {options.map((option) => {
                   const checked = option.id === selectedId;
@@ -258,7 +330,7 @@ function ConverterCreditPlansPopup({
               >
                 {ctaLabel}
               </button>
-              <button type="button" className={styles.later} onClick={onClose}>
+              <button type="button" className={styles.later} onClick={requestClose}>
                 Maybe later
               </button>
             </div>

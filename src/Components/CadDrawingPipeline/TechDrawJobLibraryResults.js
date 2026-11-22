@@ -20,7 +20,8 @@ import {
   techDrawPipelineStatusPath,
 } from "@/lib/techDraw/techDrawJobRoutes";
 import { checkTechDrawDownload, getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
-import { scheduleFeedbackPrompt } from "@/lib/feedbackPrompt";
+import { registerDrawingSheets, scheduleFeedbackPrompt } from "@/lib/feedbackPrompt";
+import { recordFeedbackJobEvent } from "@/api/feedbackApi";
 import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 import {
   ensureTechDrawDownloadAccess,
@@ -160,6 +161,8 @@ export default function TechDrawJobLibraryResults({
       : () => {};
     try {
       await saveDrawingDownload(href);
+      // Every drawing output (PDF, DXF, SVG, ZIP, sheet) comes through here: one hook records them all (2a, 4a).
+      if (!adminMode && jobId) recordFeedbackJobEvent({ jobId, jobType: "drawing", event: "downloaded" });
     } catch (err) {
       cancelPrompt();
       throw err;
@@ -330,6 +333,18 @@ export default function TechDrawJobLibraryResults({
     if (href) await triggerBrowserDownload(href);
     return true;
   }, [jobId, triggerBrowserDownload]);
+
+  // Sheet previews for the rating form's optional "Mark the problem" (flow 2b).
+  useEffect(() => {
+    if (adminMode || !jobId || !pageProps?.sheets?.length) return undefined;
+    const sheets = pageProps.sheets
+      .map((sh, i) => {
+        const m = String(sh.src || "").match(/sheet_(\d+)/);
+        return { sheet: m ? Number(m[1]) : i + 1, src: sh.src, label: sh.label };
+      })
+      .filter((sh) => sh.src);
+    return registerDrawingSheets(jobId, sheets);
+  }, [adminMode, jobId, pageProps?.sheets]);
 
   const downloadHandlers = useMemo(() => {
     if (!pageProps) return {};
