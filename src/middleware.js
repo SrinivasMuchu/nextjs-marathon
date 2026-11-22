@@ -55,6 +55,7 @@ export async function middleware(request) {
 }
 
 export const config = {
-  // Include bare `/library` — `/library/:path*` alone can miss query-only root URLs.
-  matcher: ['/tools/3D-cad-viewer', '/library', '/library/:path*', '/robots.txt'],
+  // Skip API, Next internals, and files with an extension. `/robots.txt` is
+  // listed on its own because that exclusion would otherwise skip it.
+  matcher: ['/((?!api/|_next/|.*\\..*).*)', '/robots.txt'],
 };
