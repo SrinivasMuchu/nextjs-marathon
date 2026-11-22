@@ -271,7 +271,7 @@ function DashboardWorkspace() {
         billingId,
       });
       applyCredits(paymentResult?.credits);
-      downloadConvertedFile(latest).catch(() => {
+      downloadConvertedFile(latest, { prompt: false }).catch(() => {
         toast.error("Payment successful. Open the conversion and download again.");
       });
       return paymentResult;
@@ -421,7 +421,7 @@ function DashboardWorkspace() {
           user={user}
           onClose={() => setOpenBilling(false)}
           onPay={handleFilePayment}
-          onDownloadAgain={() => downloadConvertedFile(latest)}
+          onDownloadAgain={() => downloadConvertedFile(latest, { prompt: false })}
         />
       ) : null}
     </div>

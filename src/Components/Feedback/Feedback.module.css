@@ -40,10 +40,10 @@
 
 .close {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 36px;
-  height: 36px;
+  top: 8px;
+  right: 8px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -71,7 +71,7 @@
 }
 
 .form .title {
-  margin: 0 40px 2px 0;
+  margin: 0 48px 2px 0;
   font-size: 17px;
   font-weight: 700;
   line-height: 1.3;
@@ -121,8 +121,8 @@
 .starBtn {
   display: inline-flex;
   padding: 4px;
-  min-width: 40px;
-  min-height: 40px;
+  min-width: 44px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   border: 0;
@@ -174,7 +174,7 @@
 }
 
 .chip {
-  min-height: 34px;
+  min-height: 44px;
   padding: 6px 12px;
   border: 1px solid #e3dded;
   border-radius: 999px;
@@ -226,7 +226,10 @@
 }
 
 .check input {
+  width: 20px;
+  height: 20px;
   margin-top: 2px;
+  flex: 0 0 auto;
   accent-color: #610bee;
 }
 
@@ -239,7 +242,7 @@
 
 .primaryBtn,
 .secondaryBtn {
-  min-height: 40px;
+  min-height: 44px;
   padding: 8px 18px;
   border-radius: 999px;
   font-size: 14px;
@@ -282,8 +285,8 @@
 
 /* Dashboard row star button: plain star when unrated, "★ 2/5" when rated (flow 10b). */
 .rateBtn {
-  height: 34px;
-  min-width: 34px;
+  height: 44px;
+  min-width: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -429,7 +432,7 @@
 .input {
   box-sizing: border-box;
   width: 100%;
-  min-height: 38px;
+  min-height: 44px;
   padding: 8px 10px;
   border: 1px solid #e3dded;
   border-radius: 10px;
@@ -472,7 +475,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 8px 12px;
   border: 1px solid #e3dded;
   border-radius: 12px;
@@ -494,6 +497,9 @@
 }
 
 .linkBtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: 0;
   border: 0;
   background: none;

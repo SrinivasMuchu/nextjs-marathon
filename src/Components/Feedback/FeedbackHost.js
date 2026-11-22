@@ -48,8 +48,8 @@ export function CardHeader({ context }) {
 
 /**
  * Rating corner card (flow 1a/1e). Mounted once in the app layout; it never blocks the page.
- * Shown (a) 3 s after a download starts, and (b) when the dashboard opens and the user has a
- * downloaded file they haven't rated. The server decides if this user may be asked now.
+ * Shown when a free or credit download finishes, and when the dashboard opens on a downloaded
+ * file that hasn't been rated. The server decides if this user may be asked now.
  */
 export default function FeedbackHost() {
   const pathname = usePathname();

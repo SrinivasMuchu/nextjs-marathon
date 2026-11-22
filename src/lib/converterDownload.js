@@ -1,7 +1,7 @@
 import { CAD_CONVERTER_EVENT } from "@/config";
 import { sendGAtagEvent } from "@/common.helper";
 import { getConverterDownloadUrl, recordConverterDownload } from "@/api/converterPaymentApi";
-import { scheduleFeedbackPrompt } from "@/lib/feedbackPrompt";
+import { requestFeedbackPrompt } from "@/lib/feedbackPrompt";
 
 function saveBlob(blob, fileName) {
   const href = window.URL.createObjectURL(blob);
@@ -37,16 +37,12 @@ function fallbackFileName(file) {
  * old files (stored without a download name) and new ones save the same way.
  * If the browser can't fetch it (network / CORS), the signed link is opened instead.
  */
-export async function downloadConverterFile(file) {
+export async function downloadConverterFile(file, { prompt = true } = {}) {
   if (!file?._id) throw new Error("Download URL is missing for this conversion.");
-  // Rating card 3 s after the download starts (cancelled if the download fails first).
-  const cancelPrompt = scheduleFeedbackPrompt({ jobId: file._id, jobType: "converter" });
-  try {
-    await fetchAndSaveConverterFile(file);
-  } catch (err) {
-    cancelPrompt();
-    throw err;
-  }
+  await fetchAndSaveConverterFile(file);
+  // Ask only after the file has actually saved (D6). Card payments pass prompt:false —
+  // those stars are already on the success screen.
+  if (prompt) requestFeedbackPrompt({ jobId: file._id, jobType: "converter" });
 }
 
 async function fetchAndSaveConverterFile(file) {

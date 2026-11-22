@@ -20,7 +20,7 @@ import {
   techDrawPipelineStatusPath,
 } from "@/lib/techDraw/techDrawJobRoutes";
 import { checkTechDrawDownload, getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
-import { registerDrawingSheets, scheduleFeedbackPrompt } from "@/lib/feedbackPrompt";
+import { registerDrawingSheets, requestFeedbackPrompt } from "@/lib/feedbackPrompt";
 import { recordFeedbackJobEvent } from "@/api/feedbackApi";
 import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 import {
@@ -153,19 +153,14 @@ export default function TechDrawJobLibraryResults({
     URL.revokeObjectURL(objectUrl);
   }, [adminMode]);
 
-  const triggerBrowserDownload = useCallback(async (href) => {
+  const triggerBrowserDownload = useCallback(async (href, { prompt = true } = {}) => {
     if (!href) return;
-    // Rating card 3 s after the download starts (cancelled if it fails first).
-    const cancelPrompt = !adminMode && jobId
-      ? scheduleFeedbackPrompt({ jobId, jobType: "drawing" })
-      : () => {};
-    try {
-      await saveDrawingDownload(href);
-      // Every drawing output (PDF, DXF, SVG, ZIP, sheet) comes through here: one hook records them all (2a, 4a).
-      if (!adminMode && jobId) recordFeedbackJobEvent({ jobId, jobType: "drawing", event: "downloaded" });
-    } catch (err) {
-      cancelPrompt();
-      throw err;
+    await saveDrawingDownload(href);
+    // Every drawing output (PDF, DXF, SVG, ZIP, sheet) comes through here: one hook records them all (2a, 4a).
+    // The rating card follows a finished download. Card payment passes prompt:false — those stars are on the success screen.
+    if (!adminMode && jobId) {
+      recordFeedbackJobEvent({ jobId, jobType: "drawing", event: "downloaded" });
+      if (prompt) requestFeedbackPrompt({ jobId, jobType: "drawing" });
     }
   }, [adminMode, jobId, saveDrawingDownload]);
 
@@ -319,7 +314,7 @@ export default function TechDrawJobLibraryResults({
         userEmail: user?.email,
         billingId,
       });
-      if (href) await triggerBrowserDownload(href);
+      if (href) await triggerBrowserDownload(href, { prompt: false });
       return result;
     },
     [job?.file_name, job?.title, jobId, triggerBrowserDownload, user?.email],
@@ -449,7 +444,7 @@ export default function TechDrawJobLibraryResults({
           feedbackJob={!adminMode && jobId ? { jobId, jobType: "drawing" } : undefined}
           onDownloadAgain={() => {
             const href = pendingHrefRef.current;
-            if (href) triggerBrowserDownload(href);
+            if (href) triggerBrowserDownload(href, { prompt: false });
           }}
         />
       ) : null}

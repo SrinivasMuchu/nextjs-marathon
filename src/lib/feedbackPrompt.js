@@ -5,7 +5,10 @@
  */
 export const FEEDBACK_PROMPT_EVENT = "marathon:feedback-prompt";
 
-/** The corner card appears this long after a download starts. */
+/**
+ * Delay before the dashboard catch-up card (a downloaded file with no rating).
+ * Downloads do not use this: the corner card is asked only after the file has finished saving (D6).
+ */
 export const FEEDBACK_PROMPT_DELAY_MS = 3000;
 
 // Jobs whose stars are already on screen (e.g. the paid success modal): no corner card for them.
@@ -22,16 +25,6 @@ export function requestFeedbackPrompt({ jobId, jobType = "converter", source = "
   if (typeof window === "undefined" || !jobId) return;
   if (inlineJobs.has(String(jobId))) return;
   window.dispatchEvent(new CustomEvent(FEEDBACK_PROMPT_EVENT, { detail: { jobId: String(jobId), jobType, source } }));
-}
-
-/**
- * Schedule the card `delayMs` after a download starts. Returns cancel(): call it if the download fails
- * before the card shows, so we never ask how a file "turned out" that never arrived.
- */
-export function scheduleFeedbackPrompt(args, delayMs = FEEDBACK_PROMPT_DELAY_MS) {
-  if (typeof window === "undefined" || !args?.jobId) return () => {};
-  const timer = window.setTimeout(() => requestFeedbackPrompt(args), delayMs);
-  return () => window.clearTimeout(timer);
 }
 
 /** Flow 3 "stopped waiting": the user cancelled while the job still runs on the server. */

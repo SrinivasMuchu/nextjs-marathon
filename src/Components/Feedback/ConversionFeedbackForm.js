@@ -296,6 +296,19 @@ export default function ConversionFeedbackForm({
         </div>
       ) : null}
 
+      {high && content?.improve_tags?.length ? (
+        <fieldset className={styles.group}>
+          <legend className={styles.label}>What should we improve next? <span className={styles.muted}>(optional)</span></legend>
+          <div className={styles.chips}>
+            {content.improve_tags.map((t) => (
+              <Chip key={t.id} selected={tags.includes(t.id)} onClick={() => setTags(toggle(tags, t.id))}>
+                {t.label}
+              </Chip>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
+
       {rating ? (
         <fieldset className={styles.group}>
           <legend className={styles.label}>Which software did you open it in?</legend>
@@ -332,19 +345,6 @@ export default function ConversionFeedbackForm({
             </label>
           ) : null}
         </div>
-      ) : null}
-
-      {high && content?.improve_tags?.length ? (
-        <fieldset className={styles.group}>
-          <legend className={styles.label}>What should we improve next? <span className={styles.muted}>(optional)</span></legend>
-          <div className={styles.chips}>
-            {content.improve_tags.map((t) => (
-              <Chip key={t.id} selected={tags.includes(t.id)} onClick={() => setTags(toggle(tags, t.id))}>
-                {t.label}
-              </Chip>
-            ))}
-          </div>
-        </fieldset>
       ) : null}
 
       {high && isAfterUse && earlier?.comment ? (
