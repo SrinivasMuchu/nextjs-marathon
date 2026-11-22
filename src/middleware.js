@@ -7,6 +7,25 @@ import {
   TESTING_ADMIN_COOKIE,
 } from '@/lib/testingServerGate';
 
+/** Hosts that receive public/robots.txt. Every other host gets disallow-all. */
+const PRODUCTION_ROBOTS_HOSTS = new Set(['marathon-os.com', 'www.marathon-os.com']);
+
+/** Body previously emitted by src/app/robots.js. */
+const DISALLOW_ALL_ROBOTS = 'User-Agent: *\nDisallow: /\n\n';
+
+function hostnameFromHeader(value) {
+  return (value || '').split(',')[0].trim().toLowerCase().replace(/:\d+$/, '');
+}
+
+function isProductionRobotsHost(request) {
+  const candidates = [
+    request.headers.get('x-forwarded-host'),
+    request.headers.get('host'),
+    request.nextUrl.hostname,
+  ];
+  return candidates.some((value) => PRODUCTION_ROBOTS_HOSTS.has(hostnameFromHeader(value)));
+}
+
 /**
  * Case-only redirects must use exact pathname checks. next.config redirects match
  * case-insensitively on some hosts, which loops /tools/3D-cad-viewer → itself.
@@ -21,7 +40,20 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
   const lowerPath = lowercasePath(pathname);
 
-  if (lowerPath) {
+  if (pathname === '/robots.txt') {
+    if (isProductionRobotsHost(request)) {
+      return NextResponse.next();
+    }
+    return new NextResponse(DISALLOW_ALL_ROBOTS, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
+    });
+  }
+
+  if (pathname === '/tools/3D-cad-viewer') {
     const url = request.nextUrl.clone();
     url.pathname = lowerPath;
     return NextResponse.redirect(url, 308);
@@ -60,6 +92,7 @@ export async function middleware(request) {
 }
 
 export const config = {
-  // Skip API, Next internals, and files with an extension. Include bare `/library`.
-  matcher: ['/((?!api/|_next/|.*\\..*).*)'],
+  // Skip API, Next internals, and files with an extension. `/robots.txt` is
+  // listed on its own because that exclusion would otherwise skip it.
+  matcher: ['/((?!api/|_next/|.*\\..*).*)', '/robots.txt'],
 };

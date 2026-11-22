@@ -5,11 +5,18 @@ import libraryStyles from '../../Library/Library.module.css'
 import HoverImageSequence from '../../CommonJsx/RotatedImages'
 import ViewAllDesigns from '../DesignHub/ViewAllDesigns'
 
-async function RecentlyAddedDesigns() {
+const RECENT_DESIGNS_REVALIDATE_SECONDS = 3600
+
+async function RecentlyAddedDesigns({ category = '', tag = '', excludeRoute = '' }) {
   try {
+    const params = new URLSearchParams({ limit: '10' })
+    if (category) params.set('category', category)
+    if (tag) params.set('tags', tag)
+    if (excludeRoute) params.set('exclude_route', excludeRoute)
+
     const response = await fetch(
-      `${BASE_URL}/v1/cad/get-recently-added-designs?limit=10`,
-      { cache: 'no-store' }
+      `${BASE_URL}/v1/cad/get-recently-added-designs?${params.toString()}`,
+      { next: { revalidate: RECENT_DESIGNS_REVALIDATE_SECONDS } }
     )
 
     const data = await response.json()

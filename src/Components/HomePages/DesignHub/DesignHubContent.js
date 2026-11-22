@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useContext, useMemo } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { contextState } from '../../CommonJsx/ContextProvider'
 import DesignHubCategories from './DesignHubCategories'
 import DesignHubDesignsWrapper from './DesignHubDesignsWrapper'
 import ViewAllDesigns from './ViewAllDesigns'
 
-function DesignHubContent({ categories = [], designsByCategory = {} }) {
-  const { selectedCategory, setSelectedCategory } = useContext(contextState)
+function DesignHubContent({ categories = [], designsByCategory = {}, initialCategory = '' }) {
+  const { setSelectedCategory } = useContext(contextState)
 
   const getCategoryName = (category) =>
     category?.industry_category_name ||
@@ -15,11 +15,8 @@ function DesignHubContent({ categories = [], designsByCategory = {} }) {
     category?.industry_category_label ||
     category?.title
 
-  const activeCategory = useMemo(() => {
-    if (selectedCategory) return selectedCategory
-
+  const fallbackCategory = useMemo(() => {
     if (categories.length > 0) {
-      // Prefer "3D Printing" (case-insensitive) as initial default if it exists
       const preferred =
         categories.find((cat) =>
           (getCategoryName(cat) || '').toLowerCase().includes('3d printing')
@@ -28,9 +25,14 @@ function DesignHubContent({ categories = [], designsByCategory = {} }) {
       return getCategoryName(preferred) || '3d printing'
     }
 
-    // Absolute fallback when no categories are available
     return '3d printing'
-  }, [selectedCategory, categories])
+  }, [categories])
+
+  const [activeCategory, setActiveCategory] = useState(initialCategory || fallbackCategory)
+
+  useEffect(() => {
+    setActiveCategory(initialCategory || fallbackCategory)
+  }, [initialCategory, fallbackCategory])
 
   const activeDesigns = designsByCategory[activeCategory] || []
 
@@ -39,7 +41,10 @@ function DesignHubContent({ categories = [], designsByCategory = {} }) {
       <DesignHubCategories
         categories={categories}
         selectedCategory={activeCategory}
-        onCategoryChange={setSelectedCategory}
+        onCategoryChange={(categoryName) => {
+          setActiveCategory(categoryName)
+          setSelectedCategory(categoryName)
+        }}
       />
       <DesignHubDesignsWrapper
         activeCategory={activeCategory}
