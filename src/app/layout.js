@@ -11,6 +11,7 @@ import { getConverterPricingForRender } from "@/lib/converterPricingServer";
 import AnnouncementBanner from "@/Components/HomePages/AnnouncementBanner/AnnouncementBanner";
 import { CadFormProvider } from "@/Components/CadServicePages/CadFormContext";
 import { ASSET_PREFIX_URL, GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
+import AdSenseScript from "@/Components/CommonJsx/Adsense/AdSenseScript";
 
 
 
@@ -42,6 +43,8 @@ export const metadata = {
   metadataBase: new URL(BASE_URL),
   openGraph: {
     url: "./",
+    type: "website",
+    siteName: "Marathon OS",
   },
 };
 
@@ -112,47 +115,7 @@ export default async function RootLayout({ children }) {
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* Intercept and modify Google Fonts loading to add font-display=swap */}
-        <Script
-          strategy="beforeInteractive"
-          id="font-display-swap"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Intercept link tags for Google Fonts
-                const observer = new MutationObserver(function(mutations) {
-                  mutations.forEach(function(mutation) {
-                    mutation.addedNodes.forEach(function(node) {
-                      if (node.nodeName === 'LINK' && node.href && node.href.includes('fonts.googleapis.com')) {
-                        // Add display=swap parameter if not present
-                        if (!node.href.includes('display=')) {
-                          const separator = node.href.includes('?') ? '&' : '?';
-                          node.href = node.href + separator + 'display=swap';
-                        }
-                      }
-                    });
-                  });
-                });
-                
-                // Observe document head for new link tags
-                observer.observe(document.head, {
-                  childList: true,
-                  subtree: false
-                });
-                
-                // Also check existing link tags
-                document.querySelectorAll('link[href*="fonts.googleapis.com"]').forEach(function(link) {
-                  if (!link.href.includes('display=')) {
-                    const separator = link.href.includes('?') ? '&' : '?';
-                    link.href = link.href + separator + 'display=swap';
-                  }
-                });
-              })();
-            `,
-          }}
-        />
-        
+
         <link rel="icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
 
         <link rel="apple-touch-icon" href="https://d2o2bcehk92sin.cloudfront.net/m-logo.svg" />
@@ -162,7 +125,6 @@ export default async function RootLayout({ children }) {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/png" />
-        <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Marathon OS" />
         <meta name="google-adsense-account" content={GOOGLE_ADSENSE_CLIENT_ID} />
         <link
@@ -240,13 +202,6 @@ export default async function RootLayout({ children }) {
           }}
         /> */}
         <Script
-          id="google-adsense"
-          strategy="afterInteractive"
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${GOOGLE_ADSENSE_CLIENT_ID}`}
-          crossOrigin="anonymous"
-        />
-
-        <Script
           id="json-ld-organization"
           type="application/ld+json"
           strategy="beforeInteractive"
@@ -270,6 +225,7 @@ export default async function RootLayout({ children }) {
       <body className={`${inter.variable} ${roboto.variable}`}>
         <ToastProvider />
         <CreateLocalStorage />
+        <AdSenseScript />
         <ContextWrapper>
           <CadFormProvider>
             <div className="siteStickyHeader">

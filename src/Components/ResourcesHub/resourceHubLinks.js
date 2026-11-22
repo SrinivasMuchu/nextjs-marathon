@@ -11,7 +11,7 @@
 export const RESOURCE_HUB_SECTIONS = [
   {
     id: 'direct-service-intent',
-    heading: 'Direct service intent pages',
+    heading: 'Hiring CAD designers',
     links: [
       {
         href: '/resources/hire-a-cad-designer-online-what-to-look-for-and-how-to-get-started',
@@ -45,7 +45,7 @@ export const RESOURCE_HUB_SECTIONS = [
   },
   {
     id: 'software-specific-service-pages',
-    heading: 'Software-specific service pages',
+    heading: 'Software guides',
     links: [
       {
         href: '/resources/hire-a-solidworks-designer-online-production-ready-files-in-24-hours',
@@ -79,7 +79,7 @@ export const RESOURCE_HUB_SECTIONS = [
   },
   {
     id: 'deliverable-type-pages',
-    heading: 'Deliverable-type pages',
+    heading: 'Models and drawings',
     links: [
       {
         href: '/resources/3d-product-modeling-service-from-concept-to-production-ready-cad-file',
@@ -113,7 +113,7 @@ export const RESOURCE_HUB_SECTIONS = [
   },
   {
     id: 'industry-vertical-pages',
-    heading: 'Industry vertical pages',
+    heading: 'Industries',
     links: [
       {
         href: '/resources/mechanical-engineering-cad-design-service-get-expert-cad-work-done-fast',
@@ -147,7 +147,7 @@ export const RESOURCE_HUB_SECTIONS = [
   },
   {
     id: 'comparison-decision-pages',
-    heading: 'Comparison and decision pages',
+    heading: 'Comparisons',
     links: [
       {
         href: '/resources/how-much-does-cad-design-cost-pricing-guide-for-3d-modeling-and-drafting',
@@ -179,6 +179,19 @@ export const RESOURCE_HUB_SECTIONS = [
       },
     ],
   },
+  {
+    id: 'engineering-references',
+    heading: 'Engineering references',
+    links: [
+      {
+        href: '/blog/part-number-nomenclature-guide',
+        title: 'Part Number Nomenclature Guide',
+        description:
+          'How to structure and read part numbers: formats, best practices, and real-world examples for inventory and manufacturing.',
+        navLabel: 'Part number nomenclature guide',
+      },
+    ],
+  },
 ]
 
 export const RESOURCE_HUB_LINKS = RESOURCE_HUB_SECTIONS.flatMap((section) => section.links)
@@ -199,4 +212,20 @@ export function getResourceHubCategoryBySlug(slug) {
   )
 
   return section ? { id: section.id, heading: section.heading } : null
+}
+
+/**
+ * Other guides in the same hub group. Used by the article "Related guides" block.
+ * @param {string} slug
+ * @returns {Array<{ href: string, title: string, description: string }>}
+ */
+export function getRelatedResourceGuides(slug) {
+  if (!slug) return []
+
+  const section = RESOURCE_HUB_SECTIONS.find((item) =>
+    item.links.some((link) => getSlugFromResourceHref(link.href) === slug)
+  )
+  if (!section) return []
+
+  return section.links.filter((link) => getSlugFromResourceHref(link.href) !== slug)
 }

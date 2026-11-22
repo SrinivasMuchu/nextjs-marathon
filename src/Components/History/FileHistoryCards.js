@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { BASE_URL, buildCadConverterOutputUrlCandidates, toCadOutputCdnUrl, CAD_CONVERTER_EVENT } from '@/config';
+import { BASE_URL, toCadOutputCdnUrl, CAD_CONVERTER_EVENT } from '@/config';
+import { downloadConverterFile } from '@/lib/converterDownload';
 import styles from './FileHistory.module.css';
 import Pagenation from '../CommonJsx/Pagenation';
 import { sendClarityEvent, sendGAtagEvent } from "@/common.helper";
@@ -16,7 +17,7 @@ import CadConvertorFiles from './CadConvertorFiles';
 import CadPublishedFiles from './CadPublishedFiles';
 import UserLoginPupUp from '../CommonJsx/UserLoginPupUp';
 import { toast } from 'react-toastify';
-import { checkConverterDownload, recordConverterDownload, redeemConverterCredit } from '@/api/converterPaymentApi';
+import { checkConverterDownload, redeemConverterCredit } from '@/api/converterPaymentApi';
 import { ensureConverterDownloadAccess, ensureConverterPackPurchase, trackConverterDashboardDownloadClick } from './converterPayment';
 import ConverterDownloadFlow from './ConverterDownloadFlow';
 import ConverterCreditPlansPopup from './ConverterCreditPlansPopup';
@@ -252,43 +253,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   };
 
   const performConverterFileDownload = async (file, index) => {
-    const candidates = buildCadConverterOutputUrlCandidates(file);
-    if (!candidates.length) {
-      throw new Error('Download URL is missing for this conversion.');
-    }
-
-    let response = null;
-    let lastError = null;
-    for (const url of candidates) {
-      try {
-        response = await fetch(url);
-        if (response.ok) break;
-        lastError = new Error(`HTTP error! status: ${response.status}`);
-        response = null;
-      } catch (err) {
-        lastError = err;
-        response = null;
-      }
-    }
-    if (!response?.ok) {
-      throw lastError || new Error('Download failed.');
-    }
-
-    const blob = await response.blob();
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-
-    a.href = downloadUrl;
-    a.download = `${file?.file_name?.slice(0, file.file_name.lastIndexOf(".")) || 'design'}_converted.${file.output_format}`;
-
-    document.body.appendChild(a);
-    a.click();
-
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(downloadUrl);
-
-    sendGAtagEvent({ event_name: 'converter_file_upload_download', event_category: CAD_CONVERTER_EVENT });
-    recordConverterDownload(file?._id);
+    // Server checks owner + payment / credit / free claim and returns a signed URL.
+    await downloadConverterFile(file);
     setDownloading(prev => ({ ...prev, [index]: false }));
   };
 
@@ -470,7 +436,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
       setShowCreditPlans(true);
     } catch (error) {
       console.error('Download error:', error);
-      toast.error('Download failed. Please try again.');
+      // download-url explains refusals (expired, not unlocked); anything else is generic.
+      toast.error(error?.reason ? error.message : 'Download failed. Please try again.');
       setDownloading(prev => ({ ...prev, [index]: false }));
     }
   };

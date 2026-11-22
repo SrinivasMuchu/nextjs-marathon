@@ -35,6 +35,12 @@ const TOOLS = [
     href: "/tools/convert-dwg-to-dxf",
   },
   {
+    chips: ["DXF", "DWG"],
+    title: "DXF to DWG",
+    body: "Edit a DXF drawing in AutoCAD",
+    href: "/tools/convert-dxf-to-dwg",
+  },
+  {
     chips: ["CAD"],
     title: "Production drawings",
     body: "Tolerances, GD&T and notes by a designer",

@@ -12,9 +12,11 @@ import {
 } from 'lucide-react';
 import Footer from '@/Components/HomePages/Footer/Footer';
 import ActiveLastBreadcrumb from '@/Components/CommonJsx/BreadCrumbs';
-import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner';
-import cadHomeStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadHome.module.css';
 import heroStyles from '@/Components/CadUploadingHome/CadHomeDesign/CadViewerHero.module.css';
+import converterBoxStyles from '@/Components/CadUploadingHome/CadFileConversion/CadConverterTypes.module.css';
+import { popularCadConverterTypes } from '@/common.helper';
+import { cadConverterHref, getCadConverterRouteGroups } from '@/lib/cadConverterRoutes';
+import { getToolsHubViewerCards } from '@/data/cadFormatViewerPages';
 import styles from './ToolsHubPage.module.css';
 
 const HERO_FEATURES = [
@@ -66,91 +68,11 @@ const QUICK_TOOLS_CARDS = [
   },
 ];
 
-/** Per-format viewer cards (routes must match `app/tools/[tool]/page.js` allowlist). */
-const CAD_VIEWER_CARDS = [
-  {
-    href: '/tools/obj-file-viewer',
-    title: 'OBJ Viewer',
-    description: 'View OBJ mesh models and 3D assets in your browser.',
-    tags: ['Mesh', '3D Assets', 'Textures'],
-  },
-  {
-    href: '/tools/stl-file-viewer',
-    title: 'STL Viewer',
-    description: 'Inspect STL meshes for 3D printing checks.',
-    tags: ['3D Printing', 'Mesh', 'Prototyping'],
-  },
-  {
-    href: '/tools/ply-file-viewer',
-    title: 'PLY Viewer',
-    description: 'Open PLY point clouds and polygon meshes online.',
-    tags: ['Point Cloud', 'Polygon', 'Scan Data'],
-  },
-  {
-    href: '/tools/step-file-viewer',
-    title: 'STEP Viewer',
-    description: 'View STEP solid models from any CAD software.',
-    tags: ['Solid Model', 'CAD', 'Engineering'],
-  },
-  {
-    href: '/tools/iges-file-viewer',
-    title: 'IGES Viewer',
-    description: 'Open legacy IGES surface and wireframe models.',
-    tags: ['Surface', 'Wireframe', 'Legacy'],
-  },
-  {
-    href: '/tools/3dm-file-viewer',
-    title: '3DM Viewer',
-    description: 'Preview Rhino 3DM NURBS and mesh models in your browser.',
-    tags: ['Rhino', 'NURBS', 'OpenNURBS'],
-  },
-  {
-    href: '/tools/3mf-file-viewer',
-    title: '3MF Viewer',
-    description: 'Preview 3MF print files with named parts and colours in your browser.',
-    tags: ['3D Printing', 'Manufacturing', 'Color'],
-  },
-];
+/** Primary viewers only. stp / igs / brp stay off this grid and are linked once from their main viewer. */
+const CAD_VIEWER_CARDS = getToolsHubViewerCards();
 
-/** Paths must exist in `converterTypes` (`/tools/convert-{path}`); 3MF uses main converter hub. */
-const CAD_CONVERTER_CARDS = [
-  {
-    href: '/tools/convert-stl-to-obj',
-    title: 'STL to OBJ Converter',
-    description: 'Convert STL meshes to OBJ format with preserved geometry.',
-    tags: ['Mesh', 'Export', '3D'],
-  },
-  {
-    href: '/tools/convert-obj-to-stl',
-    title: 'OBJ to STL Converter',
-    description: 'Export OBJ models as STL for 3D printing workflows.',
-    tags: ['3D Printing', 'Mesh', 'Export'],
-  },
-  {
-    href: '/tools/convert-step-to-stl',
-    title: 'STEP to STL Converter',
-    description: 'Convert STEP solid models to printable STL meshes.',
-    tags: ['Solid to Mesh', '3D Printing', 'CAD'],
-  },
-  {
-    href: '/tools/convert-iges-to-step',
-    title: 'IGES to STEP Converter',
-    description: 'Upgrade legacy IGES files to modern STEP format.',
-    tags: ['Legacy', 'Migration', 'Engineering'],
-  },
-  {
-    href: '/tools/convert-step-to-3dm',
-    title: 'STEP to 3DM Converter',
-    description: 'Convert STEP solids to Rhino .3dm for OpenNURBS workflows.',
-    tags: ['Rhino', 'CAD Exchange', 'Mesh'],
-  },
-  {
-    href: '/tools/convert-ply-to-obj',
-    title: 'PLY to OBJ Converter',
-    description: 'Transform PLY scan data to OBJ for editing and rendering.',
-    tags: ['Scan Data', 'Polygon', 'Render'],
-  },
-];
+/** Same conversion boxes as the converter page, one group per input format. */
+const CAD_CONVERTER_GROUPS = getCadConverterRouteGroups(popularCadConverterTypes);
 
 /** Org chart landing vs editor: `/tools/org-hierarchy`, `/tools/org-hierarchy/chart-maker`. */
 const ORG_HIERARCHY_CARDS = [
@@ -197,11 +119,6 @@ export default function ToolsHubPage() {
     <div className={styles.page}>
       <ActiveLastBreadcrumb links={[{ label: 'tools', href: '/tools' }]} />
       <div className={heroStyles.heroPage}>
-        <div className={cadHomeStyles['cad-ad-bar']}>
-          <div className={cadHomeStyles['cad-ad-bar-inner']}>
-            <LeftRightBanner adSlot="3755241003" />
-          </div>
-        </div>
         <header className={styles.hero}>
           <div className={styles.heroInner}>
             <p className={styles.badge}>Free Online CAD Tools</p>
@@ -274,28 +191,34 @@ export default function ToolsHubPage() {
                 CAD Converters
               </h2>
               <p className={styles.viewersSubtitle}>
-                Convert between CAD formats instantly — no software installs, no file size limits, no waiting.
+                Every conversion route, grouped by the file you already have. The boxes match the converter page.
               </p>
             </div>
           </div>
-          <div className={styles.viewersGrid}>
-            {CAD_CONVERTER_CARDS.map(({ href, title, description, tags }) => (
-              <Link key={href + title} href={href} className={styles.viewerCard}>
-                <div className={styles.viewerCardIcon} aria-hidden>
-                  <RefreshCw size={22} strokeWidth={2.2} />
-                </div>
-                <h3 className={styles.viewerCardTitle}>{title}</h3>
-                <p className={styles.viewerCardDesc}>{description}</p>
-                <div className={styles.viewerTags}>
-                  {tags.map((t) => (
-                    <span key={t} className={styles.viewerTag}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </Link>
-            ))}
-          </div>
+          {CAD_CONVERTER_GROUPS.map((group) => (
+            <div key={group.from} className={converterBoxStyles.group}>
+              <h3 className={converterBoxStyles.groupHeading}>Convert from {group.from}</h3>
+              <div className={converterBoxStyles.grid}>
+                {group.items.map((item) => (
+                  <Link
+                    key={item.path}
+                    href={cadConverterHref(item.path)}
+                    className={converterBoxStyles.card}
+                  >
+                    <div className={converterBoxStyles.badgeRow} aria-hidden>
+                      <span className={converterBoxStyles.pillFrom}>{item.from}</span>
+                      <ArrowRight size={13} strokeWidth={2} className={converterBoxStyles.arrowIcon} />
+                      <span className={converterBoxStyles.pillTo}>{item.to}</span>
+                    </div>
+                    <div className={converterBoxStyles.cardContent}>
+                      <h3>{item.from} to {item.to}</h3>
+                      <p>{item.description}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

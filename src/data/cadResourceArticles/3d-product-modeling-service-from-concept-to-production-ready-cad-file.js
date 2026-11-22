@@ -3,9 +3,9 @@ export const productModelingServiceArticle = {
   slug: '3d-product-modeling-service-from-concept-to-production-ready-cad-file',
   breadcrumbLastLabel: '3D product modeling service',
   metadata: {
-    title: '3D Product Modeling Service — Production-Ready Deliverables | Marathon OS',
+    title: '3D Product Modeling Service | Marathon OS',
     description:
-      'Get 3D product modeling from vetted CAD experts. Receive native CAD (as required), STEP/IGES exports, STL (if needed). Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Production 3D product models with native CAD, STEP or IGES for quotes, and STL when you need a print. Revisions included.',
   },
   hero: {
     badge: 'CAD Services · Product modeling',
@@ -19,7 +19,7 @@ export const productModelingServiceArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'A 3D product modeling service provides specialized deliverables—native CAD (as required), STEP/IGES exports, STL (if needed)—created by vetted designers. The best providers clarify requirements upfront, deliver files that suppliers can use, include revisions, and protect your IP with clear ownership.',
+        'A 3D product modeling service provides specialized deliverables—native CAD (as required), STEP/IGES exports, STL (if needed)—created by vetted designers. The best providers clarify requirements upfront, deliver files that suppliers can use, include revisions, and protect your IP with clear ownership. Commission the model from [Marathon OS CAD services](/cad-services). Print meshes are the [STL file design service](/resources/stl-file-design-service-3d-print-ready-models-on-demand).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const productModelingServiceArticle = {
       id: 'what-is-modeling',
       title: 'What is 3D product modeling?',
       paragraphs: [
-        '3D product modeling is a deliverable-focused service: you’re hiring for an output, not a tool. The goal is a file set that can be manufactured, printed, quoted, or reviewed—clean geometry, correct dimensions, and the formats your workflow requires.',
+        '3D product modeling is a deliverable-focused service: you’re hiring for an output, not a tool. The goal is a file set that can be manufactured, printed, quoted, or reviewed—clean geometry, correct dimensions, and the formats your workflow requires. Bent parts belong in [sheet metal CAD design](/resources/sheet-metal-cad-design-service-custom-parts-for-fabrication), and documented views in the [2D CAD drawing service](/resources/2d-cad-drawing-service-technical-drawings-for-manufacturing-and-patents). Check the solid in the [3D CAD viewer](/tools/3d-cad-viewer).',
       ],
     },
     {

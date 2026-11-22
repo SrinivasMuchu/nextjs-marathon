@@ -12,7 +12,7 @@ export default async function LibraryClustersPage({ libraryMode = '3d' }) {
   const libraryHref = is2d ? '/library/2d-technical-drawings' : '/library';
 
   return (
-    <>
+    <div className={styles.shell}>
       <ServerBreadCrumbs
         links={[
           { label: is2d ? '2D Library' : 'Library', href: libraryHref },
@@ -52,6 +52,6 @@ export default async function LibraryClustersPage({ libraryMode = '3d' }) {
       </div>
 
       <Footer />
-    </>
+    </div>
   );
 }

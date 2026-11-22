@@ -8,9 +8,12 @@ import {
   persistVerifiedSession,
   readVerifiedFromStorage,
 } from "@/lib/authSession";
+// Installs the x-device-id header and creates the device id (never reset on logout).
+import { getDeviceId } from "@/lib/deviceId";
 
 function CreateLocalStorage() {
   useEffect(() => {
+    getDeviceId();
     const { uuid: verifiedUuid, isVerified } = readVerifiedFromStorage();
     if (isVerified && verifiedUuid) {
       persistVerifiedSession(verifiedUuid);

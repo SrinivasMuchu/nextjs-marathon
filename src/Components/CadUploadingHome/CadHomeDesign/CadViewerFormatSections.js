@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { getCadViewerFormatConfig } from '@/data/cadFormatViewerPages';
+import { getCadViewerFormatConfig, getViewerAliasLink } from '@/data/cadFormatViewerPages';
 import { getUniqueViewerPage } from '@/data/viewerUniquePages';
 import styles from './CadViewerFormatSections.module.css';
 
@@ -10,7 +10,11 @@ function CadViewerFormatSections({ cadType }) {
   if (!uniquePage && !config) return null;
 
   const formatName = config?.formatName;
-  const relatedTools = uniquePage?.relatedTools || config?.relatedTools || [];
+  const aliasLink = getViewerAliasLink(cadType);
+  const baseTools = uniquePage?.relatedTools || config?.relatedTools || [];
+  const relatedTools = aliasLink && !baseTools.some((tool) => tool.href === aliasLink.href)
+    ? [...baseTools, aliasLink]
+    : baseTools;
 
   return (
     <>

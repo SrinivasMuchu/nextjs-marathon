@@ -11,6 +11,7 @@ import { MdFavorite } from "react-icons/md";
 import { MdEngineering } from "react-icons/md";
 import { MdDraw } from "react-icons/md";
 import { MdTune } from "react-icons/md";
+import { MdToll } from "react-icons/md";
 import { MdStorefront } from "react-icons/md";
 import { MdBarChart } from "react-icons/md";
 import { MdPersonSearch } from "react-icons/md";
@@ -30,6 +31,7 @@ const NAV_ITEMS = [
   { id: 'user-track', label: 'User track', title: 'User track', Icon: MdPersonSearch },
   { id: 'designs', label: 'Designs', title: 'Designs', Icon: MdOutlineDesignServices },
   { id: 'payments', label: 'Payments', title: 'Payments', Icon: MdOutlinePayments },
+  { id: 'credits', label: 'Credits', title: 'Converter credits', Icon: MdToll },
   { id: 'controls', label: 'Controls', title: 'Controls', Icon: MdTune },
   { id: 'viewed-list', label: 'Top Viewed', title: 'Top Viewed', Icon: MdVisibility },
   { id: 'downloaded-list', label: 'Top Downloaded', title: 'Top Downloaded', Icon: MdDownload },

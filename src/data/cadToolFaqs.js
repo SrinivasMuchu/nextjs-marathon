@@ -62,7 +62,7 @@ function getWhyConvertAnswer(from, to) {
   if (WHY_CONVERT_HINTS[key]) return WHY_CONVERT_HINTS[key];
   const fromUpper = from.toUpperCase();
   const toUpper = to.toUpperCase();
-  return `Converting ${fromUpper} to ${toUpper} helps you move CAD data between tools, suppliers, and workflows without installing desktop software. Marathon OS handles the conversion in the cloud so you can download a ${toUpper} file in seconds.`;
+  return `Converting ${fromUpper} to ${toUpper} moves CAD data between tools, suppliers, and workflows without installing desktop software. Marathon OS runs the conversion in the cloud; you upload the ${fromUpper} file and download the ${toUpper} result when it is ready.`;
 }
 
 const STEP_TO_3DM_FAQS = [
@@ -1543,7 +1543,7 @@ export function getConverterFaqQuestions(conversionParams) {
   return [
     {
       question: `How do I convert ${fromUpper} to ${toUpper} online?`,
-      answer: `Upload your ${fromUpper} file (${fromExt}) to Marathon OS, choose ${toUpper} as the output format, and download the converted file in seconds — no software installation required.`,
+      answer: `Upload your ${fromUpper} file (${fromExt}) to Marathon OS, choose ${toUpper} as the output format, and download the converted file when it is ready. No desktop software installation is required.`,
     },
     {
       question: `Why convert ${fromUpper} to ${toUpper}?`,
@@ -1560,7 +1560,7 @@ export function getConverterFaqQuestions(conversionParams) {
     {
       question: 'How is my data stored and secured?',
       answer:
-        'Your files are encrypted during upload, processed securely in the cloud, and automatically deleted after 7 days.',
+        'Uploads and downloads use HTTPS. Files are processed in the cloud and deleted automatically after 7 days. Converted files are not added to the public CAD library unless you publish them.',
     },
     {
       question: 'Do I need any special software or training?',
@@ -1568,7 +1568,7 @@ export function getConverterFaqQuestions(conversionParams) {
     },
     {
       question: `Can I convert large ${fromUpper} models to ${toUpper}?`,
-      answer: `Yes — Marathon OS is optimized for large and complex CAD models. You can upload files up to 300 MB for ${fromUpper} to ${toUpper} conversion.`,
+      answer: `Yes. You can upload files up to 300 MB for ${fromUpper} to ${toUpper} conversion. Large assemblies can take several minutes; we email you when the file is ready.`,
     },
   ];
 }
@@ -1595,7 +1595,7 @@ export const cadConverterFaqQuestions = [
   {
     question: 'How is my data stored and secured?',
     answer:
-      'Your files are encrypted during upload, processed securely, and automatically deleted after 7 days.',
+      'Uploads and downloads use HTTPS. Files are processed in the cloud and deleted automatically after 7 days. Converted files are not added to the public CAD library unless you publish them.',
   },
   {
     question: 'Do I need any special software or training?',
@@ -1604,7 +1604,7 @@ export const cadConverterFaqQuestions = [
   {
     question: 'Can I convert large and complex CAD models?',
     answer:
-      'Yes—Marathon OS is optimized for large and complex engineering models, with uploads supported up to 300 MB.',
+      'Yes. Uploads are supported up to 300 MB. Large assemblies can take several minutes; we email you when the file is ready.',
   },
 ];
 
@@ -1629,7 +1629,7 @@ export const cadViewerFaqQuestions = [
   {
     question: 'Is this CAD viewer free?',
     answer:
-      'Yes—this page is presented as a Free Online CAD Viewer, with usage constraints like an upload size limit (up to 300 MB per file).',
+      'Yes. You can preview CAD files online for free, with uploads up to 300 MB per file.',
   },
   {
     question: 'What is the max file size?',
@@ -1638,7 +1638,7 @@ export const cadViewerFaqQuestions = [
   {
     question: 'Will my file stay private?',
     answer:
-      'Files stay private, are encrypted, and are automatically deleted after 7 days; see the Privacy Policy for details.',
+      'Uploads use HTTPS. Files stay private and are deleted automatically after 7 days. See the Privacy Policy for details.',
   },
   {
     question: 'Why does my model look broken (holes/missing faces)?',

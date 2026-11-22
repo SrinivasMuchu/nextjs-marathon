@@ -3,9 +3,9 @@ export const pdfToCadConversionServiceArticle = {
   slug: 'pdf-to-cad-conversion-service-get-editable-dwg-step-files-from-any-drawing',
   breadcrumbLastLabel: 'PDF to CAD conversion service',
   metadata: {
-    title: 'PDF to CAD Conversion Service — Editable DWG, DXF & STEP | Marathon OS',
+    title: 'PDF to CAD Conversion Service | Marathon OS',
     description:
-      'Convert PDF drawings to editable CAD: DWG/DXF, clean PDF exports, and STEP when 3D reconstruction is required. Vetted drafters, revisions included—submit your files and scope.',
+      'Turn PDF drawings into editable DWG or DXF, with STEP when the sheet needs a 3D rebuild. Revisions included.',
   },
   hero: {
     badge: 'CAD Services · Conversion',
@@ -19,7 +19,7 @@ export const pdfToCadConversionServiceArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'A PDF-to-CAD conversion service recreates editable geometry and sheets from PDFs or scans—typically DWG/DXF (and STEP when true 3D is needed). Quality depends on source clarity, scope of layers/standards, and whether the goal is fabrication-ready linework or a quick editable underlay.',
+        'A PDF-to-CAD conversion service recreates editable geometry and sheets from PDFs or scans—typically DWG/DXF (and STEP when true 3D is needed). Quality depends on source clarity, scope of layers/standards, and whether the goal is fabrication-ready linework or a quick editable underlay. Run it with [Marathon OS CAD services](/cad-services). Editable DWG work continues in [AutoCAD drafting services](/resources/autocad-drafting-services-online-2d-drawings-conversions-and-technical-docs).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const pdfToCadConversionServiceArticle = {
       id: 'what-is-pdf-cad',
       title: 'What is PDF to CAD conversion?',
       paragraphs: [
-        'PDF to CAD conversion is a deliverable-focused service: you’re hiring for editable outputs, not a static print. The goal is accurate linework, usable layers where required, and export formats your shop or team can revise—without redrawing everything yourself.',
+        'PDF to CAD conversion is a deliverable-focused service: you’re hiring for editable outputs, not a static print. The goal is accurate linework, usable layers where required, and export formats your shop or team can revise—without redrawing everything yourself. Finished sheets are a [2D CAD drawing service](/resources/2d-cad-drawing-service-technical-drawings-for-manufacturing-and-patents). When the PDF implies a solid, rebuild it with the [CAD file converter](/tools/3d-cad-file-converter).',
       ],
     },
     {

@@ -1,4 +1,4 @@
-/** FAQ content for /cad-services — shared by visible FAQ section and FAQPage JSON-LD. */
+/** FAQ content for the visible FAQ section on /cad-services. */
 
 export const cadServicesFaqQuestions = [
   {
@@ -7,9 +7,9 @@ export const cadServicesFaqQuestions = [
       'Include the type of CAD work, expected deliverables, preferred software or file format, target timeline and any useful context. Detailed dimensions and native project files can be shared later with the selected agency.',
   },
   {
-    question: 'Will my requirement be shared with all 1,000+ agencies?',
+    question: 'Will my requirement be shared with every agency in the network?',
     answer:
-      'No. Marathon uses the brief to identify relevant agencies. The goal is to share only the information required to assess fit, not to circulate your complete project across the network.',
+      'No. Marathon uses the brief to identify relevant agencies and shares only what is needed to assess fit—not a full circulation of your project across the network.',
   },
   {
     question: 'When are detailed files shared?',

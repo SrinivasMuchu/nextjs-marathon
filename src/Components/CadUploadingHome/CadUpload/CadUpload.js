@@ -1,9 +1,7 @@
 import React from 'react';
-import cadHomeStyles from '../CadHomeDesign/CadHome.module.css'
 import heroStyles from '../CadHomeDesign/CadViewerHero.module.css'
 import CadDropZoneContent from '../CadHomeDesign/CadDropZoneContent'
 import CadUploadHeadings from './CadUploadHeadings'
-import LeftRightBanner from '@/Components/CommonJsx/Adsense/AdsBanner'
 import { Eye } from 'lucide-react'
 import { getUniqueViewerPage } from '@/data/viewerUniquePages'
 
@@ -15,11 +13,6 @@ function CadUpload({ type, cadType }) {
 
   return (
     <div className={heroStyles.heroPage}>
-      <div className={cadHomeStyles['cad-ad-bar']}>
-        <div className={cadHomeStyles['cad-ad-bar-inner']}>
-          <LeftRightBanner adSlot="3755241003" />
-        </div>
-      </div>
       <div className={heroStyles.heroInner}>
         <div className={heroStyles.badge}>
           <Eye size={16} strokeWidth={2.2} aria-hidden />

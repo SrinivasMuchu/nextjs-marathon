@@ -7,6 +7,7 @@ import {
 } from "@/common.helper";
 import { fetchTwoDLibraryCategories } from "@/api/twoDLibraryDesignsApi";
 import { buildPageMetadata } from "@/lib/seo/pageMetadata";
+import { twoDCategoryTagDescription } from "@/lib/seo/listingCopy";
 import {
   TWO_D_LIBRARY_BASE,
   get2DLibraryPath,
@@ -46,7 +47,7 @@ export async function generateMetadata({ params, searchParams }) {
   const title = `${tagLabel} in ${categoryName} 2D Technical Drawings | PDF, SVG, DXF | Marathon OS${
     page > 1 ? ` - Page ${page}` : ""
   }`;
-  const description = `Browse ${tagLabel} 2D technical drawings in ${categoryName}. Download PDF, SVG and DXF drawing sets for engineering review.`;
+  const description = twoDCategoryTagDescription(tagLabel, categoryName);
 
   const path = get2DLibraryPath({ categoryName, tagName: tagSlug });
   const { canonicalPath, robots } = getLibraryCanonicalAndRobots({

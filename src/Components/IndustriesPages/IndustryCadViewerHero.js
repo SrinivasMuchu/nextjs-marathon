@@ -25,13 +25,13 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
           .join(' ')
       : '');
 
+  const shortDescription = industryData?.short_description?.trim() || '';
   const description = partName
-    ? (industryData?.description?.trim()
-        ? industryData.description.trim()
-        : `A lightweight online tool to view, inspect, and share 3D CAD files — ideal for reviewing models like the ${partDisplayName || partName} without installing software.`)
+    ? (shortDescription
+        || `Review the ${partDisplayName || partName} on its own, including the interfaces a ${industryLower} reviewer actually checks.`)
     : (industryData?.usage?.trim()
-        ? industryData.usage.trim()
-        : `A lightweight online tool to view, inspect, and share 3D CAD files for ${industryLower} teams — no software installation required.`);
+        || industryData?.description?.trim()
+        || `How ${industryLower} teams pass models between design, suppliers, and people who do not run CAD.`);
 
   return (
     <div className={heroStyles.heroPage}>
@@ -46,16 +46,16 @@ function IndustryCadViewerHero({ industryData, part_name: partName }) {
           <span>Free online tool</span>
         </div>
         <h1 id="industry-cad-hero-heading" className={heroStyles.title}>
-          Free Online CAD Viewer for
+          Free Online CAD Viewer for{' '}
+          {partSlug && partDisplayName ? (
+            <>
+              <span className={heroStyles.subtitle}>{partDisplayName}</span>
+              <span className={heroStyles.heroIndustryBracket}>({industryLabel})</span>
+            </>
+          ) : (
+            <span className={heroStyles.subtitle}>{industryLabel}</span>
+          )}
         </h1>
-        {partSlug && partDisplayName ? (
-          <>
-            <p className={heroStyles.subtitle}>{partDisplayName}</p>
-            <p className={heroStyles.heroIndustryBracket}>({industryLabel})</p>
-          </>
-        ) : (
-          <p className={heroStyles.subtitle}>{industryLabel}</p>
-        )}
         <p className={heroStyles.secureTagline}>Secure, Fast &amp; Cloud-Based</p>
         <p className={`${heroStyles.description} ${heroStyles.industryDescriptionWide}`}>{description}</p>
         <div className={heroStyles.trustRow} role="list">

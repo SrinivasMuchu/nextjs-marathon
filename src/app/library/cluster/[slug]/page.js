@@ -57,7 +57,7 @@ export default async function LibraryClusterPage({ params, searchParams }) {
 
   return (
     <div>
-      <Library searchParams={merged} />
+      <Library searchParams={merged} clusterName={cluster.cluster_name} />
     </div>
   );
 }

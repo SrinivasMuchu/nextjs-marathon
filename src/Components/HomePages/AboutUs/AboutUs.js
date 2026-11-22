@@ -109,7 +109,7 @@ function AboutUs() {
             <CommonTitleCard title="About Marathon-OS" description="Empowering businesses through innovative technology solutions and exceptional service delivery" />
             <div className={styles["aboutus-our-story"]}>
                 <div className={styles["aboutus-our-story-content"]}>
-                    <h1>Our Story</h1>
+                    <h2>Our Story</h2>
                     <p>Founded in 2023, Marathon-OS began with a vision to empower hardware teams with the same level of 
                         digital infrastructure that software teams have long enjoyed. We saw a gap — hardware engineers 
                         lacked a seamless way to manage, share, and collaborate on designs. So, we built a platform that bridges that gap.</p>
@@ -134,7 +134,7 @@ function AboutUs() {
             </div>
 
             <div className={styles["aboutus-our-missons"]}>
-                <h1 className={styles["aboutus-our-missons-title"]}>Our Mission & Values</h1>
+                <h2 className={styles["aboutus-our-missons-title"]}>Our Mission & Values</h2>
                 <p className={styles["aboutus-our-missons-desc"]}>We&apos;re driven by core principles that guide every decision and shape our culture</p>
                 <div className={styles["aboutus-our-missons-items"]}>
                     {ourMissonsArray.map((item,index)=>(
@@ -151,7 +151,7 @@ function AboutUs() {
             </div>
 
             <div className={styles["aboutus-our-missons"]} style={{background:'linear-gradient(0deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.90) 100%), #5B89FF'}}>
-            <h1 className={styles["aboutus-our-missons-title"]} >Meet Our Team</h1>
+            <h2 className={styles["aboutus-our-missons-title"]} >Meet Our Team</h2>
                 <p className={styles["aboutus-our-missons-desc"]}>The talented individuals who make Marathon&apos;s success possible</p>
             <div className={styles["aboutus-our-team-items"]}>
                 {teamMembersArray.map((item,index)=>(
@@ -166,7 +166,7 @@ function AboutUs() {
             </div>
 
             <div className={styles["aboutus-our-missons"]} style={{background:'#610bee'}}>
-            <h1 className={styles["aboutus-our-missons-title"]} style={{color:'white'}}>Our Achievements</h1>
+            <h2 className={styles["aboutus-our-missons-title"]} style={{color:'white'}}>Our Achievements</h2>
                 <p className={styles["aboutus-our-missons-desc"]} style={{color:'white'}}>Recognition and milestones that reflect our commitment to excellence</p>
             <div className={styles["aboutus-our-team-items"]} style={{color:'white'}}>
                 {achievementsArray.map((item,index)=>(
@@ -183,7 +183,7 @@ function AboutUs() {
             </div>
 
             <div className={styles["aboutus-our-missons"]}>
-            <h1 className={styles["aboutus-our-missons-title"]} >Ready to Start Your Journey?</h1>
+            <h2 className={styles["aboutus-our-missons-title"]} >Ready to Start Your Journey?</h2>
                 <p className={styles["aboutus-our-missons-desc"]} >Let&apos;s discuss how we can help transform your business with innovative technology solutions</p>
             <div className={styles["about-pg-btns"]}>
             <TopNavRequestBtn  />

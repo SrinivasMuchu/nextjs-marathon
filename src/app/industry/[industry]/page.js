@@ -1,5 +1,6 @@
 import Industry from "@/Components/IndustriesPages/Industry";
 import { ASSET_PREFIX_URL, BASE_URL } from '@/config';
+import { industryMetaDescription } from '@/lib/seo/listingCopy';
 import { notFound } from 'next/navigation'; // 👈 Important
 
 export async function generateMetadata({ params }) {
@@ -8,7 +9,7 @@ export async function generateMetadata({ params }) {
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?meta_route=${industry}`, {
       method: 'GET',
-      cache: 'no-store',
+      next: { revalidate: 3600 },
     });
 
     if (!response.ok) {
@@ -21,9 +22,14 @@ export async function generateMetadata({ params }) {
       notFound(); // 👈 No data = 404
     }
 
+    const metaTitle = String(data.data.meta_title || '').trim();
+    const title = /\|\s*Marathon OS\s*$/i.test(metaTitle)
+      ? metaTitle
+      : `${metaTitle} | Marathon OS`;
+
     return {
-      title: `${data.data.meta_title} | Marathon OS`,
-      description: data.data.meta_description,
+      title,
+      description: industryMetaDescription(data.data),
       openGraph: {
         url: `/industry/${industry}`,
         images: [{
@@ -50,7 +56,7 @@ export default async function IndustryPage({ params }) {
   try {
     const response = await fetch(`${BASE_URL}/v1/cad/get-industry-data?route=${industry}`, {
       method: 'GET',
-      cache: 'no-store',
+      next: { revalidate: 3600 },
     });
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

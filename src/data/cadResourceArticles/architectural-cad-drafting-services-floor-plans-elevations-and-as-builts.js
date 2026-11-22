@@ -3,9 +3,9 @@ export const architecturalCadDraftingServicesArticle = {
   slug: 'architectural-cad-drafting-services-floor-plans-elevations-and-as-builts',
   breadcrumbLastLabel: 'Architectural CAD drafting services',
   metadata: {
-    title: 'Architectural CAD Drafting Service — Production-Ready Deliverables | Marathon OS',
+    title: 'Architectural CAD Drafting Service | Marathon OS',
     description:
-      'Get architectural cad drafting from vetted CAD experts. Receive DWG/DXF, PDF set, as-built updates. Submit your brief and get high-quality deliverables fast—without managing freelancers.',
+      'Floor plans, elevations and as-builts in DWG, DXF and PDF, drawn by vetted architectural drafters from your sketches or markups.',
   },
   hero: {
     badge: 'CAD Services · Architecture',
@@ -19,7 +19,7 @@ export const architecturalCadDraftingServicesArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'An architectural CAD drafting service provides specialized deliverables—DWG/DXF, PDF set, as-built updates—created by vetted designers. The best providers clarify requirements upfront, deliver drawing sets contractors and consultants can use, include revisions, and protect your IP with clear ownership.',
+        'An architectural CAD drafting service provides specialized deliverables—DWG/DXF, PDF set, as-built updates—created by vetted designers. The best providers clarify requirements upfront, deliver drawing sets contractors and consultants can use, include revisions, and protect your IP with clear ownership. Commission the set from [Marathon OS CAD services](/cad-services). Model-based work is [Revit modeling services](/resources/revit-modeling-services-for-architects-and-engineers).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const architecturalCadDraftingServicesArticle = {
       id: 'what-is-arch-cad-drafting',
       title: 'What is architectural CAD drafting?',
       paragraphs: [
-        'Architectural CAD drafting is a deliverable-focused service: you’re hiring for an output, not a tool. The goal is a coordinated drawing set—plans, elevations, sections, and details—with correct dimensions, clear annotations, and the formats your workflow requires.',
+        'Architectural CAD drafting is a deliverable-focused service: you’re hiring for an output, not a tool. The goal is a coordinated drawing set—plans, elevations, sections, and details—with correct dimensions, clear annotations, and the formats your workflow requires. Drafting in AutoCAD is [AutoCAD drafting services](/resources/autocad-drafting-services-online-2d-drawings-conversions-and-technical-docs). General sheet guidance is the [2D CAD drawing service](/resources/2d-cad-drawing-service-technical-drawings-for-manufacturing-and-patents). Open an existing model in the [CAD viewer](/tools/cad-viewer) before you mark up sheets.',
       ],
     },
     {

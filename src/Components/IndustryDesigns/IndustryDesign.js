@@ -27,6 +27,7 @@ import TwoDDrawingCtaBanner from './TwoDDrawingCtaBanner';
 import ProductDetailToolLinks from '../CommonJsx/CrossTemplateLinks/ProductDetailToolLinks';
 import ProductDetailGuidance from './ProductDetailGuidance';
 import { cleanLibraryProductName } from '@/lib/seo/libraryProductDetail';
+import { libraryProductBreadcrumbs } from '@/lib/seo/productBreadcrumbs';
 import { isLibraryDesignFree, getDesignPageDrawingHref } from '@/data/libraryPage';
 import DesignConversionSocialProof from './DesignConversionSocialProof';
 import {
@@ -78,24 +79,16 @@ function IndustryDesign({ design, designData, type }) {
                   href: `/industry/${design.industry}/${design.part}/${design.design_id}`,
                 },
               ]
-            : [
-                { label: 'Library', href: '/library' },
-                { label: cleanTitle || response.page_title, href: `/library/${design}` },
-              ]
+            : libraryProductBreadcrumbs({
+                design: response,
+                productLabel: cleanTitle || response.page_title,
+                productHref: `/library/${design}`,
+              })
         }
       />
 
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          boxSizing: 'border-box',
-          position: 'relative',
-          minHeight: '100px',
-        }}
-      >
-        <div style={{ width: '100%', maxWidth: '970px', margin: '0 auto' }}>
+      <div className={styles.productTopAd}>
+        <div className={styles.productTopAdInner}>
           <LeftRightBanner adSlot="4923244212" />
         </div>
       </div>

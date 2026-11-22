@@ -5,6 +5,7 @@ import { MdMenu } from 'react-icons/md'
 import AdminSidebar from './AdminSidebar'
 import DesignTable from './DesignTable'
 import PaymentsTable from './PaymentsTable'
+import ConverterCreditsTable from './ConverterCreditsTable'
 import ViewedList from './ViewedList'
 import DownloadedList from './DownloadedList'
 import SearchedList from './SearchedList'
@@ -109,6 +110,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
         return 'Designs'
       case 'payments':
         return 'Payments'
+      case 'credits':
+        return 'Converter credits'
       case 'controls':
         return 'Controls'
       case 'viewed-list':
@@ -142,6 +145,8 @@ function AdminPannel({ children, initialTab = DEFAULT_ADMIN_TAB }) {
         return <DesignTable />
       case 'payments':
         return <PaymentsTable />
+      case 'credits':
+        return <ConverterCreditsTable />
       case 'controls':
         return <AdminControlsPanel />
       case 'viewed-list':

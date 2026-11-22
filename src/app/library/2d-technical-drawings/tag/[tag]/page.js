@@ -6,6 +6,7 @@ import {
   get2DLibraryPath,
 } from "@/data/twoDLibraryPage";
 import { buildPageMetadata } from "@/lib/seo/pageMetadata";
+import { twoDTagDescription } from "@/lib/seo/listingCopy";
 
 function requireValidTagSlug(rawSlug) {
   const slug = normalizeLibraryTagSlug(rawSlug);
@@ -20,7 +21,7 @@ export async function generateMetadata({ params, searchParams }) {
   const title = `${tagLabel} 2D Technical Drawings | PDF, SVG, DXF | Marathon OS${
     page > 1 ? ` - Page ${page}` : ""
   }`;
-  const description = `Browse ${tagLabel} 2D technical drawings generated from 3D CAD models. Download PDF, SVG and DXF drawing sets for engineering review.`;
+  const description = twoDTagDescription(tagLabel);
 
   const path = get2DLibraryPath({ tagName: tagSlug });
   const { canonicalPath, robots } = getLibraryCanonicalAndRobots({

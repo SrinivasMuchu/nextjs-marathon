@@ -20,6 +20,7 @@ import {
   TWO_D_DRAWING_TRANSPARENCY_INTRO,
 } from "./twoDDrawingPageHelpers";
 import { buildDrawingDetailsProps } from "./buildDrawingDetailsProps";
+import { libraryProductBreadcrumbs } from "@/lib/seo/productBreadcrumbs";
 
 function sortGeometryKeys(geometryPerSheet) {
   if (!geometryPerSheet || typeof geometryPerSheet !== "object") return [];
@@ -667,11 +668,11 @@ export function mapTechDrawBundleToPageProps(designId, bundle) {
     svgOnly,
     libraryPriceVersion: Boolean(version || svgOnly),
     drawingDetails,
-    breadcrumbLinks: [
-      { label: "Library", href: "/library" },
-      { label: "2D Technical Drawings", href: "/library/2d-technical-drawings" },
-      { label: productTitle },
-    ],
+    breadcrumbLinks: libraryProductBreadcrumbs({
+      design: designMeta,
+      productLabel: productTitle,
+      library: "2d",
+    }),
     heroProps: {
       title,
       tags: [],

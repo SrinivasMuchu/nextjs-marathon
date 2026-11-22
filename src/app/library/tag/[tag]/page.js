@@ -6,6 +6,8 @@ import {
   getLibraryPath,
   getLibraryCanonicalAndRobots,
 } from '@/common.helper';
+import { formatLibraryFacetLabel } from '@/lib/seo/libraryLabels';
+import { tagListingDescription } from '@/lib/seo/listingCopy';
 
 function requireValidTagSlug(rawSlug) {
   const slug = normalizeLibraryTagSlug(rawSlug);
@@ -15,11 +17,11 @@ function requireValidTagSlug(rawSlug) {
 
 export async function generateMetadata({ params, searchParams }) {
   const tagSlug = requireValidTagSlug(params?.tag || '');
-  const tagLabel = tagSlug.replace(/-/g, ' ');
+  const tagLabel = formatLibraryFacetLabel(tagSlug);
   const page = parseInt(searchParams?.page) || 1;
 
   const title = `${tagLabel} CAD Models | STEP, STL, IGES Downloads | Marathon OS${page > 1 ? ` - Page ${page}` : ''}`;
-  const description = `Explore ${tagLabel} 3D CAD models and download STEP/STP, IGES, STL and more. Filter by category, file type, price & popularity. Preview online.`;
+  const description = tagListingDescription(tagLabel);
 
   const path = getLibraryPath({ tagName: tagSlug });
   const { canonicalPath, robots, prevPath, nextPath } = getLibraryCanonicalAndRobots({

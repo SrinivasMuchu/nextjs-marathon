@@ -5,7 +5,7 @@ export const revitModelingServicesArticle = {
   metadata: {
     title: 'Revit Design Service — Vetted Revit Experts | Marathon OS',
     description:
-      'Hire a vetted Revit designer online. Get native RVT files plus exports like DWG, PDF, IFC (if requested). Submit your brief and receive production-ready deliverables fast.',
+      'Native Revit models for architects and engineers, with DWG, PDF or IFC exports when the project asks for them.',
   },
   hero: {
     badge: 'CAD Services · Revit',
@@ -19,7 +19,7 @@ export const revitModelingServicesArticle = {
     {
       type: 'quickAnswer',
       paragraphs: [
-        'Hiring a Revit designer online means submitting your brief to a service that matches you with a qualified Revit modeler or drafter. The best services deliver native files plus exports for consultants, contractors, and stakeholders, with clear timelines and revision rounds.',
+        'Hiring a Revit designer online means submitting your brief to a service that matches you with a qualified Revit modeler or drafter. The best services deliver native files plus exports for consultants, contractors, and stakeholders, with clear timelines and revision rounds. Submit it with [Marathon OS CAD services](/cad-services). Building sheets are covered in [architectural CAD drafting](/resources/architectural-cad-drafting-services-floor-plans-elevations-and-as-builts).',
       ],
     },
     {
@@ -27,7 +27,7 @@ export const revitModelingServicesArticle = {
       id: 'what-designer-does',
       title: 'What does a Revit designer do?',
       paragraphs: [
-        'A Revit designer creates accurate BIM models and construction documentation in Revit, producing files that can go directly into design development, permit sets, coordination, and stakeholder review. The key is deliverables: consistent families and views, correct annotations, and exports your partners can use.',
+        'A Revit designer creates accurate BIM models and construction documentation in Revit, producing files that can go directly into design development, permit sets, coordination, and stakeholder review. The key is deliverables: consistent families and views, correct annotations, and exports your partners can use. 2D companions are [AutoCAD drafting services](/resources/autocad-drafting-services-online-2d-drawings-conversions-and-technical-docs). Review linked models in the [CAD viewer](/tools/cad-viewer).',
       ],
     },
     {

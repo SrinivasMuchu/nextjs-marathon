@@ -55,6 +55,28 @@
   color: #ffffff;
 }
 
+.byline {
+  margin: -6px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(244, 240, 255, 0.72);
+}
+
+.byline a {
+  color: #e9ddff;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.byline a:hover {
+  color: #ffffff;
+}
+
 .heroLead {
   margin: 0;
   font-size: clamp(16px, 2.2vw, 19px);
@@ -124,6 +146,17 @@
 
 .quickAnswer p + p {
   margin-top: 12px;
+}
+
+.inlineLink {
+  color: #610bee;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.inlineLink:hover {
+  color: #4c1d95;
 }
 
 .section {
@@ -475,6 +508,59 @@
 
 .bottomCtaLink:hover {
   color: #e9ddff;
+}
+
+.related {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: clamp(40px, 6vw, 64px) clamp(20px, 4vw, 32px) clamp(56px, 8vw, 88px);
+  box-sizing: border-box;
+}
+
+.related h2 {
+  margin: 0;
+  font-size: clamp(22px, 3.5vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.relatedList {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.relatedLink {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 18px;
+  background: #ffffff;
+  border: 1px solid #e8e8ef;
+  border-radius: 14px;
+  text-decoration: none;
+}
+
+.relatedLink:hover {
+  border-color: rgba(97, 11, 238, 0.45);
+}
+
+.relatedTitle {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #0f172a;
+}
+
+.relatedDesc {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #64748b;
 }
 
 @media (max-width: 720px) {

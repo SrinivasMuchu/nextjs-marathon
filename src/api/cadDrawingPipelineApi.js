@@ -293,6 +293,27 @@ export async function checkTechDrawDownload(jobId) {
   return unwrap(data);
 }
 
+/**
+ * Unlock a completed drawing with converter credits.
+ * Never throws for business outcomes: returns { ok, message, ...data } so the UI can
+ * show "needs N credits — you have X" (`reason: insufficient_credits`) or a changed cost.
+ * @param {string} jobId
+ * @param {number} expectedCost credits the user was shown
+ */
+export async function redeemTechDrawCredits(jobId, expectedCost) {
+  assertUuid();
+  const { data } = await axios.post(
+    `${BASE_URL}${TECHDRAW_API_BASE}/use-credits`,
+    { job_id: jobId, expected_cost: expectedCost },
+    { headers: userUuidHeader(), timeout: 30_000 },
+  );
+  return {
+    ...(data?.data || {}),
+    ok: Boolean(data?.meta?.success),
+    message: data?.meta?.message || "",
+  };
+}
+
 export async function verifyTechDrawPayment({
   job_id,
   razorpay_order_id,

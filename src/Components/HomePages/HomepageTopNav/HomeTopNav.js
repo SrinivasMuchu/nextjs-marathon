@@ -28,19 +28,24 @@ import { contextState } from "@/Components/CommonJsx/ContextProvider";
 import UserLoginPupUp from "@/Components/CommonJsx/UserLoginPupUp";
 import { isLoggedInClient } from "@/lib/authSession";
 import {
-  BLOGS_MENU,
   LIBRARY_MENU,
   TOOLS_MENU,
 } from "./navConfig";
 
-function renderNavDropdownMenu(items, label, onClose) {
+function renderNavDropdownMenu(items, label, onClose, isOpen) {
   return (
-    <div className={styles.toolsDropdownMenu} role="menu" aria-label={label}>
+    <div
+      className={`${styles.toolsDropdownMenu} ${isOpen ? styles.toolsDropdownMenuOpen : ""}`}
+      role="menu"
+      aria-label={label}
+      aria-hidden={!isOpen}
+    >
       {items.map(({ href, title, subtitle, Icon }) => (
         <Link
           key={href}
           href={href}
           role="menuitem"
+          tabIndex={isOpen ? 0 : -1}
           className={styles.toolsDropdownCard}
           onClick={onClose}
         >
@@ -118,11 +123,6 @@ function HomeTopNav() {
     }
   };
 
-  const toggleDropdown = (e, dropdownName) => {
-    e.stopPropagation();
-    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
-  };
-
   const clearDropdownCloseTimeout = () => {
     if (dropdownCloseTimeoutRef.current) {
       clearTimeout(dropdownCloseTimeoutRef.current);
@@ -194,7 +194,7 @@ function HomeTopNav() {
 
         <div className={styles["home-page-navs"]}>
           <Link
-            href="#why-us"
+            href="/#why-us"
             className={`${styles.navLink} ${styles.navWhyUs}`}
             onMouseEnter={() => handleNavHover(null)}
             onClick={(e) => handleAnchorClick(e, "why-us")}
@@ -213,18 +213,19 @@ function HomeTopNav() {
           </Link>
 
           <div
-            className={styles.navDropdownWrap}
+            className={`${styles.navDropdownWrap} ${openDropdown === "library" ? styles.navDropdownOpen : ""}`}
             onMouseEnter={() => handleNavHover("library")}
             onMouseLeave={() => handleDropdownLeave("library")}
           >
             <Link
               href="/library"
               className={`${styles["nav-dropdown-trigger"]} ${openDropdown === "library" ? styles.navTriggerOpen : ""}`}
+              aria-expanded={openDropdown === "library"}
+              aria-haspopup="menu"
             >
               Library <ChevronDown size={14} className={styles.navChevron} />
             </Link>
-            {openDropdown === "library" &&
-              renderNavDropdownMenu(LIBRARY_MENU, "Library", () => setOpenDropdown(null))}
+            {renderNavDropdownMenu(LIBRARY_MENU, "Library", () => setOpenDropdown(null), openDropdown === "library")}
           </div>
 
           <Link
@@ -238,40 +239,32 @@ function HomeTopNav() {
           </Link>
 
           <div
-            className={styles.navDropdownWrap}
+            className={`${styles.navDropdownWrap} ${openDropdown === "tools" ? styles.navDropdownOpen : ""}`}
             onMouseEnter={() => handleNavHover("tools")}
             onMouseLeave={() => handleDropdownLeave("tools")}
           >
             <Link
               href="/tools"
               className={`${styles["nav-dropdown-trigger"]} ${openDropdown === "tools" ? styles.navTriggerOpen : ""}`}
+              aria-expanded={openDropdown === "tools"}
+              aria-haspopup="menu"
             >
               Tools <ChevronDown size={14} className={styles.navChevron} />
             </Link>
-            {openDropdown === "tools" &&
-              renderNavDropdownMenu(TOOLS_MENU, "Tools", () => setOpenDropdown(null))}
+            {renderNavDropdownMenu(TOOLS_MENU, "Tools", () => setOpenDropdown(null), openDropdown === "tools")}
           </div>
 
           <Link href="/resources" className={styles.navLink} onMouseEnter={() => handleNavHover(null)}>
             Resources
           </Link>
 
-          <div
-            className={styles.navDropdownWrap}
-            onMouseEnter={() => handleNavHover("blogs")}
-            onMouseLeave={() => handleDropdownLeave("blogs")}
+          <Link
+            href="/blog/part-number-nomenclature-guide"
+            className={styles.navLink}
+            onMouseEnter={() => handleNavHover(null)}
           >
-            <button
-              type="button"
-              className={`${styles["nav-dropdown-trigger"]} ${styles.navTriggerBtn} ${openDropdown === "blogs" ? styles.navTriggerOpen : ""}`}
-              onClick={(e) => toggleDropdown(e, "blogs")}
-              aria-expanded={openDropdown === "blogs"}
-            >
-              Blogs <ChevronDown size={14} className={styles.navChevron} />
-            </button>
-            {openDropdown === "blogs" &&
-              renderNavDropdownMenu(BLOGS_MENU, "Blogs", () => setOpenDropdown(null))}
-          </div>
+            Blog
+          </Link>
         </div>
 
         <div className={styles["home-pg-btns"]}>

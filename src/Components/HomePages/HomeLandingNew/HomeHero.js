@@ -1176,6 +1176,13 @@ const LIBRARY_CATS = [
   ["Industrial Design", "/library/industrial-design"],
   ["Medical", "/library/medical"],
   ["Electrical", "/library/electrical"],
+  ["Aviation", "/library/aviation"],
+  ["Construction", "/library/construction"],
+  ["Jewellery", "/library/jewellery"],
+  ["Manufacturing & CNC", "/library/machine-design"],
+  ["Marine", "/library/marine"],
+  ["Chemical", "/library/chemical"],
+  ["Energy And Power", "/library/energy-and-power"],
 ];
 
 function LibraryMosaic() {
