@@ -54,6 +54,11 @@ function IndustryDesign({ design, designData, type }) {
     libraryRoute,
     hasTwoDDrawings: false,
   });
+  const relatedCategory = String(
+    response?.category_route || response?.category_labels?.[0] || ''
+  ).trim();
+  const relatedTag = String(response?.tag_labels?.[0] || '').trim();
+  const relatedExcludeRoute = String(response?.route || '').trim();
 
   const pageBody = designData ? (
     <>
@@ -198,8 +203,12 @@ function IndustryDesign({ design, designData, type }) {
       {isLibraryDetail && response ? (
         <DesignConversionProvider designData={response}>
           <div className={styles['industry-design-page-root']}>{pageBody}</div>
-          <DesignHub headingLevel={3} />
-          <RecentlyAddedDesigns />
+          <DesignHub headingLevel={3} category={relatedCategory} excludeRoute={relatedExcludeRoute} />
+          <RecentlyAddedDesigns
+            category={relatedCategory}
+            tag={relatedTag}
+            excludeRoute={relatedExcludeRoute}
+          />
           <IndustryDesignDropZone />
           {showConversionUpsells ? <DesignConversionStickyBarHost /> : null}
           <Footer />
@@ -207,8 +216,12 @@ function IndustryDesign({ design, designData, type }) {
       ) : (
         <>
           <div className={styles['industry-design-page-root']}>{pageBody}</div>
-          <DesignHub headingLevel={3} />
-          <RecentlyAddedDesigns />
+          <DesignHub headingLevel={3} category={relatedCategory} excludeRoute={relatedExcludeRoute} />
+          <RecentlyAddedDesigns
+            category={relatedCategory}
+            tag={relatedTag}
+            excludeRoute={relatedExcludeRoute}
+          />
           <IndustryDesignDropZone />
           <StickyCadStrip />
           <Footer />

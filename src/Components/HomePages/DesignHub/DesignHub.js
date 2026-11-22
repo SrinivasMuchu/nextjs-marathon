@@ -3,10 +3,41 @@ import ConverterDesignHubContent from './ConverterDesignHubContent'
 import styles from './DesignHub.module.css'
 import { BASE_URL } from '../../../config'
 
-async function getCategoriesAndDesigns() {
+const DESIGN_HUB_REVALIDATE_SECONDS = 3600
+
+function categoryKey(category) {
+  return category?.industry_category_name || category?.name || ''
+}
+
+function resolveInitialCategory(categories, preferredCategory) {
+  const preferred = String(preferredCategory || '').trim().toLowerCase()
+  if (preferred) {
+    const match = categories.find((category) => {
+      const name = String(categoryKey(category)).trim().toLowerCase()
+      const label = String(
+        category?.industry_category_label || category?.title || ''
+      ).trim().toLowerCase()
+      return name === preferred || label === preferred
+    })
+    if (match) return categoryKey(match)
+  }
+
+  const printing = categories.find((category) =>
+    categoryKey(category).toLowerCase().includes('3d printing')
+  )
+  return categoryKey(printing || categories[0] || {})
+}
+
+function withoutCurrentDesign(designs, excludeRoute) {
+  const current = String(excludeRoute || '').trim()
+  if (!current) return designs
+  return designs.filter((design) => String(design?.route || '').trim() !== current)
+}
+
+async function getCategoriesAndDesigns(excludeRoute) {
   try {
     const categoriesRes = await fetch(`${BASE_URL}/v1/cad/get-categories`, {
-      cache: 'no-store',
+      next: { revalidate: DESIGN_HUB_REVALIDATE_SECONDS },
     })
 
     const categoriesJson = await categoriesRes.json()
@@ -29,15 +60,16 @@ async function getCategoriesAndDesigns() {
           const designsRes = await fetch(
             `${BASE_URL}/v1/cad/get-category-design?category=${encodeURIComponent(
               categoryName
-            )}&limit=16&page=1&random=true`,
-            { cache: 'no-store' }
+            )}&limit=16&page=1&sort=newest`,
+            { next: { revalidate: DESIGN_HUB_REVALIDATE_SECONDS } }
           )
 
           const designsJson = await designsRes.json()
           const designsData = designsJson?.data?.designDetails || []
-          designsByCategory[categoryName] = Array.isArray(designsData)
-            ? designsData
-            : []
+          designsByCategory[categoryName] = withoutCurrentDesign(
+            Array.isArray(designsData) ? designsData : [],
+            excludeRoute
+          )
         } catch {
           designsByCategory[categoryName] = []
         }
@@ -57,8 +89,11 @@ const DesignHub = async ({
   description,
   ctaLabel,
   nosnippet = false,
+  category = '',
+  excludeRoute = '',
 }) => {
-  const { categories, designsByCategory } = await getCategoriesAndDesigns()
+  const { categories, designsByCategory } = await getCategoriesAndDesigns(excludeRoute)
+  const initialCategory = resolveInitialCategory(categories, category)
   const HeadingTag = headingLevel === 3 ? 'h3' : 'h2'
 
   if (variant === 'converter') {
@@ -66,6 +101,7 @@ const DesignHub = async ({
       <ConverterDesignHubContent
         categories={categories}
         designsByCategory={designsByCategory}
+        initialCategory={initialCategory}
         headingLevel={headingLevel}
         heading={heading}
         description={description}
@@ -84,6 +120,7 @@ const DesignHub = async ({
       <DesignHubContent
         categories={categories}
         designsByCategory={designsByCategory}
+        initialCategory={initialCategory}
       />
     </div>
   )

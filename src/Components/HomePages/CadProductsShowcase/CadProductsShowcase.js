@@ -7,7 +7,7 @@ import styles from "./CadProductsShowcase.module.css";
 async function getCategoriesAndDesigns() {
   try {
     const categoriesRes = await fetch(`${BASE_URL}/v1/cad/get-categories`, {
-      cache: "no-store",
+      next: { revalidate: 3600 },
     });
     const categoriesJson = await categoriesRes.json();
     const categoriesData =
@@ -23,8 +23,8 @@ async function getCategoriesAndDesigns() {
           const designsRes = await fetch(
             `${BASE_URL}/v1/cad/get-category-design?category=${encodeURIComponent(
               categoryName,
-            )}&limit=8&page=1&random=true`,
-            { cache: "no-store" },
+            )}&limit=8&page=1&sort=newest`,
+            { next: { revalidate: 3600 } },
           );
           const designsJson = await designsRes.json();
           const designsData = designsJson?.data?.designDetails || [];

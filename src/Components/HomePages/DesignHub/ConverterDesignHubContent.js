@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import HoverImageSequenceHome from '../../CommonJsx/RotatedHomePageDesigns'
@@ -24,19 +24,22 @@ function ConverterDesignHubContent({
   description,
   ctaLabel,
   nosnippet = false,
+  initialCategory = '',
 }) {
   const preferredCategory =
     categories.find((category) => getCategoryName(category).toLowerCase().includes('3d printing')) ||
     categories[0]
-  const initialCategory = getCategoryName(preferredCategory) || Object.keys(designsByCategory)[0] || ''
-  const [activeCategory, setActiveCategory] = useState(initialCategory)
+  const fallbackCategory = getCategoryName(preferredCategory) || Object.keys(designsByCategory)[0] || ''
+  const [activeCategory, setActiveCategory] = useState(initialCategory || fallbackCategory)
+
+  useEffect(() => {
+    setActiveCategory(initialCategory || fallbackCategory)
+  }, [initialCategory, fallbackCategory])
   const HeadingTag = headingLevel === 3 ? 'h3' : 'h2'
 
   const designs = useMemo(() => {
     const selected = designsByCategory[activeCategory] || []
-    if (selected.length) return selected.slice(0, 6)
-    const fallback = Object.values(designsByCategory).find((items) => items?.length)
-    return (fallback || []).slice(0, 6)
+    return selected.slice(0, 6)
   }, [activeCategory, designsByCategory])
 
   return (

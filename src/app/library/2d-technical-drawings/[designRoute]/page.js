@@ -187,6 +187,9 @@ async function renderDesignPage(designRoute) {
         heroProps={heroProps}
         designId={designId}
         cadModelHref={cadModelHref}
+        category={design?.category_route || design?.category_labels?.[0] || ""}
+        tag={design?.tag_labels?.[0] || ""}
+        excludeRoute={design?.route || designRoute}
       >
         <TwoDTechnicalDrawingContent
           {...contentProps}

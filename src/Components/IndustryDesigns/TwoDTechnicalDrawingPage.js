@@ -28,6 +28,9 @@ export default function TwoDTechnicalDrawingPage({
   children = null,
   designId = "",
   cadModelHref = "",
+  category = "",
+  tag = "",
+  excludeRoute = "",
 }) {
   return (
     <>
@@ -53,8 +56,8 @@ export default function TwoDTechnicalDrawingPage({
         <TwoDTechnicalDrawingHero {...heroProps} />
         {children}
       </div>
-      <DesignHub headingLevel={3} />
-      <RecentlyAddedDesigns />
+      <DesignHub headingLevel={3} category={category} excludeRoute={excludeRoute} />
+      <RecentlyAddedDesigns category={category} tag={tag} excludeRoute={excludeRoute} />
       <TwoDSourceCadModelBlock cadModelHref={cadModelHref} />
       <StickyCadStrip />
       <Footer />
