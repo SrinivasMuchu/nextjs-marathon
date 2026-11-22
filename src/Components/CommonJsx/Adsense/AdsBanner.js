@@ -5,21 +5,21 @@ import { GOOGLE_ADSENSE_CLIENT_ID } from "@/config";
 export default function LeftRightBanner({ adSlot }) {
   console.log('GOOGLE_ADSENSE_CLIENT_ID', adSlot);
   useEffect(() => {
-  const observer = new ResizeObserver(entries => {
-    const width = entries[0].contentRect.width;
-    if (width > 0) {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log('AdSense pushed after width detected:', width);
-      } catch (e) {
-        console.error('AdSense error:', e);
+    const el = document.querySelector(`ins[data-ad-slot="${adSlot}"]`);
+    if (!el) return;
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && el.offsetWidth > 0) {
+        try {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+          console.error('AdSense error:', e);
+        }
+        observer.disconnect();
       }
-      observer.disconnect();
-    }
-  });
-  const el = document.querySelector(`ins[data-ad-slot="${adSlot}"]`);
-  if (el) observer.observe(el);
-}, [adSlot]);
+    }, { rootMargin: "300px" });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [adSlot]);
 
   return (
     <ins
