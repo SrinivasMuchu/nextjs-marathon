@@ -15,6 +15,8 @@ import {
 import { cadConverterStatusPath } from "@/lib/cadConverterRoutes";
 import CadComparisonPopup, { canViewComparison } from "./CadComparisonPopup";
 import styles from "./ConverterList.module.css";
+import RateJobButton from "@/Components/Feedback/RateJobButton";
+import FailedJobButton from "@/Components/Feedback/FailedJobButton";
 
 // Backend sets converter_pricing per the admin free plan: free_granted = one of the first N free conversions,
 // uses_free_slot = still converting and will take a free slot when it completes,
@@ -355,6 +357,12 @@ function CadConvertorFiles({
                   >
                     <Eye size={16} />
                   </button>
+                  {completed && file._id && !file.sample_file ? (
+                    <RateJobButton jobId={file._id} jobType="converter" feedback={file.feedback} />
+                  ) : null}
+                  {failed && file._id && !file.sample_file ? (
+                    <FailedJobButton jobId={file._id} jobType="converter" fileName={file.file_name} />
+                  ) : null}
                 </div>
               </div>
             );

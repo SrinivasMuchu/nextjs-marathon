@@ -16,6 +16,7 @@ import { MdStorefront } from "react-icons/md";
 import { MdBarChart } from "react-icons/md";
 import { MdPersonSearch } from "react-icons/md";
 import { MdClose } from "react-icons/md";
+import { MdFeedback, MdSupportAgent, MdFormatQuote } from "react-icons/md";
 
 function Chevron({ direction = 'left' }) {
   const rotate = direction === 'left' ? '0' : '180'
@@ -41,6 +42,9 @@ const NAV_ITEMS = [
   { id: 'cad-service-requests', label: 'CAD Requests', title: 'CAD Service Requests', Icon: MdEngineering },
   { id: 'techdraw-jobs', label: 'TechDraw', title: 'TechDraw Uploads', Icon: MdDraw },
   { id: 'vendors', label: 'Vendors', title: 'Vendors', Icon: MdStorefront },
+  { id: 'feedback-dashboard', label: 'Feedback', title: 'Feedback loop', Icon: MdFeedback },
+  { id: 'feedback-cases', label: 'Feedback cases', title: 'Feedback cases', Icon: MdSupportAgent },
+  { id: 'feedback-quotes', label: 'Quotes', title: 'Testimonial quotes', Icon: MdFormatQuote },
 ]
 
 function AdminSidebar({ collapsed, mobileOpen, activeTab, onToggle, onCloseMobile, onSelect }) {

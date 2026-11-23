@@ -20,6 +20,8 @@ import {
   techDrawPipelineStatusPath,
 } from "@/lib/techDraw/techDrawJobRoutes";
 import { checkTechDrawDownload, getTechDrawPriceDisplay } from "@/api/cadDrawingPipelineApi";
+import { registerDrawingSheets, requestFeedbackPrompt } from "@/lib/feedbackPrompt";
+import { recordFeedbackJobEvent } from "@/api/feedbackApi";
 import { buildConverterPricingDisplay } from "@/lib/converterPricing";
 import {
   ensureTechDrawDownloadAccess,
@@ -126,8 +128,7 @@ export default function TechDrawJobLibraryResults({
     };
   }, [adminMode, getDesignPath, getPipelineStatusPath, jobId, job]);
 
-  const triggerBrowserDownload = useCallback(async (href) => {
-    if (!href) return;
+  const saveDrawingDownload = useCallback(async (href) => {
     const headers = {};
     if (typeof window !== "undefined") {
       const uuid = localStorage.getItem("uuid");
@@ -151,6 +152,17 @@ export default function TechDrawJobLibraryResults({
     link.remove();
     URL.revokeObjectURL(objectUrl);
   }, [adminMode]);
+
+  const triggerBrowserDownload = useCallback(async (href, { prompt = true } = {}) => {
+    if (!href) return;
+    await saveDrawingDownload(href);
+    // Every drawing output (PDF, DXF, SVG, ZIP, sheet) comes through here: one hook records them all (2a, 4a).
+    // The rating card follows a finished download. Card payment passes prompt:false — those stars are on the success screen.
+    if (!adminMode && jobId) {
+      recordFeedbackJobEvent({ jobId, jobType: "drawing", event: "downloaded" });
+      if (prompt) requestFeedbackPrompt({ jobId, jobType: "drawing" });
+    }
+  }, [adminMode, jobId, saveDrawingDownload]);
 
   const closeDownloadFlow = useCallback(() => {
     setCheckoutStep(null);
@@ -302,7 +314,7 @@ export default function TechDrawJobLibraryResults({
         userEmail: user?.email,
         billingId,
       });
-      if (href) await triggerBrowserDownload(href);
+      if (href) await triggerBrowserDownload(href, { prompt: false });
       return result;
     },
     [job?.file_name, job?.title, jobId, triggerBrowserDownload, user?.email],
@@ -316,6 +328,18 @@ export default function TechDrawJobLibraryResults({
     if (href) await triggerBrowserDownload(href);
     return true;
   }, [jobId, triggerBrowserDownload]);
+
+  // Sheet previews for the rating form's optional "Mark the problem" (flow 2b).
+  useEffect(() => {
+    if (adminMode || !jobId || !pageProps?.sheets?.length) return undefined;
+    const sheets = pageProps.sheets
+      .map((sh, i) => {
+        const m = String(sh.src || "").match(/sheet_(\d+)/);
+        return { sheet: m ? Number(m[1]) : i + 1, src: sh.src, label: sh.label };
+      })
+      .filter((sh) => sh.src);
+    return registerDrawingSheets(jobId, sheets);
+  }, [adminMode, jobId, pageProps?.sheets]);
 
   const downloadHandlers = useMemo(() => {
     if (!pageProps) return {};
@@ -417,9 +441,10 @@ export default function TechDrawJobLibraryResults({
           onClose={closeDownloadFlow}
           onPay={handleTechDrawPayment}
           onAuthed={handleTechDrawAuthed}
+          feedbackJob={!adminMode && jobId ? { jobId, jobType: "drawing" } : undefined}
           onDownloadAgain={() => {
             const href = pendingHrefRef.current;
-            if (href) triggerBrowserDownload(href);
+            if (href) triggerBrowserDownload(href, { prompt: false });
           }}
         />
       ) : null}

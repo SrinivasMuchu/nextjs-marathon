@@ -252,9 +252,9 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     }
   };
 
-  const performConverterFileDownload = async (file, index) => {
+  const performConverterFileDownload = async (file, index, { prompt = true } = {}) => {
     // Server checks owner + payment / credit / free claim and returns a signed URL.
-    await downloadConverterFile(file);
+    await downloadConverterFile(file, { prompt });
     setDownloading(prev => ({ ...prev, [index]: false }));
   };
 
@@ -338,7 +338,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     // Payment is done — kick off the download in the background (do NOT await it)
     // so the payment-success popup shows immediately instead of staying on the
     // "Download your file" screen until the file finishes downloading.
-    performConverterFileDownload(file, index).catch((downloadErr) => {
+    // The success screen already asks for the rating, so no corner card.
+    performConverterFileDownload(file, index, { prompt: false }).catch((downloadErr) => {
       console.error('Converter download after payment failed:', downloadErr);
       toast.error('Payment successful. Your download will retry — use "Download again".');
       setDownloading(prev => ({ ...prev, [index]: false }));
@@ -362,7 +363,7 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     const { file, index } = pending;
     setDownloading(prev => ({ ...prev, [index]: true }));
     try {
-      await performConverterFileDownload(file, index);
+      await performConverterFileDownload(file, index, { prompt: false });
     } catch (error) {
       toast.error(error?.message || 'Download failed. Please try again.');
       setDownloading(prev => ({ ...prev, [index]: false }));
@@ -580,6 +581,8 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
           title="Pay as you go, cheaper by the pack"
           subtitle={getCreditPlansSubtitle(freePlanInfo)}
           onClose={closeCreditPlans}
+          feedbackJob={pendingConverterDownload?.file?._id && !pendingConverterDownload.file.sample_file
+            ? { jobId: pendingConverterDownload.file._id, jobType: 'converter' } : null}
           onSelectPack={handleSelectPack}
           onSelectSingle={openBillingFromPlans}
         />

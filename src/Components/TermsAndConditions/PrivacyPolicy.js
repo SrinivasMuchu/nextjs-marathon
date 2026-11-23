@@ -39,6 +39,13 @@ function PrivacyPolicy() {
                 <h3>2.3 Information from Third Parties</h3>
                 <p>We may receive data from <strong>integrations</strong>, <strong>payment processors</strong>, or <strong>public databases</strong> where permitted.</p>
 
+                <h3>2.4 Conversion and drawing feedback</h3>
+                <p>When you rate a converted file or a 3D-to-2D drawing, we store the rating, the options you pick, any comment, the software you name, and a copy of the job details (file name, formats, size and route). We keep that copy because the file itself is deleted after 7 days.</p>
+                <p>We use ratings and comments to fix conversions. We do not use them to train models.</p>
+                <p>We show a review on our pages only if you agree, and only in your own words. You can stop sharing it from Account settings, and we take it down within 24 hours.</p>
+                <p>If you agree that an engineer may open the file, we copy it to a restricted store, use that copy only to fix the problem you reported, and delete the copy within 30 days. We do not use that copy for training, tests, or public issue reports.</p>
+                <p>If your account is deleted, we delete the ratings, comments and quotes that belong to it.</p>
+
 
 
 

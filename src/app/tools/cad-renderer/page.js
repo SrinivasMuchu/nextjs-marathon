@@ -10,6 +10,7 @@ import { BASE_URL, buildCadViewerGlbUrl, buildCadViewerMetaUrl, buildDesignGlbUr
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
+import { recordFeedbackJobEvent } from "@/api/feedbackApi";
 
 const PartDesignView = dynamic(() => import("@/Components/PDMViewer/PartDesignView"), { ssr: false });
 
@@ -37,6 +38,11 @@ function DesignViewContent() {
   const useLibraryGlbCdn = Boolean(designId);
   const useCadViewerOutput = Boolean(fileId && !designId);
   const cacheBust = searchParams.get("v") || searchParams.get("cb") || searchParams.get("ts");
+
+  // Flow 11a: the 3D view of a converted file counts as "viewed" (the server ignores non-converter ids).
+  useEffect(() => {
+    if (fileId && !designId && !isSample) recordFeedbackJobEvent({ jobId: fileId, event: "result_viewed" });
+  }, [fileId, designId, isSample]);
 
   const encodedTargetId = useMemo(
     () => (targetId ? encodeURIComponent(targetId) : ""),

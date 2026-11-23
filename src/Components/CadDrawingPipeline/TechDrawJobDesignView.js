@@ -6,6 +6,7 @@ import { getTechDrawJobStatus } from "@/api/cadDrawingPipelineApi";
 import Loading from "@/Components/CommonJsx/Loaders/Loading";
 import { techDrawDesignPath, techDrawPipelineStatusPath } from "@/lib/techDraw/techDrawJobRoutes";
 import TechDrawJobLibraryResults from "./TechDrawJobLibraryResults";
+import { recordFeedbackJobEvent } from "@/api/feedbackApi";
 
 export default function TechDrawJobDesignView({
   jobId,
@@ -25,6 +26,10 @@ export default function TechDrawJobDesignView({
         const { job: data } = await fetchJobStatus(jobId);
         if (cancelled) return;
         setJob(data);
+        // Flow 11: opening a finished drawing counts as "viewed".
+        if (!adminMode && String(data?.status || "").toUpperCase() === "COMPLETED") {
+          recordFeedbackJobEvent({ jobId, jobType: "drawing", event: "result_viewed" });
+        }
       } catch (err) {
         if (!cancelled) {
           setError(err?.message || "Could not load drawing.");
@@ -35,7 +40,7 @@ export default function TechDrawJobDesignView({
     return () => {
       cancelled = true;
     };
-  }, [fetchJobStatus, jobId]);
+  }, [adminMode, fetchJobStatus, jobId]);
 
   if (error) {
     return (

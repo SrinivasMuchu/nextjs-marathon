@@ -5,6 +5,7 @@ import ToastProvider from "@/Components/CommonJsx/ReactToastify";
 import CreateLocalStorage from "@/Components/CommonJsx/CreateLocalStorage";
 import ContextWrapper from "@/Components/CommonJsx/ContextWrapper";
 import FloatingButton from "@/Components/CommonJsx/FloatingButton";
+import FeedbackHost from "@/Components/Feedback/FeedbackHost";
 import HomeTopNav from "@/Components/HomePages/HomepageTopNav/HomeTopNav";
 import { ConverterPricingSeedProvider } from "@/Components/CadUploadingHome/CadFileConversion/ConverterPricingSeed";
 import { getConverterPricingForRender } from "@/lib/converterPricingServer";
@@ -236,6 +237,7 @@ export default async function RootLayout({ children }) {
               <ConverterPricingSeedProvider pricingInfo={pricingInfo}>{children}</ConverterPricingSeedProvider>
             </main>
             <FloatingButton />
+            <FeedbackHost />
           </CadFormProvider>
         </ContextWrapper>
       </body>

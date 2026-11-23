@@ -10,6 +10,7 @@ function SoftwareApplicationJsonLd({
   price = '0',
   priceCurrency = 'USD',
   offers,
+  applicationCategory = 'EngineeringApplication',
 }) {
   if (!name || !url) return null;
 
@@ -17,7 +18,7 @@ function SoftwareApplicationJsonLd({
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name,
-    applicationCategory: 'EngineeringApplication',
+    applicationCategory,
     operatingSystem: 'Web',
     url,
     ...(description ? { description } : {}),

@@ -1,0 +1,186 @@
+.row {
+  cursor: pointer;
+}
+
+.row:hover td {
+  background: #faf7ff;
+}
+
+.rowOpen td {
+  background: #f5f3ff;
+}
+
+.priority {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 0 4px 4px 0;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 650;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.badgeConsent {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badgeOrigin {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.status_open {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status_looking {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status_reply_sent {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.status_fixed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status_wont_fix {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.ageLate {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.detail {
+  padding: 16px !important;
+  background: #fcfcfd;
+  white-space: normal !important;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 6px 12px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.fields dt {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.fields dd {
+  margin: 0;
+  color: #111827;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fff;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.events li {
+  border-left: 3px solid #e5e7eb;
+  padding-left: 8px;
+}
+
+.textarea,
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid #610bee;
+  background: #610bee;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnGhost {
+  background: #fff;
+  color: #610bee;
+}
+
+.btnGreen {
+  background: #16a34a;
+  border-color: #16a34a;
+}

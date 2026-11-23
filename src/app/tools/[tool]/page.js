@@ -182,6 +182,7 @@ export default async function ToolPage({ params }) {
           url={softwareUrl}
           description={softwareDescription}
           offers={pricing.offers}
+          applicationCategory="DesignApplication"
         />
         <ConvertPairPage conversionParams={conversion} />
       </>

@@ -4,6 +4,11 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, FileText } from "lucide-react";
 import { getConverterReport } from "@/api/converterPaymentApi";
+import { getFeedbackContext, recordFeedbackJobEvent } from "@/api/feedbackApi";
+import { sendGAtagEvent } from "@/common.helper";
+import AbandonFeedback from "../Feedback/AbandonFeedback";
+import FeedbackDialog from "../Feedback/FeedbackDialog";
+import feedbackStyles from "../Feedback/Feedback.module.css";
 import { toCadOutputCdnUrl } from "@/config";
 import Loading from "../CommonJsx/Loaders/Loading";
 import styles from "./ConversionReportView.module.css";
@@ -17,6 +22,10 @@ const DASHBOARD_CONVERTER_PATH = "/dashboard?cad_type=CAD_CONVERTER";
  */
 function ConversionReportView({ fileId }) {
   const [state, setState] = useState({ loading: true, error: "", report: null });
+  // Flow 11a: a quiet "Not what you expected?" for finished, signed-in, never-downloaded, non-sample files.
+  const [abandonCtx, setAbandonCtx] = useState(null);
+  const [askOpen, setAskOpen] = useState(false);
+  const [answered, setAnswered] = useState(false);
 
   useEffect(() => {
     if (!fileId) {
@@ -31,7 +40,20 @@ function ConversionReportView({ fileId }) {
     setState({ loading: true, error: "", report: null });
     getConverterReport(fileId)
       .then((report) => {
-        if (!cancelled) setState({ loading: false, error: "", report });
+        if (cancelled) return;
+        setState({ loading: false, error: "", report });
+        recordFeedbackJobEvent({ jobId: fileId, event: "result_viewed" });
+        sendGAtagEvent({ event_name: "converter_result_viewed", event_category: "FEEDBACK", event_label: "report" });
+        getFeedbackContext(fileId, "converter")
+          .then((ctx) => {
+            if (cancelled || !ctx?.content) return;
+            const j = ctx.job || {};
+            if (j.state === "completed" && !j.downloaded && !j.sample_file) {
+              setAbandonCtx(ctx);
+              setAnswered(Boolean(ctx.feedback?.abandoned));
+            }
+          })
+          .catch(() => {});
       })
       .catch((err) => {
         if (!cancelled) {
@@ -72,11 +94,36 @@ function ConversionReportView({ fileId }) {
               PDF report
             </a>
           ) : null}
+          {abandonCtx && !answered ? (
+            <button type="button" className={feedbackStyles.linkBtn} onClick={() => setAskOpen(true)}>
+              Not what you expected?
+            </button>
+          ) : null}
           <Link href={DASHBOARD_CONVERTER_PATH} className={styles.primary}>
             Go to download
           </Link>
         </div>
       </header>
+
+      {abandonCtx && !answered && !askOpen ? (
+        <aside className={`${feedbackStyles.sideCard} ${styles.marginCard}`} aria-label="Not what you expected?">
+          <p>Didn&apos;t get what you needed from this file?</p>
+          <button type="button" className={feedbackStyles.linkBtn} onClick={() => setAskOpen(true)}>
+            Tell us why
+          </button>
+        </aside>
+      ) : null}
+      {askOpen && abandonCtx ? (
+        <FeedbackDialog label="Not what you expected?" onClose={() => setAskOpen(false)}>
+          <AbandonFeedback
+            context={abandonCtx}
+            jobId={fileId}
+            source="abandon_link"
+            onDone={() => setAnswered(true)}
+            onClose={() => setAskOpen(false)}
+          />
+        </FeedbackDialog>
+      ) : null}
 
       {loading ? (
         <div className={styles.center}>
