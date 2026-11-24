@@ -144,7 +144,9 @@ export async function getEmailRatingContext(token, rating) {
 }
 
 export async function submitEmailRating(payload) {
+  // Logged in: the server refuses the write if this link belongs to another account (B2).
   const { data } = await axios.post(`${BASE_URL}${FEEDBACK_API_BASE}/email`, payload, {
+    headers: userUuidHeader(),
     timeout: 20_000,
     validateStatus: (s) => s < 500,
   });

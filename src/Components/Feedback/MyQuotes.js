@@ -12,7 +12,7 @@ const STATUS = {
 };
 
 /**
- * Account settings (flow 6d): the user's quotes with "Stop sharing". A withdrawn quote leaves our pages
+ * Profile (flow 6d): the user's quotes with "Stop sharing". A withdrawn quote leaves our pages
  * within the hour (the promise is 24 h). Renders nothing when the user has no quotes.
  */
 export default function MyQuotes() {

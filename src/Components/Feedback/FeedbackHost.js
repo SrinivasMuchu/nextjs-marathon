@@ -84,10 +84,13 @@ export default function FeedbackHost() {
       const context = await getFeedbackContext(jobId, jobType);
       if (kind === "stopped") {
         // Flow 3 "stopped waiting": one question, asked once per job, no star pacing.
-        if (context?.content && !context.feedback?.failed && !context.job?.sample_file
+        if (context?.content && !context.feedback?.failed && !context.stopped_asked && !context.job?.sample_file
           && ["running", "failed", "stuck"].includes(context.job?.state)) {
           showing.current = true;
           setPrompt({ context, source: "failed_job", kind: "stopped" });
+          recordFeedbackPromptEvent({
+            jobId, jobType, event: "shown", source: "failed_job",
+          }).catch(() => {});
         }
         return;
       }

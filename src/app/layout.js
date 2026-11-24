@@ -143,6 +143,31 @@ export default async function RootLayout({ children }) {
         />
 
         <Script
+          id="strip-feedback-token"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+      (function () {
+        try {
+          var url = new URL(window.location.href);
+          if (!url.searchParams.has("t")) return;
+          if (url.pathname.indexOf("/feedback/rate") === 0) {
+            sessionStorage.setItem("feedback_rate_t", url.searchParams.get("t") || "");
+            var star = url.searchParams.get("r");
+            if (star) sessionStorage.setItem("feedback_rate_r", star);
+            var src = url.searchParams.get("s");
+            if (src) sessionStorage.setItem("feedback_rate_s", src);
+          }
+          url.searchParams.delete("t");
+          var next = url.pathname + (url.search ? url.search : "") + url.hash;
+          history.replaceState(history.state, "", next);
+        } catch (e) {}
+      })();
+    `,
+          }}
+        />
+
+        <Script
           strategy="beforeInteractive"
           id="disable-ga-on-localhost"
           dangerouslySetInnerHTML={{
@@ -167,8 +192,11 @@ export default async function RootLayout({ children }) {
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+      var loc = new URL(window.location.href);
+      loc.searchParams.delete('t');
       gtag('config', '${GA_TRACKING_ID}', {
-        page_path: window.location.pathname,
+        page_path: loc.pathname,
+        page_location: loc.origin + loc.pathname + loc.search + loc.hash,
       });
     `,
           }}

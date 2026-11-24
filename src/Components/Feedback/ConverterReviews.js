@@ -14,6 +14,8 @@ function stars(n) {
  * Never used on the homepage.
  */
 export default async function ConverterReviews({ conversionParams }) {
+  // Off until phase 2 is signed off. Same switch as the API (FEEDBACK_QUOTES_PUBLIC=true).
+  if (process.env["FEEDBACK_QUOTES_PUBLIC"] !== "true") return null;
   let data = null;
   try {
     data = await getPublicQuotes({ route: conversionParams });
@@ -40,7 +42,7 @@ export default async function ConverterReviews({ conversionParams }) {
             {q.rating ? <span className={styles.reviewStars} aria-label={`${q.rating} out of 5`}>{stars(q.rating)}</span> : null}
             <blockquote>{q.text}</blockquote>
             <figcaption>
-              {[q.display_name, q.role, q.company].filter(Boolean).join(" · ")}
+              {q.display_line || [q.display_name, q.role, q.company].filter(Boolean).join(", ")}
               {!q.own_route && q.input_format && q.output_format
                 ? ` · ${String(q.input_format).toUpperCase()} → ${String(q.output_format).toUpperCase()}`
                 : ""}

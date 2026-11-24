@@ -40,11 +40,13 @@ function PrivacyPolicy() {
                 <p>We may receive data from <strong>integrations</strong>, <strong>payment processors</strong>, or <strong>public databases</strong> where permitted.</p>
 
                 <h3>2.4 Conversion and drawing feedback</h3>
-                <p>When you rate a converted file or a 3D-to-2D drawing, we store the rating, the options you pick, any comment, the software you name, and a copy of the job details (file name, formats, size and route). We keep that copy because the file itself is deleted after 7 days.</p>
+                <p>When you rate a converted file or a 3D-to-2D drawing, we store the rating, the options you pick, any comment, the software you name, and a copy of the job details (file name, formats, size and route). We keep that copy because the file itself is deleted after 7 days. For that job we also store whether you viewed the result, whether a paywall was shown or closed, whether we showed or you dismissed a rating prompt, why you left without downloading, and any marks you place on a drawing sheet.</p>
+                <p>If you agree we may quote you, we store the name you pick and any role or company you type.</p>
                 <p>We use ratings and comments to fix conversions. We do not use them to train models.</p>
-                <p>We show a review on our pages only if you agree, and only in your own words. You can stop sharing it from Account settings, and we take it down within 24 hours.</p>
+                <p>We email you to ask how a file turned out, or why you did not download it. You can unsubscribe from those emails. A reply about a problem you reported, and a note that your review is on the site, are sent as part of that conversation.</p>
+                <p>We show a review on our converter pages only if you agree, and only in your own words. You can stop sharing it from your Profile, and we take it down within 24 hours.</p>
                 <p>If you agree that an engineer may open the file, we copy it to a restricted store, use that copy only to fix the problem you reported, and delete the copy within 30 days. We do not use that copy for training, tests, or public issue reports.</p>
-                <p>If your account is deleted, we delete the ratings, comments and quotes that belong to it.</p>
+                <p>We keep ratings, comments and quotes until the account is deleted, and then we delete them. We keep the record of feedback emails we sent, which includes the email address, for 12 months.</p>
 
 
 

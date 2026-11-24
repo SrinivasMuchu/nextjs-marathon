@@ -293,6 +293,7 @@ export default function ConversionFeedbackForm({
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
+          <p className={styles.muted}>We&apos;ll ask before we show it anywhere.</p>
         </div>
       ) : null}
 
