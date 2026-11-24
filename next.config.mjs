@@ -51,6 +51,7 @@ const nextConfig = {
     ],
   },
   reactStrictMode: false,
+  transpilePackages: ["dxf-viewer"],
   // Optimize CSS loading - reduces Material-UI CSS bundle size
   experimental: {
     optimizePackageImports: ['@mui/material', '@mui/icons-material'],

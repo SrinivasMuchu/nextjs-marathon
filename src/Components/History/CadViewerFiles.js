@@ -188,7 +188,8 @@ function CadViewerFiles({ loading, cadViewerFileHistory, searchTerm,
                       setIsEmailVerify(true); // <-- call this here, not in getFileHref
                       return;
                     }
-                    if (file.status !== 'COMPLETED') {
+                    const drawing = file.viewer_mode === 'drawing';
+                    if (file.status !== 'COMPLETED' && !drawing) {
                       e.preventDefault();
                       return;
                     }
@@ -205,6 +206,10 @@ function CadViewerFiles({ loading, cadViewerFileHistory, searchTerm,
                         glbUrl={resolveHistoryGlbUrl(file)}
                         hovered={hoveredGlbId === file?._id}
                       />
+                    ) : file.viewer_mode === 'drawing' ? (
+                      <div style={{ width: '100%', height: '160px', background: '#16112a', color: '#fff', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 600 }}>
+                        {(file.input_format || file.file_name?.split('.').pop() || 'DXF').toUpperCase()}
+                      </div>
                     ) : (
                       <HoverImageSequence design={{ _id: file._id, page_title: file.file_name }} width={300} height={160} />
                     )

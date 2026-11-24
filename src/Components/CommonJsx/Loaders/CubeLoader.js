@@ -10,12 +10,19 @@ import ConverterProgressLoader from './ConverterProgressLoader';
 
 const statusMessages = {
   UPLOADINGFILE: '⏳ Uploading file...',
+  DRAWING_UPLOAD: 'Uploading drawing.',
   PENDING: '⏳ Task is in queue...',
   PROCESSING: '🛠️ Processing the file...',
   PROCESSED: '🛠️ Processing the file...',
   UPLOADING: '📤 Finalizing the process...',
   COMPLETED: '✅ Task completed successfully!',
   FAILED: '❌ Something went wrong. Please retry.',
+  WAITING_CONVERSION: 'Waiting for conversion.',
+  CONVERTING_DWG: 'Converting DWG to DXF.',
+  PREPARING_DRAWING: 'Preparing drawing.',
+  LOADING_VIEWER: 'Loading viewer.',
+  DRAWING_READY: 'Drawing ready.',
+  CONVERSION_FAILED: 'Conversion failed.',
 };
 
 function CubeLoader({

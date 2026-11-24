@@ -1,5 +1,5 @@
 "use client";
-import { IMAGEURLS, allowedFilesList } from "@/config";
+import { IMAGEURLS, allowedFilesList, DRAWING_VIEW_MAX_MB } from "@/config";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import { flushSync } from "react-dom";
@@ -121,6 +121,11 @@ function CadDropZoneWrapper({ children, isStyled, type, cadType, designVariant, 
 
         if (!allowedFormats.includes(fileExtension)) {
             toast.error("❌ Invalid file format! Please upload a supported 3D file.");
+            return;
+        }
+
+        if ((fileExtension === ".dxf" || fileExtension === ".dwg") && fileSizeMB > DRAWING_VIEW_MAX_MB) {
+            toast.error(`This drawing is over ${DRAWING_VIEW_MAX_MB} MB. The 2D viewer is not verified for files that large.`);
             return;
         }
 

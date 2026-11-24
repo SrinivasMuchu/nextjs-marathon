@@ -47,7 +47,9 @@ export default function CadUploadingView() {
         setIsLoading,
         onSuccess: (fileId) => {
           setFile(null);
-          window.location.href = `/tools/cad-renderer?fileId=${encodeURIComponent(fileId)}&glb=true`;
+          const drawing = /\.(dxf|dwg)$/i.test(file?.name || "");
+          const query = drawing ? "view=drawing" : "glb=true";
+          window.location.href = `/tools/cad-renderer?fileId=${encodeURIComponent(fileId)}&${query}`;
         },
         onFailure: () => {
           setIsLoading(false);
@@ -58,9 +60,15 @@ export default function CadUploadingView() {
     })();
   }, [file, goBack, setFile]);
 
+  const extension = (file?.name?.split(".").pop() || "").toLowerCase();
+  const drawingUpload = extension === "dxf" || extension === "dwg";
+  const message = drawingUpload && (!uploadingMessage || uploadingMessage === "UPLOADINGFILE")
+    ? "DRAWING_UPLOAD"
+    : (uploadingMessage || "UPLOADINGFILE");
+
   return (
     <CubeLoader
-      uploadingMessage={uploadingMessage || "UPLOADINGFILE"}
+      uploadingMessage={message}
       uploadProgressPercent={uploadProgressPercent ?? undefined}
     />
   );

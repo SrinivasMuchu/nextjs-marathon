@@ -17,6 +17,8 @@ function FormateSelector() {
         { label: "OBJ", extensions: [".obj"] },
         { label: "3DM", extensions: [".3dm"] },
         { label: "3MF", extensions: [".3mf"] },
+        { label: "DXF", extensions: [".dxf"] },
+        { label: "DWG", extensions: [".dwg"] },
         
         //  { label: "GLB", extensions: [".glb"] },
     ];

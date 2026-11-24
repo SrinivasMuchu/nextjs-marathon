@@ -8,7 +8,9 @@ export const TITLELIMIT = 100;
 export const DESCRIPTIONLIMIT = 500;
 // export const HEADERS = { "x-auth-token": localStorage.getItem('token')}
 // export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj",".glb"];
-export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj",".3dm",".3mf"];
+export const allowedFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj",".3dm",".3mf",".dxf",".dwg"];
+/** DXF/DWG viewer cap. Larger drawings are rejected with an explicit error. Mesh uploads keep the 300 MB limit. */
+export const DRAWING_VIEW_MAX_MB = 150;
 export const publishFilesList = [".step", ".stp", ".stl", ".ply", ".off", ".igs", ".iges", ".brp", ".brep",".obj",".dxf",".dwg"];
 export const BUCKET = 'marathon-org-assets';
 export const CAD_INPUT_FILES_BUCKET = 'cad-input-files';
