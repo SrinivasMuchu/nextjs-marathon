@@ -32,7 +32,7 @@ const DEFAULT_TO = {
   DXF: "DWG", DWG: "DXF",
 };
 
-const VIEWERS = ["STEP", "STL", "IGES", "OBJ", "3DM", "PLY", "BREP", "OFF"];
+const VIEWERS = ["STEP", "STL", "IGES", "OBJ", "3DM", "PLY", "BREP", "OFF", "DXF", "DWG"];
 
 const GROUPS = [
   { label: "CAD solids and surfaces", values: ["STEP", "IGES", "BREP", "3DM"] },
@@ -43,6 +43,7 @@ const GROUPS = [
 const VIEW_GROUPS = [
   { label: "CAD solids and surfaces", values: ["STEP", "IGES", "BREP", "3DM"] },
   { label: "Meshes", values: ["STL", "OBJ", "PLY", "OFF"] },
+  { label: "2D drawings", values: ["DXF", "DWG"] },
 ];
 
 const KINDS = {
@@ -236,6 +237,8 @@ const VIEWER_CARDS = [
   { id: "PLY", kind: "badgeMesh" },
   { id: "BREP", kind: "badgeCad" },
   { id: "OFF", kind: "badgeMesh" },
+  { id: "DXF", kind: "badge2d" },
+  { id: "DWG", kind: "badge2d" },
 ];
 
 const BOM_ROWS = [
@@ -310,7 +313,9 @@ function FormatOptions({ groups, from, disableInvalid }) {
 }
 
 function destinationFor({ mode, from, to, viewFmt }) {
-  if (mode === "view") return `/tools/${viewFmt.toLowerCase()}-file-viewer`;
+  if (mode === "view") {
+    return `/tools/${viewFmt.toLowerCase()}-file-viewer`;
+  }
   if (mode === "bom") return "/tools/step-bom-extractor";
   if (mode === "draw") return "/tools/convert-step-to-2d-drawing";
   return `/tools/convert-${from.toLowerCase()}-to-${to.toLowerCase()}`;
@@ -1158,8 +1163,8 @@ const FORMATS = [
   { id: "OBJ", kind: "fmtMesh", ext: ".obj", title: "Rendering and games", detail: "Wavefront OBJ", links: [["Viewer", "/tools/obj-file-viewer"], ["to STL", "/tools/convert-obj-to-stl"]] },
   { id: "PLY", kind: "fmtMesh", ext: ".ply", title: "3D scans", detail: "Polygon File Format", links: [["Viewer", "/tools/ply-file-viewer"], ["to STL", "/tools/convert-ply-to-stl"]] },
   { id: "OFF", kind: "fmtMesh", ext: ".off", title: "Geometry research", detail: "Object File Format", links: [["Viewer", "/tools/off-file-viewer"], ["to STL", "/tools/convert-off-to-stl"]] },
-  { id: "DXF", kind: "fmt2d", ext: ".dxf", title: "Laser cutting and CNC", detail: "Drawing Exchange Format", links: [["to DWG", "/tools/convert-dxf-to-dwg"]] },
-  { id: "DWG", kind: "fmt2d", ext: ".dwg", title: "AutoCAD drafting", detail: "AutoCAD drawing", links: [["to DXF", "/tools/convert-dwg-to-dxf"]] },
+  { id: "DXF", kind: "fmt2d", ext: ".dxf", title: "Laser cutting and CNC", detail: "Drawing Exchange Format", links: [["Viewer", "/tools/dxf-file-viewer"], ["to DWG", "/tools/convert-dxf-to-dwg"]] },
+  { id: "DWG", kind: "fmt2d", ext: ".dwg", title: "AutoCAD drafting", detail: "AutoCAD drawing", links: [["Viewer", "/tools/dwg-file-viewer"], ["to DXF", "/tools/convert-dwg-to-dxf"]] },
 ];
 
 const LIBRARY_CATS = [

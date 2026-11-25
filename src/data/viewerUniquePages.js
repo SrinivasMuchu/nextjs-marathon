@@ -585,26 +585,26 @@ export const UNIQUE_VIEWER_PAGES = {
     isHub: true,
     breadcrumbLabel: '3D CAD Viewer',
     meta: {
-      title: 'Free Online 3D CAD Viewer | STEP, IGES, STL, OBJ, 3MF | Marathon OS',
+      title: 'Free Online CAD Viewer | STEP, STL, DXF, DWG and more | Marathon OS',
       description:
-        'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM and 3MF files online. Private browser-based viewing up to 300 MB, with no CAD software required.',
+        'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM, 3MF, DXF and DWG files online. Private browser-based viewing, with no CAD software required.',
     },
     eyebrow: 'Free online tool',
     h1: 'Free Online 3D CAD Viewer',
     heroIntro:
-      'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM and 3MF files online without installing CAD software.',
+      'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM, 3MF, DXF and DWG files online without installing CAD software.',
     heroIntroSecondary:
       'Upload privately, rotate and inspect the model in 3D, then convert or request repair when the next workflow needs more than a preview.',
     trust: [
       'Free online viewer',
-      '9 supported formats',
+      '11 supported formats',
       'Up to 300 MB',
       'Auto-delete within 7 days',
       'No CAD software needed',
     ],
     dropzoneHead: 'Drag and drop your 3D CAD file here',
     dropzoneHint: 'or click to browse files',
-    acceptedFormatsLabel: 'Accepted: .step, .stp, .iges, .igs, .stl, .obj, .ply, .off, .brep, .brp, .3dm, .3mf',
+    acceptedFormatsLabel: 'Accepted: .step, .stp, .iges, .igs, .stl, .obj, .ply, .off, .brep, .brp, .3dm, .3mf, .dxf, .dwg',
     samplePrompt: 'No file available? Open a verified sample in one of the supported formats.',
     sampleCta: 'Try a sample model',
     sampleGallery: true,
@@ -666,6 +666,18 @@ export const UNIQUE_VIEWER_PAGES = {
         cta: 'View 3MF files',
         href: '/tools/3mf-file-viewer',
       },
+      {
+        title: 'DXF (.dxf)',
+        description: '2D drawing for laser, CNC and CAM, with layers',
+        cta: 'View DXF files',
+        href: '/tools/dxf-file-viewer',
+      },
+      {
+        title: 'DWG (.dwg)',
+        description: 'AutoCAD drawing, opened after conversion to DXF',
+        cta: 'View DWG files',
+        href: '/tools/dwg-file-viewer',
+      },
     ],
     viewerToolsHeading: 'Most-used CAD viewer tools',
     viewerTools: [
@@ -675,6 +687,8 @@ export const UNIQUE_VIEWER_PAGES = {
       { title: 'OBJ File Viewer', description: 'inspect polygon models', href: '/tools/obj-file-viewer' },
       { title: '3DM File Viewer', description: 'review Rhino geometry', href: '/tools/3dm-file-viewer' },
       { title: '3MF File Viewer', description: 'inspect named print parts', href: '/tools/3mf-file-viewer' },
+      { title: 'DXF File Viewer', description: 'open 2D drawings and layers', href: '/tools/dxf-file-viewer' },
+      { title: 'DWG File Viewer', description: 'open AutoCAD drawings', href: '/tools/dwg-file-viewer' },
     ],
     designerTitle: 'Need a production-ready native CAD file?',
     designerBody:
@@ -743,7 +757,7 @@ export const UNIQUE_VIEWER_PAGES = {
       {
         icon: 'layers',
         title: 'Format-specific paths',
-        description: 'Move directly to STEP, IGES, STL, OBJ, PLY, OFF, BREP or 3DM guidance.',
+        description: 'Move directly to STEP, IGES, STL, OBJ, DXF, DWG or another format guide.',
       },
       {
         icon: 'users',
@@ -779,6 +793,11 @@ export const UNIQUE_VIEWER_PAGES = {
         label: 'Mixed Rhino geometry',
         description:
           'Check NURBS, B-reps, curves and meshes; remember that layers and render data may not transfer to other formats.',
+      },
+      {
+        title: 'DXF / DWG',
+        label: '2D drawings',
+        description: 'Pan and zoom the sheet. Every layer starts on, and you can turn layers off. A DWG is converted to DXF first.',
       },
     ],
     troubleHeading: 'Common viewer problems',
@@ -838,7 +857,7 @@ export const UNIQUE_VIEWER_PAGES = {
       },
       {
         question: 'Which formats are supported?',
-        answer: 'STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP/BRP and 3DM are supported on this 3D viewer page.',
+        answer: 'STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP/BRP, 3DM, 3MF, DXF and DWG. DXF opens immediately. DWG is converted to DXF, then opened in the same viewer.',
       },
       {
         question: 'Can I open STEP and IGES online?',
@@ -878,11 +897,67 @@ export const UNIQUE_VIEWER_PAGES = {
     ],
     finalHeading: 'Open your CAD file online',
     finalBody:
-      'Upload a supported STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM or 3MF file to inspect it before conversion, quoting or handoff.',
+      'Upload a supported STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM, 3MF, DXF or DWG file to inspect it before conversion, quoting or handoff.',
     finalCta: 'Upload CAD file',
     finalCtaHref: '#cad-file-viewer',
     finalSecondaryCta: 'Open converter',
     finalSecondaryHref: '/tools/3d-cad-file-converter',
+  },
+  dxf: {
+    breadcrumbLabel: 'DXF File Viewer',
+    eyebrow: 'Free online tool',
+    h1: 'Free Online DXF File Viewer',
+    heroIntro:
+      'Open a DXF drawing in your browser. Pan, zoom and turn layers on or off, with no CAD software to install.',
+    trust: ['Free DXF viewer', 'Every layer starts on', 'Up to 150 MB', 'Auto-delete within 7 days'],
+    dropzoneHead: 'Drag and drop your DXF file here',
+    definitionHeading: 'What is a DXF file viewer?',
+    definitionBody:
+      'A DXF viewer opens a 2D drawing so you can inspect lines, text and layers without AutoCAD. This viewer loads the DXF directly and starts with every layer turned on.',
+    useCasesIntro:
+      'Use it to check a laser or CNC drawing, review a supplier sheet, or confirm a DXF before you convert it to DWG.',
+    checklist: [
+      'The sheet scale and units',
+      'That the layers you need are present',
+      'Text and dimensions are readable',
+      'The drawing is under 150 MB',
+    ],
+    workflowHeading: 'How to view DXF files online',
+    workflowSteps: [
+      { title: 'Upload your DXF file', description: 'Drag in a .dxf file up to 150 MB.' },
+      { title: 'View the drawing', description: 'Pan and zoom. Every layer starts selected.' },
+      { title: 'Turn layers off if you need to', description: 'Open the layers control and hide the ones you do not need.' },
+    ],
+    workflowCta: 'Upload DXF file',
+    workflowCtaHref: '#cad-file-viewer',
+  },
+  dwg: {
+    breadcrumbLabel: 'DWG File Viewer',
+    eyebrow: 'Free online tool',
+    h1: 'Free Online DWG File Viewer',
+    heroIntro:
+      'Open an AutoCAD DWG in your browser. The drawing is converted to DXF, then you pan, zoom and turn layers on or off.',
+    trust: ['Free DWG viewer', 'Converts to DXF', 'Up to 150 MB', 'Auto-delete within 7 days'],
+    dropzoneHead: 'Drag and drop your DWG file here',
+    definitionHeading: 'What is a DWG file viewer?',
+    definitionBody:
+      'A DWG viewer opens an AutoCAD drawing without AutoCAD. This page converts the DWG to DXF on the server, then shows that drawing in the browser with every layer turned on.',
+    useCasesIntro:
+      'Use it to review an AutoCAD file from a supplier, check layers, or confirm the drawing before you convert it to DXF.',
+    checklist: [
+      'The DWG opens in the program that created it',
+      'The drawing is under 150 MB',
+      'You can wait a moment while it converts to DXF',
+      'The layers you need are in the file',
+    ],
+    workflowHeading: 'How to view DWG files online',
+    workflowSteps: [
+      { title: 'Upload your DWG file', description: 'Drag in a .dwg file up to 150 MB.' },
+      { title: 'Wait for conversion', description: 'The server converts the DWG to DXF. The page stays open.' },
+      { title: 'View the drawing', description: 'Pan and zoom. Every layer starts selected.' },
+    ],
+    workflowCta: 'Upload DWG file',
+    workflowCtaHref: '#cad-file-viewer',
   },
 }
 

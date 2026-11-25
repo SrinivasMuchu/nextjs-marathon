@@ -57,7 +57,7 @@ const organizationJsonLd = {
   url: `${BASE_URL}/`,
   logo: `${ASSET_PREFIX_URL}logo-1.png`,
   image: `${ASSET_PREFIX_URL}logo-1.png`,
-    description: "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
+    description: "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP, IGES, STL, DXF and DWG online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
     sameAs: ["https://www.linkedin.com/company/marathon-os"],
 };
 
@@ -98,7 +98,7 @@ const websiteJsonLd = {
   "@id": `${BASE_URL}/`,
   name: "Marathon OS",
   url: `${BASE_URL}/`,
-  description: "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP/IGES/STL online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
+  description: "Marathon OS™ ☝ Explore downloadable CAD designs, open STEP, IGES, STL, DXF and DWG online and convert files fast with Marathon OS. Simple tools, quick previews, zero clutter.",
   publisher: { "@id": `${BASE_URL}` },
   inLanguage: "en-US",
 };

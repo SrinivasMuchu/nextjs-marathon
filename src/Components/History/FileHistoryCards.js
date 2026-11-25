@@ -247,8 +247,10 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
     if (cad_type === 'USER_CADS') {
       router.push(`/library/${file.route}`);
     } else {
-      const glb = Boolean(file.glb_url);
-      router.push(`/tools/cad-renderer?fileId=${file._id}&glb=${glb}`);
+      const drawing = file.viewer_mode === "drawing";
+      if (!drawing && file.status !== "COMPLETED") return;
+      const query = drawing ? "view=drawing" : `glb=${Boolean(file.glb_url)}`;
+      router.push(`/tools/cad-renderer?fileId=${file._id}&${query}`);
     }
   };
 
@@ -489,9 +491,10 @@ function FileHistoryCards({ cad_type, currentPage, setCurrentPage, totalPages,
   };
 
   const getFileHref = (file) => {
-    if (file.status !== "COMPLETED") return undefined;
-    const glb = Boolean(file.glb_url);
-    return `/tools/cad-renderer?fileId=${file._id}&glb=${glb}`;
+    const drawing = file.viewer_mode === "drawing";
+    if (file.status !== "COMPLETED" && !drawing) return undefined;
+    const query = drawing ? "view=drawing" : `glb=${Boolean(file.glb_url)}`;
+    return `/tools/cad-renderer?fileId=${file._id}&${query}`;
   };
   return (
     <>

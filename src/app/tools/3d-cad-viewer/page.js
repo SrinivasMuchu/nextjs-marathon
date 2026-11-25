@@ -9,10 +9,10 @@ const uniquePage = getUniqueViewerPage(null, { isHub: true });
 const CANONICAL_URL = 'https://marathon-os.com/tools/3d-cad-viewer';
 const TITLE =
   uniquePage?.meta?.title ||
-  'Free Online 3D CAD Viewer | STEP, IGES, STL, OBJ, 3DM | Marathon OS';
+  'Free Online CAD Viewer | STEP, STL, DXF, DWG and more | Marathon OS';
 const DESCRIPTION =
   uniquePage?.meta?.description ||
-  'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP and 3DM files online. Private browser-based viewing up to 300 MB, with no CAD software required.';
+  'Open STEP, IGES, STL, OBJ, PLY, OFF, BREP, 3DM, 3MF, DXF and DWG files online. Private browser-based viewing, with no CAD software required.';
 
 export const metadata = buildPageMetadata({
   title: TITLE,

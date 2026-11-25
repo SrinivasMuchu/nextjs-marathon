@@ -13,6 +13,8 @@ export const CAD_VIEWER_FORMAT_SLUGS = [
   'brp',
   '3dm',
   '3mf',
+  'dxf',
+  'dwg',
 ];
 
 /**
@@ -38,6 +40,8 @@ export const CAD_VIEWER_HUB_ORDER = [
   'off',
   'brep',
   '3dm',
+  'dxf',
+  'dwg',
 ];
 
 const HUB_VIEWER_COPY = {
@@ -76,6 +80,14 @@ const HUB_VIEWER_COPY = {
   '3dm': {
     description: 'Preview Rhino 3DM NURBS and mesh models in your browser.',
     tags: ['Rhino', 'NURBS', 'OpenNURBS'],
+  },
+  dxf: {
+    description: 'Open DXF drawings and turn layers on or off in the browser.',
+    tags: ['2D Drawing', 'CNC', 'Laser'],
+  },
+  dwg: {
+    description: 'Open AutoCAD DWG drawings in the browser after conversion to DXF.',
+    tags: ['2D Drawing', 'AutoCAD', 'Drafting'],
   },
 };
 
@@ -277,6 +289,38 @@ const FORMAT_CONFIG = {
       { href: '/tools/convert-stl-to-3mf', label: 'STL to 3MF Converter' },
       { href: '/tools/convert-3mf-to-step', label: '3MF to STEP Converter' },
       { href: '/tools/stl-file-viewer', label: 'STL File Viewer' },
+      { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
+    ],
+  },
+  dxf: {
+    formatName: 'DXF',
+    previewPhrase: 'DXF 2D drawings, with every layer on',
+    supportedInputLabel: 'DXF (.dxf)',
+    extensions: ['.dxf'],
+    title: 'Free DXF File Viewer Online – Open DXF Drawings in Your Browser | Marathon OS',
+    description:
+      'Open DXF drawings online. Pan, zoom and turn layers on or off in your browser, with no CAD software to install. Drawings up to 150 MB.',
+    h1: 'Free Online DXF File Viewer',
+    relatedTools: [
+      { href: '/tools/convert-dxf-to-dwg', label: 'DXF to DWG Converter' },
+      { href: '/tools/dwg-file-viewer', label: 'DWG File Viewer' },
+      { href: '/tools/3d-cad-viewer', label: 'CAD Viewer' },
+      { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
+    ],
+  },
+  dwg: {
+    formatName: 'DWG',
+    previewPhrase: 'DWG drawings after a quick conversion to DXF',
+    supportedInputLabel: 'DWG (.dwg)',
+    extensions: ['.dwg'],
+    title: 'Free DWG File Viewer Online – Open AutoCAD DWG Files in Your Browser | Marathon OS',
+    description:
+      'Open DWG drawings online. The file is converted to DXF, then you pan, zoom and turn layers on or off in your browser. Drawings up to 150 MB.',
+    h1: 'Free Online DWG File Viewer',
+    relatedTools: [
+      { href: '/tools/convert-dwg-to-dxf', label: 'DWG to DXF Converter' },
+      { href: '/tools/dxf-file-viewer', label: 'DXF File Viewer' },
+      { href: '/tools/3d-cad-viewer', label: 'CAD Viewer' },
       { href: '/tools/3d-cad-file-converter', label: 'CAD File Converter' },
     ],
   },

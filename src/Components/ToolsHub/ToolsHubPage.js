@@ -30,7 +30,7 @@ const QUICK_TOOLS_CARDS = [
     href: '/tools/3d-cad-viewer',
     title: 'CAD Viewer',
     description:
-      'Open and inspect any CAD file instantly in your browser. View STEP, IGES, STL, OBJ, PLY, and more without installing software.',
+      'Open and inspect CAD files in your browser. View STEP, IGES, STL, OBJ, PLY, DXF, DWG, and more without installing software.',
     tags: ['50+ Formats', 'Browser-based', 'Zero Install'],
     Icon: Eye,
   },

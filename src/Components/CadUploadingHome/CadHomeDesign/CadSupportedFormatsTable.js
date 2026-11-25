@@ -93,6 +93,28 @@ const FORMAT_ROWS = [
       { label: 'convert STL to 3MF', href: '/tools/convert-stl-to-3mf' },
     ],
   },
+  {
+    format: 'DXF',
+    description: '2D drawing for laser cutting, CNC and CAM',
+    extensions: '.dxf',
+    iconBg: 'rgba(97, 11, 238, 0.24)',
+    iconFg: '#e4d4ff',
+    actions: [
+      { label: 'View DXF files', href: '/tools/dxf-file-viewer' },
+      { label: 'convert DXF to DWG', href: '/tools/convert-dxf-to-dwg' },
+    ],
+  },
+  {
+    format: 'DWG',
+    description: 'AutoCAD drawing, viewed after conversion to DXF',
+    extensions: '.dwg',
+    iconBg: 'rgba(97, 11, 238, 0.24)',
+    iconFg: '#e4d4ff',
+    actions: [
+      { label: 'View DWG files', href: '/tools/dwg-file-viewer' },
+      { label: 'convert DWG to DXF', href: '/tools/convert-dwg-to-dxf' },
+    ],
+  },
 ];
 
 function CadSupportedFormatsTable() {

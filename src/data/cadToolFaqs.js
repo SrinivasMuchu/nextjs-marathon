@@ -1624,7 +1624,7 @@ export const cadViewerFaqQuestions = [
   },
   {
     question: 'Which file formats are supported?',
-    answer: 'STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP, 3DM, and 3MF.',
+    answer: 'STEP/STP, IGES/IGS, STL, OBJ, PLY, OFF, BREP, 3DM, 3MF, DXF and DWG. DXF opens immediately. DWG is converted to DXF first.',
   },
   {
     question: 'Is this CAD viewer free?',

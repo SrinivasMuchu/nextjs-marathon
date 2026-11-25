@@ -33,7 +33,7 @@ import { IMAGEURLS } from '@/config'
 const features = [
     {
         title: 'Seamless CAD File Import',
-        description: 'Upload STEP, IGES, STL, BREP, 3DM, 3MF, and more for instant visualization without delays.'
+        description: 'Upload STEP, IGES, STL, BREP, 3DM, 3MF, DXF, DWG, and more.'
     },
     {
         title: 'Handles Large & Complex Models',
@@ -65,7 +65,7 @@ const featuresArray = [
     },
     {
         title: 'Supports Multiple Formats',
-        description: ' View STEP, IGES, STL, BREP, 3DM, 3MF, and more with precision and clarity—right in your browser.'
+        description: ' View STEP, IGES, STL, BREP, 3DM, 3MF, DXF, DWG, and more in your browser.'
     },
     {
         title: 'No Installation Required',
@@ -113,7 +113,7 @@ const steps = [
       icon: 'layers',
       title: 'Format support',
       description:
-        'Common exchange formats supported — STEP, IGES, STL, OBJ, PLY, BREP, 3DM, 3MF & more.',
+        'STEP, IGES, STL, OBJ, PLY, BREP, 3DM, 3MF, DXF and DWG.',
     },
     {
       icon: 'users',

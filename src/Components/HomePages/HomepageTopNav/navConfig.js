@@ -59,7 +59,7 @@ export const TOOLS_MENU = [
   {
     href: "/tools/3d-cad-file-converter",
     title: "CAD File Convert",
-    subtitle: "STEP ⇄ STL ⇄ IGES ⇄ DXF",
+    subtitle: "STEP ⇄ STL ⇄ IGES ⇄ DXF ⇄ DWG",
     Icon: RefreshCw,
   },
   {

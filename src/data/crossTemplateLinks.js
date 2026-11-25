@@ -51,7 +51,7 @@ export const TWO_D_DETAIL_LINKS = [
   {
     label: 'Open CAD files online',
     href: '/tools/3d-cad-viewer',
-    description: 'View STEP, IGES, STL and more in your browser',
+    description: 'View STEP, IGES, STL, DXF, DWG and more in your browser',
     icon: 'view',
   },
   {
@@ -117,9 +117,11 @@ const PRODUCT_TOOL_LINKS = {
     { label: 'Convert 3MF to STEP', href: '/tools/convert-3mf-to-step' },
   ],
   dxf: [
+    { label: 'Open DXF file viewer', href: '/tools/dxf-file-viewer' },
     { label: 'Convert DXF to DWG', href: '/tools/convert-dxf-to-dwg' },
   ],
   dwg: [
+    { label: 'Open DWG file viewer', href: '/tools/dwg-file-viewer' },
     { label: 'Convert DWG to DXF', href: '/tools/convert-dwg-to-dxf' },
   ],
 };

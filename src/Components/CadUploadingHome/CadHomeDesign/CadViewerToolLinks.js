@@ -57,6 +57,18 @@ const VIEWER_TOOLS = [
     pill: '3MF',
     description: 'Open 3MF print files and inspect named, coloured parts.',
   },
+  {
+    label: 'DXF File Viewer',
+    href: '/tools/dxf-file-viewer',
+    pill: 'DXF',
+    description: 'Open DXF drawings and turn layers on or off.',
+  },
+  {
+    label: 'DWG File Viewer',
+    href: '/tools/dwg-file-viewer',
+    pill: 'DWG',
+    description: 'Open AutoCAD DWG drawings after conversion to DXF.',
+  },
 ];
 
 function CadViewerToolLinks({ uniquePage }) {

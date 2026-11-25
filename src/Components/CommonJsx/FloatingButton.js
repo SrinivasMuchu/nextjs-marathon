@@ -21,7 +21,7 @@ const ACTIONS = [
   {
     href: '/tools/3d-cad-file-converter',
     title: 'Convert CAD',
-    subtitle: 'STEP ⇄ STL ⇄ IGES ⇄ DXF',
+    subtitle: 'STEP ⇄ STL ⇄ IGES ⇄ DXF ⇄ DWG',
     Icon: ArrowLeftRight,
     eventName: 'floating_button_convert_click',
   },
@@ -120,6 +120,7 @@ function FloatingButton() {
 
   const fab = (
     <div
+      data-site-fab=""
       className={`${styles.wrap}${isStickyStripVisible ? ` ${styles.wrapAboveStrip}` : ''}`}
       style={{ bottom }}
       ref={rootRef}

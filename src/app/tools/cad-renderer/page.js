@@ -6,6 +6,7 @@ const CubeLoader = dynamic(() => import('@/Components/CommonJsx/Loaders/CubeLoad
 import axios from "axios";
 import IndustryCadViewer from "@/Components/IndustryDesigns/IndustryCadViewer";
 import { GlbExplodeViewer } from "@/Components/PDMViewer/GlbExplodeViewer";
+import DrawingCadView from "@/Components/PDMViewer/DrawingCadView";
 import { BASE_URL, buildCadViewerGlbUrl, buildCadViewerMetaUrl, buildDesignGlbUrl, buildDesignGlbMetaUrl } from "@/config";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -61,6 +62,10 @@ function DesignViewContent() {
   const [status, setStatus] = useState(targetId ? "PENDING" : null);
   const [isGlbViewer, setIsGlbViewer] = useState(false);
   const [originalFileName, setOriginalFileName] = useState("");
+  const [viewerMode, setViewerMode] = useState("");
+  const [inputFormat, setInputFormat] = useState("");
+  const [convertStage, setConvertStage] = useState("");
+  const [conversionError, setConversionError] = useState("");
 
   useEffect(() => {
     if (!targetId || !useLibraryGlbCdn) return;
@@ -145,17 +150,33 @@ function DesignViewContent() {
           params: { id: targetId, cad_type: "CAD_VIEWER" },
           headers: { "user-uuid": getOrCreateUuid() },
         });
-        const nextStatus = response?.data?.data?.status || "PENDING";
+        // Owner check for a drawing returns this message. Mesh status does not.
+        if (response?.data?.meta?.message === "File not found.") {
+          setViewerMode("drawing");
+          setStatus("FAILED");
+          setConversionError("File not found.");
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
+          return;
+        }
+        const payload = response?.data?.data || {};
+        const nextStatus = payload.status || "PENDING";
         const hasGlb = hasGlbParam
           ? queryIsGlb
-          : Boolean(response?.data?.data?.glb_url);
+          : Boolean(payload.glb_url);
         if (cancelled) return;
         setStatus(nextStatus);
         setIsGlbViewer(hasGlb);
-        if (response?.data?.data?.file_name) {
-          setOriginalFileName(response.data.data.file_name);
+        setViewerMode(payload.viewer_mode || "");
+        setInputFormat(payload.input_format || "");
+        setConvertStage(payload.convert_stage || "");
+        setConversionError(payload.conversion_error || "");
+        if (payload.file_name) {
+          setOriginalFileName(payload.file_name);
         }
-        if (nextStatus === "COMPLETED") {
+        if (nextStatus === "COMPLETED" || (payload.viewer_mode === "drawing" && nextStatus === "FAILED")) {
           if (intervalId) {
             clearInterval(intervalId);
             intervalId = null;
@@ -192,6 +213,27 @@ function DesignViewContent() {
   }
   if (format) {
     return <IndustryCadViewer />;
+  }
+  if (viewerMode === "drawing") {
+    if (status === "FAILED") {
+      return (
+        <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, textAlign: "center" }}>
+          <div>
+            <p>{conversionError || "Conversion failed."}</p>
+          </div>
+        </div>
+      );
+    }
+    if (status !== "COMPLETED") {
+      const stage = String(convertStage || status || "").toUpperCase();
+      const dwg = String(inputFormat || "").toLowerCase() === "dwg";
+      let message = "PREPARING_DRAWING";
+      if (dwg && stage === "PENDING") message = "WAITING_CONVERSION";
+      else if (dwg && stage === "PROCESSING") message = "CONVERTING_DWG";
+      else if (dwg && (stage === "UPLOADING" || stage === "PREPARING")) message = "PREPARING_DRAWING";
+      return <CubeLoader uploadingMessage={message} />;
+    }
+    return <DrawingCadView fileId={targetId} fileName={originalFileName} />;
   }
   if (status !== "COMPLETED") {
     return <CubeLoader uploadingMessage={status || "PENDING"} />;

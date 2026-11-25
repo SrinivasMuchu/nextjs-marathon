@@ -23,6 +23,7 @@
     "clsx": "^2.1.1",
     "cookies-next": "^5.1.0",
     "dxf-parser": "^1.1.2",
+    "dxf-viewer": "^1.0.51",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^11.15.0",

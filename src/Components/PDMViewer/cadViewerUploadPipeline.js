@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { BASE_URL, CAD_INPUT_FILES_BUCKET, CAD_VIEWER_EVENT } from "@/config";
+import { BASE_URL, CAD_INPUT_FILES_BUCKET, CAD_VIEWER_EVENT, DRAWING_VIEW_MAX_MB } from "@/config";
 import { sendGAtagEvent } from "@/common.helper";
 
 function getOrCreateUuid() {
@@ -179,6 +179,12 @@ export async function uploadCadViewerFile(file, handlers) {
   }
 
   const fileSizeMB = file.size / (1024 * 1024);
+  const extension = (file.name.split(".").pop() || "").toLowerCase();
+  if ((extension === "dxf" || extension === "dwg") && fileSizeMB > DRAWING_VIEW_MAX_MB) {
+    toast.error(`This drawing is over ${DRAWING_VIEW_MAX_MB} MB. The 2D viewer is not verified for files that large.`);
+    fail();
+    return;
+  }
 
   try {
     setIsLoading(true);
