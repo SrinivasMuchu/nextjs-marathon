@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { getFeedbackContext, submitFeedback } from "@/api/feedbackApi";
-import { sendGAtagEvent } from "@/common.helper";
+import { trackFeedbackEvent } from "@/lib/feedbackAnalytics";
 import { techDrawFreeRetryUploadPath } from "@/lib/techDraw/techDrawJobRoutes";
 import { FILE_CONSENT_TEXT } from "./ConversionFeedbackForm";
 import styles from "./Feedback.module.css";
@@ -81,13 +81,23 @@ export default function FailedJobFeedback({
         ask_engineer: askEngineer,
         consent_file: askEngineer && consentEnabled ? consentFile : false,
       });
-      sendGAtagEvent({
-        event_name: "feedback_details_sent",
-        event_category: "FEEDBACK",
+      const given = {
         event_label: `failed:${job.route_family}:${purpose || "none"}`,
-      });
+        source: "failed_job",
+        route_family: job.route_family || "",
+        job_type: jobType,
+      };
+      trackFeedbackEvent("feedback_details_sent", given);
+      trackFeedbackEvent("feedback_given", given);
       setDone(true);
     } catch (err) {
+      trackFeedbackEvent("feedback_error", {
+        event_label: "failed_job:save",
+        source: "failed_job",
+        route_family: job.route_family || "",
+        job_type: jobType,
+        reason: String(err?.message || "save_failed").slice(0, 100),
+      });
       toast.error(err?.message || "Couldn't send that. Please try again.");
     } finally {
       setSaving(false);
