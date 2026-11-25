@@ -1,4 +1,23 @@
-/* Converter / drawing feedback — corner card, dashboard modal and the shared form. */
+/* Converter / drawing feedback — centered prompt, dashboard modal and the shared form. */
+
+/* Same centering and backdrop as the dashboard star popup (PopupWrapper), above download dialogs. */
+.centerOverlay {
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 19, 37, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2147483400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 10px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
 
 .corner {
   position: fixed;

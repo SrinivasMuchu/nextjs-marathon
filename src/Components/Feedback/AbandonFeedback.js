@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getFeedbackContext, submitFeedback } from "@/api/feedbackApi";
-import { sendGAtagEvent } from "@/common.helper";
+import { trackFeedbackEvent } from "@/lib/feedbackAnalytics";
 import { FILE_CONSENT_TEXT } from "./ConversionFeedbackForm";
 import styles from "./Feedback.module.css";
 
@@ -65,10 +65,24 @@ export default function AbandonFeedback({
         consent_file: wrong && askEngineer && consentEnabled ? consentFile : false,
       };
       const data = await (submitFn ? submitFn(payload) : submitFeedback(payload));
-      sendGAtagEvent({ event_name: "converter_abandon_reason", event_category: "FEEDBACK", event_label: `${source}:${reason}` });
+      const given = {
+        event_label: `${source}:${reason}`,
+        source,
+        route_family: job.route_family || "",
+        job_type: job.job_type || jobType,
+        reason,
+      };
+      trackFeedbackEvent("converter_abandon_reason", given);
+      trackFeedbackEvent("feedback_given", given);
       setResult({ reason, degraded: Boolean(data?.degraded) });
       onDone?.(reason);
     } catch (err) {
+      trackFeedbackEvent("feedback_error", {
+        event_label: `${source}:save`,
+        source,
+        job_type: job.job_type || jobType,
+        reason: String(err?.message || "save_failed").slice(0, 100),
+      });
       toast.error(err?.message || "Couldn't send that. Please try again.");
     } finally {
       setSaving(false);

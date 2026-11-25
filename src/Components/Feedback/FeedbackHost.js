@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { getFeedbackContext, getPendingFeedback, recordFeedbackPromptEvent } from "@/api/feedbackApi";
 import { FEEDBACK_PROMPT_DELAY_MS, FEEDBACK_PROMPT_EVENT } from "@/lib/feedbackPrompt";
-import { sendGAtagEvent } from "@/common.helper";
+import { trackFeedbackEvent } from "@/lib/feedbackAnalytics";
 import ConversionFeedbackForm from "./ConversionFeedbackForm";
 import FailedJobFeedback from "./FailedJobFeedback";
 import styles from "./Feedback.module.css";
@@ -46,8 +46,36 @@ export function CardHeader({ context }) {
   );
 }
 
+/** Centered dialog — same card and backdrop as the dashboard star popup. */
+function CenteredFeedback({ label, onClose, children }) {
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <div className={styles.centerOverlay}>
+      <div className={styles.modal} role="dialog" aria-modal="true" aria-label={label}>
+        <button type="button" className={styles.close} aria-label="Close" onClick={onClose}>
+          <X size={18} />
+        </button>
+        {children}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 /**
- * Rating corner card (flow 1a/1e). Mounted once in the app layout; it never blocks the page.
+ * Rating dialog (flow 1a/1e). Mounted once in the app layout.
  * Shown when a free or credit download finishes, and when the dashboard opens on a downloaded
  * file that hasn't been rated. The server decides if this user may be asked now.
  */
@@ -61,14 +89,50 @@ export default function FeedbackHost() {
   const pendingChecked = useRef(false);
   const queued = useRef(null);
   const openForJobRef = useRef(null);
+  const ratedRef = useRef(false);
+  const promptRef = useRef(null);
 
   const show = useCallback((context, source) => {
     if (!context?.prompt?.eligible || !context.rateable || !context.content) return;
     showing.current = true;
+    ratedRef.current = false;
     setRated(false);
     setPrompt({ context, source });
     recordFeedbackPromptEvent({ jobId: context.job._id, jobType: context.job.job_type, event: "shown", source });
-    sendGAtagEvent({ event_name: "feedback_prompt_shown", event_category: "FEEDBACK", event_label: context.job.route_family });
+    const route = context.job.route_family || "";
+    trackFeedbackEvent("feedback_prompt_shown", {
+      event_label: route,
+      source,
+      route_family: route,
+      job_type: context.job.job_type,
+    });
+    trackFeedbackEvent("feedback_popup_opened", {
+      event_label: `${source}:${route}`,
+      source,
+      route_family: route,
+      job_type: context.job.job_type,
+    });
+  }, []);
+
+  const dismiss = useCallback(() => {
+    const current = promptRef.current;
+    if (current && current.kind !== "stopped" && !ratedRef.current) {
+      const { context, source } = current;
+      recordFeedbackPromptEvent({
+        jobId: context.job._id,
+        jobType: context.job.job_type,
+        event: "dismissed",
+        source,
+      });
+      trackFeedbackEvent("feedback_closed_without_rating", {
+        event_label: `${source}:${context.job.route_family || ""}`,
+        source,
+        route_family: context.job.route_family || "",
+        job_type: context.job.job_type,
+      });
+    }
+    showing.current = false;
+    setPrompt(null);
   }, []);
 
   const openForJob = useCallback(async (detail) => {
@@ -87,13 +151,25 @@ export default function FeedbackHost() {
         if (context?.content && !context.feedback?.failed && !context.job?.sample_file
           && ["running", "failed", "stuck"].includes(context.job?.state)) {
           showing.current = true;
+          ratedRef.current = false;
           setPrompt({ context, source: "failed_job", kind: "stopped" });
+          trackFeedbackEvent("feedback_popup_opened", {
+            event_label: `failed_job:${context.job.route_family || ""}`,
+            source: "failed_job",
+            route_family: context.job.route_family || "",
+            job_type: context.job.job_type,
+          });
         }
         return;
       }
       show(context, source);
-    } catch {
+    } catch (err) {
       // A failed prompt never interrupts the download.
+      trackFeedbackEvent("feedback_error", {
+        event_label: `${source || "prompt"}:load`,
+        source: source || "prompt",
+        reason: String(err?.message || "context_load_failed").slice(0, 100),
+      });
     } finally {
       busy.current = false;
       const next = queued.current;
@@ -127,8 +203,12 @@ export default function FeedbackHost() {
       try {
         const context = await getPendingFeedback();
         if (context) show(context, "dashboard_card");
-      } catch {
-        // ignore
+      } catch (err) {
+        trackFeedbackEvent("feedback_error", {
+          event_label: "dashboard_card:load",
+          source: "dashboard_card",
+          reason: String(err?.message || "pending_load_failed").slice(0, 100),
+        });
       } finally {
         busy.current = false;
         const next = queued.current;
@@ -139,42 +219,28 @@ export default function FeedbackHost() {
     return () => window.clearTimeout(timer);
   }, [pathname, show]);
 
+  promptRef.current = prompt;
+
   if (!prompt || !mounted) return null;
   const { context, source, kind } = prompt;
 
   if (kind === "stopped") {
-    const close = () => { showing.current = false; setPrompt(null); };
-    return createPortal(
-      <aside className={styles.corner} aria-label="Tell us what you needed">
-        <button type="button" className={styles.close} aria-label="Close" onClick={close}>
-          <X size={18} />
-        </button>
+    return (
+      <CenteredFeedback label="Tell us what you needed" onClose={dismiss}>
         <FailedJobFeedback
           variant="corner"
           context={context}
           jobId={context.job._id}
           jobType={context.job.job_type}
           cancelled
-          onClose={close}
+          onClose={dismiss}
         />
-      </aside>,
-      document.body,
+      </CenteredFeedback>
     );
   }
 
-  const dismiss = () => {
-    if (!rated) {
-      recordFeedbackPromptEvent({ jobId: context.job._id, jobType: context.job.job_type, event: "dismissed", source });
-    }
-    showing.current = false;
-    setPrompt(null);
-  };
-
-  return createPortal(
-    <aside className={styles.corner} aria-label="Rate your conversion">
-      <button type="button" className={styles.close} aria-label="Close" onClick={dismiss}>
-        <X size={18} />
-      </button>
+  return (
+    <CenteredFeedback label="Rate your conversion" onClose={dismiss}>
       <ConversionFeedbackForm
         compact
         context={context}
@@ -182,13 +248,13 @@ export default function FeedbackHost() {
         header={<CardHeader context={context} />}
         onCancel={rated ? dismiss : undefined}
         onSaved={(feedback) => {
+          ratedRef.current = true;
           setRated(true);
           window.dispatchEvent(new CustomEvent(FEEDBACK_SAVED_EVENT, {
             detail: { jobId: context.job._id, jobType: context.job.job_type, feedback },
           }));
         }}
       />
-    </aside>,
-    document.body,
+    </CenteredFeedback>
   );
 }

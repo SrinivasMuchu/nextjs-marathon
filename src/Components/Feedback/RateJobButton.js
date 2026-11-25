@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
+import { trackFeedbackEvent } from "@/lib/feedbackAnalytics";
 import FeedbackModal from "./FeedbackModal";
 import { FEEDBACK_SAVED_EVENT } from "./FeedbackHost";
 import styles from "./Feedback.module.css";
@@ -47,6 +48,17 @@ export default function RateJobButton({ jobId, jobType = "converter", feedback, 
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          trackFeedbackEvent("dashboard_feedback_star_clicked", {
+            event_label: `${jobType}:${rated ? "rated" : "unrated"}`,
+            source: "dashboard_row",
+            job_type: jobType,
+            already_rated: rated ? "yes" : "no",
+          });
+          trackFeedbackEvent("feedback_popup_opened", {
+            event_label: `dashboard_row:${jobType}`,
+            source: "dashboard_row",
+            job_type: jobType,
+          });
           setOpen(true);
         }}
       >
