@@ -26,6 +26,24 @@ function applyTheme(viewer, theme) {
   viewer.SetClearColor(THEME_CLEAR_COLOR[theme] || THEME_CLEAR_COLOR.dark);
 }
 
+const LOAD_PHASE = {
+  font: "Loading fonts",
+  fetch: "Downloading the drawing",
+  parse: "Reading the drawing",
+  prepare: "Preparing the view",
+};
+
+function loadStatus(phase, processed, total) {
+  const name = LOAD_PHASE[phase] || "Opening the drawing";
+  const done = Number(processed);
+  const all = Number(total);
+  if (Number.isFinite(done) && Number.isFinite(all) && all > 0) {
+    const percent = Math.min(100, Math.round((done / all) * 100));
+    return `${name}… ${percent}%`;
+  }
+  return `${name}…`;
+}
+
 function fitDrawing(viewer) {
   const bounds = viewer.GetBounds();
   if (!bounds) return;
@@ -43,6 +61,73 @@ function createParseWorker() {
   return new Worker(new URL("./dxfViewer.worker.js", import.meta.url));
 }
 
+const DXF_SENTINELS = new Set(["ENDSEC", "EOF", "SECTION", "ENDTAB", "ENDBLK", "SEQEND"]);
+
+function isDxfGroupCode(line) {
+  const code = line.trim();
+  if (!code || code === "-") return false;
+  let index = code[0] === "-" ? 1 : 0;
+  if (index >= code.length) return false;
+  for (; index < code.length; index += 1) {
+    const char = code.charCodeAt(index);
+    if (char < 48 || char > 57) return false;
+  }
+  return true;
+}
+
+/**
+ * Some DXFs repeat the group code before a section end:
+ *   0 / 0 / ENDSEC
+ * The parser then reads ENDSEC as a group code. Drop that extra 0.
+ * Returns null when the text is already paired.
+ */
+function repairDxfText(text) {
+  const newline = text.includes("\r\n") ? "\r\n" : "\n";
+  const lines = text.split(/\r?\n/);
+  if (lines.length && lines[lines.length - 1] === "") lines.pop();
+  const out = [];
+  let changed = false;
+  let index = 0;
+  while (index < lines.length) {
+    const code = lines[index].trim();
+    if (
+      !isDxfGroupCode(lines[index])
+      && DXF_SENTINELS.has(code)
+      && out.length
+      && out[out.length - 1].trim() === "0"
+    ) {
+      out.pop();
+      out.push(lines[index]);
+      changed = true;
+      index += 1;
+      continue;
+    }
+    out.push(lines[index]);
+    index += 1;
+    if (index < lines.length) {
+      out.push(lines[index]);
+      index += 1;
+    }
+  }
+  if (!changed) return null;
+  return `${out.join(newline)}${newline}`;
+}
+
+async function prepareDrawingUrl(url) {
+  const response = await fetch(url);
+  if (!response.ok) return { href: url, revoke() {} };
+  const text = await response.text();
+  const repaired = repairDxfText(text);
+  if (!repaired) return { href: url, revoke() {} };
+  const blobUrl = URL.createObjectURL(new Blob([repaired], { type: "application/dxf" }));
+  return {
+    href: blobUrl,
+    revoke() {
+      URL.revokeObjectURL(blobUrl);
+    },
+  };
+}
+
 /**
  * WebGL DXF viewer (vagran/dxf-viewer). The chrome matches the 3D CAD viewer:
  * the site header stays, and this bar uses the same purple viewer header.
@@ -53,6 +138,7 @@ export default function DxfViewer({ url, fileName }) {
   const viewerRef = useRef(null);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState("The drawing is not on screen yet.");
   const [layers, setLayers] = useState([]);
   const [layersOpen, setLayersOpen] = useState(true);
   const [theme, setTheme] = useState(readSavedTheme);
@@ -85,6 +171,7 @@ export default function DxfViewer({ url, fileName }) {
 
     let cancelled = false;
     let viewer = null;
+    let prepared = null;
 
     const destroy = () => {
       if (viewer) {
@@ -134,10 +221,12 @@ export default function DxfViewer({ url, fileName }) {
         }
       }
       await viewer.Load({
-        url,
+        url: prepared?.href || url,
         fonts: FONT_URLS,
         workerFactory,
-        progressCbk: () => {},
+        progressCbk: (phase, processed, total) => {
+          if (!cancelled) setStatus(loadStatus(phase, processed, total));
+        },
       });
       if (cancelled) return;
       readLayers(viewer);
@@ -147,6 +236,7 @@ export default function DxfViewer({ url, fileName }) {
         console.warn("DXF viewer background", colorError);
       }
       fitDrawing(viewer);
+      setError("");
       setReady(true);
     };
 
@@ -154,6 +244,18 @@ export default function DxfViewer({ url, fileName }) {
       try {
         setReady(false);
         setError("");
+        setStatus("The drawing is not on screen yet.");
+        try {
+          setStatus("Checking the file…");
+          prepared = await prepareDrawingUrl(url);
+        } catch (prepareError) {
+          console.warn("DXF repair skipped", prepareError);
+          prepared = null;
+        }
+        if (cancelled) {
+          prepared?.revoke();
+          return;
+        }
         try {
           await load(true);
         } catch (workerLoadError) {
@@ -172,6 +274,7 @@ export default function DxfViewer({ url, fileName }) {
     return () => {
       cancelled = true;
       destroy();
+      prepared?.revoke();
     };
   }, [url, readLayers]);
 
@@ -280,7 +383,13 @@ export default function DxfViewer({ url, fileName }) {
         ) : null}
         {!ready || error ? (
           <div className={styles.overlay} role="status">
-            {error ? <p className={styles.error}>{error}</p> : <span className={styles.spinner} />}
+            {error ? <p className={styles.error}>{error}</p> : (
+              <div className={styles.loading}>
+                <span className={styles.spinner} />
+                <p className={styles.loadingText}>{status}</p>
+                <p className={styles.loadingHint}>Nothing is shown until the whole file has loaded.</p>
+              </div>
+            )}
           </div>
         ) : null}
       </div>

@@ -122,6 +122,34 @@
   line-height: 1.45;
 }
 
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 420px;
+}
+
+.loadingText,
+.loadingHint {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.loadingText {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.loadingHint {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.shellLight .loadingHint {
+  color: #444;
+}
+
 .spinner {
   width: 28px;
   height: 28px;
