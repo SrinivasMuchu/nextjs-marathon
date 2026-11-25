@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getFeedbackContext } from "@/api/feedbackApi";
+import { getFeedbackContext, recordFeedbackPromptEvent } from "@/api/feedbackApi";
 import { markFeedbackInline } from "@/lib/feedbackPrompt";
 import ConversionFeedbackForm from "./ConversionFeedbackForm";
 import { FEEDBACK_SAVED_EVENT } from "./FeedbackHost";
@@ -26,7 +26,11 @@ export default function SuccessFeedbackPanel({ jobId, jobType = "converter" }) {
     let alive = true;
     getFeedbackContext(jobId, jobType)
       .then((data) => {
-        if (alive && data?.rateable && data?.content) setContext(data);
+        if (!alive || !data?.rateable || !data?.content || data?.prompt?.eligible === false) return;
+        setContext(data);
+        recordFeedbackPromptEvent({
+          jobId, jobType, event: "shown", source: "download_success",
+        }).catch(() => {});
       })
       .catch(() => {});
     return () => { alive = false; };

@@ -9,7 +9,7 @@ import styles from "./Feedback.module.css";
 /** Shown in the consent text; bump CONSENT_TEXT_VERSION on the server when this changes. */
 export const QUOTE_CONSENT_TEXT =
   "Marathon OS may show this review, exactly as you wrote it, on its website with the name you pick. " +
-  "You can stop sharing it any time in Account settings, and we take it down within 24 hours.";
+  "You can stop sharing it any time from your Profile, and we take it down within 24 hours.";
 
 const NAME_OPTIONS = [
   { id: "first_name_initial", label: "First name and initial" },
@@ -94,7 +94,10 @@ export default function QuoteConsent({ feedback, onDone }) {
       </div>
       <label className={styles.check}>
         <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-        <span>{QUOTE_CONSENT_TEXT}</span>
+        <span>
+          {QUOTE_CONSENT_TEXT}
+          {feedback.moment !== "after_use" ? " We'll only show it after you confirm the file still works." : ""}
+        </span>
       </label>
       <div className={styles.actionsRow}>
         <button type="button" className={styles.secondaryBtn} onClick={() => { setAnswered("no"); onDone?.("no"); }} disabled={saving}>

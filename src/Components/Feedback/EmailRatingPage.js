@@ -25,14 +25,37 @@ const PAGE = {
  */
 export default function EmailRatingPage() {
   const params = useSearchParams();
-  const token = params.get("t") || "";
-  const star = Number(params.get("r")) || 0;
-  const source = params.get("s") === "deletion_email" ? "deletion_email" : "email_link";
+  const [token, setToken] = useState("");
+  const [star, setStar] = useState(0);
+  const [source, setSource] = useState("email_link");
+  const [ready, setReady] = useState(false);
   const [state, setState] = useState({ loading: true, error: "", context: null });
   const fetched = useRef(false);
 
+  // The token is taken out of the URL before analytics run. Read it after mount so the
+  // server render and the first client render both show the loading state.
   useEffect(() => {
-    if (fetched.current) return;
+    let stored = "";
+    let storedStar = "";
+    let storedSource = "";
+    try {
+      stored = sessionStorage.getItem("feedback_rate_t") || "";
+      storedStar = sessionStorage.getItem("feedback_rate_r") || "";
+      storedSource = sessionStorage.getItem("feedback_rate_s") || "";
+    } catch {
+      stored = "";
+    }
+    const t = stored || params.get("t") || "";
+    const r = storedStar || params.get("r") || "";
+    const s = storedSource || params.get("s") || "";
+    setToken(t);
+    setStar(Number(r) || 0);
+    setSource(s === "deletion_email" ? "deletion_email" : "email_link");
+    setReady(true);
+  }, [params]);
+
+  useEffect(() => {
+    if (!ready || fetched.current) return;
     fetched.current = true; // one hit per page view (StrictMode would otherwise count two)
     if (!token) {
       setState({ loading: false, error: "This link is incomplete.", context: null });
@@ -41,7 +64,7 @@ export default function EmailRatingPage() {
     getEmailRatingContext(token, star >= 1 && star <= 5 ? star : undefined)
       .then((context) => setState({ loading: false, error: "", context }))
       .catch((err) => setState({ loading: false, error: err?.message || "This link has expired.", context: null }));
-  }, [token, star]);
+  }, [ready, token, star]);
 
   const { loading, error, context } = state;
   const submitFn = (payload) => submitEmailRating({ ...payload, t: token, source });

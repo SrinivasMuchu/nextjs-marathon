@@ -34,11 +34,17 @@ function AbandonedFilesCard() {
   }, []);
 
   if (!files.length) return null;
+  const soonest = files.reduce((min, file) => {
+    const at = new Date(file.deletes_at).getTime();
+    return Number.isFinite(at) && at < min ? at : min;
+  }, Infinity);
+  const days = Number.isFinite(soonest) ? Math.ceil((soonest - Date.now()) / (24 * 60 * 60 * 1000)) : 1;
+  const when = days <= 1 ? "tomorrow" : `in ${days} days`;
 
   return (
     <section className={styles.dashCard} aria-label="Files about to be deleted">
       <p className={styles.dashTitle}>
-        {files.length === 1 ? "This file is deleted tomorrow" : "These files are deleted tomorrow"}
+        {files.length === 1 ? `This file is deleted ${when}` : `These files are deleted ${when}`}
       </p>
       <p className={styles.dashText}>You never downloaded {files.length === 1 ? "it" : "them"}. Download now, or tell us what wasn&apos;t right.</p>
       <ul className={styles.dashFiles}>
