@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import {
   getAbandonedFiles, getReviewInvite, recordReviewInviteEvent,
 } from "@/api/feedbackApi";
-import { sendGAtagEvent } from "@/common.helper";
+import { trackFeedbackEvent } from "@/lib/feedbackAnalytics";
 import AbandonFeedback from "./AbandonFeedback";
 import FeedbackDialog from "./FeedbackDialog";
 import styles from "./Feedback.module.css";
@@ -124,7 +124,7 @@ function ReviewInviteCard() {
           rel="noopener noreferrer"
           onClick={() => {
             recordReviewInviteEvent("clicked");
-            sendGAtagEvent({ event_name: "review_site_clicked", event_category: "FEEDBACK", event_label: "g2:dashboard" });
+            trackFeedbackEvent("review_site_clicked", { event_label: "g2:dashboard", source: "dashboard" });
             setInvite(null);
           }}
         >

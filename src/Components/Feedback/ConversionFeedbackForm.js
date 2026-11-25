@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Star } from "lucide-react";
 import { toast } from "react-toastify";
 import { submitFeedback } from "@/api/feedbackApi";
-import { sendGAtagEvent } from "@/common.helper";
+import { trackFeedbackEvent } from "@/lib/feedbackAnalytics";
 import QuoteConsent from "./QuoteConsent";
 import MarkProblem from "./MarkProblem";
 import { getDrawingSheets } from "@/lib/feedbackPrompt";
@@ -16,7 +16,6 @@ export const FILE_CONSENT_TEXT =
   "We use it only for this fix, never for training, and delete our copy within 30 days.";
 
 const STAR_LABELS = ["", "Unusable", "Poor", "OK", "Good", "Excellent"];
-const FEEDBACK_EVENT = "FEEDBACK";
 
 function Chip({ selected, onClick, children }) {
   return (
@@ -124,7 +123,13 @@ export default function ConversionFeedbackForm({
 
   const pickRating = (n) => {
     if (!rating) {
-      sendGAtagEvent({ event_name: "feedback_rated", event_category: FEEDBACK_EVENT, event_label: `${job.route_family}:${n}` });
+      trackFeedbackEvent("feedback_rated", {
+        event_label: `${job.route_family}:${n}`,
+        source: source || channel,
+        route_family: job.route_family || "",
+        job_type: job.job_type,
+        rating: n,
+      });
     }
     // Low and high chip sets are different; drop chips that don't belong to the new side.
     if (n <= 3) setTags((prev) => prev.filter((id) => lowTagIds.has(id)));
@@ -175,12 +180,27 @@ export default function ConversionFeedbackForm({
         consent_file: low && consentEnabled ? consentFile : false,
         marks: low && isDrawing ? marks : [],
       });
-      sendGAtagEvent({ event_name: "feedback_details_sent", event_category: FEEDBACK_EVENT, event_label: job.route_family });
+      const given = {
+        event_label: `${source || channel}:${job.route_family || ""}:${rating}`,
+        source: source || channel,
+        route_family: job.route_family || "",
+        job_type: job.job_type,
+        rating,
+      };
+      trackFeedbackEvent("feedback_details_sent", given);
+      trackFeedbackEvent("feedback_given", given);
       setSavedFeedback(data?.feedback || null);
       setQuoteAsk(Boolean(data?.quote_ask));
       setDone(true);
       onSaved?.(data?.feedback);
     } catch (err) {
+      trackFeedbackEvent("feedback_error", {
+        event_label: `${source || channel}:save`,
+        source: source || channel,
+        route_family: job.route_family || "",
+        job_type: job.job_type,
+        reason: String(err?.message || "save_failed").slice(0, 100),
+      });
       toast.error(err?.message || "Couldn't save your rating. Please try again.");
     } finally {
       setSaving(false);
