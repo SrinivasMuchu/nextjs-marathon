@@ -15,6 +15,33 @@
   min-height: 0;
 }
 
+.shellLight {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+.shellLight .layers {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(97, 11, 238, 0.28);
+}
+
+.shellLight .overlay {
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.shellLight .error {
+  color: #222;
+}
+
+.shellLight .spinner {
+  border-color: rgba(0, 0, 0, 0.15);
+  border-top-color: #610bee;
+}
+
+.shellLight .swatch {
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
 .toolbar {
   flex-shrink: 0;
   display: flex;
@@ -53,6 +80,11 @@
 .button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.buttonActive {
+  background: #fff;
+  color: #610bee;
 }
 
 .buttonIcon {
@@ -130,5 +162,6 @@
   height: 10px;
   border-radius: 2px;
   flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.35);
 }
 

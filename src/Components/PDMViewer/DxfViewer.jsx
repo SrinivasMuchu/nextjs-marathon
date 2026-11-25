@@ -7,6 +7,24 @@ const FONT_URLS = [
   "/cad-fonts/Roboto-Regular.ttf",
   "/cad-fonts/NotoSans-Regular.ttf",
 ];
+const THEME_STORAGE_KEY = "marathon-dxf-viewer-theme";
+const THEME_CLEAR_COLOR = {
+  dark: 0x1e1e1e,
+  light: 0xffffff,
+};
+
+function readSavedTheme() {
+  if (typeof window === "undefined") return "dark";
+  try {
+    return window.localStorage.getItem(THEME_STORAGE_KEY) === "light" ? "light" : "dark";
+  } catch (storageError) {
+    return "dark";
+  }
+}
+
+function applyTheme(viewer, theme) {
+  viewer.SetClearColor(THEME_CLEAR_COLOR[theme] || THEME_CLEAR_COLOR.dark);
+}
 
 function fitDrawing(viewer) {
   const bounds = viewer.GetBounds();
@@ -37,6 +55,9 @@ export default function DxfViewer({ url, fileName }) {
   const [ready, setReady] = useState(false);
   const [layers, setLayers] = useState([]);
   const [layersOpen, setLayersOpen] = useState(true);
+  const [theme, setTheme] = useState(readSavedTheme);
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
 
   const readLayers = useCallback((viewer) => {
     const next = [];
@@ -88,7 +109,7 @@ export default function DxfViewer({ url, fileName }) {
         blackWhiteInversion: true,
       });
       try {
-        viewer.SetClearColor(0x1e1e1e);
+        applyTheme(viewer, themeRef.current);
       } catch (colorError) {
         console.warn("DXF viewer background", colorError);
       }
@@ -120,6 +141,11 @@ export default function DxfViewer({ url, fileName }) {
       });
       if (cancelled) return;
       readLayers(viewer);
+      try {
+        applyTheme(viewer, themeRef.current);
+      } catch (colorError) {
+        console.warn("DXF viewer background", colorError);
+      }
       fitDrawing(viewer);
       setReady(true);
     };
@@ -149,6 +175,22 @@ export default function DxfViewer({ url, fileName }) {
     };
   }, [url, readLayers]);
 
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (viewer && viewer.HasRenderer()) {
+      try {
+        applyTheme(viewer, theme);
+      } catch (colorError) {
+        console.warn("DXF viewer background", colorError);
+      }
+    }
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (storageError) {
+      // The drawing still switches; the choice just will not survive a reload.
+    }
+  }, [theme]);
+
   const withViewer = (action) => {
     const viewer = viewerRef.current;
     if (!viewer || !viewer.HasRenderer()) return;
@@ -177,7 +219,7 @@ export default function DxfViewer({ url, fileName }) {
   const onFit = () => withViewer((viewer) => fitDrawing(viewer));
 
   return (
-    <div className={styles.shell}>
+    <div className={`${styles.shell} ${theme === "light" ? styles.shellLight : ""}`}>
       <header className={styles.toolbar}>
         <button
           type="button"
@@ -190,6 +232,22 @@ export default function DxfViewer({ url, fileName }) {
           Layers
         </button>
         <span className={styles.title}>{fileName || "Drawing"}</span>
+        <button
+          type="button"
+          className={`${styles.button} ${theme === "dark" ? styles.buttonActive : ""}`}
+          onClick={() => setTheme("dark")}
+          aria-pressed={theme === "dark"}
+        >
+          Dark
+        </button>
+        <button
+          type="button"
+          className={`${styles.button} ${theme === "light" ? styles.buttonActive : ""}`}
+          onClick={() => setTheme("light")}
+          aria-pressed={theme === "light"}
+        >
+          Light
+        </button>
         <button type="button" className={styles.button} onClick={onFit} disabled={!ready}>Fit</button>
       </header>
       <div className={styles.stage}>
