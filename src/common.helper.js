@@ -16,7 +16,16 @@ export const textLettersLimit = (text, limitType) => {
 };
 
 
+/** Hosts that may send data to the live GA4 and Clarity projects. Keep in sync with app/layout.js. */
+export const TRACKING_HOSTS = ["marathon-os.com", "www.marathon-os.com"];
+
+/** True only in a browser on the live site. Testing, OVH and localhost hosts return false. */
+export function isTrackingEnabled() {
+  return typeof window !== "undefined" && TRACKING_HOSTS.includes(window.location.hostname);
+}
+
 export function sendGAtagEvent1(eventName,category,publish_from) {
+  if (!isTrackingEnabled() || typeof window.gtag !== "function") return;
   if(publish_from){
     const cleanUrl = window.location.origin + window.location.pathname;
     window.gtag('event', eventName, {
@@ -34,7 +43,7 @@ export function sendGAtagEvent1(eventName,category,publish_from) {
 }
 export function sendGAtagEvent(eventData) {
   if (
-    typeof window === "undefined" ||
+    !isTrackingEnabled() ||
     typeof window.gtag !== "function" ||
     !eventData ||
     !eventData.event_name
@@ -87,7 +96,7 @@ export function firstTimeForKey(key) {
  * Events show under Clarity → Filters → Custom events / Custom tags.
  */
 export function sendClarityEvent(eventName, tags) {
-  if (typeof window === "undefined" || typeof window.clarity !== "function" || !eventName) {
+  if (!isTrackingEnabled() || typeof window.clarity !== "function" || !eventName) {
     return;
   }
   window.clarity("event", eventName);
@@ -98,6 +107,28 @@ export function sendClarityEvent(eventName, tags) {
       }
     });
   }
+}
+
+/**
+ * Map a verify-otp failure to a short reason code (never the OTP or the email).
+ * Messages come from emailAuth.helper.js in the API.
+ */
+export function otpVerifyReason(message) {
+  const m = String(message || "").toLowerCase();
+  if (m.includes("too many")) return "too_many_attempts";
+  if (m.includes("expired")) return "expired";
+  if (m.includes("invalid")) return "wrong_code";
+  if (m.includes("required")) return "missing_input";
+  return "other";
+}
+
+/**
+ * OTP sign-in funnel event, sent to GA4 and Clarity with the same name and params.
+ * Params must be short codes only: no email address and no OTP code.
+ */
+export function trackOtpEvent(eventName, params = {}) {
+  sendGAtagEvent({ event_name: eventName, ...params });
+  sendClarityEvent(eventName, params);
 }
 
 /**

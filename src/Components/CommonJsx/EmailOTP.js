@@ -6,6 +6,7 @@ import { BASE_URL } from '@/config';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { persistVerifiedSession } from '@/lib/authSession';
+import { otpVerifyReason, trackOtpEvent } from '@/common.helper';
 
 
 
@@ -49,8 +50,12 @@ function EmailOTP({ email, fullname, accessKey,
       );
 
       if (response.data.meta.success) {
+        trackOtpEvent('otp_sent');
         toast.success('OTP sent to your email.');
       } else {
+        if (!response.data.meta.fullname_required) {
+          trackOtpEvent('otp_send_failed', { otp_reason: 'server' });
+        }
         if (response.data.meta.fullname_required) {
           if (setIsEmailVerify) setIsEmailVerify(false);
           if (setNeedsFullname) setNeedsFullname(true);
@@ -60,6 +65,7 @@ function EmailOTP({ email, fullname, accessKey,
         }
       }
     } catch (err) {
+      trackOtpEvent('otp_send_failed', { otp_reason: 'network' });
       toast.error('Failed to send OTP.');
     }
     setLoading(false);
@@ -124,6 +130,7 @@ function EmailOTP({ email, fullname, accessKey,
       if (res.data.meta.success) {
         const newUuid = res.data.data.uuid;
         persistVerifiedSession(newUuid);
+        trackOtpEvent('otp_verified');
 
         toast.success('OTP verified successfully!');
         console.log("OTP verified successfully");
@@ -131,9 +138,11 @@ function EmailOTP({ email, fullname, accessKey,
         console.log("saveDetails function called");
       } else {
         setOtp(['', '', '', '']);
+        trackOtpEvent('otp_verify_failed', { otp_reason: otpVerifyReason(res.data.meta.message) });
         toast.error(res.data.meta.message);
       }
     } catch (err) {
+      trackOtpEvent('otp_verify_failed', { otp_reason: 'network' });
       toast.error('Verification failed.');
     }
     setLoading(false);
@@ -241,7 +250,10 @@ function EmailOTP({ email, fullname, accessKey,
           </button>
         ) : (
           <button
-            onClick={sendOtp}
+            onClick={() => {
+              trackOtpEvent('otp_resend');
+              sendOtp();
+            }}
             disabled={loading}
             style={{
               width: '100%',

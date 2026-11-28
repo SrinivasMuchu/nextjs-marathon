@@ -152,6 +152,17 @@
   background: linear-gradient(135deg, #3b82f6, #2b4c9b);
 }
 
+/*
+ * The "From" cell is fixed text, not a control. Drawn like the output <select>
+ * beside it, ad visitors clicked it as a dropdown (Clarity dead clicks, #409),
+ * so it gets no border or fill.
+ */
+.route > .routeCell:first-child {
+  border-color: transparent;
+  background: transparent;
+  cursor: default;
+}
+
 .routeCell b,
 .routeCell small {
   display: block;
