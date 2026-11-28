@@ -167,37 +167,38 @@ export default async function RootLayout({ children }) {
           }}
         />
 
-        <Script
-          strategy="beforeInteractive"
-          id="disable-ga-on-localhost"
-          dangerouslySetInnerHTML={{
-            __html: `
-      if (window.location.hostname === "localhost") {
-        window['ga-disable-${GA_TRACKING_ID}'] = true;
-      }
-    `,
-          }}
-        />
-
-        <Script
-          strategy="lazyOnload"
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
-        />
-
+        {/*
+          Tracking runs only on the live site. testing.marathon-os.com, OVH hosts and
+          localhost load neither GA4 nor Clarity, so test sessions and test payments
+          stay out of the live projects. Keep this list in sync with TRACKING_HOSTS
+          in common.helper.js.
+        */}
         <Script
           id="google-analytics"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      var loc = new URL(window.location.href);
-      loc.searchParams.delete('t');
-      gtag('config', '${GA_TRACKING_ID}', {
-        page_path: loc.pathname,
-        page_location: loc.origin + loc.pathname + loc.search + loc.hash,
-      });
+      (function () {
+        var h = window.location.hostname;
+        if (h !== "marathon-os.com" && h !== "www.marathon-os.com") return;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function(){dataLayer.push(arguments);};
+        gtag('js', new Date());
+        var loc = new URL(window.location.href);
+        loc.searchParams.delete('t');
+        gtag('config', '${GA_TRACKING_ID}', {
+          page_path: loc.pathname,
+          page_location: loc.origin + loc.pathname + loc.search + loc.hash,
+        });
+        function load() {
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}';
+          document.head.appendChild(s);
+        }
+        if (document.readyState === 'complete') load();
+        else window.addEventListener('load', load);
+      })();
     `,
           }}
         />
@@ -207,11 +208,14 @@ export default async function RootLayout({ children }) {
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "rmu78moi7c");
+    (function (h) {
+      if (h !== "marathon-os.com" && h !== "www.marathon-os.com") return;
+      (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "rmu78moi7c");
+    })(window.location.hostname);
     `,
           }}
         />

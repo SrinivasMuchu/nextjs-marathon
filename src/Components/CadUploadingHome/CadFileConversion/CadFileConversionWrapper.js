@@ -113,11 +113,19 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     // Units of a mesh upload (STL/OBJ/PLY/OFF) going to STEP/IGES/BREP.
     const [sourceUnits, setSourceUnits] = useState('mm')
     const librarySourceLoadedRef = useRef('');
+    // File picked before sign-in; converted once the user signs in, without picking it again.
+    const pendingFileRef = useRef(null);
+    // Bumped on sign-in so the library ?source= effect retries the conversion.
+    const [signInCount, setSignInCount] = useState(0);
 
     // Clarity: tag sessions that land on the converter
     useEffect(() => {
         sendClarityEvent("converter_visit", { converter_funnel: "visit" });
     }, []);
+
+    useEffect(() => {
+        if (verifyEmail) sendClarityEvent("signin_wall_shown", { signin_source: "converter" });
+    }, [verifyEmail]);
 
     // Debugging: Log the full pathname
     useEffect(() => {
@@ -218,7 +226,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         return () => {
             cancelled = true;
         };
-    }, [convert, allowedFormats, toFormate, selectedFileFormate, fileConvert, s3Url, router]);
+    }, [convert, allowedFormats, toFormate, selectedFileFormate, fileConvert, s3Url, router, signInCount]);
 
     useEffect(() => {
         if (!preferredOutput || convert) return;
@@ -322,6 +330,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
     }, []);
     const validateAndProcessFile = async (file) => {
         if(!localStorage.getItem('is_verified')) {
+            if (file) pendingFileRef.current = file;
             toast.error("Please verify your email to upload files.");
             setVerifyEmail(true);
             // router.push('/dashboard?cad_type=USER_PROFILE')
@@ -462,6 +471,7 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
         } else {
             const fileSizeMB = file.size / (1024 * 1024); // Size in MB
             sendGAtagEvent({ event_name: 'converter_file_upload_start', event_category: CAD_CONVERTER_EVENT })
+            sendClarityEvent("converter_upload_started", { converter_funnel: "upload_started" });
             try {
                 setDisableSelect(false)
                 setLoading(true)
@@ -765,7 +775,21 @@ function CadFileConversionWrapper({ children, convert, conversionParams, designV
                 setClosePopUp={setCloseNotifyInfoPopUp} />} */}
             {checkLimit && <CadFileLimitExceedPopUp setCheckLimit={setCheckLimit} />}
             {isApiSlow && <CadFileNotifyPopUp setIsApiSlow={setIsApiSlow} cad_type={'CAD_CONVERTER'}/>}
-            {verifyEmail && <UserLoginPupUp onClose={() => setVerifyEmail(false)} />}
+            {verifyEmail && (
+                <UserLoginPupUp
+                    onClose={() => {
+                        pendingFileRef.current = null;
+                        setVerifyEmail(false);
+                    }}
+                    onSuccess={() => {
+                        setVerifyEmail(false);
+                        setSignInCount((n) => n + 1);
+                        const file = pendingFileRef.current;
+                        pendingFileRef.current = null;
+                        if (file) validateAndProcessFile(file);
+                    }}
+                />
+            )}
             </div>
         {loading ? null :
         <>

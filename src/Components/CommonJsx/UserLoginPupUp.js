@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import usePushNotifications from './usePushNotifications';
 import { persistVerifiedSession } from '@/lib/authSession';
+import { trackOtpEvent } from '@/common.helper';
 
 // Helper to convert VAPID key
 function urlBase64ToUint8Array(base64String) {
@@ -287,10 +288,12 @@ function UserLoginPupUp({ onClose, type, onSuccess }) {
             }
 
             if (result.data.meta.success) {
+                trackOtpEvent('otp_sent');
                 setOtpAlreadySent(true);
                 setVerifyEmail(true);
                 setNeedsFullname(false);
             } else {
+                trackOtpEvent('otp_send_failed', { otp_reason: 'server' });
                 setErrorMessage(result.data.meta.message || 'Failed to send OTP.');
             }
             return;
@@ -350,6 +353,10 @@ function UserLoginPupUp({ onClose, type, onSuccess }) {
 
     } catch (error) {
         console.error('Error sending OTP:', error);
+        // Not yet verified means the request-otp call above is the one that failed.
+        if (!localStorage.getItem('is_verified')) {
+            trackOtpEvent('otp_send_failed', { otp_reason: 'network' });
+        }
         let errorMsg = 'Failed to send OTP. Please try again.';
 
         if (error.response?.data?.meta?.message) {

@@ -690,17 +690,23 @@ export default function CadDrawingPipelineView({ initialPrices }) {
               <div className={styles.heroFormats}>
                 <div>
                   <span>Input format</span>
-                  <div className={styles.heroFormatBox}>
+                  {/* Ad visitors clicked this box expecting a picker (#409), so it opens one. */}
+                  <button
+                    type="button"
+                    className={`${styles.heroFormatBox} ${styles.heroFormatBoxAction}`}
+                    onClick={openFilePicker}
+                    disabled={submitting}
+                  >
                     <strong>STEP (.step, .stp)</strong>
-                    <small>{file ? file.name : "STEP file"}</small>
-                  </div>
+                    <small>{file ? file.name : "Choose a STEP file"}</small>
+                  </button>
                 </div>
                 <span className={styles.heroFormatArrow} aria-hidden>
                   →
                 </span>
                 <div>
                   <span>Output</span>
-                  <div className={styles.heroFormatBox}>
+                  <div className={`${styles.heroFormatBox} ${styles.heroFormatBoxStatic}`}>
                     <strong>2D drawing set</strong>
                     <small>PDF, DXF, SVG, FCStd</small>
                   </div>

@@ -36,10 +36,11 @@ function flowTypeFromJob(job) {
 /** User selected a valid STEP/STP file on the upload page. */
 export function trackTechDrawFileSelected(file) {
   if (!file) return;
+  // No file name: file names must not go to GA4 or Clarity.
   track("techdraw_file_selected", {
-    file_name: file.name || "",
     file_size_mb: fileSizeMb(file.size),
   });
+  sendClarityEvent("techdraw_file_selected");
 }
 
 /** File rejected (wrong type or over size limit). */
@@ -47,6 +48,7 @@ export function trackTechDrawFileRejected(reason) {
   track("techdraw_file_rejected", {
     reject_reason: reason || "unknown",
   });
+  sendClarityEvent("techdraw_file_rejected", { techdraw_reject_reason: reason || "unknown" });
 }
 
 /** Upload pipeline phase (upload-url, s3-upload, submit). */
@@ -71,6 +73,7 @@ export function trackTechDrawUploadSuccess({ flowType, jobId, file }) {
     job_id: jobId || "",
     file_size_mb: file ? fileSizeMb(file.size) : 0,
   });
+  sendClarityEvent("techdraw_upload_success", { techdraw_flow: flowType || "unknown" });
 }
 
 /** Upload or job creation failed on the upload page. */
@@ -79,6 +82,7 @@ export function trackTechDrawUploadFailed({ flowType, errorMessage }) {
     flow_type: flowType || "unknown",
     error_message: String(errorMessage || "").slice(0, 200),
   });
+  sendClarityEvent("techdraw_upload_failed", { techdraw_flow: flowType || "unknown" });
 }
 
 /** User entered paid flow — about to create Razorpay order. */
